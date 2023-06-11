@@ -1,0 +1,12 @@
+*.pyc
+*.tmp
+\.idea
+\.pytest_cache
+.vscode
+.mypy_cache
+*.npz
+images/*
+data/*
+test_data/*
+.cache
+run_tests.sh
