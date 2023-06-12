@@ -14,7 +14,7 @@ See the documentation at https://holl-.github.io/UnifyML/Math.html
 """
 
 from ..backend._dtype import DType
-from ..backend import NUMPY, precision, set_global_precision, get_precision
+from ..backend import NUMPY, precision, set_global_precision, get_precision, set_global_default_backend as use
 
 from ._shape import (
     shape, Shape, EMPTY_SHAPE, DimFilter,

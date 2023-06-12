@@ -60,7 +60,7 @@ def troubleshoot_tensorflow():
     if gpu_count == 0:
         return f"Installed ({tf_version}), {gpu_count} GPUs available."
     else:
-        from .backend.tf._tf_cuda_resample import librariesLoaded
+        from .backend.tensorflow._tf_cuda_resample import librariesLoaded
         if librariesLoaded:
             cuda_str = 'CUDA kernels available.'
         else:

@@ -139,7 +139,7 @@ setup(
               'unifyml.backend',
               'unifyml.backend.jax',
               'unifyml.backend.jax.stax',
-              'unifyml.backend.tf',
+              'unifyml.backend.tensorflow',
               'unifyml.backend.torch',
           ],
     cmdclass={

@@ -5,7 +5,7 @@ import numpy
 
 import unifyml
 from unifyml.math import DType
-from unifyml.backend import ComputeDevice, convert, Backend, NUMPY
+from unifyml.backend import ComputeDevice, convert, Backend, NUMPY, set_global_default_backend, default_backend
 
 BACKENDS: Tuple[Backend] = unifyml.detect_backends()
 
@@ -193,3 +193,8 @@ class TestBackends(TestCase):
             result = b.nonzero(data, length=1)
             numpy.testing.assert_equal([[1]], b.numpy(result))
 
+    def test_use(self):
+        set_global_default_backend('torch')
+        self.assertEqual('PyTorch', default_backend().name)
+        set_global_default_backend('numpy')
+        self.assertEqual('NumPy', default_backend().name)

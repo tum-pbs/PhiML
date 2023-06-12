@@ -4,7 +4,7 @@ import numpy as np
 import tensorflow as tf
 import torch
 
-from unifyml.backend.tf import TENSORFLOW
+from unifyml.backend.tensorflow import TENSORFLOW
 
 
 class TestNothing(TestCase):

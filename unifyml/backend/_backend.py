@@ -1,6 +1,7 @@
 import logging
 import sys
 import warnings
+from builtins import ValueError
 from contextlib import contextmanager
 from dataclasses import dataclass
 from typing import List, Callable, TypeVar, Tuple, Union, Optional
@@ -1559,7 +1560,7 @@ class Backend:
         return a >> b
 
 
-BACKENDS = []
+BACKENDS: List[Backend] = []
 """ Global list of all registered backends. Register a `Backend` by adding it to the list. """
 _DEFAULT = []  # [0] = global default, [1:] from 'with' blocks
 _PRECISION = [32]  # [0] = global precision in bits, [1:] from 'with' blocks
@@ -1586,7 +1587,15 @@ def choose_backend(*values, prefer_default=False) -> Backend:
     # --- Filter out non-applicable ---
     backends = [backend for backend in BACKENDS if _is_applicable(backend, values)]
     if len(backends) == 0:
-        raise NoBackendFound(f"No backend found for types {[type(v).__name__ for v in values]}; registered backends are {BACKENDS}")
+        unknown_values = [v for v in values if all([not _is_applicable(b, [v]) for b in BACKENDS])]
+        if unknown_values:
+            module_name = type(unknown_values[0]).__module__.partition('.')[0]
+            if init(module_name):
+                return choose_backend(*values, prefer_default)
+            else:
+                raise NoBackendFound(f"Not a native tensor {[type(v).__name__ for v in unknown_values]}")
+        else:
+            raise NoBackendFound(f"Could not resolve backend for native types {[type(v).__name__ for v in values]}")
     # --- Native tensors? ---
     for backend in backends:
         if _is_specific(backend, values):
@@ -1601,6 +1610,46 @@ class NoBackendFound(Exception):
 
     def __init__(self, msg):
         Exception.__init__(self, msg)
+
+
+def init(backend: str):
+    """
+    Args:
+        backend: Module name of the backend or backends as comma-separated string.
+            Pass `'all-imported'` to initialize all backends that are loaded into `sys.modules´.
+    """
+    result = []
+    # if backend == 'all-imported':  backends = sys.modules
+    backends = [s.strip() for s in backend.split(',')]
+    if ('jax' in backends or 'jaxlib' in backends) and not is_initialized('Jax'):
+        ML_LOGGER.info("Initializing backend 'Jax'")
+        from .jax import JAX
+        BACKENDS.append(JAX)
+        result.append(JAX)
+    if 'tensorflow' in backends and not is_initialized('TensorFlow'):
+        ML_LOGGER.info("Initializing backend 'TensorFlow'")
+        from .tensorflow import TENSORFLOW
+        BACKENDS.append(TENSORFLOW)
+        result.append(TENSORFLOW)
+    if 'torch' in backends and not is_initialized('PyTorch'):
+        ML_LOGGER.info("Initializing backend 'PyTorch'")
+        from .torch import TORCH
+        BACKENDS.append(TORCH)
+        result.append(TORCH)
+    return result
+
+
+def is_initialized(backend: str) -> bool:
+    """
+    Checks whether a specific backend has been successfully initialized and can be used from UnifyML.
+
+    Args:
+        backend: Backend name, such as `'Jax'`, `'TensorFlow'`, `'PyTorch'` or `'NumPy'`.
+
+    Returns:
+        `bool`
+    """
+    return any(b.name == backend for b in BACKENDS)
 
 
 def default_backend() -> Backend:
@@ -1626,7 +1675,7 @@ def context_backend() -> Union[Backend, None]:
     return _DEFAULT[-1] if len(_DEFAULT) > 1 else None
 
 
-def set_global_default_backend(backend: Backend):
+def set_global_default_backend(backend: Union[str, Backend]):
     """
     Sets the given backend as default.
     This setting can be overridden using `with backend:`.
@@ -1636,8 +1685,17 @@ def set_global_default_backend(backend: Backend):
     Args:
         backend: `Backend` to set as default
     """
-    assert isinstance(backend, Backend)
-    _DEFAULT[0] = backend
+    if isinstance(backend, str):
+        init(backend)
+        backend_name = {"torch": 'PyTorch', "numpy": 'NumPy', "tensorflow": 'TensorFlow', "jax": 'Jax'}.get(backend, backend)
+        matches = [b for b in BACKENDS if b.name == backend_name]
+        if not matches:
+            raise ValueError(f"Illegal backend: '{backend}'")
+        backend = matches[0]
+    assert isinstance(backend, Backend), backend
+    if _DEFAULT[0] is not backend:
+        _DEFAULT[0] = backend
+        ML_LOGGER.info(f"UnifyML's default backend is now {backend}")
 
 
 def set_global_precision(floating_point_bits: int):

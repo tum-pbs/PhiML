@@ -24,6 +24,4 @@ from ._tf_backend import TFBackend as _TFBackend
 TENSORFLOW = _TFBackend()
 """Backend for TensorFlow operations."""
 
-# _math.backend.BACKENDS.append(TENSORFLOW)
-
 __all__ = [key for key in globals().keys() if not key.startswith('_')]
