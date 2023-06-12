@@ -14,8 +14,7 @@ from torch import optim
 
 from . import TORCH
 from ._torch_backend import register_module_call
-from .. import math
-from ..math import channel
+from ... import math
 
 
 def parameter_count(model: nn.Module) -> int:
@@ -41,15 +40,15 @@ def get_parameters(net: nn.Module, wrap=True) -> dict:
     for name, param in net.named_parameters():
         if name.endswith('.weight'):
             if param.ndim == 2:
-                uml_tensor = math.wrap(param, channel('input,output'))
+                uml_tensor = math.wrap(param, math.channel('input,output'))
             elif param.ndim == 3:
-                uml_tensor = math.wrap(param, channel('x,input,output'))
+                uml_tensor = math.wrap(param, math.channel('x,input,output'))
             elif param.ndim == 4:
-                uml_tensor = math.wrap(param, channel('x,y,input,output'))
+                uml_tensor = math.wrap(param, math.channel('x,y,input,output'))
             elif param.ndim == 5:
-                uml_tensor = math.wrap(param, channel('x,y,z,input,output'))
+                uml_tensor = math.wrap(param, math.channel('x,y,z,input,output'))
         elif name.endswith('.bias'):
-            uml_tensor = math.wrap(param, channel('output'))
+            uml_tensor = math.wrap(param, math.channel('output'))
         else:
             raise NotImplementedError
         result[name] = uml_tensor

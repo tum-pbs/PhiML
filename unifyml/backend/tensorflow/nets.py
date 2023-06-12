@@ -15,7 +15,7 @@ from tensorflow import Tensor
 from tensorflow import keras
 from tensorflow.keras import layers as kl
 
-from .. import math
+from ... import math
 
 
 def parameter_count(model: keras.Model):
