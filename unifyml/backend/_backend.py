@@ -82,15 +82,15 @@ class ComputeDevice:
 
 
 class Backend:
+    """
+    Backends delegate low-level operations to a ML or numerics library or emulate them.
+    The methods of `Backend` form a comprehensive list of available operations.
+
+    To support a library, subclass `Backend` and register it by adding it to `BACKENDS`.
+    """
 
     def __init__(self, name: str, devices: List[ComputeDevice], default_device: ComputeDevice):
         """
-        Backends delegate low-level operations to a compute library or emulate them.
-
-        The methods of `Backend` form a comprehensive list of available operations.
-
-        To support a compute library, subclass `Backend` and register it by adding it to `BACKENDS`.
-
         Args:
             name: Human-readable string
             default_device: `ComputeDevice` being used by default
@@ -154,6 +154,9 @@ class Backend:
             if self.name in backend.name:
                 return backend
         raise RuntimeError(f"Backend '{self}' is not visible.")
+
+    def nn_library(self):
+        raise NotImplementedError(self)
 
     @property
     def complex_type(self) -> DType:
@@ -1590,7 +1593,7 @@ def choose_backend(*values, prefer_default=False) -> Backend:
         unknown_values = [v for v in values if all([not _is_applicable(b, [v]) for b in BACKENDS])]
         if unknown_values:
             module_name = type(unknown_values[0]).__module__.partition('.')[0]
-            if init(module_name):
+            if init_backend(module_name):
                 return choose_backend(*values, prefer_default)
             else:
                 raise NoBackendFound(f"Not a native tensor {[type(v).__name__ for v in unknown_values]}")
@@ -1612,15 +1615,17 @@ class NoBackendFound(Exception):
         Exception.__init__(self, msg)
 
 
-def init(backend: str):
+def init_backend(backend: str):
     """
     Args:
         backend: Module name of the backend or backends as comma-separated string.
             Pass `'all-imported'` to initialize all backends that are loaded into `sys.modules´.
     """
     result = []
-    # if backend == 'all-imported':  backends = sys.modules
-    backends = [s.strip() for s in backend.split(',')]
+    if backend == 'all-imported':
+        backends = tuple(sys.modules)
+    else:
+        backends = [s.strip() for s in backend.split(',')]
     if ('jax' in backends or 'jaxlib' in backends) and not is_initialized('Jax'):
         ML_LOGGER.info("Initializing backend 'Jax'")
         from .jax import JAX
@@ -1686,7 +1691,7 @@ def set_global_default_backend(backend: Union[str, Backend]):
         backend: `Backend` to set as default
     """
     if isinstance(backend, str):
-        init(backend)
+        init_backend(backend)
         backend_name = {"torch": 'PyTorch', "numpy": 'NumPy', "tensorflow": 'TensorFlow', "jax": 'Jax'}.get(backend, backend)
         matches = [b for b in BACKENDS if b.name == backend_name]
         if not matches:

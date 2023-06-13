@@ -6,6 +6,10 @@ from ._dtype import DType
 
 
 class ObjectBackend(Backend):
+    """
+    Backend for Python objects.
+    """
+
     def __init__(self):
         device = ComputeDevice(self, 'Python', 'CPU', -1, 1, "", None)
         super().__init__('Python', [device], device)

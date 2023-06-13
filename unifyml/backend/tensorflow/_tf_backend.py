@@ -40,6 +40,10 @@ class TFBackend(Backend):
         else:
             return tf.device(self._default_device.ref)
 
+    def nn_library(self):
+        from . import nets
+        return nets
+
     def seed(self, seed: int):
         tf.random.set_seed(seed)
 

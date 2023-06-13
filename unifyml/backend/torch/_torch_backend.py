@@ -30,6 +30,10 @@ class TorchBackend(Backend):
     def is_module(self, obj):
         return isinstance(obj, (JITFunction, torch.nn.Module))
 
+    def nn_library(self):
+        from . import nets
+        return nets
+
     def is_tensor(self, x, only_native=False):
         if isinstance(x, torch.Tensor):
             return True

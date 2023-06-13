@@ -45,6 +45,10 @@ class JaxBackend(Backend):
     def requires_fixed_shapes_when_tracing(self) -> bool:
         return True
 
+    def nn_library(self):
+        from .stax import nets
+        return nets
+
     def _check_float64(self):
         if self.precision == 64:
             if not jax.config.read('jax_enable_x64'):

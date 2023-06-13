@@ -29,6 +29,7 @@ if _NP_AVAILABLE:
 
 from ._object import ObjectBackend as _ObjectBackend
 OBJECTS = _ObjectBackend()
+"""Backend for Python objects."""
 BACKENDS.append(OBJECTS)
 
 __all__ = [key for key in globals().keys() if not key.startswith('_')]
