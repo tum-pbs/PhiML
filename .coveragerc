@@ -24,6 +24,5 @@ exclude_lines =
 
 
 omit =
-    phi/physics/_boundaries.py
-    phi/tf/_tf_cuda_resample.py
-    phi/tf/_compile_cuda.py
+    unifyml/backend/tensorflow/_tf_cuda_resample.py
+    unifyml/backend/tensorflow/_compile_cuda.py
