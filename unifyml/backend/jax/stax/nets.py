@@ -469,6 +469,7 @@ def conv_classifier(in_features: int,
                     in_spatial: Union[tuple, list],
                     num_classes: int,
                     blocks=(64, 128, 256, 256, 512, 512),
+                    block_sizes=(2, 2, 3, 3, 3),
                     dense_layers=(4096, 4096, 100),
                     batch_norm=True,
                     activation='ReLU',
@@ -488,15 +489,10 @@ def conv_classifier(in_features: int,
     init_fn, apply_fn = {}, {}
 
     net_list = []
-    for i, (prev, next) in enumerate(zip((in_features,) + tuple(blocks[:-1]), blocks)):
-        if i in (0, 1):
-            net_list.append(f'conv{i+1}')
-            init_fn[net_list[-1]], apply_fn[net_list[-1]] = create_double_conv(d, next, next, batch_norm, activation, periodic)
-        else:
-            net_list.append(f'conv{i+1}_1')
-            init_fn[net_list[-1]], apply_fn[net_list[-1]] = create_double_conv(d, 256, 256, batch_norm, activation, periodic)
-            net_list.append(f'conv{i+1}_2')
-            init_fn[net_list[-1]], apply_fn[net_list[-1]] = stax.serial(CONV[d](256, (3,) * d, padding='valid'),
+    for i, (prev, next, block_size) in enumerate(zip((in_features,) + tuple(blocks[:-1]), blocks, block_sizes)):
+        for j in range(block_size):
+            net_list.append(f'conv{i+1}_{j}')
+            init_fn[net_list[-1]], apply_fn[net_list[-1]] = stax.serial(CONV[d](next, (3,) * d, padding='valid'),
                                                                         stax.BatchNorm(axis=tuple(range(d + 1))) if batch_norm else stax.Identity,
                                                                         activation)
         net_list.append(f'max_pool{i+1}')
@@ -517,8 +513,8 @@ def conv_classifier(in_features: int,
         rngs = random.split(rng, 2)
         shape = input_shape
         N = len(net_list)
-        for i in range(N):
-            shape, params[f'{net_list[i]}'] = init_fn[f'{net_list[i]}'](rngs[i], shape)
+        for i, layer in enumerate(net_list):
+            shape, params[layer] = init_fn[layer](rngs[i], shape)
         shape, params['flatten'] = init_fn['flatten'](rngs[N], shape)
         flat_size = int(np.prod(in_spatial) * blocks[-1] / (2**d) ** len(blocks))
         shape, params['dense'] = dense_init(rngs[N + 1], (1,) + (flat_size,))
@@ -528,7 +524,7 @@ def conv_classifier(in_features: int,
         x = inputs
         pad_tuple = [[0, 0]] + [[1, 1]] * d + [[0, 0]]
         for i in range(len(net_list)):
-            if net_list[i] in ['conv3_2', 'conv4_2', 'conv5_2']:
+            if net_list[i].startswith('conv'):
                 x = jnp.pad(x, pad_width=pad_tuple, mode='wrap' if periodic else 'constant')
             x = apply_fn[f'{net_list[i]}'](params[f'{net_list[i]}'], x)
         x = apply_fn['flatten'](params['flatten'], x)
