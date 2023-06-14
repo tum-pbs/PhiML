@@ -137,7 +137,7 @@ class ShiftLinTracer(Tensor):
         bias = bias_fun(self.bias)
         return ShiftLinTracer(self.source, val, new_shape, bias)
 
-    def unstack(self, dimension):
+    def _unstack(self, dimension):
         raise NotImplementedError()
 
     def __neg__(self):

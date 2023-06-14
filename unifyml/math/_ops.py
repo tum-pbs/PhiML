@@ -997,7 +997,7 @@ def broadcast_op(operation: Callable,
         unstacked = []
         for tensor in tensors:
             if dim in tensor.shape.names:
-                unstacked_tensor = tensor.unstack(dim)
+                unstacked_tensor = tensor._unstack(dim)
                 unstacked.append(unstacked_tensor)
                 if size is None:
                     size = len(unstacked_tensor)
@@ -1289,7 +1289,7 @@ def _std(value: Tensor, dims: Shape) -> Tensor:
     else:
         non_uniform_dim = value.shape.shape.without('dims')
         assert non_uniform_dim.only(dims).is_empty, f"Cannot compute std along non-uniform dims {dims}. shape={value.shape}"
-        return stack([_std(t, dims) for t in value.unstack(non_uniform_dim.name)], non_uniform_dim)
+        return stack([_std(t, dims) for t in value._unstack(non_uniform_dim.name)], non_uniform_dim)
 
 
 def any_(boolean_tensor: Union[Tensor, list, tuple], dim: DimFilter = non_batch) -> Tensor:

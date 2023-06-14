@@ -511,7 +511,7 @@ class Shape:
         sizes = []
         for size in inner.sizes:
             if isinstance(size, Tensor) and dim in size.shape:
-                sizes.append(size.unstack(dim))
+                sizes.append(size._unstack(dim))
                 dim_size = size.shape.get_size(dim)
             else:
                 sizes.append(size)

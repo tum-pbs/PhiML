@@ -100,7 +100,7 @@ class TestTensors(TestCase):
 
     def test_native_native_ops(self):
         v = math.ones(batch(batch=10) & spatial(x=4, y=3) & channel(vector=2))
-        d = v.unstack('vector')[0]
+        d = math.unstack(v, 'vector')[0]
         math.assert_close(v + d, d + v, 2)
         math.assert_close(v * d, d * v, 1)
 
@@ -119,14 +119,14 @@ class TestTensors(TestCase):
     def test_stacked_shapes(self):
         t0 = math.ones(batch(batch=10) & spatial(x=4, y=3) & channel(vector=2))
         for dim in t0.shape.names:
-            tensors = t0.unstack(dim)
+            tensors = math.unstack(t0, dim)
             stacked = math.stack(tensors, t0.shape[dim].with_sizes([None]))
             self.assertEqual(set(t0.shape.names), set(stacked.shape.names))
             self.assertEqual(t0.shape.volume, stacked.shape.volume)
 
     def test_stacked_native(self):
         t0 = math.ones(batch(batch=10) & spatial(x=4, y=3) & channel(vector=2))
-        tensors = t0.unstack('vector')
+        tensors = math.unstack(t0, 'vector')
         stacked = math.stack(tensors, channel('vector2'))
         math.assert_close(stacked, t0)
         self.assertEqual((10, 4, 3, 2), stacked.native(stacked.shape).shape)
@@ -135,7 +135,7 @@ class TestTensors(TestCase):
 
     def test_stacked_get(self):
         t0 = math.ones(batch(batch=10) & spatial(x=4, y=3) & channel(vector=2))
-        tensors = t0.unstack('vector')
+        tensors = math.unstack(t0, 'vector')
         stacked = math.stack(tensors, channel('channel'))
         self.assertEqual(tensors, stacked.channel.unstack())
         assert tensors[0] is stacked.channel[0]

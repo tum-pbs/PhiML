@@ -447,11 +447,11 @@ class Tensor:
 
     def __unstack__(self, dims: Tuple[str, ...]) -> Tuple['Tensor', ...]:  # from unifyml.math.magic.Sliceable
         if len(dims) == 1:
-            return self.unstack(dims[0])
+            return self._unstack(dims[0])
         else:
             return NotImplemented
 
-    def unstack(self, dim: str):
+    def _unstack(self, dim: str):
         """
         Splits this tensor along the specified dimension.
         The returned tensors have the same dimensions as this tensor save the unstacked dimension.
@@ -940,7 +940,7 @@ class Layout(Tensor):
             return BROADCAST_FORMATTER.register_formatted(self, format_spec)
         return repr(self._obj)
 
-    def unstack(self, dimension: str):
+    def _unstack(self, dimension: str):
         if dimension == self._shape.names[0]:
             native = tuple(self._obj.values()) if isinstance(self._obj, dict) else self._obj
             inner_shape = self._shape[1:]
@@ -1231,7 +1231,7 @@ class NativeTensor(Tensor):
         new_shape = self._shape.after_gather(selection)
         return NativeTensor(gathered, new_native_shape, new_shape)
 
-    def unstack(self, dim):
+    def _unstack(self, dim):
         new_shape = self._shape.without(dim)
         new_native_shape = self._native_shape.without(dim)
         if dim in self._native_shape:
@@ -1328,7 +1328,7 @@ class TensorStack(Tensor):
                 non_uniform_dim = self._tensors[0].shape.shape.without('dims')
                 if len(non_uniform_dim) > 1:
                     raise NotImplementedError
-                unstacked = [t.unstack(non_uniform_dim.name) for t in self._tensors]
+                unstacked = [t._unstack(non_uniform_dim.name) for t in self._tensors]
                 stacked = []
                 for to_stack in zip(*unstacked):
                     tensor = TensorStack(to_stack, self._stack_dim)._cache()
@@ -1393,17 +1393,17 @@ class TensorStack(Tensor):
         else:
             return TensorStack(tensors, self._stack_dim)
 
-    def unstack(self, dimension):
+    def _unstack(self, dim):
         if self._cached is not None:
-            return self._cached.unstack(dimension)
-        if dimension == self._stack_dim.name:
+            return self._cached._unstack(dim)
+        if dim == self._stack_dim.name:
             return self._tensors
         else:
             if self.requires_broadcast:
-                unstacked = [t.unstack(dimension) for t in self._tensors]
+                unstacked = [t._unstack(dim) for t in self._tensors]
                 return tuple([TensorStack(items, self._stack_dim) for items in zip(*unstacked)])
             else:
-                return self._cache().unstack(dimension)
+                return self._cache()._unstack(dim)
 
     def _op1(self, native_function):
         if self.requires_broadcast:
@@ -1416,7 +1416,7 @@ class TensorStack(Tensor):
         other = self._tensor(other)
         if self.requires_broadcast:
             if self._stack_dim.name in other.shape:
-                other = other.unstack(self._stack_dim.name)
+                other = other._unstack(self._stack_dim.name)
                 tensors = [operator(t1, t2) for t1, t2 in zip(self._tensors, other)]
             else:
                 tensors = [operator(t, other) for t in self._tensors]
