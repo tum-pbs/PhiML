@@ -89,7 +89,7 @@ def const_vec(value: Union[float, Tensor], dim: Union[Shape, tuple, list, str]):
     return wrap([value] * shape.size, shape)
 
 
-def vec_abs(vec: Tensor, vec_dim: DimFilter = channel, eps: Union[float, Tensor] = None):
+def vec_length(vec: Tensor, vec_dim: DimFilter = channel, eps: Union[float, Tensor] = None):
     """
     Computes the vector length of `vec`.
 
@@ -111,7 +111,7 @@ def vec_squared(vec: Tensor, vec_dim: DimFilter = channel):
 
 def vec_normalize(vec: Tensor, vec_dim: DimFilter = channel):
     """ Normalizes the vectors in `vec`. If `vec_dim` is None, the combined channel dimensions of `vec` are interpreted as a vector. """
-    return vec / vec_abs(vec, vec_dim=vec_dim)
+    return vec / vec_length(vec, vec_dim=vec_dim)
 
 
 def cross_product(vec1: Tensor, vec2: Tensor) -> Tensor:

@@ -47,7 +47,7 @@ from ._ops import (
     zeros_like, ones_like,
     pad,
     transpose,  # reshape operations
-    safe_div, safe_div as divide_no_nan,
+    safe_div,
     where, nonzero,
     sum_ as sum, finite_sum, mean, finite_mean, std, prod, max_ as max, finite_max, min_ as min, finite_min, any_ as any, all_ as all, quantile, median,  # reduce
     dot,
@@ -59,7 +59,7 @@ from ._ops import (
     to_float, to_int32, to_int64, to_complex, imag, real, conjugate,
     degrees,
     boolean_mask,
-    is_finite, is_finite as isfinite, is_nan, is_inf,
+    is_finite, is_nan, is_inf,
     closest_grid_values, grid_sample, scatter, gather,
     histogram,
     fft, ifft, convolve, cumulative_sum,
@@ -71,7 +71,7 @@ from ._ops import (
 
 from ._nd import (
     shift,
-    vec, const_vec, vec_abs, vec_abs as vec_length, vec_squared, vec_normalize, cross_product, rotate_vector, dim_mask,
+    vec, const_vec, vec_length, vec_squared, vec_normalize, cross_product, rotate_vector, dim_mask,
     normalize_to,
     l1_loss, l2_loss, frequency_loss,
     spatial_gradient, laplace,

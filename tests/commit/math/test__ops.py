@@ -678,18 +678,18 @@ class TestOps(TestCase):
         self.assertEqual(math.rename_dims(t, ['x'], ['z']).shape.get_type('z'), 'spatial')
         self.assertEqual(math.rename_dims(t, ['x'], channel('z')).shape.get_type('z'), 'channel')
 
-    def test_divide_no_nan(self):
+    def test_safe_div(self):
         for backend in BACKENDS:
             with backend:
                 one = math.ones()
                 zero = math.zeros()
                 nan = zero / zero
                 # inf = one / zero
-                assert_close(math.divide_no_nan(zero, one), zero)
-                assert_close(math.divide_no_nan(one, zero), zero)
-                assert_close(math.divide_no_nan(zero, zero), zero)
-                assert_close(math.divide_no_nan(zero, nan), nan)
-                assert_close(math.divide_no_nan(nan, one), nan)
+                assert_close(math.safe_div(zero, one), zero)
+                assert_close(math.safe_div(one, zero), zero)
+                assert_close(math.safe_div(zero, zero), zero)
+                assert_close(math.safe_div(zero, nan), nan)
+                assert_close(math.safe_div(nan, one), nan)
 
     def test_random_int(self):
         for backend in BACKENDS:
