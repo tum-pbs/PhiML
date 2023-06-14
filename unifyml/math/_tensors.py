@@ -445,18 +445,6 @@ class Tensor:
     def __setitem__(self, key, value):
         raise SyntaxError("Tensors are not editable to preserve the autodiff chain. This feature might be added in the future. To update part of a tensor, use math.where() or math.scatter()")
 
-    def flip(self, *dims: str) -> 'Tensor':
-        """
-        Reverses the order of elements along one or multiple dimensions.
-
-        Args:
-            *dims: dimensions to flip
-
-        Returns:
-            `Tensor` of the same `Shape`
-        """
-        raise NotImplementedError()
-
     def __unstack__(self, dims: Tuple[str, ...]) -> Tuple['Tensor', ...]:  # from unifyml.math.magic.Sliceable
         if len(dims) == 1:
             return self.unstack(dims[0])
@@ -855,11 +843,6 @@ class TensorDim(BoundDim):
     def index(self):
         return self.tensor.shape.index(self.name)
 
-    def flip(self):
-        """ Flips the element order along this dimension and returns the result as a `Tensor`. """
-        warnings.warn("dim.flip() is deprecated. Use dim[::-1] instead", DeprecationWarning, stacklevel=2)
-        return self.tensor.flip(self.name)
-
     def split(self, split_dimensions: Shape):
         """ See `unifyml.math.unpack_dim()` """
         warnings.warn("dim.split() is deprecated. Use math.split_dims() instead.", stacklevel=2)
@@ -1248,11 +1231,6 @@ class NativeTensor(Tensor):
         new_shape = self._shape.after_gather(selection)
         return NativeTensor(gathered, new_native_shape, new_shape)
 
-    def flip(self, *dims: str) -> 'Tensor':
-        native_dims = [dim for dim in dims if dim in self._native_shape]
-        native = self.default_backend.flip(self._native, self._native_shape.indices(native_dims))
-        return NativeTensor(native, self._native_shape.flipped(native_dims), self._shape.flipped(dims))
-
     def unstack(self, dim):
         new_shape = self._shape.without(dim)
         new_native_shape = self._native_shape.without(dim)
@@ -1413,15 +1391,6 @@ class TensorStack(Tensor):
             else:
                 raise NotImplementedError(f"{type(selection)} not supported. Only (int, slice) allwoed")
         else:
-            return TensorStack(tensors, self._stack_dim)
-
-    def flip(self, *dims: str) -> 'Tensor':
-        if self._cached is not None:
-            return self._cached.flip(*dims)
-        else:
-            tensors = [t.flip(*dims) for t in self._tensors]
-            if self._stack_dim.name in dims:
-                tensors = tensors[::-1]
             return TensorStack(tensors, self._stack_dim)
 
     def unstack(self, dimension):

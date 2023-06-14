@@ -2,7 +2,6 @@ import numbers
 import warnings
 from functools import wraps, partial
 from typing import List, Callable, Tuple, Union, Optional
-from packaging import version
 
 import jax
 import jax.numpy as jnp
@@ -10,12 +9,13 @@ import jax.scipy as scipy
 import numpy as np
 from jax import random
 from jax.core import Tracer
+from packaging import version
 
 if version.parse(jax.__version__) >= version.parse('0.2.20'):
     from jax.experimental.sparse import BCOO, COO, CSR, CSC
 
 from .._dtype import DType, to_numpy_dtype, from_numpy_dtype
-from .._backend import Backend, ComputeDevice, combined_dim, SolveResult, ML_LOGGER, TensorType
+from .._backend import Backend, ComputeDevice, combined_dim, ML_LOGGER, TensorType
 
 
 from jax.config import config
@@ -46,8 +46,8 @@ class JaxBackend(Backend):
         return True
 
     def nn_library(self):
-        from .stax import nets
-        return nets
+        from . import stax_nets
+        return stax_nets
 
     def _check_float64(self):
         if self.precision == 64:

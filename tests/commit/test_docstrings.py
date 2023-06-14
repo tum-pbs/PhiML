@@ -7,7 +7,7 @@ def get_undocumented_wildcards(modulename):
     loc = namespace.__dict__
     undocumented = []
     for key, val in loc.items():
-        if (key[0] != "_") and (key not in {"_", "In", "Out", "get_ipython", "exit", "quit", "join", "S", }):
+        if not key.startswith('_') and (key not in {"In", "Out", "get_ipython", "exit", "quit", "join", "S", "jax"}):
             description = val.__doc__
             if not description:
                 import inspect

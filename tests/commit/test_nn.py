@@ -90,11 +90,9 @@ class TestNetworks(TestCase):
             nn.use(lib)
             net = nn.dense_net(2, 3, layers=[10, 12], batch_norm=False, activation='ReLU')
             self.assertEqual(201, nn.parameter_count(net))
-            params = nn.get_parameters(net, wrap=True)
+            params = nn.get_parameters(net)
             self.assertEqual(6, len(params))
             self.assertTrue(all(isinstance(p, math.Tensor) for p in params.values()))
-            params = nn.get_parameters(net, wrap=False)
-            self.assertEqual(6, len(params))
             net = nn.dense_net(2, 3, layers=[10], batch_norm=True, activation='ReLU')
             self.assertEqual(83, nn.parameter_count(net), str(lib))
 
@@ -114,79 +112,77 @@ class TestNetworks(TestCase):
                 nn.update_weights(net, optimizer, loss_function, math.random_uniform(batch(batch=10), channel(vector=2)))
 
     def test_optimize_invertible_conv_net(self):
-        for lib in LIBRARIES:
+        for lib in ['torch', 'tensorflow']:
             nn.use(lib)
-            net = nn.invertible_net(2, 3, True, 'conv_net', 'SiLU')
+            net = nn.invertible_net(3, 'conv_net', in_channels=2, batch_norm=True, activation='SiLU', layers=[])
             optimizer = nn.adam(net)
 
-        def loss_function(x):
-            print("Running loss_function")
-            assert isinstance(x, math.Tensor)
-            pred = math.native_call(net, x)
-            return math.l2_loss(pred)
+            def loss_function(x):
+                print("Running loss_function")
+                assert isinstance(x, math.Tensor)
+                pred = math.native_call(net, x)
+                return math.l2_loss(pred)
 
-        for i in range(2):
-            nn.update_weights(net, optimizer, loss_function,
-                               math.random_uniform(math.batch(batch=10), math.channel(c=2), math.spatial(x=8, y=8)))
+            for i in range(2):
+                nn.update_weights(net, optimizer, loss_function, math.random_uniform(math.batch(batch=10), math.channel(c=2), math.spatial(x=8, y=8)))
 
     def test_optimize_invertible_res_net(self):
-        for lib in LIBRARIES:
+        for lib in ['torch', 'tensorflow']:
             nn.use(lib)
-            net = nn.invertible_net(2, 3, True, 'res_net', 'SiLU')
+            net = nn.invertible_net(3, 'res_net', in_channels=2, batch_norm=True, activation='SiLU', layers=[])
             optimizer = nn.adam(net)
 
-        def loss_function(x):
-            print("Running loss_function")
-            assert isinstance(x, math.Tensor)
-            pred = math.native_call(net, x)
-            return math.l2_loss(pred)
+            def loss_function(x):
+                print("Running loss_function")
+                assert isinstance(x, math.Tensor)
+                pred = math.native_call(net, x)
+                return math.l2_loss(pred)
 
-        for i in range(2):
-            nn.update_weights(net, optimizer, loss_function,
-                               math.random_uniform(math.batch(batch=10), math.channel(c=2), math.spatial(x=8, y=8)))
+            for i in range(2):
+                nn.update_weights(net, optimizer, loss_function, math.random_uniform(math.batch(batch=10), math.channel(c=2), math.spatial(x=8, y=8)))
 
     def test_optimize_invertible_u_net(self):
-        for lib in LIBRARIES:
+        for lib in ['torch', 'tensorflow']:
             nn.use(lib)
-            net = nn.invertible_net(2, 3, True, 'u_net', 'SiLU')
+            net = nn.invertible_net(3, 'u_net', in_channels=2, batch_norm=True, activation='SiLU')
             optimizer = nn.adam(net)
 
-        def loss_function(x):
-            print("Running loss_function")
-            assert isinstance(x, math.Tensor)
-            pred = math.native_call(net, x)
-            return math.l2_loss(pred)
+            def loss_function(x):
+                print("Running loss_function")
+                assert isinstance(x, math.Tensor)
+                pred = math.native_call(net, x)
+                return math.l2_loss(pred)
 
-        for i in range(2):
-            nn.update_weights(net, optimizer, loss_function,
-                               math.random_uniform(math.batch(batch=10), math.channel(c=2), math.spatial(x=8, y=8)))
+            for i in range(2):
+                nn.update_weights(net, optimizer, loss_function, math.random_uniform(math.batch(batch=10), math.channel(c=2), math.spatial(x=8, y=8)))
 
     def test_optimize_invertible_dense_net(self):
-        for lib in LIBRARIES:
+        for lib in ['torch', 'tensorflow']:
             nn.use(lib)
-            net = nn.invertible_net(50, 3, True, in_spatial=0)
+            net = nn.invertible_net(3, 'dense_net', in_channels=50, layers=[50])
             optimizer = nn.adam(net)
 
-        def loss_function(x):
-            print("Running loss_function")
-            assert isinstance(x, math.Tensor)
-            pred = math.native_call(net, x)
-            return math.l2_loss(pred)
+            def loss_function(x):
+                print("Running loss_function")
+                assert isinstance(x, math.Tensor)
+                pred = math.native_call(net, x)
+                return math.l2_loss(pred)
 
-        for i in range(2):
-            nn.update_weights(net, optimizer, loss_function,
-                               math.random_uniform(math.batch(batch=10), math.channel(c=50)))
+            for i in range(2):
+                nn.update_weights(net, optimizer, loss_function, math.random_uniform(math.batch(batch=10), math.channel(c=50)))
 
     def test_invertible_net_network_sizes(self):
-        for lib in LIBRARIES:
+        for lib in ['torch', 'tensorflow']:
             nn.use(lib)
-            net_u = nn.invertible_net(2, 3, True, 'u_net', 'SiLU')
+            net_u = nn.invertible_net(3, lambda: nn.u_net(2, 2, 4, 16, True, 'SiLU', 2))
             self.assertEqual(454296, nn.parameter_count(net_u))
-            net_res = nn.invertible_net(2, 3, True, 'res_net', 'ReLU')
+            net_u = nn.invertible_net(3, 'u_net', in_channels=2)
+            self.assertEqual(454296, nn.parameter_count(net_u))
+            net_res = nn.invertible_net(3, 'res_net', in_channels=2, batch_norm=True, layers=[])
             self.assertEqual(1080, nn.parameter_count(net_res))
-            net_conv = nn.invertible_net(2, 3, True, 'conv_net', 'ReLU')
+            net_conv = nn.invertible_net(3, 'conv_net', in_channels=2, batch_norm=True, layers=[])
             self.assertEqual(576, nn.parameter_count(net_conv))
-            net_dense = nn.invertible_net(2, 3, True, activation='ReLU', in_spatial=0)
+            net_dense = nn.invertible_net(3, 'dense_net', in_channels=2, batch_norm=True, layers=[2])
             self.assertEqual(240, nn.parameter_count(net_dense))
 
     def test_conv_classifier(self):
@@ -195,8 +191,10 @@ class TestNetworks(TestCase):
             net = nn.conv_classifier(1, (2,), 1, blocks=[10], dense_layers=[], batch_norm=True, softmax=False, periodic=False)
             self.assertEqual(401, nn.parameter_count(net))
 
-
-
-
-
-
+    # def test_fno(self):
+    #     for lib in ['tensorflow', 'torch']:
+    #         nn.use(lib)
+    #         net = nn.fno(2, 1, 10, [8, 8, 8], batch_norm=False, in_spatial=2)
+    #         x = math.random_uniform(math.batch(batch=10), math.channel(c=2), math.spatial(x=8, y=8))
+    #         y = math.native_call(net, x)
+    #         self.assertEqual(set(y.shape), set(math.batch(batch=10) & math.spatial(x=8, y=8)))

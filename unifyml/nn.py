@@ -93,7 +93,7 @@ def load_state(obj: Union[Network, Optimizer], path: str):
     return _native_lib().load_state(**locals())
 
 
-def update_weights(net: Network, optimizer: Optimizer, loss_function: Callable, *loss_args, check_nan=False, **loss_kwargs):
+def update_weights(net: Network, optimizer: Optimizer, loss_function: Callable, *loss_args, **loss_kwargs):
     """
     Computes the gradients of `loss_function` w.r.t. the parameters of `net` and updates its weights using `optimizer`.
 
@@ -109,7 +109,7 @@ def update_weights(net: Network, optimizer: Optimizer, loss_function: Callable, 
     Returns:
         Output of `loss_function`.
     """
-    return _native_lib().update_weights(**locals())
+    return _native_lib().update_weights(net, optimizer, loss_function, *loss_args, **loss_kwargs)
 
 
 def adam(net: Network, learning_rate: float = 1e-3, betas=(0.9, 0.999), epsilon=1e-07):
@@ -262,60 +262,55 @@ def conv_classifier(in_features: int,
     return _native_lib().conv_classifier(**locals())
 
 
-def invertible_net(in_channels: int,
-                   num_blocks: int,
-                   batch_norm: bool = False,
-                   net: str = 'u_net',
-                   activation: Union[str, type] = 'ReLU',
-                   in_spatial: Union[tuple, int] = 2):
+def invertible_net(num_blocks: int = 3,
+                   construct_net: Union[str, Callable] = 'u_net',
+                   **construct_kwargs):
     """
-    Phiflow also provides invertible neural networks that are capable of inverting the output tensor back to the input tensor initially passed.
+    Invertible NNs are capable of inverting the output tensor back to the input tensor initially passed.
     These networks have far-reaching applications in predicting input parameters of a problem given its observations.
     Invertible nets are composed of multiple concatenated coupling blocks wherein each such block consists of arbitrary neural networks.
 
     Currently, these arbitrary neural networks could be set to u_net(default), conv_net, res_net or dense_net blocks with in_channels = out_channels.
     The architecture used is popularized by ["Real NVP"](https://arxiv.org/abs/1605.08803).
 
+    Invertible nets are only implemented for PyTorch and TensorFlow.
+
     Args:
-        in_channels : input channels of the feature map, dtype : int
         num_blocks : number of coupling blocks inside the invertible net, dtype : int
-        activation : activation function used within the layers, dtype : string
-        batch_norm : use of batchnorm after each layer, dtype : bool
-        in_spatial : spatial dimensions of the input feature map, dtype : int
-        net : type of neural network blocks used in coupling layers, dtype : str
+        construct_net : Function to construct one part of the neural network.
+            This network must have the same number of inputs and outputs.
+            Can be a `lambda` function or one of the following strings: `dense_net, u_net, res_net, conv_net`
+        construct_kwargs : Keyword arguments passed to `construct_net`.
 
     Returns:
-        Invertible Net model as specified by input arguments
-
-    *Note*: Currently supported values for net are 'u_net'(default), 'conv_net' and 'res_net'.
-    For choosing 'dense_net' as the network block in coupling layers in_spatial must be set to zero.
+        Invertible neural network model
     """
-    return _native_lib().invertible_net(**locals())
+    return _native_lib().invertible_net(num_blocks, construct_net, **construct_kwargs)
 
 
-def fno(in_channels: int,
-        out_channels: int,
-        mid_channels: int,
-        modes: Sequence[int],
-        activation: Union[str, type] = 'ReLU',
-        batch_norm: bool = False,
-        in_spatial: int = 2):
-    """
-    ["Fourier Neural Operator"](https://github.com/zongyi-li/fourier_neural_operator) network contains 4 layers of the Fourier layer.
-    1. Lift the input to the desire channel dimension by self.fc0 .
-    2. 4 layers of the integral operators u' = (W + K)(u). W defined by self.w; K defined by self.conv .
-    3. Project from the channel space to the output space by self.fc1 and self.fc2.
-
-    Args:
-        in_channels : input channels of the feature map, dtype : int
-        out_channels : output channels of the feature map, dtype : int
-        mid_channels : channels used in Spectral Convolution Layers, dtype : int
-        modes : Fourier modes for each spatial channel, dtype : List[int] or int (in case all number modes are to be the same for each spatial channel)
-        activation : activation function used within the layers, dtype : string
-        batch_norm : use of batchnorm after each conv layer, dtype : bool
-        in_spatial : spatial dimensions of the input feature map, dtype : int
-
-    Returns:
-        Fourier Neural Operator model as specified by input arguments.
-    """
-    return _native_lib().fno(**locals())
+# def fno(in_channels: int,
+#         out_channels: int,
+#         mid_channels: int,
+#         modes: Sequence[int],
+#         activation: Union[str, type] = 'ReLU',
+#         batch_norm: bool = False,
+#         in_spatial: int = 2):
+#     """
+#     ["Fourier Neural Operator"](https://github.com/zongyi-li/fourier_neural_operator) network contains 4 layers of the Fourier layer.
+#     1. Lift the input to the desire channel dimension by self.fc0 .
+#     2. 4 layers of the integral operators u' = (W + K)(u). W defined by self.w; K defined by self.conv .
+#     3. Project from the channel space to the output space by self.fc1 and self.fc2.
+#
+#     Args:
+#         in_channels : input channels of the feature map, dtype : int
+#         out_channels : output channels of the feature map, dtype : int
+#         mid_channels : channels used in Spectral Convolution Layers, dtype : int
+#         modes : Fourier modes for each spatial channel, dtype : List[int] or int (in case all number modes are to be the same for each spatial channel)
+#         activation : activation function used within the layers, dtype : string
+#         batch_norm : use of batchnorm after each conv layer, dtype : bool
+#         in_spatial : spatial dimensions of the input feature map, dtype : int
+#
+#     Returns:
+#         Fourier Neural Operator model as specified by input arguments.
+#     """
+#     return _native_lib().fno(**locals())

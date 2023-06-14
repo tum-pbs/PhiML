@@ -138,9 +138,8 @@ setup(
               'unifyml.math',
               'unifyml.backend',
               'unifyml.backend.jax',
-              'unifyml.backend.jax.stax',
-              'unifyml.backend.tensorflow',
               'unifyml.backend.torch',
+              'unifyml.backend.tensorflow',
           ],
     cmdclass={
         'tf_cuda': CudaCommand,

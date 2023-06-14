@@ -18,7 +18,7 @@ def assert_not_close(*tensors, rel_tolerance, abs_tolerance):
         pass
 
 
-class TestMathFunctions(TestCase):
+class TestOps(TestCase):
 
     def test_assert_close(self):
         a = spatial(a=10)
@@ -159,7 +159,7 @@ class TestMathFunctions(TestCase):
         grid = math.random_normal(spatial(y=10, x=7))
         coords = math.random_uniform(batch(mybatch=10) & spatial(x=3, y=2)) * vec(y=12, x=9)
         grid_ = math.tensor(grid.native('x,y'), spatial('x,y'))
-        coords_ = coords.vector.flip()
+        coords_ = coords.vector[::-1]
         for extrap in (extrapolation.ZERO, extrapolation.ONE, extrapolation.BOUNDARY, extrapolation.PERIODIC):
             sampled = []
             for backend in BACKENDS:
@@ -176,7 +176,7 @@ class TestMathFunctions(TestCase):
         grid = math.random_normal(batch(mybatch=10) & spatial(y=10, x=7))
         coords = math.random_uniform(batch(mybatch=10) & spatial(x=3, y=2)) * vec(y=12, x=9)
         grid_ = math.tensor(grid.native('mybatch,x,y'), batch('mybatch'), spatial('x,y'))
-        coords_ = coords.vector.flip()
+        coords_ = coords.vector[::-1]
         for extrap in (extrapolation.ZERO, extrapolation.ONE, extrapolation.BOUNDARY, extrapolation.PERIODIC):
             sampled = []
             for backend in BACKENDS:

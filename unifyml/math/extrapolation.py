@@ -386,6 +386,10 @@ class _CopyExtrapolation(Extrapolation):
     def backend_pad_mode(self) -> Optional[str]:
         return repr(self)
 
+    @property
+    def native_grid_sample_mode(self) -> Union[str, None]:
+        return str(self)
+
     def __value_attrs__(self):
         return ()
 
@@ -429,10 +433,6 @@ class _CopyExtrapolation(Extrapolation):
 
     def _pad_linear_tracer(self, value, widths: dict):
         raise NotImplementedError()
-
-    @property
-    def native_grid_sample_mode(self) -> Union[str, None]:
-        return str(self)
 
     def __eq__(self, other):
         return type(other) == type(self)
@@ -497,6 +497,10 @@ class _ZeroGradient(_CopyExtrapolation):
 
     @property
     def backend_pad_mode(self) -> Optional[str]:
+        return 'boundary'
+
+    @property
+    def native_grid_sample_mode(self) -> Union[str, None]:
         return 'boundary'
 
     def spatial_gradient(self):
