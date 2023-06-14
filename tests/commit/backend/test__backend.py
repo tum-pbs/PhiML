@@ -198,3 +198,17 @@ class TestBackends(TestCase):
         self.assertEqual('PyTorch', default_backend().name)
         set_global_default_backend('numpy')
         self.assertEqual('NumPy', default_backend().name)
+
+    def test_multi_slice(self):
+        for b in BACKENDS:
+            data = b.as_tensor([1, 2, 3, 4])
+            numpy.testing.assert_equal([1, 2], b.numpy(b.multi_slice(data, (slice(0, 2),))))
+            numpy.testing.assert_equal([1, 2, 3, 4], b.numpy(b.multi_slice(data, (slice(None, None),))))
+            numpy.testing.assert_equal([3, 4], b.numpy(b.multi_slice(data, (slice(2, None),))))
+            numpy.testing.assert_equal([3, 4], b.numpy(b.multi_slice(data, (slice(-2, None),))))
+            numpy.testing.assert_equal([3], b.numpy(b.multi_slice(data, (slice(-2, -1),))))
+            numpy.testing.assert_equal([4, 3, 2, 1], b.numpy(b.multi_slice(data, (slice(None, None, -1),))))
+            numpy.testing.assert_equal([4, 3, 2, 1], b.numpy(b.multi_slice(data, (slice(-1, None, -1),))))
+            numpy.testing.assert_equal([3, 2], b.numpy(b.multi_slice(data, (slice(-2, 0, -1),))))
+            numpy.testing.assert_equal([3, 2], b.numpy(b.multi_slice(data, (slice(-2, -4, -1),))))
+

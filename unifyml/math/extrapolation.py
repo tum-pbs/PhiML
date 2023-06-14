@@ -641,9 +641,9 @@ class _SymmetricExtrapolation(_CopyExtrapolation):
 
     def pad_values(self, value: Tensor, width: int, dim: str, upper_edge: bool, **kwargs) -> Tensor:
         if upper_edge:
-            return value[{dim: slice(-width, None)}].flip(dim)
+            return value[{dim: slice(-1, -width-1, -1)}]
         else:
-            return value[{dim: slice(0, width)}].flip(dim)
+            return value[{dim: slice(width-1, None, -1)}]
 
     def _pad_linear_tracer(self, value: 'ShiftLinTracer', widths: dict) -> 'ShiftLinTracer':
         """
@@ -757,9 +757,9 @@ class _ReflectExtrapolation(_CopyExtrapolation):
 
     def pad_values(self, value: Tensor, width: int, dim: str, upper_edge: bool, **kwargs) -> Tensor:
         if upper_edge:
-            return value[{dim: slice(-1-width, -1)}].flip(dim)
+            return value[{dim: slice(-2, -2-width, -1)}]
         else:
-            return value[{dim: slice(1, width+1)}].flip(dim)
+            return value[{dim: slice(width, 0, -1)}]
 
     def transform_coordinates(self, coordinates: Tensor, shape: Shape, **kwargs) -> Tensor:
         coordinates = coordinates % (2 * shape - 2)

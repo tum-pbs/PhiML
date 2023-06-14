@@ -145,10 +145,9 @@ class TorchBackend(Backend):
 
     def multi_slice(self, tensor, slices: tuple):
         neg_slices = [i for i, s in enumerate(slices) if isinstance(s, slice) and s.step is not None and s.step < 0]
-        if neg_slices:
-            tensor = torch.flip(tensor, neg_slices)
-        pos_slices = [slice(s.start, s.stop, -s.step) if i in neg_slices else s for i, s in enumerate(slices)]
-        return tensor[tuple(pos_slices)]
+        pos_slices = [slice(0 if s.stop is None else s.stop+1, None if s.start is None else s.start+1 or None, -s.step) if i in neg_slices else s for i, s in enumerate(slices)]
+        sliced = tensor[tuple(pos_slices)]
+        return torch.flip(sliced, neg_slices) if neg_slices else sliced
 
     sqrt = torch.sqrt
     exp = torch.exp
