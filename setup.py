@@ -121,7 +121,7 @@ class CudaCommand(distutils.cmd.Command):
 
 
 try:
-    with open(join(dirname(__file__), 'docs/Package_Info.md'), 'r') as readme:
+    with open(join(dirname(__file__), 'docs/Package_Info.md'), mode='r', encoding='utf-8') as readme:
         long_description = readme.read()
 except FileNotFoundError:
     long_description = ""
@@ -175,5 +175,6 @@ setup(
         'Programming Language :: Python :: 3.8',
         'Programming Language :: Python :: 3.9',
         'Programming Language :: Python :: 3.10',
+        'Programming Language :: Python :: 3.11',
     ],
 )
