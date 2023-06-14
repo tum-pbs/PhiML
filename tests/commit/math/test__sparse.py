@@ -1,11 +1,11 @@
 from unittest import TestCase
 
-import unifyml
 from unifyml import math
-from unifyml.math import batch, get_sparsity, expand, wrap, stack, zeros, channel, spatial, ones, instance, tensor, sum, pairwise_distances, vec_length, dense, assert_close, non_dual, dual
+from unifyml.backend._backend import init_installed_backends
+from unifyml.math import batch, get_sparsity, expand, wrap, stack, zeros, channel, spatial, ones, instance, tensor, pairwise_distances, dense, assert_close, non_dual, dual
 from unifyml.math._sparse import SparseCoordinateTensor, CompressedSparseMatrix
 
-BACKENDS = unifyml.detect_backends()
+BACKENDS = init_installed_backends()
 
 
 class TestSparse(TestCase):

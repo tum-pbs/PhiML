@@ -1,12 +1,12 @@
 from functools import partial
 from unittest import TestCase
 
-import unifyml
 from unifyml import math
-from unifyml.math import Solve, Diverged, tensor, SolveTape, extrapolation, spatial, batch, channel
 from unifyml.backend import Backend
+from unifyml.backend._backend import init_installed_backends
+from unifyml.math import Solve, Diverged, tensor, SolveTape, extrapolation, spatial, batch, channel
 
-BACKENDS = unifyml.detect_backends()
+BACKENDS = init_installed_backends()
 
 
 class TestOptimize(TestCase):

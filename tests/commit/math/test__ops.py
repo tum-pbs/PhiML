@@ -1,15 +1,13 @@
 from unittest import TestCase
 
 import numpy as np
-import numpy.testing
 
-import unifyml
 from unifyml import math
-from unifyml.math import extrapolation, spatial, channel, instance, batch, DType, IncompatibleShapes, NAN, vec, non_spatial, wrap, assert_close
 from unifyml.backend import Backend
+from unifyml.backend._backend import init_installed_backends
+from unifyml.math import extrapolation, spatial, channel, instance, batch, DType, IncompatibleShapes, NAN, vec, non_spatial, wrap, assert_close
 
-
-BACKENDS = unifyml.detect_backends()
+BACKENDS = init_installed_backends()
 
 
 def assert_not_close(*tensors, rel_tolerance, abs_tolerance):

@@ -32,30 +32,6 @@ def verify():
     print(troubleshoot())
 
 
-def detect_backends() -> tuple:
-    """
-    Registers all available backends and returns them.
-    This includes only backends for which the minimal requirements are fulfilled.
-
-    Returns:
-        `tuple` of `unifyml.backend.Backend`
-    """
-    try:
-        from .jax import JAX
-    except ImportError:
-        pass
-    try:
-        from .torch import TORCH
-    except ImportError:
-        pass
-    try:
-        from .tf import TENSORFLOW
-    except ImportError:
-        pass
-    from .backend import BACKENDS
-    return tuple([b for b in BACKENDS if b.name != 'Python'])
-
-
 def set_logging_level(level='debug'):
     """
     Sets the logging level for PhiFlow functions.

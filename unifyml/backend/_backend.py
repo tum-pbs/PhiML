@@ -1615,6 +1615,29 @@ class NoBackendFound(Exception):
         Exception.__init__(self, msg)
 
 
+def init_installed_backends() -> tuple:
+    """
+    Registers all available backends.
+    This includes only backends for which the minimal requirements are fulfilled.
+
+    Returns:
+        All installed tensor backends as `tuple[Backend]`
+    """
+    try:
+        init_backend('jax')
+    except ImportError:
+        pass
+    try:
+        init_backend('torch')
+    except ImportError:
+        pass
+    try:
+        init_backend('tensorflow')
+    except ImportError:
+        pass
+    return tuple([b for b in BACKENDS if b.name != 'Python'])
+
+
 def init_backend(backend: str):
     """
     Args:

@@ -3,11 +3,11 @@ from unittest import TestCase
 
 import numpy
 
-import unifyml
+from unifyml.backend._backend import init_installed_backends
 from unifyml.math import DType
 from unifyml.backend import ComputeDevice, convert, Backend, NUMPY, set_global_default_backend, default_backend
 
-BACKENDS: Tuple[Backend] = unifyml.detect_backends()
+BACKENDS: Tuple[Backend] = init_installed_backends()
 
 
 class TestBackends(TestCase):

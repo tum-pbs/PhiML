@@ -1,10 +1,10 @@
 from unittest import TestCase
 
-import unifyml
 from unifyml import math
+from unifyml.backend._backend import init_installed_backends
 from unifyml.math import expand, spatial, non_dual, extrapolation
 
-BACKENDS = unifyml.detect_backends()
+BACKENDS = init_installed_backends()
 
 
 class TestTrace(TestCase):

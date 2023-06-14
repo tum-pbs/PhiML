@@ -1,13 +1,13 @@
 from unittest import TestCase
 
-import unifyml
 from unifyml import math
+from unifyml.backend._backend import init_installed_backends
 from unifyml.math import batch, extrapolation, shape, spatial, channel, EMPTY_SHAPE
 from unifyml.math._tensors import wrap
 from unifyml.math.extrapolation import ConstantExtrapolation, ONE, ZERO, PERIODIC, BOUNDARY, SYMMETRIC, REFLECT, combine_sides, from_dict, combine_by_direction, SYMMETRIC_GRADIENT, as_extrapolation, \
     ZERO_GRADIENT
 
-BACKENDS = unifyml.detect_backends()
+BACKENDS = init_installed_backends()
 
 
 class TestExtrapolationOperators(TestCase):
