@@ -86,7 +86,7 @@ class JaxOptimizer:
                     net._tracers = None
                     return result
 
-                gradient_function = math.functional_gradient(loss_depending_on_net)
+                gradient_function = math.gradient(loss_depending_on_net)
                 current_state = OptimizerState(packed_current_state, self._state.tree_def, self._state.subtree_defs)
                 current_params = self._get_params(current_state)
                 value, grads = gradient_function(current_params, *loss_args, **loss_kwargs)

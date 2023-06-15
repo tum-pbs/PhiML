@@ -516,7 +516,7 @@ class GradientFunction:
 def jacobian(f: Callable, wrt: str = None, get_output=True) -> Callable:
     """
     Creates a function which computes the Jacobian matrix of `f`.
-    For scalar functions, consider using `functional_gradient()` instead.
+    For scalar functions, consider using `gradient()` instead.
 
     Example:
     ```python
@@ -556,7 +556,7 @@ def jacobian(f: Callable, wrt: str = None, get_output=True) -> Callable:
     return GradientFunction(f, f_params, wrt, get_output, is_f_scalar=False)
 
 
-def functional_gradient(f: Callable, wrt: str = None, get_output=True) -> Callable:
+def gradient(f: Callable, wrt: str = None, get_output=True) -> Callable:
     """
     Creates a function which computes the gradient of `f`.
 
@@ -567,9 +567,9 @@ def functional_gradient(f: Callable, wrt: str = None, get_output=True) -> Callab
         loss = math.l2_loss(prediction - y)
         return loss, prediction
 
-    dx = functional_gradient(loss_function, 'x', get_output=False)(x, y)
+    dx = gradient(loss_function, 'x', get_output=False)(x, y)
 
-    (loss, prediction), (dx, dy) = functional_gradient(loss_function,
+    (loss, prediction), (dx, dy) = gradient(loss_function,
                                             'x,y', get_output=True)(x, y)
     ```
 
@@ -930,7 +930,7 @@ def trace_check(f, *args, **kwargs) -> Tuple[bool, str]:
     elif isinstance(f, LinearFunction):
         keys = f.matrices_and_biases.keys()
     else:
-        raise ValueError(f"{f_name(f)} is not a traceable function. Only supports jit_compile, jit_compile_linear, functional_gradient, custom_gradient, jacobian, hessian")
+        raise ValueError(f"{f_name(f)} is not a traceable function. Only supports jit_compile, jit_compile_linear, gradient, custom_gradient, jacobian, hessian")
     key, *_ = key_from_args(args, kwargs, f.f_params, aux=f.auxiliary_args)
     if not keys:
         return False, "Function has not yet been traced"

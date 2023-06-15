@@ -77,7 +77,7 @@ class TestFunctional(TestCase):
             jit_result = jit_f(x)
             math.assert_close(direct_result, jit_result)
 
-    def test_functional_gradient(self):
+    def test_gradient(self):
         def f(x: math.Tensor, y: math.Tensor):
             assert isinstance(x, math.Tensor)
             assert isinstance(y, math.Tensor)
@@ -90,12 +90,12 @@ class TestFunctional(TestCase):
                 with backend:
                     x_data = math.tensor(2.)
                     y_data = math.tensor(1.)
-                    dx = math.functional_gradient(f, wrt=0, get_output=False)(x_data, y_data)
+                    dx = math.gradient(f, wrt=0, get_output=False)(x_data, y_data)
                     math.assert_close(dx, 1, msg=backend.name)
-                    dx, dy = math.functional_gradient(f, [0, 1], get_output=False)(x_data, y_data)
+                    dx, dy = math.gradient(f, [0, 1], get_output=False)(x_data, y_data)
                     math.assert_close(dx, 1, msg=backend.name)
                     math.assert_close(dy, -1, msg=backend.name)
-                    (loss, pred), (dx, dy) = math.functional_gradient(f, [0, 1], get_output=True)(x_data, y_data)
+                    (loss, pred), (dx, dy) = math.gradient(f, [0, 1], get_output=True)(x_data, y_data)
                     math.assert_close(loss, 0.5, msg=backend.name)
                     math.assert_close(pred, x_data, msg=backend.name)
                     math.assert_close(dx, 1, msg=backend.name)
@@ -111,10 +111,10 @@ class TestFunctional(TestCase):
         for backend in BACKENDS:
             if backend.supports(Backend.jacobian):
                 with backend:
-                    normal_gradient, = math.functional_gradient(f, get_output=False)(math.ones())
+                    normal_gradient, = math.gradient(f, get_output=False)(math.ones())
                     math.assert_close(normal_gradient, 1)
                     f_custom_grad = math.custom_gradient(f, grad)
-                    custom_gradient, = math.functional_gradient(f_custom_grad, get_output=False)(math.ones())
+                    custom_gradient, = math.gradient(f_custom_grad, get_output=False)(math.ones())
                     math.assert_close(custom_gradient, 0)
 
     def test_custom_gradient_vector(self):
@@ -132,7 +132,7 @@ class TestFunctional(TestCase):
         for backend in BACKENDS:
             if backend.supports(Backend.custom_gradient):
                 with backend:
-                    custom_loss_grad, = math.functional_gradient(loss, get_output=False)(math.ones(spatial(x=4)))
+                    custom_loss_grad, = math.gradient(loss, get_output=False)(math.ones(spatial(x=4)))
                     math.assert_close(custom_loss_grad, 0, msg=backend.name)
 
     def test_map_types(self):
@@ -174,7 +174,7 @@ class TestFunctional(TestCase):
         def loss_function(x):
             return math.l2_loss(x)
 
-        gradient_function = math.functional_gradient(loss_function, wrt=0)
+        gradient_function = math.gradient(loss_function, wrt=0)
 
         for backend in BACKENDS:
             if backend.supports(Backend.jacobian):
