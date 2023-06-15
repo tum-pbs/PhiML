@@ -22,7 +22,7 @@ class TorchBackend(Backend):
         for index in range(torch.cuda.device_count()):
             properties = torch.cuda.get_device_properties(index)
             devices.append(ComputeDevice(self, properties.name, 'GPU', properties.total_memory, properties.multi_processor_count, f"compute capability {properties.major}.{properties.minor}", f'cuda:{index}'))
-        Backend.__init__(self, 'PyTorch', devices, devices[1 if len(devices) > 1 else 0])
+        Backend.__init__(self, 'torch', devices, devices[1 if len(devices) > 1 else 0])
 
     def prefers_channels_last(self) -> bool:
         return False

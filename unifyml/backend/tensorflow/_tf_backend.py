@@ -26,7 +26,7 @@ class TFBackend(Backend):
             if device.ref == default_device_ref:
                 default_device = device
         assert default_device is not None
-        Backend.__init__(self, "TensorFlow", devices, default_device)
+        Backend.__init__(self, 'tensorflow', devices, default_device)
 
     def prefers_channels_last(self) -> bool:
         return True

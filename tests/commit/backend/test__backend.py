@@ -195,9 +195,9 @@ class TestBackends(TestCase):
 
     def test_use(self):
         set_global_default_backend('torch')
-        self.assertEqual('PyTorch', default_backend().name)
+        self.assertEqual('torch', default_backend().name)
         set_global_default_backend('numpy')
-        self.assertEqual('NumPy', default_backend().name)
+        self.assertEqual('numpy', default_backend().name)
 
     def test_multi_slice(self):
         for b in BACKENDS:

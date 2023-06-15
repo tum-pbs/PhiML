@@ -25,7 +25,7 @@ class NumPyBackend(Backend):
             mem_bytes = -1
         processors = os.cpu_count()
         cpu = ComputeDevice(self, "CPU", 'CPU', mem_bytes, processors, "", 'CPU')
-        Backend.__init__(self, "NumPy", [cpu], cpu)
+        Backend.__init__(self, "numpy", [cpu], cpu)
 
     def prefers_channels_last(self) -> bool:
         return True

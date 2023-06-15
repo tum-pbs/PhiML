@@ -130,7 +130,7 @@ class TestFunctional(TestCase):
             return math.l1_loss(y)
 
         for backend in BACKENDS:
-            if backend.supports(Backend.custom_gradient):  # and backend.name != 'Jax':
+            if backend.supports(Backend.custom_gradient):
                 with backend:
                     custom_loss_grad, = math.functional_gradient(loss, get_output=False)(math.ones(spatial(x=4)))
                     math.assert_close(custom_loss_grad, 0, msg=backend.name)

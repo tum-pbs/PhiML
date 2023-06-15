@@ -32,7 +32,7 @@ class JaxBackend(Backend):
                     devices.append(ComputeDevice(self, device_type.upper(), jax_dev.platform.upper(), -1, -1, f"id={jax_dev.id}", jax_dev))
             except RuntimeError as err:
                 pass  # this is just Jax not finding anything. jaxlib.xla_client._get_local_backends() could help but isn't currently available on GitHub actions
-        Backend.__init__(self, "Jax", devices, devices[-1])
+        Backend.__init__(self, 'jax', devices, devices[-1])
         try:
             self.rnd_key = jax.random.PRNGKey(seed=0)
         except RuntimeError as err:

@@ -281,7 +281,7 @@ class TestOps(TestCase):
         fft_ref_tensor = math.wrap(np.fft.fft2(sine_field), spatial('x,y'))
         with math.precision(64):
             for backend in BACKENDS:
-                if backend.name != 'Jax':  # TODO Jax casts to float32 / complex64 on GitHub Actions
+                if backend.name != 'jax':  # TODO Jax casts to float32 / complex64 on GitHub Actions
                     with backend:
                         sine_tensor = math.tensor(sine_field, spatial('x,y'))
                         fft_tensor = math.fft(sine_tensor)

@@ -4,6 +4,7 @@ import warnings
 from builtins import ValueError
 from contextlib import contextmanager
 from dataclasses import dataclass
+from types import ModuleType
 from typing import List, Callable, TypeVar, Tuple, Union, Optional
 
 import numpy
@@ -1649,18 +1650,18 @@ def init_backend(backend: str):
         backends = tuple(sys.modules)
     else:
         backends = [s.strip() for s in backend.split(',')]
-    if ('jax' in backends or 'jaxlib' in backends) and not is_initialized('Jax'):
-        ML_LOGGER.info("Initializing backend 'Jax'")
+    if ('jax' in backends or 'jaxlib' in backends) and not is_initialized('jax'):
+        ML_LOGGER.info("Initializing backend 'jax'")
         from .jax import JAX
         BACKENDS.append(JAX)
         result.append(JAX)
-    if 'tensorflow' in backends and not is_initialized('TensorFlow'):
-        ML_LOGGER.info("Initializing backend 'TensorFlow'")
+    if 'tensorflow' in backends and not is_initialized('tensorflow'):
+        ML_LOGGER.info("Initializing backend 'tensorflow'")
         from .tensorflow import TENSORFLOW
         BACKENDS.append(TENSORFLOW)
         result.append(TENSORFLOW)
-    if 'torch' in backends and not is_initialized('PyTorch'):
-        ML_LOGGER.info("Initializing backend 'PyTorch'")
+    if 'torch' in backends and not is_initialized('torch'):
+        ML_LOGGER.info("Initializing backend 'torch'")
         from .torch import TORCH
         BACKENDS.append(TORCH)
         result.append(TORCH)
@@ -1672,7 +1673,7 @@ def is_initialized(backend: str) -> bool:
     Checks whether a specific backend has been successfully initialized and can be used from UnifyML.
 
     Args:
-        backend: Backend name, such as `'Jax'`, `'TensorFlow'`, `'PyTorch'` or `'NumPy'`.
+        backend: Backend name, such as `'jax'`, `'tensorflow'`, `'torch'` or `'numpy'`.
 
     Returns:
         `bool`
@@ -1711,12 +1712,14 @@ def set_global_default_backend(backend: Union[str, Backend]):
     See `default_backend()`, `choose_backend()`.
 
     Args:
-        backend: `Backend` to set as default
+        backend: `Backend` or backend name to set as default.
+            Possible names are `'torch'`, `'tensorflow'`, `'jax'`, `'numpy'`.
     """
+    if isinstance(backend, ModuleType):
+        backend = str(backend)
     if isinstance(backend, str):
         init_backend(backend)
-        backend_name = {"torch": 'PyTorch', "numpy": 'NumPy', "tensorflow": 'TensorFlow', "jax": 'Jax'}.get(backend, backend)
-        matches = [b for b in BACKENDS if b.name == backend_name]
+        matches = [b for b in BACKENDS if b.name == backend.lower()]
         if not matches:
             raise ValueError(f"Illegal backend: '{backend}'")
         backend = matches[0]
