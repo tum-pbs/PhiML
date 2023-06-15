@@ -225,7 +225,7 @@ def rmsprop(net: StaxNet, learning_rate: float = 1e-3, alpha=0.99, eps=1e-08, we
     return opt
 
 
-def dense_net(in_channels: int,
+def mlp(in_channels: int,
               out_channels: int,
               layers: Sequence[int],
               batch_norm=False,
@@ -883,9 +883,9 @@ def coupling_layer(in_channels: int,
 
 def invertible_net(num_blocks: int,
                    construct_net: Union[str, Callable],
-                   **construct_kwargs):  # dense_net, u_net, res_net, conv_net
+                   **construct_kwargs):  # mlp, u_net, res_net, conv_net
     raise NotImplementedError("invertible_net is not implemented for Jax")
-    # if construct_net == 'dense_net':
+    # if construct_net == 'mlp':
     #     construct_net = '_inv_net_dense_resnet_block'
     # if isinstance(construct_net, str):
     #     construct_net = globals()[construct_net]

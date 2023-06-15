@@ -146,14 +146,14 @@ def rmsprop(net: Network, learning_rate: float = 1e-3, alpha=0.99, eps=1e-08, we
     return _native_lib().rmsprop(**locals())
 
 
-def dense_net(in_channels: int,
+def mlp(in_channels: int,
               out_channels: int,
               layers: Sequence[int],
               batch_norm=False,
               activation: Union[str, Callable] = 'ReLU',
               softmax=False) -> Network:
     """
-    Fully-connected neural networks are available in Φ-Flow via dense_net().
+    Fully-connected neural networks are available in Φ-Flow via mlp().
 
     Args:
         in_channels : size of input layer, int
@@ -165,7 +165,7 @@ def dense_net(in_channels: int,
     Returns:
         Dense net model as specified by input arguments
     """
-    return _native_lib().dense_net(**locals())
+    return _native_lib().mlp(**locals())
 
 
 def u_net(in_channels: int,
@@ -270,7 +270,7 @@ def invertible_net(num_blocks: int = 3,
     These networks have far-reaching applications in predicting input parameters of a problem given its observations.
     Invertible nets are composed of multiple concatenated coupling blocks wherein each such block consists of arbitrary neural networks.
 
-    Currently, these arbitrary neural networks could be set to u_net(default), conv_net, res_net or dense_net blocks with in_channels = out_channels.
+    Currently, these arbitrary neural networks could be set to u_net(default), conv_net, res_net or mlp blocks with in_channels = out_channels.
     The architecture used is popularized by ["Real NVP"](https://arxiv.org/abs/1605.08803).
 
     Invertible nets are only implemented for PyTorch and TensorFlow.
@@ -279,7 +279,7 @@ def invertible_net(num_blocks: int = 3,
         num_blocks : number of coupling blocks inside the invertible net, dtype : int
         construct_net : Function to construct one part of the neural network.
             This network must have the same number of inputs and outputs.
-            Can be a `lambda` function or one of the following strings: `dense_net, u_net, res_net, conv_net`
+            Can be a `lambda` function or one of the following strings: `mlp, u_net, res_net, conv_net`
         construct_kwargs : Keyword arguments passed to `construct_net`.
 
     Returns:

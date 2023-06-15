@@ -85,21 +85,21 @@ class TestNetworks(TestCase):
                 nn.update_weights(net, optimizer, loss_function, math.random_uniform(math.batch(batch=10), math.spatial(x=8, y=8)))
                 nn.update_weights(net_res, optimizer_2, loss_function_res, math.random_uniform(math.batch(batch=10), math.spatial(x=8, y=8)))
 
-    def test_dense_net_network_params(self):
+    def test_mlp_network_params(self):
         for lib in LIBRARIES:
             nn.use(lib)
-            net = nn.dense_net(2, 3, layers=[10, 12], batch_norm=False, activation='ReLU')
+            net = nn.mlp(2, 3, layers=[10, 12], batch_norm=False, activation='ReLU')
             self.assertEqual(201, nn.parameter_count(net))
             params = nn.get_parameters(net)
             self.assertEqual(6, len(params))
             self.assertTrue(all(isinstance(p, math.Tensor) for p in params.values()))
-            net = nn.dense_net(2, 3, layers=[10], batch_norm=True, activation='ReLU')
+            net = nn.mlp(2, 3, layers=[10], batch_norm=True, activation='ReLU')
             self.assertEqual(83, nn.parameter_count(net), str(lib))
 
-    def test_optimize_dense_net(self):
+    def test_optimize_mlp(self):
         for lib in LIBRARIES:
             nn.use(lib)
-            net = nn.dense_net(2, 3, layers=[10], batch_norm=True, activation='Sigmoid')
+            net = nn.mlp(2, 3, layers=[10], batch_norm=True, activation='Sigmoid')
             optimizer = nn.adam(net)
 
             def loss_function(x):
@@ -156,10 +156,10 @@ class TestNetworks(TestCase):
             for i in range(2):
                 nn.update_weights(net, optimizer, loss_function, math.random_uniform(math.batch(batch=10), math.channel(c=2), math.spatial(x=8, y=8)))
 
-    def test_optimize_invertible_dense_net(self):
+    def test_optimize_invertible_mlp(self):
         for lib in ['torch', 'tensorflow']:
             nn.use(lib)
-            net = nn.invertible_net(3, 'dense_net', in_channels=50, layers=[50])
+            net = nn.invertible_net(3, 'mlp', in_channels=50, layers=[50])
             optimizer = nn.adam(net)
 
             def loss_function(x):
@@ -182,7 +182,7 @@ class TestNetworks(TestCase):
             self.assertEqual(1080, nn.parameter_count(net_res))
             net_conv = nn.invertible_net(3, 'conv_net', in_channels=2, batch_norm=True, layers=[])
             self.assertEqual(576, nn.parameter_count(net_conv))
-            net_dense = nn.invertible_net(3, 'dense_net', in_channels=2, batch_norm=True, layers=[2])
+            net_dense = nn.invertible_net(3, 'mlp', in_channels=2, batch_norm=True, layers=[2])
             self.assertEqual(240, nn.parameter_count(net_dense))
 
     def test_conv_classifier(self):

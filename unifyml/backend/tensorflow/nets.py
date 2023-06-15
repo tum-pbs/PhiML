@@ -114,7 +114,7 @@ def rmsprop(net: keras.Model, learning_rate: float = 1e-3, alpha=0.99, eps=1e-08
     return keras.optimizers.RMSprop(learning_rate, alpha, momentum, eps, centered)
 
 
-def dense_net(in_channels: int,
+def mlp(in_channels: int,
               out_channels: int,
               layers: Sequence[int],
               batch_norm=False,
@@ -319,7 +319,7 @@ def conv_classifier(in_features: int,
         x = MAX_POOL[d](2)(x)
     x = kl.Flatten()(x)
     flat_size = int(np.prod(in_spatial) * blocks[-1] / (2**d) ** len(blocks))
-    x = dense_net(flat_size, num_classes, dense_layers, batch_norm, activation, softmax)(x)
+    x = mlp(flat_size, num_classes, dense_layers, batch_norm, activation, softmax)(x)
     return keras.Model(inputs, x)
 
 
@@ -400,8 +400,8 @@ class InvertibleNet(keras.Model):
 
 def invertible_net(num_blocks: int,
                    construct_net: Union[str, Callable],
-                   **construct_kwargs):  # dense_net, u_net, res_net, conv_net
-    if construct_net == 'dense_net':
+                   **construct_kwargs):  # mlp, u_net, res_net, conv_net
+    if construct_net == 'mlp':
         construct_net = '_inv_net_dense_resnet_block'
     if isinstance(construct_net, str):
         construct_net = globals()[construct_net]

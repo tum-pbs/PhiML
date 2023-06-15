@@ -100,7 +100,7 @@ NORM = [None, nn.BatchNorm1d, nn.BatchNorm2d, nn.BatchNorm3d]
 ACTIVATIONS = {'ReLU': nn.ReLU, 'Sigmoid': nn.Sigmoid, 'tanh': nn.Tanh, 'SiLU': nn.SiLU, 'GeLU': nn.GELU}
 
 
-def dense_net(in_channels: int,
+def mlp(in_channels: int,
               out_channels: int,
               layers: Sequence[int],
               batch_norm=False,
@@ -449,7 +449,7 @@ class ConvClassifier(nn.Module):
                 layers.append(activation())
             self.add_module(f'conv{i+1}', nn.Sequential(*layers))
         flat_size = int(np.prod(in_spatial) * blocks[-1] / (2**d) ** len(blocks))
-        self.dense_net = dense_net(flat_size, num_classes, dense_layers, batch_norm, activation, use_softmax)
+        self.mlp = mlp(flat_size, num_classes, dense_layers, batch_norm, activation, use_softmax)
         self.flatten = nn.Flatten()
 
     def forward(self, x):
@@ -457,7 +457,7 @@ class ConvClassifier(nn.Module):
             x = getattr(self, f'conv{i+1}')(x)
             x = self.maxpool(x)
         x = self.flatten(x)
-        x = self.dense_net(x)
+        x = self.mlp(x)
         return x
 
 
@@ -510,8 +510,8 @@ class InvertibleNet(nn.Module):
 
 def invertible_net(num_blocks: int,
                    construct_net: Union[str, Callable],
-                   **construct_kwargs):  # dense_net, u_net, res_net, conv_net
-    if construct_net == 'dense_net':
+                   **construct_kwargs):  # mlp, u_net, res_net, conv_net
+    if construct_net == 'mlp':
         def construct_net(in_channels: int, layers: Sequence[int], batch_norm=False, activation='ReLU', softmax=False, out_channels: int = None):
             assert not softmax, "Softmax not supported inside invertible net"
             assert out_channels is None or out_channels == in_channels, "out_channels must match in_channels or be unspecified"
