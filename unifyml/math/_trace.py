@@ -285,7 +285,7 @@ def matrix_from_function(f: Callable,
     # --- Compress ---
     if not auto_compress:
         return matrix, bias
-    if matrix.default_backend.supports(Backend.mul_csr_dense) and target_backend.supports(Backend.mul_csr_dense):
+    if matrix.default_backend.supports(Backend.mul_csr_dense) and target_backend.supports(Backend.mul_csr_dense) and isinstance(matrix, SparseCoordinateTensor):
         return matrix.compress_rows(), bias
     # elif backend.supports(Backend.mul_csc_dense):
     #     return matrix.compress_cols(), tracer.bias
