@@ -1,6 +1,8 @@
 from functools import partial
 from unittest import TestCase
 
+import numpy
+
 from unifyml import math
 from unifyml.backend import Backend
 from unifyml.backend._backend import init_installed_backends
@@ -183,3 +185,26 @@ class TestOptimize(TestCase):
 
                 x = solve(math.ones(spatial(x=3)))
                 math.assert_close([-1.5, -2, -1.5], x)
+
+    def test_solve_np(self):
+        from unifyml import math
+
+        def laplace_1d(x):
+            return math.pad(x[1:], (0, 1)) + math.pad(x[:-1], (1, 0)) - 2 * x
+
+        b = numpy.ones((6,))
+        solve = math.Solve('scipy-CG', rel_tol=1e-5, x0=0 * b, preconditioner='ilu')
+        sol = math.solve_linear(math.jit_compile_linear(laplace_1d), b, solve)
+        numpy.testing.assert_almost_equal([-3, -5, -6, -6, -5, -3], sol, decimal=4)
+
+    def test_dense_matrix_solve_np(self):
+        A = numpy.diag([1, 2, -3])
+        # --- matrix-vector ---
+        b = numpy.ones((3,))
+        sol = math.solve_linear(A, b, math.Solve('scipy-CG', rel_tol=1e-5, x0=0 * b, preconditioner='ilu'))
+        numpy.testing.assert_almost_equal([1, .5, -1/3], sol, decimal=4)
+        # --- matrix-matrix ---
+        b = b[:, None] * (1, -1)
+        sol = math.solve_linear(A, b, math.Solve('scipy-CG', rel_tol=1e-5, x0=0 * b, preconditioner='ilu'))
+        numpy.testing.assert_almost_equal([(1, -1), (.5, -.5), (-1/3, 1/3)], sol, decimal=4)
+

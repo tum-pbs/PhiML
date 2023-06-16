@@ -7,7 +7,7 @@ import numpy
 import numpy as np
 
 from ..backend import get_precision, NUMPY, Backend
-from ..backend._backend import SolveResult, ML_LOGGER, default_backend, convert, Preconditioner
+from ..backend._backend import SolveResult, ML_LOGGER, default_backend, convert, Preconditioner, choose_backend
 from ..backend._linalg import IncompleteLU, incomplete_lu_dense, incomplete_lu_coo, coarse_explicit_preconditioner_coo
 from ._shape import EMPTY_SHAPE, Shape, merge_shapes, batch, non_batch, shape, dual, channel, non_dual, instance, spatial
 from ._magic_ops import stack, copy_with, rename_dims, unpack_dim
@@ -531,6 +531,41 @@ def solve_linear(f: Union[Callable[[X], Y], Tensor],
     x0_tree, x0_tensors = disassemble_tree(solve.x0)
     assert solve.x0 is not None, "Please specify the initial guess as Solve(..., x0=initial_guess)"
     assert len(x0_tensors) == len(y_tensors) == 1, "Only single-tensor linear solves are currently supported"
+    if y_tree == 'native' and x0_tree == 'native':
+        if callable(f):  # assume batch + 1 dim
+            rank = y_tensors[0].rank
+            assert x0_tensors[0].rank == rank, f"y and x0 must have the same rank but got {y_tensors[0].shape.sizes} for y and {x0_tensors[0].shape.sizes} for x0"
+            y = wrap(y, *[batch(f'batch{i}') for i in range(rank - 1)], channel('vector'))
+            x0 = wrap(solve.x0, *[batch(f'batch{i}') for i in range(rank - 1)], channel('vector'))
+            solve = copy_with(solve, x0=x0)
+            solution = solve_linear(f, y, solve, *f_args, grad_for_f=grad_for_f, f_kwargs=f_kwargs, **f_kwargs_)
+            return solution.native(','.join([f'batch{i}' for i in range(rank - 1)]) + ',vector')
+        else:
+            b = choose_backend(y, solve.x0, f)
+            f_dims = b.staticshape(f)
+            y_dims = b.staticshape(y)
+            x_dims = b.staticshape(solve.x0)
+            rank = len(f_dims) - 2
+            assert rank >= 0, f"f must be a matrix but got shape {f_dims}"
+            f = wrap(f, *[batch(f'batch{i}') for i in range(rank - 1)], channel('vector'), dual('vector'))
+            if len(x_dims) == len(f_dims):  # matrix solve
+                assert len(x_dims) == len(f_dims)
+                assert x_dims[-2] == f_dims[-1]
+                assert y_dims[-2] == f_dims[-2]
+                y = wrap(y, *[batch(f'batch{i}') for i in range(rank - 1)], channel('vector'), batch('extra_batch'))
+                x0 = wrap(solve.x0, *[batch(f'batch{i}') for i in range(rank - 1)], channel('vector'), batch('extra_batch'))
+                solve = copy_with(solve, x0=x0)
+                solution = solve_linear(f, y, solve, *f_args, grad_for_f=grad_for_f, f_kwargs=f_kwargs, **f_kwargs_)
+                return solution.native(','.join([f'batch{i}' for i in range(rank - 1)]) + ',vector,extra_batch')
+            else:
+                assert len(x_dims) == len(f_dims) - 1
+                assert x_dims[-1] == f_dims[-1]
+                assert y_dims[-1] == f_dims[-2]
+                y = wrap(y, *[batch(f'batch{i}') for i in range(rank - 1)], channel('vector'))
+                x0 = wrap(solve.x0, *[batch(f'batch{i}') for i in range(rank - 1)], channel('vector'))
+                solve = copy_with(solve, x0=x0)
+                solution = solve_linear(f, y, solve, *f_args, grad_for_f=grad_for_f, f_kwargs=f_kwargs, **f_kwargs_)
+                return solution.native(','.join([f'batch{i}' for i in range(rank - 1)]) + ',vector')
     backend = choose_backend_t(*y_tensors, *x0_tensors)
     prefer_explicit = backend.supports(Backend.sparse_coo_tensor) or backend.supports(Backend.csr_matrix) or grad_for_f
 
