@@ -822,7 +822,7 @@ def concat_tensor(values: Union[tuple, list], dim: str) -> Tensor:
     return result
 
 
-def pad(value: Tensor, widths: dict, mode: Union['e_.Extrapolation', Tensor, Number], **kwargs) -> Tensor:
+def pad(value: Tensor, widths: Union[dict, tuple], mode: Union['e_.Extrapolation', Tensor, Number] = 0, **kwargs) -> Tensor:
     """
     Pads a tensor along the specified dimensions, determining the added values using the given extrapolation.
     Unlike `Extrapolation.pad()`, this function can handle negative widths which slice off outer values.
@@ -846,6 +846,14 @@ def pad(value: Tensor, widths: dict, mode: Union['e_.Extrapolation', Tensor, Num
         >>> math.pad(math.ones(spatial(x=10, y=10)), {'x': (1, -1)}, 0)
         (xˢ=10, yˢ=10) 0.900 ± 0.300 (0e+00...1e+00)
     """
+    if isinstance(widths, (tuple, list)):
+        if len(widths) == 2 and isinstance(widths[0], int) and isinstance(widths[1], int):  # (lower, upper)
+            assert non_batch(value).rank == 1, f"Can only pad 1D tensors (excluding batch dims) when widths=(lower, upper) but got {shape(value)} and widths={widths}"
+            widths = {non_batch(value).name: widths}
+        else:  # ((lo0, up0), (lo1, up1), ...)
+            assert len(widths) == non_batch(value), f"Cannot pad tensor with non-batch dims {non_batch(value)} by widths {widths}. Sizes must match."
+            warnings.warn("Padding by sequence of (lower, upper) is not recommended. Please use a dict instead.", SyntaxWarning, stacklevel=2)
+            widths = {dim: w for dim, w in zip(non_batch(value).names, widths)}
     mode = mode if isinstance(mode, e_.Extrapolation) else e_.ConstantExtrapolation(mode)
     has_negative_widths = any(w0 < 0 or w1 < 0 for w0, w1 in widths.values())
     has_positive_widths = any(w0 > 0 or w1 > 0 for w0, w1 in widths.values())
