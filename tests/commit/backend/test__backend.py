@@ -178,6 +178,26 @@ class TestBackends(TestCase):
             result = b.vectorized_call(gather1d, values, indices, output_dtypes=b.dtype(values))
             numpy.testing.assert_equal([(3, 0), (4, 1)], b.numpy(result))
 
+    def test_numpy_call(self):
+        for b in BACKENDS:
+            def numpy_pad(a, b, w: bool):
+                return numpy.pad(a + b, pad_width=(w, w)).astype(numpy.int64)
+            result = b.numpy_call(numpy_pad, (5,), DType(int, 64), b.as_tensor([1, 2, 3]), b.as_tensor([1, 1, 1]), w=1)
+            numpy.testing.assert_equal([0, 2, 3, 4, 0], b.numpy(result))
+
+    def test_numpy_call_jit(self):
+        for b in BACKENDS:
+            if b.supports(Backend.jit_compile):
+                def numpy_pad(a, b, w: bool):
+                    return numpy.pad(a + b, pad_width=(w, w)).astype(numpy.int64)
+                @b.jit_compile
+                def jit_fn(a):
+                    return b.numpy_call(numpy_pad, (5,), DType(int, 64), a, b.as_tensor([1, 1, 1]), w=1) + 1
+                result = jit_fn(b.as_tensor([1, 2, 3]))
+                numpy.testing.assert_equal([1, 3, 4, 5, 1], b.numpy(result))
+                result = jit_fn(b.as_tensor([3, 2, 1]))
+                numpy.testing.assert_equal([1, 5, 4, 3, 1], b.numpy(result))
+
     def test_linspace_without_last(self):
         for b in BACKENDS:
             result = b.linspace_without_last(-1, 1, 4)

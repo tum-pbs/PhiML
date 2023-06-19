@@ -11,7 +11,7 @@ from packaging import version
 
 from .._dtype import DType
 from .. import Backend, NUMPY, ComputeDevice, ML_LOGGER
-from .._backend import combined_dim, SolveResult, get_functional_derivative_order, TensorType
+from .._backend import combined_dim, SolveResult, get_functional_derivative_order, TensorType, map_structure
 
 
 class TorchBackend(Backend):
@@ -193,6 +193,20 @@ class TorchBackend(Backend):
         args = [self.tile_to(t, 0, batch_size) for t in args]
         f_vec = torch.vmap(f, 0, 0)
         return f_vec(*args, **aux_args)
+
+    def numpy_call(self, f, output_shapes, output_dtypes, *args, **aux_args):
+        class NumPyFunction(torch.autograd.Function):
+            @staticmethod
+            def forward(ctx, *args):
+                args = [a.detach().cpu().numpy() for a in args]
+                result = f(*args, **aux_args)
+                return map_structure(lambda t: self.as_tensor(t), result)
+
+            @staticmethod
+            def backward(ctx, grad_output):
+                raise NotImplementedError
+
+        return NumPyFunction.apply(*args)
 
     def jit_compile(self, f: Callable) -> Callable:
         return JITFunction(self, f)

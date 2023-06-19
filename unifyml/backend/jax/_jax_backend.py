@@ -1,3 +1,4 @@
+import dataclasses
 import numbers
 import warnings
 from functools import wraps, partial
@@ -15,8 +16,7 @@ if version.parse(jax.__version__) >= version.parse('0.2.20'):
     from jax.experimental.sparse import BCOO, COO, CSR, CSC
 
 from .._dtype import DType, to_numpy_dtype, from_numpy_dtype
-from .._backend import Backend, ComputeDevice, combined_dim, ML_LOGGER, TensorType
-
+from .._backend import Backend, ComputeDevice, combined_dim, ML_LOGGER, TensorType, map_structure
 
 from jax.config import config
 config.update("jax_enable_x64", True)
@@ -192,6 +192,25 @@ class JaxBackend(Backend):
             return f(*args, **aux_args)
         vec_f = jax.vmap(f_positional, 0, 0)
         return vec_f(*args)
+
+    def numpy_call(self, f, output_shapes, output_dtypes, *args, **aux_args):
+        @dataclasses.dataclass
+        class OutputTensor:
+            shape: Tuple[int]
+            dtype: np.dtype
+        output_specs = map_structure(lambda t, s: OutputTensor(s, to_numpy_dtype(t)), output_dtypes, output_shapes)
+        if hasattr(jax, 'pure_callback'):
+            def aux_f(*args):
+                return f(*args, **aux_args)
+            return jax.pure_callback(aux_f, output_specs, *args)
+        else:
+            def aux_f(args):
+                if isinstance(args, tuple):
+                    return f(*args, **aux_args)
+                else:
+                    return f(args, **aux_args)
+            from jax.experimental.host_callback import call
+            return call(aux_f, args, result_shape=output_specs)
 
     def jit_compile(self, f: Callable) -> Callable:
         def run_jit_f(*args):

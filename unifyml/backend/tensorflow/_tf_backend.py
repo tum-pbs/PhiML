@@ -117,14 +117,26 @@ class TFBackend(Backend):
             return result
 
     def vectorized_call(self, f, *args, output_dtypes=None, **aux_args):
-        batch_size = self.determine_size(args, 0)
-        args = [self.tile_to(t, 0, batch_size) for t in args]
-        if output_dtypes is None:
-            output0 = f(*[t[0] for t in args], **aux_args)  # Call f to determine its output signature.
-            output_dtypes = tf.nest.map_structure(lambda x: x.dtype, output0)
-        else:
-            output_dtypes = tf.nest.map_structure(lambda dtype: to_numpy_dtype(dtype), output_dtypes)
-        return tf.map_fn(lambda vals: f(*vals, **aux_args), tuple(args), fn_output_signature=output_dtypes)
+        with tf.device(args[0].device):
+            batch_size = self.determine_size(args, 0)
+            args = [self.tile_to(t, 0, batch_size) for t in args]
+            if output_dtypes is None:
+                output0 = f(*[t[0] for t in args], **aux_args)  # Call f to determine its output signature.
+                output_dtypes = tf.nest.map_structure(lambda x: x.dtype, output0)
+            else:
+                output_dtypes = tf.nest.map_structure(lambda dtype: to_numpy_dtype(dtype), output_dtypes)
+            return tf.map_fn(lambda vals: f(*vals, **aux_args), tuple(args), fn_output_signature=output_dtypes)
+
+    def numpy_call(self, f, output_shapes, output_dtypes, *args, **aux_args):
+        def aux_f(*args):
+            return f(*args, **aux_args)
+        with tf.device(args[0].device):
+            if output_dtypes is None:
+                output0 = f(*[t[0] for t in args], **aux_args)  # Call f to determine its output signature.
+                output_dtypes = tf.nest.map_structure(lambda x: x.dtype, output0)
+            else:
+                output_dtypes = tf.nest.map_structure(lambda dtype: to_numpy_dtype(dtype), output_dtypes)
+            return tf.py_function(aux_f, args, output_dtypes)
 
     def jit_compile(self, f: Callable) -> Callable:
         compiled = tf.function(f)

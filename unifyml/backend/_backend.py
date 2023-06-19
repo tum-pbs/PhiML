@@ -403,12 +403,29 @@ class Backend:
             *args: Batched inputs for `f`. The first dimension of all `args` is vectorized.
                 All tensors in `args` must have the same size or `1` in their first dimension.
             output_dtypes: Single `DType` or tuple of DTypes declaring the dtypes of the tensors returned by `f`.
+            **aux_args: Non-vectorized keyword arguments to be passed to `f`.
         """
         batch_dim = self.determine_size(args, 0)
         result = []
         for b in range(batch_dim):
             result.append(f(*[t[min(b, self.staticshape(t)[0] - 1)] for t in args], **aux_args))
         return self.stack(result)
+
+    def numpy_call(self, f, output_shapes, output_dtypes, *args, **aux_args):
+        """
+        This call can be used in jit-compiled code but is not differentiable.
+
+        Args:
+            f: Function operating on numpy arrays.
+            output_shapes: Single shape `tuple` or tuple of shapes declaring the shapes of the tensors returned by `f`.
+            output_dtypes: Single `DType` or tuple of DTypes declaring the dtypes of the tensors returned by `f`.
+            *args: Tensor arguments to be converted to NumPy arrays and then passed to `f`.
+            **aux_args: Keyword arguments to be passed to `f` without conversion.
+
+        Returns:
+            Returned arrays of `f` converted to tensors.
+        """
+        return f(*args, **aux_args)
 
     def determine_size(self, tensors, axis):
         sizes = [self.staticshape(t)[axis] for t in tensors]
@@ -1704,7 +1721,7 @@ def context_backend() -> Union[Backend, None]:
     return _DEFAULT[-1] if len(_DEFAULT) > 1 else None
 
 
-def set_global_default_backend(backend: Union[str, Backend]):
+def set_global_default_backend(backend: Union[str, Backend]) -> Backend:
     """
     Sets the given backend as default.
     This setting can be overridden using `with backend:`.
@@ -1714,6 +1731,9 @@ def set_global_default_backend(backend: Union[str, Backend]):
     Args:
         backend: `Backend` or backend name to set as default.
             Possible names are `'torch'`, `'tensorflow'`, `'jax'`, `'numpy'`.
+
+    Returns:
+        The chosen backend as a `Backend´ instance.
     """
     if isinstance(backend, ModuleType):
         backend = str(backend)
@@ -1727,6 +1747,7 @@ def set_global_default_backend(backend: Union[str, Backend]):
     if _DEFAULT[0] is not backend:
         _DEFAULT[0] = backend
         ML_LOGGER.info(f"UnifyML's default backend is now {backend}")
+    return backend
 
 
 def set_global_precision(floating_point_bits: int):
@@ -1833,6 +1854,15 @@ def combined_dim(dim1, dim2, type_str: str = 'batch'):
         return dim1
     assert dim1 == dim2, f"Incompatible {type_str} dimensions: x0 {dim1}, y {dim2}"
     return dim1
+
+
+def map_structure(f, *trees, **aux_kwargs):
+    if isinstance(trees[0], tuple):
+        return tuple([map_structure(f, *[t[i] for t in trees]) for i in range(len(trees[0]))])
+    elif isinstance(trees[0], list):
+        return [map_structure(f, *[t[i] for t in trees]) for i in range(len(trees[0]))]
+    else:
+        return f(*trees, **aux_kwargs)
 
 
 _SPATIAL_DERIVATIVE_CONTEXT = [0]
