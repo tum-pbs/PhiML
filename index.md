@@ -1,4 +1,4 @@
-# ![UnifyML](figures/Logo_DallE2_layout.png)
+# ![UnifyML](images/Banner.png)
 
 [🌐 **GitHub**](https://github.com/holl-/UnifyML)
 &nbsp;&nbsp;&nbsp; [🔗 **API**](unifyml)
