@@ -1,0 +1,902 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+<meta name="generator" content="pdoc 0.10.0" />
+<title>unifyml.nn API documentation</title>
+<meta name="description" content="Unified neural network library.
+Includes …" />
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/typography.min.css" integrity="sha256-7l/o7C8jubJiy74VsKTidCy1yBkRtiUGbVkYBylBqUg=" crossorigin>
+<link rel="stylesheet preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/github.min.css" crossorigin>
+<style>:root{--highlight-color:#fe9}.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}h1:target,h2:target,h3:target,h4:target,h5:target,h6:target{background:var(--highlight-color);padding:.2em 0}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}dt:target .name{background:var(--highlight-color)}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}td{padding:0 .5em}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/highlight.min.js" integrity="sha256-Uv3H6lx7dJmRfRvH8TH6kJD1TSK1aFcwgx+mdg3epi8=" crossorigin></script>
+<script>window.addEventListener('DOMContentLoaded', () => hljs.initHighlighting())</script>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>unifyml.nn</code></h1>
+</header>
+<section id="section-intro">
+<p>Unified neural network library.
+Includes</p>
+<ul>
+<li>Flexible NN creation of popular architectures</li>
+<li>Optimizer creation</li>
+<li>Training functionality</li>
+<li>Parameter access</li>
+<li>Saving and loading networks and optimizer states.</li>
+</ul>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">&#34;&#34;&#34;
+Unified neural network library.
+Includes
+
+* Flexible NN creation of popular architectures
+* Optimizer creation
+* Training functionality
+* Parameter access
+* Saving and loading networks and optimizer states.
+&#34;&#34;&#34;
+import warnings
+from typing import Callable, Union, Sequence, Dict, TypeVar
+
+from .backend import default_backend, Backend, BACKENDS
+from .backend._backend import init_backend
+from .math import Tensor, use as _use
+
+
+use = _use
+
+
+def _native_lib():
+    if default_backend().supports(Backend.nn_library):
+        return default_backend().nn_library()
+    ml_backends = [b for b in BACKENDS if b.supports(Backend.nn_library)]
+    if not ml_backends:
+        if not init_backend(&#39;all-imported&#39;):
+            raise RuntimeError(f&#34;No ML library available. Please import either jax, torch, or tensorflow.&#34;)
+        ml_backends = [b for b in BACKENDS if b.supports(Backend.nn_library)]
+    if len(ml_backends) &gt; 1:
+        warnings.warn(f&#34;Multiple ML libraries loaded {tuple(ml_backends)} but none set as default. Defaulting to {ml_backends[0]}.&#34;, RuntimeWarning, stacklevel=3)
+    return ml_backends[0].nn_library()
+
+
+Network = TypeVar(&#39;Network&#39;)
+Optimizer = TypeVar(&#39;Optimizer&#39;)
+
+
+def parameter_count(net: Network) -&gt; int:
+    &#34;&#34;&#34;
+    Counts the number of parameters in a model.
+
+    See Also:
+        `get_parameters()`.
+
+    Args:
+        net: PyTorch model
+
+    Returns:
+        Total parameter count as `int`.
+    &#34;&#34;&#34;
+    return sum([value.shape.volume for name, value in get_parameters(net).items()])
+
+
+def get_parameters(net: Network) -&gt; Dict[str, Tensor]:
+    &#34;&#34;&#34;
+    Returns all parameters of a neural network.
+
+    Args:
+        net: Neural network.
+
+    Returns:
+        `dict` mapping parameter names to `unifyml.math.Tensor`s.
+    &#34;&#34;&#34;
+    return _native_lib().get_parameters(net)
+
+
+def save_state(obj: Union[Network, Optimizer], path: str):
+    &#34;&#34;&#34;
+    Write the state of a module or optimizer to a file.
+
+    See Also:
+        `load_state()`
+
+    Args:
+        obj: `torch.Network or torch.optim.Optimizer`
+        path: File path as `str`.
+    &#34;&#34;&#34;
+    return _native_lib().save_state(**locals())
+
+
+def load_state(obj: Union[Network, Optimizer], path: str):
+    &#34;&#34;&#34;
+    Read the state of a module or optimizer from a file.
+
+    See Also:
+        `save_state()`
+
+    Args:
+        obj: `torch.Network or torch.optim.Optimizer`
+        path: File path as `str`.
+    &#34;&#34;&#34;
+    return _native_lib().load_state(**locals())
+
+
+def update_weights(net: Network, optimizer: Optimizer, loss_function: Callable, *loss_args, **loss_kwargs):
+    &#34;&#34;&#34;
+    Computes the gradients of `loss_function` w.r.t. the parameters of `net` and updates its weights using `optimizer`.
+
+    This is the PyTorch version. Analogue functions exist for other learning frameworks.
+
+    Args:
+        net: Learning model.
+        optimizer: Optimizer.
+        loss_function: Loss function, called as `loss_function(*loss_args, **loss_kwargs)`.
+        *loss_args: Arguments given to `loss_function`.
+        **loss_kwargs: Keyword arguments given to `loss_function`.
+
+    Returns:
+        Output of `loss_function`.
+    &#34;&#34;&#34;
+    return _native_lib().update_weights(net, optimizer, loss_function, *loss_args, **loss_kwargs)
+
+
+def adam(net: Network, learning_rate: float = 1e-3, betas=(0.9, 0.999), epsilon=1e-07):
+    &#34;&#34;&#34;
+    Creates an Adam optimizer for `net`, alias for [`torch.optim.Adam`](https://pytorch.org/docs/stable/generated/torch.optim.Adam.html).
+    Analogue functions exist for other learning frameworks.
+    &#34;&#34;&#34;
+    return _native_lib().adam(**locals())
+
+
+def sgd(net: Network, learning_rate: float = 1e-3, momentum=0, dampening=0, weight_decay=0, nesterov=False):
+    &#34;&#34;&#34;
+    Creates an SGD optimizer for &#39;net&#39;, alias for [&#39;torch.optim.SGD&#39;](https://pytorch.org/docs/stable/generated/torch.optim.SGD.html)
+    Analogue functions exist for other learning frameworks.
+    &#34;&#34;&#34;
+    return _native_lib().sgd(**locals())
+
+
+def adagrad(net: Network, learning_rate: float = 1e-3, lr_decay=0, weight_decay=0, initial_accumulator_value=0,
+            eps=1e-10):
+    &#34;&#34;&#34;
+    Creates an Adagrad optimizer for &#39;net&#39;, alias for [&#39;torch.optim.Adagrad&#39;](https://pytorch.org/docs/stable/generated/torch.optim.Adagrad.html)
+    Analogue functions exist for other learning frameworks.
+    &#34;&#34;&#34;
+    return _native_lib().adagrad(**locals())
+
+
+def rmsprop(net: Network, learning_rate: float = 1e-3, alpha=0.99, eps=1e-08, weight_decay=0, momentum=0,
+            centered=False):
+    &#34;&#34;&#34;
+    Creates an RMSProp optimizer for &#39;net&#39;, alias for [&#39;torch.optim.RMSprop&#39;](https://pytorch.org/docs/stable/generated/torch.optim.RMSprop.html)
+    Analogue functions exist for other learning frameworks.
+    &#34;&#34;&#34;
+    return _native_lib().rmsprop(**locals())
+
+
+def mlp(in_channels: int,
+              out_channels: int,
+              layers: Sequence[int],
+              batch_norm=False,
+              activation: Union[str, Callable] = &#39;ReLU&#39;,
+              softmax=False) -&gt; Network:
+    &#34;&#34;&#34;
+    Fully-connected neural networks are available in Φ-Flow via mlp().
+
+    Args:
+        in_channels : size of input layer, int
+        out_channels = size of output layer, int
+        layers : tuple of linear layers between input and output neurons, list or tuple
+        activation : activation function used within the layers, string
+        batch_norm : use of batch norm after each linear layer, bool
+
+    Returns:
+        Dense net model as specified by input arguments
+    &#34;&#34;&#34;
+    return _native_lib().mlp(**locals())
+
+
+def u_net(in_channels: int,
+          out_channels: int,
+          levels: int = 4,
+          filters: Union[int, tuple, list] = 16,
+          batch_norm: bool = True,
+          activation: Union[str, type] = &#39;ReLU&#39;,
+          in_spatial: Union[tuple, int] = 2,
+          periodic=False,
+          use_res_blocks: bool = False) -&gt; Network:
+    &#34;&#34;&#34;
+    Built-in U-net architecture, classically popular for Semantic Segmentation in Computer Vision, composed of downsampling and upsampling layers.
+
+    Args:
+        in_channels: input channels of the feature map, dtype : int
+        out_channels : output channels of the feature map, dtype : int
+        levels : number of levels of down-sampling and upsampling, dtype : int
+        filters : filter sizes at each down/up sampling convolutional layer, if the input is integer all conv layers have the same filter size,
+        activation : activation function used within the layers, dtype : string
+        batch_norm : use of batchnorm after each conv layer, dtype : bool
+        in_spatial : spatial dimensions of the input feature map, dtype : int
+        use_res_blocks : use convolutional blocks with skip connections instead of regular convolutional blocks, dtype : bool
+
+    Returns:
+        U-net model as specified by input arguments.
+    &#34;&#34;&#34;
+    return _native_lib().u_net(**locals())
+
+
+def conv_net(in_channels: int,
+             out_channels: int,
+             layers: Sequence[int],
+             batch_norm: bool = False,
+             activation: Union[str, type] = &#39;ReLU&#39;,
+             in_spatial: Union[int, tuple] = 2,
+             periodic=False) -&gt; Network:
+    &#34;&#34;&#34;
+    Built in Conv-Nets are also provided. Contrary to the classical convolutional neural networks, the feature map spatial size remains the same throughout the layers. Each layer of the network is essentially a convolutional block comprising of two conv layers. A filter size of 3 is used in the convolutional layers.
+
+    Args:
+        in_channels : input channels of the feature map, dtype : int
+        out_channels : output channels of the feature map, dtype : int
+        layers : list or tuple of output channels for each intermediate layer between the input and final output channels, dtype : list or tuple
+        activation : activation function used within the layers, dtype : string
+        batch_norm : use of batchnorm after each conv layer, dtype : bool
+        in_spatial : spatial dimensions of the input feature map, dtype : int
+
+    Returns:
+        Conv-net model as specified by input arguments
+    &#34;&#34;&#34;
+    return _native_lib().conv_net(**locals())
+
+
+def res_net(in_channels: int,
+            out_channels: int,
+            layers: Sequence[int],
+            batch_norm: bool = False,
+            activation: Union[str, type] = &#39;ReLU&#39;,
+            in_spatial: Union[int, tuple] = 2,
+            periodic=False) -&gt; Network:
+    &#34;&#34;&#34;
+    Built in Res-Nets are provided in the ΦFlow framework. Similar to the conv-net, the feature map spatial size remains the same throughout the layers.
+    These networks use residual blocks composed of two conv layers with a skip connection added from the input to the output feature map.
+    A default filter size of 3 is used in the convolutional layers.
+
+    Args:
+        in_channels : input channels of the feature map, dtype : int
+        out_channels : output channels of the feature map, dtype : int
+        layers : list or tuple of output channels for each intermediate layer between the input and final output channels, dtype : list or tuple
+        activation : activation function used within the layers, dtype : string
+        batch_norm : use of batchnorm after each conv layer, dtype : bool
+        in_spatial : spatial dimensions of the input feature map, dtype : int
+
+    Returns:
+        Res-net model as specified by input arguments
+    &#34;&#34;&#34;
+    return _native_lib().res_net(**locals())
+
+
+def conv_classifier(in_features: int,
+                    in_spatial: Union[tuple, list],
+                    num_classes: int,
+                    blocks=(64, 128, 256, 256, 512, 512),
+                    block_sizes=(2, 2, 3, 3, 3),
+                    dense_layers=(4096, 4096, 100),
+                    batch_norm=True,
+                    activation=&#39;ReLU&#39;,
+                    softmax=True,
+                    periodic=False):
+    &#34;&#34;&#34;
+    Based on VGG16.
+    &#34;&#34;&#34;
+    return _native_lib().conv_classifier(**locals())
+
+
+def invertible_net(num_blocks: int = 3,
+                   construct_net: Union[str, Callable] = &#39;u_net&#39;,
+                   **construct_kwargs):
+    &#34;&#34;&#34;
+    Invertible NNs are capable of inverting the output tensor back to the input tensor initially passed.
+    These networks have far-reaching applications in predicting input parameters of a problem given its observations.
+    Invertible nets are composed of multiple concatenated coupling blocks wherein each such block consists of arbitrary neural networks.
+
+    Currently, these arbitrary neural networks could be set to u_net(default), conv_net, res_net or mlp blocks with in_channels = out_channels.
+    The architecture used is popularized by [&#34;Real NVP&#34;](https://arxiv.org/abs/1605.08803).
+
+    Invertible nets are only implemented for PyTorch and TensorFlow.
+
+    Args:
+        num_blocks : number of coupling blocks inside the invertible net, dtype : int
+        construct_net : Function to construct one part of the neural network.
+            This network must have the same number of inputs and outputs.
+            Can be a `lambda` function or one of the following strings: `mlp, u_net, res_net, conv_net`
+        construct_kwargs : Keyword arguments passed to `construct_net`.
+
+    Returns:
+        Invertible neural network model
+    &#34;&#34;&#34;
+    return _native_lib().invertible_net(num_blocks, construct_net, **construct_kwargs)
+
+
+# def fno(in_channels: int,
+#         out_channels: int,
+#         mid_channels: int,
+#         modes: Sequence[int],
+#         activation: Union[str, type] = &#39;ReLU&#39;,
+#         batch_norm: bool = False,
+#         in_spatial: int = 2):
+#     &#34;&#34;&#34;
+#     [&#34;Fourier Neural Operator&#34;](https://github.com/zongyi-li/fourier_neural_operator) network contains 4 layers of the Fourier layer.
+#     1. Lift the input to the desire channel dimension by self.fc0 .
+#     2. 4 layers of the integral operators u&#39; = (W + K)(u). W defined by self.w; K defined by self.conv .
+#     3. Project from the channel space to the output space by self.fc1 and self.fc2.
+#
+#     Args:
+#         in_channels : input channels of the feature map, dtype : int
+#         out_channels : output channels of the feature map, dtype : int
+#         mid_channels : channels used in Spectral Convolution Layers, dtype : int
+#         modes : Fourier modes for each spatial channel, dtype : List[int] or int (in case all number modes are to be the same for each spatial channel)
+#         activation : activation function used within the layers, dtype : string
+#         batch_norm : use of batchnorm after each conv layer, dtype : bool
+#         in_spatial : spatial dimensions of the input feature map, dtype : int
+#
+#     Returns:
+#         Fourier Neural Operator model as specified by input arguments.
+#     &#34;&#34;&#34;
+#     return _native_lib().fno(**locals())</code></pre>
+</details>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-functions">Functions</h2>
+<dl>
+<dt id="unifyml.nn.adagrad"><code class="name flex">
+<span>def <span class="ident">adagrad</span></span>(<span>net: ~Network, learning_rate: float = 0.001, lr_decay=0, weight_decay=0, initial_accumulator_value=0, eps=1e-10)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Creates an Adagrad optimizer for 'net', alias for <a href="https://pytorch.org/docs/stable/generated/torch.optim.Adagrad.html">'torch.optim.Adagrad'</a>
+Analogue functions exist for other learning frameworks.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def adagrad(net: Network, learning_rate: float = 1e-3, lr_decay=0, weight_decay=0, initial_accumulator_value=0,
+            eps=1e-10):
+    &#34;&#34;&#34;
+    Creates an Adagrad optimizer for &#39;net&#39;, alias for [&#39;torch.optim.Adagrad&#39;](https://pytorch.org/docs/stable/generated/torch.optim.Adagrad.html)
+    Analogue functions exist for other learning frameworks.
+    &#34;&#34;&#34;
+    return _native_lib().adagrad(**locals())</code></pre>
+</details>
+</dd>
+<dt id="unifyml.nn.adam"><code class="name flex">
+<span>def <span class="ident">adam</span></span>(<span>net: ~Network, learning_rate: float = 0.001, betas=(0.9, 0.999), epsilon=1e-07)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Creates an Adam optimizer for <code>net</code>, alias for <a href="https://pytorch.org/docs/stable/generated/torch.optim.Adam.html"><code>torch.optim.Adam</code></a>.
+Analogue functions exist for other learning frameworks.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def adam(net: Network, learning_rate: float = 1e-3, betas=(0.9, 0.999), epsilon=1e-07):
+    &#34;&#34;&#34;
+    Creates an Adam optimizer for `net`, alias for [`torch.optim.Adam`](https://pytorch.org/docs/stable/generated/torch.optim.Adam.html).
+    Analogue functions exist for other learning frameworks.
+    &#34;&#34;&#34;
+    return _native_lib().adam(**locals())</code></pre>
+</details>
+</dd>
+<dt id="unifyml.nn.conv_classifier"><code class="name flex">
+<span>def <span class="ident">conv_classifier</span></span>(<span>in_features: int, in_spatial: Union[tuple, list], num_classes: int, blocks=(64, 128, 256, 256, 512, 512), block_sizes=(2, 2, 3, 3, 3), dense_layers=(4096, 4096, 100), batch_norm=True, activation='ReLU', softmax=True, periodic=False)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Based on VGG16.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def conv_classifier(in_features: int,
+                    in_spatial: Union[tuple, list],
+                    num_classes: int,
+                    blocks=(64, 128, 256, 256, 512, 512),
+                    block_sizes=(2, 2, 3, 3, 3),
+                    dense_layers=(4096, 4096, 100),
+                    batch_norm=True,
+                    activation=&#39;ReLU&#39;,
+                    softmax=True,
+                    periodic=False):
+    &#34;&#34;&#34;
+    Based on VGG16.
+    &#34;&#34;&#34;
+    return _native_lib().conv_classifier(**locals())</code></pre>
+</details>
+</dd>
+<dt id="unifyml.nn.conv_net"><code class="name flex">
+<span>def <span class="ident">conv_net</span></span>(<span>in_channels: int, out_channels: int, layers: Sequence[int], batch_norm: bool = False, activation: Union[str, type] = 'ReLU', in_spatial: Union[int, tuple] = 2, periodic=False) ‑> ~Network</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Built in Conv-Nets are also provided. Contrary to the classical convolutional neural networks, the feature map spatial size remains the same throughout the layers. Each layer of the network is essentially a convolutional block comprising of two conv layers. A filter size of 3 is used in the convolutional layers.</p>
+<h2 id="args">Args</h2>
+<p>in_channels : input channels of the feature map, dtype : int
+out_channels : output channels of the feature map, dtype : int
+layers : list or tuple of output channels for each intermediate layer between the input and final output channels, dtype : list or tuple
+activation : activation function used within the layers, dtype : string
+batch_norm : use of batchnorm after each conv layer, dtype : bool
+in_spatial : spatial dimensions of the input feature map, dtype : int</p>
+<h2 id="returns">Returns</h2>
+<p>Conv-net model as specified by input arguments</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def conv_net(in_channels: int,
+             out_channels: int,
+             layers: Sequence[int],
+             batch_norm: bool = False,
+             activation: Union[str, type] = &#39;ReLU&#39;,
+             in_spatial: Union[int, tuple] = 2,
+             periodic=False) -&gt; Network:
+    &#34;&#34;&#34;
+    Built in Conv-Nets are also provided. Contrary to the classical convolutional neural networks, the feature map spatial size remains the same throughout the layers. Each layer of the network is essentially a convolutional block comprising of two conv layers. A filter size of 3 is used in the convolutional layers.
+
+    Args:
+        in_channels : input channels of the feature map, dtype : int
+        out_channels : output channels of the feature map, dtype : int
+        layers : list or tuple of output channels for each intermediate layer between the input and final output channels, dtype : list or tuple
+        activation : activation function used within the layers, dtype : string
+        batch_norm : use of batchnorm after each conv layer, dtype : bool
+        in_spatial : spatial dimensions of the input feature map, dtype : int
+
+    Returns:
+        Conv-net model as specified by input arguments
+    &#34;&#34;&#34;
+    return _native_lib().conv_net(**locals())</code></pre>
+</details>
+</dd>
+<dt id="unifyml.nn.get_parameters"><code class="name flex">
+<span>def <span class="ident">get_parameters</span></span>(<span>net: ~Network) ‑> Dict[str, unifyml.math._tensors.Tensor]</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Returns all parameters of a neural network.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>net</code></strong></dt>
+<dd>Neural network.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<p><code>dict</code> mapping parameter names to <code><a title="unifyml.math.Tensor" href="math/index.html#unifyml.math.Tensor">Tensor</a></code>s.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def get_parameters(net: Network) -&gt; Dict[str, Tensor]:
+    &#34;&#34;&#34;
+    Returns all parameters of a neural network.
+
+    Args:
+        net: Neural network.
+
+    Returns:
+        `dict` mapping parameter names to `unifyml.math.Tensor`s.
+    &#34;&#34;&#34;
+    return _native_lib().get_parameters(net)</code></pre>
+</details>
+</dd>
+<dt id="unifyml.nn.invertible_net"><code class="name flex">
+<span>def <span class="ident">invertible_net</span></span>(<span>num_blocks: int = 3, construct_net: Union[str, Callable] = 'u_net', **construct_kwargs)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Invertible NNs are capable of inverting the output tensor back to the input tensor initially passed.
+These networks have far-reaching applications in predicting input parameters of a problem given its observations.
+Invertible nets are composed of multiple concatenated coupling blocks wherein each such block consists of arbitrary neural networks.</p>
+<p>Currently, these arbitrary neural networks could be set to u_net(default), conv_net, res_net or mlp blocks with in_channels = out_channels.
+The architecture used is popularized by <a href="https://arxiv.org/abs/1605.08803">"Real NVP"</a>.</p>
+<p>Invertible nets are only implemented for PyTorch and TensorFlow.</p>
+<h2 id="args">Args</h2>
+<p>num_blocks : number of coupling blocks inside the invertible net, dtype : int
+construct_net : Function to construct one part of the neural network.
+This network must have the same number of inputs and outputs.
+Can be a <code>lambda</code> function or one of the following strings: <code><a title="unifyml.nn.mlp" href="#unifyml.nn.mlp">mlp()</a>, <a title="unifyml.nn.u_net" href="#unifyml.nn.u_net">u_net()</a>, <a title="unifyml.nn.res_net" href="#unifyml.nn.res_net">res_net()</a>, <a title="unifyml.nn.conv_net" href="#unifyml.nn.conv_net">conv_net()</a></code>
+construct_kwargs : Keyword arguments passed to <code>construct_net</code>.</p>
+<h2 id="returns">Returns</h2>
+<p>Invertible neural network model</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def invertible_net(num_blocks: int = 3,
+                   construct_net: Union[str, Callable] = &#39;u_net&#39;,
+                   **construct_kwargs):
+    &#34;&#34;&#34;
+    Invertible NNs are capable of inverting the output tensor back to the input tensor initially passed.
+    These networks have far-reaching applications in predicting input parameters of a problem given its observations.
+    Invertible nets are composed of multiple concatenated coupling blocks wherein each such block consists of arbitrary neural networks.
+
+    Currently, these arbitrary neural networks could be set to u_net(default), conv_net, res_net or mlp blocks with in_channels = out_channels.
+    The architecture used is popularized by [&#34;Real NVP&#34;](https://arxiv.org/abs/1605.08803).
+
+    Invertible nets are only implemented for PyTorch and TensorFlow.
+
+    Args:
+        num_blocks : number of coupling blocks inside the invertible net, dtype : int
+        construct_net : Function to construct one part of the neural network.
+            This network must have the same number of inputs and outputs.
+            Can be a `lambda` function or one of the following strings: `mlp, u_net, res_net, conv_net`
+        construct_kwargs : Keyword arguments passed to `construct_net`.
+
+    Returns:
+        Invertible neural network model
+    &#34;&#34;&#34;
+    return _native_lib().invertible_net(num_blocks, construct_net, **construct_kwargs)</code></pre>
+</details>
+</dd>
+<dt id="unifyml.nn.load_state"><code class="name flex">
+<span>def <span class="ident">load_state</span></span>(<span>obj: Union[~Network, ~Optimizer], path: str)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Read the state of a module or optimizer from a file.</p>
+<p>See Also:
+<code><a title="unifyml.nn.save_state" href="#unifyml.nn.save_state">save_state()</a></code></p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>obj</code></strong></dt>
+<dd><code>torch.Network or torch.optim.Optimizer</code></dd>
+<dt><strong><code>path</code></strong></dt>
+<dd>File path as <code>str</code>.</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def load_state(obj: Union[Network, Optimizer], path: str):
+    &#34;&#34;&#34;
+    Read the state of a module or optimizer from a file.
+
+    See Also:
+        `save_state()`
+
+    Args:
+        obj: `torch.Network or torch.optim.Optimizer`
+        path: File path as `str`.
+    &#34;&#34;&#34;
+    return _native_lib().load_state(**locals())</code></pre>
+</details>
+</dd>
+<dt id="unifyml.nn.mlp"><code class="name flex">
+<span>def <span class="ident">mlp</span></span>(<span>in_channels: int, out_channels: int, layers: Sequence[int], batch_norm=False, activation: Union[str, Callable] = 'ReLU', softmax=False) ‑> ~Network</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Fully-connected neural networks are available in Φ-Flow via mlp().</p>
+<h2 id="args">Args</h2>
+<p>in_channels : size of input layer, int
+out_channels = size of output layer, int
+layers : tuple of linear layers between input and output neurons, list or tuple
+activation : activation function used within the layers, string
+batch_norm : use of batch norm after each linear layer, bool</p>
+<h2 id="returns">Returns</h2>
+<p>Dense net model as specified by input arguments</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def mlp(in_channels: int,
+              out_channels: int,
+              layers: Sequence[int],
+              batch_norm=False,
+              activation: Union[str, Callable] = &#39;ReLU&#39;,
+              softmax=False) -&gt; Network:
+    &#34;&#34;&#34;
+    Fully-connected neural networks are available in Φ-Flow via mlp().
+
+    Args:
+        in_channels : size of input layer, int
+        out_channels = size of output layer, int
+        layers : tuple of linear layers between input and output neurons, list or tuple
+        activation : activation function used within the layers, string
+        batch_norm : use of batch norm after each linear layer, bool
+
+    Returns:
+        Dense net model as specified by input arguments
+    &#34;&#34;&#34;
+    return _native_lib().mlp(**locals())</code></pre>
+</details>
+</dd>
+<dt id="unifyml.nn.parameter_count"><code class="name flex">
+<span>def <span class="ident">parameter_count</span></span>(<span>net: ~Network) ‑> int</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Counts the number of parameters in a model.</p>
+<p>See Also:
+<code><a title="unifyml.nn.get_parameters" href="#unifyml.nn.get_parameters">get_parameters()</a></code>.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>net</code></strong></dt>
+<dd>PyTorch model</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<p>Total parameter count as <code>int</code>.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def parameter_count(net: Network) -&gt; int:
+    &#34;&#34;&#34;
+    Counts the number of parameters in a model.
+
+    See Also:
+        `get_parameters()`.
+
+    Args:
+        net: PyTorch model
+
+    Returns:
+        Total parameter count as `int`.
+    &#34;&#34;&#34;
+    return sum([value.shape.volume for name, value in get_parameters(net).items()])</code></pre>
+</details>
+</dd>
+<dt id="unifyml.nn.res_net"><code class="name flex">
+<span>def <span class="ident">res_net</span></span>(<span>in_channels: int, out_channels: int, layers: Sequence[int], batch_norm: bool = False, activation: Union[str, type] = 'ReLU', in_spatial: Union[int, tuple] = 2, periodic=False) ‑> ~Network</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Built in Res-Nets are provided in the ΦFlow framework. Similar to the conv-net, the feature map spatial size remains the same throughout the layers.
+These networks use residual blocks composed of two conv layers with a skip connection added from the input to the output feature map.
+A default filter size of 3 is used in the convolutional layers.</p>
+<h2 id="args">Args</h2>
+<p>in_channels : input channels of the feature map, dtype : int
+out_channels : output channels of the feature map, dtype : int
+layers : list or tuple of output channels for each intermediate layer between the input and final output channels, dtype : list or tuple
+activation : activation function used within the layers, dtype : string
+batch_norm : use of batchnorm after each conv layer, dtype : bool
+in_spatial : spatial dimensions of the input feature map, dtype : int</p>
+<h2 id="returns">Returns</h2>
+<p>Res-net model as specified by input arguments</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def res_net(in_channels: int,
+            out_channels: int,
+            layers: Sequence[int],
+            batch_norm: bool = False,
+            activation: Union[str, type] = &#39;ReLU&#39;,
+            in_spatial: Union[int, tuple] = 2,
+            periodic=False) -&gt; Network:
+    &#34;&#34;&#34;
+    Built in Res-Nets are provided in the ΦFlow framework. Similar to the conv-net, the feature map spatial size remains the same throughout the layers.
+    These networks use residual blocks composed of two conv layers with a skip connection added from the input to the output feature map.
+    A default filter size of 3 is used in the convolutional layers.
+
+    Args:
+        in_channels : input channels of the feature map, dtype : int
+        out_channels : output channels of the feature map, dtype : int
+        layers : list or tuple of output channels for each intermediate layer between the input and final output channels, dtype : list or tuple
+        activation : activation function used within the layers, dtype : string
+        batch_norm : use of batchnorm after each conv layer, dtype : bool
+        in_spatial : spatial dimensions of the input feature map, dtype : int
+
+    Returns:
+        Res-net model as specified by input arguments
+    &#34;&#34;&#34;
+    return _native_lib().res_net(**locals())</code></pre>
+</details>
+</dd>
+<dt id="unifyml.nn.rmsprop"><code class="name flex">
+<span>def <span class="ident">rmsprop</span></span>(<span>net: ~Network, learning_rate: float = 0.001, alpha=0.99, eps=1e-08, weight_decay=0, momentum=0, centered=False)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Creates an RMSProp optimizer for 'net', alias for <a href="https://pytorch.org/docs/stable/generated/torch.optim.RMSprop.html">'torch.optim.RMSprop'</a>
+Analogue functions exist for other learning frameworks.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def rmsprop(net: Network, learning_rate: float = 1e-3, alpha=0.99, eps=1e-08, weight_decay=0, momentum=0,
+            centered=False):
+    &#34;&#34;&#34;
+    Creates an RMSProp optimizer for &#39;net&#39;, alias for [&#39;torch.optim.RMSprop&#39;](https://pytorch.org/docs/stable/generated/torch.optim.RMSprop.html)
+    Analogue functions exist for other learning frameworks.
+    &#34;&#34;&#34;
+    return _native_lib().rmsprop(**locals())</code></pre>
+</details>
+</dd>
+<dt id="unifyml.nn.save_state"><code class="name flex">
+<span>def <span class="ident">save_state</span></span>(<span>obj: Union[~Network, ~Optimizer], path: str)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Write the state of a module or optimizer to a file.</p>
+<p>See Also:
+<code><a title="unifyml.nn.load_state" href="#unifyml.nn.load_state">load_state()</a></code></p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>obj</code></strong></dt>
+<dd><code>torch.Network or torch.optim.Optimizer</code></dd>
+<dt><strong><code>path</code></strong></dt>
+<dd>File path as <code>str</code>.</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def save_state(obj: Union[Network, Optimizer], path: str):
+    &#34;&#34;&#34;
+    Write the state of a module or optimizer to a file.
+
+    See Also:
+        `load_state()`
+
+    Args:
+        obj: `torch.Network or torch.optim.Optimizer`
+        path: File path as `str`.
+    &#34;&#34;&#34;
+    return _native_lib().save_state(**locals())</code></pre>
+</details>
+</dd>
+<dt id="unifyml.nn.sgd"><code class="name flex">
+<span>def <span class="ident">sgd</span></span>(<span>net: ~Network, learning_rate: float = 0.001, momentum=0, dampening=0, weight_decay=0, nesterov=False)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Creates an SGD optimizer for 'net', alias for <a href="https://pytorch.org/docs/stable/generated/torch.optim.SGD.html">'torch.optim.SGD'</a>
+Analogue functions exist for other learning frameworks.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def sgd(net: Network, learning_rate: float = 1e-3, momentum=0, dampening=0, weight_decay=0, nesterov=False):
+    &#34;&#34;&#34;
+    Creates an SGD optimizer for &#39;net&#39;, alias for [&#39;torch.optim.SGD&#39;](https://pytorch.org/docs/stable/generated/torch.optim.SGD.html)
+    Analogue functions exist for other learning frameworks.
+    &#34;&#34;&#34;
+    return _native_lib().sgd(**locals())</code></pre>
+</details>
+</dd>
+<dt id="unifyml.nn.u_net"><code class="name flex">
+<span>def <span class="ident">u_net</span></span>(<span>in_channels: int, out_channels: int, levels: int = 4, filters: Union[int, tuple, list] = 16, batch_norm: bool = True, activation: Union[str, type] = 'ReLU', in_spatial: Union[int, tuple] = 2, periodic=False, use_res_blocks: bool = False) ‑> ~Network</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Built-in U-net architecture, classically popular for Semantic Segmentation in Computer Vision, composed of downsampling and upsampling layers.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>in_channels</code></strong></dt>
+<dd>input channels of the feature map, dtype : int</dd>
+</dl>
+<p>out_channels : output channels of the feature map, dtype : int
+levels : number of levels of down-sampling and upsampling, dtype : int
+filters : filter sizes at each down/up sampling convolutional layer, if the input is integer all conv layers have the same filter size,
+activation : activation function used within the layers, dtype : string
+batch_norm : use of batchnorm after each conv layer, dtype : bool
+in_spatial : spatial dimensions of the input feature map, dtype : int
+use_res_blocks : use convolutional blocks with skip connections instead of regular convolutional blocks, dtype : bool</p>
+<h2 id="returns">Returns</h2>
+<p>U-net model as specified by input arguments.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def u_net(in_channels: int,
+          out_channels: int,
+          levels: int = 4,
+          filters: Union[int, tuple, list] = 16,
+          batch_norm: bool = True,
+          activation: Union[str, type] = &#39;ReLU&#39;,
+          in_spatial: Union[tuple, int] = 2,
+          periodic=False,
+          use_res_blocks: bool = False) -&gt; Network:
+    &#34;&#34;&#34;
+    Built-in U-net architecture, classically popular for Semantic Segmentation in Computer Vision, composed of downsampling and upsampling layers.
+
+    Args:
+        in_channels: input channels of the feature map, dtype : int
+        out_channels : output channels of the feature map, dtype : int
+        levels : number of levels of down-sampling and upsampling, dtype : int
+        filters : filter sizes at each down/up sampling convolutional layer, if the input is integer all conv layers have the same filter size,
+        activation : activation function used within the layers, dtype : string
+        batch_norm : use of batchnorm after each conv layer, dtype : bool
+        in_spatial : spatial dimensions of the input feature map, dtype : int
+        use_res_blocks : use convolutional blocks with skip connections instead of regular convolutional blocks, dtype : bool
+
+    Returns:
+        U-net model as specified by input arguments.
+    &#34;&#34;&#34;
+    return _native_lib().u_net(**locals())</code></pre>
+</details>
+</dd>
+<dt id="unifyml.nn.update_weights"><code class="name flex">
+<span>def <span class="ident">update_weights</span></span>(<span>net: ~Network, optimizer: ~Optimizer, loss_function: Callable, *loss_args, **loss_kwargs)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Computes the gradients of <code>loss_function</code> w.r.t. the parameters of <code>net</code> and updates its weights using <code>optimizer</code>.</p>
+<p>This is the PyTorch version. Analogue functions exist for other learning frameworks.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>net</code></strong></dt>
+<dd>Learning model.</dd>
+<dt><strong><code>optimizer</code></strong></dt>
+<dd>Optimizer.</dd>
+<dt><strong><code>loss_function</code></strong></dt>
+<dd>Loss function, called as <code>loss_function(*loss_args, **loss_kwargs)</code>.</dd>
+<dt><strong><code>*loss_args</code></strong></dt>
+<dd>Arguments given to <code>loss_function</code>.</dd>
+<dt><strong><code>**loss_kwargs</code></strong></dt>
+<dd>Keyword arguments given to <code>loss_function</code>.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<p>Output of <code>loss_function</code>.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def update_weights(net: Network, optimizer: Optimizer, loss_function: Callable, *loss_args, **loss_kwargs):
+    &#34;&#34;&#34;
+    Computes the gradients of `loss_function` w.r.t. the parameters of `net` and updates its weights using `optimizer`.
+
+    This is the PyTorch version. Analogue functions exist for other learning frameworks.
+
+    Args:
+        net: Learning model.
+        optimizer: Optimizer.
+        loss_function: Loss function, called as `loss_function(*loss_args, **loss_kwargs)`.
+        *loss_args: Arguments given to `loss_function`.
+        **loss_kwargs: Keyword arguments given to `loss_function`.
+
+    Returns:
+        Output of `loss_function`.
+    &#34;&#34;&#34;
+    return _native_lib().update_weights(net, optimizer, loss_function, *loss_args, **loss_kwargs)</code></pre>
+</details>
+</dd>
+</dl>
+</section>
+<section>
+</section>
+</article>
+<nav id="sidebar">
+<h1>Index</h1>
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="unifyml" href="index.html">unifyml</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-functions">Functions</a></h3>
+<ul class="two-column">
+<li><code><a title="unifyml.nn.adagrad" href="#unifyml.nn.adagrad">adagrad</a></code></li>
+<li><code><a title="unifyml.nn.adam" href="#unifyml.nn.adam">adam</a></code></li>
+<li><code><a title="unifyml.nn.conv_classifier" href="#unifyml.nn.conv_classifier">conv_classifier</a></code></li>
+<li><code><a title="unifyml.nn.conv_net" href="#unifyml.nn.conv_net">conv_net</a></code></li>
+<li><code><a title="unifyml.nn.get_parameters" href="#unifyml.nn.get_parameters">get_parameters</a></code></li>
+<li><code><a title="unifyml.nn.invertible_net" href="#unifyml.nn.invertible_net">invertible_net</a></code></li>
+<li><code><a title="unifyml.nn.load_state" href="#unifyml.nn.load_state">load_state</a></code></li>
+<li><code><a title="unifyml.nn.mlp" href="#unifyml.nn.mlp">mlp</a></code></li>
+<li><code><a title="unifyml.nn.parameter_count" href="#unifyml.nn.parameter_count">parameter_count</a></code></li>
+<li><code><a title="unifyml.nn.res_net" href="#unifyml.nn.res_net">res_net</a></code></li>
+<li><code><a title="unifyml.nn.rmsprop" href="#unifyml.nn.rmsprop">rmsprop</a></code></li>
+<li><code><a title="unifyml.nn.save_state" href="#unifyml.nn.save_state">save_state</a></code></li>
+<li><code><a title="unifyml.nn.sgd" href="#unifyml.nn.sgd">sgd</a></code></li>
+<li><code><a title="unifyml.nn.u_net" href="#unifyml.nn.u_net">u_net</a></code></li>
+<li><code><a title="unifyml.nn.update_weights" href="#unifyml.nn.update_weights">update_weights</a></code></li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc" title="pdoc: Python API documentation generator"><cite>pdoc</cite> 0.10.0</a>.</p>
+</footer>
+</body>
+</html>

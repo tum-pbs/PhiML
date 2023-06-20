@@ -1,0 +1,2238 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+<meta name="generator" content="pdoc 0.10.0" />
+<title>unifyml.backend.jax.stax_nets API documentation</title>
+<meta name="description" content="Stax implementation of the unified machine learning API.
+Equivalent functions also exist for the other frameworks …" />
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/typography.min.css" integrity="sha256-7l/o7C8jubJiy74VsKTidCy1yBkRtiUGbVkYBylBqUg=" crossorigin>
+<link rel="stylesheet preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/github.min.css" crossorigin>
+<style>:root{--highlight-color:#fe9}.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}h1:target,h2:target,h3:target,h4:target,h5:target,h6:target{background:var(--highlight-color);padding:.2em 0}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}dt:target .name{background:var(--highlight-color)}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}td{padding:0 .5em}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/highlight.min.js" integrity="sha256-Uv3H6lx7dJmRfRvH8TH6kJD1TSK1aFcwgx+mdg3epi8=" crossorigin></script>
+<script>window.addEventListener('DOMContentLoaded', () => hljs.initHighlighting())</script>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>unifyml.backend.jax.stax_nets</code></h1>
+</header>
+<section id="section-intro">
+<p>Stax implementation of the unified machine learning API.
+Equivalent functions also exist for the other frameworks.</p>
+<p>For API documentation, see <a href="https://holl-.github.io/UnifyML/Network_API">https://holl-.github.io/UnifyML/Network_API</a> .</p>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">&#34;&#34;&#34;
+Stax implementation of the unified machine learning API.
+Equivalent functions also exist for the other frameworks.
+
+For API documentation, see https://holl-.github.io/UnifyML/Network_API .
+&#34;&#34;&#34;
+import functools
+import warnings
+from typing import Callable, Union, Sequence
+
+import jax
+import jax.numpy as jnp
+import keras
+import numpy
+import numpy as np
+from jax import random
+from packaging import version
+
+if version.parse(jax.__version__) &gt;= version.parse(
+        &#39;0.2.25&#39;):  # Stax and Optimizers were moved to jax.example_libraries on Oct 20, 2021
+    from jax.example_libraries import stax
+    import jax.example_libraries.optimizers as optim
+    from jax.example_libraries.optimizers import OptimizerState
+else:
+    from jax.experimental import stax
+    import jax.experimental.optimizers as optim
+    from jax.experimental.optimizers import OptimizerState
+
+    warnings.warn(f&#34;Found Jax version {jax.__version__}. Using legacy imports.&#34;, FutureWarning)
+
+from ... import math
+from . import JAX
+from ...math._functional import JitFunction
+
+
+class StaxNet:
+
+    def __init__(self, initialize: Callable, apply: Callable, input_shape: tuple):
+        self._initialize = initialize
+        self._apply = apply
+        self._input_shape = input_shape
+        self.parameters = None
+        self._tracers = None
+
+    def initialize(self):
+        rnd_key = JAX.rnd_key
+        JAX.rnd_key, init_key = random.split(rnd_key)
+        out_shape, params64 = self._initialize(init_key, input_shape=self._input_shape)
+        if math.get_precision() &lt; 64:
+            self.parameters = _recursive_to_float32(params64)
+
+    def __call__(self, *args, **kwargs):
+        if self._tracers is not None:
+            return self._apply(self._tracers, *args)
+        else:
+            return self._apply(self.parameters, *args)
+
+
+class JaxOptimizer:
+
+    def __init__(self, initialize: Callable, update: Callable, get_params: Callable):
+        self._initialize, self._update, self._get_params = initialize, update, get_params  # Stax functions
+        self._state = None
+        self._step_i = 0
+        self._update_function_cache = {}
+
+    def initialize(self, net: tuple):
+        self._state = self._initialize(net)
+
+    def update_step(self, grads: tuple):
+        self._state = self._update(self._step_i, grads, self._state)
+        self._step_i += 1
+
+    def get_network_parameters(self):
+        return self._get_params(self._state)
+
+    def update(self, net: StaxNet, loss_function, wrt, loss_args, loss_kwargs):
+        if loss_function not in self._update_function_cache:
+            @functools.wraps(loss_function)
+            def update(packed_current_state, *loss_args, **loss_kwargs):
+                @functools.wraps(loss_function)
+                def loss_depending_on_net(params_tracer: tuple, *args, **kwargs):
+                    net._tracers = params_tracer
+                    loss_function_non_jit = loss_function.f if isinstance(loss_function, JitFunction) else loss_function
+                    result = loss_function_non_jit(*args, **kwargs)
+                    net._tracers = None
+                    return result
+
+                gradient_function = math.gradient(loss_depending_on_net)
+                current_state = OptimizerState(packed_current_state, self._state.tree_def, self._state.subtree_defs)
+                current_params = self._get_params(current_state)
+                value, grads = gradient_function(current_params, *loss_args, **loss_kwargs)
+                next_state = self._update(self._step_i, grads[0], self._state)
+                return next_state.packed_state, value
+
+            if isinstance(loss_function, JitFunction):
+                update = math.jit_compile(update)
+            self._update_function_cache[loss_function] = update
+
+        next_packed_state, loss_output = self._update_function_cache[loss_function](self._state.packed_state,
+                                                                                    *loss_args, **loss_kwargs)
+        self._state = OptimizerState(next_packed_state, self._state.tree_def, self._state.subtree_defs)
+        return loss_output
+
+
+def _recursive_to_float32(obj):
+    if isinstance(obj, (tuple, list)):
+        return type(obj)([_recursive_to_float32(i) for i in obj])
+    elif isinstance(obj, dict):
+        return {k: _recursive_to_float32(v) for k, v in obj.items()}
+    else:
+        assert isinstance(obj, jax.numpy.ndarray)
+        return obj.astype(jax.numpy.float32)
+
+
+def _recursive_count_parameters(obj):
+    if isinstance(obj, (tuple, list)):
+        return sum([_recursive_count_parameters(item) for item in obj])
+    if isinstance(obj, dict):
+        return sum([_recursive_count_parameters(v) for v in obj.values()])
+    return numpy.prod(obj.shape)
+
+
+def get_parameters(model: StaxNet, wrap=True) -&gt; dict:
+    result = {}
+    _recursive_add_parameters(model.parameters, wrap, (), result)
+    return result
+
+
+def _recursive_add_parameters(param, wrap: bool, prefix: tuple, result: dict):
+    if isinstance(param, dict):
+        for name, obj in param.items():
+            _recursive_add_parameters(obj, wrap, prefix + (str(name),), result)
+    elif isinstance(param, (tuple, list)):
+        for i, obj in enumerate(param):
+            _recursive_add_parameters(obj, wrap, prefix + (str(i),), result)
+    else:
+        rank = len(param.shape)
+        if prefix[-1] == 0 and rank == 2:
+            name = &#39;.&#39;.join(str(p) for p in prefix[:-1]) + &#39;.weight&#39;
+        elif prefix[-1] == 1 and rank == 1:
+            name = &#39;.&#39;.join(str(p) for p in prefix[:-1]) + &#39;.bias&#39;
+        else:
+            name = &#39;.&#39;.join(prefix)
+        if not wrap:
+            result[name] = param
+        else:
+            if rank == 1:
+                uml_tensor = math.wrap(param, math.channel(&#39;output&#39;))
+            elif rank == 2:
+                uml_tensor = math.wrap(param, math.channel(&#39;input,output&#39;))
+            elif rank == 3:
+                uml_tensor = math.wrap(param, math.channel(&#39;x,input,output&#39;))
+            elif rank == 4:
+                uml_tensor = math.wrap(param, math.channel(&#39;x,y,input,output&#39;))
+            elif rank == 5:
+                uml_tensor = math.wrap(param, math.channel(&#39;x,y,z,input,output&#39;))
+            else:
+                raise NotImplementedError(rank)
+            result[name] = uml_tensor
+
+
+def save_state(obj: Union[StaxNet, JaxOptimizer], path: str):
+    if not path.endswith(&#39;.npy&#39;):
+        path += &#39;.npy&#39;
+    if isinstance(obj, StaxNet):
+        numpy.save(path, obj.parameters)
+    else:
+        raise NotImplementedError  # ToDo
+        # numpy.save(path, obj._state)
+
+
+def load_state(obj: Union[StaxNet, JaxOptimizer], path: str):
+    if not path.endswith(&#39;.npy&#39;):
+        path += &#39;.npy&#39;
+    if isinstance(obj, StaxNet):
+        state = numpy.load(path, allow_pickle=True)
+        obj.parameters = tuple([tuple(layer) for layer in state])
+    else:
+        raise NotImplementedError  # ToDo
+
+
+def update_weights(net: StaxNet, optimizer: JaxOptimizer, loss_function: Callable, *loss_args, **loss_kwargs):
+    loss_output = optimizer.update(net, loss_function, net.parameters, loss_args, loss_kwargs)
+    net.parameters = optimizer.get_network_parameters()
+    return loss_output
+
+
+def adam(net: StaxNet, learning_rate: float = 1e-3, betas=(0.9, 0.999), epsilon=1e-07):
+    opt = JaxOptimizer(*optim.adam(learning_rate, betas[0], betas[1], epsilon))
+    opt.initialize(net.parameters)
+    return opt
+
+
+def sgd(net: StaxNet, learning_rate: float = 1e-3, momentum=0, dampening=0, weight_decay=0, nesterov=False):
+    assert dampening == 0
+    assert weight_decay == 0
+    assert not nesterov
+    if momentum == 0:
+        opt = JaxOptimizer(*optim.sgd(learning_rate))
+    else:
+        opt = JaxOptimizer(*optim.momentum(learning_rate, momentum))
+    opt.initialize(net.parameters)
+    return opt
+
+
+def adagrad(net: StaxNet, learning_rate: float = 1e-3, lr_decay=0, weight_decay=0, initial_accumulator_value=0, eps=1e-10):
+    assert lr_decay == 0
+    assert weight_decay == 0
+    assert initial_accumulator_value == 0
+    assert eps == 1e-10
+    opt = JaxOptimizer(*optim.adagrad(learning_rate))
+    opt.initialize(net.parameters)
+    return opt
+
+
+def rmsprop(net: StaxNet, learning_rate: float = 1e-3, alpha=0.99, eps=1e-08, weight_decay=0, momentum=0, centered=False):
+    assert weight_decay == 0
+    assert not centered
+    if momentum == 0:
+        opt = JaxOptimizer(*optim.rmsprop(learning_rate, alpha, eps))
+    else:
+        opt = JaxOptimizer(*optim.rmsprop_momentum(learning_rate, alpha, eps, momentum))
+    opt.initialize(net.parameters)
+    return opt
+
+
+def mlp(in_channels: int,
+              out_channels: int,
+              layers: Sequence[int],
+              batch_norm=False,
+              activation=&#39;ReLU&#39;,
+              softmax=False) -&gt; StaxNet:
+    activation = {&#39;ReLU&#39;: stax.Relu, &#39;Sigmoid&#39;: stax.Sigmoid, &#39;tanh&#39;: stax.Tanh}[activation]
+    stax_layers = []
+    for neuron_count in layers:
+        stax_layers.append(stax.Dense(neuron_count))
+        stax_layers.append(activation)
+        if batch_norm:
+            stax_layers.append(stax.BatchNorm(axis=(0,)))
+    stax_layers.append(stax.Dense(out_channels))
+    if softmax:
+        stax_layers.append(stax.elementwise(stax.softmax, axis=-1))
+    net_init, net_apply = stax.serial(*stax_layers)
+    net = StaxNet(net_init, net_apply, (-1, in_channels))
+    net.initialize()
+    return net
+
+
+def u_net(in_channels: int,
+          out_channels: int,
+          levels: int = 4,
+          filters: Union[int, tuple, list] = 16,
+          batch_norm: bool = True,
+          activation=&#39;ReLU&#39;,
+          in_spatial: Union[tuple, int] = 2,
+          periodic=False,
+          use_res_blocks: bool = False) -&gt; StaxNet:
+    if isinstance(filters, (tuple, list)):
+        assert len(filters) == levels, f&#34;List of filters has length {len(filters)} but u-net has {levels} levels.&#34;
+    else:
+        filters = (filters,) * levels
+    activation = ACTIVATIONS[activation] if isinstance(activation, str) else activation
+    if isinstance(in_spatial, int):
+        d = in_spatial
+        in_spatial = (1,) * d
+    else:
+        assert isinstance(in_spatial, tuple)
+        d = len(in_spatial)
+    # Create layers
+    if use_res_blocks:
+        inc_init, inc_apply = resnet_block(in_channels, filters[0], periodic, batch_norm, activation, d)
+    else:
+        inc_init, inc_apply = create_double_conv(d, filters[0], filters[0], batch_norm, activation, periodic)
+    init_functions, apply_functions = {}, {}
+    for i in range(1, levels):
+        if use_res_blocks:
+            init_functions[f&#39;down{i}&#39;], apply_functions[f&#39;down{i}&#39;] = resnet_block(filters[i - 1], filters[i], periodic, batch_norm, activation, d)
+            init_functions[f&#39;up{i}&#39;], apply_functions[f&#39;up{i}&#39;] = resnet_block(filters[i] + filters[i - 1], filters[i - 1], periodic, batch_norm, activation, d)
+        else:
+            init_functions[f&#39;down{i}&#39;], apply_functions[f&#39;down{i}&#39;] = create_double_conv(d, filters[i], filters[i], batch_norm, activation, periodic)
+            init_functions[f&#39;up{i}&#39;], apply_functions[f&#39;up{i}&#39;] = create_double_conv(d, filters[i - 1], filters[i - 1], batch_norm, activation, periodic)
+    outc_init, outc_apply = CONV[d](out_channels, (1,) * d, padding=&#39;same&#39;)
+    max_pool_init, max_pool_apply = stax.MaxPool((2,) * d, padding=&#39;same&#39;, strides=(2,) * d)
+    _, up_apply = create_upsample()
+
+    def net_init(rng, input_shape):
+        params = {}
+        rngs = random.split(rng, 2)
+        shape = input_shape
+        # Layers
+        shape, params[&#39;inc&#39;] = inc_init(rngs[0], shape)
+        shapes = [shape]
+        for i in range(1, levels):
+            shape, _ = max_pool_init(None, shape)
+            shape, params[f&#39;down{i}&#39;] = init_functions[f&#39;down{i}&#39;](rngs[i], shape)
+            shapes.insert(0, shape)
+        for i in range(1, levels):
+            shape = shapes[i][:-1] + (shapes[i][-1] + shape[-1],)
+            shape, params[f&#39;up{i}&#39;] = init_functions[f&#39;up{i}&#39;](rngs[levels + i], shape)
+        shape, params[&#39;outc&#39;] = outc_init(rngs[-1], shape)
+        return shape, params
+
+    # no @jax.jit needed here since the user can jit this in the loss_function
+    def net_apply(params, inputs, **kwargs):
+        x = inputs
+        x = inc_apply(params[&#39;inc&#39;], x, **kwargs)
+        xs = [x]
+        for i in range(1, levels):
+            x = max_pool_apply(None, x, **kwargs)
+            x = apply_functions[f&#39;down{i}&#39;](params[f&#39;down{i}&#39;], x, **kwargs)
+            xs.insert(0, x)
+        for i in range(1, levels):
+            x = up_apply(None, x, **kwargs)
+            x = jnp.concatenate([x, xs[i]], axis=-1)
+            x = apply_functions[f&#39;up{i}&#39;](params[f&#39;up{i}&#39;], x, **kwargs)
+        x = outc_apply(params[&#39;outc&#39;], x, **kwargs)
+        return x
+
+    net = StaxNet(net_init, net_apply, (1,) + in_spatial + (in_channels,))
+    net.initialize()
+    return net
+
+
+ACTIVATIONS = {&#39;ReLU&#39;: stax.Relu, &#39;Sigmoid&#39;: stax.Sigmoid, &#39;tanh&#39;: stax.Tanh, &#39;SiLU&#39;: stax.Selu}
+CONV = [None,
+        functools.partial(stax.GeneralConv, (&#39;NWC&#39;, &#39;WIO&#39;, &#39;NWC&#39;)),
+        functools.partial(stax.GeneralConv, (&#39;NWHC&#39;, &#39;WHIO&#39;, &#39;NWHC&#39;)),
+        functools.partial(stax.GeneralConv, (&#39;NWHDC&#39;, &#39;WHDIO&#39;, &#39;NWHDC&#39;))]
+
+
+def create_double_conv(d: int, out_channels: int, mid_channels: int, batch_norm: bool, activation: Callable, periodic: bool):
+    init_fn, apply_fn = {}, {}
+    init_fn[&#39;conv1&#39;], apply_fn[&#39;conv1&#39;] = stax.serial(CONV[d](mid_channels, (3,) * d, padding=&#39;valid&#39;), stax.BatchNorm(axis=tuple(range(d + 1))) if batch_norm else stax.Identity, activation)
+    init_fn[&#39;conv2&#39;], apply_fn[&#39;conv2&#39;] = stax.serial(CONV[d](mid_channels, (3,) * d, padding=&#39;valid&#39;), stax.BatchNorm(axis=tuple(range(d + 1))) if batch_norm else stax.Identity, activation)
+
+    def net_init(rng, input_shape):
+        params = {}
+        rngs = random.split(rng, 2)
+        shape, params[&#39;conv1&#39;] = init_fn[&#39;conv1&#39;](rngs[0], input_shape)
+        shape, params[&#39;conv2&#39;] = init_fn[&#39;conv2&#39;](rngs[1], shape)
+
+        return shape, params
+
+    def net_apply(params, inputs):
+        x = inputs
+        pad_tuple = [[0, 0]] + [[1, 1] for i in range(d)] + [[0, 0]]
+        out = jnp.pad(x, pad_width=pad_tuple, mode=&#39;wrap&#39; if periodic else &#39;constant&#39;)
+        out = apply_fn[&#39;conv1&#39;](params[&#39;conv1&#39;], out)
+        out = jnp.pad(out, pad_width=pad_tuple, mode=&#39;wrap&#39; if periodic else &#39;constant&#39;)
+        out = apply_fn[&#39;conv2&#39;](params[&#39;conv2&#39;], out)
+        return out
+
+    return net_init, net_apply
+
+
+def create_upsample():
+    # def upsample_init(rng, input_shape):
+    #     return shape, []
+    def upsample_apply(params, inputs, **kwargs):
+        x = math.wrap(inputs, math.batch(&#39;batch&#39;), *[math.spatial(f&#39;{i}&#39;) for i in range(len(inputs.shape) - 2)],
+                      math.channel(&#39;vector&#39;))
+        x = math.upsample2x(x)
+        return x.native(x.shape)
+    return NotImplemented, upsample_apply
+
+
+def conv_classifier(in_features: int,
+                    in_spatial: Union[tuple, list],
+                    num_classes: int,
+                    blocks=(64, 128, 256, 256, 512, 512),
+                    block_sizes=(2, 2, 3, 3, 3),
+                    dense_layers=(4096, 4096, 100),
+                    batch_norm=True,
+                    activation=&#39;ReLU&#39;,
+                    softmax=True,
+                    periodic=False):
+    &#34;&#34;&#34;
+    Based on VGG16.
+    &#34;&#34;&#34;
+    if isinstance(in_spatial, int):
+        d = in_spatial
+        in_spatial = (1,) * d
+    else:
+        assert isinstance(in_spatial, tuple)
+        d = len(in_spatial)
+    activation = ACTIVATIONS[activation] if isinstance(activation, str) else activation
+    stax_dense_layers = []
+    init_fn, apply_fn = {}, {}
+    net_list = []
+    for i, (prev, next, block_size) in enumerate(zip((in_features,) + tuple(blocks[:-1]), blocks, block_sizes)):
+        for j in range(block_size):
+            net_list.append(f&#39;conv{i+1}_{j}&#39;)
+            init_fn[net_list[-1]], apply_fn[net_list[-1]] = stax.serial(CONV[d](next, (3,) * d, padding=&#39;valid&#39;),
+                                                                        stax.BatchNorm(axis=tuple(range(d + 1))) if batch_norm else stax.Identity,
+                                                                        activation)
+        net_list.append(f&#39;max_pool{i+1}&#39;)
+        init_fn[net_list[-1]], apply_fn[net_list[-1]] = stax.MaxPool((2,) * d, padding=&#39;valid&#39;, strides=(2,) * d)
+    init_fn[&#39;flatten&#39;], apply_fn[&#39;flatten&#39;] = stax.Flatten
+    for i, neuron_count in enumerate(dense_layers):
+        stax_dense_layers.append(stax.Dense(neuron_count))
+        stax_dense_layers.append(activation)
+        if batch_norm:
+            stax_dense_layers.append(stax.BatchNorm(axis=(0,)))
+    stax_dense_layers.append(stax.Dense(num_classes))
+    if softmax:
+        stax_dense_layers.append(stax.elementwise(stax.softmax, axis=-1))
+    dense_init, dense_apply = stax.serial(*stax_dense_layers)
+
+    def net_init(rng, input_shape):
+        params = {}
+        rngs = random.split(rng, 2)
+        shape = input_shape
+        N = len(net_list)
+        for i, layer in enumerate(net_list):
+            shape, params[layer] = init_fn[layer](rngs[i], shape)
+        shape, params[&#39;flatten&#39;] = init_fn[&#39;flatten&#39;](rngs[N], shape)
+        flat_size = int(np.prod(in_spatial) * blocks[-1] / (2**d) ** len(blocks))
+        shape, params[&#39;dense&#39;] = dense_init(rngs[N + 1], (1,) + (flat_size,))
+        return shape, params
+
+    def net_apply(params, inputs, **kwargs):
+        x = inputs
+        pad_tuple = [[0, 0]] + [[1, 1]] * d + [[0, 0]]
+        for i in range(len(net_list)):
+            if net_list[i].startswith(&#39;conv&#39;):
+                x = jnp.pad(x, pad_width=pad_tuple, mode=&#39;wrap&#39; if periodic else &#39;constant&#39;)
+            x = apply_fn[f&#39;{net_list[i]}&#39;](params[f&#39;{net_list[i]}&#39;], x)
+        x = apply_fn[&#39;flatten&#39;](params[&#39;flatten&#39;], x)
+        out = dense_apply(params[&#39;dense&#39;], x, **kwargs)
+        return out
+
+    net = StaxNet(net_init, net_apply, (1,) + in_spatial + (in_features,))
+    net.initialize()
+    return net
+
+
+def conv_net(in_channels: int,
+             out_channels: int,
+             layers: Sequence[int],
+             batch_norm: bool = False,
+             activation: Union[str, Callable] = &#39;ReLU&#39;,
+             periodic=False,
+             in_spatial: Union[int, tuple] = 2) -&gt; StaxNet:
+    &#34;&#34;&#34;
+    Built in Conv-Nets are also provided. Contrary to the classical convolutional neural networks, the feature map spatial size remains the same throughout the layers. Each layer of the network is essentially a convolutional block comprising of two conv layers. A filter size of 3 is used in the convolutional layers.
+    Arguments:
+
+        in_channels : input channels of the feature map, dtype : int
+        out_channels : output channels of the feature map, dtype : int
+        layers : list or tuple of output channels for each intermediate layer between the input and final output channels, dtype : list or tuple
+        activation : activation function used within the layers, dtype : string
+        batch_norm : use of batchnorm after each conv layer, dtype : bool
+        in_spatial : spatial dimensions of the input feature map, dtype : int
+
+    Returns:
+
+        Conv-net model as specified by input arguments
+    &#34;&#34;&#34;
+    if isinstance(in_spatial, int):
+        d = in_spatial
+        in_spatial = (1,) * d
+    else:
+        assert isinstance(in_spatial, tuple)
+        d = len(in_spatial)
+    activation = ACTIVATIONS[activation] if isinstance(activation, str) else activation
+    init_fn, apply_fn = {}, {}
+    if len(layers) &lt; 1:
+        layers.append(out_channels)
+    init_fn[&#39;conv_in&#39;], apply_fn[&#39;conv_in&#39;] = stax.serial(
+        CONV[d](layers[0], (3,) * d, padding=&#39;valid&#39;),
+        stax.BatchNorm(axis=tuple(range(d + 1))) if batch_norm else stax.Identity,
+        activation)
+    for i in range(1, len(layers)):
+        init_fn[f&#39;conv{i}&#39;], apply_fn[f&#39;conv{i}&#39;] = stax.serial(
+            CONV[d](layers[i], (3,) * d, padding=&#39;valid&#39;),
+            stax.BatchNorm(axis=tuple(range(d + 1))) if batch_norm else stax.Identity,
+            activation)
+    init_fn[&#39;conv_out&#39;], apply_fn[&#39;conv_out&#39;] = CONV[d](out_channels, (1,) * d)
+
+    def net_init(rng, input_shape):
+        params = {}
+        rngs = random.split(rng, 2)
+        shape, params[&#39;conv_in&#39;] = init_fn[&#39;conv_in&#39;](rngs[0], input_shape)
+        for i in range(1, len(layers)):
+            shape, params[f&#39;conv{i + 1}&#39;] = init_fn[f&#39;conv{i + 1}&#39;](rngs[i], shape)
+        shape, params[&#39;conv_out&#39;] = init_fn[&#39;conv_out&#39;](rngs[len(layers)], shape)
+        return shape, params
+
+    def net_apply(params, inputs):
+        x = inputs
+        pad_tuple = [(0, 0)]
+        for i in range(d):
+            pad_tuple.append((1, 1))
+        pad_tuple.append((0, 0))
+        out = jnp.pad(x, pad_width=pad_tuple, mode=&#39;wrap&#39; if periodic else &#39;constant&#39;)
+        out = apply_fn[&#39;conv_in&#39;](params[&#39;conv_in&#39;], out)
+        for i in range(1, len(layers)):
+            out = jnp.pad(out, pad_width=pad_tuple, mode=&#39;wrap&#39; if periodic else &#39;constant&#39;)
+            out = apply_fn[f&#39;conv{i + 1}&#39;](params[f&#39;conv{i + 1}&#39;], out)
+        out = apply_fn[&#39;conv_out&#39;](params[&#39;conv_out&#39;], out)
+        return out
+
+    net = StaxNet(net_init, net_apply, (1,) + in_spatial + (in_channels,))
+    net.initialize()
+    return net
+
+
+def res_net(in_channels: int,
+            out_channels: int,
+            layers: Sequence[int],
+            batch_norm: bool = False,
+            activation: Union[str, Callable] = &#39;ReLU&#39;,
+            periodic=False,
+            in_spatial: Union[int, tuple] = 2) -&gt; StaxNet:
+    &#34;&#34;&#34;
+    Built in Res-Nets are provided in the ΦFlow framework. Similar to the conv-net, the feature map spatial size remains the same throughout the layers.
+    These networks use residual blocks composed of two conv layers with a skip connection added from the input to the output feature map.
+    A default filter size of 3 is used in the convolutional layers.
+
+    Arguments:
+
+        in_channels : input channels of the feature map, dtype : int
+        out_channels : output channels of the feature map, dtype : int
+        layers : list or tuple of output channels for each intermediate layer between the input and final output channels, dtype : list or tuple
+        activation : activation function used within the layers, dtype : string
+        batch_norm : use of batchnorm after each conv layer, dtype : bool
+        in_spatial : spatial dimensions of the input feature map, dtype : int
+
+    Returns:
+
+        Res-net model as specified by input arguments
+    &#34;&#34;&#34;
+    if isinstance(in_spatial, int):
+        d = in_spatial
+        in_spatial = (1,) * d
+    else:
+        assert isinstance(in_spatial, tuple)
+        d = len(in_spatial)
+    activation = ACTIVATIONS[activation] if isinstance(activation, str) else activation
+    stax_layers = []
+    if len(layers) &gt; 0:
+        stax_layers.append(resnet_block(in_channels, layers[0], periodic, batch_norm, activation, d))
+        for i in range(1, len(layers)):
+            stax_layers.append(resnet_block(layers[i - 1], layers[i], periodic, batch_norm, activation, d))
+        stax_layers.append(resnet_block(layers[len(layers) - 1], out_channels, periodic, batch_norm, activation, d))
+    else:
+        stax_layers.append(resnet_block(in_channels, out_channels, periodic, batch_norm, activation, d))
+    net_init, net_apply = stax.serial(*stax_layers)
+    net = StaxNet(net_init, net_apply, (1,) + in_spatial + (in_channels,))
+    net.initialize()
+    return net
+
+
+def resnet_block(in_channels: int,
+                 out_channels: int,
+                 periodic: bool,
+                 batch_norm: bool,
+                 activation: Union[str, Callable] = &#39;ReLU&#39;,
+                 d: Union[int, tuple] = 2):
+    activation = ACTIVATIONS[activation] if isinstance(activation, str) else activation
+    init_fn, apply_fn = {}, {}
+    init_fn[&#39;conv1&#39;], apply_fn[&#39;conv1&#39;] = stax.serial(
+        CONV[d](out_channels, (3,) * d, padding=&#39;valid&#39;),
+        stax.BatchNorm(axis=tuple(range(d + 1))) if batch_norm else stax.Identity,
+        activation)
+    init_fn[&#39;conv2&#39;], apply_fn[&#39;conv2&#39;] = stax.serial(
+        CONV[d](out_channels, (3,) * d, padding=&#39;valid&#39;),
+        stax.BatchNorm(axis=tuple(range(d + 1))) if batch_norm else stax.Identity,
+        activation)
+    init_activation, apply_activation = activation
+    if in_channels != out_channels:
+        init_fn[&#39;sample_conv&#39;], apply_fn[&#39;sample_conv&#39;] = stax.serial(
+            CONV[d](out_channels, (1,) * d, padding=&#39;VALID&#39;),
+            stax.BatchNorm(axis=tuple(range(d + 1))) if batch_norm else stax.Identity)
+    else:
+        init_fn[&#39;sample_conv&#39;], apply_fn[&#39;sample_conv&#39;] = stax.Identity
+
+    def net_init(rng, input_shape):
+        params = {}
+        rngs = random.split(rng, 2)
+        # Preparing a list of shapes and dictionary of parameters to return
+        shape, params[&#39;conv1&#39;] = init_fn[&#39;conv1&#39;](rngs[0], input_shape)
+        shape, params[&#39;conv2&#39;] = init_fn[&#39;conv2&#39;](rngs[1], shape)
+        shape, params[&#39;sample_conv&#39;] = init_fn[&#39;sample_conv&#39;](rngs[2], input_shape)
+        shape, params[&#39;activation&#39;] = init_activation(rngs[3], shape)
+        return shape, params
+
+    def net_apply(params, inputs, **kwargs):
+        x = inputs
+        pad_tuple = [[0, 0]] + [[1, 1] for i in range(d)] + [[0, 0]]
+        out = jnp.pad(x, pad_width=pad_tuple, mode=&#39;wrap&#39; if periodic else &#39;constant&#39;)
+        out = apply_fn[&#39;conv1&#39;](params[&#39;conv1&#39;], out)
+        out = jnp.pad(out, pad_width=pad_tuple, mode=&#39;wrap&#39; if periodic else &#39;constant&#39;)
+        out = apply_fn[&#39;conv2&#39;](params[&#39;conv2&#39;], out)
+        skip_x = apply_fn[&#39;sample_conv&#39;](params[&#39;sample_conv&#39;], x, **kwargs)
+        out = jnp.add(out, skip_x)
+        # out = apply_activation(params[&#39;activation&#39;], out)
+        return out
+
+    return net_init, net_apply
+
+
+def get_mask(inputs, reverse_mask, data_format=&#39;NHWC&#39;):
+    &#34;&#34;&#34; Compute mask for slicing input feature map for Invertible Nets &#34;&#34;&#34;
+    shape = inputs.shape
+    if len(shape) == 2:
+        N = shape[-1]
+        range_n = jnp.arange(0, N)
+        even_ind = range_n % 2
+        checker = jnp.reshape(even_ind, (-1, N))
+    elif len(shape) == 4:
+        H = shape[2] if data_format == &#39;NCHW&#39; else shape[1]
+        W = shape[3] if data_format == &#39;NCHW&#39; else shape[2]
+        range_h = jnp.arange(0, H) % 2
+        range_w = jnp.arange(0, W) % 2
+        even_ind_h = range_h.astype(bool)
+        even_ind_w = range_w.astype(bool)
+        ind_h = jnp.tile(jnp.expand_dims(even_ind_h, -1), [1, W])
+        ind_w = jnp.tile(jnp.expand_dims(even_ind_w, 0), [H, 1])
+        # ind_h = even_ind_h.unsqueeze(-1).repeat(1, W)
+        # ind_w = even_ind_w.unsqueeze( 0).repeat(H, 1)
+        checker = jnp.logical_xor(ind_h, ind_w)
+        reshape = [-1, 1, H, W] if data_format == &#39;NCHW&#39; else [-1, H, W, 1]
+        checker = jnp.reshape(checker, reshape)
+        checker = checker.astype(jnp.float32)
+    else:
+        raise ValueError(&#39;Invalid tensor shape. Dimension of the tensor shape must be 2 (NxD) or 4 (NxCxHxW or NxHxWxC), got {}.&#39;.format(inputs.get_shape().as_list()))
+    if reverse_mask:
+        checker = 1 - checker
+    return checker
+
+
+def Dense_resnet_block(in_channels: int,
+                       mid_channels: int,
+                       batch_norm: bool = False,
+                       activation: Union[str, Callable] = &#39;ReLU&#39;):
+    inputs = keras.Input(shape=(in_channels,))
+    activation = ACTIVATIONS[activation] if isinstance(activation, str) else activation
+    init_fn, apply_fn = {}, {}
+    init_fn[&#39;dense1&#39;], apply_fn[&#39;dense1&#39;] = stax.serial(stax.Dense(mid_channels), stax.BatchNorm(axis=(0,)), activation)
+    init_fn[&#39;dense2&#39;], apply_fn[&#39;dense2&#39;] = stax.serial(stax.Dense(in_channels), stax.BatchNorm(axis=(0,)), activation)
+    init_activation, apply_activation = activation
+
+    def net_init(rng, input_shape):
+        params = {}
+        rngs = random.split(rng, 2)
+        shape, params[&#39;dense1&#39;] = init_fn[&#39;dense1&#39;](rngs[0], input_shape)
+        shape, params[&#39;dense2&#39;] = init_fn[&#39;dense2&#39;](rngs[1], shape)
+        shape, params[&#39;activation&#39;] = init_activation(rngs[2], shape)
+        return shape, params
+
+    def net_apply(params, inputs, **kwargs):
+        x = inputs
+        out = apply_fn[&#39;dense1&#39;](params[&#39;dense1&#39;], x)
+        out = apply_fn[&#39;dense2&#39;](params[&#39;dense2&#39;], out)
+        out = jnp.add(out, x)
+        return out
+
+    return net_init, net_apply
+
+
+def conv_net_unit(in_channels: int,
+                  out_channels: int,
+                  layers: Sequence[int],
+                  periodic: bool = False,
+                  batch_norm: bool = False,
+                  activation: Union[str, Callable] = &#39;ReLU&#39;,
+                  in_spatial: Union[int, tuple] = 2, **kwargs):
+    &#34;&#34;&#34; Conv-net unit for Invertible Nets&#34;&#34;&#34;
+    if isinstance(in_spatial, int):
+        d = in_spatial
+    else:
+        assert isinstance(in_spatial, tuple)
+        d = len(in_spatial)
+    if isinstance(activation, str):
+        activation = ACTIVATIONS[activation]
+    init_fn, apply_fn = {}, {}
+    if len(layers) &lt; 1:
+        layers.append(out_channels)
+    init_fn[&#39;conv_in&#39;], apply_fn[&#39;conv_in&#39;] = stax.serial(
+        CONV[d](layers[0], (3,) * d, padding=&#39;valid&#39;),
+        stax.BatchNorm(axis=tuple(range(d + 1))) if batch_norm else stax.Identity,
+        activation)
+    for i in range(1, len(layers)):
+        init_fn[f&#39;conv{i}&#39;], apply_fn[f&#39;conv{i}&#39;] = stax.serial(
+            CONV[d](layers[i], (3,) * d, padding=&#39;valid&#39;),
+            stax.BatchNorm(axis=tuple(range(d + 1))) if batch_norm else stax.Identity,
+            activation)
+    init_fn[&#39;conv_out&#39;], apply_fn[&#39;conv_out&#39;] = CONV[d](out_channels, (1,) * d)
+
+    def net_init(rng, input_shape):
+        params = {}
+        rngs = random.split(rng, 2)
+        shape, params[&#39;conv_in&#39;] = init_fn[&#39;conv_in&#39;](rngs[0], input_shape)
+        for i in range(1, len(layers)):
+            shape, params[f&#39;conv{i + 1}&#39;] = init_fn[f&#39;conv{i + 1}&#39;](rngs[i], shape)
+        shape, params[&#39;conv_out&#39;] = init_fn[&#39;conv_out&#39;](rngs[len(layers)], shape)
+        return shape, params
+
+    def net_apply(params, inputs):
+        x = inputs
+        pad_tuple = [(0, 0)]
+        for i in range(d):
+            pad_tuple.append((1, 1))
+        pad_tuple.append((0, 0))
+        out = jnp.pad(x, pad_width=pad_tuple, mode=&#39;wrap&#39; if periodic else &#39;constant&#39;)
+        out = apply_fn[&#39;conv_in&#39;](params[&#39;conv_in&#39;], out)
+        for i in range(1, len(layers)):
+            out = jnp.pad(out, pad_width=pad_tuple, mode=&#39;wrap&#39; if periodic else &#39;constant&#39;)
+            out = apply_fn[f&#39;conv{i + 1}&#39;](params[f&#39;conv{i + 1}&#39;], out)
+        out = apply_fn[&#39;conv_out&#39;](params[&#39;conv_out&#39;], out)
+        return out
+
+    return net_init, net_apply
+
+
+def u_net_unit(in_channels: int,
+               out_channels: int,
+               levels: int = 4,
+               filters: Union[int, tuple, list] = 16,
+               batch_norm: bool = True,
+               activation=&#39;ReLU&#39;,
+               periodic=False,
+               in_spatial: Union[tuple, int] = 2,
+               use_res_blocks: bool = False, **kwargs):
+    &#34;&#34;&#34; U-net unit for Invertible Nets&#34;&#34;&#34;
+    if isinstance(filters, (tuple, list)):
+        assert len(filters) == levels, f&#34;List of filters has length {len(filters)} but u-net has {levels} levels.&#34;
+    else:
+        filters = (filters,) * levels
+    activation = ACTIVATIONS[activation] if isinstance(activation, str) else activation
+    if isinstance(in_spatial, int):
+        d = in_spatial
+        in_spatial = (1,) * d
+    else:
+        assert isinstance(in_spatial, tuple)
+        d = len(in_spatial)
+    # Create layers
+    if use_res_blocks:
+        inc_init, inc_apply = resnet_block(in_channels, filters[0], periodic, batch_norm, activation, d)
+    else:
+        inc_init, inc_apply = create_double_conv(d, filters[0], filters[0], batch_norm, activation, periodic)
+    init_functions, apply_functions = {}, {}
+    for i in range(1, levels):
+        if use_res_blocks:
+            init_functions[f&#39;down{i}&#39;], apply_functions[f&#39;down{i}&#39;] = resnet_block(filters[i - 1], filters[i], periodic, batch_norm, activation, d)
+            init_functions[f&#39;up{i}&#39;], apply_functions[f&#39;up{i}&#39;] = resnet_block(filters[i] + filters[i - 1], filters[i - 1], periodic, batch_norm, activation, d)
+        else:
+            init_functions[f&#39;down{i}&#39;], apply_functions[f&#39;down{i}&#39;] = create_double_conv(d, filters[i], filters[i], batch_norm, activation, periodic)
+            init_functions[f&#39;up{i}&#39;], apply_functions[f&#39;up{i}&#39;] = create_double_conv(d, filters[i - 1], filters[i - 1], batch_norm, activation, periodic)
+    outc_init, outc_apply = CONV[d](out_channels, (1,) * d, padding=&#39;same&#39;)
+    max_pool_init, max_pool_apply = stax.MaxPool((2,) * d, padding=&#39;same&#39;, strides=(2,) * d)
+    _, up_apply = create_upsample()
+
+    def net_init(rng, input_shape):
+        params = {}
+        rngs = random.split(rng, 2)
+        shape = input_shape
+        # Layers
+        shape, params[&#39;inc&#39;] = inc_init(rngs[0], shape)
+        shapes = [shape]
+        for i in range(1, levels):
+            shape, _ = max_pool_init(None, shape)
+            shape, params[f&#39;down{i}&#39;] = init_functions[f&#39;down{i}&#39;](rngs[i], shape)
+            shapes.insert(0, shape)
+        for i in range(1, levels):
+            shape = shapes[i][:-1] + (shapes[i][-1] + shape[-1],)
+            shape, params[f&#39;up{i}&#39;] = init_functions[f&#39;up{i}&#39;](rngs[levels + i], shape)
+        shape, params[&#39;outc&#39;] = outc_init(rngs[-1], shape)
+        return shape, params
+
+    # no @jax.jit needed here since the user can jit this in the loss_function
+    def net_apply(params, inputs, **kwargs):
+        x = inputs
+        x = inc_apply(params[&#39;inc&#39;], x, **kwargs)
+        xs = [x]
+        for i in range(1, levels):
+            x = max_pool_apply(None, x, **kwargs)
+            x = apply_functions[f&#39;down{i}&#39;](params[f&#39;down{i}&#39;], x, **kwargs)
+            xs.insert(0, x)
+        for i in range(1, levels):
+            x = up_apply(None, x, **kwargs)
+            x = jnp.concatenate([x, xs[i]], axis=-1)
+            x = apply_functions[f&#39;up{i}&#39;](params[f&#39;up{i}&#39;], x, **kwargs)
+        x = outc_apply(params[&#39;outc&#39;], x, **kwargs)
+        return x
+
+    return net_init, net_apply
+
+
+def res_net_unit(in_channels: int,
+                 out_channels: int,
+                 layers: Sequence[int],
+                 batch_norm: bool = False,
+                 activation: Union[str, Callable] = &#39;ReLU&#39;,
+                 periodic=False,
+                 in_spatial: Union[int, tuple] = 2, **kwargs):
+    &#34;&#34;&#34; Res-net unit for Invertible Nets&#34;&#34;&#34;
+    if isinstance(in_spatial, int):
+        d = in_spatial
+    else:
+        assert isinstance(in_spatial, tuple)
+        d = len(in_spatial)
+    activation = ACTIVATIONS[activation] if isinstance(activation, str) else activation
+    stax_layers = []
+    if len(layers) &lt; 1:
+        layers.append(out_channels)
+    stax_layers.append(resnet_block(in_channels, layers[0], periodic, batch_norm, activation, d))
+    for i in range(1, len(layers)):
+        stax_layers.append(resnet_block(layers[i - 1], layers[i], periodic, batch_norm, activation, d))
+    stax_layers.append(CONV[d](out_channels, (1,) * d))
+    return stax.serial(*stax_layers)
+
+
+NET = {&#39;u_net&#39;: u_net_unit, &#39;res_net&#39;: res_net_unit, &#39;conv_net&#39;: conv_net_unit}
+
+
+def coupling_layer(in_channels: int,
+                   activation: Union[str, Callable] = &#39;ReLU&#39;,
+                   batch_norm: bool = False,
+                   in_spatial: Union[int, tuple] = 2,
+                   net: str = &#39;u_net&#39;,
+                   reverse_mask: bool = False,
+                   **kwargs):
+    if isinstance(in_spatial, int):
+        d = in_spatial
+    else:
+        assert isinstance(in_spatial, tuple)
+        d = len(in_spatial)
+    activation = ACTIVATIONS[activation] if isinstance(activation, str) else activation
+    init_fn, apply_fn = {}, {}
+    if d == 0:
+        init_fn[&#39;s1&#39;], apply_fn[&#39;s1&#39;] = stax.serial(
+            Dense_resnet_block(in_channels, in_channels, batch_norm, activation),
+            stax.Tanh)
+        init_fn[&#39;t1&#39;], apply_fn[&#39;t1&#39;] = Dense_resnet_block(in_channels, in_channels, batch_norm, activation)
+
+        init_fn[&#39;s2&#39;], apply_fn[&#39;s2&#39;] = stax.serial(
+            Dense_resnet_block(in_channels, in_channels, batch_norm, activation),
+            stax.Tanh)
+        init_fn[&#39;t2&#39;], apply_fn[&#39;t2&#39;] = Dense_resnet_block(in_channels, in_channels, batch_norm, activation)
+    else:
+        init_fn[&#39;s1&#39;], apply_fn[&#39;s1&#39;] = NET[net](in_channels=in_channels, out_channels=in_channels, layers=[], batch_norm=batch_norm, activation=activation, in_spatial=in_spatial, **kwargs)
+        init_fn[&#39;t1&#39;], apply_fn[&#39;t1&#39;] = NET[net](in_channels=in_channels, out_channels=in_channels, layers=[], batch_norm=batch_norm, activation=activation, in_spatial=in_spatial, **kwargs)
+        init_fn[&#39;s2&#39;], apply_fn[&#39;s2&#39;] = NET[net](in_channels=in_channels, out_channels=in_channels, layers=[], batch_norm=batch_norm, activation=activation, in_spatial=in_spatial, **kwargs)
+        init_fn[&#39;t2&#39;], apply_fn[&#39;t2&#39;] = NET[net](in_channels=in_channels, out_channels=in_channels, layers=[], batch_norm=batch_norm, activation=activation, in_spatial=in_spatial, **kwargs)
+
+    def net_init(rng, input_shape):
+        params = {}
+        rngs = random.split(rng, 2)
+        shape, params[&#39;s1&#39;] = init_fn[&#39;s1&#39;](rngs[0], input_shape)
+        shape, params[&#39;t1&#39;] = init_fn[&#39;t1&#39;](rngs[1], input_shape)
+        shape, params[&#39;s2&#39;] = init_fn[&#39;s2&#39;](rngs[2], input_shape)
+        shape, params[&#39;t2&#39;] = init_fn[&#39;t2&#39;](rngs[3], input_shape)
+        return shape, params
+
+    def net_apply(params, inputs, invert=False):
+        x = inputs
+        mask = get_mask(x, reverse_mask, &#39;NCHW&#39;)
+        if invert:
+            v1 = x * mask
+            v2 = x * (1 - mask)
+            s1 = apply_fn[&#39;s1&#39;](params[&#39;s1&#39;], v1)
+            t1 = apply_fn[&#39;t1&#39;](params[&#39;t1&#39;], v1)
+            u2 = (1 - mask) * (v2 - t1) * jnp.exp(-jnp.tanh(s1))
+            s2 = apply_fn[&#39;s2&#39;](params[&#39;s2&#39;], u2)
+            t2 = apply_fn[&#39;t2&#39;](params[&#39;t2&#39;], u2)
+            u1 = mask * (v1 - t2) * jnp.exp(-jnp.tanh(s2))
+            return u1 + u2
+        else:
+            u1 = x * mask
+            u2 = x * (1 - mask)
+            s2 = apply_fn[&#39;s2&#39;](params[&#39;s2&#39;], u2)
+            t2 = apply_fn[&#39;t2&#39;](params[&#39;t2&#39;], u2)
+            v1 = mask * (u1 * jnp.exp(jnp.tanh(s2)) + t2)
+            s1 = apply_fn[&#39;s1&#39;](params[&#39;s1&#39;], v1)
+            t1 = apply_fn[&#39;t1&#39;](params[&#39;t1&#39;], v1)
+            v2 = (1 - mask) * (u2 * jnp.exp(jnp.tanh(s1)) + t1)
+            return v1 + v2
+    return net_init, net_apply
+
+
+def invertible_net(num_blocks: int,
+                   construct_net: Union[str, Callable],
+                   **construct_kwargs):  # mlp, u_net, res_net, conv_net
+    raise NotImplementedError(&#34;invertible_net is not implemented for Jax&#34;)
+    # if construct_net == &#39;mlp&#39;:
+    #     construct_net = &#39;_inv_net_dense_resnet_block&#39;
+    # if isinstance(construct_net, str):
+    #     construct_net = globals()[construct_net]
+    # if &#39;in_channels&#39; in construct_kwargs and &#39;out_channels&#39; not in construct_kwargs:
+    #     construct_kwargs[&#39;out_channels&#39;] = construct_kwargs[&#39;in_channels&#39;]
+    # init_fn, apply_fn = {}, {}
+    # for i in range(num_blocks):
+    #     init_fn[f&#39;CouplingLayer{i + 1}&#39;], apply_fn[f&#39;CouplingLayer{i + 1}&#39;] = coupling_layer(in_channels, activation, batch_norm, d, net, (i % 2 == 0), **kwargs)
+    #
+    # def net_init(rng, input_shape):
+    #     params = {}
+    #     rngs = random.split(rng, 2)
+    #     for i in range(num_blocks):
+    #         shape, params[f&#39;CouplingLayer{i + 1}&#39;] = init_fn[f&#39;CouplingLayer{i + 1}&#39;](rngs[i], input_shape)
+    #     return shape, params
+    #
+    # def net_apply(params, inputs, invert=False):
+    #     out = inputs
+    #     if invert:
+    #         for i in range(num_blocks, 0, -1):
+    #             out = apply_fn[f&#39;CouplingLayer{i}&#39;](params[f&#39;CouplingLayer{i}&#39;], out, invert)
+    #     else:
+    #         for i in range(1, num_blocks + 1):
+    #             out = apply_fn[f&#39;CouplingLayer{i}&#39;](params[f&#39;CouplingLayer{i}&#39;], out)
+    #     return out
+    #
+    # if d == 0:
+    #     net = StaxNet(net_init, net_apply, (1,) + (in_channels,))
+    # else:
+    #     net = StaxNet(net_init, net_apply, (1,) + (1,) * d + (in_channels,))
+    # net.initialize()
+    # return net
+
+
+def fno(in_channels: int,
+        out_channels: int,
+        mid_channels: int,
+        modes: Sequence[int],
+        activation: Union[str, type] = &#39;ReLU&#39;,
+        batch_norm: bool = False,
+        in_spatial: int = 2):
+    raise NotImplementedError(&#34;fno is not implemented for Jax&#34;)</code></pre>
+</details>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-functions">Functions</h2>
+<dl>
+<dt id="unifyml.backend.jax.stax_nets.Dense_resnet_block"><code class="name flex">
+<span>def <span class="ident">Dense_resnet_block</span></span>(<span>in_channels: int, mid_channels: int, batch_norm: bool = False, activation: Union[str, Callable] = 'ReLU')</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def Dense_resnet_block(in_channels: int,
+                       mid_channels: int,
+                       batch_norm: bool = False,
+                       activation: Union[str, Callable] = &#39;ReLU&#39;):
+    inputs = keras.Input(shape=(in_channels,))
+    activation = ACTIVATIONS[activation] if isinstance(activation, str) else activation
+    init_fn, apply_fn = {}, {}
+    init_fn[&#39;dense1&#39;], apply_fn[&#39;dense1&#39;] = stax.serial(stax.Dense(mid_channels), stax.BatchNorm(axis=(0,)), activation)
+    init_fn[&#39;dense2&#39;], apply_fn[&#39;dense2&#39;] = stax.serial(stax.Dense(in_channels), stax.BatchNorm(axis=(0,)), activation)
+    init_activation, apply_activation = activation
+
+    def net_init(rng, input_shape):
+        params = {}
+        rngs = random.split(rng, 2)
+        shape, params[&#39;dense1&#39;] = init_fn[&#39;dense1&#39;](rngs[0], input_shape)
+        shape, params[&#39;dense2&#39;] = init_fn[&#39;dense2&#39;](rngs[1], shape)
+        shape, params[&#39;activation&#39;] = init_activation(rngs[2], shape)
+        return shape, params
+
+    def net_apply(params, inputs, **kwargs):
+        x = inputs
+        out = apply_fn[&#39;dense1&#39;](params[&#39;dense1&#39;], x)
+        out = apply_fn[&#39;dense2&#39;](params[&#39;dense2&#39;], out)
+        out = jnp.add(out, x)
+        return out
+
+    return net_init, net_apply</code></pre>
+</details>
+</dd>
+<dt id="unifyml.backend.jax.stax_nets.adagrad"><code class="name flex">
+<span>def <span class="ident">adagrad</span></span>(<span>net: <a title="unifyml.backend.jax.stax_nets.StaxNet" href="#unifyml.backend.jax.stax_nets.StaxNet">StaxNet</a>, learning_rate: float = 0.001, lr_decay=0, weight_decay=0, initial_accumulator_value=0, eps=1e-10)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def adagrad(net: StaxNet, learning_rate: float = 1e-3, lr_decay=0, weight_decay=0, initial_accumulator_value=0, eps=1e-10):
+    assert lr_decay == 0
+    assert weight_decay == 0
+    assert initial_accumulator_value == 0
+    assert eps == 1e-10
+    opt = JaxOptimizer(*optim.adagrad(learning_rate))
+    opt.initialize(net.parameters)
+    return opt</code></pre>
+</details>
+</dd>
+<dt id="unifyml.backend.jax.stax_nets.adam"><code class="name flex">
+<span>def <span class="ident">adam</span></span>(<span>net: <a title="unifyml.backend.jax.stax_nets.StaxNet" href="#unifyml.backend.jax.stax_nets.StaxNet">StaxNet</a>, learning_rate: float = 0.001, betas=(0.9, 0.999), epsilon=1e-07)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def adam(net: StaxNet, learning_rate: float = 1e-3, betas=(0.9, 0.999), epsilon=1e-07):
+    opt = JaxOptimizer(*optim.adam(learning_rate, betas[0], betas[1], epsilon))
+    opt.initialize(net.parameters)
+    return opt</code></pre>
+</details>
+</dd>
+<dt id="unifyml.backend.jax.stax_nets.conv_classifier"><code class="name flex">
+<span>def <span class="ident">conv_classifier</span></span>(<span>in_features: int, in_spatial: Union[tuple, list], num_classes: int, blocks=(64, 128, 256, 256, 512, 512), block_sizes=(2, 2, 3, 3, 3), dense_layers=(4096, 4096, 100), batch_norm=True, activation='ReLU', softmax=True, periodic=False)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Based on VGG16.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def conv_classifier(in_features: int,
+                    in_spatial: Union[tuple, list],
+                    num_classes: int,
+                    blocks=(64, 128, 256, 256, 512, 512),
+                    block_sizes=(2, 2, 3, 3, 3),
+                    dense_layers=(4096, 4096, 100),
+                    batch_norm=True,
+                    activation=&#39;ReLU&#39;,
+                    softmax=True,
+                    periodic=False):
+    &#34;&#34;&#34;
+    Based on VGG16.
+    &#34;&#34;&#34;
+    if isinstance(in_spatial, int):
+        d = in_spatial
+        in_spatial = (1,) * d
+    else:
+        assert isinstance(in_spatial, tuple)
+        d = len(in_spatial)
+    activation = ACTIVATIONS[activation] if isinstance(activation, str) else activation
+    stax_dense_layers = []
+    init_fn, apply_fn = {}, {}
+    net_list = []
+    for i, (prev, next, block_size) in enumerate(zip((in_features,) + tuple(blocks[:-1]), blocks, block_sizes)):
+        for j in range(block_size):
+            net_list.append(f&#39;conv{i+1}_{j}&#39;)
+            init_fn[net_list[-1]], apply_fn[net_list[-1]] = stax.serial(CONV[d](next, (3,) * d, padding=&#39;valid&#39;),
+                                                                        stax.BatchNorm(axis=tuple(range(d + 1))) if batch_norm else stax.Identity,
+                                                                        activation)
+        net_list.append(f&#39;max_pool{i+1}&#39;)
+        init_fn[net_list[-1]], apply_fn[net_list[-1]] = stax.MaxPool((2,) * d, padding=&#39;valid&#39;, strides=(2,) * d)
+    init_fn[&#39;flatten&#39;], apply_fn[&#39;flatten&#39;] = stax.Flatten
+    for i, neuron_count in enumerate(dense_layers):
+        stax_dense_layers.append(stax.Dense(neuron_count))
+        stax_dense_layers.append(activation)
+        if batch_norm:
+            stax_dense_layers.append(stax.BatchNorm(axis=(0,)))
+    stax_dense_layers.append(stax.Dense(num_classes))
+    if softmax:
+        stax_dense_layers.append(stax.elementwise(stax.softmax, axis=-1))
+    dense_init, dense_apply = stax.serial(*stax_dense_layers)
+
+    def net_init(rng, input_shape):
+        params = {}
+        rngs = random.split(rng, 2)
+        shape = input_shape
+        N = len(net_list)
+        for i, layer in enumerate(net_list):
+            shape, params[layer] = init_fn[layer](rngs[i], shape)
+        shape, params[&#39;flatten&#39;] = init_fn[&#39;flatten&#39;](rngs[N], shape)
+        flat_size = int(np.prod(in_spatial) * blocks[-1] / (2**d) ** len(blocks))
+        shape, params[&#39;dense&#39;] = dense_init(rngs[N + 1], (1,) + (flat_size,))
+        return shape, params
+
+    def net_apply(params, inputs, **kwargs):
+        x = inputs
+        pad_tuple = [[0, 0]] + [[1, 1]] * d + [[0, 0]]
+        for i in range(len(net_list)):
+            if net_list[i].startswith(&#39;conv&#39;):
+                x = jnp.pad(x, pad_width=pad_tuple, mode=&#39;wrap&#39; if periodic else &#39;constant&#39;)
+            x = apply_fn[f&#39;{net_list[i]}&#39;](params[f&#39;{net_list[i]}&#39;], x)
+        x = apply_fn[&#39;flatten&#39;](params[&#39;flatten&#39;], x)
+        out = dense_apply(params[&#39;dense&#39;], x, **kwargs)
+        return out
+
+    net = StaxNet(net_init, net_apply, (1,) + in_spatial + (in_features,))
+    net.initialize()
+    return net</code></pre>
+</details>
+</dd>
+<dt id="unifyml.backend.jax.stax_nets.conv_net"><code class="name flex">
+<span>def <span class="ident">conv_net</span></span>(<span>in_channels: int, out_channels: int, layers: Sequence[int], batch_norm: bool = False, activation: Union[str, Callable] = 'ReLU', periodic=False, in_spatial: Union[int, tuple] = 2) ‑> <a title="unifyml.backend.jax.stax_nets.StaxNet" href="#unifyml.backend.jax.stax_nets.StaxNet">StaxNet</a></span>
+</code></dt>
+<dd>
+<div class="desc"><p>Built in Conv-Nets are also provided. Contrary to the classical convolutional neural networks, the feature map spatial size remains the same throughout the layers. Each layer of the network is essentially a convolutional block comprising of two conv layers. A filter size of 3 is used in the convolutional layers.</p>
+<h2 id="arguments">Arguments</h2>
+<p>in_channels : input channels of the feature map, dtype : int
+out_channels : output channels of the feature map, dtype : int
+layers : list or tuple of output channels for each intermediate layer between the input and final output channels, dtype : list or tuple
+activation : activation function used within the layers, dtype : string
+batch_norm : use of batchnorm after each conv layer, dtype : bool
+in_spatial : spatial dimensions of the input feature map, dtype : int</p>
+<h2 id="returns">Returns</h2>
+<p>Conv-net model as specified by input arguments</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def conv_net(in_channels: int,
+             out_channels: int,
+             layers: Sequence[int],
+             batch_norm: bool = False,
+             activation: Union[str, Callable] = &#39;ReLU&#39;,
+             periodic=False,
+             in_spatial: Union[int, tuple] = 2) -&gt; StaxNet:
+    &#34;&#34;&#34;
+    Built in Conv-Nets are also provided. Contrary to the classical convolutional neural networks, the feature map spatial size remains the same throughout the layers. Each layer of the network is essentially a convolutional block comprising of two conv layers. A filter size of 3 is used in the convolutional layers.
+    Arguments:
+
+        in_channels : input channels of the feature map, dtype : int
+        out_channels : output channels of the feature map, dtype : int
+        layers : list or tuple of output channels for each intermediate layer between the input and final output channels, dtype : list or tuple
+        activation : activation function used within the layers, dtype : string
+        batch_norm : use of batchnorm after each conv layer, dtype : bool
+        in_spatial : spatial dimensions of the input feature map, dtype : int
+
+    Returns:
+
+        Conv-net model as specified by input arguments
+    &#34;&#34;&#34;
+    if isinstance(in_spatial, int):
+        d = in_spatial
+        in_spatial = (1,) * d
+    else:
+        assert isinstance(in_spatial, tuple)
+        d = len(in_spatial)
+    activation = ACTIVATIONS[activation] if isinstance(activation, str) else activation
+    init_fn, apply_fn = {}, {}
+    if len(layers) &lt; 1:
+        layers.append(out_channels)
+    init_fn[&#39;conv_in&#39;], apply_fn[&#39;conv_in&#39;] = stax.serial(
+        CONV[d](layers[0], (3,) * d, padding=&#39;valid&#39;),
+        stax.BatchNorm(axis=tuple(range(d + 1))) if batch_norm else stax.Identity,
+        activation)
+    for i in range(1, len(layers)):
+        init_fn[f&#39;conv{i}&#39;], apply_fn[f&#39;conv{i}&#39;] = stax.serial(
+            CONV[d](layers[i], (3,) * d, padding=&#39;valid&#39;),
+            stax.BatchNorm(axis=tuple(range(d + 1))) if batch_norm else stax.Identity,
+            activation)
+    init_fn[&#39;conv_out&#39;], apply_fn[&#39;conv_out&#39;] = CONV[d](out_channels, (1,) * d)
+
+    def net_init(rng, input_shape):
+        params = {}
+        rngs = random.split(rng, 2)
+        shape, params[&#39;conv_in&#39;] = init_fn[&#39;conv_in&#39;](rngs[0], input_shape)
+        for i in range(1, len(layers)):
+            shape, params[f&#39;conv{i + 1}&#39;] = init_fn[f&#39;conv{i + 1}&#39;](rngs[i], shape)
+        shape, params[&#39;conv_out&#39;] = init_fn[&#39;conv_out&#39;](rngs[len(layers)], shape)
+        return shape, params
+
+    def net_apply(params, inputs):
+        x = inputs
+        pad_tuple = [(0, 0)]
+        for i in range(d):
+            pad_tuple.append((1, 1))
+        pad_tuple.append((0, 0))
+        out = jnp.pad(x, pad_width=pad_tuple, mode=&#39;wrap&#39; if periodic else &#39;constant&#39;)
+        out = apply_fn[&#39;conv_in&#39;](params[&#39;conv_in&#39;], out)
+        for i in range(1, len(layers)):
+            out = jnp.pad(out, pad_width=pad_tuple, mode=&#39;wrap&#39; if periodic else &#39;constant&#39;)
+            out = apply_fn[f&#39;conv{i + 1}&#39;](params[f&#39;conv{i + 1}&#39;], out)
+        out = apply_fn[&#39;conv_out&#39;](params[&#39;conv_out&#39;], out)
+        return out
+
+    net = StaxNet(net_init, net_apply, (1,) + in_spatial + (in_channels,))
+    net.initialize()
+    return net</code></pre>
+</details>
+</dd>
+<dt id="unifyml.backend.jax.stax_nets.conv_net_unit"><code class="name flex">
+<span>def <span class="ident">conv_net_unit</span></span>(<span>in_channels: int, out_channels: int, layers: Sequence[int], periodic: bool = False, batch_norm: bool = False, activation: Union[str, Callable] = 'ReLU', in_spatial: Union[int, tuple] = 2, **kwargs)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Conv-net unit for Invertible Nets</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def conv_net_unit(in_channels: int,
+                  out_channels: int,
+                  layers: Sequence[int],
+                  periodic: bool = False,
+                  batch_norm: bool = False,
+                  activation: Union[str, Callable] = &#39;ReLU&#39;,
+                  in_spatial: Union[int, tuple] = 2, **kwargs):
+    &#34;&#34;&#34; Conv-net unit for Invertible Nets&#34;&#34;&#34;
+    if isinstance(in_spatial, int):
+        d = in_spatial
+    else:
+        assert isinstance(in_spatial, tuple)
+        d = len(in_spatial)
+    if isinstance(activation, str):
+        activation = ACTIVATIONS[activation]
+    init_fn, apply_fn = {}, {}
+    if len(layers) &lt; 1:
+        layers.append(out_channels)
+    init_fn[&#39;conv_in&#39;], apply_fn[&#39;conv_in&#39;] = stax.serial(
+        CONV[d](layers[0], (3,) * d, padding=&#39;valid&#39;),
+        stax.BatchNorm(axis=tuple(range(d + 1))) if batch_norm else stax.Identity,
+        activation)
+    for i in range(1, len(layers)):
+        init_fn[f&#39;conv{i}&#39;], apply_fn[f&#39;conv{i}&#39;] = stax.serial(
+            CONV[d](layers[i], (3,) * d, padding=&#39;valid&#39;),
+            stax.BatchNorm(axis=tuple(range(d + 1))) if batch_norm else stax.Identity,
+            activation)
+    init_fn[&#39;conv_out&#39;], apply_fn[&#39;conv_out&#39;] = CONV[d](out_channels, (1,) * d)
+
+    def net_init(rng, input_shape):
+        params = {}
+        rngs = random.split(rng, 2)
+        shape, params[&#39;conv_in&#39;] = init_fn[&#39;conv_in&#39;](rngs[0], input_shape)
+        for i in range(1, len(layers)):
+            shape, params[f&#39;conv{i + 1}&#39;] = init_fn[f&#39;conv{i + 1}&#39;](rngs[i], shape)
+        shape, params[&#39;conv_out&#39;] = init_fn[&#39;conv_out&#39;](rngs[len(layers)], shape)
+        return shape, params
+
+    def net_apply(params, inputs):
+        x = inputs
+        pad_tuple = [(0, 0)]
+        for i in range(d):
+            pad_tuple.append((1, 1))
+        pad_tuple.append((0, 0))
+        out = jnp.pad(x, pad_width=pad_tuple, mode=&#39;wrap&#39; if periodic else &#39;constant&#39;)
+        out = apply_fn[&#39;conv_in&#39;](params[&#39;conv_in&#39;], out)
+        for i in range(1, len(layers)):
+            out = jnp.pad(out, pad_width=pad_tuple, mode=&#39;wrap&#39; if periodic else &#39;constant&#39;)
+            out = apply_fn[f&#39;conv{i + 1}&#39;](params[f&#39;conv{i + 1}&#39;], out)
+        out = apply_fn[&#39;conv_out&#39;](params[&#39;conv_out&#39;], out)
+        return out
+
+    return net_init, net_apply</code></pre>
+</details>
+</dd>
+<dt id="unifyml.backend.jax.stax_nets.coupling_layer"><code class="name flex">
+<span>def <span class="ident">coupling_layer</span></span>(<span>in_channels: int, activation: Union[str, Callable] = 'ReLU', batch_norm: bool = False, in_spatial: Union[int, tuple] = 2, net: str = 'u_net', reverse_mask: bool = False, **kwargs)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def coupling_layer(in_channels: int,
+                   activation: Union[str, Callable] = &#39;ReLU&#39;,
+                   batch_norm: bool = False,
+                   in_spatial: Union[int, tuple] = 2,
+                   net: str = &#39;u_net&#39;,
+                   reverse_mask: bool = False,
+                   **kwargs):
+    if isinstance(in_spatial, int):
+        d = in_spatial
+    else:
+        assert isinstance(in_spatial, tuple)
+        d = len(in_spatial)
+    activation = ACTIVATIONS[activation] if isinstance(activation, str) else activation
+    init_fn, apply_fn = {}, {}
+    if d == 0:
+        init_fn[&#39;s1&#39;], apply_fn[&#39;s1&#39;] = stax.serial(
+            Dense_resnet_block(in_channels, in_channels, batch_norm, activation),
+            stax.Tanh)
+        init_fn[&#39;t1&#39;], apply_fn[&#39;t1&#39;] = Dense_resnet_block(in_channels, in_channels, batch_norm, activation)
+
+        init_fn[&#39;s2&#39;], apply_fn[&#39;s2&#39;] = stax.serial(
+            Dense_resnet_block(in_channels, in_channels, batch_norm, activation),
+            stax.Tanh)
+        init_fn[&#39;t2&#39;], apply_fn[&#39;t2&#39;] = Dense_resnet_block(in_channels, in_channels, batch_norm, activation)
+    else:
+        init_fn[&#39;s1&#39;], apply_fn[&#39;s1&#39;] = NET[net](in_channels=in_channels, out_channels=in_channels, layers=[], batch_norm=batch_norm, activation=activation, in_spatial=in_spatial, **kwargs)
+        init_fn[&#39;t1&#39;], apply_fn[&#39;t1&#39;] = NET[net](in_channels=in_channels, out_channels=in_channels, layers=[], batch_norm=batch_norm, activation=activation, in_spatial=in_spatial, **kwargs)
+        init_fn[&#39;s2&#39;], apply_fn[&#39;s2&#39;] = NET[net](in_channels=in_channels, out_channels=in_channels, layers=[], batch_norm=batch_norm, activation=activation, in_spatial=in_spatial, **kwargs)
+        init_fn[&#39;t2&#39;], apply_fn[&#39;t2&#39;] = NET[net](in_channels=in_channels, out_channels=in_channels, layers=[], batch_norm=batch_norm, activation=activation, in_spatial=in_spatial, **kwargs)
+
+    def net_init(rng, input_shape):
+        params = {}
+        rngs = random.split(rng, 2)
+        shape, params[&#39;s1&#39;] = init_fn[&#39;s1&#39;](rngs[0], input_shape)
+        shape, params[&#39;t1&#39;] = init_fn[&#39;t1&#39;](rngs[1], input_shape)
+        shape, params[&#39;s2&#39;] = init_fn[&#39;s2&#39;](rngs[2], input_shape)
+        shape, params[&#39;t2&#39;] = init_fn[&#39;t2&#39;](rngs[3], input_shape)
+        return shape, params
+
+    def net_apply(params, inputs, invert=False):
+        x = inputs
+        mask = get_mask(x, reverse_mask, &#39;NCHW&#39;)
+        if invert:
+            v1 = x * mask
+            v2 = x * (1 - mask)
+            s1 = apply_fn[&#39;s1&#39;](params[&#39;s1&#39;], v1)
+            t1 = apply_fn[&#39;t1&#39;](params[&#39;t1&#39;], v1)
+            u2 = (1 - mask) * (v2 - t1) * jnp.exp(-jnp.tanh(s1))
+            s2 = apply_fn[&#39;s2&#39;](params[&#39;s2&#39;], u2)
+            t2 = apply_fn[&#39;t2&#39;](params[&#39;t2&#39;], u2)
+            u1 = mask * (v1 - t2) * jnp.exp(-jnp.tanh(s2))
+            return u1 + u2
+        else:
+            u1 = x * mask
+            u2 = x * (1 - mask)
+            s2 = apply_fn[&#39;s2&#39;](params[&#39;s2&#39;], u2)
+            t2 = apply_fn[&#39;t2&#39;](params[&#39;t2&#39;], u2)
+            v1 = mask * (u1 * jnp.exp(jnp.tanh(s2)) + t2)
+            s1 = apply_fn[&#39;s1&#39;](params[&#39;s1&#39;], v1)
+            t1 = apply_fn[&#39;t1&#39;](params[&#39;t1&#39;], v1)
+            v2 = (1 - mask) * (u2 * jnp.exp(jnp.tanh(s1)) + t1)
+            return v1 + v2
+    return net_init, net_apply</code></pre>
+</details>
+</dd>
+<dt id="unifyml.backend.jax.stax_nets.create_double_conv"><code class="name flex">
+<span>def <span class="ident">create_double_conv</span></span>(<span>d: int, out_channels: int, mid_channels: int, batch_norm: bool, activation: Callable, periodic: bool)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def create_double_conv(d: int, out_channels: int, mid_channels: int, batch_norm: bool, activation: Callable, periodic: bool):
+    init_fn, apply_fn = {}, {}
+    init_fn[&#39;conv1&#39;], apply_fn[&#39;conv1&#39;] = stax.serial(CONV[d](mid_channels, (3,) * d, padding=&#39;valid&#39;), stax.BatchNorm(axis=tuple(range(d + 1))) if batch_norm else stax.Identity, activation)
+    init_fn[&#39;conv2&#39;], apply_fn[&#39;conv2&#39;] = stax.serial(CONV[d](mid_channels, (3,) * d, padding=&#39;valid&#39;), stax.BatchNorm(axis=tuple(range(d + 1))) if batch_norm else stax.Identity, activation)
+
+    def net_init(rng, input_shape):
+        params = {}
+        rngs = random.split(rng, 2)
+        shape, params[&#39;conv1&#39;] = init_fn[&#39;conv1&#39;](rngs[0], input_shape)
+        shape, params[&#39;conv2&#39;] = init_fn[&#39;conv2&#39;](rngs[1], shape)
+
+        return shape, params
+
+    def net_apply(params, inputs):
+        x = inputs
+        pad_tuple = [[0, 0]] + [[1, 1] for i in range(d)] + [[0, 0]]
+        out = jnp.pad(x, pad_width=pad_tuple, mode=&#39;wrap&#39; if periodic else &#39;constant&#39;)
+        out = apply_fn[&#39;conv1&#39;](params[&#39;conv1&#39;], out)
+        out = jnp.pad(out, pad_width=pad_tuple, mode=&#39;wrap&#39; if periodic else &#39;constant&#39;)
+        out = apply_fn[&#39;conv2&#39;](params[&#39;conv2&#39;], out)
+        return out
+
+    return net_init, net_apply</code></pre>
+</details>
+</dd>
+<dt id="unifyml.backend.jax.stax_nets.create_upsample"><code class="name flex">
+<span>def <span class="ident">create_upsample</span></span>(<span>)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def create_upsample():
+    # def upsample_init(rng, input_shape):
+    #     return shape, []
+    def upsample_apply(params, inputs, **kwargs):
+        x = math.wrap(inputs, math.batch(&#39;batch&#39;), *[math.spatial(f&#39;{i}&#39;) for i in range(len(inputs.shape) - 2)],
+                      math.channel(&#39;vector&#39;))
+        x = math.upsample2x(x)
+        return x.native(x.shape)
+    return NotImplemented, upsample_apply</code></pre>
+</details>
+</dd>
+<dt id="unifyml.backend.jax.stax_nets.fno"><code class="name flex">
+<span>def <span class="ident">fno</span></span>(<span>in_channels: int, out_channels: int, mid_channels: int, modes: Sequence[int], activation: Union[str, type] = 'ReLU', batch_norm: bool = False, in_spatial: int = 2)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def fno(in_channels: int,
+        out_channels: int,
+        mid_channels: int,
+        modes: Sequence[int],
+        activation: Union[str, type] = &#39;ReLU&#39;,
+        batch_norm: bool = False,
+        in_spatial: int = 2):
+    raise NotImplementedError(&#34;fno is not implemented for Jax&#34;)</code></pre>
+</details>
+</dd>
+<dt id="unifyml.backend.jax.stax_nets.get_mask"><code class="name flex">
+<span>def <span class="ident">get_mask</span></span>(<span>inputs, reverse_mask, data_format='NHWC')</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Compute mask for slicing input feature map for Invertible Nets</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def get_mask(inputs, reverse_mask, data_format=&#39;NHWC&#39;):
+    &#34;&#34;&#34; Compute mask for slicing input feature map for Invertible Nets &#34;&#34;&#34;
+    shape = inputs.shape
+    if len(shape) == 2:
+        N = shape[-1]
+        range_n = jnp.arange(0, N)
+        even_ind = range_n % 2
+        checker = jnp.reshape(even_ind, (-1, N))
+    elif len(shape) == 4:
+        H = shape[2] if data_format == &#39;NCHW&#39; else shape[1]
+        W = shape[3] if data_format == &#39;NCHW&#39; else shape[2]
+        range_h = jnp.arange(0, H) % 2
+        range_w = jnp.arange(0, W) % 2
+        even_ind_h = range_h.astype(bool)
+        even_ind_w = range_w.astype(bool)
+        ind_h = jnp.tile(jnp.expand_dims(even_ind_h, -1), [1, W])
+        ind_w = jnp.tile(jnp.expand_dims(even_ind_w, 0), [H, 1])
+        # ind_h = even_ind_h.unsqueeze(-1).repeat(1, W)
+        # ind_w = even_ind_w.unsqueeze( 0).repeat(H, 1)
+        checker = jnp.logical_xor(ind_h, ind_w)
+        reshape = [-1, 1, H, W] if data_format == &#39;NCHW&#39; else [-1, H, W, 1]
+        checker = jnp.reshape(checker, reshape)
+        checker = checker.astype(jnp.float32)
+    else:
+        raise ValueError(&#39;Invalid tensor shape. Dimension of the tensor shape must be 2 (NxD) or 4 (NxCxHxW or NxHxWxC), got {}.&#39;.format(inputs.get_shape().as_list()))
+    if reverse_mask:
+        checker = 1 - checker
+    return checker</code></pre>
+</details>
+</dd>
+<dt id="unifyml.backend.jax.stax_nets.get_parameters"><code class="name flex">
+<span>def <span class="ident">get_parameters</span></span>(<span>model: <a title="unifyml.backend.jax.stax_nets.StaxNet" href="#unifyml.backend.jax.stax_nets.StaxNet">StaxNet</a>, wrap=True) ‑> dict</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def get_parameters(model: StaxNet, wrap=True) -&gt; dict:
+    result = {}
+    _recursive_add_parameters(model.parameters, wrap, (), result)
+    return result</code></pre>
+</details>
+</dd>
+<dt id="unifyml.backend.jax.stax_nets.invertible_net"><code class="name flex">
+<span>def <span class="ident">invertible_net</span></span>(<span>num_blocks: int, construct_net: Union[str, Callable], **construct_kwargs)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def invertible_net(num_blocks: int,
+                   construct_net: Union[str, Callable],
+                   **construct_kwargs):  # mlp, u_net, res_net, conv_net
+    raise NotImplementedError(&#34;invertible_net is not implemented for Jax&#34;)
+    # if construct_net == &#39;mlp&#39;:
+    #     construct_net = &#39;_inv_net_dense_resnet_block&#39;
+    # if isinstance(construct_net, str):
+    #     construct_net = globals()[construct_net]
+    # if &#39;in_channels&#39; in construct_kwargs and &#39;out_channels&#39; not in construct_kwargs:
+    #     construct_kwargs[&#39;out_channels&#39;] = construct_kwargs[&#39;in_channels&#39;]
+    # init_fn, apply_fn = {}, {}
+    # for i in range(num_blocks):
+    #     init_fn[f&#39;CouplingLayer{i + 1}&#39;], apply_fn[f&#39;CouplingLayer{i + 1}&#39;] = coupling_layer(in_channels, activation, batch_norm, d, net, (i % 2 == 0), **kwargs)
+    #
+    # def net_init(rng, input_shape):
+    #     params = {}
+    #     rngs = random.split(rng, 2)
+    #     for i in range(num_blocks):
+    #         shape, params[f&#39;CouplingLayer{i + 1}&#39;] = init_fn[f&#39;CouplingLayer{i + 1}&#39;](rngs[i], input_shape)
+    #     return shape, params
+    #
+    # def net_apply(params, inputs, invert=False):
+    #     out = inputs
+    #     if invert:
+    #         for i in range(num_blocks, 0, -1):
+    #             out = apply_fn[f&#39;CouplingLayer{i}&#39;](params[f&#39;CouplingLayer{i}&#39;], out, invert)
+    #     else:
+    #         for i in range(1, num_blocks + 1):
+    #             out = apply_fn[f&#39;CouplingLayer{i}&#39;](params[f&#39;CouplingLayer{i}&#39;], out)
+    #     return out
+    #
+    # if d == 0:
+    #     net = StaxNet(net_init, net_apply, (1,) + (in_channels,))
+    # else:
+    #     net = StaxNet(net_init, net_apply, (1,) + (1,) * d + (in_channels,))
+    # net.initialize()
+    # return net</code></pre>
+</details>
+</dd>
+<dt id="unifyml.backend.jax.stax_nets.load_state"><code class="name flex">
+<span>def <span class="ident">load_state</span></span>(<span>obj: Union[<a title="unifyml.backend.jax.stax_nets.StaxNet" href="#unifyml.backend.jax.stax_nets.StaxNet">StaxNet</a>, <a title="unifyml.backend.jax.stax_nets.JaxOptimizer" href="#unifyml.backend.jax.stax_nets.JaxOptimizer">JaxOptimizer</a>], path: str)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def load_state(obj: Union[StaxNet, JaxOptimizer], path: str):
+    if not path.endswith(&#39;.npy&#39;):
+        path += &#39;.npy&#39;
+    if isinstance(obj, StaxNet):
+        state = numpy.load(path, allow_pickle=True)
+        obj.parameters = tuple([tuple(layer) for layer in state])
+    else:
+        raise NotImplementedError  # ToDo</code></pre>
+</details>
+</dd>
+<dt id="unifyml.backend.jax.stax_nets.mlp"><code class="name flex">
+<span>def <span class="ident">mlp</span></span>(<span>in_channels: int, out_channels: int, layers: Sequence[int], batch_norm=False, activation='ReLU', softmax=False) ‑> <a title="unifyml.backend.jax.stax_nets.StaxNet" href="#unifyml.backend.jax.stax_nets.StaxNet">StaxNet</a></span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def mlp(in_channels: int,
+              out_channels: int,
+              layers: Sequence[int],
+              batch_norm=False,
+              activation=&#39;ReLU&#39;,
+              softmax=False) -&gt; StaxNet:
+    activation = {&#39;ReLU&#39;: stax.Relu, &#39;Sigmoid&#39;: stax.Sigmoid, &#39;tanh&#39;: stax.Tanh}[activation]
+    stax_layers = []
+    for neuron_count in layers:
+        stax_layers.append(stax.Dense(neuron_count))
+        stax_layers.append(activation)
+        if batch_norm:
+            stax_layers.append(stax.BatchNorm(axis=(0,)))
+    stax_layers.append(stax.Dense(out_channels))
+    if softmax:
+        stax_layers.append(stax.elementwise(stax.softmax, axis=-1))
+    net_init, net_apply = stax.serial(*stax_layers)
+    net = StaxNet(net_init, net_apply, (-1, in_channels))
+    net.initialize()
+    return net</code></pre>
+</details>
+</dd>
+<dt id="unifyml.backend.jax.stax_nets.res_net"><code class="name flex">
+<span>def <span class="ident">res_net</span></span>(<span>in_channels: int, out_channels: int, layers: Sequence[int], batch_norm: bool = False, activation: Union[str, Callable] = 'ReLU', periodic=False, in_spatial: Union[int, tuple] = 2) ‑> <a title="unifyml.backend.jax.stax_nets.StaxNet" href="#unifyml.backend.jax.stax_nets.StaxNet">StaxNet</a></span>
+</code></dt>
+<dd>
+<div class="desc"><p>Built in Res-Nets are provided in the ΦFlow framework. Similar to the conv-net, the feature map spatial size remains the same throughout the layers.
+These networks use residual blocks composed of two conv layers with a skip connection added from the input to the output feature map.
+A default filter size of 3 is used in the convolutional layers.</p>
+<h2 id="arguments">Arguments</h2>
+<p>in_channels : input channels of the feature map, dtype : int
+out_channels : output channels of the feature map, dtype : int
+layers : list or tuple of output channels for each intermediate layer between the input and final output channels, dtype : list or tuple
+activation : activation function used within the layers, dtype : string
+batch_norm : use of batchnorm after each conv layer, dtype : bool
+in_spatial : spatial dimensions of the input feature map, dtype : int</p>
+<h2 id="returns">Returns</h2>
+<p>Res-net model as specified by input arguments</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def res_net(in_channels: int,
+            out_channels: int,
+            layers: Sequence[int],
+            batch_norm: bool = False,
+            activation: Union[str, Callable] = &#39;ReLU&#39;,
+            periodic=False,
+            in_spatial: Union[int, tuple] = 2) -&gt; StaxNet:
+    &#34;&#34;&#34;
+    Built in Res-Nets are provided in the ΦFlow framework. Similar to the conv-net, the feature map spatial size remains the same throughout the layers.
+    These networks use residual blocks composed of two conv layers with a skip connection added from the input to the output feature map.
+    A default filter size of 3 is used in the convolutional layers.
+
+    Arguments:
+
+        in_channels : input channels of the feature map, dtype : int
+        out_channels : output channels of the feature map, dtype : int
+        layers : list or tuple of output channels for each intermediate layer between the input and final output channels, dtype : list or tuple
+        activation : activation function used within the layers, dtype : string
+        batch_norm : use of batchnorm after each conv layer, dtype : bool
+        in_spatial : spatial dimensions of the input feature map, dtype : int
+
+    Returns:
+
+        Res-net model as specified by input arguments
+    &#34;&#34;&#34;
+    if isinstance(in_spatial, int):
+        d = in_spatial
+        in_spatial = (1,) * d
+    else:
+        assert isinstance(in_spatial, tuple)
+        d = len(in_spatial)
+    activation = ACTIVATIONS[activation] if isinstance(activation, str) else activation
+    stax_layers = []
+    if len(layers) &gt; 0:
+        stax_layers.append(resnet_block(in_channels, layers[0], periodic, batch_norm, activation, d))
+        for i in range(1, len(layers)):
+            stax_layers.append(resnet_block(layers[i - 1], layers[i], periodic, batch_norm, activation, d))
+        stax_layers.append(resnet_block(layers[len(layers) - 1], out_channels, periodic, batch_norm, activation, d))
+    else:
+        stax_layers.append(resnet_block(in_channels, out_channels, periodic, batch_norm, activation, d))
+    net_init, net_apply = stax.serial(*stax_layers)
+    net = StaxNet(net_init, net_apply, (1,) + in_spatial + (in_channels,))
+    net.initialize()
+    return net</code></pre>
+</details>
+</dd>
+<dt id="unifyml.backend.jax.stax_nets.res_net_unit"><code class="name flex">
+<span>def <span class="ident">res_net_unit</span></span>(<span>in_channels: int, out_channels: int, layers: Sequence[int], batch_norm: bool = False, activation: Union[str, Callable] = 'ReLU', periodic=False, in_spatial: Union[int, tuple] = 2, **kwargs)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Res-net unit for Invertible Nets</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def res_net_unit(in_channels: int,
+                 out_channels: int,
+                 layers: Sequence[int],
+                 batch_norm: bool = False,
+                 activation: Union[str, Callable] = &#39;ReLU&#39;,
+                 periodic=False,
+                 in_spatial: Union[int, tuple] = 2, **kwargs):
+    &#34;&#34;&#34; Res-net unit for Invertible Nets&#34;&#34;&#34;
+    if isinstance(in_spatial, int):
+        d = in_spatial
+    else:
+        assert isinstance(in_spatial, tuple)
+        d = len(in_spatial)
+    activation = ACTIVATIONS[activation] if isinstance(activation, str) else activation
+    stax_layers = []
+    if len(layers) &lt; 1:
+        layers.append(out_channels)
+    stax_layers.append(resnet_block(in_channels, layers[0], periodic, batch_norm, activation, d))
+    for i in range(1, len(layers)):
+        stax_layers.append(resnet_block(layers[i - 1], layers[i], periodic, batch_norm, activation, d))
+    stax_layers.append(CONV[d](out_channels, (1,) * d))
+    return stax.serial(*stax_layers)</code></pre>
+</details>
+</dd>
+<dt id="unifyml.backend.jax.stax_nets.resnet_block"><code class="name flex">
+<span>def <span class="ident">resnet_block</span></span>(<span>in_channels: int, out_channels: int, periodic: bool, batch_norm: bool, activation: Union[str, Callable] = 'ReLU', d: Union[int, tuple] = 2)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def resnet_block(in_channels: int,
+                 out_channels: int,
+                 periodic: bool,
+                 batch_norm: bool,
+                 activation: Union[str, Callable] = &#39;ReLU&#39;,
+                 d: Union[int, tuple] = 2):
+    activation = ACTIVATIONS[activation] if isinstance(activation, str) else activation
+    init_fn, apply_fn = {}, {}
+    init_fn[&#39;conv1&#39;], apply_fn[&#39;conv1&#39;] = stax.serial(
+        CONV[d](out_channels, (3,) * d, padding=&#39;valid&#39;),
+        stax.BatchNorm(axis=tuple(range(d + 1))) if batch_norm else stax.Identity,
+        activation)
+    init_fn[&#39;conv2&#39;], apply_fn[&#39;conv2&#39;] = stax.serial(
+        CONV[d](out_channels, (3,) * d, padding=&#39;valid&#39;),
+        stax.BatchNorm(axis=tuple(range(d + 1))) if batch_norm else stax.Identity,
+        activation)
+    init_activation, apply_activation = activation
+    if in_channels != out_channels:
+        init_fn[&#39;sample_conv&#39;], apply_fn[&#39;sample_conv&#39;] = stax.serial(
+            CONV[d](out_channels, (1,) * d, padding=&#39;VALID&#39;),
+            stax.BatchNorm(axis=tuple(range(d + 1))) if batch_norm else stax.Identity)
+    else:
+        init_fn[&#39;sample_conv&#39;], apply_fn[&#39;sample_conv&#39;] = stax.Identity
+
+    def net_init(rng, input_shape):
+        params = {}
+        rngs = random.split(rng, 2)
+        # Preparing a list of shapes and dictionary of parameters to return
+        shape, params[&#39;conv1&#39;] = init_fn[&#39;conv1&#39;](rngs[0], input_shape)
+        shape, params[&#39;conv2&#39;] = init_fn[&#39;conv2&#39;](rngs[1], shape)
+        shape, params[&#39;sample_conv&#39;] = init_fn[&#39;sample_conv&#39;](rngs[2], input_shape)
+        shape, params[&#39;activation&#39;] = init_activation(rngs[3], shape)
+        return shape, params
+
+    def net_apply(params, inputs, **kwargs):
+        x = inputs
+        pad_tuple = [[0, 0]] + [[1, 1] for i in range(d)] + [[0, 0]]
+        out = jnp.pad(x, pad_width=pad_tuple, mode=&#39;wrap&#39; if periodic else &#39;constant&#39;)
+        out = apply_fn[&#39;conv1&#39;](params[&#39;conv1&#39;], out)
+        out = jnp.pad(out, pad_width=pad_tuple, mode=&#39;wrap&#39; if periodic else &#39;constant&#39;)
+        out = apply_fn[&#39;conv2&#39;](params[&#39;conv2&#39;], out)
+        skip_x = apply_fn[&#39;sample_conv&#39;](params[&#39;sample_conv&#39;], x, **kwargs)
+        out = jnp.add(out, skip_x)
+        # out = apply_activation(params[&#39;activation&#39;], out)
+        return out
+
+    return net_init, net_apply</code></pre>
+</details>
+</dd>
+<dt id="unifyml.backend.jax.stax_nets.rmsprop"><code class="name flex">
+<span>def <span class="ident">rmsprop</span></span>(<span>net: <a title="unifyml.backend.jax.stax_nets.StaxNet" href="#unifyml.backend.jax.stax_nets.StaxNet">StaxNet</a>, learning_rate: float = 0.001, alpha=0.99, eps=1e-08, weight_decay=0, momentum=0, centered=False)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def rmsprop(net: StaxNet, learning_rate: float = 1e-3, alpha=0.99, eps=1e-08, weight_decay=0, momentum=0, centered=False):
+    assert weight_decay == 0
+    assert not centered
+    if momentum == 0:
+        opt = JaxOptimizer(*optim.rmsprop(learning_rate, alpha, eps))
+    else:
+        opt = JaxOptimizer(*optim.rmsprop_momentum(learning_rate, alpha, eps, momentum))
+    opt.initialize(net.parameters)
+    return opt</code></pre>
+</details>
+</dd>
+<dt id="unifyml.backend.jax.stax_nets.save_state"><code class="name flex">
+<span>def <span class="ident">save_state</span></span>(<span>obj: Union[<a title="unifyml.backend.jax.stax_nets.StaxNet" href="#unifyml.backend.jax.stax_nets.StaxNet">StaxNet</a>, <a title="unifyml.backend.jax.stax_nets.JaxOptimizer" href="#unifyml.backend.jax.stax_nets.JaxOptimizer">JaxOptimizer</a>], path: str)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def save_state(obj: Union[StaxNet, JaxOptimizer], path: str):
+    if not path.endswith(&#39;.npy&#39;):
+        path += &#39;.npy&#39;
+    if isinstance(obj, StaxNet):
+        numpy.save(path, obj.parameters)
+    else:
+        raise NotImplementedError  # ToDo
+        # numpy.save(path, obj._state)</code></pre>
+</details>
+</dd>
+<dt id="unifyml.backend.jax.stax_nets.sgd"><code class="name flex">
+<span>def <span class="ident">sgd</span></span>(<span>net: <a title="unifyml.backend.jax.stax_nets.StaxNet" href="#unifyml.backend.jax.stax_nets.StaxNet">StaxNet</a>, learning_rate: float = 0.001, momentum=0, dampening=0, weight_decay=0, nesterov=False)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def sgd(net: StaxNet, learning_rate: float = 1e-3, momentum=0, dampening=0, weight_decay=0, nesterov=False):
+    assert dampening == 0
+    assert weight_decay == 0
+    assert not nesterov
+    if momentum == 0:
+        opt = JaxOptimizer(*optim.sgd(learning_rate))
+    else:
+        opt = JaxOptimizer(*optim.momentum(learning_rate, momentum))
+    opt.initialize(net.parameters)
+    return opt</code></pre>
+</details>
+</dd>
+<dt id="unifyml.backend.jax.stax_nets.u_net"><code class="name flex">
+<span>def <span class="ident">u_net</span></span>(<span>in_channels: int, out_channels: int, levels: int = 4, filters: Union[int, tuple, list] = 16, batch_norm: bool = True, activation='ReLU', in_spatial: Union[int, tuple] = 2, periodic=False, use_res_blocks: bool = False) ‑> <a title="unifyml.backend.jax.stax_nets.StaxNet" href="#unifyml.backend.jax.stax_nets.StaxNet">StaxNet</a></span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def u_net(in_channels: int,
+          out_channels: int,
+          levels: int = 4,
+          filters: Union[int, tuple, list] = 16,
+          batch_norm: bool = True,
+          activation=&#39;ReLU&#39;,
+          in_spatial: Union[tuple, int] = 2,
+          periodic=False,
+          use_res_blocks: bool = False) -&gt; StaxNet:
+    if isinstance(filters, (tuple, list)):
+        assert len(filters) == levels, f&#34;List of filters has length {len(filters)} but u-net has {levels} levels.&#34;
+    else:
+        filters = (filters,) * levels
+    activation = ACTIVATIONS[activation] if isinstance(activation, str) else activation
+    if isinstance(in_spatial, int):
+        d = in_spatial
+        in_spatial = (1,) * d
+    else:
+        assert isinstance(in_spatial, tuple)
+        d = len(in_spatial)
+    # Create layers
+    if use_res_blocks:
+        inc_init, inc_apply = resnet_block(in_channels, filters[0], periodic, batch_norm, activation, d)
+    else:
+        inc_init, inc_apply = create_double_conv(d, filters[0], filters[0], batch_norm, activation, periodic)
+    init_functions, apply_functions = {}, {}
+    for i in range(1, levels):
+        if use_res_blocks:
+            init_functions[f&#39;down{i}&#39;], apply_functions[f&#39;down{i}&#39;] = resnet_block(filters[i - 1], filters[i], periodic, batch_norm, activation, d)
+            init_functions[f&#39;up{i}&#39;], apply_functions[f&#39;up{i}&#39;] = resnet_block(filters[i] + filters[i - 1], filters[i - 1], periodic, batch_norm, activation, d)
+        else:
+            init_functions[f&#39;down{i}&#39;], apply_functions[f&#39;down{i}&#39;] = create_double_conv(d, filters[i], filters[i], batch_norm, activation, periodic)
+            init_functions[f&#39;up{i}&#39;], apply_functions[f&#39;up{i}&#39;] = create_double_conv(d, filters[i - 1], filters[i - 1], batch_norm, activation, periodic)
+    outc_init, outc_apply = CONV[d](out_channels, (1,) * d, padding=&#39;same&#39;)
+    max_pool_init, max_pool_apply = stax.MaxPool((2,) * d, padding=&#39;same&#39;, strides=(2,) * d)
+    _, up_apply = create_upsample()
+
+    def net_init(rng, input_shape):
+        params = {}
+        rngs = random.split(rng, 2)
+        shape = input_shape
+        # Layers
+        shape, params[&#39;inc&#39;] = inc_init(rngs[0], shape)
+        shapes = [shape]
+        for i in range(1, levels):
+            shape, _ = max_pool_init(None, shape)
+            shape, params[f&#39;down{i}&#39;] = init_functions[f&#39;down{i}&#39;](rngs[i], shape)
+            shapes.insert(0, shape)
+        for i in range(1, levels):
+            shape = shapes[i][:-1] + (shapes[i][-1] + shape[-1],)
+            shape, params[f&#39;up{i}&#39;] = init_functions[f&#39;up{i}&#39;](rngs[levels + i], shape)
+        shape, params[&#39;outc&#39;] = outc_init(rngs[-1], shape)
+        return shape, params
+
+    # no @jax.jit needed here since the user can jit this in the loss_function
+    def net_apply(params, inputs, **kwargs):
+        x = inputs
+        x = inc_apply(params[&#39;inc&#39;], x, **kwargs)
+        xs = [x]
+        for i in range(1, levels):
+            x = max_pool_apply(None, x, **kwargs)
+            x = apply_functions[f&#39;down{i}&#39;](params[f&#39;down{i}&#39;], x, **kwargs)
+            xs.insert(0, x)
+        for i in range(1, levels):
+            x = up_apply(None, x, **kwargs)
+            x = jnp.concatenate([x, xs[i]], axis=-1)
+            x = apply_functions[f&#39;up{i}&#39;](params[f&#39;up{i}&#39;], x, **kwargs)
+        x = outc_apply(params[&#39;outc&#39;], x, **kwargs)
+        return x
+
+    net = StaxNet(net_init, net_apply, (1,) + in_spatial + (in_channels,))
+    net.initialize()
+    return net</code></pre>
+</details>
+</dd>
+<dt id="unifyml.backend.jax.stax_nets.u_net_unit"><code class="name flex">
+<span>def <span class="ident">u_net_unit</span></span>(<span>in_channels: int, out_channels: int, levels: int = 4, filters: Union[int, tuple, list] = 16, batch_norm: bool = True, activation='ReLU', periodic=False, in_spatial: Union[int, tuple] = 2, use_res_blocks: bool = False, **kwargs)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>U-net unit for Invertible Nets</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def u_net_unit(in_channels: int,
+               out_channels: int,
+               levels: int = 4,
+               filters: Union[int, tuple, list] = 16,
+               batch_norm: bool = True,
+               activation=&#39;ReLU&#39;,
+               periodic=False,
+               in_spatial: Union[tuple, int] = 2,
+               use_res_blocks: bool = False, **kwargs):
+    &#34;&#34;&#34; U-net unit for Invertible Nets&#34;&#34;&#34;
+    if isinstance(filters, (tuple, list)):
+        assert len(filters) == levels, f&#34;List of filters has length {len(filters)} but u-net has {levels} levels.&#34;
+    else:
+        filters = (filters,) * levels
+    activation = ACTIVATIONS[activation] if isinstance(activation, str) else activation
+    if isinstance(in_spatial, int):
+        d = in_spatial
+        in_spatial = (1,) * d
+    else:
+        assert isinstance(in_spatial, tuple)
+        d = len(in_spatial)
+    # Create layers
+    if use_res_blocks:
+        inc_init, inc_apply = resnet_block(in_channels, filters[0], periodic, batch_norm, activation, d)
+    else:
+        inc_init, inc_apply = create_double_conv(d, filters[0], filters[0], batch_norm, activation, periodic)
+    init_functions, apply_functions = {}, {}
+    for i in range(1, levels):
+        if use_res_blocks:
+            init_functions[f&#39;down{i}&#39;], apply_functions[f&#39;down{i}&#39;] = resnet_block(filters[i - 1], filters[i], periodic, batch_norm, activation, d)
+            init_functions[f&#39;up{i}&#39;], apply_functions[f&#39;up{i}&#39;] = resnet_block(filters[i] + filters[i - 1], filters[i - 1], periodic, batch_norm, activation, d)
+        else:
+            init_functions[f&#39;down{i}&#39;], apply_functions[f&#39;down{i}&#39;] = create_double_conv(d, filters[i], filters[i], batch_norm, activation, periodic)
+            init_functions[f&#39;up{i}&#39;], apply_functions[f&#39;up{i}&#39;] = create_double_conv(d, filters[i - 1], filters[i - 1], batch_norm, activation, periodic)
+    outc_init, outc_apply = CONV[d](out_channels, (1,) * d, padding=&#39;same&#39;)
+    max_pool_init, max_pool_apply = stax.MaxPool((2,) * d, padding=&#39;same&#39;, strides=(2,) * d)
+    _, up_apply = create_upsample()
+
+    def net_init(rng, input_shape):
+        params = {}
+        rngs = random.split(rng, 2)
+        shape = input_shape
+        # Layers
+        shape, params[&#39;inc&#39;] = inc_init(rngs[0], shape)
+        shapes = [shape]
+        for i in range(1, levels):
+            shape, _ = max_pool_init(None, shape)
+            shape, params[f&#39;down{i}&#39;] = init_functions[f&#39;down{i}&#39;](rngs[i], shape)
+            shapes.insert(0, shape)
+        for i in range(1, levels):
+            shape = shapes[i][:-1] + (shapes[i][-1] + shape[-1],)
+            shape, params[f&#39;up{i}&#39;] = init_functions[f&#39;up{i}&#39;](rngs[levels + i], shape)
+        shape, params[&#39;outc&#39;] = outc_init(rngs[-1], shape)
+        return shape, params
+
+    # no @jax.jit needed here since the user can jit this in the loss_function
+    def net_apply(params, inputs, **kwargs):
+        x = inputs
+        x = inc_apply(params[&#39;inc&#39;], x, **kwargs)
+        xs = [x]
+        for i in range(1, levels):
+            x = max_pool_apply(None, x, **kwargs)
+            x = apply_functions[f&#39;down{i}&#39;](params[f&#39;down{i}&#39;], x, **kwargs)
+            xs.insert(0, x)
+        for i in range(1, levels):
+            x = up_apply(None, x, **kwargs)
+            x = jnp.concatenate([x, xs[i]], axis=-1)
+            x = apply_functions[f&#39;up{i}&#39;](params[f&#39;up{i}&#39;], x, **kwargs)
+        x = outc_apply(params[&#39;outc&#39;], x, **kwargs)
+        return x
+
+    return net_init, net_apply</code></pre>
+</details>
+</dd>
+<dt id="unifyml.backend.jax.stax_nets.update_weights"><code class="name flex">
+<span>def <span class="ident">update_weights</span></span>(<span>net: <a title="unifyml.backend.jax.stax_nets.StaxNet" href="#unifyml.backend.jax.stax_nets.StaxNet">StaxNet</a>, optimizer: <a title="unifyml.backend.jax.stax_nets.JaxOptimizer" href="#unifyml.backend.jax.stax_nets.JaxOptimizer">JaxOptimizer</a>, loss_function: Callable, *loss_args, **loss_kwargs)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def update_weights(net: StaxNet, optimizer: JaxOptimizer, loss_function: Callable, *loss_args, **loss_kwargs):
+    loss_output = optimizer.update(net, loss_function, net.parameters, loss_args, loss_kwargs)
+    net.parameters = optimizer.get_network_parameters()
+    return loss_output</code></pre>
+</details>
+</dd>
+</dl>
+</section>
+<section>
+<h2 class="section-title" id="header-classes">Classes</h2>
+<dl>
+<dt id="unifyml.backend.jax.stax_nets.JaxOptimizer"><code class="flex name class">
+<span>class <span class="ident">JaxOptimizer</span></span>
+<span>(</span><span>initialize: Callable, update: Callable, get_params: Callable)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class JaxOptimizer:
+
+    def __init__(self, initialize: Callable, update: Callable, get_params: Callable):
+        self._initialize, self._update, self._get_params = initialize, update, get_params  # Stax functions
+        self._state = None
+        self._step_i = 0
+        self._update_function_cache = {}
+
+    def initialize(self, net: tuple):
+        self._state = self._initialize(net)
+
+    def update_step(self, grads: tuple):
+        self._state = self._update(self._step_i, grads, self._state)
+        self._step_i += 1
+
+    def get_network_parameters(self):
+        return self._get_params(self._state)
+
+    def update(self, net: StaxNet, loss_function, wrt, loss_args, loss_kwargs):
+        if loss_function not in self._update_function_cache:
+            @functools.wraps(loss_function)
+            def update(packed_current_state, *loss_args, **loss_kwargs):
+                @functools.wraps(loss_function)
+                def loss_depending_on_net(params_tracer: tuple, *args, **kwargs):
+                    net._tracers = params_tracer
+                    loss_function_non_jit = loss_function.f if isinstance(loss_function, JitFunction) else loss_function
+                    result = loss_function_non_jit(*args, **kwargs)
+                    net._tracers = None
+                    return result
+
+                gradient_function = math.gradient(loss_depending_on_net)
+                current_state = OptimizerState(packed_current_state, self._state.tree_def, self._state.subtree_defs)
+                current_params = self._get_params(current_state)
+                value, grads = gradient_function(current_params, *loss_args, **loss_kwargs)
+                next_state = self._update(self._step_i, grads[0], self._state)
+                return next_state.packed_state, value
+
+            if isinstance(loss_function, JitFunction):
+                update = math.jit_compile(update)
+            self._update_function_cache[loss_function] = update
+
+        next_packed_state, loss_output = self._update_function_cache[loss_function](self._state.packed_state,
+                                                                                    *loss_args, **loss_kwargs)
+        self._state = OptimizerState(next_packed_state, self._state.tree_def, self._state.subtree_defs)
+        return loss_output</code></pre>
+</details>
+<h3>Methods</h3>
+<dl>
+<dt id="unifyml.backend.jax.stax_nets.JaxOptimizer.get_network_parameters"><code class="name flex">
+<span>def <span class="ident">get_network_parameters</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def get_network_parameters(self):
+    return self._get_params(self._state)</code></pre>
+</details>
+</dd>
+<dt id="unifyml.backend.jax.stax_nets.JaxOptimizer.initialize"><code class="name flex">
+<span>def <span class="ident">initialize</span></span>(<span>self, net: tuple)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def initialize(self, net: tuple):
+    self._state = self._initialize(net)</code></pre>
+</details>
+</dd>
+<dt id="unifyml.backend.jax.stax_nets.JaxOptimizer.update"><code class="name flex">
+<span>def <span class="ident">update</span></span>(<span>self, net: <a title="unifyml.backend.jax.stax_nets.StaxNet" href="#unifyml.backend.jax.stax_nets.StaxNet">StaxNet</a>, loss_function, wrt, loss_args, loss_kwargs)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def update(self, net: StaxNet, loss_function, wrt, loss_args, loss_kwargs):
+    if loss_function not in self._update_function_cache:
+        @functools.wraps(loss_function)
+        def update(packed_current_state, *loss_args, **loss_kwargs):
+            @functools.wraps(loss_function)
+            def loss_depending_on_net(params_tracer: tuple, *args, **kwargs):
+                net._tracers = params_tracer
+                loss_function_non_jit = loss_function.f if isinstance(loss_function, JitFunction) else loss_function
+                result = loss_function_non_jit(*args, **kwargs)
+                net._tracers = None
+                return result
+
+            gradient_function = math.gradient(loss_depending_on_net)
+            current_state = OptimizerState(packed_current_state, self._state.tree_def, self._state.subtree_defs)
+            current_params = self._get_params(current_state)
+            value, grads = gradient_function(current_params, *loss_args, **loss_kwargs)
+            next_state = self._update(self._step_i, grads[0], self._state)
+            return next_state.packed_state, value
+
+        if isinstance(loss_function, JitFunction):
+            update = math.jit_compile(update)
+        self._update_function_cache[loss_function] = update
+
+    next_packed_state, loss_output = self._update_function_cache[loss_function](self._state.packed_state,
+                                                                                *loss_args, **loss_kwargs)
+    self._state = OptimizerState(next_packed_state, self._state.tree_def, self._state.subtree_defs)
+    return loss_output</code></pre>
+</details>
+</dd>
+<dt id="unifyml.backend.jax.stax_nets.JaxOptimizer.update_step"><code class="name flex">
+<span>def <span class="ident">update_step</span></span>(<span>self, grads: tuple)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def update_step(self, grads: tuple):
+    self._state = self._update(self._step_i, grads, self._state)
+    self._step_i += 1</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+<dt id="unifyml.backend.jax.stax_nets.StaxNet"><code class="flex name class">
+<span>class <span class="ident">StaxNet</span></span>
+<span>(</span><span>initialize: Callable, apply: Callable, input_shape: tuple)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class StaxNet:
+
+    def __init__(self, initialize: Callable, apply: Callable, input_shape: tuple):
+        self._initialize = initialize
+        self._apply = apply
+        self._input_shape = input_shape
+        self.parameters = None
+        self._tracers = None
+
+    def initialize(self):
+        rnd_key = JAX.rnd_key
+        JAX.rnd_key, init_key = random.split(rnd_key)
+        out_shape, params64 = self._initialize(init_key, input_shape=self._input_shape)
+        if math.get_precision() &lt; 64:
+            self.parameters = _recursive_to_float32(params64)
+
+    def __call__(self, *args, **kwargs):
+        if self._tracers is not None:
+            return self._apply(self._tracers, *args)
+        else:
+            return self._apply(self.parameters, *args)</code></pre>
+</details>
+<h3>Methods</h3>
+<dl>
+<dt id="unifyml.backend.jax.stax_nets.StaxNet.initialize"><code class="name flex">
+<span>def <span class="ident">initialize</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def initialize(self):
+    rnd_key = JAX.rnd_key
+    JAX.rnd_key, init_key = random.split(rnd_key)
+    out_shape, params64 = self._initialize(init_key, input_shape=self._input_shape)
+    if math.get_precision() &lt; 64:
+        self.parameters = _recursive_to_float32(params64)</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+</dl>
+</section>
+</article>
+<nav id="sidebar">
+<h1>Index</h1>
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="unifyml.backend.jax" href="index.html">unifyml.backend.jax</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-functions">Functions</a></h3>
+<ul class="two-column">
+<li><code><a title="unifyml.backend.jax.stax_nets.Dense_resnet_block" href="#unifyml.backend.jax.stax_nets.Dense_resnet_block">Dense_resnet_block</a></code></li>
+<li><code><a title="unifyml.backend.jax.stax_nets.adagrad" href="#unifyml.backend.jax.stax_nets.adagrad">adagrad</a></code></li>
+<li><code><a title="unifyml.backend.jax.stax_nets.adam" href="#unifyml.backend.jax.stax_nets.adam">adam</a></code></li>
+<li><code><a title="unifyml.backend.jax.stax_nets.conv_classifier" href="#unifyml.backend.jax.stax_nets.conv_classifier">conv_classifier</a></code></li>
+<li><code><a title="unifyml.backend.jax.stax_nets.conv_net" href="#unifyml.backend.jax.stax_nets.conv_net">conv_net</a></code></li>
+<li><code><a title="unifyml.backend.jax.stax_nets.conv_net_unit" href="#unifyml.backend.jax.stax_nets.conv_net_unit">conv_net_unit</a></code></li>
+<li><code><a title="unifyml.backend.jax.stax_nets.coupling_layer" href="#unifyml.backend.jax.stax_nets.coupling_layer">coupling_layer</a></code></li>
+<li><code><a title="unifyml.backend.jax.stax_nets.create_double_conv" href="#unifyml.backend.jax.stax_nets.create_double_conv">create_double_conv</a></code></li>
+<li><code><a title="unifyml.backend.jax.stax_nets.create_upsample" href="#unifyml.backend.jax.stax_nets.create_upsample">create_upsample</a></code></li>
+<li><code><a title="unifyml.backend.jax.stax_nets.fno" href="#unifyml.backend.jax.stax_nets.fno">fno</a></code></li>
+<li><code><a title="unifyml.backend.jax.stax_nets.get_mask" href="#unifyml.backend.jax.stax_nets.get_mask">get_mask</a></code></li>
+<li><code><a title="unifyml.backend.jax.stax_nets.get_parameters" href="#unifyml.backend.jax.stax_nets.get_parameters">get_parameters</a></code></li>
+<li><code><a title="unifyml.backend.jax.stax_nets.invertible_net" href="#unifyml.backend.jax.stax_nets.invertible_net">invertible_net</a></code></li>
+<li><code><a title="unifyml.backend.jax.stax_nets.load_state" href="#unifyml.backend.jax.stax_nets.load_state">load_state</a></code></li>
+<li><code><a title="unifyml.backend.jax.stax_nets.mlp" href="#unifyml.backend.jax.stax_nets.mlp">mlp</a></code></li>
+<li><code><a title="unifyml.backend.jax.stax_nets.res_net" href="#unifyml.backend.jax.stax_nets.res_net">res_net</a></code></li>
+<li><code><a title="unifyml.backend.jax.stax_nets.res_net_unit" href="#unifyml.backend.jax.stax_nets.res_net_unit">res_net_unit</a></code></li>
+<li><code><a title="unifyml.backend.jax.stax_nets.resnet_block" href="#unifyml.backend.jax.stax_nets.resnet_block">resnet_block</a></code></li>
+<li><code><a title="unifyml.backend.jax.stax_nets.rmsprop" href="#unifyml.backend.jax.stax_nets.rmsprop">rmsprop</a></code></li>
+<li><code><a title="unifyml.backend.jax.stax_nets.save_state" href="#unifyml.backend.jax.stax_nets.save_state">save_state</a></code></li>
+<li><code><a title="unifyml.backend.jax.stax_nets.sgd" href="#unifyml.backend.jax.stax_nets.sgd">sgd</a></code></li>
+<li><code><a title="unifyml.backend.jax.stax_nets.u_net" href="#unifyml.backend.jax.stax_nets.u_net">u_net</a></code></li>
+<li><code><a title="unifyml.backend.jax.stax_nets.u_net_unit" href="#unifyml.backend.jax.stax_nets.u_net_unit">u_net_unit</a></code></li>
+<li><code><a title="unifyml.backend.jax.stax_nets.update_weights" href="#unifyml.backend.jax.stax_nets.update_weights">update_weights</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-classes">Classes</a></h3>
+<ul>
+<li>
+<h4><code><a title="unifyml.backend.jax.stax_nets.JaxOptimizer" href="#unifyml.backend.jax.stax_nets.JaxOptimizer">JaxOptimizer</a></code></h4>
+<ul class="">
+<li><code><a title="unifyml.backend.jax.stax_nets.JaxOptimizer.get_network_parameters" href="#unifyml.backend.jax.stax_nets.JaxOptimizer.get_network_parameters">get_network_parameters</a></code></li>
+<li><code><a title="unifyml.backend.jax.stax_nets.JaxOptimizer.initialize" href="#unifyml.backend.jax.stax_nets.JaxOptimizer.initialize">initialize</a></code></li>
+<li><code><a title="unifyml.backend.jax.stax_nets.JaxOptimizer.update" href="#unifyml.backend.jax.stax_nets.JaxOptimizer.update">update</a></code></li>
+<li><code><a title="unifyml.backend.jax.stax_nets.JaxOptimizer.update_step" href="#unifyml.backend.jax.stax_nets.JaxOptimizer.update_step">update_step</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="unifyml.backend.jax.stax_nets.StaxNet" href="#unifyml.backend.jax.stax_nets.StaxNet">StaxNet</a></code></h4>
+<ul class="">
+<li><code><a title="unifyml.backend.jax.stax_nets.StaxNet.initialize" href="#unifyml.backend.jax.stax_nets.StaxNet.initialize">initialize</a></code></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc" title="pdoc: Python API documentation generator"><cite>pdoc</cite> 0.10.0</a>.</p>
+</footer>
+</body>
+</html>
