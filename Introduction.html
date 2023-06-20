@@ -15112,7 +15112,7 @@ body[data-format='mobile'] .jp-OutputArea-child .jp-OutputArea-output {
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
 <h1 id="UnifyML-Quickstart">UnifyML Quickstart<a class="anchor-link" href="#UnifyML-Quickstart">&#182;</a></h1><p><a href="https://colab.research.google.com/github/holl-/UnifyML/blob/main/docs/Introduction.ipynb"><img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Colab" /></a> 
   •   <a href="https://github.com/holl-/UnifyML">🌐 <strong>UnifyML</strong></a>
-  •   <a href="https://holl-.github.io/UnifyML/unifyml/">📖 <strong>Documentation</strong></a>
+  •   <a href="https://holl-.github.io/UnifyML/">📖 <strong>Documentation</strong></a>
   •   <a href="https://holl-.github.io/UnifyML/unifyml">🔗 <strong>API</strong></a>
   •   <a href=""><strong>▶ Videos</strong></a>
   •   <a href="https://colab.research.google.com/github/holl-/UnifyML/blob/main/docs/Examples.ipynb"><img src="images/colab_logo_small.png" height=4></a> <a href="https://holl-.github.io/UnifyML/Examples.html"><strong>Examples</strong></a></p>
@@ -15348,7 +15348,7 @@ UnifyML will dispatch the call to the corresponding library and return the resul
 
 
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="application/vnd.jupyter.stderr">
-<pre>2023-06-20 10:41:14.694672: W tensorflow/compiler/tf2tensorrt/utils/py_utils.cc:38] TF-TRT Warning: Could not find TensorRT
+<pre>2023-06-20 13:54:59.081328: W tensorflow/compiler/tf2tensorrt/utils/py_utils.cc:38] TF-TRT Warning: Could not find TensorRT
 </pre>
 </div>
 </div>
@@ -15668,7 +15668,8 @@ For an exhaustive list, see <a href="Shapes.html">here</a></p>
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<p>When creating a new tensor from scratch, we also need to specify the size along each dimension:</p>
+<p>The superscript <code>b</code> and <code>c</code> denote the dimension type.
+When creating a new tensor from scratch, we also need to specify the size along each dimension:</p>
 
 </div>
 </div>
@@ -15842,6 +15843,217 @@ For a 1D or 3D variant, we would pass <code>in_spatial=1</code> or <code>3</code
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
+<h2 id="Slicing">Slicing<a class="anchor-link" href="#Slicing">&#182;</a></h2><p>Slicing in UnifyML is done by dimension names.
+Say we have a set of images:</p>
+
+</div>
+</div>
+</div>
+</div><div  class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[16]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">images</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">random_uniform</span><span class="p">(</span><span class="n">batch</span><span class="p">(</span><span class="nb">set</span><span class="o">=</span><span class="mi">4</span><span class="p">),</span> <span class="n">spatial</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="mi">28</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="mi">28</span><span class="p">),</span> <span class="n">channel</span><span class="p">(</span><span class="n">channels</span><span class="o">=</span><span class="mi">3</span><span class="p">))</span>
+<span class="n">images</span>
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+<div class="jp-Cell-outputWrapper">
+<div class="jp-Collapser jp-OutputCollapser jp-Cell-outputCollapser">
+</div>
+
+
+<div class="jp-OutputArea jp-Cell-outputArea">
+<div class="jp-OutputArea-child jp-OutputArea-executeResult">
+    
+    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[16]:</div>
+
+
+
+
+<div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
+<pre><span class="ansi-green-intense-fg">(setᵇ=4, xˢ=28, yˢ=28, channelsᶜ=3)</span> <span class="ansi-blue-intense-fg">0.502 ± 0.288</span> <span class="ansi-white-fg">(1e-04...1e+00)</span></pre>
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+<div  class="jp-Cell jp-MarkdownCell jp-Notebook-cell">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
+</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
+<p>The red, green and blue components are stored inside the <code>channels</code> dimension.
+Then to get just the red component of the last entry in the set, we can write</p>
+
+</div>
+</div>
+</div>
+</div><div  class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[17]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">images</span><span class="o">.</span><span class="n">set</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">channels</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+<div class="jp-Cell-outputWrapper">
+<div class="jp-Collapser jp-OutputCollapser jp-Cell-outputCollapser">
+</div>
+
+
+<div class="jp-OutputArea jp-Cell-outputArea">
+<div class="jp-OutputArea-child jp-OutputArea-executeResult">
+    
+    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[17]:</div>
+
+
+
+
+<div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
+<pre><span class="ansi-green-intense-fg">(xˢ=28, yˢ=28)</span> <span class="ansi-blue-intense-fg">0.501 ± 0.291</span> <span class="ansi-white-fg">(2e-03...1e+00)</span></pre>
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+<div  class="jp-Cell jp-MarkdownCell jp-Notebook-cell">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
+</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
+<p>Or we can slice using a dictionary</p>
+
+</div>
+</div>
+</div>
+</div><div  class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[18]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">images</span><span class="p">[{</span><span class="s1">&#39;set&#39;</span><span class="p">:</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="s1">&#39;channels&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">}]</span>
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+<div class="jp-Cell-outputWrapper">
+<div class="jp-Collapser jp-OutputCollapser jp-Cell-outputCollapser">
+</div>
+
+
+<div class="jp-OutputArea jp-Cell-outputArea">
+<div class="jp-OutputArea-child jp-OutputArea-executeResult">
+    
+    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[18]:</div>
+
+
+
+
+<div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
+<pre><span class="ansi-green-intense-fg">(xˢ=28, yˢ=28)</span> <span class="ansi-blue-intense-fg">0.501 ± 0.291</span> <span class="ansi-white-fg">(2e-03...1e+00)</span></pre>
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+<div  class="jp-Cell jp-MarkdownCell jp-Notebook-cell">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
+</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
+<p>Slicing the NumPy way, i.e. <code>images[-1, :, :, 0]</code> is not supported because the order of dimensions generally depends on which backend you use.</p>
+<p>To make your code easier to read, you may name slices along dimensions as well.
+In the above example, we might name the red, green and blue channels explicitly:</p>
+
+</div>
+</div>
+</div>
+</div><div  class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[19]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">images</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">random_uniform</span><span class="p">(</span><span class="n">batch</span><span class="p">(</span><span class="nb">set</span><span class="o">=</span><span class="mi">4</span><span class="p">),</span> <span class="n">spatial</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="mi">28</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="mi">28</span><span class="p">),</span> <span class="n">channel</span><span class="p">(</span><span class="n">channels</span><span class="o">=</span><span class="s1">&#39;red,green,blue&#39;</span><span class="p">))</span>
+<span class="n">images</span><span class="o">.</span><span class="n">set</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">channels</span><span class="p">[</span><span class="s1">&#39;red&#39;</span><span class="p">]</span>
+<span class="n">images</span><span class="p">[{</span><span class="s1">&#39;set&#39;</span><span class="p">:</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="s1">&#39;channels&#39;</span><span class="p">:</span> <span class="s1">&#39;red&#39;</span><span class="p">}]</span>
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+<div class="jp-Cell-outputWrapper">
+<div class="jp-Collapser jp-OutputCollapser jp-Cell-outputCollapser">
+</div>
+
+
+<div class="jp-OutputArea jp-Cell-outputArea">
+<div class="jp-OutputArea-child jp-OutputArea-executeResult">
+    
+    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[19]:</div>
+
+
+
+
+<div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
+<pre><span class="ansi-green-intense-fg">(xˢ=28, yˢ=28)</span> <span class="ansi-blue-intense-fg">0.500 ± 0.276</span> <span class="ansi-white-fg">(2e-03...1e+00)</span></pre>
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+<div  class="jp-Cell jp-MarkdownCell jp-Notebook-cell">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
+</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
 <h2 id="Further-Reading">Further Reading<a class="anchor-link" href="#Further-Reading">&#182;</a></h2><p>While the dimensionality of neural networks must be specified during network creation, this is not the case for math functions.
 These <a href="N_Dimensional.html">automatically adapt to the number of spatial dimensions of the data that is passed in</a>.</p>
 <p>If you want to get deeper into UnifyML, check out the following notebooks:</p>
@@ -15851,8 +16063,8 @@ These <a href="N_Dimensional.html">automatically adapt to the number of spatial 
 <li><a href="Data_Types.html">Data types</a></li>
 <li><a href="N_Dimensional.html">Writing <em>n</em>-dimensional code</a></li>
 </ul>
-<p>  •   <a href="https://github.com/holl-/UnifyML">🌐 <strong>UnifyML</strong></a>
-  •   <a href="https://holl-.github.io/UnifyML/unifyml/">📖 <strong>Documentation</strong></a>
+<p><a href="https://github.com/holl-/UnifyML">🌐 <strong>UnifyML</strong></a>
+  •   <a href="https://holl-.github.io/UnifyML/">📖 <strong>Documentation</strong></a>
   •   <a href="https://holl-.github.io/UnifyML/unifyml">🔗 <strong>API</strong></a>
   •   <a href=""><strong>▶ Videos</strong></a>
   •   <a href="https://colab.research.google.com/github/holl-/UnifyML/blob/main/docs/Examples.ipynb"><img src="images/colab_logo_small.png" height=4></a> <a href="https://holl-.github.io/UnifyML/Examples.html"><strong>Examples</strong></a></p>
