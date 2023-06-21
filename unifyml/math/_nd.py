@@ -233,7 +233,7 @@ def l1_loss(x, reduce: DimFilter = math.non_batch) -> Tensor:
             elif len(shape) == 1:
                 return backend.sum(abs(x))
             else:
-                raise ValueError("l2_loss is only defined for 0D and 1D native tensors. For higher-dimensional data, use Φ-Flow tensors.")
+                raise ValueError("l2_loss is only defined for 0D and 1D native tensors. For higher-dimensional data, use UnifyML tensors.")
         except math.NoBackendFound:
             raise ValueError(x)
 
@@ -265,7 +265,7 @@ def l2_loss(x, reduce: DimFilter = math.non_batch) -> Tensor:
             elif len(shape) == 1:
                 return backend.sum(x ** 2) * 0.5
             else:
-                raise ValueError("l2_loss is only defined for 0D and 1D native tensors. For higher-dimensional data, use Φ-Flow tensors.")
+                raise ValueError("l2_loss is only defined for 0D and 1D native tensors. For higher-dimensional data, use UnifyML tensors.")
         except math.NoBackendFound:
             raise ValueError(x)
 

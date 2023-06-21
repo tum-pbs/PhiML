@@ -1,4 +1,4 @@
-# Making PyTorch compatible with Φ<sub>Flow</sub>'s `jit`
+# Making PyTorch compatible with UnifyML's `jit`
 
 
 ## PyTorch Limitations

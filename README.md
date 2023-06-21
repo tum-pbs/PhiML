@@ -271,4 +271,4 @@ We are in the process of submitting a paper. Updates will follow.
 
 ## Projects using UnifyML
 
-UnifyML is used by the simulation framework [Φ<sub>Flow</sub>](https://github.com/tum-pbs/PhiFlow) to integrate differentiable simulations with machine learning.
+UnifyML is used by the simulation framework [UnifyML](https://github.com/tum-pbs/PhiFlow) to integrate differentiable simulations with machine learning.

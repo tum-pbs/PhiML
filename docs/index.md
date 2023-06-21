@@ -45,7 +45,7 @@ To manually generate the documentation, add the PhiFlow directory to your Python
 ```bash
 $ pdoc --html --output-dir docs --force unifyml
 ```
-This requires PyTorch, TensorFlow and Jax to be installed, in addition to the standard Φ<sub>Flow</sub> requirements.
+This requires PyTorch, TensorFlow and Jax to be installed, in addition to the standard UnifyML requirements.
 
 
 ## Contributing to UnifyML

@@ -1364,7 +1364,7 @@ def shape(obj) -> Shape:
             elif len(shape_tuple) == 1:
                 return channel('vector')
             else:
-                raise ValueError(f"Cannot auto-complete shape of {backend} tensor with shape {shape_tuple}. Only 0D and 1D tensors have a Φ-Flow shape by default.")
+                raise ValueError(f"Cannot auto-complete shape of {backend} tensor with shape {shape_tuple}. Only 0D and 1D tensors have a UnifyML shape by default.")
         except NoBackendFound:
             raise ValueError(f'shape() requires Shaped or Shape argument but got {type(obj)}')
 

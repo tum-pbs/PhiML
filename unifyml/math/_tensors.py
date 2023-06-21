@@ -24,7 +24,7 @@ from .magic import Shapable
 class Tensor:
     """
     Abstract base class to represent structured data of one data type.
-    This class replaces the native tensor classes `numpy.ndarray`, `torch.Tensor`, `tensorflow.Tensor` or `jax.numpy.ndarray` as the main data container in Φ<sub>Flow</sub>.
+    This class replaces the native tensor classes `numpy.ndarray`, `torch.Tensor`, `tensorflow.Tensor` or `jax.numpy.ndarray` as the main data container in UnifyML.
 
     `Tensor` instances are different from native tensors in two important ways:
 
@@ -88,7 +88,7 @@ class Tensor:
 
     def __array__(self, dtype=None):  # NumPy conversion
         if self.rank > 1:
-            warnings.warn("Automatic conversion of Φ-Flow tensors to NumPy can cause problems because the dimension order is not guaranteed.", SyntaxWarning, stacklevel=3)
+            warnings.warn("Automatic conversion of UnifyML tensors to NumPy can cause problems because the dimension order is not guaranteed.", SyntaxWarning, stacklevel=3)
         return self.numpy(self._shape)
 
     def __array_ufunc__(self, ufunc, method, *inputs, **kwargs):  # NumPy interface
@@ -173,7 +173,7 @@ class Tensor:
                 return self._op2(inputs[1], lambda x, y: x >> y, lambda x, y: choose_backend(x, y).shift_bits_right(x, y), 'right_shift', '>>')
             else:
                 return self._op2(inputs[0], lambda x, y: y >> x, lambda x, y: choose_backend(x, y).shift_bits_right(y, x), 'r_right_shift', '>>')
-        raise NotImplementedError(f"NumPy function '{ufunc.__name__}' is not compatible with Φ-Flow tensors.")
+        raise NotImplementedError(f"NumPy function '{ufunc.__name__}' is not compatible with UnifyML tensors.")
 
     @property
     def dtype(self) -> DType:

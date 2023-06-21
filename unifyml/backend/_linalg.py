@@ -82,7 +82,7 @@ def cg(b: Backend, lin, y, x0, rtol, atol, max_iter, pre: Optional[Preconditione
         return continue_, x, dx, delta, residual, iterations, function_evaluations, converged, diverged
 
     _, x, _, _, residual, iterations, function_evaluations, converged, diverged = b.while_loop(cg_loop_body, (continue_, x, dx, delta0, residual, iterations, function_evaluations, converged, diverged), _max_iter(max_iter))
-    return SolveResult(f"Φ-Flow CG ({b.name}) {pre_str(pre)}", x, residual, iterations, function_evaluations, converged, diverged, [""] * batch_size)
+    return SolveResult(f"UnifyML CG ({b.name}) {pre_str(pre)}", x, residual, iterations, function_evaluations, converged, diverged, [""] * batch_size)
 
 
 def cg_adaptive(b, lin, y, x0, rtol, atol, max_iter, pre: Optional[Preconditioner]) -> Union[SolveResult, List[SolveResult]]:
@@ -120,7 +120,7 @@ def cg_adaptive(b, lin, y, x0, rtol, atol, max_iter, pre: Optional[Preconditione
         return continue_, x, dx, dy, residual, iterations, function_evaluations, converged, diverged
 
     _, x, _, _, residual, iterations, function_evaluations, converged, diverged = b.while_loop(acg_loop_body, (continue_, x, dx, dy, residual, iterations, function_evaluations, converged, diverged), _max_iter(max_iter))
-    return SolveResult(f"Φ-Flow CG-adaptive ({b.name}) {pre_str(pre)}", x, residual, iterations, function_evaluations, converged, diverged, [""] * batch_size)
+    return SolveResult(f"UnifyML CG-adaptive ({b.name}) {pre_str(pre)}", x, residual, iterations, function_evaluations, converged, diverged, [""] * batch_size)
 
 
 def bicg(b: Backend, lin, y, x0, rtol, atol, max_iter, pre: Optional[Preconditioner], poly_order: int) -> Union[SolveResult, List[SolveResult]]:
@@ -131,7 +131,7 @@ def bicg(b: Backend, lin, y, x0, rtol, atol, max_iter, pre: Optional[Preconditio
     if poly_order == 1:
         return bicg_stab_first_order(b, lin, y, x0, rtol, atol, max_iter, pre)
     if pre:
-        warnings.warn(f"Φ-Flow biCG-stab({poly_order}) with preconditioner is experimental and may diverge.", RuntimeWarning)
+        warnings.warn(f"UnifyML biCG-stab({poly_order}) with preconditioner is experimental and may diverge.", RuntimeWarning)
     pre = pre or NoPreconditioner()
     y = b.to_float(y)
     x = b.copy(b.to_float(x0), only_mutable=True)
@@ -212,7 +212,7 @@ def bicg(b: Backend, lin, y, x0, rtol, atol, max_iter, pre: Optional[Preconditio
         return continue_, x, residual, iterations, function_evaluations, converged, diverged, rho_0, rho_1, omega, alpha, u, u_hat, r0_hat
 
     _, x, residual, iterations, function_evaluations, converged, diverged, rho_0, rho_1, omega, alpha, u, u_hat, r0_hat = b.while_loop(loop_body, (continue_, x, residual, iterations, function_evaluations, converged, diverged, rho_0, rho_1, omega, alpha, u, u_hat, r0_hat), _max_iter(max_iter))
-    return SolveResult(f"Φ-Flow biCG-stab({poly_order}) ({b.name}) {pre_str(pre)}", x, residual, iterations, function_evaluations, converged, diverged, [""] * batch_size)
+    return SolveResult(f"UnifyML biCG-stab({poly_order}) ({b.name}) {pre_str(pre)}", x, residual, iterations, function_evaluations, converged, diverged, [""] * batch_size)
 
 
 def bicg_stab_first_order(b: Backend, lin, y, x0, rtol, atol, max_iter, pre: Optional[Preconditioner]) -> SolveResult or List[SolveResult]:
@@ -262,7 +262,7 @@ def bicg_stab_first_order(b: Backend, lin, y, x0, rtol, atol, max_iter, pre: Opt
         return continue_, x, residual, iterations, function_evaluations, converged, diverged, rho_prev, rho, omega, alpha, u, p
 
     _, x, residual, iterations, function_evaluations, converged, diverged, rho_prev, rho, omega, alpha, u, p = b.while_loop(loop_body, (continue_, x, residual, iterations, function_evaluations, converged, diverged, rho_prev, rho, omega, alpha, u, p), _max_iter(max_iter))
-    return SolveResult(f"Φ-Flow biCG-stab {pre_str(pre)}", x, residual, iterations, function_evaluations, converged, diverged, [""] * batch_size)
+    return SolveResult(f"UnifyML biCG-stab {pre_str(pre)}", x, residual, iterations, function_evaluations, converged, diverged, [""] * batch_size)
 
 
 def scipy_spsolve(b: Backend, method: Union[str, Callable], lin, y, x0, rtol, atol, max_iter, pre: Optional[Preconditioner]) -> SolveResult:

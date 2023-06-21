@@ -819,7 +819,7 @@ class TorchBackend(Backend):
         tol_sq = self.maximum(rtol ** 2 * self.sum(y ** 2, -1), atol ** 2)
         max_iter = self.as_tensor(max_iter[0])
         x, residual, iterations, function_evaluations, converged, diverged = torch_sparse_cg(lin, y, x0, tol_sq, max_iter)
-        return SolveResult(f"Φ-Flow CG ({'PyTorch*' if self.is_available(y) else 'TorchScript'})", x, residual, iterations, function_evaluations, converged, diverged, [""] * batch_size)
+        return SolveResult(f"UnifyML CG ({'PyTorch*' if self.is_available(y) else 'TorchScript'})", x, residual, iterations, function_evaluations, converged, diverged, [""] * batch_size)
 
     def conjugate_gradient_adaptive(self, lin, y, x0, rtol, atol, max_iter, pre) -> SolveResult:
         if callable(lin) or len(max_iter) > 1 or pre:
@@ -834,7 +834,7 @@ class TorchBackend(Backend):
         tol_sq = self.maximum(rtol ** 2 * self.sum(y ** 2, -1), atol ** 2)
         max_iter = self.as_tensor(max_iter[0])
         x, residual, iterations, function_evaluations, converged, diverged = torch_sparse_cg_adaptive(lin, y, x0, tol_sq, max_iter)
-        return SolveResult(f"Φ-Flow CG ({'PyTorch*' if self.is_available(y) else 'TorchScript'})", x, residual, iterations, function_evaluations, converged, diverged, [""] * batch_size)
+        return SolveResult(f"UnifyML CG ({'PyTorch*' if self.is_available(y) else 'TorchScript'})", x, residual, iterations, function_evaluations, converged, diverged, [""] * batch_size)
 
     def bi_conjugate_gradient(self, lin, y, x0, rtol, atol, max_iter, pre, poly_order=2) -> SolveResult:
         if not self.is_available(y):

@@ -153,7 +153,7 @@ def mlp(in_channels: int,
               activation: Union[str, Callable] = 'ReLU',
               softmax=False) -> Network:
     """
-    Fully-connected neural networks are available in Φ-Flow via mlp().
+    Fully-connected neural networks are available in UnifyML via mlp().
 
     Args:
         in_channels : size of input layer, int

@@ -5,7 +5,7 @@ You can mail the developers or get in touch on GitHub.
 
 ## Types of contributions we're looking for
 
-We're open to all kind of contributions that improve or extend the Φ<sub>Flow</sub> library.
+We're open to all kind of contributions that improve or extend the UnifyML library.
 We especially welcome
 
 - Bug fixes
@@ -36,7 +36,7 @@ PyLint is part of the automatic testing pipeline.
 The warning log can be viewed online by selecting a `Tests` job and expanding the pylint output.
 
 ### Docstrings
-The [API documentation](https://holl-.github.io/UnifyML/) for Φ<sub>Flow</sub> is generated using [pdoc](https://pdoc3.github.io/pdoc/).
+The [API documentation](https://holl-.github.io/UnifyML/) for UnifyML is generated using [pdoc](https://pdoc3.github.io/pdoc/).
 We use [Google style docstrings](https://google.github.io/styleguide/pyguide.html#38-comments-and-docstrings)
 with Markdown formatting.
 
