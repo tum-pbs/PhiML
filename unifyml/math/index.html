@@ -4131,7 +4131,7 @@ For <code><a title="unifyml.math.magic.PhiTreeNode" href="magic.html#unifyml.mat
             elif len(shape) == 1:
                 return backend.sum(abs(x))
             else:
-                raise ValueError(&#34;l2_loss is only defined for 0D and 1D native tensors. For higher-dimensional data, use Φ-Flow tensors.&#34;)
+                raise ValueError(&#34;l2_loss is only defined for 0D and 1D native tensors. For higher-dimensional data, use UnifyML tensors.&#34;)
         except math.NoBackendFound:
             raise ValueError(x)</code></pre>
 </details>
@@ -4185,7 +4185,7 @@ For <code><a title="unifyml.math.magic.PhiTreeNode" href="magic.html#unifyml.mat
             elif len(shape) == 1:
                 return backend.sum(x ** 2) * 0.5
             else:
-                raise ValueError(&#34;l2_loss is only defined for 0D and 1D native tensors. For higher-dimensional data, use Φ-Flow tensors.&#34;)
+                raise ValueError(&#34;l2_loss is only defined for 0D and 1D native tensors. For higher-dimensional data, use UnifyML tensors.&#34;)
         except math.NoBackendFound:
             raise ValueError(x)</code></pre>
 </details>
@@ -7697,7 +7697,7 @@ If <code>obj</code> is a <code><a title="unifyml.math.Shape" href="#unifyml.math
             elif len(shape_tuple) == 1:
                 return channel(&#39;vector&#39;)
             else:
-                raise ValueError(f&#34;Cannot auto-complete shape of {backend} tensor with shape {shape_tuple}. Only 0D and 1D tensors have a Φ-Flow shape by default.&#34;)
+                raise ValueError(f&#34;Cannot auto-complete shape of {backend} tensor with shape {shape_tuple}. Only 0D and 1D tensors have a UnifyML shape by default.&#34;)
         except NoBackendFound:
             raise ValueError(f&#39;shape() requires Shaped or Shape argument but got {type(obj)}&#39;)</code></pre>
 </details>
@@ -14169,7 +14169,7 @@ If none is given, records all solves that occur within the scope of this <code><
 </code></dt>
 <dd>
 <div class="desc"><p>Abstract base class to represent structured data of one data type.
-This class replaces the native tensor classes <code>numpy.ndarray</code>, <code>torch.Tensor</code>, <code>tensorflow.Tensor</code> or <code>jax.numpy.ndarray</code> as the main data container in Φ<sub>Flow</sub>.</p>
+This class replaces the native tensor classes <code>numpy.ndarray</code>, <code>torch.Tensor</code>, <code>tensorflow.Tensor</code> or <code>jax.numpy.ndarray</code> as the main data container in UnifyML.</p>
 <p><code><a title="unifyml.math.Tensor" href="#unifyml.math.Tensor">Tensor</a></code> instances are different from native tensors in two important ways:</p>
 <ul>
 <li>The dimensions of Tensors have <em>names</em> and <em>types</em>.</li>
@@ -14187,7 +14187,7 @@ When backed by an editable native tensor, e.g. a <code>numpy.ndarray</code>, do 
 <pre><code class="python">class Tensor:
     &#34;&#34;&#34;
     Abstract base class to represent structured data of one data type.
-    This class replaces the native tensor classes `numpy.ndarray`, `torch.Tensor`, `tensorflow.Tensor` or `jax.numpy.ndarray` as the main data container in Φ&lt;sub&gt;Flow&lt;/sub&gt;.
+    This class replaces the native tensor classes `numpy.ndarray`, `torch.Tensor`, `tensorflow.Tensor` or `jax.numpy.ndarray` as the main data container in UnifyML.
 
     `Tensor` instances are different from native tensors in two important ways:
 
@@ -14251,7 +14251,7 @@ When backed by an editable native tensor, e.g. a <code>numpy.ndarray</code>, do 
 
     def __array__(self, dtype=None):  # NumPy conversion
         if self.rank &gt; 1:
-            warnings.warn(&#34;Automatic conversion of Φ-Flow tensors to NumPy can cause problems because the dimension order is not guaranteed.&#34;, SyntaxWarning, stacklevel=3)
+            warnings.warn(&#34;Automatic conversion of UnifyML tensors to NumPy can cause problems because the dimension order is not guaranteed.&#34;, SyntaxWarning, stacklevel=3)
         return self.numpy(self._shape)
 
     def __array_ufunc__(self, ufunc, method, *inputs, **kwargs):  # NumPy interface
@@ -14336,7 +14336,7 @@ When backed by an editable native tensor, e.g. a <code>numpy.ndarray</code>, do 
                 return self._op2(inputs[1], lambda x, y: x &gt;&gt; y, lambda x, y: choose_backend(x, y).shift_bits_right(x, y), &#39;right_shift&#39;, &#39;&gt;&gt;&#39;)
             else:
                 return self._op2(inputs[0], lambda x, y: y &gt;&gt; x, lambda x, y: choose_backend(x, y).shift_bits_right(y, x), &#39;r_right_shift&#39;, &#39;&gt;&gt;&#39;)
-        raise NotImplementedError(f&#34;NumPy function &#39;{ufunc.__name__}&#39; is not compatible with Φ-Flow tensors.&#34;)
+        raise NotImplementedError(f&#34;NumPy function &#39;{ufunc.__name__}&#39; is not compatible with UnifyML tensors.&#34;)
 
     @property
     def dtype(self) -&gt; DType:

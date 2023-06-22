@@ -15112,7 +15112,7 @@ body[data-format='mobile'] .jp-OutputArea-child .jp-OutputArea-output {
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
 <h1 id="Why-Use-UnifyML's-Tensors">Why Use UnifyML's Tensors<a class="anchor-link" href="#Why-Use-UnifyML's-Tensors">&#182;</a></h1><p><a href="https://colab.research.google.com/github/holl-/UnifyML/blob/main/docs/Tensors.ipynb"><img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Colab" /></a>
   •   <a href="https://github.com/holl-/UnifyML">🌐 <strong>UnifyML</strong></a>
-  •   <a href="https://holl-.github.io/UnifyML/">📖 <strong>Documentation</strong></a>
+  •   <a href="https://holl-.github.io/UnifyML/unifyml/">📖 <strong>Documentation</strong></a>
   •   <a href="https://holl-.github.io/UnifyML/unifyml">🔗 <strong>API</strong></a>
   •   <a href=""><strong>▶ Videos</strong></a>
   •   <a href="https://colab.research.google.com/github/holl-/UnifyML/blob/main/docs/Examples.ipynb"><img src="images/colab_logo_small.png" height=4></a> <a href="https://holl-.github.io/UnifyML/Examples.html"><strong>Examples</strong></a></p>
@@ -15188,6 +15188,83 @@ Another consequence is that the order of dimensions is irrelevant and operations
 </div>
 </div>
 
+</div>
+<div  class="jp-Cell jp-MarkdownCell jp-Notebook-cell">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
+</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
+<h2 id="Printing-Options">Printing Options<a class="anchor-link" href="#Printing-Options">&#182;</a></h2><p>Tensors can be printed in a variety of ways. These options can be specified in the format string, separated by colons. Here is an example:</p>
+
+</div>
+</div>
+</div>
+</div><div  class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[1]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-ipython2"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">math</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">spatial</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span><span class="w"> </span><span class="n">y</span><span class="o">=</span><span class="mi">6</span><span class="p">))</span><span class="si">:</span><span class="s2">summary:color:shape:dtype:.5e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+<div class="jp-Cell-outputWrapper">
+<div class="jp-Collapser jp-OutputCollapser jp-Cell-outputCollapser">
+</div>
+
+
+<div class="jp-OutputArea jp-Cell-outputArea">
+<div class="jp-OutputArea-child">
+    
+    <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+
+
+<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="application/vnd.jupyter.stderr">
+<pre>
+<span class="ansi-red-fg">---------------------------------------------------------------------------</span>
+<span class="ansi-red-fg">NameError</span>                                 Traceback (most recent call last)
+Cell <span class="ansi-green-fg">In[1], line 1</span>
+<span class="ansi-green-fg">----&gt; 1</span> <span style="color: rgb(0,135,0)">print</span>(<span style="color: rgb(175,0,0)">f</span><span style="color: rgb(175,0,0)">&#34;</span><span class="ansi-bold" style="color: rgb(175,95,135)">{</span>math<span style="color: rgb(98,98,98)">.</span>zeros(spatial(x<span style="color: rgb(98,98,98)">=</span><span style="color: rgb(98,98,98)">8</span>,<span style="color: rgb(188,188,188)"> </span>y<span style="color: rgb(98,98,98)">=</span><span style="color: rgb(98,98,98)">6</span>))<span class="ansi-bold" style="color: rgb(175,95,135)">:</span><span style="color: rgb(175,0,0)">summary:color:shape:dtype:.5e</span><span class="ansi-bold" style="color: rgb(175,95,135)">}</span><span style="color: rgb(175,0,0)">&#34;</span>)
+
+<span class="ansi-red-fg">NameError</span>: name &#39;math&#39; is not defined</pre>
+</div>
+</div>
+
+</div>
+
+</div>
+
+</div>
+<div  class="jp-Cell jp-MarkdownCell jp-Notebook-cell">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
+</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
+<p>The order of the arguments is not important.</p>
+<h3 id="Layout">Layout<a class="anchor-link" href="#Layout">&#182;</a></h3><p>The layout determines what is printed and where. The following options are available:</p>
+<ul>
+<li><code>summary</code> Summarizes the values by mean, standard deviation, minimum and maximum value.</li>
+<li><code>row</code> Prints the tensor as a single-line vector.</li>
+<li><code>full</code> Prints all values in the tensors as a multi-line string.</li>
+<li><code>numpy</code> Uses the formatting of NumPy</li>
+</ul>
+<h3 id="Additional-Information">Additional Information<a class="anchor-link" href="#Additional-Information">&#182;</a></h3><p>The keywords <code>shape</code>, <code>no-shape</code>, <code>dtype</code> and <code>no-dtype</code> can be used to show or hide additional properties of the tensor.</p>
+<h3 id="Color">Color<a class="anchor-link" href="#Color">&#182;</a></h3><p>Use the keywords <code>color</code> or <code>no-color</code>.
+Currently <code>color</code> will use ANSI color codes which are supported by most terminals, IDEs as well as Jupyter notebooks.</p>
+<h3 id="Number-Format">Number Format<a class="anchor-link" href="#Number-Format">&#182;</a></h3><p>You can additionally specify a format string for floating-point numbers like <code>.3f</code> or <code>.2e</code>.</p>
+
+</div>
+</div>
+</div>
 </div>
 </body>
 

@@ -7,7 +7,7 @@
 &nbsp; • &nbsp; [<img src="https://www.tensorflow.org/images/colab_logo_32px.png" height=16>](https://colab.research.google.com/github/holl-/UnifyML/blob/main/docs/Examples.ipynb) [**Examples**](https://holl-.github.io/UnifyML/Examples.html)
 
 
-We recommend starting with the [introduction notebook]() which walks you through the installation and introduces the general structure of UnifyML.
+We recommend starting with the [introduction notebook](Introduction.html) which walks you through the installation and introduces the general structure of UnifyML.
 Check out the corresponding introductory [▶ tutorial video]() as well!
 
 ## Tensors & Math
@@ -45,7 +45,7 @@ To manually generate the documentation, add the PhiFlow directory to your Python
 ```bash
 $ pdoc --html --output-dir docs --force unifyml
 ```
-This requires PyTorch, TensorFlow and Jax to be installed, in addition to the standard Φ<sub>Flow</sub> requirements.
+This requires PyTorch, TensorFlow and Jax to be installed, in addition to the standard UnifyML requirements.
 
 
 ## Contributing to UnifyML

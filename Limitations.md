@@ -27,7 +27,7 @@ This may result in errors when jit-compiling the function.
 ### Do not jit-compile neural networks (Jax)
 Do not run neural networks within jit-compiled functions.
 The only exception is the `loss_function` passed to `update_weights()`.
-This is because Jax requires all parameters including network weights to be declared as parameters but Φ<sub>Flow</sub> does not.
+This is because Jax requires all parameters including network weights to be declared as parameters but UnifyML does not.
 
 
 ### Do no compute gradients (PyTorch)
