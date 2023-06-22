@@ -15115,21 +15115,23 @@ body[data-format='mobile'] .jp-OutputArea-child .jp-OutputArea-output {
   •   <a href="https://holl-.github.io/UnifyML/">📖 <strong>Documentation</strong></a>
   •   <a href="https://holl-.github.io/UnifyML/unifyml">🔗 <strong>API</strong></a>
   •   <a href=""><strong>▶ Videos</strong></a></p>
-<p>Math</p>
-<p>Neural Network training</p>
+<p>All examples listed in this notebook can be run with any of the three supported ML backends: <code>jax</code>, <code>torch</code> and <code>tensorflow</code>.
+You can select your preferred one by changing the below <code>math.use()</code> call.</p>
 
 </div>
 </div>
 </div>
-</div><div  class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
+</div><div  class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[1]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython2"><pre><span></span> 
+<div class=" highlight hl-ipython2"><pre><span></span><span class="c1"># !pip install unifyml</span>
+<span class="kn">from</span> <span class="nn">unifyml</span> <span class="kn">import</span> <span class="n">math</span><span class="p">,</span> <span class="n">nn</span>
+<span class="n">math</span><span class="o">.</span><span class="n">use</span><span class="p">(</span><span class="s1">&#39;torch&#39;</span><span class="p">)</span>
 </pre></div>
 
      </div>
@@ -15137,6 +15139,587 @@ body[data-format='mobile'] .jp-OutputArea-child .jp-OutputArea-output {
 </div>
 </div>
 
+<div class="jp-Cell-outputWrapper">
+<div class="jp-Collapser jp-OutputCollapser jp-Cell-outputCollapser">
+</div>
+
+
+<div class="jp-OutputArea jp-Cell-outputArea">
+<div class="jp-OutputArea-child jp-OutputArea-executeResult">
+    
+    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[1]:</div>
+
+
+
+
+<div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
+<pre>torch</pre>
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+<div  class="jp-Cell jp-MarkdownCell jp-Notebook-cell">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
+</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
+<h3 id="Training-an-MLP">Training an MLP<a class="anchor-link" href="#Training-an-MLP">&#182;</a></h3><p>The following script trains an <a href="https://holl-.github.io/UnifyML/unifyml/nn#unifyml.nn.mlp">MLP</a> with three hidden layers to learn a noisy 1D sine function in the range [-2, 2].</p>
+
+</div>
+</div>
+</div>
+</div><div  class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[2]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-ipython2"><pre><span></span><span class="n">net</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">mlp</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">layers</span><span class="o">=</span><span class="p">[</span><span class="mi">128</span><span class="p">,</span> <span class="mi">128</span><span class="p">,</span> <span class="mi">128</span><span class="p">],</span> <span class="n">activation</span><span class="o">=</span><span class="s1">&#39;ReLU&#39;</span><span class="p">)</span>
+<span class="n">optimizer</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">adam</span><span class="p">(</span><span class="n">net</span><span class="p">,</span> <span class="n">learning_rate</span><span class="o">=</span><span class="mf">1e-3</span><span class="p">)</span>
+
+<span class="n">data_x</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">random_uniform</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">batch</span><span class="p">(</span><span class="n">batch</span><span class="o">=</span><span class="mi">128</span><span class="p">),</span> <span class="n">low</span><span class="o">=-</span><span class="mi">2</span><span class="p">,</span> <span class="n">high</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+<span class="n">data_y</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">data_x</span><span class="p">)</span> <span class="o">+</span> <span class="n">math</span><span class="o">.</span><span class="n">random_normal</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">batch</span><span class="p">(</span><span class="n">batch</span><span class="o">=</span><span class="mi">128</span><span class="p">))</span> <span class="o">*</span> <span class="mf">.2</span>
+
+<span class="k">def</span> <span class="nf">loss_function</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">math</span><span class="o">.</span><span class="n">l2_loss</span><span class="p">(</span><span class="n">y</span> <span class="o">-</span> <span class="n">math</span><span class="o">.</span><span class="n">native_call</span><span class="p">(</span><span class="n">net</span><span class="p">,</span> <span class="n">x</span><span class="p">))</span>
+
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">100</span><span class="p">):</span>
+    <span class="n">loss</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">update_weights</span><span class="p">(</span><span class="n">net</span><span class="p">,</span> <span class="n">optimizer</span><span class="p">,</span> <span class="n">loss_function</span><span class="p">,</span> <span class="n">data_x</span><span class="p">,</span> <span class="n">data_y</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">loss</span><span class="p">)</span>
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+<div class="jp-Cell-outputWrapper">
+<div class="jp-Collapser jp-OutputCollapser jp-Cell-outputCollapser">
+</div>
+
+
+<div class="jp-OutputArea jp-Cell-outputArea">
+<div class="jp-OutputArea-child">
+    
+    <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+
+
+<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
+<pre><span class="ansi-green-intense-fg">(batchᵇ=128)</span> <span class="ansi-blue-intense-fg">0.348 ± 0.250</span> <span class="ansi-white-fg">(7e-05...1e+00)</span>
+<span class="ansi-green-intense-fg">(batchᵇ=128)</span> <span class="ansi-blue-intense-fg">0.298 ± 0.222</span> <span class="ansi-white-fg">(2e-05...1e+00)</span>
+<span class="ansi-green-intense-fg">(batchᵇ=128)</span> <span class="ansi-blue-intense-fg">0.261 ± 0.203</span> <span class="ansi-white-fg">(2e-07...9e-01)</span>
+<span class="ansi-green-intense-fg">(batchᵇ=128)</span> <span class="ansi-blue-intense-fg">0.227 ± 0.186</span> <span class="ansi-white-fg">(2e-05...9e-01)</span>
+<span class="ansi-green-intense-fg">(batchᵇ=128)</span> <span class="ansi-blue-intense-fg">0.196 ± 0.171</span> <span class="ansi-white-fg">(3e-05...8e-01)</span>
+<span class="ansi-green-intense-fg">(batchᵇ=128)</span> <span class="ansi-blue-intense-fg">0.168 ± 0.159</span> <span class="ansi-white-fg">(8e-08...8e-01)</span>
+<span class="ansi-green-intense-fg">(batchᵇ=128)</span> <span class="ansi-blue-intense-fg">0.143 ± 0.146</span> <span class="ansi-white-fg">(7e-06...7e-01)</span>
+<span class="ansi-green-intense-fg">(batchᵇ=128)</span> <span class="ansi-blue-intense-fg">0.120 ± 0.133</span> <span class="ansi-white-fg">(2e-05...7e-01)</span>
+<span class="ansi-green-intense-fg">(batchᵇ=128)</span> <span class="ansi-blue-intense-fg">0.102 ± 0.119</span> <span class="ansi-white-fg">(2e-05...6e-01)</span>
+<span class="ansi-green-intense-fg">(batchᵇ=128)</span> <span class="ansi-blue-intense-fg">0.088 ± 0.104</span> <span class="ansi-white-fg">(1e-05...6e-01)</span>
+<span class="ansi-green-intense-fg">(batchᵇ=128)</span> <span class="ansi-blue-intense-fg">0.078 ± 0.092</span> <span class="ansi-white-fg">(3e-07...5e-01)</span>
+<span class="ansi-green-intense-fg">(batchᵇ=128)</span> <span class="ansi-blue-intense-fg">0.071 ± 0.084</span> <span class="ansi-white-fg">(9e-06...4e-01)</span>
+<span class="ansi-green-intense-fg">(batchᵇ=128)</span> <span class="ansi-blue-intense-fg">0.065 ± 0.081</span> <span class="ansi-white-fg">(5e-06...4e-01)</span>
+<span class="ansi-green-intense-fg">(batchᵇ=128)</span> <span class="ansi-blue-intense-fg">0.057 ± 0.077</span> <span class="ansi-white-fg">(6e-05...4e-01)</span>
+<span class="ansi-green-intense-fg">(batchᵇ=128)</span> <span class="ansi-blue-intense-fg">0.049 ± 0.071</span> <span class="ansi-white-fg">(3e-06...4e-01)</span>
+<span class="ansi-green-intense-fg">(batchᵇ=128)</span> <span class="ansi-blue-intense-fg">0.041 ± 0.061</span> <span class="ansi-white-fg">(2e-06...4e-01)</span>
+<span class="ansi-green-intense-fg">(batchᵇ=128)</span> <span class="ansi-blue-intense-fg">0.035 ± 0.051</span> <span class="ansi-white-fg">(6e-07...3e-01)</span>
+<span class="ansi-green-intense-fg">(batchᵇ=128)</span> <span class="ansi-blue-intense-fg">0.033 ± 0.046</span> <span class="ansi-white-fg">(7e-06...3e-01)</span>
+<span class="ansi-green-intense-fg">(batchᵇ=128)</span> <span class="ansi-blue-intense-fg">0.035 ± 0.047</span> <span class="ansi-white-fg">(1e-06...3e-01)</span>
+<span class="ansi-green-intense-fg">(batchᵇ=128)</span> <span class="ansi-blue-intense-fg">0.039 ± 0.054</span> <span class="ansi-white-fg">(4e-07...4e-01)</span>
+<span class="ansi-green-intense-fg">(batchᵇ=128)</span> <span class="ansi-blue-intense-fg">0.043 ± 0.062</span> <span class="ansi-white-fg">(7e-06...5e-01)</span>
+<span class="ansi-green-intense-fg">(batchᵇ=128)</span> <span class="ansi-blue-intense-fg">0.046 ± 0.066</span> <span class="ansi-white-fg">(2e-06...5e-01)</span>
+<span class="ansi-green-intense-fg">(batchᵇ=128)</span> <span class="ansi-blue-intense-fg">0.047 ± 0.066</span> <span class="ansi-white-fg">(8e-06...5e-01)</span>
+<span class="ansi-green-intense-fg">(batchᵇ=128)</span> <span class="ansi-blue-intense-fg">0.045 ± 0.063</span> <span class="ansi-white-fg">(3e-05...5e-01)</span>
+<span class="ansi-green-intense-fg">(batchᵇ=128)</span> <span class="ansi-blue-intense-fg">0.042 ± 0.057</span> <span class="ansi-white-fg">(3e-06...4e-01)</span>
+<span class="ansi-green-intense-fg">(batchᵇ=128)</span> <span class="ansi-blue-intense-fg">0.038 ± 0.051</span> <span class="ansi-white-fg">(8e-07...4e-01)</span>
+<span class="ansi-green-intense-fg">(batchᵇ=128)</span> <span class="ansi-blue-intense-fg">0.034 ± 0.045</span> <span class="ansi-white-fg">(6e-06...3e-01)</span>
+<span class="ansi-green-intense-fg">(batchᵇ=128)</span> <span class="ansi-blue-intense-fg">0.032 ± 0.041</span> <span class="ansi-white-fg">(7e-06...2e-01)</span>
+<span class="ansi-green-intense-fg">(batchᵇ=128)</span> <span class="ansi-blue-intense-fg">0.030 ± 0.038</span> <span class="ansi-white-fg">(3e-07...2e-01)</span>
+<span class="ansi-green-intense-fg">(batchᵇ=128)</span> <span class="ansi-blue-intense-fg">0.030 ± 0.038</span> <span class="ansi-white-fg">(4e-07...2e-01)</span>
+<span class="ansi-green-intense-fg">(batchᵇ=128)</span> <span class="ansi-blue-intense-fg">0.031 ± 0.038</span> <span class="ansi-white-fg">(4e-06...2e-01)</span>
+<span class="ansi-green-intense-fg">(batchᵇ=128)</span> <span class="ansi-blue-intense-fg">0.032 ± 0.040</span> <span class="ansi-white-fg">(9e-08...2e-01)</span>
+<span class="ansi-green-intense-fg">(batchᵇ=128)</span> <span class="ansi-blue-intense-fg">0.033 ± 0.042</span> <span class="ansi-white-fg">(2e-07...2e-01)</span>
+<span class="ansi-green-intense-fg">(batchᵇ=128)</span> <span class="ansi-blue-intense-fg">0.034 ± 0.043</span> <span class="ansi-white-fg">(2e-05...2e-01)</span>
+<span class="ansi-green-intense-fg">(batchᵇ=128)</span> <span class="ansi-blue-intense-fg">0.034 ± 0.044</span> <span class="ansi-white-fg">(7e-05...2e-01)</span>
+<span class="ansi-green-intense-fg">(batchᵇ=128)</span> <span class="ansi-blue-intense-fg">0.034 ± 0.044</span> <span class="ansi-white-fg">(6e-05...2e-01)</span>
+<span class="ansi-green-intense-fg">(batchᵇ=128)</span> <span class="ansi-blue-intense-fg">0.033 ± 0.043</span> <span class="ansi-white-fg">(7e-06...2e-01)</span>
+<span class="ansi-green-intense-fg">(batchᵇ=128)</span> <span class="ansi-blue-intense-fg">0.032 ± 0.042</span> <span class="ansi-white-fg">(2e-06...2e-01)</span>
+<span class="ansi-green-intense-fg">(batchᵇ=128)</span> <span class="ansi-blue-intense-fg">0.031 ± 0.040</span> <span class="ansi-white-fg">(1e-05...2e-01)</span>
+<span class="ansi-green-intense-fg">(batchᵇ=128)</span> <span class="ansi-blue-intense-fg">0.031 ± 0.039</span> <span class="ansi-white-fg">(2e-07...2e-01)</span>
+<span class="ansi-green-intense-fg">(batchᵇ=128)</span> <span class="ansi-blue-intense-fg">0.030 ± 0.038</span> <span class="ansi-white-fg">(2e-05...2e-01)</span>
+<span class="ansi-green-intense-fg">(batchᵇ=128)</span> <span class="ansi-blue-intense-fg">0.030 ± 0.037</span> <span class="ansi-white-fg">(4e-07...2e-01)</span>
+<span class="ansi-green-intense-fg">(batchᵇ=128)</span> <span class="ansi-blue-intense-fg">0.029 ± 0.037</span> <span class="ansi-white-fg">(4e-05...2e-01)</span>
+<span class="ansi-green-intense-fg">(batchᵇ=128)</span> <span class="ansi-blue-intense-fg">0.029 ± 0.037</span> <span class="ansi-white-fg">(1e-05...2e-01)</span>
+<span class="ansi-green-intense-fg">(batchᵇ=128)</span> <span class="ansi-blue-intense-fg">0.030 ± 0.038</span> <span class="ansi-white-fg">(5e-10...2e-01)</span>
+<span class="ansi-green-intense-fg">(batchᵇ=128)</span> <span class="ansi-blue-intense-fg">0.030 ± 0.038</span> <span class="ansi-white-fg">(2e-07...2e-01)</span>
+<span class="ansi-green-intense-fg">(batchᵇ=128)</span> <span class="ansi-blue-intense-fg">0.030 ± 0.038</span> <span class="ansi-white-fg">(3e-06...2e-01)</span>
+<span class="ansi-green-intense-fg">(batchᵇ=128)</span> <span class="ansi-blue-intense-fg">0.030 ± 0.039</span> <span class="ansi-white-fg">(6e-06...2e-01)</span>
+<span class="ansi-green-intense-fg">(batchᵇ=128)</span> <span class="ansi-blue-intense-fg">0.030 ± 0.039</span> <span class="ansi-white-fg">(8e-06...2e-01)</span>
+<span class="ansi-green-intense-fg">(batchᵇ=128)</span> <span class="ansi-blue-intense-fg">0.030 ± 0.038</span> <span class="ansi-white-fg">(1e-05...2e-01)</span>
+<span class="ansi-green-intense-fg">(batchᵇ=128)</span> <span class="ansi-blue-intense-fg">0.029 ± 0.038</span> <span class="ansi-white-fg">(1e-07...2e-01)</span>
+<span class="ansi-green-intense-fg">(batchᵇ=128)</span> <span class="ansi-blue-intense-fg">0.029 ± 0.038</span> <span class="ansi-white-fg">(7e-07...2e-01)</span>
+<span class="ansi-green-intense-fg">(batchᵇ=128)</span> <span class="ansi-blue-intense-fg">0.029 ± 0.038</span> <span class="ansi-white-fg">(2e-05...2e-01)</span>
+<span class="ansi-green-intense-fg">(batchᵇ=128)</span> <span class="ansi-blue-intense-fg">0.029 ± 0.038</span> <span class="ansi-white-fg">(5e-05...2e-01)</span>
+<span class="ansi-green-intense-fg">(batchᵇ=128)</span> <span class="ansi-blue-intense-fg">0.029 ± 0.037</span> <span class="ansi-white-fg">(6e-05...2e-01)</span>
+<span class="ansi-green-intense-fg">(batchᵇ=128)</span> <span class="ansi-blue-intense-fg">0.029 ± 0.037</span> <span class="ansi-white-fg">(7e-06...2e-01)</span>
+<span class="ansi-green-intense-fg">(batchᵇ=128)</span> <span class="ansi-blue-intense-fg">0.029 ± 0.037</span> <span class="ansi-white-fg">(9e-06...2e-01)</span>
+<span class="ansi-green-intense-fg">(batchᵇ=128)</span> <span class="ansi-blue-intense-fg">0.029 ± 0.037</span> <span class="ansi-white-fg">(8e-08...2e-01)</span>
+<span class="ansi-green-intense-fg">(batchᵇ=128)</span> <span class="ansi-blue-intense-fg">0.029 ± 0.037</span> <span class="ansi-white-fg">(2e-06...2e-01)</span>
+<span class="ansi-green-intense-fg">(batchᵇ=128)</span> <span class="ansi-blue-intense-fg">0.029 ± 0.036</span> <span class="ansi-white-fg">(1e-06...2e-01)</span>
+<span class="ansi-green-intense-fg">(batchᵇ=128)</span> <span class="ansi-blue-intense-fg">0.029 ± 0.036</span> <span class="ansi-white-fg">(3e-06...2e-01)</span>
+<span class="ansi-green-intense-fg">(batchᵇ=128)</span> <span class="ansi-blue-intense-fg">0.029 ± 0.036</span> <span class="ansi-white-fg">(2e-06...2e-01)</span>
+<span class="ansi-green-intense-fg">(batchᵇ=128)</span> <span class="ansi-blue-intense-fg">0.029 ± 0.036</span> <span class="ansi-white-fg">(7e-06...2e-01)</span>
+<span class="ansi-green-intense-fg">(batchᵇ=128)</span> <span class="ansi-blue-intense-fg">0.028 ± 0.036</span> <span class="ansi-white-fg">(2e-05...2e-01)</span>
+<span class="ansi-green-intense-fg">(batchᵇ=128)</span> <span class="ansi-blue-intense-fg">0.028 ± 0.036</span> <span class="ansi-white-fg">(4e-05...2e-01)</span>
+<span class="ansi-green-intense-fg">(batchᵇ=128)</span> <span class="ansi-blue-intense-fg">0.028 ± 0.036</span> <span class="ansi-white-fg">(2e-05...2e-01)</span>
+<span class="ansi-green-intense-fg">(batchᵇ=128)</span> <span class="ansi-blue-intense-fg">0.028 ± 0.036</span> <span class="ansi-white-fg">(8e-06...2e-01)</span>
+<span class="ansi-green-intense-fg">(batchᵇ=128)</span> <span class="ansi-blue-intense-fg">0.028 ± 0.036</span> <span class="ansi-white-fg">(3e-07...2e-01)</span>
+<span class="ansi-green-intense-fg">(batchᵇ=128)</span> <span class="ansi-blue-intense-fg">0.028 ± 0.036</span> <span class="ansi-white-fg">(4e-06...2e-01)</span>
+<span class="ansi-green-intense-fg">(batchᵇ=128)</span> <span class="ansi-blue-intense-fg">0.028 ± 0.036</span> <span class="ansi-white-fg">(3e-06...2e-01)</span>
+<span class="ansi-green-intense-fg">(batchᵇ=128)</span> <span class="ansi-blue-intense-fg">0.028 ± 0.036</span> <span class="ansi-white-fg">(4e-07...2e-01)</span>
+<span class="ansi-green-intense-fg">(batchᵇ=128)</span> <span class="ansi-blue-intense-fg">0.028 ± 0.036</span> <span class="ansi-white-fg">(3e-07...2e-01)</span>
+<span class="ansi-green-intense-fg">(batchᵇ=128)</span> <span class="ansi-blue-intense-fg">0.028 ± 0.036</span> <span class="ansi-white-fg">(7e-08...2e-01)</span>
+<span class="ansi-green-intense-fg">(batchᵇ=128)</span> <span class="ansi-blue-intense-fg">0.028 ± 0.036</span> <span class="ansi-white-fg">(1e-06...2e-01)</span>
+<span class="ansi-green-intense-fg">(batchᵇ=128)</span> <span class="ansi-blue-intense-fg">0.028 ± 0.036</span> <span class="ansi-white-fg">(2e-06...2e-01)</span>
+<span class="ansi-green-intense-fg">(batchᵇ=128)</span> <span class="ansi-blue-intense-fg">0.028 ± 0.036</span> <span class="ansi-white-fg">(5e-06...2e-01)</span>
+<span class="ansi-green-intense-fg">(batchᵇ=128)</span> <span class="ansi-blue-intense-fg">0.028 ± 0.036</span> <span class="ansi-white-fg">(2e-05...2e-01)</span>
+<span class="ansi-green-intense-fg">(batchᵇ=128)</span> <span class="ansi-blue-intense-fg">0.028 ± 0.036</span> <span class="ansi-white-fg">(3e-05...2e-01)</span>
+<span class="ansi-green-intense-fg">(batchᵇ=128)</span> <span class="ansi-blue-intense-fg">0.027 ± 0.036</span> <span class="ansi-white-fg">(3e-05...2e-01)</span>
+<span class="ansi-green-intense-fg">(batchᵇ=128)</span> <span class="ansi-blue-intense-fg">0.027 ± 0.035</span> <span class="ansi-white-fg">(6e-06...2e-01)</span>
+<span class="ansi-green-intense-fg">(batchᵇ=128)</span> <span class="ansi-blue-intense-fg">0.027 ± 0.035</span> <span class="ansi-white-fg">(1e-07...2e-01)</span>
+<span class="ansi-green-intense-fg">(batchᵇ=128)</span> <span class="ansi-blue-intense-fg">0.027 ± 0.035</span> <span class="ansi-white-fg">(8e-06...2e-01)</span>
+<span class="ansi-green-intense-fg">(batchᵇ=128)</span> <span class="ansi-blue-intense-fg">0.027 ± 0.035</span> <span class="ansi-white-fg">(2e-05...2e-01)</span>
+<span class="ansi-green-intense-fg">(batchᵇ=128)</span> <span class="ansi-blue-intense-fg">0.027 ± 0.035</span> <span class="ansi-white-fg">(4e-05...2e-01)</span>
+<span class="ansi-green-intense-fg">(batchᵇ=128)</span> <span class="ansi-blue-intense-fg">0.027 ± 0.035</span> <span class="ansi-white-fg">(5e-05...2e-01)</span>
+<span class="ansi-green-intense-fg">(batchᵇ=128)</span> <span class="ansi-blue-intense-fg">0.027 ± 0.035</span> <span class="ansi-white-fg">(6e-05...2e-01)</span>
+<span class="ansi-green-intense-fg">(batchᵇ=128)</span> <span class="ansi-blue-intense-fg">0.027 ± 0.035</span> <span class="ansi-white-fg">(5e-05...2e-01)</span>
+<span class="ansi-green-intense-fg">(batchᵇ=128)</span> <span class="ansi-blue-intense-fg">0.027 ± 0.035</span> <span class="ansi-white-fg">(4e-05...2e-01)</span>
+<span class="ansi-green-intense-fg">(batchᵇ=128)</span> <span class="ansi-blue-intense-fg">0.027 ± 0.035</span> <span class="ansi-white-fg">(2e-05...2e-01)</span>
+<span class="ansi-green-intense-fg">(batchᵇ=128)</span> <span class="ansi-blue-intense-fg">0.027 ± 0.035</span> <span class="ansi-white-fg">(1e-05...2e-01)</span>
+<span class="ansi-green-intense-fg">(batchᵇ=128)</span> <span class="ansi-blue-intense-fg">0.027 ± 0.035</span> <span class="ansi-white-fg">(2e-06...2e-01)</span>
+<span class="ansi-green-intense-fg">(batchᵇ=128)</span> <span class="ansi-blue-intense-fg">0.027 ± 0.035</span> <span class="ansi-white-fg">(3e-08...2e-01)</span>
+<span class="ansi-green-intense-fg">(batchᵇ=128)</span> <span class="ansi-blue-intense-fg">0.027 ± 0.035</span> <span class="ansi-white-fg">(3e-06...2e-01)</span>
+<span class="ansi-green-intense-fg">(batchᵇ=128)</span> <span class="ansi-blue-intense-fg">0.027 ± 0.035</span> <span class="ansi-white-fg">(9e-06...2e-01)</span>
+<span class="ansi-green-intense-fg">(batchᵇ=128)</span> <span class="ansi-blue-intense-fg">0.027 ± 0.035</span> <span class="ansi-white-fg">(1e-05...2e-01)</span>
+<span class="ansi-green-intense-fg">(batchᵇ=128)</span> <span class="ansi-blue-intense-fg">0.027 ± 0.035</span> <span class="ansi-white-fg">(2e-05...2e-01)</span>
+<span class="ansi-green-intense-fg">(batchᵇ=128)</span> <span class="ansi-blue-intense-fg">0.027 ± 0.035</span> <span class="ansi-white-fg">(2e-05...2e-01)</span>
+<span class="ansi-green-intense-fg">(batchᵇ=128)</span> <span class="ansi-blue-intense-fg">0.026 ± 0.035</span> <span class="ansi-white-fg">(2e-05...2e-01)</span>
+<span class="ansi-green-intense-fg">(batchᵇ=128)</span> <span class="ansi-blue-intense-fg">0.026 ± 0.035</span> <span class="ansi-white-fg">(1e-05...2e-01)</span>
+<span class="ansi-green-intense-fg">(batchᵇ=128)</span> <span class="ansi-blue-intense-fg">0.026 ± 0.035</span> <span class="ansi-white-fg">(7e-06...2e-01)</span>
+</pre>
+</div>
+</div>
+
+</div>
+
+</div>
+
+</div>
+<div  class="jp-Cell jp-MarkdownCell jp-Notebook-cell">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
+</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
+<p>We didn't even have to import <code>torch</code> in this example since all calls were routed through UnifyML.</p>
+
+</div>
+</div>
+</div>
+</div>
+<div  class="jp-Cell jp-MarkdownCell jp-Notebook-cell">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
+</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
+<h3 id="Pairwise-Distances">Pairwise Distances<a class="anchor-link" href="#Pairwise-Distances">&#182;</a></h3><p>The following function takes a (possibly batched) tensor of positions and computes the distance matrix.</p>
+
+</div>
+</div>
+</div>
+</div><div  class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[3]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-ipython2"><pre><span></span><span class="kn">from</span> <span class="nn">unifyml</span> <span class="kn">import</span> <span class="n">math</span>  <span class="c1"># uses NumPy by default</span>
+
+<span class="k">def</span> <span class="nf">pairwise_distances</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="n">math</span><span class="o">.</span><span class="n">Tensor</span><span class="p">):</span>
+    <span class="n">dx</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">rename_dims</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="s1">&#39;points&#39;</span><span class="p">,</span> <span class="s1">&#39;others&#39;</span><span class="p">)</span> <span class="o">-</span> <span class="n">x</span>
+    <span class="k">return</span> <span class="n">math</span><span class="o">.</span><span class="n">vec_length</span><span class="p">(</span><span class="n">dx</span><span class="p">)</span>
+
+<span class="n">x</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">random_normal</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">instance</span><span class="p">(</span><span class="n">points</span><span class="o">=</span><span class="mi">3</span><span class="p">),</span> <span class="n">math</span><span class="o">.</span><span class="n">channel</span><span class="p">(</span><span class="n">vector</span><span class="o">=</span><span class="s2">&quot;x,y&quot;</span><span class="p">))</span>
+<span class="n">math</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="n">pairwise_distances</span><span class="p">(</span><span class="n">x</span><span class="p">))</span>
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+<div class="jp-Cell-outputWrapper">
+<div class="jp-Collapser jp-OutputCollapser jp-Cell-outputCollapser">
+</div>
+
+
+<div class="jp-OutputArea jp-Cell-outputArea">
+<div class="jp-OutputArea-child">
+    
+    <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+
+
+<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
+<pre>[[0.       , 1.7655711, 1.5151448],
+ [1.7655711, 0.       , 1.2284261],
+ [1.5151448, 1.2284261, 0.       ]]
+</pre>
+</div>
+</div>
+
+</div>
+
+</div>
+
+</div>
+<div  class="jp-Cell jp-MarkdownCell jp-Notebook-cell">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
+</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
+<p>Inside <code>pairwise_distances</code>, we rename 'points' to 'others'.
+When taking the difference, UnifyML automatically expands both operands by the missing dimensions, adding 'points' to the first argument and 'others' to the second.
+An explanation of this automatic reshaping is given <a href="https://holl-.github.io/UnifyML/Shapes.html">here</a>.</p>
+
+</div>
+</div>
+</div>
+</div>
+<div  class="jp-Cell jp-MarkdownCell jp-Notebook-cell">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
+</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
+<h3 id="Automatic-Differentiation">Automatic Differentiation<a class="anchor-link" href="#Automatic-Differentiation">&#182;</a></h3><p>Next, let's compute the <a href="https://holl-.github.io/UnifyML/Autodiff.html">gradient</a> of some function of <em>(x,y)</em> w.r.t. <em>x</em>.</p>
+
+</div>
+</div>
+</div>
+</div><div  class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[4]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-ipython2"><pre><span></span><span class="kn">from</span> <span class="nn">unifyml</span> <span class="kn">import</span> <span class="n">math</span>
+<span class="n">math</span><span class="o">.</span><span class="n">use</span><span class="p">(</span><span class="s1">&#39;jax&#39;</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">function</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">x</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">y</span>
+
+<span class="n">gradient_x</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">gradient</span><span class="p">(</span><span class="n">function</span><span class="p">,</span> <span class="n">wrt</span><span class="o">=</span><span class="s1">&#39;x&#39;</span><span class="p">,</span> <span class="n">get_output</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">gradient_x</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+<div class="jp-Cell-outputWrapper">
+<div class="jp-Collapser jp-OutputCollapser jp-Cell-outputCollapser">
+</div>
+
+
+<div class="jp-OutputArea jp-Cell-outputArea">
+<div class="jp-OutputArea-child">
+    
+    <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+
+
+<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="application/vnd.jupyter.stderr">
+<pre>No GPU/TPU found, falling back to CPU. (Set TF_CPP_MIN_LOG_LEVEL=0 and rerun for more info.)
+</pre>
+</div>
+</div>
+<div class="jp-OutputArea-child">
+    
+    <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+
+
+<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
+<pre>4.0
+</pre>
+</div>
+</div>
+<div class="jp-OutputArea-child">
+    
+    <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+
+
+<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="application/vnd.jupyter.stderr">
+<pre>/opt/hostedtoolcache/Python/3.8.17/x64/lib/python3.8/site-packages/unifyml/math/_functional.py:473: RuntimeWarning: Using jax for gradient computation because numpy does not support jacobian()
+  warnings.warn(f&#34;Using {math.default_backend()} for gradient computation because {key.backend} does not support jacobian()&#34;, RuntimeWarning)
+</pre>
+</div>
+</div>
+
+</div>
+
+</div>
+
+</div>
+<div  class="jp-Cell jp-MarkdownCell jp-Notebook-cell">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
+</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
+<h3 id="JIT-compilation">JIT compilation<a class="anchor-link" href="#JIT-compilation">&#182;</a></h3><p>UnifyML provides two types of <a href="https://holl-.github.io/UnifyML/JIT.html">JIT compilation</a>: the generic <a href="https://holl-.github.io/UnifyML/unifyml/math#unifyml.math.jit_compile"><code>jit_compile</code></a> calls the corresponding library function while <a href="https://holl-.github.io/UnifyML/unifyml/math#unifyml.math.jit_compile_linear"><code>jit_compile_linear</code></a> builds an <a href="https://holl-.github.io/UnifyML/Matrices.html#Tracing">explicit representation for linear functions</a>.</p>
+
+</div>
+</div>
+</div>
+</div><div  class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[5]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-ipython2"><pre><span></span><span class="kn">from</span> <span class="nn">unifyml</span> <span class="kn">import</span> <span class="n">math</span>
+<span class="n">math</span><span class="o">.</span><span class="n">use</span><span class="p">(</span><span class="s1">&#39;tensorflow&#39;</span><span class="p">)</span>
+
+<span class="nd">@math</span><span class="o">.</span><span class="n">jit_compile</span><span class="p">(</span><span class="n">auxiliary_args</span><span class="o">=</span><span class="s1">&#39;divide_by_y&#39;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">function</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">divide_by_y</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">divide_by_y</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">x</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">/</span> <span class="n">y</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">x</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">y</span>
+
+<span class="n">function</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+<div class="jp-Cell-outputWrapper">
+<div class="jp-Collapser jp-OutputCollapser jp-Cell-outputCollapser">
+</div>
+
+
+<div class="jp-OutputArea jp-Cell-outputArea">
+<div class="jp-OutputArea-child">
+    
+    <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+
+
+<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="application/vnd.jupyter.stderr">
+<pre>2023-06-22 17:59:41.492733: W tensorflow/compiler/tf2tensorrt/utils/py_utils.cc:38] TF-TRT Warning: Could not find TensorRT
+/opt/hostedtoolcache/Python/3.8.17/x64/lib/python3.8/site-packages/unifyml/math/_functional.py:184: RuntimeWarning: jit_copmile() not supported by numpy. Running function &#39;function&#39; as-is.
+  warnings.warn(f&#34;jit_copmile() not supported by {key.backend}. Running function &#39;{f_name(self.f)}&#39; as-is.&#34;, RuntimeWarning)
+</pre>
+</div>
+</div>
+<div class="jp-OutputArea-child jp-OutputArea-executeResult">
+    
+    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[5]:</div>
+
+
+
+
+<div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
+<pre>8</pre>
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+<div  class="jp-Cell jp-MarkdownCell jp-Notebook-cell">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
+</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
+<p>Here, we declare <code>divide_by_y</code> as an auxiliary argument to force the function to be re-traced when its value changes.
+Otherwise, its concrete value would not be available inside the function and could not be used within an <code>if</code> clause.</p>
+<p>JIT compilation of linear functions is also supported on NumPy.</p>
+
+</div>
+</div>
+</div>
+</div><div  class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[6]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-ipython2"><pre><span></span><span class="kn">from</span> <span class="nn">unifyml</span> <span class="kn">import</span> <span class="n">math</span>
+<span class="n">math</span><span class="o">.</span><span class="n">use</span><span class="p">(</span><span class="s1">&#39;numpy&#39;</span><span class="p">)</span>
+
+<span class="nd">@math</span><span class="o">.</span><span class="n">jit_compile_linear</span><span class="p">(</span><span class="n">auxiliary_args</span><span class="o">=</span><span class="s1">&#39;compute_laplace&#39;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">optional_sp_grad</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">compute_gradient</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">compute_gradient</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">math</span><span class="o">.</span><span class="n">spatial_gradient</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="o">-</span><span class="n">x</span>
+
+<span class="n">optional_sp_grad</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">math</span><span class="o">.</span><span class="n">spatial</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="mi">10</span><span class="p">)),</span> <span class="kc">True</span><span class="p">)</span>
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+<div class="jp-Cell-outputWrapper">
+<div class="jp-Collapser jp-OutputCollapser jp-Cell-outputCollapser">
+</div>
+
+
+<div class="jp-OutputArea jp-Cell-outputArea">
+<div class="jp-OutputArea-child jp-OutputArea-executeResult">
+    
+    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[6]:</div>
+
+
+
+
+<div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
+<pre><span class="ansi-green-intense-fg">(xˢ=10, gradientᶜ=1)</span> <span class="ansi-blue-intense-fg">0.100 ± 0.022</span> <span class="ansi-white-fg">(6e-02...1e-01)</span></pre>
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+<div  class="jp-Cell jp-MarkdownCell jp-Notebook-cell">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
+</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
+<p>Here, an <a href="https://holl-.github.io/UnifyML/Matrices.html#Tracing">explicit sparse matrix representation</a> of <code>optional_sp_grad</code> is computed each time a new value of <code>compute_gradient</code> is passed.</p>
+
+</div>
+</div>
+</div>
+</div>
+<div  class="jp-Cell jp-MarkdownCell jp-Notebook-cell">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
+</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
+<h3 id="Solving-a-sparse-linear-system-with-preconditioners">Solving a sparse linear system with preconditioners<a class="anchor-link" href="#Solving-a-sparse-linear-system-with-preconditioners">&#182;</a></h3><p>UnifyML supports <a href="https://holl-.github.io/UnifyML/Linear_Solves.html">solving dense as well as sparse linear systems</a> and can <a href="https://holl-.github.io/UnifyML/Matrices.html">build an explicit matrix representation from linear Python functions</a> in order to compute preconditioners.
+We recommend using UnifyML's tensors, but you can pass native tensors to <a href="https://holl-.github.io/UnifyML/unifyml/math#unifyml.math.solve_linear"><code>solve_linear()</code></a> as well.
+The following example solves the 1D Poisson problem ∇x = b with b=1 with incomplete LU decomposition.</p>
+
+</div>
+</div>
+</div>
+</div><div  class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[7]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-ipython2"><pre><span></span><span class="kn">from</span> <span class="nn">unifyml</span> <span class="kn">import</span> <span class="n">math</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="k">def</span> <span class="nf">laplace_1d</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">math</span><span class="o">.</span><span class="n">pad</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">:],</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span> <span class="o">+</span> <span class="n">math</span><span class="o">.</span><span class="n">pad</span><span class="p">(</span><span class="n">x</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span> <span class="o">-</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">x</span>
+
+<span class="n">b</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="mi">6</span><span class="p">,))</span>
+<span class="n">solve</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">Solve</span><span class="p">(</span><span class="s1">&#39;scipy-CG&#39;</span><span class="p">,</span> <span class="n">rel_tol</span><span class="o">=</span><span class="mf">1e-5</span><span class="p">,</span> <span class="n">x0</span><span class="o">=</span><span class="mi">0</span><span class="o">*</span><span class="n">b</span><span class="p">,</span> <span class="n">preconditioner</span><span class="o">=</span><span class="s1">&#39;ilu&#39;</span><span class="p">)</span>
+<span class="n">sol</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">solve_linear</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">jit_compile_linear</span><span class="p">(</span><span class="n">laplace_1d</span><span class="p">),</span> <span class="n">b</span><span class="p">,</span> <span class="n">solve</span><span class="p">)</span>
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+<div class="jp-Cell-outputWrapper">
+<div class="jp-Collapser jp-OutputCollapser jp-Cell-outputCollapser">
+</div>
+
+
+<div class="jp-OutputArea jp-Cell-outputArea">
+<div class="jp-OutputArea-child">
+    
+    <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+
+
+<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="application/vnd.jupyter.stderr">
+<pre>/opt/hostedtoolcache/Python/3.8.17/x64/lib/python3.8/site-packages/scipy/sparse/linalg/_dsolve/linsolve.py:640: SparseEfficiencyWarning: CSR matrix format is required. Converting to CSR matrix.
+  warn(&#39;CSR matrix format is required. Converting to CSR matrix.&#39;,
+</pre>
+</div>
+</div>
+
+</div>
+
+</div>
+
+</div>
+<div  class="jp-Cell jp-MarkdownCell jp-Notebook-cell">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
+</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
+<p>Decorating the linear function with <a href="https://holl-.github.io/UnifyML/unifyml/math#unifyml.math.jit_compile_linear"><code>math.jit_compile_linear</code></a> lets UnifyML compute the sparse matrix inside <a href="https://holl-.github.io/UnifyML/unifyml/math#unifyml.math.solve_linear"><code>solve_linear()</code></a>. In this example, the matrix is a tridiagonal band matrix.
+Note that if you JIT-compile the <a href="https://holl-.github.io/UnifyML/unifyml/math#unifyml.math.solve_linear"><code>math.solve_linear()</code></a> call, the sparsity pattern and incomplete LU preconditioner are <a href="https://holl-.github.io/UnifyML/NumPy_Constants.html">computed at JIT time</a>.
+The L and U matrices then enter the computational graph as constants and are not recomputed every time the function is called.</p>
+
+</div>
+</div>
+</div>
+</div>
+<div  class="jp-Cell jp-MarkdownCell jp-Notebook-cell">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
+</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
+<h2 id="Further-Reading">Further Reading<a class="anchor-link" href="#Further-Reading">&#182;</a></h2><p>Check out the <a href="Introduction.html">🚀 quickstart guide</a> for an introduction into <a href="Tensors.html">tensors</a> and <a href="Shapes.html">dimensions</a>.</p>
+<p><a href="https://github.com/holl-/UnifyML">🌐 <strong>UnifyML</strong></a>
+  •   <a href="https://holl-.github.io/UnifyML/">📖 <strong>Documentation</strong></a>
+  •   <a href="https://holl-.github.io/UnifyML/unifyml">🔗 <strong>API</strong></a>
+  •   <a href=""><strong>▶ Videos</strong></a></p>
+
+</div>
+</div>
+</div>
 </div>
 </body>
 

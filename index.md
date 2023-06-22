@@ -34,7 +34,7 @@ Check out the corresponding introductory [▶ tutorial video]() as well!
 ## Neural Networks
 
 * [Training neural networks](Networks.html)
-* [Neural Network API](unifyml/nn/index.html)
+* [Neural Network API](unifyml/nn.html)
 
 
 

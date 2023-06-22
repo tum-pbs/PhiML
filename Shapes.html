@@ -15116,11 +15116,6 @@ body[data-format='mobile'] .jp-OutputArea-child .jp-OutputArea-output {
   •   <a href="https://holl-.github.io/UnifyML/unifyml">🔗 <strong>API</strong></a>
   •   <a href=""><strong>▶ Videos</strong></a>
   •   <a href="https://colab.research.google.com/github/holl-/UnifyML/blob/main/docs/Examples.ipynb"><img src="images/colab_logo_small.png" height=4></a> <a href="https://holl-.github.io/UnifyML/Examples.html"><strong>Examples</strong></a></p>
-<ul>
-<li>Automatic reshaping</li>
-<li>Note that we list the position components along a <em>channel</em> dimension called 'vector' and the different points along an <em>instance</em> dimension called 'points'.</li>
-<li>Describe all dim types</li>
-</ul>
 
 </div>
 </div>
@@ -15457,7 +15452,7 @@ We can pass multiple shapes to tensor constructors and can construct multiple di
 
 
 <div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre><span class="ansi-green-intense-fg">(xˢ=28, yˢ=28)</span> <span class="ansi-blue-intense-fg">0.506 ± 0.286</span> <span class="ansi-white-fg">(1e-03...1e+00)</span></pre>
+<pre><span class="ansi-green-intense-fg">(xˢ=28, yˢ=28)</span> <span class="ansi-blue-intense-fg">0.516 ± 0.293</span> <span class="ansi-white-fg">(3e-03...1e+00)</span></pre>
 </div>
 
 </div>
@@ -15538,7 +15533,7 @@ Assuming we have a tensor with dimensions <code>a,b</code> and another with the 
 
 
 <div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre><span class="ansi-blue-intense-fg">(1.655, -0.075, -0.865, 2.076, -2.888, -1.837)</span> <span class="ansi-green-intense-fg">(aᶜ=2, bᶜ=3)</span></pre>
+<pre><span class="ansi-blue-intense-fg">(2.246, 1.939, -0.311, 1.691, 1.305, 0.845)</span> <span class="ansi-green-intense-fg">(aᶜ=2, bᶜ=3)</span></pre>
 </div>
 
 </div>
@@ -15594,7 +15589,7 @@ In these cases, you can think of the value being constant along the missing dime
 
 
 <div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre><span class="ansi-blue-intense-fg">(0.836, -0.878, -1.680, -1.273, -2.987, -3.789)</span> <span class="ansi-green-intense-fg">(aᶜ=2, bᶜ=3)</span></pre>
+<pre><span class="ansi-blue-intense-fg">(1.019, 1.815, 2.170, 0.709, 1.506, 1.861)</span> <span class="ansi-green-intense-fg">(aᶜ=2, bᶜ=3)</span></pre>
 </div>
 
 </div>
@@ -16570,7 +16565,7 @@ and resampling operations like
 <a href="unifyml/math#unifyml.math.downsample2x"><code>downsample2x</code></a>,
 <a href="unifyml/math#unifyml.math.upsample2x"><code>upsample2x</code></a>,
 <a href="unifyml/math#unifyml.math.grid_sample"><code>grid_sample</code></a> act only on <em>spatial</em> dimensions.
-Their dimensionality (1D/2D/3D/etc.) depends on the number of spatial dimensions of the input.</p>
+Their dimensionality (1D/2D/3D/etc.) <a href="N_Dimensional.html">depends on the number of spatial dimensions</a> of the input.</p>
 <p>Dual dimensions are ignored (treated as batch dimensions) by almost all functions, except for <a href="Matrices.html">matrix multiplications</a>, <code>matrix @ vector</code>, which reduces the dual dimensions of the matrix against the corresponding primal dimensions of the vector.
 Dual dimensions are created by certain operations like <a href="unifyml/math#unifyml.math.pairwise_distances"><code>pairwise_distances</code></a>.</p>
 <p>All functions ignore <em>batch</em> dimensions.
