@@ -88,7 +88,7 @@ However, UnifyML does not currently abstract the following use cases:
 
 * Custom or non-standard network architectures or optimizers require backend-specific code.
 * UnifyML [abstracts compute devices](https://holl-.github.io/UnifyML/Devices.html) but does not currently allow mapping operations onto multiple GPUs.
-* UnifyML has no data loading module. However, it can convert data, once loaded, to any other backend.
+* UnifyML has no data loading module. However, it can [convert data](https://holl-.github.io/UnifyML/Convert.html), once loaded, to any other backend.
 * Some less-used math functions have not been wrapped yet. If you come across one you need, feel free to open an issue.
 * Higher-order derivatives are not supported for all backends.
 
@@ -99,7 +99,7 @@ Many of UnifyML's functions can be called on native tensors, i.e. Jax/PyTorch/Te
 In these cases, the function maps to the corresponding one from the matching backend.
 
 However, we have noticed that code written this way is often hard-to-read, verbose and error-prone.
-One main reason for that is that dimensions are typically referred to by index and the meaning of that dimension might not be obvious (for examples, see [here](https://github.com/tumaer/JAXFLUIDS/blob/477e28813f07e3836588bd8a50cd0149fbbea94f/src/jaxfluids/stencils/derivative/deriv_second_order_face.py#L49), [here](https://github.com/jax-md/jax-md/blob/23dba354ec29c8b0c53f61a85d10bb64ed7a0058/jax_md/partition.py#L798) or [here](https://github.com/pyg-team/pytorch_geometric/blob/05490776e576addd4727e0a4bcd18e7cc0a16f3c/torch_geometric/transforms/grid_sampling.py#L39)).
+One main reason is that dimensions are typically referred to by index and the meaning of that dimension might not be obvious (for examples, see [here](https://github.com/tumaer/JAXFLUIDS/blob/477e28813f07e3836588bd8a50cd0149fbbea94f/src/jaxfluids/stencils/derivative/deriv_second_order_face.py#L49), [here](https://github.com/jax-md/jax-md/blob/23dba354ec29c8b0c53f61a85d10bb64ed7a0058/jax_md/partition.py#L798) or [here](https://github.com/locuslab/deq/blob/1fb7059d6d89bb26d16da80ab9489dcc73fc5472/lib/solvers.py#L207)).
 
 UnifyML includes a `Tensor` class with the goal to [remedy these shortcomings](https://holl-.github.io/UnifyML/Tensors.html).
 A UnifyML `Tensor` wraps one of the native tensors, such as `ndarray`, `torch.Tensor` or `tf.Tensor`, but extends them by two features:

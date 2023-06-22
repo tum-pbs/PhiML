@@ -631,6 +631,8 @@ def _linear_solve_forward(y,
     y_nest, (y_tensor,) = disassemble_tree(y)
     x0_nest, (x0_tensor,) = disassemble_tree(solve.x0)
     pattern_dims_in = x0_tensor.shape.only(pattern_dims_in, reorder=True)
+    if pattern_dims_out not in y_tensor.shape:
+        warnings.warn(f"right-hand-side has shape {y_tensor.shape} but output dimensions are {pattern_dims_out}. This may result in unexpected behavior", RuntimeWarning, stacklevel=3)
     pattern_dims_out = y_tensor.shape.only(pattern_dims_out, reorder=True)
     batch_dims = merge_shapes(y_tensor.shape.without(pattern_dims_out), x0_tensor.shape.without(pattern_dims_in))
     x0_native = backend.as_tensor(reshaped_native(x0_tensor, [batch_dims, pattern_dims_in]))
