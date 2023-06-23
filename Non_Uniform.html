@@ -15116,8 +15116,14 @@ body[data-format='mobile'] .jp-OutputArea-child .jp-OutputArea-output {
   •   <a href="https://holl-.github.io/UnifyML/unifyml">🔗 <strong>API</strong></a>
   •   <a href=""><strong>▶ Videos</strong></a>
   •   <a href="https://colab.research.google.com/github/holl-/UnifyML/blob/main/docs/Examples.ipynb"><img src="images/colab_logo_small.png" height=4></a> <a href="https://holl-.github.io/UnifyML/Examples.html"><strong>Examples</strong></a></p>
-<p>irregular</p>
-<p>stack(...)</p>
+<p>The <code>math</code> package allows tensors of varying sizes to be stacked into a single tensor.
+This tensor then has dimension sizes of type <code>Tensor</code> where the source tensors vary in size.</p>
+<p>This notebook is work in progress. It will explain</p>
+<ul>
+<li>irregular shapes</li>
+<li>stack(...)</li>
+<li>Clarification: homogeneous = one data type, uniform = irregular = one shape</li>
+</ul>
 
 </div>
 </div>
@@ -15127,10 +15133,10 @@ body[data-format='mobile'] .jp-OutputArea-child .jp-OutputArea-output {
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[1]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython2"><pre><span></span> 
+<div class=" highlight hl-ipython2"><pre><span></span><span class="kn">from</span> <span class="nn">unifyml.math</span> <span class="kn">import</span> <span class="n">stack</span><span class="p">,</span> <span class="n">zeros</span><span class="p">,</span> <span class="n">ones</span><span class="p">,</span> <span class="n">spatial</span><span class="p">,</span> <span class="n">channel</span>
 </pre></div>
 
      </div>
@@ -15138,31 +15144,17 @@ body[data-format='mobile'] .jp-OutputArea-child .jp-OutputArea-output {
 </div>
 </div>
 
-</div>
-<div  class="jp-Cell jp-MarkdownCell jp-Notebook-cell">
-<div class="jp-Cell-inputWrapper">
-<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
-</div>
-<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
-</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<h2 id="Non-uniform-Tensors">Non-uniform Tensors<a class="anchor-link" href="#Non-uniform-Tensors">&#182;</a></h2><p>The <code>math</code> package allows tensors of varying sizes to be stacked into a single tensor.
-This tensor then has dimension sizes of type <code>Tensor</code> where the source tensors vary in size.</p>
-<p>One use case of this are <code>StaggeredGrid</code>s where the tensors holding the vector components have different shapes.</p>
-
-</div>
-</div>
-</div>
 </div><div  class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[1]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[2]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython2"><pre><span></span><span class="n">t0</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">spatial</span><span class="p">(</span><span class="n">a</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">b</span><span class="o">=</span><span class="mi">2</span><span class="p">))</span>
-<span class="n">t1</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">spatial</span><span class="p">(</span><span class="n">b</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">a</span><span class="o">=</span><span class="mi">5</span><span class="p">))</span>
-<span class="n">stacked</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">stack</span><span class="p">([</span><span class="n">t0</span><span class="p">,</span> <span class="n">t1</span><span class="p">],</span> <span class="n">channel</span><span class="p">(</span><span class="s1">&#39;c&#39;</span><span class="p">))</span>
+<div class=" highlight hl-ipython2"><pre><span></span><span class="n">t0</span> <span class="o">=</span> <span class="n">zeros</span><span class="p">(</span><span class="n">spatial</span><span class="p">(</span><span class="n">a</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">b</span><span class="o">=</span><span class="mi">2</span><span class="p">))</span>
+<span class="n">t1</span> <span class="o">=</span> <span class="n">ones</span><span class="p">(</span><span class="n">spatial</span><span class="p">(</span><span class="n">b</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">a</span><span class="o">=</span><span class="mi">5</span><span class="p">))</span>
+<span class="n">stacked</span> <span class="o">=</span> <span class="n">stack</span><span class="p">([</span><span class="n">t0</span><span class="p">,</span> <span class="n">t1</span><span class="p">],</span> <span class="n">channel</span><span class="p">(</span><span class="s1">&#39;c&#39;</span><span class="p">))</span>
 <span class="n">stacked</span>
 </pre></div>
 
@@ -15177,22 +15169,17 @@ This tensor then has dimension sizes of type <code>Tensor</code> where the sourc
 
 
 <div class="jp-OutputArea jp-Cell-outputArea">
-<div class="jp-OutputArea-child">
+<div class="jp-OutputArea-child jp-OutputArea-executeResult">
     
-    <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[2]:</div>
 
 
-<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="application/vnd.jupyter.stderr">
-<pre>
-<span class="ansi-red-fg">---------------------------------------------------------------------------</span>
-<span class="ansi-red-fg">NameError</span>                                 Traceback (most recent call last)
-Cell <span class="ansi-green-fg">In[1], line 1</span>
-<span class="ansi-green-fg">----&gt; 1</span> t0 <span style="color: rgb(98,98,98)">=</span> <span class="ansi-yellow-bg">math</span><span style="color: rgb(98,98,98)">.</span>zeros(spatial(a<span style="color: rgb(98,98,98)">=</span><span style="color: rgb(98,98,98)">4</span>, b<span style="color: rgb(98,98,98)">=</span><span style="color: rgb(98,98,98)">2</span>))
-<span class="ansi-green-intense-fg ansi-bold">      2</span> t1 <span style="color: rgb(98,98,98)">=</span> math<span style="color: rgb(98,98,98)">.</span>ones(spatial(b<span style="color: rgb(98,98,98)">=</span><span style="color: rgb(98,98,98)">2</span>, a<span style="color: rgb(98,98,98)">=</span><span style="color: rgb(98,98,98)">5</span>))
-<span class="ansi-green-intense-fg ansi-bold">      3</span> stacked <span style="color: rgb(98,98,98)">=</span> math<span style="color: rgb(98,98,98)">.</span>stack([t0, t1], channel(<span style="color: rgb(175,0,0)">&#39;</span><span style="color: rgb(175,0,0)">c</span><span style="color: rgb(175,0,0)">&#39;</span>))
 
-<span class="ansi-red-fg">NameError</span>: name &#39;math&#39; is not defined</pre>
+
+<div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
+<pre><span class="ansi-green-intense-fg">(aˢ=</span><span class="ansi-blue-intense-fg">(4, 5)</span><span class="ansi-green-intense-fg"> along </span><span class="ansi-green-intense-fg">cᶜ</span><span class="ansi-green-intense-fg"> </span><span class="ansi-yellow-intense-fg">int64</span><span class="ansi-green-intense-fg">, bˢ=2, cᶜ=2)</span> non-uniform</pre>
 </div>
+
 </div>
 
 </div>
@@ -15204,7 +15191,7 @@ Cell <span class="ansi-green-fg">In[1], line 1</span>
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[2]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[3]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython2"><pre><span></span><span class="n">stacked</span><span class="o">.</span><span class="n">shape</span><span class="o">.</span><span class="n">is_uniform</span>
@@ -15221,20 +15208,17 @@ Cell <span class="ansi-green-fg">In[1], line 1</span>
 
 
 <div class="jp-OutputArea jp-Cell-outputArea">
-<div class="jp-OutputArea-child">
+<div class="jp-OutputArea-child jp-OutputArea-executeResult">
     
-    <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[3]:</div>
 
 
-<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="application/vnd.jupyter.stderr">
-<pre>
-<span class="ansi-red-fg">---------------------------------------------------------------------------</span>
-<span class="ansi-red-fg">NameError</span>                                 Traceback (most recent call last)
-Cell <span class="ansi-green-fg">In[2], line 1</span>
-<span class="ansi-green-fg">----&gt; 1</span> <span class="ansi-yellow-bg">stacked</span><span style="color: rgb(98,98,98)">.</span>shape<span style="color: rgb(98,98,98)">.</span>is_uniform
 
-<span class="ansi-red-fg">NameError</span>: name &#39;stacked&#39; is not defined</pre>
+
+<div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
+<pre>False</pre>
 </div>
+
 </div>
 
 </div>
