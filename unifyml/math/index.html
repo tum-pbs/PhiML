@@ -8245,26 +8245,42 @@ The output of <code><a title="unifyml.math.f" href="#unifyml.math.f">f</a></code
 <dd>
 <div class="desc"><p>Construct a sparse tensor that stores <code>values</code> at the corresponding <code>indices</code> and is 0 everywhere else.
 In addition to the sparse dimensions indexed by <code>indices</code>, the tensor inherits all batch and channel dimensions from <code>values</code>.</p>
-<p>indices: <code><a title="unifyml.math.Tensor" href="#unifyml.math.Tensor">Tensor</a></code> encoding the positions of stored values. It has the following dimensions:</p>
-<pre><code>* One instance dimension exactly matching the instance dimension on &lt;code&gt;values&lt;/code&gt;.
-  It enumerates the positions of stored entries.
-* One channel dimension called &lt;code&gt;vector&lt;/code&gt;.
-  Its item names must match the dimension names of &lt;code&gt;dense\_shape&lt;/code&gt; but the order can be arbitrary.
-* Any number of batch dimensions
-</code></pre>
-<p>values: <code><a title="unifyml.math.Tensor" href="#unifyml.math.Tensor">Tensor</a></code> containing the stored values at positions given by <code>indices</code>. It has the following dimensions:</p>
-<pre><code>* One instance dimension exactly matching the instance dimension on &lt;code&gt;indices&lt;/code&gt;.
-  It enumerates the values of stored entries.
-* Any number of channel dimensions if multiple values are stored at each index.
-* Any number of batch dimensions
-</code></pre>
-<p>dense_shape: Dimensions listed in <code>indices</code>.
-The order can differ from the item names of <code>indices</code>.
-can_contain_double_entries: Whether some indices might occur more than once.
-If so, values at the same index will be summed.
-indices_sorted: Whether the indices are sorted in ascending order given the dimension order of the item names of <code>indices</code>.
-format: Sparse format in which to store the data, such as <code>'coo'</code> or <code>'csr'</code>. See <code><a title="unifyml.math.get_format" href="#unifyml.math.get_format">get_format()</a></code>.
-default: Value the sparse tensor returns for non-stored values. Must be <code>0</code> or <code>None</code>.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>indices</code></strong></dt>
+<dd>
+<p><code><a title="unifyml.math.Tensor" href="#unifyml.math.Tensor">Tensor</a></code> encoding the positions of stored values. It has the following dimensions:</p>
+<ul>
+<li>One instance dimension exactly matching the instance dimension on <code>values</code>.
+It enumerates the positions of stored entries.</li>
+<li>One channel dimension called <code>vector</code>.
+Its item names must match the dimension names of <code>dense_shape</code> but the order can be arbitrary.</li>
+<li>Any number of batch dimensions</li>
+</ul>
+</dd>
+<dt><strong><code>values</code></strong></dt>
+<dd>
+<p><code><a title="unifyml.math.Tensor" href="#unifyml.math.Tensor">Tensor</a></code> containing the stored values at positions given by <code>indices</code>. It has the following dimensions:</p>
+<ul>
+<li>One instance dimension exactly matching the instance dimension on <code>indices</code>.
+It enumerates the values of stored entries.</li>
+<li>Any number of channel dimensions if multiple values are stored at each index.</li>
+<li>Any number of batch dimensions</li>
+</ul>
+</dd>
+<dt><strong><code>dense_shape</code></strong></dt>
+<dd>Dimensions listed in <code>indices</code>.
+The order can differ from the item names of <code>indices</code>.</dd>
+<dt><strong><code>can_contain_double_entries</code></strong></dt>
+<dd>Whether some indices might occur more than once.
+If so, values at the same index will be summed.</dd>
+<dt><strong><code>indices_sorted</code></strong></dt>
+<dd>Whether the indices are sorted in ascending order given the dimension order of the item names of <code>indices</code>.</dd>
+<dt><strong><code>format</code></strong></dt>
+<dd>Sparse format in which to store the data, such as <code>'coo'</code> or <code>'csr'</code>. See <code><a title="unifyml.math.get_format" href="#unifyml.math.get_format">get_format()</a></code>.</dd>
+<dt><strong><code>default</code></strong></dt>
+<dd>Value the sparse tensor returns for non-stored values. Must be <code>0</code> or <code>None</code>.</dd>
+</dl>
 <h2 id="returns">Returns</h2>
 <p>Sparse <code><a title="unifyml.math.Tensor" href="#unifyml.math.Tensor">Tensor</a></code> with the specified <code>format</code>.</p></div>
 <details class="source">
@@ -8282,28 +8298,29 @@ default: Value the sparse tensor returns for non-stored values. Must be <code>0<
     Construct a sparse tensor that stores `values` at the corresponding `indices` and is 0 everywhere else.
     In addition to the sparse dimensions indexed by `indices`, the tensor inherits all batch and channel dimensions from `values`.
 
-    indices: `Tensor` encoding the positions of stored values. It has the following dimensions:
+    Args:
+        indices: `Tensor` encoding the positions of stored values. It has the following dimensions:
 
-        * One instance dimension exactly matching the instance dimension on `values`.
-          It enumerates the positions of stored entries.
-        * One channel dimension called `vector`.
-          Its item names must match the dimension names of `dense_shape` but the order can be arbitrary.
-        * Any number of batch dimensions
+            * One instance dimension exactly matching the instance dimension on `values`.
+              It enumerates the positions of stored entries.
+            * One channel dimension called `vector`.
+              Its item names must match the dimension names of `dense_shape` but the order can be arbitrary.
+            * Any number of batch dimensions
 
-    values: `Tensor` containing the stored values at positions given by `indices`. It has the following dimensions:
+        values: `Tensor` containing the stored values at positions given by `indices`. It has the following dimensions:
 
-        * One instance dimension exactly matching the instance dimension on `indices`.
-          It enumerates the values of stored entries.
-        * Any number of channel dimensions if multiple values are stored at each index.
-        * Any number of batch dimensions
+            * One instance dimension exactly matching the instance dimension on `indices`.
+              It enumerates the values of stored entries.
+            * Any number of channel dimensions if multiple values are stored at each index.
+            * Any number of batch dimensions
 
-    dense_shape: Dimensions listed in `indices`.
-        The order can differ from the item names of `indices`.
-    can_contain_double_entries: Whether some indices might occur more than once.
-        If so, values at the same index will be summed.
-    indices_sorted: Whether the indices are sorted in ascending order given the dimension order of the item names of `indices`.
-    format: Sparse format in which to store the data, such as `&#39;coo&#39;` or `&#39;csr&#39;`. See `unifyml.math.get_format`.
-    default: Value the sparse tensor returns for non-stored values. Must be `0` or `None`.
+        dense_shape: Dimensions listed in `indices`.
+            The order can differ from the item names of `indices`.
+        can_contain_double_entries: Whether some indices might occur more than once.
+            If so, values at the same index will be summed.
+        indices_sorted: Whether the indices are sorted in ascending order given the dimension order of the item names of `indices`.
+        format: Sparse format in which to store the data, such as `&#39;coo&#39;` or `&#39;csr&#39;`. See `unifyml.math.get_format`.
+        default: Value the sparse tensor returns for non-stored values. Must be `0` or `None`.
 
     Returns:
         Sparse `Tensor` with the specified `format`.
