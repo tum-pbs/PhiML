@@ -47,3 +47,12 @@ If you need to jit compile functions many times, make sure to use `@jit_compile(
 Other function transformation, such as `custom_gradient` or `functional_gradient` can also lead to memory leaks if traced very often.
 Generally, new traces are performed when auxiliary arguments or the number or structure of non-auxiliary arguments change.
 You can use [`math.trace_check()`](https://holl-.github.io/UnifyML/unifyml/math#unifyml.math.trace_check) to find out whether and why a function needs to be re-traced.
+
+
+## Further Reading
+
+[🌐 **UnifyML**](https://github.com/holl-/UnifyML)
+&nbsp; • &nbsp; [📖 **Documentation**](https://holl-.github.io/UnifyML/)
+&nbsp; • &nbsp; [🔗 **API**](https://holl-.github.io/UnifyML/unifyml)
+&nbsp; • &nbsp; [**▶ Videos**]()
+&nbsp; • &nbsp; [<img src="images/colab_logo_small.png" height=4>](https://colab.research.google.com/github/holl-/UnifyML/blob/main/docs/Examples.ipynb) [**Examples**](https://holl-.github.io/UnifyML/Examples.html)
