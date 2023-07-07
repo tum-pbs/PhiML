@@ -587,7 +587,7 @@ def invertible_net(num_blocks: int,
 <h2 class="section-title" id="header-functions">Functions</h2>
 <dl>
 <dt id="unifyml.backend.tensorflow.nets.adagrad"><code class="name flex">
-<span>def <span class="ident">adagrad</span></span>(<span>net: keras.engine.training.Model, learning_rate: float = 0.001, lr_decay=0, weight_decay=0, initial_accumulator_value=0, eps=1e-10)</span>
+<span>def <span class="ident">adagrad</span></span>(<span>net: keras.src.engine.training.Model, learning_rate: float = 0.001, lr_decay=0, weight_decay=0, initial_accumulator_value=0, eps=1e-10)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -602,7 +602,7 @@ def invertible_net(num_blocks: int,
 </details>
 </dd>
 <dt id="unifyml.backend.tensorflow.nets.adam"><code class="name flex">
-<span>def <span class="ident">adam</span></span>(<span>net: keras.engine.training.Model, learning_rate: float = 0.001, betas=(0.9, 0.999), epsilon=1e-07)</span>
+<span>def <span class="ident">adam</span></span>(<span>net: keras.src.engine.training.Model, learning_rate: float = 0.001, betas=(0.9, 0.999), epsilon=1e-07)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -651,7 +651,7 @@ def invertible_net(num_blocks: int,
 </details>
 </dd>
 <dt id="unifyml.backend.tensorflow.nets.conv_net"><code class="name flex">
-<span>def <span class="ident">conv_net</span></span>(<span>in_channels: int, out_channels: int, layers: Sequence[int], batch_norm: bool = False, activation: Union[str, Callable] = 'ReLU', periodic=False, in_spatial: Union[int, tuple] = 2) ‑> keras.engine.training.Model</span>
+<span>def <span class="ident">conv_net</span></span>(<span>in_channels: int, out_channels: int, layers: Sequence[int], batch_norm: bool = False, activation: Union[str, Callable] = 'ReLU', periodic=False, in_spatial: Union[int, tuple] = 2) ‑> keras.src.engine.training.Model</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -746,7 +746,7 @@ def invertible_net(num_blocks: int,
 </details>
 </dd>
 <dt id="unifyml.backend.tensorflow.nets.get_parameters"><code class="name flex">
-<span>def <span class="ident">get_parameters</span></span>(<span>model: keras.engine.training.Model, wrap=True) ‑> dict</span>
+<span>def <span class="ident">get_parameters</span></span>(<span>model: keras.src.engine.training.Model, wrap=True) ‑> dict</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -812,7 +812,7 @@ def invertible_net(num_blocks: int,
 </details>
 </dd>
 <dt id="unifyml.backend.tensorflow.nets.load_state"><code class="name flex">
-<span>def <span class="ident">load_state</span></span>(<span>obj: Union[keras.engine.training.Model, keras.optimizers.optimizer.Optimizer], path: str)</span>
+<span>def <span class="ident">load_state</span></span>(<span>obj: Union[keras.src.engine.training.Model, keras.src.optimizers.optimizer.Optimizer], path: str)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -836,7 +836,7 @@ def invertible_net(num_blocks: int,
 </details>
 </dd>
 <dt id="unifyml.backend.tensorflow.nets.mlp"><code class="name flex">
-<span>def <span class="ident">mlp</span></span>(<span>in_channels: int, out_channels: int, layers: Sequence[int], batch_norm=False, activation='ReLU', softmax=False) ‑> keras.engine.training.Model</span>
+<span>def <span class="ident">mlp</span></span>(<span>in_channels: int, out_channels: int, layers: Sequence[int], batch_norm=False, activation='ReLU', softmax=False) ‑> keras.src.engine.training.Model</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -955,7 +955,7 @@ def invertible_net(num_blocks: int,
 </details>
 </dd>
 <dt id="unifyml.backend.tensorflow.nets.rmsprop"><code class="name flex">
-<span>def <span class="ident">rmsprop</span></span>(<span>net: keras.engine.training.Model, learning_rate: float = 0.001, alpha=0.99, eps=1e-08, weight_decay=0, momentum=0, centered=False)</span>
+<span>def <span class="ident">rmsprop</span></span>(<span>net: keras.src.engine.training.Model, learning_rate: float = 0.001, alpha=0.99, eps=1e-08, weight_decay=0, momentum=0, centered=False)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -969,7 +969,7 @@ def invertible_net(num_blocks: int,
 </details>
 </dd>
 <dt id="unifyml.backend.tensorflow.nets.save_state"><code class="name flex">
-<span>def <span class="ident">save_state</span></span>(<span>obj: Union[keras.engine.training.Model, keras.optimizers.optimizer.Optimizer], path: str)</span>
+<span>def <span class="ident">save_state</span></span>(<span>obj: Union[keras.src.engine.training.Model, keras.src.optimizers.optimizer.Optimizer], path: str)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -993,7 +993,7 @@ def invertible_net(num_blocks: int,
 </details>
 </dd>
 <dt id="unifyml.backend.tensorflow.nets.sgd"><code class="name flex">
-<span>def <span class="ident">sgd</span></span>(<span>net: keras.engine.training.Model, learning_rate: float = 0.001, momentum=0, dampening=0, weight_decay=0, nesterov=False)</span>
+<span>def <span class="ident">sgd</span></span>(<span>net: keras.src.engine.training.Model, learning_rate: float = 0.001, momentum=0, dampening=0, weight_decay=0, nesterov=False)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -1008,7 +1008,7 @@ def invertible_net(num_blocks: int,
 </details>
 </dd>
 <dt id="unifyml.backend.tensorflow.nets.u_net"><code class="name flex">
-<span>def <span class="ident">u_net</span></span>(<span>in_channels: int, out_channels: int, levels: int = 4, filters: Union[int, tuple, list] = 16, batch_norm: bool = True, activation: Union[str, Callable] = 'ReLU', in_spatial: Union[int, tuple] = 2, periodic=False, use_res_blocks: bool = False) ‑> keras.engine.training.Model</span>
+<span>def <span class="ident">u_net</span></span>(<span>in_channels: int, out_channels: int, levels: int = 4, filters: Union[int, tuple, list] = 16, batch_norm: bool = True, activation: Union[str, Callable] = 'ReLU', in_spatial: Union[int, tuple] = 2, periodic=False, use_res_blocks: bool = False) ‑> keras.src.engine.training.Model</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -1053,7 +1053,7 @@ def invertible_net(num_blocks: int,
 </details>
 </dd>
 <dt id="unifyml.backend.tensorflow.nets.update_weights"><code class="name flex">
-<span>def <span class="ident">update_weights</span></span>(<span>net: keras.engine.training.Model, optimizer: keras.optimizers.optimizer.Optimizer, loss_function: Callable, *loss_args, **loss_kwargs)</span>
+<span>def <span class="ident">update_weights</span></span>(<span>net: keras.src.engine.training.Model, optimizer: keras.src.optimizers.optimizer.Optimizer, loss_function: Callable, *loss_args, **loss_kwargs)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -1201,13 +1201,13 @@ to do prediction with <code>model.predict()</code>.</p></div>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
-<li>keras.engine.training.Model</li>
-<li>keras.engine.base_layer.Layer</li>
+<li>keras.src.engine.training.Model</li>
+<li>keras.src.engine.base_layer.Layer</li>
 <li>tensorflow.python.module.module.Module</li>
 <li>tensorflow.python.trackable.autotrackable.AutoTrackable</li>
 <li>tensorflow.python.trackable.base.Trackable</li>
-<li>keras.utils.version_utils.LayerVersionSelector</li>
-<li>keras.utils.version_utils.ModelVersionSelector</li>
+<li>keras.src.utils.version_utils.LayerVersionSelector</li>
+<li>keras.src.utils.version_utils.ModelVersionSelector</li>
 </ul>
 <h3>Methods</h3>
 <dl>
@@ -1379,13 +1379,13 @@ to do prediction with <code>model.predict()</code>.</p></div>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
-<li>keras.engine.training.Model</li>
-<li>keras.engine.base_layer.Layer</li>
+<li>keras.src.engine.training.Model</li>
+<li>keras.src.engine.base_layer.Layer</li>
 <li>tensorflow.python.module.module.Module</li>
 <li>tensorflow.python.trackable.autotrackable.AutoTrackable</li>
 <li>tensorflow.python.trackable.base.Trackable</li>
-<li>keras.utils.version_utils.LayerVersionSelector</li>
-<li>keras.utils.version_utils.ModelVersionSelector</li>
+<li>keras.src.utils.version_utils.LayerVersionSelector</li>
+<li>keras.src.utils.version_utils.ModelVersionSelector</li>
 </ul>
 <h3>Methods</h3>
 <dl>

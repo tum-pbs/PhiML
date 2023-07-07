@@ -1431,6 +1431,9 @@ dimension and if <code>axis=-1</code> it will be the last dimension.</p>
 <dd>Each array must have the same shape.</dd>
 <dt><strong><code>axis</code></strong> :&ensp;<code>int</code>, optional</dt>
 <dd>The axis in the result array along which the input arrays are stacked.</dd>
+<dt><strong><code>dtype</code></strong> :&ensp;<code>str</code> or <code>dtype</code></dt>
+<dd>If provided, the destination array will have this dtype. Cannot be
+provided together with <code>out</code>.</dd>
 </dl>
 <h2 id="returns">Returns</h2>
 <dl>
@@ -1680,32 +1683,35 @@ def tile(A: ArrayLike, reps: Union[DimSize, Sequence[DimSize]]) -&gt; Array:
 <span>def <span class="ident">transpose</span></span>(<span>a: Union[jax.Array, numpy.ndarray, numpy.bool_, numpy.number, bool, int, float, complex], axes: Optional[Sequence[int]] = None) ‑> jax.Array</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Reverse or permute the axes of an array; returns the modified array.</p>
+<div class="desc"><p>Returns an array with axes transposed.</p>
 <p>LAX-backend implementation of :func:<code>numpy.transpose</code>.</p>
 <p>The JAX version of this function may in some cases return a copy rather than a
 view of the input.</p>
 <p><em>Original docstring below.</em></p>
-<p>For an array a with two axes, transpose(a) gives the matrix transpose.</p>
-<p>Refer to <code>numpy.ndarray.transpose</code> for full documentation.</p>
+<p>For a 1-D array, this returns an unchanged view of the original array, as a
+transposed vector is simply the same vector.
+To convert a 1-D array into a 2-D column vector, an additional dimension
+must be added, e.g., <code>np.atleast2d(a).T</code> achieves this, as does
+<code>a[:, np.newaxis]</code>.
+For a 2-D array, this is the standard matrix transpose.
+For an n-D array, if axes are given, their order indicates how the
+axes are permuted (see Examples). If axes are not provided, then
+<code>transpose(a).shape == a.shape[::-1]</code>.</p>
 <h2 id="parameters">Parameters</h2>
 <dl>
 <dt><strong><code>a</code></strong> :&ensp;<code>array_like</code></dt>
 <dd>Input array.</dd>
 <dt><strong><code>axes</code></strong> :&ensp;<code>tuple</code> or <code>list</code> of <code>ints</code>, optional</dt>
-<dd>If specified, it must be a tuple or list which contains a permutation of
-[0,1,..,N-1] where N is the number of axes of a.
-The i'th axis of the
-returned array will correspond to the axis numbered <code>axes[i]</code> of the
-input.
-If not specified, defaults to <code>range(a.ndim)[::-1]</code>, which
-reverses the order of the axes.</dd>
+<dd>If specified, it must be a tuple or list which contains a permutation
+of [0,1,&hellip;,N-1] where N is the number of axes of <code>a</code>. The <code>i</code>'th axis
+of the returned array will correspond to the axis numbered <code>axes[i]</code>
+of the input. If not specified, defaults to <code>range(a.ndim)[::-1]</code>,
+which reverses the order of the axes.</dd>
 </dl>
 <h2 id="returns">Returns</h2>
 <dl>
 <dt><strong><code>p</code></strong> :&ensp;<code>ndarray</code></dt>
-<dd><code>a</code> with its axes permuted.
-A view is returned whenever
-possible.</dd>
+<dd><code>a</code> with its axes permuted. A view is returned whenever possible.</dd>
 </dl></div>
 <details class="source">
 <summary>

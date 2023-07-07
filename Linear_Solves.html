@@ -15216,8 +15216,9 @@ Feel free to choose the below line to use <code>jax</code>, <code>tensorflow</co
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<p>We can perform a linear solve by passing a matrix <code>A</code>, right-hand-side vector <code>b</code> and initial guess <code>x0</code> to <a href="unifyml/math/#unifyml.math.solve_linear"><code>solve_linear()</code></a>.
-The <a href="Matrices.html#Primal-and-Dual-Dimensions">dual dimensions of the matrix</a> must match the initial guess and the primal dimensions must match the right-hand-side.</p>
+<p>We can perform a linear solve by passing a matrix <code>A</code>, right-hand-side vector <code>b</code> and initial guess <code>x0</code> to <a href="unifyml/math/#unifyml.math.solve_linear"><code>solve_linear()</code></a>.</p>
+<p>We recommend passing UnifyML tensors. Then, the <a href="Matrices.html#Primal-and-Dual-Dimensions">dual dimensions of the matrix</a> must match the initial guess and the primal dimensions must match the right-hand-side.</p>
+<p>Alternatively, <code>solve_linear()</code> can be used called with native tensors (see <a href="#Linear-Solves-with-Native-Tensors">below</a>).</p>
 
 </div>
 </div>
@@ -15555,6 +15556,62 @@ If the function adds a constant offset to the output, this will automatically be
 </div>
 </div>
 </div>
+</div>
+<div  class="jp-Cell jp-MarkdownCell jp-Notebook-cell">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
+</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
+<h2 id="Linear-Solves-with-Native-Tensors">Linear Solves with Native Tensors<a class="anchor-link" href="#Linear-Solves-with-Native-Tensors">&#182;</a></h2><p>When performing a linear solve without UnifyML tensors, the matrix must have shape (..., N, N) and <code>x0</code> and <code>b</code> must have shape (..., N)<code>where</code>...` denotes the batch dimensions.</p>
+
+</div>
+</div>
+</div>
+</div><div  class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[10]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-ipython2"><pre><span></span><span class="kn">import</span> <span class="nn">torch</span>
+
+<span class="n">A</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">([[</span><span class="mf">0.</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">]])</span>
+<span class="n">b</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">([</span><span class="mf">2.</span><span class="p">,</span> <span class="mi">3</span><span class="p">])</span>
+<span class="n">x0</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">([</span><span class="mf">0.</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
+<span class="n">math</span><span class="o">.</span><span class="n">solve_linear</span><span class="p">(</span><span class="n">A</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">Solve</span><span class="p">(</span><span class="n">x0</span><span class="o">=</span><span class="n">x0</span><span class="p">))</span>
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+<div class="jp-Cell-outputWrapper">
+<div class="jp-Collapser jp-OutputCollapser jp-Cell-outputCollapser">
+</div>
+
+
+<div class="jp-OutputArea jp-Cell-outputArea">
+<div class="jp-OutputArea-child jp-OutputArea-executeResult">
+    
+    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[10]:</div>
+
+
+
+
+<div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
+<pre>tensor([3., 2.])</pre>
+</div>
+
+</div>
+
+</div>
+
+</div>
+
 </div>
 <div  class="jp-Cell jp-MarkdownCell jp-Notebook-cell">
 <div class="jp-Cell-inputWrapper">
