@@ -1903,7 +1903,7 @@ def get_functional_derivative_order():
     return _FUNCTIONAL_DERIVATIVE_CONTEXT[-1]
 
 
-ML_LOGGER = logging.getLogger('Φ')  # used for warnings and debug messages by all internal PhiFlow functions
+ML_LOGGER = logging.getLogger('UnifyML')  # used for warnings and debug messages by all internal UnifyML functions
 _LOG_CONSOLE_HANDLER = logging.StreamHandler(sys.stdout)
 _LOG_CONSOLE_HANDLER.setFormatter(logging.Formatter("%(message)s (%(levelname)s), %(asctime)sn\n"))
 _LOG_CONSOLE_HANDLER.setLevel(logging.NOTSET)

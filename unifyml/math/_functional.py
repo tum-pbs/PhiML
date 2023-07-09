@@ -156,10 +156,10 @@ class JitFunction:
         self.grad_jit = GradientFunction(f.f, self.f_params, f.wrt, f.get_output, f.is_f_scalar, jit=True) if isinstance(f, GradientFunction) else None
 
     def _jit_compile(self, in_key: SignatureKey):
-        ML_LOGGER.debug(f"Φ-jit: '{f_name(self.f)}' called with new key. shapes={[s.volume for s in in_key.shapes]}, args={in_key.tree}")
+        ML_LOGGER.debug(f"UnifyML-jit: '{f_name(self.f)}' called with new key. shapes={[s.volume for s in in_key.shapes]}, args={in_key.tree}")
 
         def jit_f_native(*natives):
-            ML_LOGGER.debug(f"Φ-jit: Tracing '{f_name(self.f)}'")
+            ML_LOGGER.debug(f"UnifyML-jit: Tracing '{f_name(self.f)}'")
             _TRACING_JIT.append(self)
             in_tensors = assemble_tensors(natives, in_key.specs)
             kwargs = assemble_tree(in_key.tree, in_tensors)
@@ -189,7 +189,7 @@ class JitFunction:
                 self.recorded_mappings.clear()
             self.traces[key] = self._jit_compile(key)
             if len(self.traces) >= 10:
-                warnings.warn(f"""Φ-lin: The jit-compiled function '{f_name(self.f)}' was traced {len(self.traces)} times.
+                warnings.warn(f"""UnifyML-lin: The jit-compiled function '{f_name(self.f)}' was traced {len(self.traces)} times.
 Performing many traces may be slow and cause memory leaks.
 Re-tracing occurs when the number or types of arguments vary, tensor shapes vary between calls or different auxiliary arguments are given (compared by reference).
 Set forget_traces=True to avoid memory leaks when many traces are required.""", RuntimeWarning)
@@ -299,7 +299,7 @@ class LinearFunction(Generic[X, Y], Callable[[X], Y]):
             if not key.tracing:
                 self.matrices_and_biases[key] = matrix, bias
                 if len(self.matrices_and_biases) >= 4:
-                    warnings.warn(f"""Φ-lin: The compiled linear function '{f_name(self.f)}' was traced {len(self.matrices_and_biases)} times.
+                    warnings.warn(f"""UnifyML-lin: The compiled linear function '{f_name(self.f)}' was traced {len(self.matrices_and_biases)} times.
 Performing many traces may be slow and cause memory leaks.
 Tensors in auxiliary arguments (all except the first parameter unless specified otherwise) are compared by reference, not by tensor values.
 Auxiliary arguments: {key.auxiliary_kwargs}
@@ -318,7 +318,7 @@ Multiple linear traces can be avoided by jit-compiling the code that calls the l
         if not key.backend.supports(Backend.sparse_coo_tensor):  # This might be called inside a Jax linear solve
             # warnings.warn(f"Sparse matrices are not supported by {backend}. Falling back to regular jit compilation.", RuntimeWarning)
             if not math.all_available(*tensors):  # avoid nested tracing, Typical case jax.scipy.sparse.cg(LinearFunction). Nested traces cannot be reused which results in lots of traces per cg.
-                ML_LOGGER.debug(f"Φ-lin: Running '{f_name(self.f)}' as-is with {key.backend} because it is being traced.")
+                ML_LOGGER.debug(f"UnifyML-lin: Running '{f_name(self.f)}' as-is with {key.backend} because it is being traced.")
                 return self.f(*args, **kwargs)
             else:
                 return self.nl_jit(*args, **kwargs)
@@ -442,7 +442,7 @@ class GradientFunction:
 
     def _trace_grad(self, in_key: SignatureKey, wrt_natives):
         def f_native(*natives):
-            ML_LOGGER.debug(f"Φ-grad: Evaluating gradient of {f_name(self.f)}")
+            ML_LOGGER.debug(f"UnifyML-grad: Evaluating gradient of {f_name(self.f)}")
             in_tensors = assemble_tensors(natives, in_key.specs)
             kwargs = assemble_tree(in_key.tree, in_tensors)
             with functional_derivative_evaluation(order=1):
@@ -455,7 +455,7 @@ class GradientFunction:
                 loss_native = loss
                 loss_shape = in_key.backend.staticshape(loss_native)
                 assert len(
-                    loss_shape) == 0, f"Only scalar losses are allowed when returning a native tensor but {f_name(self.f)} returned {type(loss_native).__name__} of shape {loss_shape}. For higher-dimensional values, use Φ-Tensors instead."
+                    loss_shape) == 0, f"Only scalar losses are allowed when returning a native tensor but {f_name(self.f)} returned {type(loss_native).__name__} of shape {loss_shape}. For higher-dimensional values, use UnifyML tensors instead."
             nest, out_tensors = disassemble_tree(result)
             result_natives, result_shapes, specs = disassemble_tensors(out_tensors, expand=True)
             self.recorded_mappings[in_key] = SignatureKey(f_native, nest, result_shapes, specs, in_key.backend, in_key.tracing)
@@ -615,7 +615,7 @@ class HessianFunction:
 #
 #     def _trace_hessian(self, in_key: SignatureKey, wrt_natives):
 #         def f_native(*natives):
-#             PHI_LOGGER.debug(f"Φ-grad: Evaluating gradient of {f_name(self.f)}")
+#             PHI_LOGGER.debug(f"UnifyML-grad: Evaluating gradient of {f_name(self.f)}")
 #             in_tensors = assemble_tensors(natives, in_key.specs)
 #             kwargs = assemble_tree(in_key.tree, in_tensors)
 #             with functional_derivative_evaluation(order=2):

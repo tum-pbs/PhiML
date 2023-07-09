@@ -513,24 +513,6 @@ def res_net(in_channels: int,
             activation: Union[str, Callable] = 'ReLU',
             periodic=False,
             in_spatial: Union[int, tuple] = 2) -> StaxNet:
-    """
-    Built in Res-Nets are provided in the ΦFlow framework. Similar to the conv-net, the feature map spatial size remains the same throughout the layers.
-    These networks use residual blocks composed of two conv layers with a skip connection added from the input to the output feature map.
-    A default filter size of 3 is used in the convolutional layers.
-
-    Arguments:
-
-        in_channels : input channels of the feature map, dtype : int
-        out_channels : output channels of the feature map, dtype : int
-        layers : list or tuple of output channels for each intermediate layer between the input and final output channels, dtype : list or tuple
-        activation : activation function used within the layers, dtype : string
-        batch_norm : use of batchnorm after each conv layer, dtype : bool
-        in_spatial : spatial dimensions of the input feature map, dtype : int
-
-    Returns:
-
-        Res-net model as specified by input arguments
-    """
     if isinstance(in_spatial, int):
         d = in_spatial
         in_spatial = (1,) * d

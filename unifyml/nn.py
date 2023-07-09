@@ -228,7 +228,7 @@ def res_net(in_channels: int,
             in_spatial: Union[int, tuple] = 2,
             periodic=False) -> Network:
     """
-    Built in Res-Nets are provided in the ΦFlow framework. Similar to the conv-net, the feature map spatial size remains the same throughout the layers.
+    Similar to the conv-net, the feature map spatial size remains the same throughout the layers.
     These networks use residual blocks composed of two conv layers with a skip connection added from the input to the output feature map.
     A default filter size of 3 is used in the convolutional layers.
 

@@ -184,4 +184,4 @@ def count_tensors_in_memory(min_print_size: int = None):
                     # print([type(r) for r in referrers])
         except Exception:
             pass
-    print(f"There are {total} Φ-Tensors with a total size of {bytes / 1024 / 1024:.1f} MB")
+    print(f"There are {total} UnifyML Tensors with a total size of {bytes / 1024 / 1024:.1f} MB")
