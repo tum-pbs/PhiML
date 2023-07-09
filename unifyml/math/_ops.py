@@ -2137,6 +2137,7 @@ def gather(values: Tensor, indices: Tensor, dims: Union[DimFilter, None] = None)
     if indices.dtype.kind == bool:
         indices = to_int32(indices)
     dims = parse_dim_order(dims)
+    assert dims, f"No indexing dimensions for tensor {values.shape} given indices {indices.shape}"
     assert dims in values.shape, f"Trying to index non-existant dimensions with indices {indices.shape} into values {values.shape}"
     treat_as_batch = non_channel(indices).only(values.shape).without(dims)
     batch_ = (values.shape.batch & indices.shape.batch).without(dims) & treat_as_batch

@@ -183,16 +183,16 @@ class SparseCoordinateTensor(Tensor):
 
     def dual_indices(self, to_primal=False):
         """ Unpacked column indices """
-        idx = self._indices[self._dense_shape.dual]
+        idx = self._indices[list(self._dense_shape.dual.names)]
         if to_primal:
-            dual_names = idx.shape.get_item_names('vector')
+            dual_names = self._dense_shape.dual.names
             primal_names = spatial(*dual_names).names
             idx = rename_dims(idx, 'vector', channel(vector=primal_names))
         return idx
 
     def primal_indices(self):
         """ Unpacked row indices """
-        return self._indices[self._dense_shape.non_dual]
+        return self._indices[list(self._dense_shape.non_dual.names)]
 
     def _pack_indices(self, row_dims: Shape, col_dims: Shape):
         assert row_dims in self._dense_shape, f"Can only compress sparse dims but got {row_dims} which contains non-sparse dims"
