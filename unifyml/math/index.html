@@ -3099,6 +3099,7 @@ If <code>None</code> and no index item names are specified, will default to all 
     if indices.dtype.kind == bool:
         indices = to_int32(indices)
     dims = parse_dim_order(dims)
+    assert dims, f&#34;No indexing dimensions for tensor {values.shape} given indices {indices.shape}&#34;
     assert dims in values.shape, f&#34;Trying to index non-existant dimensions with indices {indices.shape} into values {values.shape}&#34;
     treat_as_batch = non_channel(indices).only(values.shape).without(dims)
     batch_ = (values.shape.batch &amp; indices.shape.batch).without(dims) &amp; treat_as_batch
@@ -10662,7 +10663,7 @@ This may indicate that no solution exists.</p>
             if not key.tracing:
                 self.matrices_and_biases[key] = matrix, bias
                 if len(self.matrices_and_biases) &gt;= 4:
-                    warnings.warn(f&#34;&#34;&#34;Φ-lin: The compiled linear function &#39;{f_name(self.f)}&#39; was traced {len(self.matrices_and_biases)} times.
+                    warnings.warn(f&#34;&#34;&#34;UnifyML-lin: The compiled linear function &#39;{f_name(self.f)}&#39; was traced {len(self.matrices_and_biases)} times.
 Performing many traces may be slow and cause memory leaks.
 Tensors in auxiliary arguments (all except the first parameter unless specified otherwise) are compared by reference, not by tensor values.
 Auxiliary arguments: {key.auxiliary_kwargs}
@@ -10681,7 +10682,7 @@ Multiple linear traces can be avoided by jit-compiling the code that calls the l
         if not key.backend.supports(Backend.sparse_coo_tensor):  # This might be called inside a Jax linear solve
             # warnings.warn(f&#34;Sparse matrices are not supported by {backend}. Falling back to regular jit compilation.&#34;, RuntimeWarning)
             if not math.all_available(*tensors):  # avoid nested tracing, Typical case jax.scipy.sparse.cg(LinearFunction). Nested traces cannot be reused which results in lots of traces per cg.
-                ML_LOGGER.debug(f&#34;Φ-lin: Running &#39;{f_name(self.f)}&#39; as-is with {key.backend} because it is being traced.&#34;)
+                ML_LOGGER.debug(f&#34;UnifyML-lin: Running &#39;{f_name(self.f)}&#39; as-is with {key.backend} because it is being traced.&#34;)
                 return self.f(*args, **kwargs)
             else:
                 return self.nl_jit(*args, **kwargs)

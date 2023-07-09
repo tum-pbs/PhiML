@@ -15677,43 +15677,8 @@ Available SciPy solvers include <code>'scipy-direct'</code>, <code>'scipy-CG'</c
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<h2 id="Implicit-Differentiation">Implicit Differentiation<a class="anchor-link" href="#Implicit-Differentiation">&#182;</a></h2>
-</div>
-</div>
-</div>
-</div>
-<div  class="jp-Cell jp-MarkdownCell jp-Notebook-cell">
-<div class="jp-Cell-inputWrapper">
-<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
-</div>
-<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
-</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<h2 id="Matrix-Gradients">Matrix Gradients<a class="anchor-link" href="#Matrix-Gradients">&#182;</a></h2><p>UnifyML can also compute gradients for the (sparse) matrix used in a linear solve, which allows differentiating w.r.t. parameters that influenced the matrix values via backpropagation.</p>
-
-</div>
-</div>
-</div>
-</div>
-<div  class="jp-Cell jp-MarkdownCell jp-Notebook-cell">
-<div class="jp-Cell-inputWrapper">
-<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
-</div>
-<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
-</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<h2 id="Obtaining-Additional-Information-about-a-Solve">Obtaining Additional Information about a Solve<a class="anchor-link" href="#Obtaining-Additional-Information-about-a-Solve">&#182;</a></h2><p><code>SolveTape</code></p>
-
-</div>
-</div>
-</div>
-</div>
-<div  class="jp-Cell jp-MarkdownCell jp-Notebook-cell">
-<div class="jp-Cell-inputWrapper">
-<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
-</div>
-<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
-</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<h2 id="Linear-Solves-with-Native-Tensors">Linear Solves with Native Tensors<a class="anchor-link" href="#Linear-Solves-with-Native-Tensors">&#182;</a></h2><p>When performing a linear solve without UnifyML tensors, the matrix must have shape (..., N, N) and <code>x0</code> and <code>b</code> must have shape <code>(..., N)</code> where <code>...</code> denotes the batch dimensions.
-This matches the signatures of the native solve functions like <code>torch.linalg.solve</code> or <code>jax.numpy.linalg.solve</code>.</p>
+<h2 id="Implicit-Differentiation">Implicit Differentiation<a class="anchor-link" href="#Implicit-Differentiation">&#182;</a></h2><p>UnifyML enables backpropagation through linear solves.
+Instead of backpropagating through the unrolled loop (which can lead to inaccurate results and cause high memory consumption), Unify runs an ajoint linear solve for the pullback operation.</p>
 
 </div>
 </div>
@@ -15726,12 +15691,12 @@ This matches the signatures of the native solve functions like <code>torch.linal
 <div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[12]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython2"><pre><span></span><span class="kn">import</span> <span class="nn">torch</span>
+<div class=" highlight hl-ipython2"><pre><span></span><span class="k">def</span> <span class="nf">loss_function</span><span class="p">(</span><span class="n">b</span><span class="p">):</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">solve_linear</span><span class="p">(</span><span class="n">jit_compile_linear</span><span class="p">(</span><span class="n">linear_function</span><span class="p">),</span> <span class="n">b</span><span class="p">,</span> <span class="n">Solve</span><span class="p">(</span><span class="n">x0</span><span class="o">=</span><span class="n">x0</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">math</span><span class="o">.</span><span class="n">l2_loss</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
 
-<span class="n">A</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">([[</span><span class="mf">0.</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">]])</span>
-<span class="n">b</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">([</span><span class="mf">2.</span><span class="p">,</span> <span class="mi">3</span><span class="p">])</span>
-<span class="n">x0</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">([</span><span class="mf">0.</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
-<span class="n">math</span><span class="o">.</span><span class="n">solve_linear</span><span class="p">(</span><span class="n">A</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">Solve</span><span class="p">(</span><span class="n">x0</span><span class="o">=</span><span class="n">x0</span><span class="p">))</span>
+<span class="n">gradient_function</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">gradient</span><span class="p">(</span><span class="n">loss_function</span><span class="p">,</span> <span class="s1">&#39;b&#39;</span><span class="p">,</span> <span class="n">get_output</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="n">gradient_function</span><span class="p">(</span><span class="n">b</span><span class="p">)</span>
 </pre></div>
 
      </div>
@@ -15753,7 +15718,7 @@ This matches the signatures of the native solve functions like <code>torch.linal
 
 
 <div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre>tensor([3., 2.])</pre>
+<pre><span class="ansi-blue-intense-fg">(2.500, 3.750)</span> along <span class="ansi-green-intense-fg">b_vecᶜ</span></pre>
 </div>
 
 </div>
@@ -15769,7 +15734,8 @@ This matches the signatures of the native solve functions like <code>torch.linal
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<h2 id="Linear-Solves-with-Native-Tensors">Linear Solves with Native Tensors<a class="anchor-link" href="#Linear-Solves-with-Native-Tensors">&#182;</a></h2><p>When performing a linear solve without UnifyML tensors, the matrix must have shape (..., N, N) and <code>x0</code> and <code>b</code> must have shape (..., N)<code>where</code>...` denotes the batch dimensions.</p>
+<h2 id="Matrix-Gradients">Matrix Gradients<a class="anchor-link" href="#Matrix-Gradients">&#182;</a></h2><p>UnifyML can also compute gradients for the (sparse) matrix used in a linear solve, which allows differentiating w.r.t. parameters that influenced the matrix values via backpropagation.
+To enable this, pass <code>grad_for_f=True</code> to the <code>solve_linear()</code> call.</p>
 
 </div>
 </div>
@@ -15780,6 +15746,189 @@ This matches the signatures of the native solve functions like <code>torch.linal
 </div>
 <div class="jp-InputArea jp-Cell-inputArea">
 <div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[13]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-ipython2"><pre><span></span><span class="nd">@math</span><span class="o">.</span><span class="n">jit_compile_linear</span>
+<span class="k">def</span> <span class="nf">conditioned_linear_function</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">conditioning</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">x</span> <span class="o">*</span> <span class="n">conditioning</span>
+
+<span class="k">def</span> <span class="nf">loss_function</span><span class="p">(</span><span class="n">conditioning</span><span class="p">):</span>
+    <span class="n">b</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">ones_like</span><span class="p">(</span><span class="n">conditioning</span><span class="p">)</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">solve_linear</span><span class="p">(</span><span class="n">conditioned_linear_function</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">Solve</span><span class="p">(</span><span class="n">x0</span><span class="o">=</span><span class="n">x0</span><span class="p">),</span> <span class="n">conditioning</span><span class="o">=</span><span class="n">conditioning</span><span class="p">,</span> <span class="n">grad_for_f</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">math</span><span class="o">.</span><span class="n">l2_loss</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+
+<span class="n">gradient_function</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">gradient</span><span class="p">(</span><span class="n">loss_function</span><span class="p">,</span> <span class="s1">&#39;conditioning&#39;</span><span class="p">,</span> <span class="n">get_output</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="n">gradient_function</span><span class="p">(</span><span class="n">tensor</span><span class="p">([</span><span class="mf">1.</span><span class="p">,</span> <span class="mf">2.</span><span class="p">],</span> <span class="n">channel</span><span class="p">(</span><span class="s1">&#39;x_vec&#39;</span><span class="p">)))</span>
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+<div class="jp-Cell-outputWrapper">
+<div class="jp-Collapser jp-OutputCollapser jp-Cell-outputCollapser">
+</div>
+
+
+<div class="jp-OutputArea jp-Cell-outputArea">
+<div class="jp-OutputArea-child jp-OutputArea-executeResult">
+    
+    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[13]:</div>
+
+
+
+
+<div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
+<pre><span class="ansi-blue-intense-fg">(1.000, 0.125)</span> along <span class="ansi-green-intense-fg">x_vecᶜ</span></pre>
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+<div  class="jp-Cell jp-MarkdownCell jp-Notebook-cell">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
+</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
+<h2 id="Obtaining-Additional-Information-about-a-Solve">Obtaining Additional Information about a Solve<a class="anchor-link" href="#Obtaining-Additional-Information-about-a-Solve">&#182;</a></h2><p>All solves are logged internally and can be shown by setting <a href="unifyml#unifyml.set_logging_level"><code>unifyml.set_logging_level('debug')</code></a>.</p>
+<p>Additional solve properties can be recorded using a <a href="unifyml/math#unifyml.math.SolveTape"><code>SolveTape</code></a>.
+Recording the full optimization trajectory requires setting <code>record_trajectories=True</code>.</p>
+
+</div>
+</div>
+</div>
+</div><div  class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[14]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-ipython2"><pre><span></span><span class="kn">import</span> <span class="nn">unifyml</span>
+<span class="n">unifyml</span><span class="o">.</span><span class="n">set_logging_level</span><span class="p">(</span><span class="s1">&#39;debug&#39;</span><span class="p">)</span>
+
+<span class="k">with</span> <span class="n">math</span><span class="o">.</span><span class="n">SolveTape</span><span class="p">()</span> <span class="k">as</span> <span class="n">solves</span><span class="p">:</span>
+    <span class="n">math</span><span class="o">.</span><span class="n">solve_linear</span><span class="p">(</span><span class="n">jit_compile_linear</span><span class="p">(</span><span class="n">linear_function</span><span class="p">),</span> <span class="n">b</span><span class="p">,</span> <span class="n">Solve</span><span class="p">(</span><span class="s1">&#39;scipy-CG&#39;</span><span class="p">,</span> <span class="n">x0</span><span class="o">=</span><span class="n">x0</span><span class="p">,</span> <span class="n">preconditioner</span><span class="o">=</span><span class="s1">&#39;ilu&#39;</span><span class="p">))</span>
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+<div class="jp-Cell-outputWrapper">
+<div class="jp-Collapser jp-OutputCollapser jp-Cell-outputCollapser">
+</div>
+
+
+<div class="jp-OutputArea jp-Cell-outputArea">
+<div class="jp-OutputArea-child">
+    
+    <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+
+
+<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
+<pre>factor_ilu: auto-selecting iterations=1 (eager mode) for matrix <span class="ansi-blue-intense-fg">(2.000, 0.000)</span>; <span class="ansi-blue-intense-fg">(0.000, 1.000)</span> <span class="ansi-green-intense-fg">(x_vecᶜ=2, ~x_vecᵈ=2)</span> (DEBUG), 2023-07-09 14:44:44,745n
+
+Running forward pass of custom op forward &#39;_matrix_solve_forward&#39; given args (&#39;y&#39;,) containing 1 native tensors (DEBUG), 2023-07-09 14:44:44,757n
+
+Performing linear solve scipy-CG with tolerance <span class="ansi-yellow-intense-fg">float64</span> <span class="ansi-blue-intense-fg">1e-05</span> (rel), <span class="ansi-yellow-intense-fg">float64</span> <span class="ansi-blue-intense-fg">1e-05</span> (abs), max_iterations=<span class="ansi-blue-intense-fg">1000</span> with backend torch (DEBUG), 2023-07-09 14:44:44,761n
+
+</pre>
+</div>
+</div>
+
+</div>
+
+</div>
+
+</div>
+<div  class="jp-Cell jp-MarkdownCell jp-Notebook-cell">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
+</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
+<p>The solve information about a performed solve(s) can then be obtained by indexing specific solves by index or <code>Solve</code> object.</p>
+
+</div>
+</div>
+</div>
+</div><div  class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[15]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-ipython2"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="n">solves</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">solve</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Solution&quot;</span><span class="p">,</span> <span class="n">solves</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">x</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Residual&quot;</span><span class="p">,</span> <span class="n">solves</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">residual</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Fun.evals&quot;</span><span class="p">,</span> <span class="n">solves</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">function_evaluations</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Iterations&quot;</span><span class="p">,</span> <span class="n">solves</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">iterations</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Diverged&quot;</span><span class="p">,</span> <span class="n">solves</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">diverged</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Converged&quot;</span><span class="p">,</span> <span class="n">solves</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">converged</span><span class="p">)</span>
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+<div class="jp-Cell-outputWrapper">
+<div class="jp-Collapser jp-OutputCollapser jp-Cell-outputCollapser">
+</div>
+
+
+<div class="jp-OutputArea jp-Cell-outputArea">
+<div class="jp-OutputArea-child">
+    
+    <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+
+
+<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
+<pre>scipy-CG with tolerance <span class="ansi-yellow-intense-fg">float64</span> <span class="ansi-blue-intense-fg">1e-05</span> (rel), <span class="ansi-yellow-intense-fg">float64</span> <span class="ansi-blue-intense-fg">1e-05</span> (abs), max_iterations=<span class="ansi-blue-intense-fg">1000</span>
+Solution <span class="ansi-blue-intense-fg">(1.000, 2.000, 1.500, 3.000)</span> <span class="ansi-green-intense-fg">(b_vecᶜ=2, x_vecᶜ=2)</span>
+Residual <span class="ansi-blue-intense-fg">(0.000, 0.000, 0.000, 0.000)</span> <span class="ansi-green-intense-fg">(b_vecᶜ=2, x_vecᶜ=2)</span>
+Fun.evals <span class="ansi-blue-intense-fg">(2, 2)</span> along <span class="ansi-green-intense-fg">b_vecᶜ</span> <span class="ansi-yellow-intense-fg">int64</span>
+Iterations <span class="ansi-blue-intense-fg">(1, 1)</span> along <span class="ansi-green-intense-fg">b_vecᶜ</span> <span class="ansi-yellow-intense-fg">int64</span>
+Diverged <span class="ansi-blue-intense-fg">(False, False)</span> along <span class="ansi-green-intense-fg">b_vecᶜ</span>
+Converged <span class="ansi-blue-intense-fg">(True, True)</span> along <span class="ansi-green-intense-fg">b_vecᶜ</span>
+</pre>
+</div>
+</div>
+
+</div>
+
+</div>
+
+</div>
+<div  class="jp-Cell jp-MarkdownCell jp-Notebook-cell">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
+</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
+<h2 id="Linear-Solves-with-Native-Tensors">Linear Solves with Native Tensors<a class="anchor-link" href="#Linear-Solves-with-Native-Tensors">&#182;</a></h2><p>When performing a linear solve without UnifyML tensors, the matrix must have shape (..., N, N) and <code>x0</code> and <code>b</code> must have shape <code>(..., N)</code> where <code>...</code> denotes the batch dimensions.
+This matches the signatures of the native solve functions like <code>torch.linalg.solve</code> or <code>jax.numpy.linalg.solve</code>.</p>
+
+</div>
+</div>
+</div>
+</div><div  class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[16]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython2"><pre><span></span><span class="kn">import</span> <span class="nn">torch</span>
@@ -15801,9 +15950,22 @@ This matches the signatures of the native solve functions like <code>torch.linal
 
 
 <div class="jp-OutputArea jp-Cell-outputArea">
+<div class="jp-OutputArea-child">
+    
+    <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+
+
+<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
+<pre>Running forward pass of custom op forward &#39;_matrix_solve_forward&#39; given args (&#39;y&#39;, &#39;matrix&#39;) containing 2 native tensors (DEBUG), 2023-07-09 14:44:44,790n
+
+Performing linear solve auto with tolerance <span class="ansi-yellow-intense-fg">float64</span> <span class="ansi-blue-intense-fg">1e-05</span> (rel), <span class="ansi-yellow-intense-fg">float64</span> <span class="ansi-blue-intense-fg">1e-05</span> (abs), max_iterations=<span class="ansi-blue-intense-fg">1000</span> with backend torch (DEBUG), 2023-07-09 14:44:44,792n
+
+</pre>
+</div>
+</div>
 <div class="jp-OutputArea-child jp-OutputArea-executeResult">
     
-    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[13]:</div>
+    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[16]:</div>
 
 
 

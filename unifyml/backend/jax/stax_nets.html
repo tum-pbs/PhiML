@@ -545,24 +545,6 @@ def res_net(in_channels: int,
             activation: Union[str, Callable] = &#39;ReLU&#39;,
             periodic=False,
             in_spatial: Union[int, tuple] = 2) -&gt; StaxNet:
-    &#34;&#34;&#34;
-    Built in Res-Nets are provided in the ΦFlow framework. Similar to the conv-net, the feature map spatial size remains the same throughout the layers.
-    These networks use residual blocks composed of two conv layers with a skip connection added from the input to the output feature map.
-    A default filter size of 3 is used in the convolutional layers.
-
-    Arguments:
-
-        in_channels : input channels of the feature map, dtype : int
-        out_channels : output channels of the feature map, dtype : int
-        layers : list or tuple of output channels for each intermediate layer between the input and final output channels, dtype : list or tuple
-        activation : activation function used within the layers, dtype : string
-        batch_norm : use of batchnorm after each conv layer, dtype : bool
-        in_spatial : spatial dimensions of the input feature map, dtype : int
-
-    Returns:
-
-        Res-net model as specified by input arguments
-    &#34;&#34;&#34;
     if isinstance(in_spatial, int):
         d = in_spatial
         in_spatial = (1,) * d
@@ -1576,18 +1558,7 @@ in_spatial : spatial dimensions of the input feature map, dtype : int</p>
 <span>def <span class="ident">res_net</span></span>(<span>in_channels: int, out_channels: int, layers: Sequence[int], batch_norm: bool = False, activation: Union[str, Callable] = 'ReLU', periodic=False, in_spatial: Union[int, tuple] = 2) ‑> <a title="unifyml.backend.jax.stax_nets.StaxNet" href="#unifyml.backend.jax.stax_nets.StaxNet">StaxNet</a></span>
 </code></dt>
 <dd>
-<div class="desc"><p>Built in Res-Nets are provided in the ΦFlow framework. Similar to the conv-net, the feature map spatial size remains the same throughout the layers.
-These networks use residual blocks composed of two conv layers with a skip connection added from the input to the output feature map.
-A default filter size of 3 is used in the convolutional layers.</p>
-<h2 id="arguments">Arguments</h2>
-<p>in_channels : input channels of the feature map, dtype : int
-out_channels : output channels of the feature map, dtype : int
-layers : list or tuple of output channels for each intermediate layer between the input and final output channels, dtype : list or tuple
-activation : activation function used within the layers, dtype : string
-batch_norm : use of batchnorm after each conv layer, dtype : bool
-in_spatial : spatial dimensions of the input feature map, dtype : int</p>
-<h2 id="returns">Returns</h2>
-<p>Res-net model as specified by input arguments</p></div>
+<div class="desc"></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -1599,24 +1570,6 @@ in_spatial : spatial dimensions of the input feature map, dtype : int</p>
             activation: Union[str, Callable] = &#39;ReLU&#39;,
             periodic=False,
             in_spatial: Union[int, tuple] = 2) -&gt; StaxNet:
-    &#34;&#34;&#34;
-    Built in Res-Nets are provided in the ΦFlow framework. Similar to the conv-net, the feature map spatial size remains the same throughout the layers.
-    These networks use residual blocks composed of two conv layers with a skip connection added from the input to the output feature map.
-    A default filter size of 3 is used in the convolutional layers.
-
-    Arguments:
-
-        in_channels : input channels of the feature map, dtype : int
-        out_channels : output channels of the feature map, dtype : int
-        layers : list or tuple of output channels for each intermediate layer between the input and final output channels, dtype : list or tuple
-        activation : activation function used within the layers, dtype : string
-        batch_norm : use of batchnorm after each conv layer, dtype : bool
-        in_spatial : spatial dimensions of the input feature map, dtype : int
-
-    Returns:
-
-        Res-net model as specified by input arguments
-    &#34;&#34;&#34;
     if isinstance(in_spatial, int):
         d = in_spatial
         in_spatial = (1,) * d

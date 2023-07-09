@@ -266,7 +266,7 @@ def res_net(in_channels: int,
             in_spatial: Union[int, tuple] = 2,
             periodic=False) -&gt; Network:
     &#34;&#34;&#34;
-    Built in Res-Nets are provided in the ΦFlow framework. Similar to the conv-net, the feature map spatial size remains the same throughout the layers.
+    Similar to the conv-net, the feature map spatial size remains the same throughout the layers.
     These networks use residual blocks composed of two conv layers with a skip connection added from the input to the output feature map.
     A default filter size of 3 is used in the convolutional layers.
 
@@ -651,7 +651,7 @@ batch_norm : use of batch norm after each linear layer, bool</p>
 <span>def <span class="ident">res_net</span></span>(<span>in_channels: int, out_channels: int, layers: Sequence[int], batch_norm: bool = False, activation: Union[str, type] = 'ReLU', in_spatial: Union[int, tuple] = 2, periodic=False) ‑> ~Network</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Built in Res-Nets are provided in the ΦFlow framework. Similar to the conv-net, the feature map spatial size remains the same throughout the layers.
+<div class="desc"><p>Similar to the conv-net, the feature map spatial size remains the same throughout the layers.
 These networks use residual blocks composed of two conv layers with a skip connection added from the input to the output feature map.
 A default filter size of 3 is used in the convolutional layers.</p>
 <h2 id="args">Args</h2>
@@ -675,7 +675,7 @@ in_spatial : spatial dimensions of the input feature map, dtype : int</p>
             in_spatial: Union[int, tuple] = 2,
             periodic=False) -&gt; Network:
     &#34;&#34;&#34;
-    Built in Res-Nets are provided in the ΦFlow framework. Similar to the conv-net, the feature map spatial size remains the same throughout the layers.
+    Similar to the conv-net, the feature map spatial size remains the same throughout the layers.
     These networks use residual blocks composed of two conv layers with a skip connection added from the input to the output feature map.
     A default filter size of 3 is used in the convolutional layers.
 
