@@ -15149,7 +15149,7 @@ Dense, sparse, and matrix-free linear systems can be solved this way.</p>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython2"><pre><span></span><span class="kn">from</span> <span class="nn">unifyml</span> <span class="kn">import</span> <span class="n">math</span>
-<span class="kn">from</span> <span class="nn">unifyml.math</span> <span class="kn">import</span> <span class="n">wrap</span><span class="p">,</span> <span class="n">channel</span><span class="p">,</span> <span class="n">dual</span><span class="p">,</span> <span class="n">Solve</span><span class="p">,</span> <span class="n">const_vec</span>
+<span class="kn">from</span> <span class="nn">unifyml.math</span> <span class="kn">import</span> <span class="n">wrap</span><span class="p">,</span> <span class="n">channel</span><span class="p">,</span> <span class="n">dual</span><span class="p">,</span> <span class="n">Solve</span><span class="p">,</span> <span class="n">const_vec</span><span class="p">,</span> <span class="n">tensor</span>
 </pre></div>
 
      </div>
@@ -15231,9 +15231,9 @@ Feel free to choose the below line to use <code>jax</code>, <code>tensorflow</co
 <div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[4]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython2"><pre><span></span><span class="n">A</span> <span class="o">=</span> <span class="n">wrap</span><span class="p">([[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">]],</span> <span class="n">channel</span><span class="p">(</span><span class="s1">&#39;b_vec&#39;</span><span class="p">),</span> <span class="n">dual</span><span class="p">(</span><span class="s1">&#39;x_vec&#39;</span><span class="p">))</span>
-<span class="n">b</span> <span class="o">=</span> <span class="n">wrap</span><span class="p">([</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">],</span> <span class="n">channel</span><span class="p">(</span><span class="s1">&#39;b_vec&#39;</span><span class="p">))</span>
-<span class="n">x0</span> <span class="o">=</span> <span class="n">wrap</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">channel</span><span class="p">(</span><span class="s1">&#39;x_vec&#39;</span><span class="p">))</span>
+<div class=" highlight hl-ipython2"><pre><span></span><span class="n">A</span> <span class="o">=</span> <span class="n">tensor</span><span class="p">([[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">]],</span> <span class="n">channel</span><span class="p">(</span><span class="s1">&#39;b_vec&#39;</span><span class="p">),</span> <span class="n">dual</span><span class="p">(</span><span class="s1">&#39;x_vec&#39;</span><span class="p">))</span>
+<span class="n">b</span> <span class="o">=</span> <span class="n">tensor</span><span class="p">([</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">],</span> <span class="n">channel</span><span class="p">(</span><span class="s1">&#39;b_vec&#39;</span><span class="p">))</span>
+<span class="n">x0</span> <span class="o">=</span> <span class="n">tensor</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">channel</span><span class="p">(</span><span class="s1">&#39;x_vec&#39;</span><span class="p">))</span>
 <span class="n">math</span><span class="o">.</span><span class="n">solve_linear</span><span class="p">(</span><span class="n">A</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">Solve</span><span class="p">(</span><span class="n">x0</span><span class="o">=</span><span class="n">x0</span><span class="p">))</span>
 </pre></div>
 
@@ -15490,6 +15490,17 @@ If the function adds a constant offset to the output, this will automatically be
 
 
 <div class="jp-OutputArea jp-Cell-outputArea">
+<div class="jp-OutputArea-child">
+    
+    <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+
+
+<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="application/vnd.jupyter.stderr">
+<pre>/opt/hostedtoolcache/Python/3.8.17/x64/lib/python3.8/site-packages/unifyml/backend/torch/_torch_backend.py:752: UserWarning: Sparse CSR tensor support is in beta state. If you miss a functionality in the sparse tensor support, please submit a feature request to https://github.com/pytorch/pytorch/issues. (Triggered internally at ../aten/src/ATen/SparseCsrTensorImpl.cpp:54.)
+  return torch.sparse_csr_tensor(row_pointers, column_indices, values, shape, device=values.device)
+</pre>
+</div>
+</div>
 <div class="jp-OutputArea-child jp-OutputArea-executeResult">
     
     <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[9]:</div>
@@ -15514,9 +15525,147 @@ If the function adds a constant offset to the output, this will automatically be
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<h2 id="Preconditioned-Linear-Solves">Preconditioned Linear Solves<a class="anchor-link" href="#Preconditioned-Linear-Solves">&#182;</a></h2><p>Preconditioner at jit time if matrix NumPy
-<a href="Matrices.html#Building-Matrices-from-Linear-Functions">Matrices.html#Building-Matrices-from-Linear-Functions</a>)
-<a href="NumPy_Constants.html">NumPy_Constants.html</a></p>
+<h2 id="Preconditioned-Linear-Solves">Preconditioned Linear Solves<a class="anchor-link" href="#Preconditioned-Linear-Solves">&#182;</a></h2><p>UnifyML includes an ILU and experimental cluster preconditioner.
+To use a preconditioner, simply specify <code>preconditioner='ilu'</code> when creating the <code>Solve</code> object.</p>
+
+</div>
+</div>
+</div>
+</div><div  class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[10]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-ipython2"><pre><span></span><span class="n">math</span><span class="o">.</span><span class="n">solve_linear</span><span class="p">(</span><span class="n">jit_compile_linear</span><span class="p">(</span><span class="n">linear_function</span><span class="p">),</span> <span class="n">b</span><span class="p">,</span> <span class="n">Solve</span><span class="p">(</span><span class="s1">&#39;scipy-CG&#39;</span><span class="p">,</span> <span class="n">x0</span><span class="o">=</span><span class="n">x0</span><span class="p">,</span> <span class="n">preconditioner</span><span class="o">=</span><span class="s1">&#39;ilu&#39;</span><span class="p">))</span>
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+<div class="jp-Cell-outputWrapper">
+<div class="jp-Collapser jp-OutputCollapser jp-Cell-outputCollapser">
+</div>
+
+
+<div class="jp-OutputArea jp-Cell-outputArea">
+<div class="jp-OutputArea-child">
+    
+    <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+
+
+<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="application/vnd.jupyter.stderr">
+<pre>/opt/hostedtoolcache/Python/3.8.17/x64/lib/python3.8/site-packages/scipy/sparse/linalg/_dsolve/linsolve.py:640: SparseEfficiencyWarning: CSR matrix format is required. Converting to CSR matrix.
+  warn(&#39;CSR matrix format is required. Converting to CSR matrix.&#39;,
+</pre>
+</div>
+</div>
+<div class="jp-OutputArea-child jp-OutputArea-executeResult">
+    
+    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[10]:</div>
+
+
+
+
+<div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
+<pre><span class="ansi-blue-intense-fg">(1.000, 2.000, 1.500, 3.000)</span> <span class="ansi-green-intense-fg">(b_vecᶜ=2, x_vecᶜ=2)</span></pre>
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+<div  class="jp-Cell jp-MarkdownCell jp-Notebook-cell">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
+</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
+<p>The ILU preconditioner always runs on the CPU and should be paired with a SciPy linear solver for optimal efficiency.
+Available SciPy solvers include <code>'scipy-direct'</code>, <code>'scipy-CG'</code>, <code>'scipy-GMres'</code>, <code>'scipy-biCG'</code>, <code>'scipy-biCG-stab'</code>, <code>'scipy-CGS'</code>, <code>'scipy-QMR'</code>, <code>'scipy-GCrotMK'</code> (see the <a href="unifyml/math/index.html#unifyml.math.solve_linear">API</a>).</p>
+<p>If the matrix or linear function is constant, i.e. only <a href="NumPy_Constants.html">depends on NumPy arrays</a>, the preconditioner computation can be performed during <a href="JIT.html">JIT compilation</a>.</p>
+<p><a href="Matrices.html#Building-Matrices-from-Linear-Functions">Matrices.html#Building-Matrices-from-Linear-Functions</a>)</p>
+
+</div>
+</div>
+</div>
+</div><div  class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[11]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-ipython2"><pre><span></span><span class="nd">@math</span><span class="o">.</span><span class="n">jit_compile</span>
+<span class="k">def</span> <span class="nf">jit_perform_solve</span><span class="p">(</span><span class="n">b</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">math</span><span class="o">.</span><span class="n">solve_linear</span><span class="p">(</span><span class="n">jit_compile_linear</span><span class="p">(</span><span class="n">linear_function</span><span class="p">),</span> <span class="n">b</span><span class="p">,</span> <span class="n">Solve</span><span class="p">(</span><span class="s1">&#39;scipy-CG&#39;</span><span class="p">,</span> <span class="n">x0</span><span class="o">=</span><span class="n">x0</span><span class="p">,</span> <span class="n">preconditioner</span><span class="o">=</span><span class="s1">&#39;ilu&#39;</span><span class="p">))</span>
+
+<span class="n">jit_perform_solve</span><span class="p">(</span><span class="n">b</span><span class="p">)</span>
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+<div class="jp-Cell-outputWrapper">
+<div class="jp-Collapser jp-OutputCollapser jp-Cell-outputCollapser">
+</div>
+
+
+<div class="jp-OutputArea jp-Cell-outputArea">
+<div class="jp-OutputArea-child">
+    
+    <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+
+
+<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="application/vnd.jupyter.stderr">
+<pre>/opt/hostedtoolcache/Python/3.8.17/x64/lib/python3.8/site-packages/unifyml/backend/torch/_torch_backend.py:60: TracerWarning: torch.from_numpy results are registered as constants in the trace. You can safely ignore this warning if you use this function to create tensors out of constant variables that would be the same every time you call this function. In any other case, this might cause the trace to be incorrect.
+  tensor = torch.from_numpy(x)
+/opt/hostedtoolcache/Python/3.8.17/x64/lib/python3.8/site-packages/unifyml/backend/torch/_torch_backend.py:752: TracerWarning: torch.sparse_csr_tensor results are registered as constants in the trace. You can safely ignore this warning if you use this function to create tensors out of constant variables that would be the same every time you call this function. In any other case, this might cause the trace to be incorrect.
+  return torch.sparse_csr_tensor(row_pointers, column_indices, values, shape, device=values.device)
+/opt/hostedtoolcache/Python/3.8.17/x64/lib/python3.8/site-packages/unifyml/backend/torch/_torch_backend.py:125: TracerWarning: Converting a tensor to a NumPy array might cause the trace to be incorrect. We can&#39;t record the data flow of Python values, so this value will be treated as a constant in the future. This means that the trace might not generalize to other inputs!
+  return tensor.cpu().numpy()
+/opt/hostedtoolcache/Python/3.8.17/x64/lib/python3.8/site-packages/unifyml/backend/torch/_torch_backend.py:594: TracerWarning: Converting a tensor to a Python integer might cause the trace to be incorrect. We can&#39;t record the data flow of Python values, so this value will be treated as a constant in the future. This means that the trace might not generalize to other inputs!
+  return tuple([int(s) for s in tensor.shape])
+/opt/hostedtoolcache/Python/3.8.17/x64/lib/python3.8/site-packages/unifyml/math/_tensors.py:699: TracerWarning: Iterating over a tensor might cause the trace to be incorrect. Passing a tensor of different shape won&#39;t change the number of iterations executed (and might lead to errors or silently give incorrect results).
+  return iter(self.native())
+</pre>
+</div>
+</div>
+<div class="jp-OutputArea-child jp-OutputArea-executeResult">
+    
+    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[11]:</div>
+
+
+
+
+<div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
+<pre><span class="ansi-blue-intense-fg">(1.000, 2.000, 1.500, 3.000)</span> <span class="ansi-green-intense-fg">(b_vecᶜ=2, x_vecᶜ=2)</span></pre>
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+<div  class="jp-Cell jp-MarkdownCell jp-Notebook-cell">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
+</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
+<p>Here, the ILU preconditioner is computed during JIT-compile time since the linear function does not depend on <code>b</code>.</p>
 
 </div>
 </div>
@@ -15563,7 +15712,8 @@ If the function adds a constant offset to the output, this will automatically be
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<h2 id="Linear-Solves-with-Native-Tensors">Linear Solves with Native Tensors<a class="anchor-link" href="#Linear-Solves-with-Native-Tensors">&#182;</a></h2><p>When performing a linear solve without UnifyML tensors, the matrix must have shape (..., N, N) and <code>x0</code> and <code>b</code> must have shape (..., N)<code>where</code>...` denotes the batch dimensions.</p>
+<h2 id="Linear-Solves-with-Native-Tensors">Linear Solves with Native Tensors<a class="anchor-link" href="#Linear-Solves-with-Native-Tensors">&#182;</a></h2><p>When performing a linear solve without UnifyML tensors, the matrix must have shape (..., N, N) and <code>x0</code> and <code>b</code> must have shape <code>(..., N)</code> where <code>...</code> denotes the batch dimensions.
+This matches the signatures of the native solve functions like <code>torch.linalg.solve</code> or <code>jax.numpy.linalg.solve</code>.</p>
 
 </div>
 </div>
@@ -15573,7 +15723,7 @@ If the function adds a constant offset to the output, this will automatically be
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[10]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[12]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython2"><pre><span></span><span class="kn">import</span> <span class="nn">torch</span>
@@ -15597,7 +15747,63 @@ If the function adds a constant offset to the output, this will automatically be
 <div class="jp-OutputArea jp-Cell-outputArea">
 <div class="jp-OutputArea-child jp-OutputArea-executeResult">
     
-    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[10]:</div>
+    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[12]:</div>
+
+
+
+
+<div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
+<pre>tensor([3., 2.])</pre>
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+<div  class="jp-Cell jp-MarkdownCell jp-Notebook-cell">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
+</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
+<h2 id="Linear-Solves-with-Native-Tensors">Linear Solves with Native Tensors<a class="anchor-link" href="#Linear-Solves-with-Native-Tensors">&#182;</a></h2><p>When performing a linear solve without UnifyML tensors, the matrix must have shape (..., N, N) and <code>x0</code> and <code>b</code> must have shape (..., N)<code>where</code>...` denotes the batch dimensions.</p>
+
+</div>
+</div>
+</div>
+</div><div  class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[13]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-ipython2"><pre><span></span><span class="kn">import</span> <span class="nn">torch</span>
+
+<span class="n">A</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">([[</span><span class="mf">0.</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">]])</span>
+<span class="n">b</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">([</span><span class="mf">2.</span><span class="p">,</span> <span class="mi">3</span><span class="p">])</span>
+<span class="n">x0</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">([</span><span class="mf">0.</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
+<span class="n">math</span><span class="o">.</span><span class="n">solve_linear</span><span class="p">(</span><span class="n">A</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">Solve</span><span class="p">(</span><span class="n">x0</span><span class="o">=</span><span class="n">x0</span><span class="p">))</span>
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+<div class="jp-Cell-outputWrapper">
+<div class="jp-Collapser jp-OutputCollapser jp-Cell-outputCollapser">
+</div>
+
+
+<div class="jp-OutputArea jp-Cell-outputArea">
+<div class="jp-OutputArea-child jp-OutputArea-executeResult">
+    
+    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[13]:</div>
 
 
 
