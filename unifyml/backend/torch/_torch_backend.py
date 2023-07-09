@@ -814,6 +814,7 @@ class TorchBackend(Backend):
         batch_size = self.staticshape(y)[0]
         y = self.to_float(y)
         x0 = self.copy(self.to_float(x0))
+        lin, y, x0 = self.auto_cast(lin, y, x0)
         rtol = self.as_tensor(rtol)
         atol = self.as_tensor(atol)
         tol_sq = self.maximum(rtol ** 2 * self.sum(y ** 2, -1), atol ** 2)
@@ -829,6 +830,7 @@ class TorchBackend(Backend):
         batch_size = self.staticshape(y)[0]
         y = self.to_float(y)
         x0 = self.copy(self.to_float(x0))
+        lin, y, x0 = self.auto_cast(lin, y, x0)
         rtol = self.as_tensor(rtol)
         atol = self.as_tensor(atol)
         tol_sq = self.maximum(rtol ** 2 * self.sum(y ** 2, -1), atol ** 2)
