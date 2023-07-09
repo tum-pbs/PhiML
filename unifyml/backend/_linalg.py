@@ -469,8 +469,9 @@ def incomplete_lu_coo(indices, values, shape: Tuple[int, int], iterations: int, 
             Rank deficiencies of 1 occur frequently in periodic settings but higher ones are rare.
 
     Returns:
-        L: tuple `(indices, values)` where `indices` is a NumPy array and values is backend-specific
-        U: tuple `(indices, values)` where `indices` is a NumPy array and values is backend-specific
+        L: tuple `(indices, values)` where `indices` is a (batch_size, lower_nnz, 2) NumPy array and values is a (batch_size, lower_nnz, 1) backend-specific tensor.
+            The lower-triangular matrix always has a unit diagonal which is included in the indices / values.
+        U: tuple `(indices, values)` where `indices` is a NumPy array and values is a backend-specific tensor.
     """
     assert isinstance(indices, np.ndarray), "incomplete_lu_coo indices must be a NumPy array"
     b = choose_backend(indices, values)
@@ -485,20 +486,26 @@ def incomplete_lu_coo(indices, values, shape: Tuple[int, int], iterations: int, 
     diagonal_indices = np.expand_dims(get_lower_diagonal_indices(row, col, shape), -1)  # indices of corresponding values that lie on the diagonal
     is_diagonal = np.expand_dims(row == col, -1)
     is_diagonal_b = b.cast(is_diagonal, b.dtype(values))
+    # --- Initialize U as the diagonal of A, then compute off-diagonal of L ---
+    lower = values / b.batched_gather_nd(values, diagonal_indices)  # Since U=diag(A), L can be computed by a simple division
+    lu = values * is_diagonal_b + lower * b.cast(is_lower_b, b.dtype(values))  # combine lower + diag(A) + 0
+    # --- If the matrix is already triangular, we don't have to do anything ---
+    if np.all(~is_lower):  # upper triangular
+        diag_i = np.arange(rows)[None, :, None]
+        diag_ij = np.tile(diag_i, [batch_size, 1, 2])
+        return (diag_ij, b.ones((batch_size, rows, 1), b.dtype(values))), (indices, values)
+    # --- Indexing helper arrays ---
     mm_above, mm_left, mm_is_valid = strict_lu_mm_pattern_coo_batched(row, col, rows, cols)
     mm_above = b.as_tensor(np.expand_dims(mm_above, -1))
     mm_left = b.as_tensor(np.expand_dims(mm_left, -1))
     mm_is_valid = b.as_tensor(np.expand_dims(mm_is_valid, -1))
-    # --- Initialize U as the diagonal of A, then compute off-diagonal of L ---
-    lower = values / b.batched_gather_nd(values, diagonal_indices)  # Since U=diag(A), L can be computed by a simple division
-    lu = values * is_diagonal_b + lower * b.cast(is_lower_b, b.dtype(values))  # combine lower + diag(A) + 0
     # --- Fixed-point iterations ---
     for sweep in range(iterations):
         diag = b.batched_gather_nd(lu, diagonal_indices)  # should never contain 0
         sum_l_u = b.einsum('bnkc,bnkc->bnc', b.batched_gather_nd(lu, mm_above) * mm_is_valid, b.batched_gather_nd(lu, mm_left))
         l = (values - sum_l_u) / diag if not safe else b.divide_no_nan(values - sum_l_u, diag)
         lu = b.where(is_lower_b, l, values - sum_l_u)
-    # --- Assemble L=lower+unit_diagonal and U. If nnz varies along batch, keep the full sparsity pattern ---
+    # --- Assemble L=lower+unit_diagonal and U+diagonal. If nnz varies along batch, keep the full sparsity pattern ---
     u_values = b.where(~is_lower_b, lu, 0)
     belongs_to_lower = (is_lower | is_diagonal)
     l_values = b.where(is_lower_b, lu, is_diagonal_b)
@@ -561,6 +568,8 @@ def compress_strict_lower_triangular_rows(row, col, rows):
     is_lower = row > col
     below_diagonal = np.where(is_lower)
     row_lower = row[below_diagonal]
+    if row_lower.size == 0:
+        return np.empty((0, rows))
     num_in_row = get_index_in_row(row_lower, col[below_diagonal])
     lower_entries_by_row = np.zeros((np.max(num_in_row)+1, rows), dtype=row.dtype) - 1
     lower_entries_by_row[num_in_row, row_lower] = below_diagonal

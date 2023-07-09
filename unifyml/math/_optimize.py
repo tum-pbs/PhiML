@@ -733,7 +733,10 @@ def compute_preconditioner(method: str, matrix: Tensor, safe=False, target_backe
         entry_count = stored_values(matrix).shape.volume
         avg_entries_per_element = entry_count / n
         d = (avg_entries_per_element - 1) / 2
-        if _TRACING_JIT and matrix.available:
+        if d < 1:
+            iterations = 1
+            ML_LOGGER.debug(f"factor_ilu: auto-selecting iterations={iterations} ({'variable matrix' if _TRACING_JIT else 'eager mode'}) for matrix {matrix}")
+        elif _TRACING_JIT and matrix.available:
             iterations = int(math.ceil(n ** (1 / d)))  # high-quality preconditioner when jit-compiling with constant matrix
             ML_LOGGER.debug(f"factor_ilu: auto-selecting iterations={iterations} (constant matrix) for matrix {matrix}")
         else:
