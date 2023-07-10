@@ -25,10 +25,11 @@ Check out the corresponding introductory [▶ tutorial video]() as well!
 * [Matrices and automatic matrix generation](Matrices.html)
 * [Linear solves](Linear_Solves.html)
 * [Non-uniform tensors](Non_Uniform.html)
-* [NumPy and constants](NumPy_Constants.html)
+* [NumPy for constants](NumPy_Constants.html)
 * [Selecting compute devices](Devices.html)
 * [Automatic differentiation](Autodiff.html)
 * [Just-in-time (JIT) compilation](JIT.html)
+* [Converting between Jax, PyTorch, TensorFlow, NumPy](Convert.html)
 * [What to avoid in UnifyML](Limitations.md)
 
 ## Neural Networks
