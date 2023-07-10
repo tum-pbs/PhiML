@@ -881,7 +881,7 @@ class TorchBackend(Backend):
             if np.prod(self.staticshape(loss)) == 1:
                 grads = torch.autograd.grad(loss, wrt_args)  # grad() cannot be called during jit trace
             else:
-                raise NotImplementedError()
+                raise NotImplementedError(f"Loss must be reduced to a scalar")
                 grads = torch.autograd.grad(loss, wrt_args, retain_graph=True)
             return (*output, *grads) if get_output else grads
         return eval_grad
