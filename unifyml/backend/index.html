@@ -218,6 +218,8 @@ Else, intermediately converts <code>tensor</code> to a NumPy array.</p>
         Tensor belonging to `backend`.
     &#34;&#34;&#34;
     backend = backend or default_backend()
+    if not isinstance(backend, Backend):
+        backend = get_backend(backend)
     current_backend = choose_backend(tensor, prefer_default=False)
     if backend.is_tensor(tensor, True) or backend is current_backend:
         return tensor
