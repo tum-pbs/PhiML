@@ -1685,6 +1685,27 @@ def init_backend(backend: str):
     return result
 
 
+def get_backend(backend):
+    if not isinstance(backend, str):
+        backend = backend.__name__
+    if not is_initialized(backend):
+        return init_backend(backend)[0]
+    else:
+        if backend == 'numpy':
+            from . import NUMPY
+            return NUMPY
+        elif backend == 'jax':
+            from .jax import JAX
+            return JAX
+        elif backend == 'torch':
+            from .torch import TORCH
+            return TORCH
+        elif backend == 'tensorflow':
+            from .tensorflow import TENSORFLOW
+            return TENSORFLOW
+    raise ValueError(backend)
+
+
 def is_initialized(backend: str) -> bool:
     """
     Checks whether a specific backend has been successfully initialized and can be used from UnifyML.
@@ -1816,6 +1837,8 @@ def convert(tensor, backend: Backend = None, use_dlpack=True):
         Tensor belonging to `backend`.
     """
     backend = backend or default_backend()
+    if not isinstance(backend, Backend):
+        backend = get_backend(backend)
     current_backend = choose_backend(tensor, prefer_default=False)
     if backend.is_tensor(tensor, True) or backend is current_backend:
         return tensor
