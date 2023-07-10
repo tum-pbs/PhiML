@@ -121,7 +121,7 @@ Here's the gist:
 
 ## Examples
 
-The following three examples are taken from the [<img src="https://www.tensorflow.org/images/colab_logo_32px.png" height=16>](https://colab.research.google.com/github/holl-/UnifyML/blob/main/docs/Examples.ipynb) [examples notebook](https://holl-.github.io/UnifyML/Examples.html) where they are explained in more detail.
+The following three examples are taken from the [<img src="https://www.tensorflow.org/images/colab_logo_32px.png" height=16>](https://colab.research.google.com/github/holl-/UnifyML/blob/main/docs/Examples.ipynb) [examples notebook](https://holl-.github.io/UnifyML/Examples.html) where you can also find examples on automatic differentiation, JIT compilation, and more.
 You can change the `math.use(...)` statements to any of the supported ML libraries.
 
 ### Training an MLP
@@ -149,80 +149,6 @@ for i in range(100):
 We didn't even have to import `torch` in this example since all calls were routed through UnifyML.
 
 
-### Pairwise Distances
-
-The following function takes a (possibly batched) tensor of positions and computes the distance matrix.
-
-```python
-from unifyml import math  # uses NumPy by default
-
-def pairwise_distances(x: math.Tensor):
-    dx = math.rename_dims(x, 'points', 'others') - x
-    return math.vec_length(dx)
-
-x = math.random_normal(math.instance(points=3), math.channel(vector="x,y"))
-math.print(pairwise_distances(x))
-```
-
-Inside `pairwise_distances`, we rename 'points' to 'others'.
-When taking the difference, UnifyML automatically expands both operands by the missing dimensions, adding 'points' to the first argument and 'others' to the second.
-An explanation of this automatic reshaping is given [here](https://holl-.github.io/UnifyML/Shapes.html).
-
-### Automatic Differentiation
-
-Next, let's compute the [gradient](https://holl-.github.io/UnifyML/Autodiff.html) of some function of *(x,y)* w.r.t. *x*.
-
-```python
-from unifyml import math
-math.use('jax')
-
-def function(x, y):
-    return x ** 2 * y
-
-gradient_x = math.gradient(function, wrt='x', get_output=False)
-print(gradient_x(2, 1))
-```
-
-### JIT compilation
-
-UnifyML provides two types of [JIT compilation](https://holl-.github.io/UnifyML/JIT.html): the generic [`jit_compile`](https://holl-.github.io/UnifyML/unifyml/math#unifyml.math.jit_compile) calls the corresponding library function while [`jit_compile_linear`](https://holl-.github.io/UnifyML/unifyml/math#unifyml.math.jit_compile_linear) builds an [explicit representation for linear functions](https://holl-.github.io/UnifyML/Matrices.html#Tracing).
-
-```python
-from unifyml import math
-math.use('tensorflow')
-
-@math.jit_compile(auxiliary_args='divide_by_y')
-def function(x, y, divide_by_y=False):
-    if divide_by_y:
-        return x ** 2 / y
-    else:
-        return x ** 2 * y
-
-function(2, 2, False)
-```
-
-Here, we declare `divide_by_y` as an auxiliary argument to force the function to be re-traced when its value changes.
-Otherwise, its concrete value would not be available inside the function and could not be used within an `if` clause.
-
-JIT compilation of linear functions is also supported on NumPy.
-
-```python
-from unifyml import math
-math.use('numpy')
-
-@math.jit_compile_linear(auxiliary_args='compute_laplace')
-def optional_sp_grad(x, compute_gradient):
-    if compute_gradient:
-        return math.spatial_gradient(x)
-    else:
-        return -x
-
-optional_sp_grad(math.linspace(0, 1, math.spatial(x=10)), True)
-```
-
-Here, an [explicit sparse matrix representation](https://holl-.github.io/UnifyML/Matrices.html#Tracing) of `optional_sp_grad` is computed each time a new value of `compute_gradient` is passed.
-
-
 ### Solving a sparse linear system with preconditioners
 
 UnifyML supports [solving dense as well as sparse linear systems](https://holl-.github.io/UnifyML/Linear_Solves.html) and can [build an explicit matrix representation from linear Python functions](https://holl-.github.io/UnifyML/Matrices.html) in order to compute preconditioners.
@@ -246,16 +172,6 @@ Note that if you JIT-compile the [`math.solve_linear()`](https://holl-.github.io
 The L and U matrices then enter the computational graph as constants and are not recomputed every time the function is called.
 
 
-
-## Further Documentation
-
-[📖 **Overview**](https://holl-.github.io/UnifyML/)
-&nbsp; • &nbsp; [🔗 **API**](https://holl-.github.io/UnifyML/unifyml/)
-&nbsp; • &nbsp; [**▶ Videos**]()
-&nbsp; • &nbsp; [<img src="https://www.tensorflow.org/images/colab_logo_32px.png" height=16>](https://colab.research.google.com/github/holl-/UnifyML/blob/main/docs/Introduction.ipynb) [**Introduction**](https://holl-.github.io/UnifyML/Introduction.html)
-&nbsp; • &nbsp; [<img src="https://www.tensorflow.org/images/colab_logo_32px.png" height=16>](https://colab.research.google.com/github/holl-/UnifyML/blob/main/docs/Examples.ipynb) [**Examples**](https://holl-.github.io/UnifyML/Examples.html)
-
-
 ## Contributions
 
 Contributions are welcome!
@@ -271,4 +187,4 @@ We are in the process of submitting a paper. Updates will follow.
 
 ## Projects using UnifyML
 
-UnifyML is used by the simulation framework [UnifyML](https://github.com/tum-pbs/PhiFlow) to integrate differentiable simulations with machine learning.
+UnifyML is used by the simulation framework [Φ<sub>Flow</sub>](https://github.com/tum-pbs/PhiFlow) to integrate differentiable simulations with machine learning.
