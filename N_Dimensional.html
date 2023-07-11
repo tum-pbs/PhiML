@@ -15116,7 +15116,7 @@ body[data-format='mobile'] .jp-OutputArea-child .jp-OutputArea-output {
   •   <a href="https://holl-.github.io/UnifyML/unifyml">🔗 <strong>API</strong></a>
   •   <a href=""><strong>▶ Videos</strong></a>
   •   <a href="https://colab.research.google.com/github/holl-/UnifyML/blob/main/docs/Examples.ipynb"><img src="images/colab_logo_small.png" height=4></a> <a href="https://holl-.github.io/UnifyML/Examples.html"><strong>Examples</strong></a></p>
-<p>This notebook is work in progress.</p>
+<p>UnifyML's <a href="Shapes.html">dimension types</a> allow you to write abstract code that scales with the number of <em>spatial</em> dimensions.</p>
 
 </div>
 </div>
@@ -15126,10 +15126,14 @@ body[data-format='mobile'] .jp-OutputArea-child .jp-OutputArea-output {
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[1]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython2"><pre><span></span> 
+<div class=" highlight hl-ipython2"><pre><span></span><span class="o">%%capture</span>
+<span class="err">!</span><span class="n">pip</span> <span class="n">install</span> <span class="n">unifyml</span>
+
+<span class="kn">from</span> <span class="nn">unifyml</span> <span class="kn">import</span> <span class="n">math</span>
+<span class="kn">from</span> <span class="nn">unifyml.math</span> <span class="kn">import</span> <span class="n">spatial</span><span class="p">,</span> <span class="n">channel</span><span class="p">,</span> <span class="n">instance</span>
 </pre></div>
 
      </div>
@@ -15144,7 +15148,630 @@ body[data-format='mobile'] .jp-OutputArea-child .jp-OutputArea-output {
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<p>Performing an FFT on <code>x</code> will check for the number of spatial dimensions and select the appropriate algorithm (2D-FFT).</p>
+<h2 id="Grids">Grids<a class="anchor-link" href="#Grids">&#182;</a></h2><p>Grids are a popular data structure that in <em>n</em> dimensions.
+In UnifyML, each axis of the grid is represented by a spatial dimension.</p>
+
+</div>
+</div>
+</div>
+</div><div  class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[2]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-ipython2"><pre><span></span><span class="n">grid_1d</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">random_uniform</span><span class="p">(</span><span class="n">spatial</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="mi">5</span><span class="p">))</span>
+<span class="n">grid_2d</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">random_uniform</span><span class="p">(</span><span class="n">spatial</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="mi">3</span><span class="p">))</span>
+<span class="n">grid_3d</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">random_uniform</span><span class="p">(</span><span class="n">spatial</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="mi">16</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="mi">16</span><span class="p">,</span> <span class="n">z</span><span class="o">=</span><span class="mi">16</span><span class="p">))</span>
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+</div>
+<div  class="jp-Cell jp-MarkdownCell jp-Notebook-cell">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
+</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
+<p>Note that the dimension names are arbitrary.
+We chose <code>x</code>, <code>y</code>, <code>z</code> for readability.</p>
+<p>Now, let's write a function that outputs the mean of the direct neighbors of each cell.
+In 1D, this would be the stencil (.5, 0, .5) and in 2D (0, .25, 0; .25, 0, .25; 0, .25, 0).</p>
+
+</div>
+</div>
+</div>
+</div><div  class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[3]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-ipython2"><pre><span></span><span class="k">def</span> <span class="nf">neighbor_mean</span><span class="p">(</span><span class="n">grid</span><span class="p">):</span>
+    <span class="n">left</span><span class="p">,</span> <span class="n">right</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">shift</span><span class="p">(</span><span class="n">grid</span><span class="p">,</span> <span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="n">padding</span><span class="o">=</span><span class="n">math</span><span class="o">.</span><span class="n">extrapolation</span><span class="o">.</span><span class="n">PERIODIC</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">math</span><span class="o">.</span><span class="n">mean</span><span class="p">([</span><span class="n">left</span><span class="p">,</span> <span class="n">right</span><span class="p">],</span> <span class="n">math</span><span class="o">.</span><span class="n">non_spatial</span><span class="p">)</span>
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+</div>
+<div  class="jp-Cell jp-MarkdownCell jp-Notebook-cell">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
+</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
+<p>This function uses <a href="unifyml/math#unifyml.math.shift"><code>math.shift()</code></a> to access the left and right neighbor in each direction.
+By default, <code>shift</code> shifts in all spatial dimensions and lists the result along a new channel dimension.
+Then we can take the mean of the <code>right</code> and the <code>left</code> values to compute the mean of all neighbors.</p>
+<p>We can now evaluate the function in 1D, 2D, 3D, etc. and it will automatically derive the correct stencil.</p>
+
+</div>
+</div>
+</div>
+</div><div  class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[4]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-ipython2"><pre><span></span><span class="n">neighbor_mean</span><span class="p">(</span><span class="n">grid_1d</span><span class="p">)</span>
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+<div class="jp-Cell-outputWrapper">
+<div class="jp-Collapser jp-OutputCollapser jp-Cell-outputCollapser">
+</div>
+
+
+<div class="jp-OutputArea jp-Cell-outputArea">
+<div class="jp-OutputArea-child jp-OutputArea-executeResult">
+    
+    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[4]:</div>
+
+
+
+
+<div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
+<pre><span class="ansi-blue-intense-fg">(0.383, 0.067, 0.533, 0.157, 0.370)</span> along <span class="ansi-green-intense-fg">xˢ</span></pre>
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+</div><div  class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[5]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-ipython2"><pre><span></span><span class="n">neighbor_mean</span><span class="p">(</span><span class="n">grid_2d</span><span class="p">)</span>
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+<div class="jp-Cell-outputWrapper">
+<div class="jp-Collapser jp-OutputCollapser jp-Cell-outputCollapser">
+</div>
+
+
+<div class="jp-OutputArea jp-Cell-outputArea">
+<div class="jp-OutputArea-child jp-OutputArea-executeResult">
+    
+    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[5]:</div>
+
+
+
+
+<div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
+<pre><span class="ansi-green-intense-fg">(xˢ=3, yˢ=3)</span> <span class="ansi-blue-intense-fg">0.597 ± 0.131</span> <span class="ansi-white-fg">(3e-01...7e-01)</span></pre>
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+</div><div  class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[6]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-ipython2"><pre><span></span><span class="n">neighbor_mean</span><span class="p">(</span><span class="n">grid_3d</span><span class="p">)</span>
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+<div class="jp-Cell-outputWrapper">
+<div class="jp-Collapser jp-OutputCollapser jp-Cell-outputCollapser">
+</div>
+
+
+<div class="jp-OutputArea jp-Cell-outputArea">
+<div class="jp-OutputArea-child jp-OutputArea-executeResult">
+    
+    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[6]:</div>
+
+
+
+
+<div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
+<pre><span class="ansi-green-intense-fg">(xˢ=16, yˢ=16, zˢ=16)</span> <span class="ansi-blue-intense-fg">0.502 ± 0.116</span> <span class="ansi-white-fg">(1e-01...9e-01)</span></pre>
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+<div  class="jp-Cell jp-MarkdownCell jp-Notebook-cell">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
+</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
+<p>To make sure that the stencil is correct, we can look at the <a href="Matrices.html">matrix representation</a> of our function.</p>
+
+</div>
+</div>
+</div>
+</div><div  class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[7]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-ipython2"><pre><span></span><span class="n">math</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">matrix_from_function</span><span class="p">(</span><span class="n">neighbor_mean</span><span class="p">,</span> <span class="n">grid_1d</span><span class="p">)[</span><span class="mi">0</span><span class="p">])</span>
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+<div class="jp-Cell-outputWrapper">
+<div class="jp-Collapser jp-OutputCollapser jp-Cell-outputCollapser">
+</div>
+
+
+<div class="jp-OutputArea jp-Cell-outputArea">
+<div class="jp-OutputArea-child">
+    
+    <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+
+
+<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
+<pre><span class="ansi-green-intense-fg">x=0</span>    <span class="ansi-blue-intense-fg"> 0.   0.5  0.   0.   0.5 </span> along <span class="ansi-green-intense-fg">~x</span>
+<span class="ansi-green-intense-fg">x=1</span>    <span class="ansi-blue-intense-fg"> 0.5  0.   0.5  0.   0.  </span> along <span class="ansi-green-intense-fg">~x</span>
+<span class="ansi-green-intense-fg">x=2</span>    <span class="ansi-blue-intense-fg"> 0.   0.5  0.   0.5  0.  </span> along <span class="ansi-green-intense-fg">~x</span>
+<span class="ansi-green-intense-fg">x=3</span>    <span class="ansi-blue-intense-fg"> 0.   0.   0.5  0.   0.5 </span> along <span class="ansi-green-intense-fg">~x</span>
+<span class="ansi-green-intense-fg">x=4</span>    <span class="ansi-blue-intense-fg"> 0.5  0.   0.   0.5  0.  </span> along <span class="ansi-green-intense-fg">~x</span>
+</pre>
+</div>
+</div>
+
+</div>
+
+</div>
+
+</div><div  class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[8]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-ipython2"><pre><span></span><span class="n">math</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">matrix_from_function</span><span class="p">(</span><span class="n">neighbor_mean</span><span class="p">,</span> <span class="n">grid_2d</span><span class="p">)[</span><span class="mi">0</span><span class="p">])</span>
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+<div class="jp-Cell-outputWrapper">
+<div class="jp-Collapser jp-OutputCollapser jp-Cell-outputCollapser">
+</div>
+
+
+<div class="jp-OutputArea jp-Cell-outputArea">
+<div class="jp-OutputArea-child">
+    
+    <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+
+
+<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
+<pre><span class="ansi-green-intense-fg">x&amp;y=0</span>    <span class="ansi-blue-intense-fg"> 0.    0.25  0.25  0.25  0.    0.    0.25  0.    0.   </span> along <span class="ansi-green-intense-fg">~x&amp;~y</span>
+<span class="ansi-green-intense-fg">x&amp;y=1</span>    <span class="ansi-blue-intense-fg"> 0.25  0.    0.25  0.    0.25  0.    0.    0.25  0.   </span> along <span class="ansi-green-intense-fg">~x&amp;~y</span>
+<span class="ansi-green-intense-fg">x&amp;y=2</span>    <span class="ansi-blue-intense-fg"> 0.25  0.25  0.    0.    0.    0.25  0.    0.    0.25 </span> along <span class="ansi-green-intense-fg">~x&amp;~y</span>
+<span class="ansi-green-intense-fg">x&amp;y=3</span>    <span class="ansi-blue-intense-fg"> 0.25  0.    0.    0.    0.25  0.25  0.25  0.    0.   </span> along <span class="ansi-green-intense-fg">~x&amp;~y</span>
+<span class="ansi-green-intense-fg">x&amp;y=4</span>    <span class="ansi-blue-intense-fg"> 0.    0.25  0.    0.25  0.    0.25  0.    0.25  0.   </span> along <span class="ansi-green-intense-fg">~x&amp;~y</span>
+<span class="ansi-green-intense-fg">x&amp;y=5</span>    <span class="ansi-blue-intense-fg"> 0.    0.    0.25  0.25  0.25  0.    0.    0.    0.25 </span> along <span class="ansi-green-intense-fg">~x&amp;~y</span>
+<span class="ansi-green-intense-fg">x&amp;y=6</span>    <span class="ansi-blue-intense-fg"> 0.25  0.    0.    0.25  0.    0.    0.    0.25  0.25 </span> along <span class="ansi-green-intense-fg">~x&amp;~y</span>
+<span class="ansi-green-intense-fg">x&amp;y=7</span>    <span class="ansi-blue-intense-fg"> 0.    0.25  0.    0.    0.25  0.    0.25  0.    0.25 </span> along <span class="ansi-green-intense-fg">~x&amp;~y</span>
+<span class="ansi-green-intense-fg">x&amp;y=8</span>    <span class="ansi-blue-intense-fg"> 0.    0.    0.25  0.    0.    0.25  0.25  0.25  0.   </span> along <span class="ansi-green-intense-fg">~x&amp;~y</span>
+</pre>
+</div>
+</div>
+
+</div>
+
+</div>
+
+</div>
+<div  class="jp-Cell jp-MarkdownCell jp-Notebook-cell">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
+</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
+<p>The same principle holds for all grid functions in the <code>unifyml.math</code> library.
+For example, if we perform a Fourier transform, the algorithm will be selected based on the number of spatial dimensions.
+A 1D FFT will always be performed on our 1D grid, even if we add additional non-spatial dimensions.</p>
+
+</div>
+</div>
+</div>
+</div><div  class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[9]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-ipython2"><pre><span></span><span class="n">math</span><span class="o">.</span><span class="n">fft</span><span class="p">(</span><span class="n">grid_1d</span><span class="p">)</span>  <span class="c1"># 1D FFT</span>
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+<div class="jp-Cell-outputWrapper">
+<div class="jp-Collapser jp-OutputCollapser jp-Cell-outputCollapser">
+</div>
+
+
+<div class="jp-OutputArea jp-Cell-outputArea">
+<div class="jp-OutputArea-child jp-OutputArea-executeResult">
+    
+    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[9]:</div>
+
+
+
+
+<div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
+<pre><span class="ansi-blue-intense-fg">((1.5103424+0j), (-0.13087182+0.21758647j), (-0.2996606-0.6619409j), (-0.2996606+0.6619409j), (-0.13087182-0.21758647j))</span> along <span class="ansi-green-intense-fg">xˢ</span> <span class="ansi-yellow-intense-fg">complex64</span></pre>
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+</div><div  class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[10]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-ipython2"><pre><span></span><span class="n">math</span><span class="o">.</span><span class="n">fft</span><span class="p">(</span><span class="n">grid_2d</span><span class="p">)</span>  <span class="c1"># 2D FFT</span>
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+<div class="jp-Cell-outputWrapper">
+<div class="jp-Collapser jp-OutputCollapser jp-Cell-outputCollapser">
+</div>
+
+
+<div class="jp-OutputArea jp-Cell-outputArea">
+<div class="jp-OutputArea-child jp-OutputArea-executeResult">
+    
+    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[10]:</div>
+
+
+
+
+<div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
+<pre><span class="ansi-green-intense-fg">(xˢ=3, yˢ=3)</span> <span class="ansi-yellow-intense-fg">complex64</span> <span class="ansi-blue-intense-fg">|...| &lt; 5.368582725524902</span></pre>
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+</div><div  class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[11]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-ipython2"><pre><span></span><span class="n">math</span><span class="o">.</span><span class="n">fft</span><span class="p">(</span><span class="n">grid_3d</span><span class="p">)</span>  <span class="c1"># 3D FFT</span>
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+<div class="jp-Cell-outputWrapper">
+<div class="jp-Collapser jp-OutputCollapser jp-Cell-outputCollapser">
+</div>
+
+
+<div class="jp-OutputArea jp-Cell-outputArea">
+<div class="jp-OutputArea-child jp-OutputArea-executeResult">
+    
+    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[11]:</div>
+
+
+
+
+<div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
+<pre><span class="ansi-green-intense-fg">(xˢ=16, yˢ=16, zˢ=16)</span> <span class="ansi-yellow-intense-fg">complex64</span> <span class="ansi-blue-intense-fg">|...| &lt; 2054.580078125</span></pre>
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+<div  class="jp-Cell jp-MarkdownCell jp-Notebook-cell">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
+</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
+<h2 id="Dimensions-as-Components">Dimensions as Components<a class="anchor-link" href="#Dimensions-as-Components">&#182;</a></h2><p>Not all applications involving physical space use grids to represent data.
+Take point clouds or particles for instance.
+In these cases, we would represent the dimensionality not by the number of spatial dimensions but by the number of vector components.</p>
+
+</div>
+</div>
+</div>
+</div><div  class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[12]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-ipython2"><pre><span></span><span class="n">points_1d</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">random_uniform</span><span class="p">(</span><span class="n">instance</span><span class="p">(</span><span class="n">points</span><span class="o">=</span><span class="mi">4</span><span class="p">),</span> <span class="n">channel</span><span class="p">(</span><span class="n">vector</span><span class="o">=</span><span class="s1">&#39;x&#39;</span><span class="p">))</span>
+<span class="n">points_2d</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">random_uniform</span><span class="p">(</span><span class="n">instance</span><span class="p">(</span><span class="n">points</span><span class="o">=</span><span class="mi">4</span><span class="p">),</span> <span class="n">channel</span><span class="p">(</span><span class="n">vector</span><span class="o">=</span><span class="s1">&#39;x,y&#39;</span><span class="p">))</span>
+<span class="n">points_3d</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">random_uniform</span><span class="p">(</span><span class="n">instance</span><span class="p">(</span><span class="n">points</span><span class="o">=</span><span class="mi">4</span><span class="p">),</span> <span class="n">channel</span><span class="p">(</span><span class="n">vector</span><span class="o">=</span><span class="s1">&#39;x,y,z&#39;</span><span class="p">))</span>
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+</div>
+<div  class="jp-Cell jp-MarkdownCell jp-Notebook-cell">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
+</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
+<p>In these cases, the generalization to <em>n</em> dimensions is usually trivial.
+Take the following function that computes the pairwise distances.</p>
+
+</div>
+</div>
+</div>
+</div><div  class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[13]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-ipython2"><pre><span></span><span class="k">def</span> <span class="nf">pairwise_distances</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">math</span><span class="o">.</span><span class="n">vec_length</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">rename_dims</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="s1">&#39;points&#39;</span><span class="p">,</span> <span class="s1">&#39;others&#39;</span><span class="p">)</span> <span class="o">-</span> <span class="n">x</span><span class="p">)</span>
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+</div>
+<div  class="jp-Cell jp-MarkdownCell jp-Notebook-cell">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
+</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
+<p>Here, we compute the distances between each pair of particles on a matrix with dimensions <code>points</code> and <code>others</code>.
+The intermediate matrix of position distances inherits the vector dimension from <code>x</code> and <a href="unifyml/math#unifyml.math.vec_length"><code>math.vec_length()</code></a> sums all components.
+Consequently, this function computes the correct distances in 1D, 2D and 3D.</p>
+
+</div>
+</div>
+</div>
+</div><div  class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[14]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-ipython2"><pre><span></span><span class="n">pairwise_distances</span><span class="p">(</span><span class="n">points_1d</span><span class="p">)</span>
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+<div class="jp-Cell-outputWrapper">
+<div class="jp-Collapser jp-OutputCollapser jp-Cell-outputCollapser">
+</div>
+
+
+<div class="jp-OutputArea jp-Cell-outputArea">
+<div class="jp-OutputArea-child jp-OutputArea-executeResult">
+    
+    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[14]:</div>
+
+
+
+
+<div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
+<pre><span class="ansi-green-intense-fg">(othersⁱ=4, pointsⁱ=4)</span> <span class="ansi-blue-intense-fg">0.351 ± 0.301</span> <span class="ansi-white-fg">(0e+00...8e-01)</span></pre>
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+</div><div  class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[15]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-ipython2"><pre><span></span><span class="n">pairwise_distances</span><span class="p">(</span><span class="n">points_2d</span><span class="p">)</span>
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+<div class="jp-Cell-outputWrapper">
+<div class="jp-Collapser jp-OutputCollapser jp-Cell-outputCollapser">
+</div>
+
+
+<div class="jp-OutputArea jp-Cell-outputArea">
+<div class="jp-OutputArea-child jp-OutputArea-executeResult">
+    
+    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[15]:</div>
+
+
+
+
+<div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
+<pre><span class="ansi-green-intense-fg">(othersⁱ=4, pointsⁱ=4)</span> <span class="ansi-blue-intense-fg">0.404 ± 0.351</span> <span class="ansi-white-fg">(0e+00...1e+00)</span></pre>
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+</div><div  class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[16]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-ipython2"><pre><span></span><span class="n">pairwise_distances</span><span class="p">(</span><span class="n">points_3d</span><span class="p">)</span>
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+<div class="jp-Cell-outputWrapper">
+<div class="jp-Collapser jp-OutputCollapser jp-Cell-outputCollapser">
+</div>
+
+
+<div class="jp-OutputArea jp-Cell-outputArea">
+<div class="jp-OutputArea-child jp-OutputArea-executeResult">
+    
+    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[16]:</div>
+
+
+
+
+<div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
+<pre><span class="ansi-green-intense-fg">(othersⁱ=4, pointsⁱ=4)</span> <span class="ansi-blue-intense-fg">0.591 ± 0.384</span> <span class="ansi-white-fg">(0e+00...1e+00)</span></pre>
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+<div  class="jp-Cell jp-MarkdownCell jp-Notebook-cell">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
+</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
+<h2 id="Further-Reading">Further Reading<a class="anchor-link" href="#Further-Reading">&#182;</a></h2><p>Here, we focussed on spatial dimensions, but each <a href="Shapes.html">dimension type</a> plays a unique role in UnifyML.</p>
+<p><a href="https://github.com/holl-/UnifyML">🌐 <strong>UnifyML</strong></a>
+  •   <a href="https://holl-.github.io/UnifyML/unifyml/">📖 <strong>Documentation</strong></a>
+  •   <a href="https://holl-.github.io/UnifyML/unifyml">🔗 <strong>API</strong></a>
+  •   <a href=""><strong>▶ Videos</strong></a>
+  •   <a href="https://colab.research.google.com/github/holl-/UnifyML/blob/main/docs/Examples.ipynb"><img src="images/colab_logo_small.png" height=4></a> <a href="https://holl-.github.io/UnifyML/Examples.html"><strong>Examples</strong></a></p>
 
 </div>
 </div>
