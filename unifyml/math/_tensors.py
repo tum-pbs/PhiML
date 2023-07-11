@@ -2316,7 +2316,10 @@ def format_full(value: Tensor, options: PrintOptions) -> str:  # multi-line cont
             if options.include_shape is not None:
                 lines.append(colors.shape(value.shape))
             if value.shape.dual_rank > 1:
-                raise NotImplementedError("Multiple dual dimensions cannot currently be printed")
+                corresponding_primal = value.shape.only(spatial(','.join(dual(value).names)).names, reorder=True)
+                if corresponding_primal:
+                    value = pack_dims(value, corresponding_primal, corresponding_primal[0].dim_type('&'.join(corresponding_primal.names)))
+                value = pack_dims(value, dual, dual('&'.join(value.shape.dual.names)))
             dual_dim = dual(value).name
             primal = spatial(**dual(value).untyped_dict).name
             if primal not in value.shape:
