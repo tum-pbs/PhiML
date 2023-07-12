@@ -15510,7 +15510,7 @@ Both of these operations reduce all dimensions except for batch dimensions.</p>
     <span class="k">def</span> <span class="fm">__pow__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">power</span><span class="p">,</span> <span class="n">modulo</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">Vec</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x1</span> <span class="o">**</span> <span class="n">power</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">x2</span> <span class="o">**</span> <span class="n">power</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">__variable_attrs__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__value_attrs__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="s1">&#39;x1&#39;</span><span class="p">,</span> <span class="s1">&#39;x2&#39;</span>
 
 <span class="n">dx_function</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">Vec</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="n">y</span><span class="o">=</span><span class="mf">1.</span><span class="p">)</span>
@@ -15527,62 +15527,17 @@ Both of these operations reduce all dimensions except for batch dimensions.</p>
 
 
 <div class="jp-OutputArea jp-Cell-outputArea">
-<div class="jp-OutputArea-child">
+<div class="jp-OutputArea-child jp-OutputArea-executeResult">
     
-    <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[8]:</div>
 
 
-<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="application/vnd.jupyter.stderr">
-<pre>
-<span class="ansi-red-fg">---------------------------------------------------------------------------</span>
-<span class="ansi-red-fg">AttributeError</span>                            Traceback (most recent call last)
-Cell <span class="ansi-green-fg">In[8], line 17</span>
-<span class="ansi-green-intense-fg ansi-bold">     14</span>     <span class="ansi-bold" style="color: rgb(0,135,0)">def</span> <span style="color: rgb(0,0,255)">__variable_attrs__</span>(<span style="color: rgb(0,135,0)">self</span>):
-<span class="ansi-green-intense-fg ansi-bold">     15</span>         <span class="ansi-bold" style="color: rgb(0,135,0)">return</span> <span style="color: rgb(175,0,0)">&#39;</span><span style="color: rgb(175,0,0)">x1</span><span style="color: rgb(175,0,0)">&#39;</span>, <span style="color: rgb(175,0,0)">&#39;</span><span style="color: rgb(175,0,0)">x2</span><span style="color: rgb(175,0,0)">&#39;</span>
-<span class="ansi-green-fg">---&gt; 17</span> <span class="ansi-yellow-bg">dx_function</span><span class="ansi-yellow-bg">(</span><span class="ansi-yellow-bg">x</span><span class="ansi-yellow-bg" style="color: rgb(98,98,98)">=</span><span class="ansi-yellow-bg">Vec</span><span class="ansi-yellow-bg">(</span><span class="ansi-yellow-bg" style="color: rgb(98,98,98)">1</span><span class="ansi-yellow-bg">,</span><span class="ansi-yellow-bg"> </span><span class="ansi-yellow-bg" style="color: rgb(98,98,98)">2</span><span class="ansi-yellow-bg">)</span><span class="ansi-yellow-bg">,</span><span class="ansi-yellow-bg"> </span><span class="ansi-yellow-bg">y</span><span class="ansi-yellow-bg" style="color: rgb(98,98,98)">=</span><span class="ansi-yellow-bg" style="color: rgb(98,98,98)">1.</span><span class="ansi-yellow-bg">)</span>
 
-File <span class="ansi-green-fg">/opt/hostedtoolcache/Python/3.8.17/x64/lib/python3.8/site-packages/unifyml/math/_functional.py:481</span>, in <span class="ansi-cyan-fg">GradientFunction.__call__</span><span class="ansi-blue-fg">(self, *args, **kwargs)</span>
-<span class="ansi-green-intense-fg ansi-bold">    479</span> <span class="ansi-bold" style="color: rgb(0,135,0)">if</span> key <span class="ansi-bold" style="color: rgb(175,0,255)">not</span> <span class="ansi-bold" style="color: rgb(175,0,255)">in</span> <span style="color: rgb(0,135,0)">self</span><span style="color: rgb(98,98,98)">.</span>traces:
-<span class="ansi-green-intense-fg ansi-bold">    480</span>     <span style="color: rgb(0,135,0)">self</span><span style="color: rgb(98,98,98)">.</span>traces[key] <span style="color: rgb(98,98,98)">=</span> <span style="color: rgb(0,135,0)">self</span><span style="color: rgb(98,98,98)">.</span>_trace_grad(key, wrt_natives)
-<span class="ansi-green-fg">--&gt; 481</span> native_result <span style="color: rgb(98,98,98)">=</span> <span class="ansi-yellow-bg" style="color: rgb(0,135,0)">self</span><span class="ansi-yellow-bg" style="color: rgb(98,98,98)">.</span><span class="ansi-yellow-bg">traces</span><span class="ansi-yellow-bg">[</span><span class="ansi-yellow-bg">key</span><span class="ansi-yellow-bg">]</span><span class="ansi-yellow-bg">(</span><span class="ansi-yellow-bg" style="color: rgb(98,98,98)">*</span><span class="ansi-yellow-bg">natives</span><span class="ansi-yellow-bg">)</span>
-<span class="ansi-green-intense-fg ansi-bold">    482</span> output_key <span style="color: rgb(98,98,98)">=</span> match_output_signature(key, <span style="color: rgb(0,135,0)">self</span><span style="color: rgb(98,98,98)">.</span>recorded_mappings, <span style="color: rgb(0,135,0)">self</span>)
-<span class="ansi-green-intense-fg ansi-bold">    483</span> jac_shape <span style="color: rgb(98,98,98)">=</span> output_key<span style="color: rgb(98,98,98)">.</span>shapes[<span style="color: rgb(98,98,98)">0</span>]<span style="color: rgb(98,98,98)">.</span>non_batch  <span style="color: rgb(95,135,135)"># ToDo prepend this to all wrt shapes</span>
 
-File <span class="ansi-green-fg">/opt/hostedtoolcache/Python/3.8.17/x64/lib/python3.8/site-packages/unifyml/backend/torch/_torch_backend.py:880</span>, in <span class="ansi-cyan-fg">TorchBackend.jacobian.&lt;locals&gt;.eval_grad</span><span class="ansi-blue-fg">(*args)</span>
-<span class="ansi-green-intense-fg ansi-bold">    877</span> <span style="color: rgb(175,0,255)">@wraps</span>(f)
-<span class="ansi-green-intense-fg ansi-bold">    878</span> <span class="ansi-bold" style="color: rgb(0,135,0)">def</span> <span style="color: rgb(0,0,255)">eval_grad</span>(<span style="color: rgb(98,98,98)">*</span>args):
-<span class="ansi-green-intense-fg ansi-bold">    879</span>     args, wrt_args <span style="color: rgb(98,98,98)">=</span> <span style="color: rgb(0,135,0)">self</span><span style="color: rgb(98,98,98)">.</span>_prepare_graph_inputs(args, wrt)
-<span class="ansi-green-fg">--&gt; 880</span>     loss, output <span style="color: rgb(98,98,98)">=</span> <span class="ansi-yellow-bg">f</span><span class="ansi-yellow-bg">(</span><span class="ansi-yellow-bg" style="color: rgb(98,98,98)">*</span><span class="ansi-yellow-bg">args</span><span class="ansi-yellow-bg">)</span>
-<span class="ansi-green-intense-fg ansi-bold">    881</span>     <span class="ansi-bold" style="color: rgb(0,135,0)">if</span> np<span style="color: rgb(98,98,98)">.</span>prod(<span style="color: rgb(0,135,0)">self</span><span style="color: rgb(98,98,98)">.</span>staticshape(loss)) <span style="color: rgb(98,98,98)">==</span> <span style="color: rgb(98,98,98)">1</span>:
-<span class="ansi-green-intense-fg ansi-bold">    882</span>         grads <span style="color: rgb(98,98,98)">=</span> torch<span style="color: rgb(98,98,98)">.</span>autograd<span style="color: rgb(98,98,98)">.</span>grad(loss, wrt_args)  <span style="color: rgb(95,135,135)"># grad() cannot be called during jit trace</span>
-
-File <span class="ansi-green-fg">/opt/hostedtoolcache/Python/3.8.17/x64/lib/python3.8/site-packages/unifyml/math/_functional.py:449</span>, in <span class="ansi-cyan-fg">GradientFunction._trace_grad.&lt;locals&gt;.f_native</span><span class="ansi-blue-fg">(*natives)</span>
-<span class="ansi-green-intense-fg ansi-bold">    447</span> kwargs <span style="color: rgb(98,98,98)">=</span> assemble_tree(in_key<span style="color: rgb(98,98,98)">.</span>tree, in_tensors)
-<span class="ansi-green-intense-fg ansi-bold">    448</span> <span class="ansi-bold" style="color: rgb(0,135,0)">with</span> functional_derivative_evaluation(order<span style="color: rgb(98,98,98)">=</span><span style="color: rgb(98,98,98)">1</span>):
-<span class="ansi-green-fg">--&gt; 449</span>     result <span style="color: rgb(98,98,98)">=</span> <span class="ansi-yellow-bg" style="color: rgb(0,135,0)">self</span><span class="ansi-yellow-bg" style="color: rgb(98,98,98)">.</span><span class="ansi-yellow-bg">f</span><span class="ansi-yellow-bg">(</span><span class="ansi-yellow-bg" style="color: rgb(98,98,98)">*</span><span class="ansi-yellow-bg" style="color: rgb(98,98,98)">*</span><span class="ansi-yellow-bg">kwargs</span><span class="ansi-yellow-bg">)</span>  <span style="color: rgb(95,135,135)"># Tensor or tuple/list of Tensors</span>
-<span class="ansi-green-intense-fg ansi-bold">    450</span> loss <span style="color: rgb(98,98,98)">=</span> result[<span style="color: rgb(98,98,98)">0</span>] <span class="ansi-bold" style="color: rgb(0,135,0)">if</span> <span style="color: rgb(0,135,0)">isinstance</span>(result, (<span style="color: rgb(0,135,0)">tuple</span>, <span style="color: rgb(0,135,0)">list</span>)) <span class="ansi-bold" style="color: rgb(0,135,0)">else</span> result
-<span class="ansi-green-intense-fg ansi-bold">    451</span> <span class="ansi-bold" style="color: rgb(0,135,0)">if</span> <span style="color: rgb(0,135,0)">isinstance</span>(loss, Tensor):
-
-Cell <span class="ansi-green-fg">In[6], line 2</span>, in <span class="ansi-cyan-fg">loss_function</span><span class="ansi-blue-fg">(x, y)</span>
-<span class="ansi-green-intense-fg ansi-bold">      1</span> <span class="ansi-bold" style="color: rgb(0,135,0)">def</span> <span style="color: rgb(0,0,255)">loss_function</span>(x, y):
-<span class="ansi-green-fg">----&gt; 2</span>     <span class="ansi-bold" style="color: rgb(0,135,0)">return</span> <span class="ansi-yellow-bg">math</span><span class="ansi-yellow-bg" style="color: rgb(98,98,98)">.</span><span class="ansi-yellow-bg">l2_loss</span><span class="ansi-yellow-bg">(</span><span class="ansi-yellow-bg">x</span><span class="ansi-yellow-bg"> </span><span class="ansi-yellow-bg" style="color: rgb(98,98,98)">*</span><span class="ansi-yellow-bg" style="color: rgb(98,98,98)">*</span><span class="ansi-yellow-bg"> </span><span class="ansi-yellow-bg" style="color: rgb(98,98,98)">2</span><span class="ansi-yellow-bg"> </span><span class="ansi-yellow-bg" style="color: rgb(98,98,98)">*</span><span class="ansi-yellow-bg"> </span><span class="ansi-yellow-bg">y</span><span class="ansi-yellow-bg">)</span>
-
-File <span class="ansi-green-fg">/opt/hostedtoolcache/Python/3.8.17/x64/lib/python3.8/site-packages/unifyml/math/_nd.py:258</span>, in <span class="ansi-cyan-fg">l2_loss</span><span class="ansi-blue-fg">(x, reduce)</span>
-<span class="ansi-green-intense-fg ansi-bold">    256</span>     <span class="ansi-bold" style="color: rgb(0,135,0)">return</span> math<span style="color: rgb(98,98,98)">.</span>sum_(x <span style="color: rgb(98,98,98)">*</span><span style="color: rgb(98,98,98)">*</span> <span style="color: rgb(98,98,98)">2</span>, reduce) <span style="color: rgb(98,98,98)">*</span> <span style="color: rgb(98,98,98)">0.5</span>
-<span class="ansi-green-intense-fg ansi-bold">    257</span> <span class="ansi-bold" style="color: rgb(0,135,0)">elif</span> <span style="color: rgb(0,135,0)">isinstance</span>(x, PhiTreeNode):
-<span class="ansi-green-fg">--&gt; 258</span>     <span class="ansi-bold" style="color: rgb(0,135,0)">return</span> <span style="color: rgb(0,135,0)">sum</span>([l2_loss(<span style="color: rgb(0,135,0)">getattr</span>(x, a), reduce) <span class="ansi-bold" style="color: rgb(0,135,0)">for</span> a <span class="ansi-bold" style="color: rgb(175,0,255)">in</span> <span class="ansi-yellow-bg">variable_values</span><span class="ansi-yellow-bg">(</span><span class="ansi-yellow-bg">x</span><span class="ansi-yellow-bg">)</span>])
-<span class="ansi-green-intense-fg ansi-bold">    259</span> <span class="ansi-bold" style="color: rgb(0,135,0)">else</span>:
-<span class="ansi-green-intense-fg ansi-bold">    260</span>     <span class="ansi-bold" style="color: rgb(0,135,0)">try</span>:
-
-File <span class="ansi-green-fg">/opt/hostedtoolcache/Python/3.8.17/x64/lib/python3.8/site-packages/unifyml/math/_magic_ops.py:633</span>, in <span class="ansi-cyan-fg">variable_values</span><span class="ansi-blue-fg">(obj)</span>
-<span class="ansi-green-intense-fg ansi-bold">    631</span> <span class="ansi-bold" style="color: rgb(0,135,0)">def</span> <span style="color: rgb(0,0,255)">variable_values</span>(obj) <span style="color: rgb(98,98,98)">-</span><span style="color: rgb(98,98,98)">&gt;</span> Tuple[<span style="color: rgb(0,135,0)">str</span>, <span style="color: rgb(98,98,98)">.</span><span style="color: rgb(98,98,98)">.</span><span style="color: rgb(98,98,98)">.</span>]:
-<span class="ansi-green-intense-fg ansi-bold">    632</span>     <span class="ansi-bold" style="color: rgb(0,135,0)">if</span> <span style="color: rgb(0,135,0)">hasattr</span>(obj, <span style="color: rgb(175,0,0)">&#39;</span><span style="color: rgb(175,0,0)">__variable_attrs__</span><span style="color: rgb(175,0,0)">&#39;</span>):
-<span class="ansi-green-fg">--&gt; 633</span>         values <span style="color: rgb(98,98,98)">=</span> <span class="ansi-yellow-bg">obj</span><span class="ansi-yellow-bg" style="color: rgb(98,98,98)">.</span><span class="ansi-yellow-bg">__value_attrs__</span>()
-<span class="ansi-green-intense-fg ansi-bold">    634</span>         variables <span style="color: rgb(98,98,98)">=</span> obj<span style="color: rgb(98,98,98)">.</span>__variable_attrs__()
-<span class="ansi-green-intense-fg ansi-bold">    635</span>         <span class="ansi-bold" style="color: rgb(0,135,0)">return</span> <span style="color: rgb(0,135,0)">tuple</span>([a <span class="ansi-bold" style="color: rgb(0,135,0)">for</span> a <span class="ansi-bold" style="color: rgb(175,0,255)">in</span> values <span class="ansi-bold" style="color: rgb(0,135,0)">if</span> a <span class="ansi-bold" style="color: rgb(175,0,255)">in</span> variables])
-
-<span class="ansi-red-fg">AttributeError</span>: &#39;Vec&#39; object has no attribute &#39;__value_attrs__&#39;</pre>
+<div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
+<pre>Vec(x1=tensor(2.), x2=tensor(16.))</pre>
 </div>
+
 </div>
 
 </div>
