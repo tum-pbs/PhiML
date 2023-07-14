@@ -15496,7 +15496,7 @@ If the function adds a constant offset to the output, this will automatically be
 
 
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="application/vnd.jupyter.stderr">
-<pre>/opt/hostedtoolcache/Python/3.8.16/x64/lib/python3.8/site-packages/unifyml/backend/torch/_torch_backend.py:752: UserWarning: Sparse CSR tensor support is in beta state. If you miss a functionality in the sparse tensor support, please submit a feature request to https://github.com/pytorch/pytorch/issues. (Triggered internally at ../aten/src/ATen/SparseCsrTensorImpl.cpp:54.)
+<pre>/opt/hostedtoolcache/Python/3.8.17/x64/lib/python3.8/site-packages/unifyml/backend/torch/_torch_backend.py:752: UserWarning: Sparse CSR tensor support is in beta state. If you miss a functionality in the sparse tensor support, please submit a feature request to https://github.com/pytorch/pytorch/issues. (Triggered internally at ../aten/src/ATen/SparseCsrTensorImpl.cpp:54.)
   return torch.sparse_csr_tensor(row_pointers, column_indices, values, shape, device=values.device)
 </pre>
 </div>
@@ -15559,7 +15559,7 @@ To use a preconditioner, simply specify <code>preconditioner='ilu'</code> when c
 
 
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="application/vnd.jupyter.stderr">
-<pre>/opt/hostedtoolcache/Python/3.8.16/x64/lib/python3.8/site-packages/scipy/sparse/linalg/_dsolve/linsolve.py:640: SparseEfficiencyWarning: CSR matrix format is required. Converting to CSR matrix.
+<pre>/opt/hostedtoolcache/Python/3.8.17/x64/lib/python3.8/site-packages/scipy/sparse/linalg/_dsolve/linsolve.py:640: SparseEfficiencyWarning: CSR matrix format is required. Converting to CSR matrix.
   warn(&#39;CSR matrix format is required. Converting to CSR matrix.&#39;,
 </pre>
 </div>
@@ -15628,15 +15628,15 @@ Available SciPy solvers include <code>'scipy-direct'</code>, <code>'scipy-CG'</c
 
 
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="application/vnd.jupyter.stderr">
-<pre>/opt/hostedtoolcache/Python/3.8.16/x64/lib/python3.8/site-packages/unifyml/backend/torch/_torch_backend.py:60: TracerWarning: torch.from_numpy results are registered as constants in the trace. You can safely ignore this warning if you use this function to create tensors out of constant variables that would be the same every time you call this function. In any other case, this might cause the trace to be incorrect.
+<pre>/opt/hostedtoolcache/Python/3.8.17/x64/lib/python3.8/site-packages/unifyml/backend/torch/_torch_backend.py:60: TracerWarning: torch.from_numpy results are registered as constants in the trace. You can safely ignore this warning if you use this function to create tensors out of constant variables that would be the same every time you call this function. In any other case, this might cause the trace to be incorrect.
   tensor = torch.from_numpy(x)
-/opt/hostedtoolcache/Python/3.8.16/x64/lib/python3.8/site-packages/unifyml/backend/torch/_torch_backend.py:752: TracerWarning: torch.sparse_csr_tensor results are registered as constants in the trace. You can safely ignore this warning if you use this function to create tensors out of constant variables that would be the same every time you call this function. In any other case, this might cause the trace to be incorrect.
+/opt/hostedtoolcache/Python/3.8.17/x64/lib/python3.8/site-packages/unifyml/backend/torch/_torch_backend.py:752: TracerWarning: torch.sparse_csr_tensor results are registered as constants in the trace. You can safely ignore this warning if you use this function to create tensors out of constant variables that would be the same every time you call this function. In any other case, this might cause the trace to be incorrect.
   return torch.sparse_csr_tensor(row_pointers, column_indices, values, shape, device=values.device)
-/opt/hostedtoolcache/Python/3.8.16/x64/lib/python3.8/site-packages/unifyml/backend/torch/_torch_backend.py:125: TracerWarning: Converting a tensor to a NumPy array might cause the trace to be incorrect. We can&#39;t record the data flow of Python values, so this value will be treated as a constant in the future. This means that the trace might not generalize to other inputs!
+/opt/hostedtoolcache/Python/3.8.17/x64/lib/python3.8/site-packages/unifyml/backend/torch/_torch_backend.py:125: TracerWarning: Converting a tensor to a NumPy array might cause the trace to be incorrect. We can&#39;t record the data flow of Python values, so this value will be treated as a constant in the future. This means that the trace might not generalize to other inputs!
   return tensor.cpu().numpy()
-/opt/hostedtoolcache/Python/3.8.16/x64/lib/python3.8/site-packages/unifyml/backend/torch/_torch_backend.py:594: TracerWarning: Converting a tensor to a Python integer might cause the trace to be incorrect. We can&#39;t record the data flow of Python values, so this value will be treated as a constant in the future. This means that the trace might not generalize to other inputs!
+/opt/hostedtoolcache/Python/3.8.17/x64/lib/python3.8/site-packages/unifyml/backend/torch/_torch_backend.py:594: TracerWarning: Converting a tensor to a Python integer might cause the trace to be incorrect. We can&#39;t record the data flow of Python values, so this value will be treated as a constant in the future. This means that the trace might not generalize to other inputs!
   return tuple([int(s) for s in tensor.shape])
-/opt/hostedtoolcache/Python/3.8.16/x64/lib/python3.8/site-packages/unifyml/math/_tensors.py:699: TracerWarning: Iterating over a tensor might cause the trace to be incorrect. Passing a tensor of different shape won&#39;t change the number of iterations executed (and might lead to errors or silently give incorrect results).
+/opt/hostedtoolcache/Python/3.8.17/x64/lib/python3.8/site-packages/unifyml/math/_tensors.py:699: TracerWarning: Iterating over a tensor might cause the trace to be incorrect. Passing a tensor of different shape won&#39;t change the number of iterations executed (and might lead to errors or silently give incorrect results).
   return iter(self.native())
 </pre>
 </div>
@@ -15835,11 +15835,11 @@ Recording the full optimization trajectory requires setting <code>record_traject
 
 
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
-<pre>factor_ilu: auto-selecting iterations=1 (eager mode) for matrix <span class="ansi-blue-intense-fg">(2.000, 0.000)</span>; <span class="ansi-blue-intense-fg">(0.000, 1.000)</span> <span class="ansi-green-intense-fg">(b_vecᶜ=2, ~b_vecᵈ=2)</span> (DEBUG), 2023-07-14 11:15:12,243n
+<pre>factor_ilu: auto-selecting iterations=1 (eager mode) for matrix <span class="ansi-blue-intense-fg">(2.000, 0.000)</span>; <span class="ansi-blue-intense-fg">(0.000, 1.000)</span> <span class="ansi-green-intense-fg">(b_vecᶜ=2, ~b_vecᵈ=2)</span> (DEBUG), 2023-07-14 12:04:29,939n
 
-Running forward pass of custom op forward &#39;_matrix_solve_forward&#39; given args (&#39;y&#39;,) containing 1 native tensors (DEBUG), 2023-07-14 11:15:12,255n
+Running forward pass of custom op forward &#39;_matrix_solve_forward&#39; given args (&#39;y&#39;,) containing 1 native tensors (DEBUG), 2023-07-14 12:04:29,959n
 
-Performing linear solve scipy-CG with tolerance <span class="ansi-yellow-intense-fg">float64</span> <span class="ansi-blue-intense-fg">1e-05</span> (rel), <span class="ansi-yellow-intense-fg">float64</span> <span class="ansi-blue-intense-fg">1e-05</span> (abs), max_iterations=<span class="ansi-blue-intense-fg">1000</span> with backend torch (DEBUG), 2023-07-14 11:15:12,259n
+Performing linear solve scipy-CG with tolerance <span class="ansi-yellow-intense-fg">float64</span> <span class="ansi-blue-intense-fg">1e-05</span> (rel), <span class="ansi-yellow-intense-fg">float64</span> <span class="ansi-blue-intense-fg">1e-05</span> (abs), max_iterations=<span class="ansi-blue-intense-fg">1000</span> with backend torch (DEBUG), 2023-07-14 12:04:29,966n
 
 </pre>
 </div>
@@ -15956,9 +15956,9 @@ This matches the signatures of the native solve functions like <code>torch.linal
 
 
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
-<pre>Running forward pass of custom op forward &#39;_matrix_solve_forward&#39; given args (&#39;y&#39;, &#39;matrix&#39;) containing 2 native tensors (DEBUG), 2023-07-14 11:15:12,285n
+<pre>Running forward pass of custom op forward &#39;_matrix_solve_forward&#39; given args (&#39;y&#39;, &#39;matrix&#39;) containing 2 native tensors (DEBUG), 2023-07-14 12:04:30,009n
 
-Performing linear solve auto with tolerance <span class="ansi-yellow-intense-fg">float64</span> <span class="ansi-blue-intense-fg">1e-05</span> (rel), <span class="ansi-yellow-intense-fg">float64</span> <span class="ansi-blue-intense-fg">1e-05</span> (abs), max_iterations=<span class="ansi-blue-intense-fg">1000</span> with backend torch (DEBUG), 2023-07-14 11:15:12,287n
+Performing linear solve auto with tolerance <span class="ansi-yellow-intense-fg">float64</span> <span class="ansi-blue-intense-fg">1e-05</span> (rel), <span class="ansi-yellow-intense-fg">float64</span> <span class="ansi-blue-intense-fg">1e-05</span> (abs), max_iterations=<span class="ansi-blue-intense-fg">1000</span> with backend torch (DEBUG), 2023-07-14 12:04:30,012n
 
 </pre>
 </div>
