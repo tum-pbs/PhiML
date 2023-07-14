@@ -2,10 +2,10 @@ import time
 from functools import partial
 from unittest import TestCase
 
-from unifyml import math
-from unifyml.backend import Backend
-from unifyml.backend._backend import init_installed_backends
-from unifyml.math import tensor, spatial, batch, channel
+from ml4s import math
+from ml4s.backend import Backend
+from ml4s.backend._backend import init_installed_backends
+from ml4s.math import tensor, spatial, batch, channel
 
 BACKENDS = init_installed_backends()
 

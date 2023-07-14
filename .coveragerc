@@ -24,5 +24,5 @@ exclude_lines =
 
 
 omit =
-    unifyml/backend/tensorflow/_tf_cuda_resample.py
-    unifyml/backend/tensorflow/_compile_cuda.py
+    ml4s/backend/tensorflow/_tf_cuda_resample.py
+    ml4s/backend/tensorflow/_compile_cuda.py

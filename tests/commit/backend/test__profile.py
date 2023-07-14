@@ -1,7 +1,7 @@
 from unittest import TestCase
 
-from unifyml import math
-from unifyml.backend import profile
+from ml4s import math
+from ml4s.backend import profile
 
 
 class TestProfile(TestCase):

@@ -4,8 +4,8 @@ import numpy as np
 import torch
 import tensorflow
 
-from unifyml import math
-from unifyml.backend.torch import TORCH
+from ml4s import math
+from ml4s.backend.torch import TORCH
 
 
 class TestTorchBackend(TestCase):

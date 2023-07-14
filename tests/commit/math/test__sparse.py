@@ -1,9 +1,9 @@
 from unittest import TestCase
 
-from unifyml import math
-from unifyml.backend._backend import init_installed_backends
-from unifyml.math import batch, get_sparsity, expand, wrap, stack, zeros, channel, spatial, ones, instance, tensor, pairwise_distances, dense, assert_close, non_dual, dual
-from unifyml.math._sparse import SparseCoordinateTensor, CompressedSparseMatrix
+from ml4s import math
+from ml4s.backend._backend import init_installed_backends
+from ml4s.math import batch, get_sparsity, expand, wrap, stack, zeros, channel, spatial, ones, instance, tensor, pairwise_distances, dense, assert_close, non_dual, dual
+from ml4s.math._sparse import SparseCoordinateTensor, CompressedSparseMatrix
 
 BACKENDS = init_installed_backends()
 

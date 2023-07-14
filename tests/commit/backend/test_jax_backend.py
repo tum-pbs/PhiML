@@ -3,7 +3,7 @@ from unittest import TestCase
 import numpy as np
 import torch
 
-from unifyml.backend.jax import JAX
+from ml4s.backend.jax import JAX
 from jax import numpy as jnp
 
 

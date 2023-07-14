@@ -1,11 +1,11 @@
-# Contributing to UnifyML
+# Contributing to ML4Science
 All contributions are welcome!
 You can mail the developers or get in touch on GitHub.
 
 
 ## Types of contributions we're looking for
 
-We're open to all kind of contributions that improve or extend the UnifyML library.
+We're open to all kind of contributions that improve or extend the ML4Science library.
 We especially welcome
 
 - Bug fixes
@@ -18,7 +18,7 @@ We especially welcome
 We recommend you to contact the developers before starting your contribution.
 There may already be similar internal work or planned changes that would affect how to code the contribution.
 
-To contribute code, fork UnifyML on GitHub, make your changes, and submit a pull request.
+To contribute code, fork ML4Science on GitHub, make your changes, and submit a pull request.
 Make sure that your contribution passes all tests.
 
 
@@ -31,12 +31,12 @@ We would like to add the rule *Concise is better than repetitive.*
 
 We use PyLint for static code analysis with specific configuration files for the
 [tests](../tests/.pylintrc) and the
-[code base](../unifyml/.pylintrc).
+[code base](../ml4s/.pylintrc).
 PyLint is part of the automatic testing pipeline.
 The warning log can be viewed online by selecting a `Tests` job and expanding the pylint output.
 
 ### Docstrings
-The [API documentation](https://holl-.github.io/UnifyML/) for UnifyML is generated using [pdoc](https://pdoc3.github.io/pdoc/).
+The [API documentation](https://holl-.github.io/ML4Science/) for ML4Science is generated using [pdoc](https://pdoc3.github.io/pdoc/).
 We use [Google style docstrings](https://google.github.io/styleguide/pyguide.html#38-comments-and-docstrings)
 with Markdown formatting.
 

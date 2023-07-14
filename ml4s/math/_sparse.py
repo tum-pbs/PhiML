@@ -45,7 +45,7 @@ def sparse_tensor(indices: Tensor,
         can_contain_double_entries: Whether some indices might occur more than once.
             If so, values at the same index will be summed.
         indices_sorted: Whether the indices are sorted in ascending order given the dimension order of the item names of `indices`.
-        format: Sparse format in which to store the data, such as `'coo'` or `'csr'`. See `unifyml.math.get_format`.
+        format: Sparse format in which to store the data, such as `'coo'` or `'csr'`. See `ml4s.math.get_format`.
         default: Value the sparse tensor returns for non-stored values. Must be `0` or `None`.
 
     Returns:
@@ -756,9 +756,9 @@ def get_sparsity(x: Tensor):
 
     The following operations may return tensors whose values are only partially stored:
 
-    * `unifyml.math.expand()`
-    * `unifyml.math.pairwise_distance()` with `max_distance` set.
-    * Tracers used in `unifyml.math.jit_compile_linear()`
+    * `ml4s.math.expand()`
+    * `ml4s.math.pairwise_distance()` with `max_distance` set.
+    * Tracers used in `ml4s.math.jit_compile_linear()`
     * Stacking any of the above.
 
     Args:

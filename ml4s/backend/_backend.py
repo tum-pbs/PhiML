@@ -1708,7 +1708,7 @@ def get_backend(backend):
 
 def is_initialized(backend: str) -> bool:
     """
-    Checks whether a specific backend has been successfully initialized and can be used from UnifyML.
+    Checks whether a specific backend has been successfully initialized and can be used from ML4Science.
 
     Args:
         backend: Backend name, such as `'jax'`, `'tensorflow'`, `'torch'` or `'numpy'`.
@@ -1767,7 +1767,7 @@ def set_global_default_backend(backend: Union[str, Backend]) -> Backend:
     assert isinstance(backend, Backend), backend
     if _DEFAULT[0] is not backend:
         _DEFAULT[0] = backend
-        ML_LOGGER.info(f"UnifyML's default backend is now {backend}")
+        ML_LOGGER.info(f"ML4Science's default backend is now {backend}")
     return backend
 
 
@@ -1926,7 +1926,7 @@ def get_functional_derivative_order():
     return _FUNCTIONAL_DERIVATIVE_CONTEXT[-1]
 
 
-ML_LOGGER = logging.getLogger('UnifyML')  # used for warnings and debug messages by all internal UnifyML functions
+ML_LOGGER = logging.getLogger('ML4Science')  # used for warnings and debug messages by all internal ML4Science functions
 _LOG_CONSOLE_HANDLER = logging.StreamHandler(sys.stdout)
 _LOG_CONSOLE_HANDLER.setFormatter(logging.Formatter("%(message)s (%(levelname)s), %(asctime)sn\n"))
 _LOG_CONSOLE_HANDLER.setLevel(logging.NOTSET)

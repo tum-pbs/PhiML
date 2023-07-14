@@ -3,14 +3,14 @@ from unittest import TestCase
 import numpy
 import numpy as np
 
-from unifyml import math
-from unifyml.backend import Backend
-from unifyml.backend._backend import init_installed_backends
-from unifyml.math import channel, batch, DType, vec, stack, expand
-from unifyml.math._shape import shape_stack, spatial, instance
-from unifyml.math._tensors import wrap, tensor, cached, disassemble_tensors, assemble_tensors, \
+from ml4s import math
+from ml4s.backend import Backend
+from ml4s.backend._backend import init_installed_backends
+from ml4s.math import channel, batch, DType, vec, stack, expand
+from ml4s.math._shape import shape_stack, spatial, instance
+from ml4s.math._tensors import wrap, tensor, cached, disassemble_tensors, assemble_tensors, \
     Layout, equality_by_ref
-from unifyml.math.magic import PhiTreeNode
+from ml4s.math.magic import PhiTreeNode
 
 BACKENDS = init_installed_backends()
 

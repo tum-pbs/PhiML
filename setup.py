@@ -88,9 +88,9 @@ class CudaCommand(distutils.cmd.Command):
         pass
 
     def run(self):
-        src_path = abspath('./unifyml/tf/cuda/src')
-        build_path = abspath('./unifyml/tf/cuda/build')
-        logfile_path = abspath('./unifyml/tf/cuda/log.txt')
+        src_path = abspath('./ml4s/tf/cuda/src')
+        build_path = abspath('./ml4s/tf/cuda/build')
+        logfile_path = abspath('./ml4s/tf/cuda/log.txt')
         print("Source Path:\t" + src_path)
         print("Build Path:\t" + build_path)
         print("GCC:\t\t" + self.gcc)
@@ -127,19 +127,19 @@ except FileNotFoundError:
     long_description = ""
     pass
 
-with open(join(dirname(__file__), 'unifyml', 'VERSION'), 'r') as version_file:
+with open(join(dirname(__file__), 'ml4s', 'VERSION'), 'r') as version_file:
     version = version_file.read()
 
 setup(
-    name='unifyml',
+    name='ml4s',
     version=version,
-    download_url='https://github.com/holl-/UnifyML/archive/%s.tar.gz' % version,
-    packages=['unifyml',
-              'unifyml.math',
-              'unifyml.backend',
-              'unifyml.backend.jax',
-              'unifyml.backend.torch',
-              'unifyml.backend.tensorflow',
+    download_url='https://github.com/holl-/ML4Science/archive/%s.tar.gz' % version,
+    packages=['ml4s',
+              'ml4s.math',
+              'ml4s.backend',
+              'ml4s.backend.jax',
+              'ml4s.backend.torch',
+              'ml4s.backend.tensorflow',
           ],
     cmdclass={
         'tf_cuda': CudaCommand,
@@ -151,7 +151,7 @@ setup(
     license='MIT',
     author='Philipp Holl',
     author_email='philipp.holl@tum.de',
-    url='https://github.com/holl-/UnifyML',
+    url='https://github.com/holl-/ML4Science',
     include_package_data=True,
     install_requires=[
         'numpy',  # 1.20 causes TensorFlow tracing errors: NotImplementedError: Cannot convert a symbolic Tensor to a numpy array.
@@ -163,7 +163,7 @@ setup(
     # - tensorflow
     # - jax
     #
-    # unifyml.verify() should detect missing packages.
+    # ml4s.verify() should detect missing packages.
     classifiers=[
         'Development Status :: 5 - Production/Stable',
         'Intended Audience :: Developers',

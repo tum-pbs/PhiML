@@ -60,7 +60,7 @@ def get_parameters(net: Network) -> Dict[str, Tensor]:
         net: Neural network.
 
     Returns:
-        `dict` mapping parameter names to `unifyml.math.Tensor`s.
+        `dict` mapping parameter names to `ml4s.math.Tensor`s.
     """
     return _native_lib().get_parameters(net)
 
@@ -153,7 +153,7 @@ def mlp(in_channels: int,
               activation: Union[str, Callable] = 'ReLU',
               softmax=False) -> Network:
     """
-    Fully-connected neural networks are available in UnifyML via mlp().
+    Fully-connected neural networks are available in ML4Science via mlp().
 
     Args:
         in_channels : size of input layer, int

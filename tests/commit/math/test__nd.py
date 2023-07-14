@@ -1,7 +1,7 @@
 from itertools import product
 from unittest import TestCase
-from unifyml import math
-from unifyml.math import wrap, extrapolation, PI, tensor, batch, spatial, instance, channel, NAN, vec
+from ml4s import math
+from ml4s.math import wrap, extrapolation, PI, tensor, batch, spatial, instance, channel, NAN, vec
 
 import numpy as np
 import os

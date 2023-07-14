@@ -17,13 +17,13 @@ class MagicNotImplemented(Exception): pass
 
 def slice_(value, slices: Dict[str, Union[int, slice, str, tuple, list]]):
     """
-    Slices a `Tensor` or `unifyml.math.magic.PhiTreeNode` along named dimensions.
+    Slices a `Tensor` or `ml4s.math.magic.PhiTreeNode` along named dimensions.
 
     See Also:
         `unstack`.
 
     Args:
-        value: `Tensor` or `unifyml.math.magic.PhiTreeNode`
+        value: `Tensor` or `ml4s.math.magic.PhiTreeNode`
         slices: `dict` mapping dimension names to slices. A slice can be one of the following:
 
             * An index (`int`)
@@ -33,7 +33,7 @@ def slice_(value, slices: Dict[str, Union[int, slice, str, tuple, list]]):
             * Multiple indices or item names (`tuple` or `list`)
 
     Returns:
-        `Tensor` or `unifyml.math.magic.PhiTreeNode` of the same type as `value`.
+        `Tensor` or `ml4s.math.magic.PhiTreeNode` of the same type as `value`.
 
     Examples:
         >>> math.slice([vec(x=0, y=1), vec(x=2, y=3)], {'vector': 'y'})
@@ -65,10 +65,10 @@ def unstack(value, dim: DimFilter):
     If multiple dimensions are given, the order of elements will be according to the dimension order in `dim`, i.e. elements along the last dimension will be neighbors in the returned `tuple`.
 
     See Also:
-        `unifyml.math.slice`.
+        `ml4s.math.slice`.
 
     Args:
-        value: `unifyml.math.magic.Shapable`, such as `unifyml.math.Tensor`
+        value: `ml4s.math.magic.Shapable`, such as `ml4s.math.Tensor`
         dim: Dimensions as `Shape` or comma-separated `str` or dimension type, i.e. `channel`, `spatial`, `instance`, `batch`.
 
     Returns:
@@ -78,7 +78,7 @@ def unstack(value, dim: DimFilter):
         >>> unstack(expand(0, spatial(x=5)), 'x')
         (0.0, 0.0, 0.0, 0.0, 0.0)
     """
-    assert isinstance(value, Sliceable) and isinstance(value, Shaped), f"Cannot unstack {type(value).__name__}. Must be Sliceable and Shaped, see https://holl-.github.io/UnifyML/unifyml/math/magic.html"
+    assert isinstance(value, Sliceable) and isinstance(value, Shaped), f"Cannot unstack {type(value).__name__}. Must be Sliceable and Shaped, see https://holl-.github.io/ML4Science/ml4s/math/magic.html"
     dims = shape(value).only(dim)
     assert dims.rank > 0, "unstack() requires at least one dimension"
     if dims.rank == 1:
@@ -118,7 +118,7 @@ def stack(values: Union[tuple, list, dict], dim: Shape, expand_values=False, **k
     This makes repeated stacking and slicing along the same dimension very efficient, i.e. jit-compiled functions will not perform these operations.
 
     Args:
-        values: Collection of `unifyml.math.magic.Shapable`, such as `unifyml.math.Tensor`
+        values: Collection of `ml4s.math.magic.Shapable`, such as `ml4s.math.Tensor`
             If a `dict`, keys must be of type `str` and are used as item names along `dim`.
         dim: `Shape` with a least one dimension. None of these dimensions can be present with any of the `values`.
             If `dim` is a single-dimension shape, its size is determined from `len(values)` and can be left undefined (`None`).
@@ -235,12 +235,12 @@ def stack(values: Union[tuple, list, dict], dim: Shape, expand_values=False, **k
 
 def concat(values: Union[tuple, list], dim: Union[str, Shape], expand_values=False, **kwargs):
     """
-    Concatenates a sequence of `unifyml.math.magic.Shapable` objects, e.g. `Tensor`, along one dimension.
+    Concatenates a sequence of `ml4s.math.magic.Shapable` objects, e.g. `Tensor`, along one dimension.
     All values must have the same spatial, instance and channel dimensions and their sizes must be equal, except for `dim`.
     Batch dimensions will be added as needed.
 
     Args:
-        values: Tuple or list of `unifyml.math.magic.Shapable`, such as `unifyml.math.Tensor`
+        values: Tuple or list of `ml4s.math.magic.Shapable`, such as `ml4s.math.Tensor`
         dim: Concatenation dimension, must be present in all `values`.
             The size along `dim` is determined from `values` and can be set to undefined (`None`).
         expand_values: If `True`, will first add missing dimensions to all values, not just batch dimensions.
@@ -326,7 +326,7 @@ def expand(value, *dims: Shape, **kwargs):
     Additionally, it replaces the traditional `unsqueeze` / `expand_dims` functions.
 
     Args:
-        value: `unifyml.math.magic.Shapable`, such as `unifyml.math.Tensor`
+        value: `ml4s.math.magic.Shapable`, such as `ml4s.math.Tensor`
             For tree nodes, expands all value attributes by `dims` or the first variable attribute if no value attributes are set.
         *dims: Dimensions to be added as `Shape`
         **kwargs: Additional keyword arguments required by specific implementations.
@@ -355,7 +355,7 @@ def expand(value, *dims: Shape, **kwargs):
     # --- Fallback: stack ---
     if hasattr(value, '__stack__'):
         if dims.volume > 8:
-            warnings.warn(f"expand() default implementation is slow on large shapes {dims}. Please implement __expand__() for {type(value).__name__} as defined in unifyml.math.magic", RuntimeWarning, stacklevel=2)
+            warnings.warn(f"expand() default implementation is slow on large shapes {dims}. Please implement __expand__() for {type(value).__name__} as defined in ml4s.math.magic", RuntimeWarning, stacklevel=2)
         for dim in reversed(dims):
             value = stack((value,) * dim.size, dim, **kwargs)
             assert value is not NotImplemented, "Value must implement either __expand__ or __stack__"
@@ -420,7 +420,7 @@ def rename_dims(value,
         return copy_with(value, **new_attributes)
     # --- Fallback: unstack and stack ---
     if shape(value).only(existing_dims).volume > 8:
-        warnings.warn(f"rename_dims() default implementation is slow on large dimensions ({shape(value).only(dims)}). Please implement __replace_dims__() for {type(value).__name__} as defined in unifyml.math.magic", RuntimeWarning, stacklevel=2)
+        warnings.warn(f"rename_dims() default implementation is slow on large dimensions ({shape(value).only(dims)}). Please implement __replace_dims__() for {type(value).__name__} as defined in ml4s.math.magic", RuntimeWarning, stacklevel=2)
     for old_name, new_dim in zip(existing_dims.names, existing_names):
         value = stack(unstack(value, old_name), new_dim, **kwargs)
     return value
@@ -472,7 +472,7 @@ def pack_dims(value, dims: DimFilter, packed_dim: Shape, pos: Optional[int] = No
         `unpack_dim()`
 
     Args:
-        value: `unifyml.math.magic.Shapable`, such as `unifyml.math.Tensor`.
+        value: `ml4s.math.magic.Shapable`, such as `ml4s.math.Tensor`.
         dims: Dimensions to be compressed in the specified order.
         packed_dim: Single-dimension `Shape`.
         pos: Index of new dimension. `None` for automatic, `-1` for last, `0` for first.
@@ -508,7 +508,7 @@ def pack_dims(value, dims: DimFilter, packed_dim: Shape, pos: Optional[int] = No
         return copy_with(value, **new_attributes)
     # --- Fallback: unstack and stack ---
     if shape(value).only(dims).volume > 8:
-        warnings.warn(f"pack_dims() default implementation is slow on large dimensions ({shape(value).only(dims)}). Please implement __pack_dims__() for {type(value).__name__} as defined in unifyml.math.magic", RuntimeWarning, stacklevel=2)
+        warnings.warn(f"pack_dims() default implementation is slow on large dimensions ({shape(value).only(dims)}). Please implement __pack_dims__() for {type(value).__name__} as defined in ml4s.math.magic", RuntimeWarning, stacklevel=2)
     return stack(unstack(value, dims), packed_dim, **kwargs)
 
 
@@ -526,7 +526,7 @@ def unpack_dim(value, dim: DimFilter, *unpacked_dims: Shape, **kwargs):
         `pack_dims()`
 
     Args:
-        value: `unifyml.math.magic.Shapable`, such as `Tensor`, for which one dimension should be split.
+        value: `ml4s.math.magic.Shapable`, such as `Tensor`, for which one dimension should be split.
         dim: Single dimension to be decompressed.
         *unpacked_dims: Vararg `Shape`, ordered dimensions to replace `dim`, fulfilling `unpacked_dims.volume == shape(self)[dim].rank`.
         **kwargs: Additional keyword arguments required by specific implementations.
@@ -564,7 +564,7 @@ def unpack_dim(value, dim: DimFilter, *unpacked_dims: Shape, **kwargs):
         return copy_with(value, **new_attributes)
     # --- Fallback: unstack and stack ---
     if shape(value).only(dim).volume > 8:
-        warnings.warn(f"pack_dims() default implementation is slow on large dimensions ({shape(value).only(dim)}). Please implement __unpack_dim__() for {type(value).__name__} as defined in unifyml.math.magic", RuntimeWarning, stacklevel=2)
+        warnings.warn(f"pack_dims() default implementation is slow on large dimensions ({shape(value).only(dim)}). Please implement __unpack_dim__() for {type(value).__name__} as defined in ml4s.math.magic", RuntimeWarning, stacklevel=2)
     unstacked = unstack(value, dim)
     for dim in reversed(unpacked_dims):
         unstacked = [stack(unstacked[i:i+dim.size], dim, **kwargs) for i in range(0, len(unstacked), dim.size)]
@@ -577,7 +577,7 @@ def flatten(value, flat_dim: Shape = instance('flat'), flatten_batch=False, **kw
     The order of the values in memory is not changed.
 
     Args:
-        value: `unifyml.math.magic.Shapable`, such as `Tensor`.
+        value: `ml4s.math.magic.Shapable`, such as `Tensor`.
         flat_dim: Dimension name and type as `Shape` object. The size is ignored.
         flatten_batch: Whether to flatten batch dimensions as well.
             If `False`, batch dimensions are kept, only onn-batch dimensions are flattened.
@@ -606,7 +606,7 @@ def flatten(value, flat_dim: Shape = instance('flat'), flatten_batch=False, **kw
 
 # PhiTreeNode
 
-PhiTreeNodeType = TypeVar('PhiTreeNodeType')  # Defined in unifyml.math.magic: tuple, list, dict, custom
+PhiTreeNodeType = TypeVar('PhiTreeNodeType')  # Defined in ml4s.math.magic: tuple, list, dict, custom
 
 
 def variable_attributes(obj) -> Tuple[str]:
@@ -654,13 +654,13 @@ def all_attributes(obj, assert_any=False) -> Set[str]:
 
 def replace(obj: PhiTreeNodeType, **updates) -> PhiTreeNodeType:
     """
-    Creates a copy of the given `unifyml.math.magic.PhiTreeNode` with updated values as specified in `updates`.
+    Creates a copy of the given `ml4s.math.magic.PhiTreeNode` with updated values as specified in `updates`.
 
     If `obj` overrides `__with_attrs__`, the copy will be created via that specific implementation.
     Otherwise, the `copy` module and `setattr` will be used.
 
     Args:
-        obj: `unifyml.math.magic.PhiTreeNode`
+        obj: `ml4s.math.magic.PhiTreeNode`
         **updates: Values to be replaced.
 
     Returns:
@@ -704,7 +704,7 @@ def cast(x: MagicType, dtype: Union[DType, type]) -> OtherMagicType:
 
     Args:
         x: `Tensor`
-        dtype: New data type as `unifyml.math.DType`, e.g. `DType(int, 16)`.
+        dtype: New data type as `ml4s.math.DType`, e.g. `DType(int, 16)`.
 
     Returns:
         `Tensor` with data type `dtype`

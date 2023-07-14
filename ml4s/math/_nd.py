@@ -213,8 +213,8 @@ def l1_loss(x, reduce: DimFilter = math.non_batch) -> Tensor:
     Computes *∑<sub>i</sub> ||x<sub>i</sub>||<sub>1</sub>*, summing over all non-batch dimensions.
 
     Args:
-        x: `Tensor` or `unifyml.math.magic.PhiTreeNode` or 0D or 1D native tensor.
-            For `unifyml.math.magic.PhiTreeNode` objects, only value the sum over all value attributes is computed.
+        x: `Tensor` or `ml4s.math.magic.PhiTreeNode` or 0D or 1D native tensor.
+            For `ml4s.math.magic.PhiTreeNode` objects, only value the sum over all value attributes is computed.
         reduce: Dimensions to reduce as `DimFilter`.
 
     Returns:
@@ -233,7 +233,7 @@ def l1_loss(x, reduce: DimFilter = math.non_batch) -> Tensor:
             elif len(shape) == 1:
                 return backend.sum(abs(x))
             else:
-                raise ValueError("l2_loss is only defined for 0D and 1D native tensors. For higher-dimensional data, use UnifyML tensors.")
+                raise ValueError("l2_loss is only defined for 0D and 1D native tensors. For higher-dimensional data, use ML4Science tensors.")
         except math.NoBackendFound:
             raise ValueError(x)
 
@@ -243,8 +243,8 @@ def l2_loss(x, reduce: DimFilter = math.non_batch) -> Tensor:
     Computes *∑<sub>i</sub> ||x<sub>i</sub>||<sub>2</sub><sup>2</sup> / 2*, summing over all non-batch dimensions.
 
     Args:
-        x: `Tensor` or `unifyml.math.magic.PhiTreeNode` or 0D or 1D native tensor.
-            For `unifyml.math.magic.PhiTreeNode` objects, only value the sum over all value attributes is computed.
+        x: `Tensor` or `ml4s.math.magic.PhiTreeNode` or 0D or 1D native tensor.
+            For `ml4s.math.magic.PhiTreeNode` objects, only value the sum over all value attributes is computed.
         reduce: Dimensions to reduce as `DimFilter`.
 
     Returns:
@@ -265,7 +265,7 @@ def l2_loss(x, reduce: DimFilter = math.non_batch) -> Tensor:
             elif len(shape) == 1:
                 return backend.sum(x ** 2) * 0.5
             else:
-                raise ValueError("l2_loss is only defined for 0D and 1D native tensors. For higher-dimensional data, use UnifyML tensors.")
+                raise ValueError("l2_loss is only defined for 0D and 1D native tensors. For higher-dimensional data, use ML4Science tensors.")
         except math.NoBackendFound:
             raise ValueError(x)
 
@@ -280,7 +280,7 @@ def frequency_loss(x,
     Lower frequencies are weighted more strongly then higher frequencies, depending on `frequency_falloff`.
 
     Args:
-        x: `Tensor` or `unifyml.math.magic.PhiTreeNode` Values to penalize, typically `actual - target`.
+        x: `Tensor` or `ml4s.math.magic.PhiTreeNode` Values to penalize, typically `actual - target`.
         frequency_falloff: Large values put more emphasis on lower frequencies, 1.0 weights all frequencies equally.
             *Note*: The total loss is not normalized. Varying the value will result in losses of different magnitudes.
         threshold: Frequency amplitudes below this value are ignored.
@@ -541,7 +541,7 @@ def laplace(x: Tensor,
             Must be a Tensor with a single channel dimension that lists all laplace dims by name.
 
     Returns:
-        `unifyml.math.Tensor` of same shape as `x`
+        `ml4s.math.Tensor` of same shape as `x`
     """
     if isinstance(dx, (tuple, list)):
         dx = wrap(dx, batch('_laplace'))

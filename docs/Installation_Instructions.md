@@ -1,4 +1,4 @@
-# UnifyML Installation
+# ML4Science Installation
 
 ## Requirements
 
@@ -13,46 +13,46 @@ must be registered with your Python installation.
 Note that these also require a CUDA installation with *cuDNN* libraries for GPU execution.
 We recommend CUDA 11.0 with cuDNN 8.
 
-## Installing UnifyML using pip
+## Installing ML4Science using pip
 
-*Note*: If you want to use the UnifyML CUDA operations with TensorFlow, you have to build UnifyML from source instead (see below).
+*Note*: If you want to use the ML4Science CUDA operations with TensorFlow, you have to build ML4Science from source instead (see below).
 
-The following command installs the latest stable version of UnifyML with GUI support using pip.
+The following command installs the latest stable version of ML4Science with GUI support using pip.
 ```bash
-$ pip install unifyml
+$ pip install ml4s
 ```
-To install the latest developer version of UnifyML, run
+To install the latest developer version of ML4Science, run
 ```bash
-$ pip install --upgrade git+https://github.com/holl-/UnifyML@develop
+$ pip install --upgrade git+https://github.com/holl-/ML4Science@develop
 ```
 
-Install [PyTorch](https://pytorch.org/), [TensorFlow](https://www.tensorflow.org/install) or [Jax](https://github.com/google/jax#installation) in addition to UnifyML to enable machine learning capabilities and GPU execution.
+Install [PyTorch](https://pytorch.org/), [TensorFlow](https://www.tensorflow.org/install) or [Jax](https://github.com/google/jax#installation) in addition to ML4Science to enable machine learning capabilities and GPU execution.
 
 
-## Installing UnifyML from Source
-The UnifyML source additionally contains demo scripts and tests.
-In particular, it includes [`tests/verify.py`](https://github.com/holl-/UnifyML/blob/develop/tests/verify.py),
+## Installing ML4Science from Source
+The ML4Science source additionally contains demo scripts and tests.
+In particular, it includes [`tests/verify.py`](https://github.com/holl-/ML4Science/blob/develop/tests/verify.py),
 which tests your configuration.
 
 Clone the git repository by running
 ```bash
-$ git clone https://github.com/holl-/UnifyML.git <target directory>
+$ git clone https://github.com/holl-/ML4Science.git <target directory>
 ```
-This will create the folder \<target directory\> and copy all UnifyML source files into it.
+This will create the folder \<target directory\> and copy all ML4Science source files into it.
 
 With this done, you may compile CUDA kernels for better performance, see below.
 
-Finally, UnifyML needs to be added to the Python path.
+Finally, ML4Science needs to be added to the Python path.
 This can be done in one of multiple ways:
 
 * Marking \<target directory\> as a source directory in your Python IDE.
 * Manually adding the cloned directory to the Python path.
-* Installing UnifyML using pip: `$ pip install <target directory>/`. This command needs to be rerun after you make changes to the source code.
+* Installing ML4Science using pip: `$ pip install <target directory>/`. This command needs to be rerun after you make changes to the source code.
 
 
 ## Compiling the CUDA Kernels for TensorFlow
 
-The UnifyML source includes several custom CUDA kernels to speed up certain operations when using TensorFlow.
+The ML4Science source includes several custom CUDA kernels to speed up certain operations when using TensorFlow.
 To use these, you must have a [TensorFlow compatible CUDA SDK with cuDNN](https://www.tensorflow.org/install/gpu#software_requirements) as well as a compatible C++ compiler installed.
 We strongly recommend using Linux with GCC 7.3.1 (`apt-get install gcc-4.8`) for this.
 See the [tested TensorFlow build configurations](https://www.tensorflow.org/install/source#tested_build_configurations).
@@ -62,19 +62,19 @@ This will add the compiled CUDA binaries to the \<target directory\>.
 
 
 ## Verifying the installation
-If you have installed UnifyML from source, execute the included `verify.py` script.
+If you have installed ML4Science from source, execute the included `verify.py` script.
 ```bash
-$ python <UnifyML directory>/tests/verify.py
+$ python <ML4Science directory>/tests/verify.py
 ```
 Otherwise, run the following Python code.
 ```python
-import unifyml; unifyml.verify()
+import ml4s; ml4s.verify()
 ```
 Or from the command line:
 ```bash
-$ python3 -c "import unifyml; unifyml.verify()"
+$ python3 -c "import ml4s; ml4s.verify()"
 ```
-If UnifyML and dependencies are installed correctly, you should see the text `Installation verified.`, followed by additional information on the components at the end of the console output.
+If ML4Science and dependencies are installed correctly, you should see the text `Installation verified.`, followed by additional information on the components at the end of the console output.
 
 
 ### Unit tests

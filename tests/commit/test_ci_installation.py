@@ -1,7 +1,7 @@
 from unittest import TestCase
 
-import unifyml
-from unifyml.backend._backend import init_installed_backends
+import ml4s
+from ml4s.backend._backend import init_installed_backends
 
 
 class TestCIInstallation(TestCase):
@@ -14,4 +14,4 @@ class TestCIInstallation(TestCase):
         self.assertIn('tensorflow', names)
 
     def test_verify(self):
-        unifyml.verify()
+        ml4s.verify()

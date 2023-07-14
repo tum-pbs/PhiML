@@ -1,8 +1,8 @@
 from unittest import TestCase
 
-from unifyml import math
-from unifyml.backend._backend import init_installed_backends
-from unifyml.math import expand, spatial, non_dual, extrapolation
+from ml4s import math
+from ml4s.backend._backend import init_installed_backends
+from ml4s.math import expand, spatial, non_dual, extrapolation
 
 BACKENDS = init_installed_backends()
 

@@ -2,8 +2,8 @@ from unittest import TestCase
 
 import numpy as np
 
-from unifyml.math import DType
-from unifyml.backend._dtype import from_numpy_dtype, combine_types
+from ml4s.math import DType
+from ml4s.backend._dtype import from_numpy_dtype, combine_types
 
 
 class TestDType(TestCase):

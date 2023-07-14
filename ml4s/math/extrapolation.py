@@ -3,7 +3,7 @@ Extrapolations are used for padding tensors and sampling coordinates lying outsi
 Standard extrapolations are listed as global variables in this module.
 
 Extrapolations are an important part of sampled fields such as grids.
-See the documentation at https://holl-.github.io/UnifyML/Fields.html#extrapolations .
+See the documentation at https://holl-.github.io/ML4Science/Fields.html#extrapolations .
 """
 import warnings
 from typing import Union, Dict, Callable, Tuple, Optional

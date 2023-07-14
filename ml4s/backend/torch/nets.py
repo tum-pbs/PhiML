@@ -2,7 +2,7 @@
 PyTorch implementation of the unified machine learning API.
 Equivalent functions also exist for the other frameworks.
 
-For API documentation, see `unifyml.nn`.
+For API documentation, see `ml4s.nn`.
 """
 from typing import Callable, Union, Sequence
 

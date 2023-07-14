@@ -2,7 +2,7 @@
 Stax implementation of the unified machine learning API.
 Equivalent functions also exist for the other frameworks.
 
-For API documentation, see https://holl-.github.io/UnifyML/Network_API .
+For API documentation, see https://holl-.github.io/ML4Science/Network_API .
 """
 import functools
 import warnings

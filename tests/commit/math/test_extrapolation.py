@@ -1,10 +1,10 @@
 from unittest import TestCase
 
-from unifyml import math
-from unifyml.backend._backend import init_installed_backends
-from unifyml.math import batch, extrapolation, shape, spatial, channel, EMPTY_SHAPE
-from unifyml.math._tensors import wrap
-from unifyml.math.extrapolation import ConstantExtrapolation, ONE, ZERO, PERIODIC, BOUNDARY, SYMMETRIC, REFLECT, combine_sides, from_dict, combine_by_direction, SYMMETRIC_GRADIENT, as_extrapolation, \
+from ml4s import math
+from ml4s.backend._backend import init_installed_backends
+from ml4s.math import batch, extrapolation, shape, spatial, channel, EMPTY_SHAPE
+from ml4s.math._tensors import wrap
+from ml4s.math.extrapolation import ConstantExtrapolation, ONE, ZERO, PERIODIC, BOUNDARY, SYMMETRIC, REFLECT, combine_sides, from_dict, combine_by_direction, SYMMETRIC_GRADIENT, as_extrapolation, \
     ZERO_GRADIENT
 
 BACKENDS = init_installed_backends()
