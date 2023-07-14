@@ -15116,7 +15116,241 @@ body[data-format='mobile'] .jp-OutputArea-child .jp-OutputArea-output {
   •   <a href="https://holl-.github.io/UnifyML/unifyml">🔗 <strong>API</strong></a>
   •   <a href=""><strong>▶ Videos</strong></a>
   •   <a href="https://colab.research.google.com/github/holl-/UnifyML/blob/main/docs/Examples.ipynb"><img src="images/colab_logo_small.png" height=4></a> <a href="https://holl-.github.io/UnifyML/Examples.html"><strong>Examples</strong></a></p>
-<p>This notebook is work in progress.</p>
+<p>UnifyML provides basic tools to set up and train neural networks.
+Users can choose one of several standard network architectures and configure them in one line of code.
+After defining a loss function, they can then be trained in a unified way or using library-specific functions.</p>
+
+</div>
+</div>
+</div>
+</div><div  class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[1]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-ipython2"><pre><span></span><span class="o">%%capture</span>
+<span class="err">!</span><span class="n">pip</span> <span class="n">install</span> <span class="n">unifyml</span>
+
+<span class="kn">from</span> <span class="nn">matplotlib</span> <span class="kn">import</span> <span class="n">pyplot</span> <span class="k">as</span> <span class="n">plt</span>
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+<div class="jp-Cell-outputWrapper">
+<div class="jp-Collapser jp-OutputCollapser jp-Cell-outputCollapser">
+</div>
+
+
+<div class="jp-OutputArea jp-Cell-outputArea">
+<div class="jp-OutputArea-child">
+    
+    <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+
+
+<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="application/vnd.jupyter.stderr">
+<pre>
+<span class="ansi-red-fg">---------------------------------------------------------------------------</span>
+<span class="ansi-red-fg">ModuleNotFoundError</span>                       Traceback (most recent call last)
+Cell <span class="ansi-green-fg">In[1], line 3</span>
+<span class="ansi-green-intense-fg ansi-bold">      1</span> get_ipython()<span style="color: rgb(98,98,98)">.</span>system(<span style="color: rgb(175,0,0)">&#39;</span><span style="color: rgb(175,0,0)">pip install unifyml</span><span style="color: rgb(175,0,0)">&#39;</span>)
+<span class="ansi-green-fg">----&gt; 3</span> <span class="ansi-bold" style="color: rgb(0,135,0)">from</span> <span class="ansi-bold" style="color: rgb(0,0,255)">matplotlib</span> <span class="ansi-bold" style="color: rgb(0,135,0)">import</span> pyplot <span class="ansi-bold" style="color: rgb(0,135,0)">as</span> plt
+
+<span class="ansi-red-fg">ModuleNotFoundError</span>: No module named &#39;matplotlib&#39;</pre>
+</div>
+</div>
+
+</div>
+
+</div>
+
+</div>
+<div  class="jp-Cell jp-MarkdownCell jp-Notebook-cell">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
+</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
+<h2 id="Network-Architectures">Network Architectures<a class="anchor-link" href="#Network-Architectures">&#182;</a></h2><p>The <a href="unifyml/nn">neural network API</a> includes multiple common network architectures, such as <a href="unifyml/nn#unifyml.nn.mlp">multi-layer perceptrons</a>,
+<a href="unifyml/nn#unifyml.nn.u_net">U-Nets</a>, <a href="unifyml/nn#unifyml.nn.conv_net">convolutional networks</a>, <a href="unifyml/nn#unifyml.nn.res_net">ResNets</a>, <a href="unifyml/nn#unifyml.nn.invertible_net">invertible networks</a>, and <a href="unifyml/nn#unifyml.nn.conv_classifier">VGG-like networks</a>.
+All networks operating on grids are supported in 1D, 2D and 3D for periodic and non-periodic domains.</p>
+
+</div>
+</div>
+</div>
+</div><div  class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[2]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-ipython2"><pre><span></span><span class="kn">from</span> <span class="nn">unifyml</span> <span class="kn">import</span> <span class="n">math</span><span class="p">,</span> <span class="n">nn</span>
+<span class="n">math</span><span class="o">.</span><span class="n">use</span><span class="p">(</span><span class="s1">&#39;torch&#39;</span><span class="p">)</span>
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+<div class="jp-Cell-outputWrapper">
+<div class="jp-Collapser jp-OutputCollapser jp-Cell-outputCollapser">
+</div>
+
+
+<div class="jp-OutputArea jp-Cell-outputArea">
+<div class="jp-OutputArea-child jp-OutputArea-executeResult">
+    
+    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[2]:</div>
+
+
+
+
+<div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
+<pre>torch</pre>
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+<div  class="jp-Cell jp-MarkdownCell jp-Notebook-cell">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
+</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
+<h2 id="Training-an-MLP">Training an MLP<a class="anchor-link" href="#Training-an-MLP">&#182;</a></h2><p>Let's create an MLP and train it to learn a 1D sine function.
+First, we set up the network with two hidden layers of 64 neurons each.</p>
+
+</div>
+</div>
+</div>
+</div><div  class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[3]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-ipython2"><pre><span></span><span class="n">mlp</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">mlp</span><span class="p">(</span><span class="n">in_channels</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">out_channels</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">layers</span><span class="o">=</span><span class="p">[</span><span class="mi">64</span><span class="p">,</span> <span class="mi">64</span><span class="p">],</span> <span class="n">activation</span><span class="o">=</span><span class="s1">&#39;ReLU&#39;</span><span class="p">)</span>
+<span class="n">mlp</span>
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+<div class="jp-Cell-outputWrapper">
+<div class="jp-Collapser jp-OutputCollapser jp-Cell-outputCollapser">
+</div>
+
+
+<div class="jp-OutputArea jp-Cell-outputArea">
+<div class="jp-OutputArea-child jp-OutputArea-executeResult">
+    
+    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[3]:</div>
+
+
+
+
+<div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
+<pre>DenseNet(
+  (linear0): Linear(in_features=1, out_features=64, bias=True)
+  (linear1): Linear(in_features=64, out_features=64, bias=True)
+  (linear_out): Linear(in_features=64, out_features=1, bias=True)
+)</pre>
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+<div  class="jp-Cell jp-MarkdownCell jp-Notebook-cell">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
+</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
+<p>Note that this is a standard neural network of the chosen library (a PyTorch Module in this case).
+This allows you to quickly try many network designs without writing much code, even if you don't use UnifyML for anything else.</p>
+<p>Next, let's generate some training data.</p>
+
+</div>
+</div>
+</div>
+</div><div  class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[4]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-ipython2"><pre><span></span><span class="n">DATASET</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">batch</span><span class="p">(</span><span class="n">examples</span><span class="o">=</span><span class="mi">100</span><span class="p">)</span>
+<span class="n">x</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">random_uniform</span><span class="p">(</span><span class="n">DATASET</span><span class="p">,</span> <span class="n">low</span><span class="o">=-</span><span class="n">math</span><span class="o">.</span><span class="n">PI</span><span class="p">,</span> <span class="n">high</span><span class="o">=</span><span class="n">math</span><span class="o">.</span><span class="n">PI</span><span class="p">)</span>
+<span class="n">y</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">+</span> <span class="n">math</span><span class="o">.</span><span class="n">random_normal</span><span class="p">(</span><span class="n">DATASET</span><span class="p">)</span> <span class="o">*</span> <span class="mf">.1</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">numpy</span><span class="p">(),</span> <span class="n">y</span><span class="o">.</span><span class="n">numpy</span><span class="p">())</span>
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+<div class="jp-Cell-outputWrapper">
+<div class="jp-Collapser jp-OutputCollapser jp-Cell-outputCollapser">
+</div>
+
+
+<div class="jp-OutputArea jp-Cell-outputArea">
+<div class="jp-OutputArea-child">
+    
+    <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+
+
+<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="application/vnd.jupyter.stderr">
+<pre>
+<span class="ansi-red-fg">---------------------------------------------------------------------------</span>
+<span class="ansi-red-fg">NameError</span>                                 Traceback (most recent call last)
+Cell <span class="ansi-green-fg">In[4], line 4</span>
+<span class="ansi-green-intense-fg ansi-bold">      2</span> x <span style="color: rgb(98,98,98)">=</span> math<span style="color: rgb(98,98,98)">.</span>random_uniform(DATASET, low<span style="color: rgb(98,98,98)">=</span><span style="color: rgb(98,98,98)">-</span>math<span style="color: rgb(98,98,98)">.</span>PI, high<span style="color: rgb(98,98,98)">=</span>math<span style="color: rgb(98,98,98)">.</span>PI)
+<span class="ansi-green-intense-fg ansi-bold">      3</span> y <span style="color: rgb(98,98,98)">=</span> math<span style="color: rgb(98,98,98)">.</span>sin(x) <span style="color: rgb(98,98,98)">+</span> math<span style="color: rgb(98,98,98)">.</span>random_normal(DATASET) <span style="color: rgb(98,98,98)">*</span> <span style="color: rgb(98,98,98)">.1</span>
+<span class="ansi-green-fg">----&gt; 4</span> <span class="ansi-yellow-bg">plt</span><span style="color: rgb(98,98,98)">.</span>scatter(x<span style="color: rgb(98,98,98)">.</span>numpy(), y<span style="color: rgb(98,98,98)">.</span>numpy())
+
+<span class="ansi-red-fg">NameError</span>: name &#39;plt&#39; is not defined</pre>
+</div>
+</div>
+
+</div>
+
+</div>
+
+</div>
+<div  class="jp-Cell jp-MarkdownCell jp-Notebook-cell">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
+</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
+<p>For the loss function, we will use the $L^2$ comparing prediction to labels.
+We use <a href="unifyml/math#unifyml.math.native_call"><code>math.native_call()</code></a> to call the network with native tensors reshaped to the preferences of the current backend library.
+This will pass tensors of shape BCS to PyTorch and BSC to TensorFlow and Jax, where B denotes the packed batch dimensions, C the packed channel dimensions and S all spatial dimensions.</p>
 
 </div>
 </div>
@@ -15126,10 +15360,12 @@ body[data-format='mobile'] .jp-OutputArea-child .jp-OutputArea-output {
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[5]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython2"><pre><span></span> 
+<div class=" highlight hl-ipython2"><pre><span></span><span class="k">def</span> <span class="nf">loss_function</span><span class="p">(</span><span class="n">network_input</span><span class="p">,</span> <span class="n">label</span><span class="p">):</span>
+    <span class="n">prediction</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">native_call</span><span class="p">(</span><span class="n">mlp</span><span class="p">,</span> <span class="n">network_input</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">math</span><span class="o">.</span><span class="n">l2_loss</span><span class="p">(</span><span class="n">prediction</span> <span class="o">-</span> <span class="n">label</span><span class="p">),</span> <span class="n">prediction</span>
 </pre></div>
 
      </div>
@@ -15137,6 +15373,304 @@ body[data-format='mobile'] .jp-OutputArea-child .jp-OutputArea-output {
 </div>
 </div>
 
+</div>
+<div  class="jp-Cell jp-MarkdownCell jp-Notebook-cell">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
+</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
+<p>Next, we create an optimizer, such as <a href="unifyml/nn#unifyml.nn.sgd"><code>SGD</code></a>, <a href="unifyml/nn#unifyml.nn.adam"><code>Adam</code></a>, <a href="unifyml/nn#unifyml.nn.adagrad"><code>AdaGrad</code></a>, or <a href="unifyml/nn#unifyml.nn.rmsprop"><code>RMSprop</code></a>.
+The returned optimizer is again a library-specific type (in this case a PyTorch optimizer).</p>
+
+</div>
+</div>
+</div>
+</div><div  class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[6]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-ipython2"><pre><span></span><span class="n">optimizer</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">adam</span><span class="p">(</span><span class="n">mlp</span><span class="p">,</span> <span class="n">learning_rate</span><span class="o">=</span><span class="mf">5e-3</span><span class="p">)</span>
+<span class="n">optimizer</span>
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+<div class="jp-Cell-outputWrapper">
+<div class="jp-Collapser jp-OutputCollapser jp-Cell-outputCollapser">
+</div>
+
+
+<div class="jp-OutputArea jp-Cell-outputArea">
+<div class="jp-OutputArea-child jp-OutputArea-executeResult">
+    
+    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[6]:</div>
+
+
+
+
+<div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
+<pre>Adam (
+Parameter Group 0
+    amsgrad: False
+    betas: (0.9, 0.999)
+    capturable: False
+    differentiable: False
+    eps: 1e-07
+    foreach: None
+    fused: None
+    lr: 0.005
+    maximize: False
+    weight_decay: 0
+)</pre>
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+<div  class="jp-Cell jp-MarkdownCell jp-Notebook-cell">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
+</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
+<p>Finally, we repeatedly update the weights using backprop.
+Here, we use <a href="unifyml/nn#unifyml.nn.update_weights"><code>update_weights()</code></a>, passing in the network, optimizer, loss function, and loss function arguments.
+If you want more control over the training loop, you can use library-specific functions as well, since the network and optimizer do not depend on UnifyML.</p>
+
+</div>
+</div>
+</div>
+</div><div  class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[7]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-ipython2"><pre><span></span><span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">200</span><span class="p">):</span>
+    <span class="n">loss</span><span class="p">,</span> <span class="n">pred</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">update_weights</span><span class="p">(</span><span class="n">mlp</span><span class="p">,</span> <span class="n">optimizer</span><span class="p">,</span> <span class="n">loss_function</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">numpy</span><span class="p">(),</span> <span class="n">pred</span><span class="o">.</span><span class="n">numpy</span><span class="p">())</span>
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+<div class="jp-Cell-outputWrapper">
+<div class="jp-Collapser jp-OutputCollapser jp-Cell-outputCollapser">
+</div>
+
+
+<div class="jp-OutputArea jp-Cell-outputArea">
+<div class="jp-OutputArea-child">
+    
+    <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+
+
+<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="application/vnd.jupyter.stderr">
+<pre>
+<span class="ansi-red-fg">---------------------------------------------------------------------------</span>
+<span class="ansi-red-fg">NameError</span>                                 Traceback (most recent call last)
+Cell <span class="ansi-green-fg">In[7], line 3</span>
+<span class="ansi-green-intense-fg ansi-bold">      1</span> <span class="ansi-bold" style="color: rgb(0,135,0)">for</span> i <span class="ansi-bold" style="color: rgb(175,0,255)">in</span> <span style="color: rgb(0,135,0)">range</span>(<span style="color: rgb(98,98,98)">200</span>):
+<span class="ansi-green-intense-fg ansi-bold">      2</span>     loss, pred <span style="color: rgb(98,98,98)">=</span> nn<span style="color: rgb(98,98,98)">.</span>update_weights(mlp, optimizer, loss_function, x, y)
+<span class="ansi-green-fg">----&gt; 3</span> <span class="ansi-yellow-bg">plt</span><span style="color: rgb(98,98,98)">.</span>scatter(x<span style="color: rgb(98,98,98)">.</span>numpy(), pred<span style="color: rgb(98,98,98)">.</span>numpy())
+
+<span class="ansi-red-fg">NameError</span>: name &#39;plt&#39; is not defined</pre>
+</div>
+</div>
+
+</div>
+
+</div>
+
+</div>
+<div  class="jp-Cell jp-MarkdownCell jp-Notebook-cell">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
+</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
+<h2 id="Training-a-U-Net">Training a U-Net<a class="anchor-link" href="#Training-a-U-Net">&#182;</a></h2><p>Following the principles of UnifyML, U-Nets, as well as many other network architectures, can <a href="N_Dimensional.html">operate on 1D, 2D or 3D</a> grids.
+The number of spatial dimensions, <code>in_spatial</code>, must be specified when creating the network.</p>
+
+</div>
+</div>
+</div>
+</div><div  class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[8]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-ipython2"><pre><span></span><span class="n">u_net</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">u_net</span><span class="p">(</span><span class="n">in_channels</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">out_channels</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">levels</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">periodic</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">in_spatial</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+<span class="n">optimizer</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">adam</span><span class="p">(</span><span class="n">u_net</span><span class="p">,</span> <span class="mf">1e-3</span><span class="p">)</span>
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+</div>
+<div  class="jp-Cell jp-MarkdownCell jp-Notebook-cell">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
+</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
+<p>Let's train the network to turn a 2D grid of random noise into a Gaussian distribution.</p>
+
+</div>
+</div>
+</div>
+</div><div  class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[9]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-ipython2"><pre><span></span><span class="n">SPATIAL</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">spatial</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="mi">64</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="mi">64</span><span class="p">)</span>
+<span class="n">x</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">random_normal</span><span class="p">(</span><span class="n">SPATIAL</span><span class="p">)</span>
+<span class="n">y</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="mf">.5</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">vec_squared</span><span class="p">((</span><span class="n">math</span><span class="o">.</span><span class="n">meshgrid</span><span class="p">(</span><span class="n">SPATIAL</span><span class="p">)</span> <span class="o">/</span> <span class="n">SPATIAL</span><span class="p">)</span> <span class="o">-</span> <span class="mf">.5</span><span class="p">))</span>
+
+<span class="n">fig</span><span class="p">,</span> <span class="p">(</span><span class="n">ax1</span><span class="p">,</span> <span class="n">ax2</span><span class="p">)</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="mi">4</span><span class="p">))</span>
+<span class="n">ax1</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">numpy</span><span class="p">(</span><span class="s1">&#39;y,x&#39;</span><span class="p">))</span>
+<span class="n">ax2</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">y</span><span class="o">.</span><span class="n">numpy</span><span class="p">(</span><span class="s1">&#39;y,x&#39;</span><span class="p">))</span>
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+<div class="jp-Cell-outputWrapper">
+<div class="jp-Collapser jp-OutputCollapser jp-Cell-outputCollapser">
+</div>
+
+
+<div class="jp-OutputArea jp-Cell-outputArea">
+<div class="jp-OutputArea-child">
+    
+    <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+
+
+<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="application/vnd.jupyter.stderr">
+<pre>
+<span class="ansi-red-fg">---------------------------------------------------------------------------</span>
+<span class="ansi-red-fg">NameError</span>                                 Traceback (most recent call last)
+Cell <span class="ansi-green-fg">In[9], line 5</span>
+<span class="ansi-green-intense-fg ansi-bold">      2</span> x <span style="color: rgb(98,98,98)">=</span> math<span style="color: rgb(98,98,98)">.</span>random_normal(SPATIAL)
+<span class="ansi-green-intense-fg ansi-bold">      3</span> y <span style="color: rgb(98,98,98)">=</span> math<span style="color: rgb(98,98,98)">.</span>exp(<span style="color: rgb(98,98,98)">-</span><span style="color: rgb(98,98,98)">.5</span> <span style="color: rgb(98,98,98)">*</span> math<span style="color: rgb(98,98,98)">.</span>vec_squared((math<span style="color: rgb(98,98,98)">.</span>meshgrid(SPATIAL) <span style="color: rgb(98,98,98)">/</span> SPATIAL) <span style="color: rgb(98,98,98)">-</span> <span style="color: rgb(98,98,98)">.5</span>))
+<span class="ansi-green-fg">----&gt; 5</span> fig, (ax1, ax2) <span style="color: rgb(98,98,98)">=</span> <span class="ansi-yellow-bg">plt</span><span style="color: rgb(98,98,98)">.</span>subplots(<span style="color: rgb(98,98,98)">1</span>, <span style="color: rgb(98,98,98)">2</span>, figsize<span style="color: rgb(98,98,98)">=</span>(<span style="color: rgb(98,98,98)">8</span>, <span style="color: rgb(98,98,98)">4</span>))
+<span class="ansi-green-intense-fg ansi-bold">      6</span> ax1<span style="color: rgb(98,98,98)">.</span>imshow(x<span style="color: rgb(98,98,98)">.</span>numpy(<span style="color: rgb(175,0,0)">&#39;</span><span style="color: rgb(175,0,0)">y,x</span><span style="color: rgb(175,0,0)">&#39;</span>))
+<span class="ansi-green-intense-fg ansi-bold">      7</span> ax2<span style="color: rgb(98,98,98)">.</span>imshow(y<span style="color: rgb(98,98,98)">.</span>numpy(<span style="color: rgb(175,0,0)">&#39;</span><span style="color: rgb(175,0,0)">y,x</span><span style="color: rgb(175,0,0)">&#39;</span>))
+
+<span class="ansi-red-fg">NameError</span>: name &#39;plt&#39; is not defined</pre>
+</div>
+</div>
+
+</div>
+
+</div>
+
+</div>
+<div  class="jp-Cell jp-MarkdownCell jp-Notebook-cell">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
+</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
+<p>Let's train the network!</p>
+
+</div>
+</div>
+</div>
+</div><div  class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[10]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-ipython2"><pre><span></span><span class="k">def</span> <span class="nf">loss_function</span><span class="p">():</span>
+    <span class="n">prediction</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">native_call</span><span class="p">(</span><span class="n">u_net</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">math</span><span class="o">.</span><span class="n">l2_loss</span><span class="p">(</span><span class="n">prediction</span> <span class="o">-</span> <span class="n">y</span><span class="p">),</span> <span class="n">prediction</span>
+
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">200</span><span class="p">):</span>
+    <span class="n">loss</span><span class="p">,</span> <span class="n">pred</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">update_weights</span><span class="p">(</span><span class="n">u_net</span><span class="p">,</span> <span class="n">optimizer</span><span class="p">,</span> <span class="n">loss_function</span><span class="p">)</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">pred</span><span class="o">.</span><span class="n">numpy</span><span class="p">(</span><span class="s1">&#39;y,x&#39;</span><span class="p">))</span>
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+<div class="jp-Cell-outputWrapper">
+<div class="jp-Collapser jp-OutputCollapser jp-Cell-outputCollapser">
+</div>
+
+
+<div class="jp-OutputArea jp-Cell-outputArea">
+<div class="jp-OutputArea-child">
+    
+    <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+
+
+<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="application/vnd.jupyter.stderr">
+<pre>
+<span class="ansi-red-fg">---------------------------------------------------------------------------</span>
+<span class="ansi-red-fg">NameError</span>                                 Traceback (most recent call last)
+Cell <span class="ansi-green-fg">In[10], line 8</span>
+<span class="ansi-green-intense-fg ansi-bold">      5</span> <span class="ansi-bold" style="color: rgb(0,135,0)">for</span> i <span class="ansi-bold" style="color: rgb(175,0,255)">in</span> <span style="color: rgb(0,135,0)">range</span>(<span style="color: rgb(98,98,98)">200</span>):
+<span class="ansi-green-intense-fg ansi-bold">      6</span>     loss, pred <span style="color: rgb(98,98,98)">=</span> nn<span style="color: rgb(98,98,98)">.</span>update_weights(u_net, optimizer, loss_function)
+<span class="ansi-green-fg">----&gt; 8</span> <span class="ansi-yellow-bg">plt</span><span style="color: rgb(98,98,98)">.</span>imshow(pred<span style="color: rgb(98,98,98)">.</span>numpy(<span style="color: rgb(175,0,0)">&#39;</span><span style="color: rgb(175,0,0)">y,x</span><span style="color: rgb(175,0,0)">&#39;</span>))
+
+<span class="ansi-red-fg">NameError</span>: name &#39;plt&#39; is not defined</pre>
+</div>
+</div>
+
+</div>
+
+</div>
+
+</div>
+<div  class="jp-Cell jp-MarkdownCell jp-Notebook-cell">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
+</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
+<h2 id="Further-Reading">Further Reading<a class="anchor-link" href="#Further-Reading">&#182;</a></h2><p>  •   <a href="https://github.com/holl-/UnifyML">🌐 <strong>UnifyML</strong></a>
+  •   <a href="https://holl-.github.io/UnifyML/">📖 <strong>Documentation</strong></a>
+  •   <a href="https://holl-.github.io/UnifyML/unifyml">🔗 <strong>API</strong></a>
+  •   <a href=""><strong>▶ Videos</strong></a>
+  •   <a href="https://colab.research.google.com/github/holl-/UnifyML/blob/main/docs/Examples.ipynb"><img src="images/colab_logo_small.png" height=4></a> <a href="https://holl-.github.io/UnifyML/Examples.html"><strong>Examples</strong></a></p>
+
+</div>
+</div>
+</div>
 </div>
 </body>
 
