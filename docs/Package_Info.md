@@ -1,8 +1,8 @@
 # ML4Science
 
 [🌐 **Homepage**](https://github.com/holl-/ML4Science)
-&nbsp;&nbsp;&nbsp; [📖 **Documentation**](https://holl-.github.io/ML4Science/)
-&nbsp;&nbsp;&nbsp; [🔗 **API**](https://holl-.github.io/ML4Science/ml4s)
+&nbsp; • &nbsp; [📖 **Documentation**](https://holl-.github.io/ML4Science/)
+&nbsp; • &nbsp; [🔗 **API**](https://holl-.github.io/ML4Science/ml4s)
 &nbsp; • &nbsp; [**▶ Videos**]()
 &nbsp; • &nbsp; [<img src="https://www.tensorflow.org/images/colab_logo_32px.png" height=16>](https://colab.research.google.com/github/holl-/ML4Science/blob/main/docs/Examples.ipynb) [**Examples**](https://holl-.github.io/ML4Science/Examples.html)
 
