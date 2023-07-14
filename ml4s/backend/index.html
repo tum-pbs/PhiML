@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
 <meta name="generator" content="pdoc 0.10.0" />
-<title>unifyml.backend API documentation</title>
+<title>ml4s.backend API documentation</title>
 <meta name="description" content="Low-level library wrappers for delegating vector operations." />
 <link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
 <link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/typography.min.css" integrity="sha256-7l/o7C8jubJiy74VsKTidCy1yBkRtiUGbVkYBylBqUg=" crossorigin>
@@ -19,7 +19,7 @@
 <main>
 <article id="content">
 <header>
-<h1 class="title">Module <code>unifyml.backend</code></h1>
+<h1 class="title">Module <code>ml4s.backend</code></h1>
 </header>
 <section id="section-intro">
 <p>Low-level library wrappers for delegating vector operations.</p>
@@ -73,15 +73,15 @@ __pdoc__ = {
 <section>
 <h2 class="section-title" id="header-submodules">Sub-modules</h2>
 <dl>
-<dt><code class="name"><a title="unifyml.backend.jax" href="jax/index.html">unifyml.backend.jax</a></code></dt>
+<dt><code class="name"><a title="ml4s.backend.jax" href="jax/index.html">ml4s.backend.jax</a></code></dt>
 <dd>
 <div class="desc"></div>
 </dd>
-<dt><code class="name"><a title="unifyml.backend.tensorflow" href="tensorflow/index.html">unifyml.backend.tensorflow</a></code></dt>
+<dt><code class="name"><a title="ml4s.backend.tensorflow" href="tensorflow/index.html">ml4s.backend.tensorflow</a></code></dt>
 <dd>
 <div class="desc"><p>TensorFlow integration.</p></div>
 </dd>
-<dt><code class="name"><a title="unifyml.backend.torch" href="torch/index.html">unifyml.backend.torch</a></code></dt>
+<dt><code class="name"><a title="ml4s.backend.torch" href="torch/index.html">ml4s.backend.torch</a></code></dt>
 <dd>
 <div class="desc"><p>PyTorch integration.</p></div>
 </dd>
@@ -90,7 +90,7 @@ __pdoc__ = {
 <section>
 <h2 class="section-title" id="header-variables">Global variables</h2>
 <dl>
-<dt id="unifyml.backend.OBJECTS"><code class="name">var <span class="ident">OBJECTS</span></code></dt>
+<dt id="ml4s.backend.OBJECTS"><code class="name">var <span class="ident">OBJECTS</span></code></dt>
 <dd>
 <div class="desc"><p>Backend for Python objects.</p></div>
 </dd>
@@ -99,8 +99,8 @@ __pdoc__ = {
 <section>
 <h2 class="section-title" id="header-functions">Functions</h2>
 <dl>
-<dt id="unifyml.backend.choose_backend"><code class="name flex">
-<span>def <span class="ident">choose_backend</span></span>(<span>*values, prefer_default=False) ‑> unifyml.backend._backend.Backend</span>
+<dt id="ml4s.backend.choose_backend"><code class="name flex">
+<span>def <span class="ident">choose_backend</span></span>(<span>*values, prefer_default=False) ‑> ml4s.backend._backend.Backend</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Selects a suitable backend to handle the given values.</p>
@@ -110,10 +110,10 @@ __pdoc__ = {
 <dl>
 <dt>*values:</dt>
 <dt><strong><code>prefer_default</code></strong></dt>
-<dd>Whether to always select the default backend if it can work with <code>values</code>, see <code><a title="unifyml.backend.default_backend" href="#unifyml.backend.default_backend">default_backend()</a></code>.</dd>
+<dd>Whether to always select the default backend if it can work with <code>values</code>, see <code><a title="ml4s.backend.default_backend" href="#ml4s.backend.default_backend">default_backend()</a></code>.</dd>
 </dl>
 <h2 id="returns">Returns</h2>
-<p>The selected <code><a title="unifyml.backend.Backend" href="#unifyml.backend.Backend">Backend</a></code></p></div>
+<p>The selected <code><a title="ml4s.backend.Backend" href="#ml4s.backend.Backend">Backend</a></code></p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -155,14 +155,14 @@ __pdoc__ = {
     return backends[0]</code></pre>
 </details>
 </dd>
-<dt id="unifyml.backend.context_backend"><code class="name flex">
-<span>def <span class="ident">context_backend</span></span>(<span>) ‑> Optional[unifyml.backend._backend.Backend]</span>
+<dt id="ml4s.backend.context_backend"><code class="name flex">
+<span>def <span class="ident">context_backend</span></span>(<span>) ‑> Optional[ml4s.backend._backend.Backend]</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Returns the backend set by the inner-most surrounding <code>with backend:</code> block.
 If called outside a backend context, returns <code>None</code>.</p>
 <h2 id="returns">Returns</h2>
-<p><code><a title="unifyml.backend.Backend" href="#unifyml.backend.Backend">Backend</a></code> or <code>None</code></p></div>
+<p><code><a title="ml4s.backend.Backend" href="#ml4s.backend.Backend">Backend</a></code> or <code>None</code></p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -178,8 +178,8 @@ If called outside a backend context, returns <code>None</code>.</p>
     return _DEFAULT[-1] if len(_DEFAULT) &gt; 1 else None</code></pre>
 </details>
 </dd>
-<dt id="unifyml.backend.convert"><code class="name flex">
-<span>def <span class="ident">convert</span></span>(<span>tensor, backend: unifyml.backend._backend.Backend = None, use_dlpack=True)</span>
+<dt id="ml4s.backend.convert"><code class="name flex">
+<span>def <span class="ident">convert</span></span>(<span>tensor, backend: ml4s.backend._backend.Backend = None, use_dlpack=True)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Convert a Tensor to the native format of <code>backend</code>.
@@ -192,7 +192,7 @@ Else, intermediately converts <code>tensor</code> to a NumPy array.</p>
 <dt><strong><code>tensor</code></strong></dt>
 <dd>Native tensor belonging to any registered backend.</dd>
 <dt><strong><code>backend</code></strong></dt>
-<dd>Target backend. If <code>None</code>, uses the current default backend, see <code><a title="unifyml.backend.default_backend" href="#unifyml.backend.default_backend">default_backend()</a></code>.</dd>
+<dd>Target backend. If <code>None</code>, uses the current default backend, see <code><a title="ml4s.backend.default_backend" href="#ml4s.backend.default_backend">default_backend()</a></code>.</dd>
 </dl>
 <h2 id="returns">Returns</h2>
 <p>Tensor belonging to <code>backend</code>.</p></div>
@@ -231,14 +231,14 @@ Else, intermediately converts <code>tensor</code> to a NumPy array.</p>
         return backend.as_tensor(nparray)</code></pre>
 </details>
 </dd>
-<dt id="unifyml.backend.default_backend"><code class="name flex">
-<span>def <span class="ident">default_backend</span></span>(<span>) ‑> unifyml.backend._backend.Backend</span>
+<dt id="ml4s.backend.default_backend"><code class="name flex">
+<span>def <span class="ident">default_backend</span></span>(<span>) ‑> ml4s.backend._backend.Backend</span>
 </code></dt>
 <dd>
-<div class="desc"><p>The default backend is preferred by <code><a title="unifyml.backend.choose_backend" href="#unifyml.backend.choose_backend">choose_backend()</a></code>.</p>
-<p>The default backend can be set globally using <code><a title="unifyml.backend.set_global_default_backend" href="#unifyml.backend.set_global_default_backend">set_global_default_backend()</a></code> and locally using <code>with backend:</code>.</p>
+<div class="desc"><p>The default backend is preferred by <code><a title="ml4s.backend.choose_backend" href="#ml4s.backend.choose_backend">choose_backend()</a></code>.</p>
+<p>The default backend can be set globally using <code><a title="ml4s.backend.set_global_default_backend" href="#ml4s.backend.set_global_default_backend">set_global_default_backend()</a></code> and locally using <code>with backend:</code>.</p>
 <h2 id="returns">Returns</h2>
-<p>current default <code><a title="unifyml.backend.Backend" href="#unifyml.backend.Backend">Backend</a></code></p></div>
+<p>current default <code><a title="ml4s.backend.Backend" href="#ml4s.backend.Backend">Backend</a></code></p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -255,11 +255,11 @@ Else, intermediately converts <code>tensor</code> to a NumPy array.</p>
     return _DEFAULT[-1]</code></pre>
 </details>
 </dd>
-<dt id="unifyml.backend.get_current_profile"><code class="name flex">
-<span>def <span class="ident">get_current_profile</span></span>(<span>) ‑> Optional[unifyml.backend._profile.Profile]</span>
+<dt id="ml4s.backend.get_current_profile"><code class="name flex">
+<span>def <span class="ident">get_current_profile</span></span>(<span>) ‑> Optional[ml4s.backend._profile.Profile]</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Returns the currently active <code><a title="unifyml.backend.Profile" href="#unifyml.backend.Profile">Profile</a></code> if one is active. Otherwise returns <code>None</code>.</p></div>
+<div class="desc"><p>Returns the currently active <code><a title="ml4s.backend.Profile" href="#ml4s.backend.Profile">Profile</a></code> if one is active. Otherwise returns <code>None</code>.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -269,12 +269,12 @@ Else, intermediately converts <code>tensor</code> to a NumPy array.</p>
     return _PROFILE[-1] if _PROFILE else None</code></pre>
 </details>
 </dd>
-<dt id="unifyml.backend.get_precision"><code class="name flex">
+<dt id="ml4s.backend.get_precision"><code class="name flex">
 <span>def <span class="ident">get_precision</span></span>(<span>) ‑> int</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Gets the current target floating point precision in bits.
-The precision can be set globally using <code><a title="unifyml.backend.set_global_precision" href="#unifyml.backend.set_global_precision">set_global_precision()</a></code> or locally using <code>with precision(p):</code>.</p>
+The precision can be set globally using <code><a title="ml4s.backend.set_global_precision" href="#ml4s.backend.set_global_precision">set_global_precision()</a></code> or locally using <code>with precision(p):</code>.</p>
 <p>Any Backend method may convert floating point values to this precision, even if the input had a different precision.</p>
 <h2 id="returns">Returns</h2>
 <p>16 for half, 32 for single, 64 for double</p></div>
@@ -295,13 +295,13 @@ The precision can be set globally using <code><a title="unifyml.backend.set_glob
     return _PRECISION[-1]</code></pre>
 </details>
 </dd>
-<dt id="unifyml.backend.precision"><code class="name flex">
+<dt id="ml4s.backend.precision"><code class="name flex">
 <span>def <span class="ident">precision</span></span>(<span>floating_point_bits: int)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Sets the floating point precision for the local context.</p>
 <p>Usage: <code>with precision(p):</code></p>
-<p>This overrides the global setting, see <code><a title="unifyml.backend.set_global_precision" href="#unifyml.backend.set_global_precision">set_global_precision()</a></code>.</p>
+<p>This overrides the global setting, see <code><a title="ml4s.backend.set_global_precision" href="#ml4s.backend.set_global_precision">set_global_precision()</a></code>.</p>
 <h2 id="args">Args</h2>
 <dl>
 <dt><strong><code>floating_point_bits</code></strong></dt>
@@ -330,12 +330,12 @@ def precision(floating_point_bits: int):
         _PRECISION.pop(-1)</code></pre>
 </details>
 </dd>
-<dt id="unifyml.backend.profile"><code class="name flex">
-<span>def <span class="ident">profile</span></span>(<span>backends=None, trace=True, subtract_trace_time=True, save: Optional[str] = None) ‑> unifyml.backend._profile.Profile</span>
+<dt id="ml4s.backend.profile"><code class="name flex">
+<span>def <span class="ident">profile</span></span>(<span>backends=None, trace=True, subtract_trace_time=True, save: Optional[str] = None) ‑> ml4s.backend._profile.Profile</span>
 </code></dt>
 <dd>
 <div class="desc"><p>To be used in <code>with</code> statements, <code>with math.backend.profile() as prof: ...</code>.
-Creates a <code><a title="unifyml.backend.Profile" href="#unifyml.backend.Profile">Profile</a></code> for the code executed within the context by tracking calls to the <code>backends</code> and optionally tracing the call.</p>
+Creates a <code><a title="ml4s.backend.Profile" href="#ml4s.backend.Profile">Profile</a></code> for the code executed within the context by tracking calls to the <code>backends</code> and optionally tracing the call.</p>
 <h2 id="args">Args</h2>
 <dl>
 <dt><strong><code>backends</code></strong></dt>
@@ -345,10 +345,10 @@ Creates a <code><a title="unifyml.backend.Profile" href="#unifyml.backend.Profil
 <dt><strong><code>subtract_trace_time</code></strong></dt>
 <dd>If True, subtracts the time it took to trace the call stack from the event times</dd>
 <dt><strong><code>save</code></strong></dt>
-<dd>(Optional) File path to save the profile to. This will call <code><a title="unifyml.backend.Profile.save" href="#unifyml.backend.Profile.save">Profile.save()</a></code>.</dd>
+<dd>(Optional) File path to save the profile to. This will call <code><a title="ml4s.backend.Profile.save" href="#ml4s.backend.Profile.save">Profile.save()</a></code>.</dd>
 </dl>
 <h2 id="returns">Returns</h2>
-<p>Created <code><a title="unifyml.backend.Profile" href="#unifyml.backend.Profile">Profile</a></code></p></div>
+<p>Created <code><a title="ml4s.backend.Profile" href="#ml4s.backend.Profile">Profile</a></code></p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -379,11 +379,11 @@ def profile(backends=None, trace=True, subtract_trace_time=True, save: Union[str
             prof.save(save)</code></pre>
 </details>
 </dd>
-<dt id="unifyml.backend.profile_function"><code class="name flex">
-<span>def <span class="ident">profile_function</span></span>(<span>fun: Callable, args: Union[tuple, list] = (), kwargs: Optional[dict] = None, backends=None, trace=True, subtract_trace_time=True, retime=True, warmup=1, call_count=1) ‑> unifyml.backend._profile.Profile</span>
+<dt id="ml4s.backend.profile_function"><code class="name flex">
+<span>def <span class="ident">profile_function</span></span>(<span>fun: Callable, args: Union[tuple, list] = (), kwargs: Optional[dict] = None, backends=None, trace=True, subtract_trace_time=True, retime=True, warmup=1, call_count=1) ‑> ml4s.backend._profile.Profile</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Creates a <code><a title="unifyml.backend.Profile" href="#unifyml.backend.Profile">Profile</a></code> for the function <code>fun(*args, **kwargs)</code>.</p>
+<div class="desc"><p>Creates a <code><a title="ml4s.backend.Profile" href="#ml4s.backend.Profile">Profile</a></code> for the function <code>fun(*args, **kwargs)</code>.</p>
 <h2 id="args">Args</h2>
 <dl>
 <dt><strong><code>fun</code></strong></dt>
@@ -402,14 +402,14 @@ Use <code>warmup&gt;0</code> to ensure that internal caching does not interfere 
 <dt><strong><code>retime</code></strong></dt>
 <dd>If true, calls <code>fun</code> another time without tracing the calls and updates the profile.
 This gives a much better indication of the true timing.
-See <code><a title="unifyml.backend.Profile.retime" href="#unifyml.backend.Profile.retime">Profile.retime()</a></code>.</dd>
+See <code><a title="ml4s.backend.Profile.retime" href="#ml4s.backend.Profile.retime">Profile.retime()</a></code>.</dd>
 <dt><strong><code>warmup</code></strong></dt>
 <dd>Number of times to call <code>fun</code> before profiling it.</dd>
 <dt><strong><code>call_count</code></strong></dt>
 <dd>How often to call the function (excluding retime and warmup). The times will be averaged over multiple runs if <code>call_count &gt; 1</code>.</dd>
 </dl>
 <h2 id="returns">Returns</h2>
-<p>Created <code><a title="unifyml.backend.Profile" href="#unifyml.backend.Profile">Profile</a></code> for <code>fun</code>.</p></div>
+<p>Created <code><a title="ml4s.backend.Profile" href="#ml4s.backend.Profile">Profile</a></code> for <code>fun</code>.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -458,17 +458,17 @@ See <code><a title="unifyml.backend.Profile.retime" href="#unifyml.backend.Profi
     return prof</code></pre>
 </details>
 </dd>
-<dt id="unifyml.backend.set_global_default_backend"><code class="name flex">
-<span>def <span class="ident">set_global_default_backend</span></span>(<span>backend: Union[str, unifyml.backend._backend.Backend]) ‑> unifyml.backend._backend.Backend</span>
+<dt id="ml4s.backend.set_global_default_backend"><code class="name flex">
+<span>def <span class="ident">set_global_default_backend</span></span>(<span>backend: Union[str, ml4s.backend._backend.Backend]) ‑> ml4s.backend._backend.Backend</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Sets the given backend as default.
 This setting can be overridden using <code>with backend:</code>.</p>
-<p>See <code><a title="unifyml.backend.default_backend" href="#unifyml.backend.default_backend">default_backend()</a></code>, <code><a title="unifyml.backend.choose_backend" href="#unifyml.backend.choose_backend">choose_backend()</a></code>.</p>
+<p>See <code><a title="ml4s.backend.default_backend" href="#ml4s.backend.default_backend">default_backend()</a></code>, <code><a title="ml4s.backend.choose_backend" href="#ml4s.backend.choose_backend">choose_backend()</a></code>.</p>
 <h2 id="args">Args</h2>
 <dl>
 <dt><strong><code>backend</code></strong></dt>
-<dd><code><a title="unifyml.backend.Backend" href="#unifyml.backend.Backend">Backend</a></code> or backend name to set as default.
+<dd><code><a title="ml4s.backend.Backend" href="#ml4s.backend.Backend">Backend</a></code> or backend name to set as default.
 Possible names are <code>'torch'</code>, <code>'tensorflow'</code>, <code>'jax'</code>, <code>'numpy'</code>.</dd>
 </dl>
 <h2 id="returns">Returns</h2>
@@ -502,11 +502,11 @@ Possible names are <code>'torch'</code>, <code>'tensorflow'</code>, <code>'jax'<
     assert isinstance(backend, Backend), backend
     if _DEFAULT[0] is not backend:
         _DEFAULT[0] = backend
-        ML_LOGGER.info(f&#34;UnifyML&#39;s default backend is now {backend}&#34;)
+        ML_LOGGER.info(f&#34;ML4Science&#39;s default backend is now {backend}&#34;)
     return backend</code></pre>
 </details>
 </dd>
-<dt id="unifyml.backend.set_global_precision"><code class="name flex">
+<dt id="ml4s.backend.set_global_precision"><code class="name flex">
 <span>def <span class="ident">set_global_precision</span></span>(<span>floating_point_bits: int)</span>
 </code></dt>
 <dd>
@@ -545,20 +545,20 @@ The output of math operations has the same precision as its inputs.</p>
 <section>
 <h2 class="section-title" id="header-classes">Classes</h2>
 <dl>
-<dt id="unifyml.backend.Backend"><code class="flex name class">
+<dt id="ml4s.backend.Backend"><code class="flex name class">
 <span>class <span class="ident">Backend</span></span>
-<span>(</span><span>name: str, devices: List[unifyml.backend._backend.ComputeDevice], default_device: unifyml.backend._backend.ComputeDevice)</span>
+<span>(</span><span>name: str, devices: List[ml4s.backend._backend.ComputeDevice], default_device: ml4s.backend._backend.ComputeDevice)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Backends delegate low-level operations to a ML or numerics library or emulate them.
-The methods of <code><a title="unifyml.backend.Backend" href="#unifyml.backend.Backend">Backend</a></code> form a comprehensive list of available operations.</p>
-<p>To support a library, subclass <code><a title="unifyml.backend.Backend" href="#unifyml.backend.Backend">Backend</a></code> and register it by adding it to <code>BACKENDS</code>.</p>
+The methods of <code><a title="ml4s.backend.Backend" href="#ml4s.backend.Backend">Backend</a></code> form a comprehensive list of available operations.</p>
+<p>To support a library, subclass <code><a title="ml4s.backend.Backend" href="#ml4s.backend.Backend">Backend</a></code> and register it by adding it to <code>BACKENDS</code>.</p>
 <h2 id="args">Args</h2>
 <dl>
 <dt><strong><code>name</code></strong></dt>
 <dd>Human-readable string</dd>
 <dt><strong><code>default_device</code></strong></dt>
-<dd><code><a title="unifyml.backend.ComputeDevice" href="#unifyml.backend.ComputeDevice">ComputeDevice</a></code> being used by default</dd>
+<dd><code><a title="ml4s.backend.ComputeDevice" href="#ml4s.backend.ComputeDevice">ComputeDevice</a></code> being used by default</dd>
 </dl></div>
 <details class="source">
 <summary>
@@ -2064,15 +2064,15 @@ The methods of <code><a title="unifyml.backend.Backend" href="#unifyml.backend.B
 </details>
 <h3>Subclasses</h3>
 <ul class="hlist">
-<li>unifyml.backend._numpy_backend.NumPyBackend</li>
-<li>unifyml.backend._object.ObjectBackend</li>
-<li>unifyml.backend.jax._jax_backend.JaxBackend</li>
-<li>unifyml.backend.tensorflow._tf_backend.TFBackend</li>
-<li>unifyml.backend.torch._torch_backend.TorchBackend</li>
+<li>ml4s.backend._numpy_backend.NumPyBackend</li>
+<li>ml4s.backend._object.ObjectBackend</li>
+<li>ml4s.backend.jax._jax_backend.JaxBackend</li>
+<li>ml4s.backend.tensorflow._tf_backend.TFBackend</li>
+<li>ml4s.backend.torch._torch_backend.TorchBackend</li>
 </ul>
 <h3>Instance variables</h3>
 <dl>
-<dt id="unifyml.backend.Backend.as_registered"><code class="name">var <span class="ident">as_registered</span> : unifyml.backend._backend.Backend</code></dt>
+<dt id="ml4s.backend.Backend.as_registered"><code class="name">var <span class="ident">as_registered</span> : ml4s.backend._backend.Backend</code></dt>
 <dd>
 <div class="desc"></div>
 <details class="source">
@@ -2088,7 +2088,7 @@ def as_registered(self) -&gt; &#39;Backend&#39;:
     raise RuntimeError(f&#34;Backend &#39;{self}&#39; is not visible.&#34;)</code></pre>
 </details>
 </dd>
-<dt id="unifyml.backend.Backend.complex_type"><code class="name">var <span class="ident">complex_type</span> : unifyml.backend._dtype.DType</code></dt>
+<dt id="ml4s.backend.Backend.complex_type"><code class="name">var <span class="ident">complex_type</span> : ml4s.backend._dtype.DType</code></dt>
 <dd>
 <div class="desc"></div>
 <details class="source">
@@ -2100,7 +2100,7 @@ def complex_type(self) -&gt; DType:
     return DType(complex, max(64, self.precision))</code></pre>
 </details>
 </dd>
-<dt id="unifyml.backend.Backend.float_type"><code class="name">var <span class="ident">float_type</span> : unifyml.backend._dtype.DType</code></dt>
+<dt id="ml4s.backend.Backend.float_type"><code class="name">var <span class="ident">float_type</span> : ml4s.backend._dtype.DType</code></dt>
 <dd>
 <div class="desc"></div>
 <details class="source">
@@ -2112,7 +2112,7 @@ def float_type(self) -&gt; DType:
     return DType(float, self.precision)</code></pre>
 </details>
 </dd>
-<dt id="unifyml.backend.Backend.name"><code class="name">var <span class="ident">name</span> : str</code></dt>
+<dt id="ml4s.backend.Backend.name"><code class="name">var <span class="ident">name</span> : str</code></dt>
 <dd>
 <div class="desc"></div>
 <details class="source">
@@ -2124,7 +2124,7 @@ def name(self) -&gt; str:
     return self._name</code></pre>
 </details>
 </dd>
-<dt id="unifyml.backend.Backend.precision"><code class="name">var <span class="ident">precision</span> : int</code></dt>
+<dt id="ml4s.backend.Backend.precision"><code class="name">var <span class="ident">precision</span> : int</code></dt>
 <dd>
 <div class="desc"><p>Short for math.backend.get_precision()</p></div>
 <details class="source">
@@ -2140,7 +2140,7 @@ def precision(self) -&gt; int:
 </dl>
 <h3>Methods</h3>
 <dl>
-<dt id="unifyml.backend.Backend.abs"><code class="name flex">
+<dt id="ml4s.backend.Backend.abs"><code class="name flex">
 <span>def <span class="ident">abs</span></span>(<span>self, x)</span>
 </code></dt>
 <dd>
@@ -2153,7 +2153,7 @@ def precision(self) -&gt; int:
     raise NotImplementedError(self)</code></pre>
 </details>
 </dd>
-<dt id="unifyml.backend.Backend.add"><code class="name flex">
+<dt id="ml4s.backend.Backend.add"><code class="name flex">
 <span>def <span class="ident">add</span></span>(<span>self, a, b)</span>
 </code></dt>
 <dd>
@@ -2167,7 +2167,7 @@ def precision(self) -&gt; int:
     return a + b</code></pre>
 </details>
 </dd>
-<dt id="unifyml.backend.Backend.all"><code class="name flex">
+<dt id="ml4s.backend.Backend.all"><code class="name flex">
 <span>def <span class="ident">all</span></span>(<span>self, boolean_tensor, axis=None, keepdims=False)</span>
 </code></dt>
 <dd>
@@ -2180,8 +2180,8 @@ def precision(self) -&gt; int:
     raise NotImplementedError(self)</code></pre>
 </details>
 </dd>
-<dt id="unifyml.backend.Backend.allocate_on_device"><code class="name flex">
-<span>def <span class="ident">allocate_on_device</span></span>(<span>self, tensor: ~TensorType, device: unifyml.backend._backend.ComputeDevice) ‑> ~TensorType</span>
+<dt id="ml4s.backend.Backend.allocate_on_device"><code class="name flex">
+<span>def <span class="ident">allocate_on_device</span></span>(<span>self, tensor: ~TensorType, device: ml4s.backend._backend.ComputeDevice) ‑> ~TensorType</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Moves <code>tensor</code> to <code>device</code>. May copy the tensor if it is already on the device.</p>
@@ -2207,7 +2207,7 @@ def precision(self) -&gt; int:
     raise NotImplementedError()</code></pre>
 </details>
 </dd>
-<dt id="unifyml.backend.Backend.and_"><code class="name flex">
+<dt id="ml4s.backend.Backend.and_"><code class="name flex">
 <span>def <span class="ident">and_</span></span>(<span>self, a, b)</span>
 </code></dt>
 <dd>
@@ -2221,7 +2221,7 @@ def precision(self) -&gt; int:
     return a &amp; b</code></pre>
 </details>
 </dd>
-<dt id="unifyml.backend.Backend.any"><code class="name flex">
+<dt id="ml4s.backend.Backend.any"><code class="name flex">
 <span>def <span class="ident">any</span></span>(<span>self, boolean_tensor, axis=None, keepdims=False)</span>
 </code></dt>
 <dd>
@@ -2234,7 +2234,7 @@ def precision(self) -&gt; int:
     raise NotImplementedError(self)</code></pre>
 </details>
 </dd>
-<dt id="unifyml.backend.Backend.arccos"><code class="name flex">
+<dt id="ml4s.backend.Backend.arccos"><code class="name flex">
 <span>def <span class="ident">arccos</span></span>(<span>self, x)</span>
 </code></dt>
 <dd>
@@ -2247,7 +2247,7 @@ def precision(self) -&gt; int:
     raise NotImplementedError(self)</code></pre>
 </details>
 </dd>
-<dt id="unifyml.backend.Backend.arccosh"><code class="name flex">
+<dt id="ml4s.backend.Backend.arccosh"><code class="name flex">
 <span>def <span class="ident">arccosh</span></span>(<span>self, x)</span>
 </code></dt>
 <dd>
@@ -2260,7 +2260,7 @@ def precision(self) -&gt; int:
     raise NotImplementedError(self)</code></pre>
 </details>
 </dd>
-<dt id="unifyml.backend.Backend.arcsin"><code class="name flex">
+<dt id="ml4s.backend.Backend.arcsin"><code class="name flex">
 <span>def <span class="ident">arcsin</span></span>(<span>self, x)</span>
 </code></dt>
 <dd>
@@ -2273,7 +2273,7 @@ def precision(self) -&gt; int:
     raise NotImplementedError(self)</code></pre>
 </details>
 </dd>
-<dt id="unifyml.backend.Backend.arcsinh"><code class="name flex">
+<dt id="ml4s.backend.Backend.arcsinh"><code class="name flex">
 <span>def <span class="ident">arcsinh</span></span>(<span>self, x)</span>
 </code></dt>
 <dd>
@@ -2286,7 +2286,7 @@ def precision(self) -&gt; int:
     raise NotImplementedError(self)</code></pre>
 </details>
 </dd>
-<dt id="unifyml.backend.Backend.arctan"><code class="name flex">
+<dt id="ml4s.backend.Backend.arctan"><code class="name flex">
 <span>def <span class="ident">arctan</span></span>(<span>self, x)</span>
 </code></dt>
 <dd>
@@ -2299,7 +2299,7 @@ def precision(self) -&gt; int:
     raise NotImplementedError(self)</code></pre>
 </details>
 </dd>
-<dt id="unifyml.backend.Backend.arctan2"><code class="name flex">
+<dt id="ml4s.backend.Backend.arctan2"><code class="name flex">
 <span>def <span class="ident">arctan2</span></span>(<span>self, y, x)</span>
 </code></dt>
 <dd>
@@ -2312,7 +2312,7 @@ def precision(self) -&gt; int:
     raise NotImplementedError(self)</code></pre>
 </details>
 </dd>
-<dt id="unifyml.backend.Backend.arctanh"><code class="name flex">
+<dt id="ml4s.backend.Backend.arctanh"><code class="name flex">
 <span>def <span class="ident">arctanh</span></span>(<span>self, x)</span>
 </code></dt>
 <dd>
@@ -2325,7 +2325,7 @@ def precision(self) -&gt; int:
     raise NotImplementedError(self)</code></pre>
 </details>
 </dd>
-<dt id="unifyml.backend.Backend.argsort"><code class="name flex">
+<dt id="ml4s.backend.Backend.argsort"><code class="name flex">
 <span>def <span class="ident">argsort</span></span>(<span>self, x, axis=-1)</span>
 </code></dt>
 <dd>
@@ -2338,7 +2338,7 @@ def precision(self) -&gt; int:
     raise NotImplementedError(self)</code></pre>
 </details>
 </dd>
-<dt id="unifyml.backend.Backend.as_tensor"><code class="name flex">
+<dt id="ml4s.backend.Backend.as_tensor"><code class="name flex">
 <span>def <span class="ident">as_tensor</span></span>(<span>self, x, convert_external=True)</span>
 </code></dt>
 <dd>
@@ -2378,7 +2378,7 @@ If x is a Python number (numbers.Number instance), <code>convert_numbers</code> 
     raise NotImplementedError()</code></pre>
 </details>
 </dd>
-<dt id="unifyml.backend.Backend.auto_cast"><code class="name flex">
+<dt id="ml4s.backend.Backend.auto_cast"><code class="name flex">
 <span>def <span class="ident">auto_cast</span></span>(<span>self, *tensors, bool_to_int=False, int_to_float=False) ‑> list</span>
 </code></dt>
 <dd>
@@ -2423,7 +2423,7 @@ Backends can override this method to prevent unnecessary casting.</p>
     return tensors</code></pre>
 </details>
 </dd>
-<dt id="unifyml.backend.Backend.batch_gather"><code class="name flex">
+<dt id="ml4s.backend.Backend.batch_gather"><code class="name flex">
 <span>def <span class="ident">batch_gather</span></span>(<span>self, tensor, batches)</span>
 </code></dt>
 <dd>
@@ -2438,7 +2438,7 @@ Backends can override this method to prevent unnecessary casting.</p>
     return tensor[batches, ...]</code></pre>
 </details>
 </dd>
-<dt id="unifyml.backend.Backend.batched_bincount"><code class="name flex">
+<dt id="ml4s.backend.Backend.batched_bincount"><code class="name flex">
 <span>def <span class="ident">batched_bincount</span></span>(<span>self, x, weights: Optional[~TensorType], bins: int)</span>
 </code></dt>
 <dd>
@@ -2454,7 +2454,7 @@ Backends can override this method to prevent unnecessary casting.</p>
         return self.vectorized_call(self.bincount, x, weights, bins=bins)</code></pre>
 </details>
 </dd>
-<dt id="unifyml.backend.Backend.batched_gather_1d"><code class="name flex">
+<dt id="ml4s.backend.Backend.batched_gather_1d"><code class="name flex">
 <span>def <span class="ident">batched_gather_1d</span></span>(<span>self, values, indices)</span>
 </code></dt>
 <dd>
@@ -2467,7 +2467,7 @@ Backends can override this method to prevent unnecessary casting.</p>
     return self.batched_gather_nd(values[:, :, None], indices[:, :, None])[..., 0]</code></pre>
 </details>
 </dd>
-<dt id="unifyml.backend.Backend.batched_gather_nd"><code class="name flex">
+<dt id="ml4s.backend.Backend.batched_gather_nd"><code class="name flex">
 <span>def <span class="ident">batched_gather_nd</span></span>(<span>self, values, indices)</span>
 </code></dt>
 <dd>
@@ -2501,11 +2501,11 @@ The first dimension of <code>values</code> and <code>indices</code> is the batch
     raise NotImplementedError(self)</code></pre>
 </details>
 </dd>
-<dt id="unifyml.backend.Backend.bi_conjugate_gradient"><code class="name flex">
-<span>def <span class="ident">bi_conjugate_gradient</span></span>(<span>self, lin, y, x0, rtol, atol, max_iter, pre, poly_order=2) ‑> unifyml.backend._backend.SolveResult</span>
+<dt id="ml4s.backend.Backend.bi_conjugate_gradient"><code class="name flex">
+<span>def <span class="ident">bi_conjugate_gradient</span></span>(<span>self, lin, y, x0, rtol, atol, max_iter, pre, poly_order=2) ‑> ml4s.backend._backend.SolveResult</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Generalized stabilized biconjugate gradient algorithm. Signature matches to <code><a title="unifyml.backend.Backend.linear_solve" href="#unifyml.backend.Backend.linear_solve">Backend.linear_solve()</a></code>.</p></div>
+<div class="desc"><p>Generalized stabilized biconjugate gradient algorithm. Signature matches to <code><a title="ml4s.backend.Backend.linear_solve" href="#ml4s.backend.Backend.linear_solve">Backend.linear_solve()</a></code>.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -2516,7 +2516,7 @@ The first dimension of <code>values</code> and <code>indices</code> is the batch
     return bicg(self, lin, y, x0, rtol, atol, max_iter, pre, poly_order)</code></pre>
 </details>
 </dd>
-<dt id="unifyml.backend.Backend.bincount"><code class="name flex">
+<dt id="ml4s.backend.Backend.bincount"><code class="name flex">
 <span>def <span class="ident">bincount</span></span>(<span>self, x, weights: Optional[~TensorType], bins: int, x_sorted=False)</span>
 </code></dt>
 <dd>
@@ -2529,7 +2529,7 @@ The first dimension of <code>values</code> and <code>indices</code> is the batch
     raise NotImplementedError(self)</code></pre>
 </details>
 </dd>
-<dt id="unifyml.backend.Backend.block_until_ready"><code class="name flex">
+<dt id="ml4s.backend.Backend.block_until_ready"><code class="name flex">
 <span>def <span class="ident">block_until_ready</span></span>(<span>self, values)</span>
 </code></dt>
 <dd>
@@ -2542,7 +2542,7 @@ The first dimension of <code>values</code> and <code>indices</code> is the batch
     pass</code></pre>
 </details>
 </dd>
-<dt id="unifyml.backend.Backend.boolean_mask"><code class="name flex">
+<dt id="ml4s.backend.Backend.boolean_mask"><code class="name flex">
 <span>def <span class="ident">boolean_mask</span></span>(<span>self, x, mask, axis=0, new_length=None, fill_value=0)</span>
 </code></dt>
 <dd>
@@ -2575,7 +2575,7 @@ The first dimension of <code>values</code> and <code>indices</code> is the batch
     raise NotImplementedError(self)</code></pre>
 </details>
 </dd>
-<dt id="unifyml.backend.Backend.call"><code class="name flex">
+<dt id="ml4s.backend.Backend.call"><code class="name flex">
 <span>def <span class="ident">call</span></span>(<span>self, f: Callable, *args, name=None)</span>
 </code></dt>
 <dd>
@@ -2599,8 +2599,8 @@ This method may be used to register internal calls with the profiler.</p>
     return f(*args)</code></pre>
 </details>
 </dd>
-<dt id="unifyml.backend.Backend.cast"><code class="name flex">
-<span>def <span class="ident">cast</span></span>(<span>self, x, dtype: unifyml.backend._dtype.DType)</span>
+<dt id="ml4s.backend.Backend.cast"><code class="name flex">
+<span>def <span class="ident">cast</span></span>(<span>self, x, dtype: ml4s.backend._dtype.DType)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -2612,7 +2612,7 @@ This method may be used to register internal calls with the profiler.</p>
     raise NotImplementedError(self)</code></pre>
 </details>
 </dd>
-<dt id="unifyml.backend.Backend.ceil"><code class="name flex">
+<dt id="ml4s.backend.Backend.ceil"><code class="name flex">
 <span>def <span class="ident">ceil</span></span>(<span>self, x)</span>
 </code></dt>
 <dd>
@@ -2625,7 +2625,7 @@ This method may be used to register internal calls with the profiler.</p>
     raise NotImplementedError(self)</code></pre>
 </details>
 </dd>
-<dt id="unifyml.backend.Backend.clip"><code class="name flex">
+<dt id="ml4s.backend.Backend.clip"><code class="name flex">
 <span>def <span class="ident">clip</span></span>(<span>self, x, minimum, maximum)</span>
 </code></dt>
 <dd>
@@ -2638,8 +2638,8 @@ This method may be used to register internal calls with the profiler.</p>
     raise NotImplementedError(self)</code></pre>
 </details>
 </dd>
-<dt id="unifyml.backend.Backend.combine_types"><code class="name flex">
-<span>def <span class="ident">combine_types</span></span>(<span>self, *dtypes: unifyml.backend._dtype.DType) ‑> unifyml.backend._dtype.DType</span>
+<dt id="ml4s.backend.Backend.combine_types"><code class="name flex">
+<span>def <span class="ident">combine_types</span></span>(<span>self, *dtypes: ml4s.backend._dtype.DType) ‑> ml4s.backend._dtype.DType</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -2651,7 +2651,7 @@ This method may be used to register internal calls with the profiler.</p>
     return combine_types(*dtypes, fp_precision=self.precision)</code></pre>
 </details>
 </dd>
-<dt id="unifyml.backend.Backend.concat"><code class="name flex">
+<dt id="ml4s.backend.Backend.concat"><code class="name flex">
 <span>def <span class="ident">concat</span></span>(<span>self, values, axis)</span>
 </code></dt>
 <dd>
@@ -2664,7 +2664,7 @@ This method may be used to register internal calls with the profiler.</p>
     raise NotImplementedError(self)</code></pre>
 </details>
 </dd>
-<dt id="unifyml.backend.Backend.conj"><code class="name flex">
+<dt id="ml4s.backend.Backend.conj"><code class="name flex">
 <span>def <span class="ident">conj</span></span>(<span>self, x)</span>
 </code></dt>
 <dd>
@@ -2677,11 +2677,11 @@ This method may be used to register internal calls with the profiler.</p>
     raise NotImplementedError(self)</code></pre>
 </details>
 </dd>
-<dt id="unifyml.backend.Backend.conjugate_gradient"><code class="name flex">
-<span>def <span class="ident">conjugate_gradient</span></span>(<span>self, lin, y, x0, rtol, atol, max_iter, pre) ‑> unifyml.backend._backend.SolveResult</span>
+<dt id="ml4s.backend.Backend.conjugate_gradient"><code class="name flex">
+<span>def <span class="ident">conjugate_gradient</span></span>(<span>self, lin, y, x0, rtol, atol, max_iter, pre) ‑> ml4s.backend._backend.SolveResult</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Standard conjugate gradient algorithm. Signature matches to <code><a title="unifyml.backend.Backend.linear_solve" href="#unifyml.backend.Backend.linear_solve">Backend.linear_solve()</a></code>.</p></div>
+<div class="desc"><p>Standard conjugate gradient algorithm. Signature matches to <code><a title="ml4s.backend.Backend.linear_solve" href="#ml4s.backend.Backend.linear_solve">Backend.linear_solve()</a></code>.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -2692,11 +2692,11 @@ This method may be used to register internal calls with the profiler.</p>
     return cg(self, lin, y, x0, rtol, atol, max_iter, pre)</code></pre>
 </details>
 </dd>
-<dt id="unifyml.backend.Backend.conjugate_gradient_adaptive"><code class="name flex">
-<span>def <span class="ident">conjugate_gradient_adaptive</span></span>(<span>self, lin, y, x0, rtol, atol, max_iter, pre) ‑> unifyml.backend._backend.SolveResult</span>
+<dt id="ml4s.backend.Backend.conjugate_gradient_adaptive"><code class="name flex">
+<span>def <span class="ident">conjugate_gradient_adaptive</span></span>(<span>self, lin, y, x0, rtol, atol, max_iter, pre) ‑> ml4s.backend._backend.SolveResult</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Conjugate gradient algorithm with adaptive step size. Signature matches to <code><a title="unifyml.backend.Backend.linear_solve" href="#unifyml.backend.Backend.linear_solve">Backend.linear_solve()</a></code>.</p></div>
+<div class="desc"><p>Conjugate gradient algorithm with adaptive step size. Signature matches to <code><a title="ml4s.backend.Backend.linear_solve" href="#ml4s.backend.Backend.linear_solve">Backend.linear_solve()</a></code>.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -2707,7 +2707,7 @@ This method may be used to register internal calls with the profiler.</p>
     return cg_adaptive(self, lin, y, x0, rtol, atol, max_iter, pre)</code></pre>
 </details>
 </dd>
-<dt id="unifyml.backend.Backend.conv"><code class="name flex">
+<dt id="ml4s.backend.Backend.conv"><code class="name flex">
 <span>def <span class="ident">conv</span></span>(<span>self, value, kernel, zero_padding=True)</span>
 </code></dt>
 <dd>
@@ -2746,7 +2746,7 @@ Higher dimensions may not be supported.</p>
     raise NotImplementedError(self)</code></pre>
 </details>
 </dd>
-<dt id="unifyml.backend.Backend.coo_to_dense"><code class="name flex">
+<dt id="ml4s.backend.Backend.coo_to_dense"><code class="name flex">
 <span>def <span class="ident">coo_to_dense</span></span>(<span>self, indices, values, shape, contains_duplicates: bool)</span>
 </code></dt>
 <dd>
@@ -2762,7 +2762,7 @@ Higher dimensions may not be supported.</p>
     return result</code></pre>
 </details>
 </dd>
-<dt id="unifyml.backend.Backend.copy"><code class="name flex">
+<dt id="ml4s.backend.Backend.copy"><code class="name flex">
 <span>def <span class="ident">copy</span></span>(<span>self, tensor, only_mutable=False)</span>
 </code></dt>
 <dd>
@@ -2775,7 +2775,7 @@ Higher dimensions may not be supported.</p>
     raise NotImplementedError()</code></pre>
 </details>
 </dd>
-<dt id="unifyml.backend.Backend.copy_leaves"><code class="name flex">
+<dt id="ml4s.backend.Backend.copy_leaves"><code class="name flex">
 <span>def <span class="ident">copy_leaves</span></span>(<span>self, tree, only_mutable=False)</span>
 </code></dt>
 <dd>
@@ -2795,7 +2795,7 @@ Higher dimensions may not be supported.</p>
         return self.copy(tree, only_mutable=only_mutable)</code></pre>
 </details>
 </dd>
-<dt id="unifyml.backend.Backend.cos"><code class="name flex">
+<dt id="ml4s.backend.Backend.cos"><code class="name flex">
 <span>def <span class="ident">cos</span></span>(<span>self, x)</span>
 </code></dt>
 <dd>
@@ -2808,7 +2808,7 @@ Higher dimensions may not be supported.</p>
     raise NotImplementedError(self)</code></pre>
 </details>
 </dd>
-<dt id="unifyml.backend.Backend.cosh"><code class="name flex">
+<dt id="ml4s.backend.Backend.cosh"><code class="name flex">
 <span>def <span class="ident">cosh</span></span>(<span>self, x)</span>
 </code></dt>
 <dd>
@@ -2821,14 +2821,14 @@ Higher dimensions may not be supported.</p>
     raise NotImplementedError(self)</code></pre>
 </details>
 </dd>
-<dt id="unifyml.backend.Backend.csc_matrix"><code class="name flex">
+<dt id="ml4s.backend.Backend.csc_matrix"><code class="name flex">
 <span>def <span class="ident">csc_matrix</span></span>(<span>self, column_pointers, row_indices, values, shape: Tuple[int, int])</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Create a sparse matrix in compressed sparse column (CSC) format.</p>
 <p>Optional feature.</p>
 <p>See Also:
-<code><a title="unifyml.backend.Backend.sparse_coo_tensor" href="#unifyml.backend.Backend.sparse_coo_tensor">Backend.sparse_coo_tensor()</a></code>, <code><a title="unifyml.backend.Backend.csr_matrix" href="#unifyml.backend.Backend.csr_matrix">Backend.csr_matrix()</a></code>.</p>
+<code><a title="ml4s.backend.Backend.sparse_coo_tensor" href="#ml4s.backend.Backend.sparse_coo_tensor">Backend.sparse_coo_tensor()</a></code>, <code><a title="ml4s.backend.Backend.csr_matrix" href="#ml4s.backend.Backend.csr_matrix">Backend.csr_matrix()</a></code>.</p>
 <h2 id="args">Args</h2>
 <dl>
 <dt><strong><code>column_pointers</code></strong></dt>
@@ -2867,7 +2867,7 @@ Higher dimensions may not be supported.</p>
     raise NotImplementedError(self)</code></pre>
 </details>
 </dd>
-<dt id="unifyml.backend.Backend.csc_matrix_batched"><code class="name flex">
+<dt id="ml4s.backend.Backend.csc_matrix_batched"><code class="name flex">
 <span>def <span class="ident">csc_matrix_batched</span></span>(<span>self, column_pointers, row_indices, values, shape: Tuple[int, int])</span>
 </code></dt>
 <dd>
@@ -2897,14 +2897,14 @@ Higher dimensions may not be supported.</p>
     raise NotImplementedError(self)</code></pre>
 </details>
 </dd>
-<dt id="unifyml.backend.Backend.csr_matrix"><code class="name flex">
+<dt id="ml4s.backend.Backend.csr_matrix"><code class="name flex">
 <span>def <span class="ident">csr_matrix</span></span>(<span>self, column_indices: Union[~TensorType, numpy.ndarray], row_pointers: Union[~TensorType, numpy.ndarray], values: Union[~TensorType, numpy.ndarray], shape: Tuple[int, int])</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Create a sparse matrix in compressed sparse row (CSR) format.</p>
 <p>Optional feature.</p>
 <p>See Also:
-<code><a title="unifyml.backend.Backend.sparse_coo_tensor" href="#unifyml.backend.Backend.sparse_coo_tensor">Backend.sparse_coo_tensor()</a></code>, <code><a title="unifyml.backend.Backend.csc_matrix" href="#unifyml.backend.Backend.csc_matrix">Backend.csc_matrix()</a></code>.</p>
+<code><a title="ml4s.backend.Backend.sparse_coo_tensor" href="#ml4s.backend.Backend.sparse_coo_tensor">Backend.sparse_coo_tensor()</a></code>, <code><a title="ml4s.backend.Backend.csc_matrix" href="#ml4s.backend.Backend.csc_matrix">Backend.csc_matrix()</a></code>.</p>
 <h2 id="args">Args</h2>
 <dl>
 <dt><strong><code>column_indices</code></strong></dt>
@@ -2943,7 +2943,7 @@ Higher dimensions may not be supported.</p>
     raise NotImplementedError(self)</code></pre>
 </details>
 </dd>
-<dt id="unifyml.backend.Backend.csr_matrix_batched"><code class="name flex">
+<dt id="ml4s.backend.Backend.csr_matrix_batched"><code class="name flex">
 <span>def <span class="ident">csr_matrix_batched</span></span>(<span>self, column_indices, row_pointers, values, shape: Tuple[int, int])</span>
 </code></dt>
 <dd>
@@ -2973,7 +2973,7 @@ Higher dimensions may not be supported.</p>
     raise NotImplementedError(self)</code></pre>
 </details>
 </dd>
-<dt id="unifyml.backend.Backend.csr_to_coo"><code class="name flex">
+<dt id="ml4s.backend.Backend.csr_to_coo"><code class="name flex">
 <span>def <span class="ident">csr_to_coo</span></span>(<span>self, column_indices, row_pointers)</span>
 </code></dt>
 <dd>
@@ -3012,7 +3012,7 @@ Higher dimensions may not be supported.</p>
     return self.stack([self.stack(row_indices), column_indices], axis=-1)</code></pre>
 </details>
 </dd>
-<dt id="unifyml.backend.Backend.csr_to_dense"><code class="name flex">
+<dt id="ml4s.backend.Backend.csr_to_dense"><code class="name flex">
 <span>def <span class="ident">csr_to_dense</span></span>(<span>self, column_indices, row_pointers, values, shape: Tuple[int, int])</span>
 </code></dt>
 <dd>
@@ -3026,7 +3026,7 @@ Higher dimensions may not be supported.</p>
     return self.coo_to_dense(indices, values, shape, contains_duplicates=False)</code></pre>
 </details>
 </dd>
-<dt id="unifyml.backend.Backend.cumsum"><code class="name flex">
+<dt id="ml4s.backend.Backend.cumsum"><code class="name flex">
 <span>def <span class="ident">cumsum</span></span>(<span>self, x, axis: int)</span>
 </code></dt>
 <dd>
@@ -3039,7 +3039,7 @@ Higher dimensions may not be supported.</p>
     raise NotImplementedError(self)</code></pre>
 </details>
 </dd>
-<dt id="unifyml.backend.Backend.custom_gradient"><code class="name flex">
+<dt id="ml4s.backend.Backend.custom_gradient"><code class="name flex">
 <span>def <span class="ident">custom_gradient</span></span>(<span>self, f: Callable, gradient: Callable, get_external_cache: Callable = None, on_call_skipped: Callable = None) ‑> Callable</span>
 </code></dt>
 <dd>
@@ -3071,7 +3071,7 @@ Higher dimensions may not be supported.</p>
     return NotImplemented</code></pre>
 </details>
 </dd>
-<dt id="unifyml.backend.Backend.determine_size"><code class="name flex">
+<dt id="ml4s.backend.Backend.determine_size"><code class="name flex">
 <span>def <span class="ident">determine_size</span></span>(<span>self, tensors, axis)</span>
 </code></dt>
 <dd>
@@ -3088,7 +3088,7 @@ Higher dimensions may not be supported.</p>
     return size</code></pre>
 </details>
 </dd>
-<dt id="unifyml.backend.Backend.div"><code class="name flex">
+<dt id="ml4s.backend.Backend.div"><code class="name flex">
 <span>def <span class="ident">div</span></span>(<span>self, numerator, denominator)</span>
 </code></dt>
 <dd>
@@ -3102,7 +3102,7 @@ Higher dimensions may not be supported.</p>
     return numerator / denominator</code></pre>
 </details>
 </dd>
-<dt id="unifyml.backend.Backend.divide_no_nan"><code class="name flex">
+<dt id="ml4s.backend.Backend.divide_no_nan"><code class="name flex">
 <span>def <span class="ident">divide_no_nan</span></span>(<span>self, x, y)</span>
 </code></dt>
 <dd>
@@ -3116,8 +3116,8 @@ Higher dimensions may not be supported.</p>
     raise NotImplementedError(self)</code></pre>
 </details>
 </dd>
-<dt id="unifyml.backend.Backend.dtype"><code class="name flex">
-<span>def <span class="ident">dtype</span></span>(<span>self, array) ‑> unifyml.backend._dtype.DType</span>
+<dt id="ml4s.backend.Backend.dtype"><code class="name flex">
+<span>def <span class="ident">dtype</span></span>(<span>self, array) ‑> ml4s.backend._dtype.DType</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -3129,7 +3129,7 @@ Higher dimensions may not be supported.</p>
     raise NotImplementedError(self)</code></pre>
 </details>
 </dd>
-<dt id="unifyml.backend.Backend.einsum"><code class="name flex">
+<dt id="ml4s.backend.Backend.einsum"><code class="name flex">
 <span>def <span class="ident">einsum</span></span>(<span>self, equation, *tensors)</span>
 </code></dt>
 <dd>
@@ -3142,7 +3142,7 @@ Higher dimensions may not be supported.</p>
     raise NotImplementedError(self)</code></pre>
 </details>
 </dd>
-<dt id="unifyml.backend.Backend.equal"><code class="name flex">
+<dt id="ml4s.backend.Backend.equal"><code class="name flex">
 <span>def <span class="ident">equal</span></span>(<span>self, x, y)</span>
 </code></dt>
 <dd>
@@ -3156,7 +3156,7 @@ Higher dimensions may not be supported.</p>
     raise NotImplementedError(self)</code></pre>
 </details>
 </dd>
-<dt id="unifyml.backend.Backend.exp"><code class="name flex">
+<dt id="ml4s.backend.Backend.exp"><code class="name flex">
 <span>def <span class="ident">exp</span></span>(<span>self, x)</span>
 </code></dt>
 <dd>
@@ -3169,7 +3169,7 @@ Higher dimensions may not be supported.</p>
     raise NotImplementedError(self)</code></pre>
 </details>
 </dd>
-<dt id="unifyml.backend.Backend.expand_dims"><code class="name flex">
+<dt id="ml4s.backend.Backend.expand_dims"><code class="name flex">
 <span>def <span class="ident">expand_dims</span></span>(<span>self, a, axis=0, number=1)</span>
 </code></dt>
 <dd>
@@ -3182,7 +3182,7 @@ Higher dimensions may not be supported.</p>
     raise NotImplementedError(self)</code></pre>
 </details>
 </dd>
-<dt id="unifyml.backend.Backend.factorial"><code class="name flex">
+<dt id="ml4s.backend.Backend.factorial"><code class="name flex">
 <span>def <span class="ident">factorial</span></span>(<span>self, x: ~TensorType) ‑> ~TensorType</span>
 </code></dt>
 <dd>
@@ -3200,7 +3200,7 @@ Higher dimensions may not be supported.</p>
         return self.exp(self.log_gamma(self.to_float(x) + 1))</code></pre>
 </details>
 </dd>
-<dt id="unifyml.backend.Backend.fft"><code class="name flex">
+<dt id="ml4s.backend.Backend.fft"><code class="name flex">
 <span>def <span class="ident">fft</span></span>(<span>self, x, axes: Union[tuple, list])</span>
 </code></dt>
 <dd>
@@ -3232,7 +3232,7 @@ Higher dimensions may not be supported.</p>
     raise NotImplementedError(self)</code></pre>
 </details>
 </dd>
-<dt id="unifyml.backend.Backend.flatten"><code class="name flex">
+<dt id="ml4s.backend.Backend.flatten"><code class="name flex">
 <span>def <span class="ident">flatten</span></span>(<span>self, x)</span>
 </code></dt>
 <dd>
@@ -3245,7 +3245,7 @@ Higher dimensions may not be supported.</p>
     return self.reshape(x, (-1,))</code></pre>
 </details>
 </dd>
-<dt id="unifyml.backend.Backend.flip"><code class="name flex">
+<dt id="ml4s.backend.Backend.flip"><code class="name flex">
 <span>def <span class="ident">flip</span></span>(<span>self, value, axes: Union[tuple, list])</span>
 </code></dt>
 <dd>
@@ -3259,7 +3259,7 @@ Higher dimensions may not be supported.</p>
     return value[slices]</code></pre>
 </details>
 </dd>
-<dt id="unifyml.backend.Backend.floor"><code class="name flex">
+<dt id="ml4s.backend.Backend.floor"><code class="name flex">
 <span>def <span class="ident">floor</span></span>(<span>self, x)</span>
 </code></dt>
 <dd>
@@ -3272,7 +3272,7 @@ Higher dimensions may not be supported.</p>
     raise NotImplementedError(self)</code></pre>
 </details>
 </dd>
-<dt id="unifyml.backend.Backend.floordiv"><code class="name flex">
+<dt id="ml4s.backend.Backend.floordiv"><code class="name flex">
 <span>def <span class="ident">floordiv</span></span>(<span>self, a, b)</span>
 </code></dt>
 <dd>
@@ -3286,7 +3286,7 @@ Higher dimensions may not be supported.</p>
     return a // b</code></pre>
 </details>
 </dd>
-<dt id="unifyml.backend.Backend.from_dlpack"><code class="name flex">
+<dt id="ml4s.backend.Backend.from_dlpack"><code class="name flex">
 <span>def <span class="ident">from_dlpack</span></span>(<span>self, capsule)</span>
 </code></dt>
 <dd>
@@ -3299,7 +3299,7 @@ Higher dimensions may not be supported.</p>
     raise NotImplementedError()</code></pre>
 </details>
 </dd>
-<dt id="unifyml.backend.Backend.gather"><code class="name flex">
+<dt id="ml4s.backend.Backend.gather"><code class="name flex">
 <span>def <span class="ident">gather</span></span>(<span>self, values, indices, axis: int)</span>
 </code></dt>
 <dd>
@@ -3334,7 +3334,7 @@ Higher dimensions may not be supported.</p>
     raise NotImplementedError(self)</code></pre>
 </details>
 </dd>
-<dt id="unifyml.backend.Backend.gather_1d"><code class="name flex">
+<dt id="ml4s.backend.Backend.gather_1d"><code class="name flex">
 <span>def <span class="ident">gather_1d</span></span>(<span>self, values, indices)</span>
 </code></dt>
 <dd>
@@ -3347,7 +3347,7 @@ Higher dimensions may not be supported.</p>
     return self.gather(values, indices, 0)</code></pre>
 </details>
 </dd>
-<dt id="unifyml.backend.Backend.gather_by_component_indices"><code class="name flex">
+<dt id="ml4s.backend.Backend.gather_by_component_indices"><code class="name flex">
 <span>def <span class="ident">gather_by_component_indices</span></span>(<span>self, values, *component_indices)</span>
 </code></dt>
 <dd>
@@ -3360,7 +3360,7 @@ Higher dimensions may not be supported.</p>
     return values[component_indices]</code></pre>
 </details>
 </dd>
-<dt id="unifyml.backend.Backend.gather_nd"><code class="name flex">
+<dt id="ml4s.backend.Backend.gather_nd"><code class="name flex">
 <span>def <span class="ident">gather_nd</span></span>(<span>self, values, indices)</span>
 </code></dt>
 <dd>
@@ -3373,8 +3373,8 @@ Higher dimensions may not be supported.</p>
     return self.batched_gather_nd(values[None, :, :], indices[None, :, :])[0, :, :]</code></pre>
 </details>
 </dd>
-<dt id="unifyml.backend.Backend.get_default_device"><code class="name flex">
-<span>def <span class="ident">get_default_device</span></span>(<span>self) ‑> unifyml.backend._backend.ComputeDevice</span>
+<dt id="ml4s.backend.Backend.get_default_device"><code class="name flex">
+<span>def <span class="ident">get_default_device</span></span>(<span>self) ‑> ml4s.backend._backend.ComputeDevice</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -3386,8 +3386,8 @@ Higher dimensions may not be supported.</p>
     return self._default_device</code></pre>
 </details>
 </dd>
-<dt id="unifyml.backend.Backend.get_device"><code class="name flex">
-<span>def <span class="ident">get_device</span></span>(<span>self, tensor: ~TensorType) ‑> unifyml.backend._backend.ComputeDevice</span>
+<dt id="ml4s.backend.Backend.get_device"><code class="name flex">
+<span>def <span class="ident">get_device</span></span>(<span>self, tensor: ~TensorType) ‑> ml4s.backend._backend.ComputeDevice</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Returns the device <code>tensor</code> is located on.</p></div>
@@ -3400,7 +3400,7 @@ Higher dimensions may not be supported.</p>
     raise NotImplementedError()</code></pre>
 </details>
 </dd>
-<dt id="unifyml.backend.Backend.get_device_by_ref"><code class="name flex">
+<dt id="ml4s.backend.Backend.get_device_by_ref"><code class="name flex">
 <span>def <span class="ident">get_device_by_ref</span></span>(<span>self, ref)</span>
 </code></dt>
 <dd>
@@ -3416,7 +3416,7 @@ Higher dimensions may not be supported.</p>
     raise KeyError(f&#34;{self.name} has no device with ref &#39;{ref}&#39;. Available: {[d.ref for d in self._devices]}&#34;)</code></pre>
 </details>
 </dd>
-<dt id="unifyml.backend.Backend.get_diagonal"><code class="name flex">
+<dt id="ml4s.backend.Backend.get_diagonal"><code class="name flex">
 <span>def <span class="ident">get_diagonal</span></span>(<span>self, matrices, offset=0)</span>
 </code></dt>
 <dd>
@@ -3449,7 +3449,7 @@ Higher dimensions may not be supported.</p>
     raise NotImplementedError(self)</code></pre>
 </details>
 </dd>
-<dt id="unifyml.backend.Backend.greater_or_equal"><code class="name flex">
+<dt id="ml4s.backend.Backend.greater_or_equal"><code class="name flex">
 <span>def <span class="ident">greater_or_equal</span></span>(<span>self, x, y)</span>
 </code></dt>
 <dd>
@@ -3463,7 +3463,7 @@ Higher dimensions may not be supported.</p>
     return x &gt;= y</code></pre>
 </details>
 </dd>
-<dt id="unifyml.backend.Backend.greater_than"><code class="name flex">
+<dt id="ml4s.backend.Backend.greater_than"><code class="name flex">
 <span>def <span class="ident">greater_than</span></span>(<span>self, x, y)</span>
 </code></dt>
 <dd>
@@ -3477,7 +3477,7 @@ Higher dimensions may not be supported.</p>
     return x &gt; y</code></pre>
 </details>
 </dd>
-<dt id="unifyml.backend.Backend.grid_sample"><code class="name flex">
+<dt id="ml4s.backend.Backend.grid_sample"><code class="name flex">
 <span>def <span class="ident">grid_sample</span></span>(<span>self, grid, coordinates, extrapolation: str)</span>
 </code></dt>
 <dd>
@@ -3518,7 +3518,7 @@ One of <code>('undefined', 'zeros', 'boundary', 'periodic', 'symmetric', 'reflec
     return NotImplemented</code></pre>
 </details>
 </dd>
-<dt id="unifyml.backend.Backend.hessian"><code class="name flex">
+<dt id="ml4s.backend.Backend.hessian"><code class="name flex">
 <span>def <span class="ident">hessian</span></span>(<span>self, f: Callable, wrt: Union[tuple, list], get_output: bool, get_gradient: bool) ‑> tuple</span>
 </code></dt>
 <dd>
@@ -3559,7 +3559,7 @@ The result is always a <code>tuple</code> holding at most these three items.</p>
     raise NotImplementedError(self)</code></pre>
 </details>
 </dd>
-<dt id="unifyml.backend.Backend.histogram1d"><code class="name flex">
+<dt id="ml4s.backend.Backend.histogram1d"><code class="name flex">
 <span>def <span class="ident">histogram1d</span></span>(<span>self, values, weights, bin_edges)</span>
 </code></dt>
 <dd>
@@ -3591,7 +3591,7 @@ The result is always a <code>tuple</code> holding at most these three items.</p>
     raise NotImplementedError(self)</code></pre>
 </details>
 </dd>
-<dt id="unifyml.backend.Backend.ifft"><code class="name flex">
+<dt id="ml4s.backend.Backend.ifft"><code class="name flex">
 <span>def <span class="ident">ifft</span></span>(<span>self, k, axes: Union[tuple, list])</span>
 </code></dt>
 <dd>
@@ -3623,7 +3623,7 @@ The result is always a <code>tuple</code> holding at most these three items.</p>
     raise NotImplementedError(self)</code></pre>
 </details>
 </dd>
-<dt id="unifyml.backend.Backend.imag"><code class="name flex">
+<dt id="ml4s.backend.Backend.imag"><code class="name flex">
 <span>def <span class="ident">imag</span></span>(<span>self, x)</span>
 </code></dt>
 <dd>
@@ -3636,7 +3636,7 @@ The result is always a <code>tuple</code> holding at most these three items.</p>
     raise NotImplementedError(self)</code></pre>
 </details>
 </dd>
-<dt id="unifyml.backend.Backend.indexed_segment_sum"><code class="name flex">
+<dt id="ml4s.backend.Backend.indexed_segment_sum"><code class="name flex">
 <span>def <span class="ident">indexed_segment_sum</span></span>(<span>self, x, indices, axis: int)</span>
 </code></dt>
 <dd>
@@ -3668,7 +3668,7 @@ The result is always a <code>tuple</code> holding at most these three items.</p>
     raise NotImplementedError(self)</code></pre>
 </details>
 </dd>
-<dt id="unifyml.backend.Backend.is_available"><code class="name flex">
+<dt id="ml4s.backend.Backend.is_available"><code class="name flex">
 <span>def <span class="ident">is_available</span></span>(<span>self, tensor) ‑> bool</span>
 </code></dt>
 <dd>
@@ -3703,14 +3703,14 @@ If true, <code>numpy(tensor)</code> must return a valid NumPy representation of 
     raise NotImplementedError()</code></pre>
 </details>
 </dd>
-<dt id="unifyml.backend.Backend.is_module"><code class="name flex">
+<dt id="ml4s.backend.Backend.is_module"><code class="name flex">
 <span>def <span class="ident">is_module</span></span>(<span>self, obj) ‑> bool</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Tests if <code>obj</code> is of a type that is specific to this backend, e.g. a neural network.
 If <code>True</code>, this backend will be chosen for operations involving <code>obj</code>.</p>
 <p>See Also:
-<code><a title="unifyml.backend.Backend.is_tensor" href="#unifyml.backend.Backend.is_tensor">Backend.is_tensor()</a></code>.</p>
+<code><a title="ml4s.backend.Backend.is_tensor" href="#ml4s.backend.Backend.is_tensor">Backend.is_tensor()</a></code>.</p>
 <h2 id="args">Args</h2>
 <dl>
 <dt><strong><code>obj</code></strong></dt>
@@ -3734,14 +3734,14 @@ If <code>True</code>, this backend will be chosen for operations involving <code
     raise NotImplementedError()</code></pre>
 </details>
 </dd>
-<dt id="unifyml.backend.Backend.is_sparse"><code class="name flex">
+<dt id="ml4s.backend.Backend.is_sparse"><code class="name flex">
 <span>def <span class="ident">is_sparse</span></span>(<span>self, x) ‑> bool</span>
 </code></dt>
 <dd>
 <div class="desc"><h2 id="args">Args</h2>
 <dl>
 <dt><strong><code>x</code></strong></dt>
-<dd>Tensor native to this <code><a title="unifyml.backend.Backend" href="#unifyml.backend.Backend">Backend</a></code>.</dd>
+<dd>Tensor native to this <code><a title="ml4s.backend.Backend" href="#ml4s.backend.Backend">Backend</a></code>.</dd>
 </dl></div>
 <details class="source">
 <summary>
@@ -3755,7 +3755,7 @@ If <code>True</code>, this backend will be chosen for operations involving <code
     raise NotImplementedError(self)</code></pre>
 </details>
 </dd>
-<dt id="unifyml.backend.Backend.is_tensor"><code class="name flex">
+<dt id="ml4s.backend.Backend.is_tensor"><code class="name flex">
 <span>def <span class="ident">is_tensor</span></span>(<span>self, x, only_native=False)</span>
 </code></dt>
 <dd>
@@ -3763,7 +3763,7 @@ If <code>True</code>, this backend will be chosen for operations involving <code
 An object is considered a tensor (nativer or otherwise) by a backend if it is not a struct (e.g. tuple, list) and all methods of the backend accept it as a tensor argument.</p>
 <p>If <code>True</code>, this backend will be chosen for operations involving <code>x</code>.</p>
 <p>See Also:
-<code><a title="unifyml.backend.Backend.is_module" href="#unifyml.backend.Backend.is_module">Backend.is_module()</a></code>.</p>
+<code><a title="ml4s.backend.Backend.is_module" href="#ml4s.backend.Backend.is_module">Backend.is_module()</a></code>.</p>
 <h2 id="args">Args</h2>
 <dl>
 <dt><strong><code>x</code></strong></dt>
@@ -3801,7 +3801,7 @@ An object is considered a tensor (nativer or otherwise) by a backend if it is no
     raise NotImplementedError()</code></pre>
 </details>
 </dd>
-<dt id="unifyml.backend.Backend.isfinite"><code class="name flex">
+<dt id="ml4s.backend.Backend.isfinite"><code class="name flex">
 <span>def <span class="ident">isfinite</span></span>(<span>self, x)</span>
 </code></dt>
 <dd>
@@ -3814,7 +3814,7 @@ An object is considered a tensor (nativer or otherwise) by a backend if it is no
     raise NotImplementedError(self)</code></pre>
 </details>
 </dd>
-<dt id="unifyml.backend.Backend.isinf"><code class="name flex">
+<dt id="ml4s.backend.Backend.isinf"><code class="name flex">
 <span>def <span class="ident">isinf</span></span>(<span>self, x)</span>
 </code></dt>
 <dd>
@@ -3827,7 +3827,7 @@ An object is considered a tensor (nativer or otherwise) by a backend if it is no
     raise NotImplementedError(self)</code></pre>
 </details>
 </dd>
-<dt id="unifyml.backend.Backend.isnan"><code class="name flex">
+<dt id="ml4s.backend.Backend.isnan"><code class="name flex">
 <span>def <span class="ident">isnan</span></span>(<span>self, x)</span>
 </code></dt>
 <dd>
@@ -3840,7 +3840,7 @@ An object is considered a tensor (nativer or otherwise) by a backend if it is no
     raise NotImplementedError(self)</code></pre>
 </details>
 </dd>
-<dt id="unifyml.backend.Backend.jacobian"><code class="name flex">
+<dt id="ml4s.backend.Backend.jacobian"><code class="name flex">
 <span>def <span class="ident">jacobian</span></span>(<span>self, f: Callable, wrt: Union[tuple, list], get_output: bool, is_f_scalar: bool)</span>
 </code></dt>
 <dd>
@@ -3879,7 +3879,7 @@ The gradients retain the dimensions of <code>reduced_loss</code> in order as out
     raise NotImplementedError(self)</code></pre>
 </details>
 </dd>
-<dt id="unifyml.backend.Backend.jit_compile"><code class="name flex">
+<dt id="ml4s.backend.Backend.jit_compile"><code class="name flex">
 <span>def <span class="ident">jit_compile</span></span>(<span>self, f: Callable) ‑> Callable</span>
 </code></dt>
 <dd>
@@ -3892,7 +3892,7 @@ The gradients retain the dimensions of <code>reduced_loss</code> in order as out
     return NotImplemented</code></pre>
 </details>
 </dd>
-<dt id="unifyml.backend.Backend.jit_compile_grad"><code class="name flex">
+<dt id="ml4s.backend.Backend.jit_compile_grad"><code class="name flex">
 <span>def <span class="ident">jit_compile_grad</span></span>(<span>self, f: Callable, wrt: Union[tuple, list], get_output: bool, is_f_scalar: bool)</span>
 </code></dt>
 <dd>
@@ -3905,7 +3905,7 @@ The gradients retain the dimensions of <code>reduced_loss</code> in order as out
     raise NotImplementedError()</code></pre>
 </details>
 </dd>
-<dt id="unifyml.backend.Backend.jit_compile_hessian"><code class="name flex">
+<dt id="ml4s.backend.Backend.jit_compile_hessian"><code class="name flex">
 <span>def <span class="ident">jit_compile_hessian</span></span>(<span>self, f: Callable, wrt: Union[tuple, list], get_output: bool, get_gradient: bool)</span>
 </code></dt>
 <dd>
@@ -3918,7 +3918,7 @@ The gradients retain the dimensions of <code>reduced_loss</code> in order as out
     raise NotImplementedError()</code></pre>
 </details>
 </dd>
-<dt id="unifyml.backend.Backend.linear"><code class="name flex">
+<dt id="ml4s.backend.Backend.linear"><code class="name flex">
 <span>def <span class="ident">linear</span></span>(<span>self, lin, vector)</span>
 </code></dt>
 <dd>
@@ -3941,8 +3941,8 @@ The gradients retain the dimensions of <code>reduced_loss</code> in order as out
         return self.mul_matrix_batched_vector(lin, vector)</code></pre>
 </details>
 </dd>
-<dt id="unifyml.backend.Backend.linear_solve"><code class="name flex">
-<span>def <span class="ident">linear_solve</span></span>(<span>self, method: str, lin: Union[Callable, ~TensorType], y: ~TensorType, x0: ~TensorType, rtol: Union[~TensorType, numpy.ndarray], atol: Union[~TensorType, numpy.ndarray], max_iter: numpy.ndarray, pre: Optional[unifyml.backend._backend.Preconditioner]) ‑> unifyml.backend._backend.SolveResult</span>
+<dt id="ml4s.backend.Backend.linear_solve"><code class="name flex">
+<span>def <span class="ident">linear_solve</span></span>(<span>self, method: str, lin: Union[Callable, ~TensorType], y: ~TensorType, x0: ~TensorType, rtol: Union[~TensorType, numpy.ndarray], atol: Union[~TensorType, numpy.ndarray], max_iter: numpy.ndarray, pre: Optional[ml4s.backend._backend.Preconditioner]) ‑> ml4s.backend._backend.SolveResult</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Solve the system of linear equations A · x = y.
@@ -4045,7 +4045,7 @@ This method need not provide a gradient for the operation.</p>
         raise NotImplementedError(f&#34;Method &#39;{method}&#39; not supported for linear solve.&#34;)</code></pre>
 </details>
 </dd>
-<dt id="unifyml.backend.Backend.linspace"><code class="name flex">
+<dt id="ml4s.backend.Backend.linspace"><code class="name flex">
 <span>def <span class="ident">linspace</span></span>(<span>self, start, stop, number)</span>
 </code></dt>
 <dd>
@@ -4058,7 +4058,7 @@ This method need not provide a gradient for the operation.</p>
     raise NotImplementedError(self)</code></pre>
 </details>
 </dd>
-<dt id="unifyml.backend.Backend.linspace_without_last"><code class="name flex">
+<dt id="ml4s.backend.Backend.linspace_without_last"><code class="name flex">
 <span>def <span class="ident">linspace_without_last</span></span>(<span>self, start, stop, number)</span>
 </code></dt>
 <dd>
@@ -4071,8 +4071,8 @@ This method need not provide a gradient for the operation.</p>
     return self.linspace(start, stop, number+1)[:-1]</code></pre>
 </details>
 </dd>
-<dt id="unifyml.backend.Backend.list_devices"><code class="name flex">
-<span>def <span class="ident">list_devices</span></span>(<span>self, device_type: Optional[str] = None) ‑> List[unifyml.backend._backend.ComputeDevice]</span>
+<dt id="ml4s.backend.Backend.list_devices"><code class="name flex">
+<span>def <span class="ident">list_devices</span></span>(<span>self, device_type: Optional[str] = None) ‑> List[ml4s.backend._backend.ComputeDevice]</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Fetches information about all available compute devices this backend can use.</p>
@@ -4084,11 +4084,11 @@ This method need not provide a gradient for the operation.</p>
 <li>Jax: <a href="https://jax.readthedocs.io/en/latest/jax.html#jax.devices"><code>jax.devices</code></a></li>
 </ul>
 <p>See Also:
-<code><a title="unifyml.backend.Backend.set_default_device" href="#unifyml.backend.Backend.set_default_device">Backend.set_default_device()</a></code>.</p>
+<code><a title="ml4s.backend.Backend.set_default_device" href="#ml4s.backend.Backend.set_default_device">Backend.set_default_device()</a></code>.</p>
 <h2 id="args">Args</h2>
 <dl>
 <dt><strong><code>device_type</code></strong></dt>
-<dd>(optional) Return only devices of this type, e.g. <code>'GPU'</code> or <code>'CPU'</code>. See <code><a title="unifyml.backend.ComputeDevice.device_type" href="#unifyml.backend.ComputeDevice.device_type">ComputeDevice.device_type</a></code>.</dd>
+<dd>(optional) Return only devices of this type, e.g. <code>'GPU'</code> or <code>'CPU'</code>. See <code><a title="ml4s.backend.ComputeDevice.device_type" href="#ml4s.backend.ComputeDevice.device_type">ComputeDevice.device_type</a></code>.</dd>
 </dl>
 <h2 id="returns">Returns</h2>
 <p><code>list</code> of all currently available devices.</p></div>
@@ -4123,7 +4123,7 @@ This method need not provide a gradient for the operation.</p>
         return [d for d in self._devices if d.device_type == device_type]</code></pre>
 </details>
 </dd>
-<dt id="unifyml.backend.Backend.log"><code class="name flex">
+<dt id="ml4s.backend.Backend.log"><code class="name flex">
 <span>def <span class="ident">log</span></span>(<span>self, x)</span>
 </code></dt>
 <dd>
@@ -4137,7 +4137,7 @@ This method need not provide a gradient for the operation.</p>
     raise NotImplementedError(self)</code></pre>
 </details>
 </dd>
-<dt id="unifyml.backend.Backend.log10"><code class="name flex">
+<dt id="ml4s.backend.Backend.log10"><code class="name flex">
 <span>def <span class="ident">log10</span></span>(<span>self, x)</span>
 </code></dt>
 <dd>
@@ -4150,7 +4150,7 @@ This method need not provide a gradient for the operation.</p>
     raise NotImplementedError(self)</code></pre>
 </details>
 </dd>
-<dt id="unifyml.backend.Backend.log2"><code class="name flex">
+<dt id="ml4s.backend.Backend.log2"><code class="name flex">
 <span>def <span class="ident">log2</span></span>(<span>self, x)</span>
 </code></dt>
 <dd>
@@ -4163,7 +4163,7 @@ This method need not provide a gradient for the operation.</p>
     raise NotImplementedError(self)</code></pre>
 </details>
 </dd>
-<dt id="unifyml.backend.Backend.log_gamma"><code class="name flex">
+<dt id="ml4s.backend.Backend.log_gamma"><code class="name flex">
 <span>def <span class="ident">log_gamma</span></span>(<span>self, x)</span>
 </code></dt>
 <dd>
@@ -4176,7 +4176,7 @@ This method need not provide a gradient for the operation.</p>
     raise NotImplementedError(self)</code></pre>
 </details>
 </dd>
-<dt id="unifyml.backend.Backend.matrix_solve_least_squares"><code class="name flex">
+<dt id="ml4s.backend.Backend.matrix_solve_least_squares"><code class="name flex">
 <span>def <span class="ident">matrix_solve_least_squares</span></span>(<span>self, matrix: ~TensorType, rhs: ~TensorType) ‑> Tuple[~TensorType, ~TensorType, ~TensorType, ~TensorType]</span>
 </code></dt>
 <dd>
@@ -4217,7 +4217,7 @@ This method need not provide a gradient for the operation.</p>
     raise NotImplementedError(self)</code></pre>
 </details>
 </dd>
-<dt id="unifyml.backend.Backend.max"><code class="name flex">
+<dt id="ml4s.backend.Backend.max"><code class="name flex">
 <span>def <span class="ident">max</span></span>(<span>self, x, axis=None, keepdims=False)</span>
 </code></dt>
 <dd>
@@ -4230,7 +4230,7 @@ This method need not provide a gradient for the operation.</p>
     raise NotImplementedError(self)</code></pre>
 </details>
 </dd>
-<dt id="unifyml.backend.Backend.maximum"><code class="name flex">
+<dt id="ml4s.backend.Backend.maximum"><code class="name flex">
 <span>def <span class="ident">maximum</span></span>(<span>self, a, b)</span>
 </code></dt>
 <dd>
@@ -4243,7 +4243,7 @@ This method need not provide a gradient for the operation.</p>
     raise NotImplementedError(self)</code></pre>
 </details>
 </dd>
-<dt id="unifyml.backend.Backend.mean"><code class="name flex">
+<dt id="ml4s.backend.Backend.mean"><code class="name flex">
 <span>def <span class="ident">mean</span></span>(<span>self, value, axis=None, keepdims=False)</span>
 </code></dt>
 <dd>
@@ -4256,7 +4256,7 @@ This method need not provide a gradient for the operation.</p>
     raise NotImplementedError(self)</code></pre>
 </details>
 </dd>
-<dt id="unifyml.backend.Backend.meshgrid"><code class="name flex">
+<dt id="ml4s.backend.Backend.meshgrid"><code class="name flex">
 <span>def <span class="ident">meshgrid</span></span>(<span>self, *coordinates)</span>
 </code></dt>
 <dd>
@@ -4269,7 +4269,7 @@ This method need not provide a gradient for the operation.</p>
     raise NotImplementedError(self)</code></pre>
 </details>
 </dd>
-<dt id="unifyml.backend.Backend.min"><code class="name flex">
+<dt id="ml4s.backend.Backend.min"><code class="name flex">
 <span>def <span class="ident">min</span></span>(<span>self, x, axis=None, keepdims=False)</span>
 </code></dt>
 <dd>
@@ -4282,7 +4282,7 @@ This method need not provide a gradient for the operation.</p>
     raise NotImplementedError(self)</code></pre>
 </details>
 </dd>
-<dt id="unifyml.backend.Backend.minimize"><code class="name flex">
+<dt id="ml4s.backend.Backend.minimize"><code class="name flex">
 <span>def <span class="ident">minimize</span></span>(<span>self, method: str, f, x0, atol, max_iter, trj: bool)</span>
 </code></dt>
 <dd>
@@ -4302,7 +4302,7 @@ This method need not provide a gradient for the operation.</p>
         return scipy_minimize(self, method, f, x0, atol, max_iter, trj)</code></pre>
 </details>
 </dd>
-<dt id="unifyml.backend.Backend.minimum"><code class="name flex">
+<dt id="ml4s.backend.Backend.minimum"><code class="name flex">
 <span>def <span class="ident">minimum</span></span>(<span>self, a, b)</span>
 </code></dt>
 <dd>
@@ -4315,7 +4315,7 @@ This method need not provide a gradient for the operation.</p>
     raise NotImplementedError(self)</code></pre>
 </details>
 </dd>
-<dt id="unifyml.backend.Backend.mod"><code class="name flex">
+<dt id="ml4s.backend.Backend.mod"><code class="name flex">
 <span>def <span class="ident">mod</span></span>(<span>self, dividend, divisor)</span>
 </code></dt>
 <dd>
@@ -4329,7 +4329,7 @@ This method need not provide a gradient for the operation.</p>
     return dividend % divisor</code></pre>
 </details>
 </dd>
-<dt id="unifyml.backend.Backend.mul"><code class="name flex">
+<dt id="ml4s.backend.Backend.mul"><code class="name flex">
 <span>def <span class="ident">mul</span></span>(<span>self, a, b)</span>
 </code></dt>
 <dd>
@@ -4343,7 +4343,7 @@ This method need not provide a gradient for the operation.</p>
     return a * b</code></pre>
 </details>
 </dd>
-<dt id="unifyml.backend.Backend.mul_coo_dense"><code class="name flex">
+<dt id="ml4s.backend.Backend.mul_coo_dense"><code class="name flex">
 <span>def <span class="ident">mul_coo_dense</span></span>(<span>self, indices, values, shape, dense)</span>
 </code></dt>
 <dd>
@@ -4393,14 +4393,14 @@ This is the fallback if CSR multiplication is not supported.</p>
     return self.reshape(result, (batch_size, channel_count, dense_rows, dense_cols))</code></pre>
 </details>
 </dd>
-<dt id="unifyml.backend.Backend.mul_csr_dense"><code class="name flex">
+<dt id="ml4s.backend.Backend.mul_csr_dense"><code class="name flex">
 <span>def <span class="ident">mul_csr_dense</span></span>(<span>self, column_indices, row_pointers, values, shape: Tuple[int, int], dense)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Multiply a batch of compressed sparse row matrices by a batch of dense matrices.</p>
 <p>Optional feature.</p>
 <p>See Also:
-<code><a title="unifyml.backend.Backend.sparse_coo_tensor" href="#unifyml.backend.Backend.sparse_coo_tensor">Backend.sparse_coo_tensor()</a></code>, <code><a title="unifyml.backend.Backend.csc_matrix" href="#unifyml.backend.Backend.csc_matrix">Backend.csc_matrix()</a></code>.</p>
+<code><a title="ml4s.backend.Backend.sparse_coo_tensor" href="#ml4s.backend.Backend.sparse_coo_tensor">Backend.sparse_coo_tensor()</a></code>, <code><a title="ml4s.backend.Backend.csc_matrix" href="#ml4s.backend.Backend.csc_matrix">Backend.csc_matrix()</a></code>.</p>
 <h2 id="args">Args</h2>
 <dl>
 <dt><strong><code>column_indices</code></strong></dt>
@@ -4454,7 +4454,7 @@ This is the fallback if CSR multiplication is not supported.</p>
     # return self.reshape(result, (batch_size, channel_count, rhs_rows, rhs_cols))</code></pre>
 </details>
 </dd>
-<dt id="unifyml.backend.Backend.mul_matrix_batched_vector"><code class="name flex">
+<dt id="ml4s.backend.Backend.mul_matrix_batched_vector"><code class="name flex">
 <span>def <span class="ident">mul_matrix_batched_vector</span></span>(<span>self, A, b)</span>
 </code></dt>
 <dd>
@@ -4467,7 +4467,7 @@ This is the fallback if CSR multiplication is not supported.</p>
     raise NotImplementedError(self)</code></pre>
 </details>
 </dd>
-<dt id="unifyml.backend.Backend.multi_slice"><code class="name flex">
+<dt id="ml4s.backend.Backend.multi_slice"><code class="name flex">
 <span>def <span class="ident">multi_slice</span></span>(<span>self, tensor, slices: tuple)</span>
 </code></dt>
 <dd>
@@ -4491,7 +4491,7 @@ This is the fallback if CSR multiplication is not supported.</p>
     return tensor[slices]</code></pre>
 </details>
 </dd>
-<dt id="unifyml.backend.Backend.ndims"><code class="name flex">
+<dt id="ml4s.backend.Backend.ndims"><code class="name flex">
 <span>def <span class="ident">ndims</span></span>(<span>self, tensor)</span>
 </code></dt>
 <dd>
@@ -4504,7 +4504,7 @@ This is the fallback if CSR multiplication is not supported.</p>
     return len(self.staticshape(tensor))</code></pre>
 </details>
 </dd>
-<dt id="unifyml.backend.Backend.nn_library"><code class="name flex">
+<dt id="ml4s.backend.Backend.nn_library"><code class="name flex">
 <span>def <span class="ident">nn_library</span></span>(<span>self)</span>
 </code></dt>
 <dd>
@@ -4517,7 +4517,7 @@ This is the fallback if CSR multiplication is not supported.</p>
     raise NotImplementedError(self)</code></pre>
 </details>
 </dd>
-<dt id="unifyml.backend.Backend.nonzero"><code class="name flex">
+<dt id="ml4s.backend.Backend.nonzero"><code class="name flex">
 <span>def <span class="ident">nonzero</span></span>(<span>self, values, length=None, fill_value=-1)</span>
 </code></dt>
 <dd>
@@ -4546,7 +4546,7 @@ This is the fallback if CSR multiplication is not supported.</p>
     raise NotImplementedError(self)</code></pre>
 </details>
 </dd>
-<dt id="unifyml.backend.Backend.not_equal"><code class="name flex">
+<dt id="ml4s.backend.Backend.not_equal"><code class="name flex">
 <span>def <span class="ident">not_equal</span></span>(<span>self, x, y)</span>
 </code></dt>
 <dd>
@@ -4559,7 +4559,7 @@ This is the fallback if CSR multiplication is not supported.</p>
     return ~self.equal(x, y)</code></pre>
 </details>
 </dd>
-<dt id="unifyml.backend.Backend.numpy"><code class="name flex">
+<dt id="ml4s.backend.Backend.numpy"><code class="name flex">
 <span>def <span class="ident">numpy</span></span>(<span>self, tensor) ‑> numpy.ndarray</span>
 </code></dt>
 <dd>
@@ -4596,7 +4596,7 @@ Use <code>is_available(tensor)</code> to check if the value can be represented a
     raise NotImplementedError()</code></pre>
 </details>
 </dd>
-<dt id="unifyml.backend.Backend.numpy_call"><code class="name flex">
+<dt id="ml4s.backend.Backend.numpy_call"><code class="name flex">
 <span>def <span class="ident">numpy_call</span></span>(<span>self, f, output_shapes, output_dtypes, *args, **aux_args)</span>
 </code></dt>
 <dd>
@@ -4637,8 +4637,8 @@ Use <code>is_available(tensor)</code> to check if the value can be represented a
     return f(*args, **aux_args)</code></pre>
 </details>
 </dd>
-<dt id="unifyml.backend.Backend.ones"><code class="name flex">
-<span>def <span class="ident">ones</span></span>(<span>self, shape, dtype: unifyml.backend._dtype.DType = None)</span>
+<dt id="ml4s.backend.Backend.ones"><code class="name flex">
+<span>def <span class="ident">ones</span></span>(<span>self, shape, dtype: ml4s.backend._dtype.DType = None)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -4650,7 +4650,7 @@ Use <code>is_available(tensor)</code> to check if the value can be represented a
     raise NotImplementedError(self)</code></pre>
 </details>
 </dd>
-<dt id="unifyml.backend.Backend.ones_like"><code class="name flex">
+<dt id="ml4s.backend.Backend.ones_like"><code class="name flex">
 <span>def <span class="ident">ones_like</span></span>(<span>self, tensor)</span>
 </code></dt>
 <dd>
@@ -4663,7 +4663,7 @@ Use <code>is_available(tensor)</code> to check if the value can be represented a
     raise NotImplementedError(self)</code></pre>
 </details>
 </dd>
-<dt id="unifyml.backend.Backend.or_"><code class="name flex">
+<dt id="ml4s.backend.Backend.or_"><code class="name flex">
 <span>def <span class="ident">or_</span></span>(<span>self, a, b)</span>
 </code></dt>
 <dd>
@@ -4677,7 +4677,7 @@ Use <code>is_available(tensor)</code> to check if the value can be represented a
     return a | b</code></pre>
 </details>
 </dd>
-<dt id="unifyml.backend.Backend.pad"><code class="name flex">
+<dt id="ml4s.backend.Backend.pad"><code class="name flex">
 <span>def <span class="ident">pad</span></span>(<span>self, value, pad_width, mode: str = 'constant', constant_values=0)</span>
 </code></dt>
 <dd>
@@ -4723,7 +4723,7 @@ Use <code>is_available(tensor)</code> to check if the value can be represented a
     raise NotImplementedError(self)</code></pre>
 </details>
 </dd>
-<dt id="unifyml.backend.Backend.pad_to"><code class="name flex">
+<dt id="ml4s.backend.Backend.pad_to"><code class="name flex">
 <span>def <span class="ident">pad_to</span></span>(<span>self, x, axis, new_size, fill_value)</span>
 </code></dt>
 <dd>
@@ -4744,7 +4744,7 @@ Use <code>is_available(tensor)</code> to check if the value can be represented a
         return x</code></pre>
 </details>
 </dd>
-<dt id="unifyml.backend.Backend.pow"><code class="name flex">
+<dt id="ml4s.backend.Backend.pow"><code class="name flex">
 <span>def <span class="ident">pow</span></span>(<span>self, base, exp)</span>
 </code></dt>
 <dd>
@@ -4758,7 +4758,7 @@ Use <code>is_available(tensor)</code> to check if the value can be represented a
     return base ** exp</code></pre>
 </details>
 </dd>
-<dt id="unifyml.backend.Backend.prefers_channels_last"><code class="name flex">
+<dt id="ml4s.backend.Backend.prefers_channels_last"><code class="name flex">
 <span>def <span class="ident">prefers_channels_last</span></span>(<span>self) ‑> bool</span>
 </code></dt>
 <dd>
@@ -4771,7 +4771,7 @@ Use <code>is_available(tensor)</code> to check if the value can be represented a
     raise NotImplementedError()</code></pre>
 </details>
 </dd>
-<dt id="unifyml.backend.Backend.prod"><code class="name flex">
+<dt id="ml4s.backend.Backend.prod"><code class="name flex">
 <span>def <span class="ident">prod</span></span>(<span>self, value, axis=None)</span>
 </code></dt>
 <dd>
@@ -4784,7 +4784,7 @@ Use <code>is_available(tensor)</code> to check if the value can be represented a
     raise NotImplementedError(self)</code></pre>
 </details>
 </dd>
-<dt id="unifyml.backend.Backend.quantile"><code class="name flex">
+<dt id="ml4s.backend.Backend.quantile"><code class="name flex">
 <span>def <span class="ident">quantile</span></span>(<span>self, x, quantiles)</span>
 </code></dt>
 <dd>
@@ -4816,8 +4816,8 @@ Use <code>is_available(tensor)</code> to check if the value can be represented a
     raise NotImplementedError(self)</code></pre>
 </details>
 </dd>
-<dt id="unifyml.backend.Backend.random_normal"><code class="name flex">
-<span>def <span class="ident">random_normal</span></span>(<span>self, shape, dtype: unifyml.backend._dtype.DType)</span>
+<dt id="ml4s.backend.Backend.random_normal"><code class="name flex">
+<span>def <span class="ident">random_normal</span></span>(<span>self, shape, dtype: ml4s.backend._dtype.DType)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Float tensor of selected precision containing random values sampled from a normal distribution with mean 0 and std 1.</p></div>
@@ -4830,8 +4830,8 @@ Use <code>is_available(tensor)</code> to check if the value can be represented a
     raise NotImplementedError(self)</code></pre>
 </details>
 </dd>
-<dt id="unifyml.backend.Backend.random_uniform"><code class="name flex">
-<span>def <span class="ident">random_uniform</span></span>(<span>self, shape, low, high, dtype: Optional[unifyml.backend._dtype.DType])</span>
+<dt id="ml4s.backend.Backend.random_uniform"><code class="name flex">
+<span>def <span class="ident">random_uniform</span></span>(<span>self, shape, low, high, dtype: Optional[ml4s.backend._dtype.DType])</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Float tensor of selected precision containing random values in the range [0, 1)</p></div>
@@ -4844,8 +4844,8 @@ Use <code>is_available(tensor)</code> to check if the value can be represented a
     raise NotImplementedError(self)</code></pre>
 </details>
 </dd>
-<dt id="unifyml.backend.Backend.range"><code class="name flex">
-<span>def <span class="ident">range</span></span>(<span>self, start, limit=None, delta=1, dtype: unifyml.backend._dtype.DType = int32)</span>
+<dt id="ml4s.backend.Backend.range"><code class="name flex">
+<span>def <span class="ident">range</span></span>(<span>self, start, limit=None, delta=1, dtype: ml4s.backend._dtype.DType = int32)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -4857,7 +4857,7 @@ Use <code>is_available(tensor)</code> to check if the value can be represented a
     raise NotImplementedError(self)</code></pre>
 </details>
 </dd>
-<dt id="unifyml.backend.Backend.ravel_multi_index"><code class="name flex">
+<dt id="ml4s.backend.Backend.ravel_multi_index"><code class="name flex">
 <span>def <span class="ident">ravel_multi_index</span></span>(<span>self, multi_index, shape, mode: Union[str, int] = 'undefined')</span>
 </code></dt>
 <dd>
@@ -4901,7 +4901,7 @@ Use <code>is_available(tensor)</code> to check if the value can be represented a
     return result</code></pre>
 </details>
 </dd>
-<dt id="unifyml.backend.Backend.real"><code class="name flex">
+<dt id="ml4s.backend.Backend.real"><code class="name flex">
 <span>def <span class="ident">real</span></span>(<span>self, x)</span>
 </code></dt>
 <dd>
@@ -4914,7 +4914,7 @@ Use <code>is_available(tensor)</code> to check if the value can be represented a
     raise NotImplementedError(self)</code></pre>
 </details>
 </dd>
-<dt id="unifyml.backend.Backend.repeat"><code class="name flex">
+<dt id="ml4s.backend.Backend.repeat"><code class="name flex">
 <span>def <span class="ident">repeat</span></span>(<span>self, x, repeats, axis: int, new_length=None)</span>
 </code></dt>
 <dd>
@@ -4952,7 +4952,7 @@ Use <code>is_available(tensor)</code> to check if the value can be represented a
     raise NotImplementedError(self)</code></pre>
 </details>
 </dd>
-<dt id="unifyml.backend.Backend.requires_fixed_shapes_when_tracing"><code class="name flex">
+<dt id="ml4s.backend.Backend.requires_fixed_shapes_when_tracing"><code class="name flex">
 <span>def <span class="ident">requires_fixed_shapes_when_tracing</span></span>(<span>self) ‑> bool</span>
 </code></dt>
 <dd>
@@ -4965,7 +4965,7 @@ Use <code>is_available(tensor)</code> to check if the value can be represented a
     return False</code></pre>
 </details>
 </dd>
-<dt id="unifyml.backend.Backend.reshape"><code class="name flex">
+<dt id="ml4s.backend.Backend.reshape"><code class="name flex">
 <span>def <span class="ident">reshape</span></span>(<span>self, value, shape)</span>
 </code></dt>
 <dd>
@@ -4978,7 +4978,7 @@ Use <code>is_available(tensor)</code> to check if the value can be represented a
     raise NotImplementedError(self)</code></pre>
 </details>
 </dd>
-<dt id="unifyml.backend.Backend.round"><code class="name flex">
+<dt id="ml4s.backend.Backend.round"><code class="name flex">
 <span>def <span class="ident">round</span></span>(<span>self, x)</span>
 </code></dt>
 <dd>
@@ -4991,7 +4991,7 @@ Use <code>is_available(tensor)</code> to check if the value can be represented a
     raise NotImplementedError(self)</code></pre>
 </details>
 </dd>
-<dt id="unifyml.backend.Backend.scatter"><code class="name flex">
+<dt id="ml4s.backend.Backend.scatter"><code class="name flex">
 <span>def <span class="ident">scatter</span></span>(<span>self, base_grid, indices, values, mode: str)</span>
 </code></dt>
 <dd>
@@ -5029,7 +5029,7 @@ Use <code>is_available(tensor)</code> to check if the value can be represented a
     raise NotImplementedError(self)</code></pre>
 </details>
 </dd>
-<dt id="unifyml.backend.Backend.scatter_1d_scalar"><code class="name flex">
+<dt id="ml4s.backend.Backend.scatter_1d_scalar"><code class="name flex">
 <span>def <span class="ident">scatter_1d_scalar</span></span>(<span>self, base_grid, indices, values, mode: str)</span>
 </code></dt>
 <dd>
@@ -5059,7 +5059,7 @@ Use <code>is_available(tensor)</code> to check if the value can be represented a
     return self.scatter(base_grid[None, :, None], indices[None, :, None], values[None, :, None], mode=mode)[0, :, 0]</code></pre>
 </details>
 </dd>
-<dt id="unifyml.backend.Backend.scatter_nd"><code class="name flex">
+<dt id="ml4s.backend.Backend.scatter_nd"><code class="name flex">
 <span>def <span class="ident">scatter_nd</span></span>(<span>self, base_grid, indices, values, mode: str)</span>
 </code></dt>
 <dd>
@@ -5092,7 +5092,7 @@ Use <code>is_available(tensor)</code> to check if the value can be represented a
     return self.scatter(base_grid[None, ...], indices[None, ...], values[None, ...], mode=mode)[0, ...]</code></pre>
 </details>
 </dd>
-<dt id="unifyml.backend.Backend.scatter_nd_scalar"><code class="name flex">
+<dt id="ml4s.backend.Backend.scatter_nd_scalar"><code class="name flex">
 <span>def <span class="ident">scatter_nd_scalar</span></span>(<span>self, base_grid, indices, values, mode: str)</span>
 </code></dt>
 <dd>
@@ -5122,7 +5122,7 @@ Use <code>is_available(tensor)</code> to check if the value can be represented a
     return self.scatter(base_grid[None, ..., None], indices[None, ...], values[None, :, None], mode=mode)[0, ..., 0]</code></pre>
 </details>
 </dd>
-<dt id="unifyml.backend.Backend.searchsorted"><code class="name flex">
+<dt id="ml4s.backend.Backend.searchsorted"><code class="name flex">
 <span>def <span class="ident">searchsorted</span></span>(<span>self, sorted_sequence, search_values, side: str, dtype=int32)</span>
 </code></dt>
 <dd>
@@ -5135,7 +5135,7 @@ Use <code>is_available(tensor)</code> to check if the value can be represented a
     raise NotImplementedError(self)</code></pre>
 </details>
 </dd>
-<dt id="unifyml.backend.Backend.seed"><code class="name flex">
+<dt id="ml4s.backend.Backend.seed"><code class="name flex">
 <span>def <span class="ident">seed</span></span>(<span>self, seed: int)</span>
 </code></dt>
 <dd>
@@ -5148,18 +5148,18 @@ Use <code>is_available(tensor)</code> to check if the value can be represented a
     raise NotImplementedError()</code></pre>
 </details>
 </dd>
-<dt id="unifyml.backend.Backend.set_default_device"><code class="name flex">
-<span>def <span class="ident">set_default_device</span></span>(<span>self, device: Union[unifyml.backend._backend.ComputeDevice, str]) ‑> bool</span>
+<dt id="ml4s.backend.Backend.set_default_device"><code class="name flex">
+<span>def <span class="ident">set_default_device</span></span>(<span>self, device: Union[ml4s.backend._backend.ComputeDevice, str]) ‑> bool</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Sets the device new tensors will be allocated on.
 This function will do nothing if the target device type is not available.</p>
 <p>See Also:
-<code><a title="unifyml.backend.Backend.list_devices" href="#unifyml.backend.Backend.list_devices">Backend.list_devices()</a></code>, <code><a title="unifyml.backend.Backend.get_default_device" href="#unifyml.backend.Backend.get_default_device">Backend.get_default_device()</a></code>.</p>
+<code><a title="ml4s.backend.Backend.list_devices" href="#ml4s.backend.Backend.list_devices">Backend.list_devices()</a></code>, <code><a title="ml4s.backend.Backend.get_default_device" href="#ml4s.backend.Backend.get_default_device">Backend.get_default_device()</a></code>.</p>
 <h2 id="args">Args</h2>
 <dl>
 <dt><strong><code>device</code></strong></dt>
-<dd><code><a title="unifyml.backend.ComputeDevice" href="#unifyml.backend.ComputeDevice">ComputeDevice</a></code> or device type as <code>str</code>, such as <code>'CPU'</code> or <code>'GPU'</code>.</dd>
+<dd><code><a title="ml4s.backend.ComputeDevice" href="#ml4s.backend.ComputeDevice">ComputeDevice</a></code> or device type as <code>str</code>, such as <code>'CPU'</code> or <code>'GPU'</code>.</dd>
 </dl>
 <h2 id="returns">Returns</h2>
 <p><code>bool</code> whether the device was successfully set.</p></div>
@@ -5192,7 +5192,7 @@ This function will do nothing if the target device type is not available.</p>
     return True</code></pre>
 </details>
 </dd>
-<dt id="unifyml.backend.Backend.shape"><code class="name flex">
+<dt id="ml4s.backend.Backend.shape"><code class="name flex">
 <span>def <span class="ident">shape</span></span>(<span>self, tensor)</span>
 </code></dt>
 <dd>
@@ -5200,7 +5200,7 @@ This function will do nothing if the target device type is not available.</p>
 The shape is iterable and implements <code>len()</code>.
 For non-eager tensors, undefined dimensions should return a placeholder value representing the size.</p>
 <p>See Also:
-<code><a title="unifyml.backend.Backend.staticshape" href="#unifyml.backend.Backend.staticshape">Backend.staticshape()</a></code>.</p>
+<code><a title="ml4s.backend.Backend.staticshape" href="#ml4s.backend.Backend.staticshape">Backend.staticshape()</a></code>.</p>
 <h2 id="args">Args</h2>
 <dl>
 <dt><strong><code>tensor</code></strong></dt>
@@ -5230,7 +5230,7 @@ For non-eager tensors, undefined dimensions should return a placeholder value re
     raise NotImplementedError(self)</code></pre>
 </details>
 </dd>
-<dt id="unifyml.backend.Backend.shift_bits_left"><code class="name flex">
+<dt id="ml4s.backend.Backend.shift_bits_left"><code class="name flex">
 <span>def <span class="ident">shift_bits_left</span></span>(<span>self, a, b)</span>
 </code></dt>
 <dd>
@@ -5244,7 +5244,7 @@ For non-eager tensors, undefined dimensions should return a placeholder value re
     return a &lt;&lt; b</code></pre>
 </details>
 </dd>
-<dt id="unifyml.backend.Backend.shift_bits_right"><code class="name flex">
+<dt id="ml4s.backend.Backend.shift_bits_right"><code class="name flex">
 <span>def <span class="ident">shift_bits_right</span></span>(<span>self, a, b)</span>
 </code></dt>
 <dd>
@@ -5258,7 +5258,7 @@ For non-eager tensors, undefined dimensions should return a placeholder value re
     return a &gt;&gt; b</code></pre>
 </details>
 </dd>
-<dt id="unifyml.backend.Backend.sigmoid"><code class="name flex">
+<dt id="ml4s.backend.Backend.sigmoid"><code class="name flex">
 <span>def <span class="ident">sigmoid</span></span>(<span>self, x)</span>
 </code></dt>
 <dd>
@@ -5271,7 +5271,7 @@ For non-eager tensors, undefined dimensions should return a placeholder value re
     return 1 / (1 + self.exp(-x))</code></pre>
 </details>
 </dd>
-<dt id="unifyml.backend.Backend.sign"><code class="name flex">
+<dt id="ml4s.backend.Backend.sign"><code class="name flex">
 <span>def <span class="ident">sign</span></span>(<span>self, x)</span>
 </code></dt>
 <dd>
@@ -5284,7 +5284,7 @@ For non-eager tensors, undefined dimensions should return a placeholder value re
     raise NotImplementedError(self)</code></pre>
 </details>
 </dd>
-<dt id="unifyml.backend.Backend.sin"><code class="name flex">
+<dt id="ml4s.backend.Backend.sin"><code class="name flex">
 <span>def <span class="ident">sin</span></span>(<span>self, x)</span>
 </code></dt>
 <dd>
@@ -5297,7 +5297,7 @@ For non-eager tensors, undefined dimensions should return a placeholder value re
     raise NotImplementedError(self)</code></pre>
 </details>
 </dd>
-<dt id="unifyml.backend.Backend.sinh"><code class="name flex">
+<dt id="ml4s.backend.Backend.sinh"><code class="name flex">
 <span>def <span class="ident">sinh</span></span>(<span>self, x)</span>
 </code></dt>
 <dd>
@@ -5310,7 +5310,7 @@ For non-eager tensors, undefined dimensions should return a placeholder value re
     raise NotImplementedError(self)</code></pre>
 </details>
 </dd>
-<dt id="unifyml.backend.Backend.size"><code class="name flex">
+<dt id="ml4s.backend.Backend.size"><code class="name flex">
 <span>def <span class="ident">size</span></span>(<span>self, array)</span>
 </code></dt>
 <dd>
@@ -5323,7 +5323,7 @@ For non-eager tensors, undefined dimensions should return a placeholder value re
     return self.prod(self.shape(array))</code></pre>
 </details>
 </dd>
-<dt id="unifyml.backend.Backend.softplus"><code class="name flex">
+<dt id="ml4s.backend.Backend.softplus"><code class="name flex">
 <span>def <span class="ident">softplus</span></span>(<span>self, x)</span>
 </code></dt>
 <dd>
@@ -5336,7 +5336,7 @@ For non-eager tensors, undefined dimensions should return a placeholder value re
     raise NotImplementedError(self)</code></pre>
 </details>
 </dd>
-<dt id="unifyml.backend.Backend.solve_triangular"><code class="name flex">
+<dt id="ml4s.backend.Backend.solve_triangular"><code class="name flex">
 <span>def <span class="ident">solve_triangular</span></span>(<span>self, matrix, rhs, lower: bool, unit_diagonal: bool)</span>
 </code></dt>
 <dd>
@@ -5353,7 +5353,7 @@ For non-eager tensors, undefined dimensions should return a placeholder value re
         return self.solve_triangular_dense(matrix, rhs, lower, unit_diagonal)</code></pre>
 </details>
 </dd>
-<dt id="unifyml.backend.Backend.solve_triangular_dense"><code class="name flex">
+<dt id="ml4s.backend.Backend.solve_triangular_dense"><code class="name flex">
 <span>def <span class="ident">solve_triangular_dense</span></span>(<span>self, matrix, rhs, lower: bool, unit_diagonal: bool)</span>
 </code></dt>
 <dd>
@@ -5386,7 +5386,7 @@ unit_diagonal:</p>
     raise NotImplementedError(self)</code></pre>
 </details>
 </dd>
-<dt id="unifyml.backend.Backend.solve_triangular_sparse"><code class="name flex">
+<dt id="ml4s.backend.Backend.solve_triangular_sparse"><code class="name flex">
 <span>def <span class="ident">solve_triangular_sparse</span></span>(<span>self, matrix, rhs, lower: bool, unit_diagonal: bool)</span>
 </code></dt>
 <dd>
@@ -5403,14 +5403,14 @@ unit_diagonal:</p>
     return self.as_tensor(np_result)</code></pre>
 </details>
 </dd>
-<dt id="unifyml.backend.Backend.sparse_coo_tensor"><code class="name flex">
+<dt id="ml4s.backend.Backend.sparse_coo_tensor"><code class="name flex">
 <span>def <span class="ident">sparse_coo_tensor</span></span>(<span>self, indices: Union[tuple, list], values, shape: tuple)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Create a sparse matrix in coordinate list (COO) format.</p>
 <p>Optional feature.</p>
 <p>See Also:
-<code><a title="unifyml.backend.Backend.csr_matrix" href="#unifyml.backend.Backend.csr_matrix">Backend.csr_matrix()</a></code>, <code><a title="unifyml.backend.Backend.csc_matrix" href="#unifyml.backend.Backend.csc_matrix">Backend.csc_matrix()</a></code>.</p>
+<code><a title="ml4s.backend.Backend.csr_matrix" href="#ml4s.backend.Backend.csr_matrix">Backend.csr_matrix()</a></code>, <code><a title="ml4s.backend.Backend.csc_matrix" href="#ml4s.backend.Backend.csc_matrix">Backend.csc_matrix()</a></code>.</p>
 <h2 id="args">Args</h2>
 <dl>
 <dt><strong><code>indices</code></strong></dt>
@@ -5446,7 +5446,7 @@ unit_diagonal:</p>
     raise NotImplementedError(self)</code></pre>
 </details>
 </dd>
-<dt id="unifyml.backend.Backend.sparse_coo_tensor_batched"><code class="name flex">
+<dt id="ml4s.backend.Backend.sparse_coo_tensor_batched"><code class="name flex">
 <span>def <span class="ident">sparse_coo_tensor_batched</span></span>(<span>self, indices: Union[tuple, list], values, shape: tuple)</span>
 </code></dt>
 <dd>
@@ -5473,7 +5473,7 @@ unit_diagonal:</p>
     raise NotImplementedError(self)</code></pre>
 </details>
 </dd>
-<dt id="unifyml.backend.Backend.sqrt"><code class="name flex">
+<dt id="ml4s.backend.Backend.sqrt"><code class="name flex">
 <span>def <span class="ident">sqrt</span></span>(<span>self, x)</span>
 </code></dt>
 <dd>
@@ -5486,7 +5486,7 @@ unit_diagonal:</p>
     raise NotImplementedError(self)</code></pre>
 </details>
 </dd>
-<dt id="unifyml.backend.Backend.stack"><code class="name flex">
+<dt id="ml4s.backend.Backend.stack"><code class="name flex">
 <span>def <span class="ident">stack</span></span>(<span>self, values, axis=0)</span>
 </code></dt>
 <dd>
@@ -5499,7 +5499,7 @@ unit_diagonal:</p>
     raise NotImplementedError(self)</code></pre>
 </details>
 </dd>
-<dt id="unifyml.backend.Backend.stack_leaves"><code class="name flex">
+<dt id="ml4s.backend.Backend.stack_leaves"><code class="name flex">
 <span>def <span class="ident">stack_leaves</span></span>(<span>self, trees: Union[tuple, list], axis=0)</span>
 </code></dt>
 <dd>
@@ -5520,7 +5520,7 @@ unit_diagonal:</p>
         return self.stack(trees, axis=axis)</code></pre>
 </details>
 </dd>
-<dt id="unifyml.backend.Backend.staticshape"><code class="name flex">
+<dt id="ml4s.backend.Backend.staticshape"><code class="name flex">
 <span>def <span class="ident">staticshape</span></span>(<span>self, tensor) ‑> tuple</span>
 </code></dt>
 <dd>
@@ -5528,7 +5528,7 @@ unit_diagonal:</p>
 If the tensor is eager, the shape is a <code>tuple[int]</code>.
 For placeholder tensors, unknown dimensions are represented as <code>None</code>.</p>
 <p>See Also:
-<code><a title="unifyml.backend.Backend.shape" href="#unifyml.backend.Backend.shape">Backend.shape()</a></code>.</p>
+<code><a title="ml4s.backend.Backend.shape" href="#ml4s.backend.Backend.shape">Backend.shape()</a></code>.</p>
 <h2 id="args">Args</h2>
 <dl>
 <dt><strong><code>tensor</code></strong></dt>
@@ -5558,7 +5558,7 @@ For placeholder tensors, unknown dimensions are represented as <code>None</code>
     raise NotImplementedError(self)</code></pre>
 </details>
 </dd>
-<dt id="unifyml.backend.Backend.std"><code class="name flex">
+<dt id="ml4s.backend.Backend.std"><code class="name flex">
 <span>def <span class="ident">std</span></span>(<span>self, x, axis=None, keepdims=False)</span>
 </code></dt>
 <dd>
@@ -5571,7 +5571,7 @@ For placeholder tensors, unknown dimensions are represented as <code>None</code>
     raise NotImplementedError(self)</code></pre>
 </details>
 </dd>
-<dt id="unifyml.backend.Backend.stop_gradient"><code class="name flex">
+<dt id="ml4s.backend.Backend.stop_gradient"><code class="name flex">
 <span>def <span class="ident">stop_gradient</span></span>(<span>self, value)</span>
 </code></dt>
 <dd>
@@ -5584,7 +5584,7 @@ For placeholder tensors, unknown dimensions are represented as <code>None</code>
     raise NotImplementedError(self)</code></pre>
 </details>
 </dd>
-<dt id="unifyml.backend.Backend.stop_gradient_tree"><code class="name flex">
+<dt id="ml4s.backend.Backend.stop_gradient_tree"><code class="name flex">
 <span>def <span class="ident">stop_gradient_tree</span></span>(<span>self, tree)</span>
 </code></dt>
 <dd>
@@ -5603,7 +5603,7 @@ For placeholder tensors, unknown dimensions are represented as <code>None</code>
     return self.stop_gradient(tree)</code></pre>
 </details>
 </dd>
-<dt id="unifyml.backend.Backend.sub"><code class="name flex">
+<dt id="ml4s.backend.Backend.sub"><code class="name flex">
 <span>def <span class="ident">sub</span></span>(<span>self, a, b)</span>
 </code></dt>
 <dd>
@@ -5617,7 +5617,7 @@ For placeholder tensors, unknown dimensions are represented as <code>None</code>
     return a - b</code></pre>
 </details>
 </dd>
-<dt id="unifyml.backend.Backend.sum"><code class="name flex">
+<dt id="ml4s.backend.Backend.sum"><code class="name flex">
 <span>def <span class="ident">sum</span></span>(<span>self, value, axis=None, keepdims=False)</span>
 </code></dt>
 <dd>
@@ -5630,7 +5630,7 @@ For placeholder tensors, unknown dimensions are represented as <code>None</code>
     raise NotImplementedError(self)</code></pre>
 </details>
 </dd>
-<dt id="unifyml.backend.Backend.supports"><code class="name flex">
+<dt id="ml4s.backend.Backend.supports"><code class="name flex">
 <span>def <span class="ident">supports</span></span>(<span>self, feature: Union[str, Callable]) ‑> bool</span>
 </code></dt>
 <dd>
@@ -5644,7 +5644,7 @@ Features correspond to a method of this backend that must be implemented if the 
 <h2 id="args">Args</h2>
 <dl>
 <dt><strong><code>feature</code></strong></dt>
-<dd><code>str</code> or unbound Backend method, e.g. <code><a title="unifyml.backend.Backend.sparse_coo_tensor" href="#unifyml.backend.Backend.sparse_coo_tensor">Backend.sparse_coo_tensor()</a></code></dd>
+<dd><code>str</code> or unbound Backend method, e.g. <code><a title="ml4s.backend.Backend.sparse_coo_tensor" href="#ml4s.backend.Backend.sparse_coo_tensor">Backend.sparse_coo_tensor()</a></code></dd>
 </dl>
 <h2 id="returns">Returns</h2>
 <p>Whether the feature is supported.</p></div>
@@ -5676,7 +5676,7 @@ Features correspond to a method of this backend that must be implemented if the 
     return impl_fun is not backend_fun</code></pre>
 </details>
 </dd>
-<dt id="unifyml.backend.Backend.tan"><code class="name flex">
+<dt id="ml4s.backend.Backend.tan"><code class="name flex">
 <span>def <span class="ident">tan</span></span>(<span>self, x)</span>
 </code></dt>
 <dd>
@@ -5689,7 +5689,7 @@ Features correspond to a method of this backend that must be implemented if the 
     raise NotImplementedError(self)</code></pre>
 </details>
 </dd>
-<dt id="unifyml.backend.Backend.tanh"><code class="name flex">
+<dt id="ml4s.backend.Backend.tanh"><code class="name flex">
 <span>def <span class="ident">tanh</span></span>(<span>self, x)</span>
 </code></dt>
 <dd>
@@ -5702,7 +5702,7 @@ Features correspond to a method of this backend that must be implemented if the 
     raise NotImplementedError(self)</code></pre>
 </details>
 </dd>
-<dt id="unifyml.backend.Backend.tensordot"><code class="name flex">
+<dt id="ml4s.backend.Backend.tensordot"><code class="name flex">
 <span>def <span class="ident">tensordot</span></span>(<span>self, a, a_axes: Union[tuple, list], b, b_axes: Union[tuple, list])</span>
 </code></dt>
 <dd>
@@ -5716,7 +5716,7 @@ Features correspond to a method of this backend that must be implemented if the 
     raise NotImplementedError(self)</code></pre>
 </details>
 </dd>
-<dt id="unifyml.backend.Backend.tile"><code class="name flex">
+<dt id="ml4s.backend.Backend.tile"><code class="name flex">
 <span>def <span class="ident">tile</span></span>(<span>self, value, multiples)</span>
 </code></dt>
 <dd>
@@ -5750,7 +5750,7 @@ If <code>multiples</code> has more dimensions than <code>value</code>, these dim
     raise NotImplementedError(self)</code></pre>
 </details>
 </dd>
-<dt id="unifyml.backend.Backend.tile_to"><code class="name flex">
+<dt id="ml4s.backend.Backend.tile_to"><code class="name flex">
 <span>def <span class="ident">tile_to</span></span>(<span>self, x, axis, size)</span>
 </code></dt>
 <dd>
@@ -5769,7 +5769,7 @@ If <code>multiples</code> has more dimensions than <code>value</code>, these dim
     return self.tile(x, multiples)</code></pre>
 </details>
 </dd>
-<dt id="unifyml.backend.Backend.to_complex"><code class="name flex">
+<dt id="ml4s.backend.Backend.to_complex"><code class="name flex">
 <span>def <span class="ident">to_complex</span></span>(<span>self, x)</span>
 </code></dt>
 <dd>
@@ -5782,7 +5782,7 @@ If <code>multiples</code> has more dimensions than <code>value</code>, these dim
     return self.cast(x, DType(complex, max(64, self.precision * 2)))</code></pre>
 </details>
 </dd>
-<dt id="unifyml.backend.Backend.to_dlpack"><code class="name flex">
+<dt id="ml4s.backend.Backend.to_dlpack"><code class="name flex">
 <span>def <span class="ident">to_dlpack</span></span>(<span>self, tensor)</span>
 </code></dt>
 <dd>
@@ -5795,15 +5795,15 @@ If <code>multiples</code> has more dimensions than <code>value</code>, these dim
     raise NotImplementedError()</code></pre>
 </details>
 </dd>
-<dt id="unifyml.backend.Backend.to_float"><code class="name flex">
+<dt id="ml4s.backend.Backend.to_float"><code class="name flex">
 <span>def <span class="ident">to_float</span></span>(<span>self, x)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Converts a tensor to floating point values with precision equal to the currently set default precision.</p>
 <p>See Also:
-<code><a title="unifyml.backend.Backend.precision" href="#unifyml.backend.Backend.precision">Backend.precision</a></code>.</p>
+<code><a title="ml4s.backend.Backend.precision" href="#ml4s.backend.Backend.precision">Backend.precision</a></code>.</p>
 <p>If <code>x</code> is mutable and of the correct floating type, returns a copy of <code>x</code>.</p>
-<p>To convert float tensors to the backend precision but leave non-float tensors untouched, use <code><a title="unifyml.backend.Backend.as_tensor" href="#unifyml.backend.Backend.as_tensor">Backend.as_tensor()</a></code>.</p>
+<p>To convert float tensors to the backend precision but leave non-float tensors untouched, use <code><a title="ml4s.backend.Backend.as_tensor" href="#ml4s.backend.Backend.as_tensor">Backend.as_tensor()</a></code>.</p>
 <h2 id="args">Args</h2>
 <dl>
 <dt><strong><code>x</code></strong></dt>
@@ -5835,7 +5835,7 @@ If <code>multiples</code> has more dimensions than <code>value</code>, these dim
     return self.cast(x, self.float_type)</code></pre>
 </details>
 </dd>
-<dt id="unifyml.backend.Backend.to_int32"><code class="name flex">
+<dt id="ml4s.backend.Backend.to_int32"><code class="name flex">
 <span>def <span class="ident">to_int32</span></span>(<span>self, x)</span>
 </code></dt>
 <dd>
@@ -5848,7 +5848,7 @@ If <code>multiples</code> has more dimensions than <code>value</code>, these dim
     return self.cast(x, DType(int, 32))</code></pre>
 </details>
 </dd>
-<dt id="unifyml.backend.Backend.to_int64"><code class="name flex">
+<dt id="ml4s.backend.Backend.to_int64"><code class="name flex">
 <span>def <span class="ident">to_int64</span></span>(<span>self, x)</span>
 </code></dt>
 <dd>
@@ -5861,7 +5861,7 @@ If <code>multiples</code> has more dimensions than <code>value</code>, these dim
     return self.cast(x, DType(int, 64))</code></pre>
 </details>
 </dd>
-<dt id="unifyml.backend.Backend.transpose"><code class="name flex">
+<dt id="ml4s.backend.Backend.transpose"><code class="name flex">
 <span>def <span class="ident">transpose</span></span>(<span>self, tensor, axes)</span>
 </code></dt>
 <dd>
@@ -5875,7 +5875,7 @@ If <code>multiples</code> has more dimensions than <code>value</code>, these dim
     raise NotImplementedError()</code></pre>
 </details>
 </dd>
-<dt id="unifyml.backend.Backend.unravel_index"><code class="name flex">
+<dt id="ml4s.backend.Backend.unravel_index"><code class="name flex">
 <span>def <span class="ident">unravel_index</span></span>(<span>self, flat_index, shape)</span>
 </code></dt>
 <dd>
@@ -5895,7 +5895,7 @@ If <code>multiples</code> has more dimensions than <code>value</code>, these dim
     return self.stack(result, -1)</code></pre>
 </details>
 </dd>
-<dt id="unifyml.backend.Backend.unstack"><code class="name flex">
+<dt id="ml4s.backend.Backend.unstack"><code class="name flex">
 <span>def <span class="ident">unstack</span></span>(<span>self, tensor, axis=0, keepdims=False) ‑> tuple</span>
 </code></dt>
 <dd>
@@ -5919,7 +5919,7 @@ If <code>multiples</code> has more dimensions than <code>value</code>, these dim
     return tuple(result)</code></pre>
 </details>
 </dd>
-<dt id="unifyml.backend.Backend.variable"><code class="name flex">
+<dt id="ml4s.backend.Backend.variable"><code class="name flex">
 <span>def <span class="ident">variable</span></span>(<span>self, value)</span>
 </code></dt>
 <dd>
@@ -5932,7 +5932,7 @@ If <code>multiples</code> has more dimensions than <code>value</code>, these dim
     return NotImplemented</code></pre>
 </details>
 </dd>
-<dt id="unifyml.backend.Backend.vectorized_call"><code class="name flex">
+<dt id="ml4s.backend.Backend.vectorized_call"><code class="name flex">
 <span>def <span class="ident">vectorized_call</span></span>(<span>self, f, *args, output_dtypes=None, **aux_args)</span>
 </code></dt>
 <dd>
@@ -5968,7 +5968,7 @@ All tensors in <code>args</code> must have the same size or <code>1</code> in th
     return self.stack(result)</code></pre>
 </details>
 </dd>
-<dt id="unifyml.backend.Backend.where"><code class="name flex">
+<dt id="ml4s.backend.Backend.where"><code class="name flex">
 <span>def <span class="ident">where</span></span>(<span>self, condition, x=None, y=None)</span>
 </code></dt>
 <dd>
@@ -5981,7 +5981,7 @@ All tensors in <code>args</code> must have the same size or <code>1</code> in th
     raise NotImplementedError(self)</code></pre>
 </details>
 </dd>
-<dt id="unifyml.backend.Backend.while_loop"><code class="name flex">
+<dt id="ml4s.backend.Backend.while_loop"><code class="name flex">
 <span>def <span class="ident">while_loop</span></span>(<span>self, loop: Callable, values: tuple, max_iter: Union[int, Tuple[int, ...], List[int]])</span>
 </code></dt>
 <dd>
@@ -6050,7 +6050,7 @@ If the loop is broken, the values returned by the last loop are expected to be c
         return self.stop_gradient_tree(values)</code></pre>
 </details>
 </dd>
-<dt id="unifyml.backend.Backend.xor"><code class="name flex">
+<dt id="ml4s.backend.Backend.xor"><code class="name flex">
 <span>def <span class="ident">xor</span></span>(<span>self, a, b)</span>
 </code></dt>
 <dd>
@@ -6064,8 +6064,8 @@ If the loop is broken, the values returned by the last loop are expected to be c
     return a ^ b</code></pre>
 </details>
 </dd>
-<dt id="unifyml.backend.Backend.zeros"><code class="name flex">
-<span>def <span class="ident">zeros</span></span>(<span>self, shape, dtype: unifyml.backend._dtype.DType = None)</span>
+<dt id="ml4s.backend.Backend.zeros"><code class="name flex">
+<span>def <span class="ident">zeros</span></span>(<span>self, shape, dtype: ml4s.backend._dtype.DType = None)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -6077,7 +6077,7 @@ If the loop is broken, the values returned by the last loop are expected to be c
     raise NotImplementedError(self)</code></pre>
 </details>
 </dd>
-<dt id="unifyml.backend.Backend.zeros_like"><code class="name flex">
+<dt id="ml4s.backend.Backend.zeros_like"><code class="name flex">
 <span>def <span class="ident">zeros_like</span></span>(<span>self, tensor)</span>
 </code></dt>
 <dd>
@@ -6092,7 +6092,7 @@ If the loop is broken, the values returned by the last loop are expected to be c
 </dd>
 </dl>
 </dd>
-<dt id="unifyml.backend.ComputeDevice"><code class="flex name class">
+<dt id="ml4s.backend.ComputeDevice"><code class="flex name class">
 <span>class <span class="ident">ComputeDevice</span></span>
 </code></dt>
 <dd>
@@ -6140,41 +6140,41 @@ If the loop is broken, the values returned by the last loop are expected to be c
 </details>
 <h3>Instance variables</h3>
 <dl>
-<dt id="unifyml.backend.ComputeDevice.backend"><code class="name">var <span class="ident">backend</span></code></dt>
+<dt id="ml4s.backend.ComputeDevice.backend"><code class="name">var <span class="ident">backend</span></code></dt>
 <dd>
 <div class="desc"><p>Backend that this device belongs to. Different backends represent the same device with different objects.</p></div>
 </dd>
-<dt id="unifyml.backend.ComputeDevice.description"><code class="name">var <span class="ident">description</span></code></dt>
+<dt id="ml4s.backend.ComputeDevice.description"><code class="name">var <span class="ident">description</span></code></dt>
 <dd>
 <div class="desc"><p>Further information about the device such as driver version.</p></div>
 </dd>
-<dt id="unifyml.backend.ComputeDevice.device_type"><code class="name">var <span class="ident">device_type</span></code></dt>
+<dt id="ml4s.backend.ComputeDevice.device_type"><code class="name">var <span class="ident">device_type</span></code></dt>
 <dd>
 <div class="desc"><p>Type of device such as <code>'CPU'</code>, <code>'GPU'</code> or <code>'TPU'</code>.</p></div>
 </dd>
-<dt id="unifyml.backend.ComputeDevice.memory"><code class="name">var <span class="ident">memory</span></code></dt>
+<dt id="ml4s.backend.ComputeDevice.memory"><code class="name">var <span class="ident">memory</span></code></dt>
 <dd>
 <div class="desc"><p>Maximum memory of the device that can be allocated (in bytes). -1 for n/a.</p></div>
 </dd>
-<dt id="unifyml.backend.ComputeDevice.name"><code class="name">var <span class="ident">name</span></code></dt>
+<dt id="ml4s.backend.ComputeDevice.name"><code class="name">var <span class="ident">name</span></code></dt>
 <dd>
 <div class="desc"><p>Name of the compute device. CPUs are typically called <code>'CPU'</code>.</p></div>
 </dd>
-<dt id="unifyml.backend.ComputeDevice.processor_count"><code class="name">var <span class="ident">processor_count</span></code></dt>
+<dt id="ml4s.backend.ComputeDevice.processor_count"><code class="name">var <span class="ident">processor_count</span></code></dt>
 <dd>
 <div class="desc"><p>Number of CPU cores or GPU multiprocessors. -1 for n/a.</p></div>
 </dd>
-<dt id="unifyml.backend.ComputeDevice.ref"><code class="name">var <span class="ident">ref</span></code></dt>
+<dt id="ml4s.backend.ComputeDevice.ref"><code class="name">var <span class="ident">ref</span></code></dt>
 <dd>
 <div class="desc"><p>Reference to the internal device representation. Two devices are equal if their refs are equal.</p></div>
 </dd>
 </dl>
 </dd>
-<dt id="unifyml.backend.NoBackendFound"><code class="flex name class">
+<dt id="ml4s.backend.NoBackendFound"><code class="flex name class">
 <span>class <span class="ident">NoBackendFound</span></span>
 </code></dt>
 <dd>
-<div class="desc"><p>Thrown by <code><a title="unifyml.backend.choose_backend" href="#unifyml.backend.choose_backend">choose_backend()</a></code> if no backend can handle the given values.</p></div>
+<div class="desc"><p>Thrown by <code><a title="ml4s.backend.choose_backend" href="#ml4s.backend.choose_backend">choose_backend()</a></code> if no backend can handle the given values.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -6193,12 +6193,12 @@ If the loop is broken, the values returned by the last loop are expected to be c
 <li>builtins.BaseException</li>
 </ul>
 </dd>
-<dt id="unifyml.backend.Profile"><code class="flex name class">
+<dt id="ml4s.backend.Profile"><code class="flex name class">
 <span>class <span class="ident">Profile</span></span>
 </code></dt>
 <dd>
 <div class="desc"><p>Stores information about calls to backends and their timing.</p>
-<p>Profile may be created through <code><a title="unifyml.backend.profile" href="#unifyml.backend.profile">profile()</a></code> or <code><a title="unifyml.backend.profile_function" href="#unifyml.backend.profile_function">profile_function()</a></code>.</p>
+<p>Profile may be created through <code><a title="ml4s.backend.profile" href="#ml4s.backend.profile">profile()</a></code> or <code><a title="ml4s.backend.profile_function" href="#ml4s.backend.profile_function">profile_function()</a></code>.</p>
 <p>Profiles can be printed or saved to disc.</p></div>
 <details class="source">
 <summary>
@@ -6365,7 +6365,7 @@ If the loop is broken, the values returned by the last loop are expected to be c
 </details>
 <h3>Instance variables</h3>
 <dl>
-<dt id="unifyml.backend.Profile.duration"><code class="name">var <span class="ident">duration</span> : float</code></dt>
+<dt id="ml4s.backend.Profile.duration"><code class="name">var <span class="ident">duration</span> : float</code></dt>
 <dd>
 <div class="desc"><p>Total time passed from creation of the profile to the end of the last operation.</p></div>
 <details class="source">
@@ -6381,11 +6381,11 @@ def duration(self) -&gt; float:
 </dl>
 <h3>Methods</h3>
 <dl>
-<dt id="unifyml.backend.Profile.add_external_message"><code class="name flex">
+<dt id="ml4s.backend.Profile.add_external_message"><code class="name flex">
 <span>def <span class="ident">add_external_message</span></span>(<span>self, message: str)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Stores an external message in this profile. External messages are printed in <code><a title="unifyml.backend.Profile.print" href="#unifyml.backend.Profile.print">Profile.print()</a></code>.</p></div>
+<div class="desc"><p>Stores an external message in this profile. External messages are printed in <code><a title="ml4s.backend.Profile.print" href="#ml4s.backend.Profile.print">Profile.print()</a></code>.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -6395,7 +6395,7 @@ def duration(self) -&gt; float:
     self._messages.append(message)</code></pre>
 </details>
 </dd>
-<dt id="unifyml.backend.Profile.print"><code class="name flex">
+<dt id="ml4s.backend.Profile.print"><code class="name flex">
 <span>def <span class="ident">print</span></span>(<span>self, min_duration=0.001, code_col=80, code_len=50)</span>
 </code></dt>
 <dd>
@@ -6431,7 +6431,7 @@ def duration(self) -&gt; float:
     self._root.print(min_duration=min_duration, code_col=code_col, code_len=code_len)</code></pre>
 </details>
 </dd>
-<dt id="unifyml.backend.Profile.retime"><code class="name flex">
+<dt id="ml4s.backend.Profile.retime"><code class="name flex">
 <span>def <span class="ident">retime</span></span>(<span>self)</span>
 </code></dt>
 <dd>
@@ -6440,7 +6440,7 @@ def duration(self) -&gt; float:
 This gives a much better indication of the true timing.
 The code within the <code>with</code> block must perform the same operations as the code that created this profile.</p>
 <p><em>Warning:</em> Internal caching may reduce the number of operations after the first time a function is called.
-To prevent this, run the function before profiling it, see <code>warmup</code> in <code><a title="unifyml.backend.profile_function" href="#unifyml.backend.profile_function">profile_function()</a></code>.</p></div>
+To prevent this, run the function before profiling it, see <code>warmup</code> in <code><a title="ml4s.backend.profile_function" href="#ml4s.backend.profile_function">profile_function()</a></code>.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -6467,7 +6467,7 @@ def retime(self):
         self._retime_index = -1</code></pre>
 </details>
 </dd>
-<dt id="unifyml.backend.Profile.save"><code class="name flex">
+<dt id="ml4s.backend.Profile.save"><code class="name flex">
 <span>def <span class="ident">save</span></span>(<span>self, json_file: str)</span>
 </code></dt>
 <dd>
@@ -6509,7 +6509,7 @@ def retime(self):
         json.dump(data, file)</code></pre>
 </details>
 </dd>
-<dt id="unifyml.backend.Profile.save_trace"><code class="name flex">
+<dt id="ml4s.backend.Profile.save_trace"><code class="name flex">
 <span>def <span class="ident">save_trace</span></span>(<span>self, json_file: str)</span>
 </code></dt>
 <dd>
@@ -6564,259 +6564,259 @@ def retime(self):
 <ul id="index">
 <li><h3>Super-module</h3>
 <ul>
-<li><code><a title="unifyml" href="../index.html">unifyml</a></code></li>
+<li><code><a title="ml4s" href="../index.html">ml4s</a></code></li>
 </ul>
 </li>
 <li><h3><a href="#header-submodules">Sub-modules</a></h3>
 <ul>
-<li><code><a title="unifyml.backend.jax" href="jax/index.html">unifyml.backend.jax</a></code></li>
-<li><code><a title="unifyml.backend.tensorflow" href="tensorflow/index.html">unifyml.backend.tensorflow</a></code></li>
-<li><code><a title="unifyml.backend.torch" href="torch/index.html">unifyml.backend.torch</a></code></li>
+<li><code><a title="ml4s.backend.jax" href="jax/index.html">ml4s.backend.jax</a></code></li>
+<li><code><a title="ml4s.backend.tensorflow" href="tensorflow/index.html">ml4s.backend.tensorflow</a></code></li>
+<li><code><a title="ml4s.backend.torch" href="torch/index.html">ml4s.backend.torch</a></code></li>
 </ul>
 </li>
 <li><h3><a href="#header-variables">Global variables</a></h3>
 <ul class="">
-<li><code><a title="unifyml.backend.OBJECTS" href="#unifyml.backend.OBJECTS">OBJECTS</a></code></li>
+<li><code><a title="ml4s.backend.OBJECTS" href="#ml4s.backend.OBJECTS">OBJECTS</a></code></li>
 </ul>
 </li>
 <li><h3><a href="#header-functions">Functions</a></h3>
 <ul class="">
-<li><code><a title="unifyml.backend.choose_backend" href="#unifyml.backend.choose_backend">choose_backend</a></code></li>
-<li><code><a title="unifyml.backend.context_backend" href="#unifyml.backend.context_backend">context_backend</a></code></li>
-<li><code><a title="unifyml.backend.convert" href="#unifyml.backend.convert">convert</a></code></li>
-<li><code><a title="unifyml.backend.default_backend" href="#unifyml.backend.default_backend">default_backend</a></code></li>
-<li><code><a title="unifyml.backend.get_current_profile" href="#unifyml.backend.get_current_profile">get_current_profile</a></code></li>
-<li><code><a title="unifyml.backend.get_precision" href="#unifyml.backend.get_precision">get_precision</a></code></li>
-<li><code><a title="unifyml.backend.precision" href="#unifyml.backend.precision">precision</a></code></li>
-<li><code><a title="unifyml.backend.profile" href="#unifyml.backend.profile">profile</a></code></li>
-<li><code><a title="unifyml.backend.profile_function" href="#unifyml.backend.profile_function">profile_function</a></code></li>
-<li><code><a title="unifyml.backend.set_global_default_backend" href="#unifyml.backend.set_global_default_backend">set_global_default_backend</a></code></li>
-<li><code><a title="unifyml.backend.set_global_precision" href="#unifyml.backend.set_global_precision">set_global_precision</a></code></li>
+<li><code><a title="ml4s.backend.choose_backend" href="#ml4s.backend.choose_backend">choose_backend</a></code></li>
+<li><code><a title="ml4s.backend.context_backend" href="#ml4s.backend.context_backend">context_backend</a></code></li>
+<li><code><a title="ml4s.backend.convert" href="#ml4s.backend.convert">convert</a></code></li>
+<li><code><a title="ml4s.backend.default_backend" href="#ml4s.backend.default_backend">default_backend</a></code></li>
+<li><code><a title="ml4s.backend.get_current_profile" href="#ml4s.backend.get_current_profile">get_current_profile</a></code></li>
+<li><code><a title="ml4s.backend.get_precision" href="#ml4s.backend.get_precision">get_precision</a></code></li>
+<li><code><a title="ml4s.backend.precision" href="#ml4s.backend.precision">precision</a></code></li>
+<li><code><a title="ml4s.backend.profile" href="#ml4s.backend.profile">profile</a></code></li>
+<li><code><a title="ml4s.backend.profile_function" href="#ml4s.backend.profile_function">profile_function</a></code></li>
+<li><code><a title="ml4s.backend.set_global_default_backend" href="#ml4s.backend.set_global_default_backend">set_global_default_backend</a></code></li>
+<li><code><a title="ml4s.backend.set_global_precision" href="#ml4s.backend.set_global_precision">set_global_precision</a></code></li>
 </ul>
 </li>
 <li><h3><a href="#header-classes">Classes</a></h3>
 <ul>
 <li>
-<h4><code><a title="unifyml.backend.Backend" href="#unifyml.backend.Backend">Backend</a></code></h4>
+<h4><code><a title="ml4s.backend.Backend" href="#ml4s.backend.Backend">Backend</a></code></h4>
 <ul class="">
-<li><code><a title="unifyml.backend.Backend.abs" href="#unifyml.backend.Backend.abs">abs</a></code></li>
-<li><code><a title="unifyml.backend.Backend.add" href="#unifyml.backend.Backend.add">add</a></code></li>
-<li><code><a title="unifyml.backend.Backend.all" href="#unifyml.backend.Backend.all">all</a></code></li>
-<li><code><a title="unifyml.backend.Backend.allocate_on_device" href="#unifyml.backend.Backend.allocate_on_device">allocate_on_device</a></code></li>
-<li><code><a title="unifyml.backend.Backend.and_" href="#unifyml.backend.Backend.and_">and_</a></code></li>
-<li><code><a title="unifyml.backend.Backend.any" href="#unifyml.backend.Backend.any">any</a></code></li>
-<li><code><a title="unifyml.backend.Backend.arccos" href="#unifyml.backend.Backend.arccos">arccos</a></code></li>
-<li><code><a title="unifyml.backend.Backend.arccosh" href="#unifyml.backend.Backend.arccosh">arccosh</a></code></li>
-<li><code><a title="unifyml.backend.Backend.arcsin" href="#unifyml.backend.Backend.arcsin">arcsin</a></code></li>
-<li><code><a title="unifyml.backend.Backend.arcsinh" href="#unifyml.backend.Backend.arcsinh">arcsinh</a></code></li>
-<li><code><a title="unifyml.backend.Backend.arctan" href="#unifyml.backend.Backend.arctan">arctan</a></code></li>
-<li><code><a title="unifyml.backend.Backend.arctan2" href="#unifyml.backend.Backend.arctan2">arctan2</a></code></li>
-<li><code><a title="unifyml.backend.Backend.arctanh" href="#unifyml.backend.Backend.arctanh">arctanh</a></code></li>
-<li><code><a title="unifyml.backend.Backend.argsort" href="#unifyml.backend.Backend.argsort">argsort</a></code></li>
-<li><code><a title="unifyml.backend.Backend.as_registered" href="#unifyml.backend.Backend.as_registered">as_registered</a></code></li>
-<li><code><a title="unifyml.backend.Backend.as_tensor" href="#unifyml.backend.Backend.as_tensor">as_tensor</a></code></li>
-<li><code><a title="unifyml.backend.Backend.auto_cast" href="#unifyml.backend.Backend.auto_cast">auto_cast</a></code></li>
-<li><code><a title="unifyml.backend.Backend.batch_gather" href="#unifyml.backend.Backend.batch_gather">batch_gather</a></code></li>
-<li><code><a title="unifyml.backend.Backend.batched_bincount" href="#unifyml.backend.Backend.batched_bincount">batched_bincount</a></code></li>
-<li><code><a title="unifyml.backend.Backend.batched_gather_1d" href="#unifyml.backend.Backend.batched_gather_1d">batched_gather_1d</a></code></li>
-<li><code><a title="unifyml.backend.Backend.batched_gather_nd" href="#unifyml.backend.Backend.batched_gather_nd">batched_gather_nd</a></code></li>
-<li><code><a title="unifyml.backend.Backend.bi_conjugate_gradient" href="#unifyml.backend.Backend.bi_conjugate_gradient">bi_conjugate_gradient</a></code></li>
-<li><code><a title="unifyml.backend.Backend.bincount" href="#unifyml.backend.Backend.bincount">bincount</a></code></li>
-<li><code><a title="unifyml.backend.Backend.block_until_ready" href="#unifyml.backend.Backend.block_until_ready">block_until_ready</a></code></li>
-<li><code><a title="unifyml.backend.Backend.boolean_mask" href="#unifyml.backend.Backend.boolean_mask">boolean_mask</a></code></li>
-<li><code><a title="unifyml.backend.Backend.call" href="#unifyml.backend.Backend.call">call</a></code></li>
-<li><code><a title="unifyml.backend.Backend.cast" href="#unifyml.backend.Backend.cast">cast</a></code></li>
-<li><code><a title="unifyml.backend.Backend.ceil" href="#unifyml.backend.Backend.ceil">ceil</a></code></li>
-<li><code><a title="unifyml.backend.Backend.clip" href="#unifyml.backend.Backend.clip">clip</a></code></li>
-<li><code><a title="unifyml.backend.Backend.combine_types" href="#unifyml.backend.Backend.combine_types">combine_types</a></code></li>
-<li><code><a title="unifyml.backend.Backend.complex_type" href="#unifyml.backend.Backend.complex_type">complex_type</a></code></li>
-<li><code><a title="unifyml.backend.Backend.concat" href="#unifyml.backend.Backend.concat">concat</a></code></li>
-<li><code><a title="unifyml.backend.Backend.conj" href="#unifyml.backend.Backend.conj">conj</a></code></li>
-<li><code><a title="unifyml.backend.Backend.conjugate_gradient" href="#unifyml.backend.Backend.conjugate_gradient">conjugate_gradient</a></code></li>
-<li><code><a title="unifyml.backend.Backend.conjugate_gradient_adaptive" href="#unifyml.backend.Backend.conjugate_gradient_adaptive">conjugate_gradient_adaptive</a></code></li>
-<li><code><a title="unifyml.backend.Backend.conv" href="#unifyml.backend.Backend.conv">conv</a></code></li>
-<li><code><a title="unifyml.backend.Backend.coo_to_dense" href="#unifyml.backend.Backend.coo_to_dense">coo_to_dense</a></code></li>
-<li><code><a title="unifyml.backend.Backend.copy" href="#unifyml.backend.Backend.copy">copy</a></code></li>
-<li><code><a title="unifyml.backend.Backend.copy_leaves" href="#unifyml.backend.Backend.copy_leaves">copy_leaves</a></code></li>
-<li><code><a title="unifyml.backend.Backend.cos" href="#unifyml.backend.Backend.cos">cos</a></code></li>
-<li><code><a title="unifyml.backend.Backend.cosh" href="#unifyml.backend.Backend.cosh">cosh</a></code></li>
-<li><code><a title="unifyml.backend.Backend.csc_matrix" href="#unifyml.backend.Backend.csc_matrix">csc_matrix</a></code></li>
-<li><code><a title="unifyml.backend.Backend.csc_matrix_batched" href="#unifyml.backend.Backend.csc_matrix_batched">csc_matrix_batched</a></code></li>
-<li><code><a title="unifyml.backend.Backend.csr_matrix" href="#unifyml.backend.Backend.csr_matrix">csr_matrix</a></code></li>
-<li><code><a title="unifyml.backend.Backend.csr_matrix_batched" href="#unifyml.backend.Backend.csr_matrix_batched">csr_matrix_batched</a></code></li>
-<li><code><a title="unifyml.backend.Backend.csr_to_coo" href="#unifyml.backend.Backend.csr_to_coo">csr_to_coo</a></code></li>
-<li><code><a title="unifyml.backend.Backend.csr_to_dense" href="#unifyml.backend.Backend.csr_to_dense">csr_to_dense</a></code></li>
-<li><code><a title="unifyml.backend.Backend.cumsum" href="#unifyml.backend.Backend.cumsum">cumsum</a></code></li>
-<li><code><a title="unifyml.backend.Backend.custom_gradient" href="#unifyml.backend.Backend.custom_gradient">custom_gradient</a></code></li>
-<li><code><a title="unifyml.backend.Backend.determine_size" href="#unifyml.backend.Backend.determine_size">determine_size</a></code></li>
-<li><code><a title="unifyml.backend.Backend.div" href="#unifyml.backend.Backend.div">div</a></code></li>
-<li><code><a title="unifyml.backend.Backend.divide_no_nan" href="#unifyml.backend.Backend.divide_no_nan">divide_no_nan</a></code></li>
-<li><code><a title="unifyml.backend.Backend.dtype" href="#unifyml.backend.Backend.dtype">dtype</a></code></li>
-<li><code><a title="unifyml.backend.Backend.einsum" href="#unifyml.backend.Backend.einsum">einsum</a></code></li>
-<li><code><a title="unifyml.backend.Backend.equal" href="#unifyml.backend.Backend.equal">equal</a></code></li>
-<li><code><a title="unifyml.backend.Backend.exp" href="#unifyml.backend.Backend.exp">exp</a></code></li>
-<li><code><a title="unifyml.backend.Backend.expand_dims" href="#unifyml.backend.Backend.expand_dims">expand_dims</a></code></li>
-<li><code><a title="unifyml.backend.Backend.factorial" href="#unifyml.backend.Backend.factorial">factorial</a></code></li>
-<li><code><a title="unifyml.backend.Backend.fft" href="#unifyml.backend.Backend.fft">fft</a></code></li>
-<li><code><a title="unifyml.backend.Backend.flatten" href="#unifyml.backend.Backend.flatten">flatten</a></code></li>
-<li><code><a title="unifyml.backend.Backend.flip" href="#unifyml.backend.Backend.flip">flip</a></code></li>
-<li><code><a title="unifyml.backend.Backend.float_type" href="#unifyml.backend.Backend.float_type">float_type</a></code></li>
-<li><code><a title="unifyml.backend.Backend.floor" href="#unifyml.backend.Backend.floor">floor</a></code></li>
-<li><code><a title="unifyml.backend.Backend.floordiv" href="#unifyml.backend.Backend.floordiv">floordiv</a></code></li>
-<li><code><a title="unifyml.backend.Backend.from_dlpack" href="#unifyml.backend.Backend.from_dlpack">from_dlpack</a></code></li>
-<li><code><a title="unifyml.backend.Backend.gather" href="#unifyml.backend.Backend.gather">gather</a></code></li>
-<li><code><a title="unifyml.backend.Backend.gather_1d" href="#unifyml.backend.Backend.gather_1d">gather_1d</a></code></li>
-<li><code><a title="unifyml.backend.Backend.gather_by_component_indices" href="#unifyml.backend.Backend.gather_by_component_indices">gather_by_component_indices</a></code></li>
-<li><code><a title="unifyml.backend.Backend.gather_nd" href="#unifyml.backend.Backend.gather_nd">gather_nd</a></code></li>
-<li><code><a title="unifyml.backend.Backend.get_default_device" href="#unifyml.backend.Backend.get_default_device">get_default_device</a></code></li>
-<li><code><a title="unifyml.backend.Backend.get_device" href="#unifyml.backend.Backend.get_device">get_device</a></code></li>
-<li><code><a title="unifyml.backend.Backend.get_device_by_ref" href="#unifyml.backend.Backend.get_device_by_ref">get_device_by_ref</a></code></li>
-<li><code><a title="unifyml.backend.Backend.get_diagonal" href="#unifyml.backend.Backend.get_diagonal">get_diagonal</a></code></li>
-<li><code><a title="unifyml.backend.Backend.greater_or_equal" href="#unifyml.backend.Backend.greater_or_equal">greater_or_equal</a></code></li>
-<li><code><a title="unifyml.backend.Backend.greater_than" href="#unifyml.backend.Backend.greater_than">greater_than</a></code></li>
-<li><code><a title="unifyml.backend.Backend.grid_sample" href="#unifyml.backend.Backend.grid_sample">grid_sample</a></code></li>
-<li><code><a title="unifyml.backend.Backend.hessian" href="#unifyml.backend.Backend.hessian">hessian</a></code></li>
-<li><code><a title="unifyml.backend.Backend.histogram1d" href="#unifyml.backend.Backend.histogram1d">histogram1d</a></code></li>
-<li><code><a title="unifyml.backend.Backend.ifft" href="#unifyml.backend.Backend.ifft">ifft</a></code></li>
-<li><code><a title="unifyml.backend.Backend.imag" href="#unifyml.backend.Backend.imag">imag</a></code></li>
-<li><code><a title="unifyml.backend.Backend.indexed_segment_sum" href="#unifyml.backend.Backend.indexed_segment_sum">indexed_segment_sum</a></code></li>
-<li><code><a title="unifyml.backend.Backend.is_available" href="#unifyml.backend.Backend.is_available">is_available</a></code></li>
-<li><code><a title="unifyml.backend.Backend.is_module" href="#unifyml.backend.Backend.is_module">is_module</a></code></li>
-<li><code><a title="unifyml.backend.Backend.is_sparse" href="#unifyml.backend.Backend.is_sparse">is_sparse</a></code></li>
-<li><code><a title="unifyml.backend.Backend.is_tensor" href="#unifyml.backend.Backend.is_tensor">is_tensor</a></code></li>
-<li><code><a title="unifyml.backend.Backend.isfinite" href="#unifyml.backend.Backend.isfinite">isfinite</a></code></li>
-<li><code><a title="unifyml.backend.Backend.isinf" href="#unifyml.backend.Backend.isinf">isinf</a></code></li>
-<li><code><a title="unifyml.backend.Backend.isnan" href="#unifyml.backend.Backend.isnan">isnan</a></code></li>
-<li><code><a title="unifyml.backend.Backend.jacobian" href="#unifyml.backend.Backend.jacobian">jacobian</a></code></li>
-<li><code><a title="unifyml.backend.Backend.jit_compile" href="#unifyml.backend.Backend.jit_compile">jit_compile</a></code></li>
-<li><code><a title="unifyml.backend.Backend.jit_compile_grad" href="#unifyml.backend.Backend.jit_compile_grad">jit_compile_grad</a></code></li>
-<li><code><a title="unifyml.backend.Backend.jit_compile_hessian" href="#unifyml.backend.Backend.jit_compile_hessian">jit_compile_hessian</a></code></li>
-<li><code><a title="unifyml.backend.Backend.linear" href="#unifyml.backend.Backend.linear">linear</a></code></li>
-<li><code><a title="unifyml.backend.Backend.linear_solve" href="#unifyml.backend.Backend.linear_solve">linear_solve</a></code></li>
-<li><code><a title="unifyml.backend.Backend.linspace" href="#unifyml.backend.Backend.linspace">linspace</a></code></li>
-<li><code><a title="unifyml.backend.Backend.linspace_without_last" href="#unifyml.backend.Backend.linspace_without_last">linspace_without_last</a></code></li>
-<li><code><a title="unifyml.backend.Backend.list_devices" href="#unifyml.backend.Backend.list_devices">list_devices</a></code></li>
-<li><code><a title="unifyml.backend.Backend.log" href="#unifyml.backend.Backend.log">log</a></code></li>
-<li><code><a title="unifyml.backend.Backend.log10" href="#unifyml.backend.Backend.log10">log10</a></code></li>
-<li><code><a title="unifyml.backend.Backend.log2" href="#unifyml.backend.Backend.log2">log2</a></code></li>
-<li><code><a title="unifyml.backend.Backend.log_gamma" href="#unifyml.backend.Backend.log_gamma">log_gamma</a></code></li>
-<li><code><a title="unifyml.backend.Backend.matrix_solve_least_squares" href="#unifyml.backend.Backend.matrix_solve_least_squares">matrix_solve_least_squares</a></code></li>
-<li><code><a title="unifyml.backend.Backend.max" href="#unifyml.backend.Backend.max">max</a></code></li>
-<li><code><a title="unifyml.backend.Backend.maximum" href="#unifyml.backend.Backend.maximum">maximum</a></code></li>
-<li><code><a title="unifyml.backend.Backend.mean" href="#unifyml.backend.Backend.mean">mean</a></code></li>
-<li><code><a title="unifyml.backend.Backend.meshgrid" href="#unifyml.backend.Backend.meshgrid">meshgrid</a></code></li>
-<li><code><a title="unifyml.backend.Backend.min" href="#unifyml.backend.Backend.min">min</a></code></li>
-<li><code><a title="unifyml.backend.Backend.minimize" href="#unifyml.backend.Backend.minimize">minimize</a></code></li>
-<li><code><a title="unifyml.backend.Backend.minimum" href="#unifyml.backend.Backend.minimum">minimum</a></code></li>
-<li><code><a title="unifyml.backend.Backend.mod" href="#unifyml.backend.Backend.mod">mod</a></code></li>
-<li><code><a title="unifyml.backend.Backend.mul" href="#unifyml.backend.Backend.mul">mul</a></code></li>
-<li><code><a title="unifyml.backend.Backend.mul_coo_dense" href="#unifyml.backend.Backend.mul_coo_dense">mul_coo_dense</a></code></li>
-<li><code><a title="unifyml.backend.Backend.mul_csr_dense" href="#unifyml.backend.Backend.mul_csr_dense">mul_csr_dense</a></code></li>
-<li><code><a title="unifyml.backend.Backend.mul_matrix_batched_vector" href="#unifyml.backend.Backend.mul_matrix_batched_vector">mul_matrix_batched_vector</a></code></li>
-<li><code><a title="unifyml.backend.Backend.multi_slice" href="#unifyml.backend.Backend.multi_slice">multi_slice</a></code></li>
-<li><code><a title="unifyml.backend.Backend.name" href="#unifyml.backend.Backend.name">name</a></code></li>
-<li><code><a title="unifyml.backend.Backend.ndims" href="#unifyml.backend.Backend.ndims">ndims</a></code></li>
-<li><code><a title="unifyml.backend.Backend.nn_library" href="#unifyml.backend.Backend.nn_library">nn_library</a></code></li>
-<li><code><a title="unifyml.backend.Backend.nonzero" href="#unifyml.backend.Backend.nonzero">nonzero</a></code></li>
-<li><code><a title="unifyml.backend.Backend.not_equal" href="#unifyml.backend.Backend.not_equal">not_equal</a></code></li>
-<li><code><a title="unifyml.backend.Backend.numpy" href="#unifyml.backend.Backend.numpy">numpy</a></code></li>
-<li><code><a title="unifyml.backend.Backend.numpy_call" href="#unifyml.backend.Backend.numpy_call">numpy_call</a></code></li>
-<li><code><a title="unifyml.backend.Backend.ones" href="#unifyml.backend.Backend.ones">ones</a></code></li>
-<li><code><a title="unifyml.backend.Backend.ones_like" href="#unifyml.backend.Backend.ones_like">ones_like</a></code></li>
-<li><code><a title="unifyml.backend.Backend.or_" href="#unifyml.backend.Backend.or_">or_</a></code></li>
-<li><code><a title="unifyml.backend.Backend.pad" href="#unifyml.backend.Backend.pad">pad</a></code></li>
-<li><code><a title="unifyml.backend.Backend.pad_to" href="#unifyml.backend.Backend.pad_to">pad_to</a></code></li>
-<li><code><a title="unifyml.backend.Backend.pow" href="#unifyml.backend.Backend.pow">pow</a></code></li>
-<li><code><a title="unifyml.backend.Backend.precision" href="#unifyml.backend.Backend.precision">precision</a></code></li>
-<li><code><a title="unifyml.backend.Backend.prefers_channels_last" href="#unifyml.backend.Backend.prefers_channels_last">prefers_channels_last</a></code></li>
-<li><code><a title="unifyml.backend.Backend.prod" href="#unifyml.backend.Backend.prod">prod</a></code></li>
-<li><code><a title="unifyml.backend.Backend.quantile" href="#unifyml.backend.Backend.quantile">quantile</a></code></li>
-<li><code><a title="unifyml.backend.Backend.random_normal" href="#unifyml.backend.Backend.random_normal">random_normal</a></code></li>
-<li><code><a title="unifyml.backend.Backend.random_uniform" href="#unifyml.backend.Backend.random_uniform">random_uniform</a></code></li>
-<li><code><a title="unifyml.backend.Backend.range" href="#unifyml.backend.Backend.range">range</a></code></li>
-<li><code><a title="unifyml.backend.Backend.ravel_multi_index" href="#unifyml.backend.Backend.ravel_multi_index">ravel_multi_index</a></code></li>
-<li><code><a title="unifyml.backend.Backend.real" href="#unifyml.backend.Backend.real">real</a></code></li>
-<li><code><a title="unifyml.backend.Backend.repeat" href="#unifyml.backend.Backend.repeat">repeat</a></code></li>
-<li><code><a title="unifyml.backend.Backend.requires_fixed_shapes_when_tracing" href="#unifyml.backend.Backend.requires_fixed_shapes_when_tracing">requires_fixed_shapes_when_tracing</a></code></li>
-<li><code><a title="unifyml.backend.Backend.reshape" href="#unifyml.backend.Backend.reshape">reshape</a></code></li>
-<li><code><a title="unifyml.backend.Backend.round" href="#unifyml.backend.Backend.round">round</a></code></li>
-<li><code><a title="unifyml.backend.Backend.scatter" href="#unifyml.backend.Backend.scatter">scatter</a></code></li>
-<li><code><a title="unifyml.backend.Backend.scatter_1d_scalar" href="#unifyml.backend.Backend.scatter_1d_scalar">scatter_1d_scalar</a></code></li>
-<li><code><a title="unifyml.backend.Backend.scatter_nd" href="#unifyml.backend.Backend.scatter_nd">scatter_nd</a></code></li>
-<li><code><a title="unifyml.backend.Backend.scatter_nd_scalar" href="#unifyml.backend.Backend.scatter_nd_scalar">scatter_nd_scalar</a></code></li>
-<li><code><a title="unifyml.backend.Backend.searchsorted" href="#unifyml.backend.Backend.searchsorted">searchsorted</a></code></li>
-<li><code><a title="unifyml.backend.Backend.seed" href="#unifyml.backend.Backend.seed">seed</a></code></li>
-<li><code><a title="unifyml.backend.Backend.set_default_device" href="#unifyml.backend.Backend.set_default_device">set_default_device</a></code></li>
-<li><code><a title="unifyml.backend.Backend.shape" href="#unifyml.backend.Backend.shape">shape</a></code></li>
-<li><code><a title="unifyml.backend.Backend.shift_bits_left" href="#unifyml.backend.Backend.shift_bits_left">shift_bits_left</a></code></li>
-<li><code><a title="unifyml.backend.Backend.shift_bits_right" href="#unifyml.backend.Backend.shift_bits_right">shift_bits_right</a></code></li>
-<li><code><a title="unifyml.backend.Backend.sigmoid" href="#unifyml.backend.Backend.sigmoid">sigmoid</a></code></li>
-<li><code><a title="unifyml.backend.Backend.sign" href="#unifyml.backend.Backend.sign">sign</a></code></li>
-<li><code><a title="unifyml.backend.Backend.sin" href="#unifyml.backend.Backend.sin">sin</a></code></li>
-<li><code><a title="unifyml.backend.Backend.sinh" href="#unifyml.backend.Backend.sinh">sinh</a></code></li>
-<li><code><a title="unifyml.backend.Backend.size" href="#unifyml.backend.Backend.size">size</a></code></li>
-<li><code><a title="unifyml.backend.Backend.softplus" href="#unifyml.backend.Backend.softplus">softplus</a></code></li>
-<li><code><a title="unifyml.backend.Backend.solve_triangular" href="#unifyml.backend.Backend.solve_triangular">solve_triangular</a></code></li>
-<li><code><a title="unifyml.backend.Backend.solve_triangular_dense" href="#unifyml.backend.Backend.solve_triangular_dense">solve_triangular_dense</a></code></li>
-<li><code><a title="unifyml.backend.Backend.solve_triangular_sparse" href="#unifyml.backend.Backend.solve_triangular_sparse">solve_triangular_sparse</a></code></li>
-<li><code><a title="unifyml.backend.Backend.sparse_coo_tensor" href="#unifyml.backend.Backend.sparse_coo_tensor">sparse_coo_tensor</a></code></li>
-<li><code><a title="unifyml.backend.Backend.sparse_coo_tensor_batched" href="#unifyml.backend.Backend.sparse_coo_tensor_batched">sparse_coo_tensor_batched</a></code></li>
-<li><code><a title="unifyml.backend.Backend.sqrt" href="#unifyml.backend.Backend.sqrt">sqrt</a></code></li>
-<li><code><a title="unifyml.backend.Backend.stack" href="#unifyml.backend.Backend.stack">stack</a></code></li>
-<li><code><a title="unifyml.backend.Backend.stack_leaves" href="#unifyml.backend.Backend.stack_leaves">stack_leaves</a></code></li>
-<li><code><a title="unifyml.backend.Backend.staticshape" href="#unifyml.backend.Backend.staticshape">staticshape</a></code></li>
-<li><code><a title="unifyml.backend.Backend.std" href="#unifyml.backend.Backend.std">std</a></code></li>
-<li><code><a title="unifyml.backend.Backend.stop_gradient" href="#unifyml.backend.Backend.stop_gradient">stop_gradient</a></code></li>
-<li><code><a title="unifyml.backend.Backend.stop_gradient_tree" href="#unifyml.backend.Backend.stop_gradient_tree">stop_gradient_tree</a></code></li>
-<li><code><a title="unifyml.backend.Backend.sub" href="#unifyml.backend.Backend.sub">sub</a></code></li>
-<li><code><a title="unifyml.backend.Backend.sum" href="#unifyml.backend.Backend.sum">sum</a></code></li>
-<li><code><a title="unifyml.backend.Backend.supports" href="#unifyml.backend.Backend.supports">supports</a></code></li>
-<li><code><a title="unifyml.backend.Backend.tan" href="#unifyml.backend.Backend.tan">tan</a></code></li>
-<li><code><a title="unifyml.backend.Backend.tanh" href="#unifyml.backend.Backend.tanh">tanh</a></code></li>
-<li><code><a title="unifyml.backend.Backend.tensordot" href="#unifyml.backend.Backend.tensordot">tensordot</a></code></li>
-<li><code><a title="unifyml.backend.Backend.tile" href="#unifyml.backend.Backend.tile">tile</a></code></li>
-<li><code><a title="unifyml.backend.Backend.tile_to" href="#unifyml.backend.Backend.tile_to">tile_to</a></code></li>
-<li><code><a title="unifyml.backend.Backend.to_complex" href="#unifyml.backend.Backend.to_complex">to_complex</a></code></li>
-<li><code><a title="unifyml.backend.Backend.to_dlpack" href="#unifyml.backend.Backend.to_dlpack">to_dlpack</a></code></li>
-<li><code><a title="unifyml.backend.Backend.to_float" href="#unifyml.backend.Backend.to_float">to_float</a></code></li>
-<li><code><a title="unifyml.backend.Backend.to_int32" href="#unifyml.backend.Backend.to_int32">to_int32</a></code></li>
-<li><code><a title="unifyml.backend.Backend.to_int64" href="#unifyml.backend.Backend.to_int64">to_int64</a></code></li>
-<li><code><a title="unifyml.backend.Backend.transpose" href="#unifyml.backend.Backend.transpose">transpose</a></code></li>
-<li><code><a title="unifyml.backend.Backend.unravel_index" href="#unifyml.backend.Backend.unravel_index">unravel_index</a></code></li>
-<li><code><a title="unifyml.backend.Backend.unstack" href="#unifyml.backend.Backend.unstack">unstack</a></code></li>
-<li><code><a title="unifyml.backend.Backend.variable" href="#unifyml.backend.Backend.variable">variable</a></code></li>
-<li><code><a title="unifyml.backend.Backend.vectorized_call" href="#unifyml.backend.Backend.vectorized_call">vectorized_call</a></code></li>
-<li><code><a title="unifyml.backend.Backend.where" href="#unifyml.backend.Backend.where">where</a></code></li>
-<li><code><a title="unifyml.backend.Backend.while_loop" href="#unifyml.backend.Backend.while_loop">while_loop</a></code></li>
-<li><code><a title="unifyml.backend.Backend.xor" href="#unifyml.backend.Backend.xor">xor</a></code></li>
-<li><code><a title="unifyml.backend.Backend.zeros" href="#unifyml.backend.Backend.zeros">zeros</a></code></li>
-<li><code><a title="unifyml.backend.Backend.zeros_like" href="#unifyml.backend.Backend.zeros_like">zeros_like</a></code></li>
+<li><code><a title="ml4s.backend.Backend.abs" href="#ml4s.backend.Backend.abs">abs</a></code></li>
+<li><code><a title="ml4s.backend.Backend.add" href="#ml4s.backend.Backend.add">add</a></code></li>
+<li><code><a title="ml4s.backend.Backend.all" href="#ml4s.backend.Backend.all">all</a></code></li>
+<li><code><a title="ml4s.backend.Backend.allocate_on_device" href="#ml4s.backend.Backend.allocate_on_device">allocate_on_device</a></code></li>
+<li><code><a title="ml4s.backend.Backend.and_" href="#ml4s.backend.Backend.and_">and_</a></code></li>
+<li><code><a title="ml4s.backend.Backend.any" href="#ml4s.backend.Backend.any">any</a></code></li>
+<li><code><a title="ml4s.backend.Backend.arccos" href="#ml4s.backend.Backend.arccos">arccos</a></code></li>
+<li><code><a title="ml4s.backend.Backend.arccosh" href="#ml4s.backend.Backend.arccosh">arccosh</a></code></li>
+<li><code><a title="ml4s.backend.Backend.arcsin" href="#ml4s.backend.Backend.arcsin">arcsin</a></code></li>
+<li><code><a title="ml4s.backend.Backend.arcsinh" href="#ml4s.backend.Backend.arcsinh">arcsinh</a></code></li>
+<li><code><a title="ml4s.backend.Backend.arctan" href="#ml4s.backend.Backend.arctan">arctan</a></code></li>
+<li><code><a title="ml4s.backend.Backend.arctan2" href="#ml4s.backend.Backend.arctan2">arctan2</a></code></li>
+<li><code><a title="ml4s.backend.Backend.arctanh" href="#ml4s.backend.Backend.arctanh">arctanh</a></code></li>
+<li><code><a title="ml4s.backend.Backend.argsort" href="#ml4s.backend.Backend.argsort">argsort</a></code></li>
+<li><code><a title="ml4s.backend.Backend.as_registered" href="#ml4s.backend.Backend.as_registered">as_registered</a></code></li>
+<li><code><a title="ml4s.backend.Backend.as_tensor" href="#ml4s.backend.Backend.as_tensor">as_tensor</a></code></li>
+<li><code><a title="ml4s.backend.Backend.auto_cast" href="#ml4s.backend.Backend.auto_cast">auto_cast</a></code></li>
+<li><code><a title="ml4s.backend.Backend.batch_gather" href="#ml4s.backend.Backend.batch_gather">batch_gather</a></code></li>
+<li><code><a title="ml4s.backend.Backend.batched_bincount" href="#ml4s.backend.Backend.batched_bincount">batched_bincount</a></code></li>
+<li><code><a title="ml4s.backend.Backend.batched_gather_1d" href="#ml4s.backend.Backend.batched_gather_1d">batched_gather_1d</a></code></li>
+<li><code><a title="ml4s.backend.Backend.batched_gather_nd" href="#ml4s.backend.Backend.batched_gather_nd">batched_gather_nd</a></code></li>
+<li><code><a title="ml4s.backend.Backend.bi_conjugate_gradient" href="#ml4s.backend.Backend.bi_conjugate_gradient">bi_conjugate_gradient</a></code></li>
+<li><code><a title="ml4s.backend.Backend.bincount" href="#ml4s.backend.Backend.bincount">bincount</a></code></li>
+<li><code><a title="ml4s.backend.Backend.block_until_ready" href="#ml4s.backend.Backend.block_until_ready">block_until_ready</a></code></li>
+<li><code><a title="ml4s.backend.Backend.boolean_mask" href="#ml4s.backend.Backend.boolean_mask">boolean_mask</a></code></li>
+<li><code><a title="ml4s.backend.Backend.call" href="#ml4s.backend.Backend.call">call</a></code></li>
+<li><code><a title="ml4s.backend.Backend.cast" href="#ml4s.backend.Backend.cast">cast</a></code></li>
+<li><code><a title="ml4s.backend.Backend.ceil" href="#ml4s.backend.Backend.ceil">ceil</a></code></li>
+<li><code><a title="ml4s.backend.Backend.clip" href="#ml4s.backend.Backend.clip">clip</a></code></li>
+<li><code><a title="ml4s.backend.Backend.combine_types" href="#ml4s.backend.Backend.combine_types">combine_types</a></code></li>
+<li><code><a title="ml4s.backend.Backend.complex_type" href="#ml4s.backend.Backend.complex_type">complex_type</a></code></li>
+<li><code><a title="ml4s.backend.Backend.concat" href="#ml4s.backend.Backend.concat">concat</a></code></li>
+<li><code><a title="ml4s.backend.Backend.conj" href="#ml4s.backend.Backend.conj">conj</a></code></li>
+<li><code><a title="ml4s.backend.Backend.conjugate_gradient" href="#ml4s.backend.Backend.conjugate_gradient">conjugate_gradient</a></code></li>
+<li><code><a title="ml4s.backend.Backend.conjugate_gradient_adaptive" href="#ml4s.backend.Backend.conjugate_gradient_adaptive">conjugate_gradient_adaptive</a></code></li>
+<li><code><a title="ml4s.backend.Backend.conv" href="#ml4s.backend.Backend.conv">conv</a></code></li>
+<li><code><a title="ml4s.backend.Backend.coo_to_dense" href="#ml4s.backend.Backend.coo_to_dense">coo_to_dense</a></code></li>
+<li><code><a title="ml4s.backend.Backend.copy" href="#ml4s.backend.Backend.copy">copy</a></code></li>
+<li><code><a title="ml4s.backend.Backend.copy_leaves" href="#ml4s.backend.Backend.copy_leaves">copy_leaves</a></code></li>
+<li><code><a title="ml4s.backend.Backend.cos" href="#ml4s.backend.Backend.cos">cos</a></code></li>
+<li><code><a title="ml4s.backend.Backend.cosh" href="#ml4s.backend.Backend.cosh">cosh</a></code></li>
+<li><code><a title="ml4s.backend.Backend.csc_matrix" href="#ml4s.backend.Backend.csc_matrix">csc_matrix</a></code></li>
+<li><code><a title="ml4s.backend.Backend.csc_matrix_batched" href="#ml4s.backend.Backend.csc_matrix_batched">csc_matrix_batched</a></code></li>
+<li><code><a title="ml4s.backend.Backend.csr_matrix" href="#ml4s.backend.Backend.csr_matrix">csr_matrix</a></code></li>
+<li><code><a title="ml4s.backend.Backend.csr_matrix_batched" href="#ml4s.backend.Backend.csr_matrix_batched">csr_matrix_batched</a></code></li>
+<li><code><a title="ml4s.backend.Backend.csr_to_coo" href="#ml4s.backend.Backend.csr_to_coo">csr_to_coo</a></code></li>
+<li><code><a title="ml4s.backend.Backend.csr_to_dense" href="#ml4s.backend.Backend.csr_to_dense">csr_to_dense</a></code></li>
+<li><code><a title="ml4s.backend.Backend.cumsum" href="#ml4s.backend.Backend.cumsum">cumsum</a></code></li>
+<li><code><a title="ml4s.backend.Backend.custom_gradient" href="#ml4s.backend.Backend.custom_gradient">custom_gradient</a></code></li>
+<li><code><a title="ml4s.backend.Backend.determine_size" href="#ml4s.backend.Backend.determine_size">determine_size</a></code></li>
+<li><code><a title="ml4s.backend.Backend.div" href="#ml4s.backend.Backend.div">div</a></code></li>
+<li><code><a title="ml4s.backend.Backend.divide_no_nan" href="#ml4s.backend.Backend.divide_no_nan">divide_no_nan</a></code></li>
+<li><code><a title="ml4s.backend.Backend.dtype" href="#ml4s.backend.Backend.dtype">dtype</a></code></li>
+<li><code><a title="ml4s.backend.Backend.einsum" href="#ml4s.backend.Backend.einsum">einsum</a></code></li>
+<li><code><a title="ml4s.backend.Backend.equal" href="#ml4s.backend.Backend.equal">equal</a></code></li>
+<li><code><a title="ml4s.backend.Backend.exp" href="#ml4s.backend.Backend.exp">exp</a></code></li>
+<li><code><a title="ml4s.backend.Backend.expand_dims" href="#ml4s.backend.Backend.expand_dims">expand_dims</a></code></li>
+<li><code><a title="ml4s.backend.Backend.factorial" href="#ml4s.backend.Backend.factorial">factorial</a></code></li>
+<li><code><a title="ml4s.backend.Backend.fft" href="#ml4s.backend.Backend.fft">fft</a></code></li>
+<li><code><a title="ml4s.backend.Backend.flatten" href="#ml4s.backend.Backend.flatten">flatten</a></code></li>
+<li><code><a title="ml4s.backend.Backend.flip" href="#ml4s.backend.Backend.flip">flip</a></code></li>
+<li><code><a title="ml4s.backend.Backend.float_type" href="#ml4s.backend.Backend.float_type">float_type</a></code></li>
+<li><code><a title="ml4s.backend.Backend.floor" href="#ml4s.backend.Backend.floor">floor</a></code></li>
+<li><code><a title="ml4s.backend.Backend.floordiv" href="#ml4s.backend.Backend.floordiv">floordiv</a></code></li>
+<li><code><a title="ml4s.backend.Backend.from_dlpack" href="#ml4s.backend.Backend.from_dlpack">from_dlpack</a></code></li>
+<li><code><a title="ml4s.backend.Backend.gather" href="#ml4s.backend.Backend.gather">gather</a></code></li>
+<li><code><a title="ml4s.backend.Backend.gather_1d" href="#ml4s.backend.Backend.gather_1d">gather_1d</a></code></li>
+<li><code><a title="ml4s.backend.Backend.gather_by_component_indices" href="#ml4s.backend.Backend.gather_by_component_indices">gather_by_component_indices</a></code></li>
+<li><code><a title="ml4s.backend.Backend.gather_nd" href="#ml4s.backend.Backend.gather_nd">gather_nd</a></code></li>
+<li><code><a title="ml4s.backend.Backend.get_default_device" href="#ml4s.backend.Backend.get_default_device">get_default_device</a></code></li>
+<li><code><a title="ml4s.backend.Backend.get_device" href="#ml4s.backend.Backend.get_device">get_device</a></code></li>
+<li><code><a title="ml4s.backend.Backend.get_device_by_ref" href="#ml4s.backend.Backend.get_device_by_ref">get_device_by_ref</a></code></li>
+<li><code><a title="ml4s.backend.Backend.get_diagonal" href="#ml4s.backend.Backend.get_diagonal">get_diagonal</a></code></li>
+<li><code><a title="ml4s.backend.Backend.greater_or_equal" href="#ml4s.backend.Backend.greater_or_equal">greater_or_equal</a></code></li>
+<li><code><a title="ml4s.backend.Backend.greater_than" href="#ml4s.backend.Backend.greater_than">greater_than</a></code></li>
+<li><code><a title="ml4s.backend.Backend.grid_sample" href="#ml4s.backend.Backend.grid_sample">grid_sample</a></code></li>
+<li><code><a title="ml4s.backend.Backend.hessian" href="#ml4s.backend.Backend.hessian">hessian</a></code></li>
+<li><code><a title="ml4s.backend.Backend.histogram1d" href="#ml4s.backend.Backend.histogram1d">histogram1d</a></code></li>
+<li><code><a title="ml4s.backend.Backend.ifft" href="#ml4s.backend.Backend.ifft">ifft</a></code></li>
+<li><code><a title="ml4s.backend.Backend.imag" href="#ml4s.backend.Backend.imag">imag</a></code></li>
+<li><code><a title="ml4s.backend.Backend.indexed_segment_sum" href="#ml4s.backend.Backend.indexed_segment_sum">indexed_segment_sum</a></code></li>
+<li><code><a title="ml4s.backend.Backend.is_available" href="#ml4s.backend.Backend.is_available">is_available</a></code></li>
+<li><code><a title="ml4s.backend.Backend.is_module" href="#ml4s.backend.Backend.is_module">is_module</a></code></li>
+<li><code><a title="ml4s.backend.Backend.is_sparse" href="#ml4s.backend.Backend.is_sparse">is_sparse</a></code></li>
+<li><code><a title="ml4s.backend.Backend.is_tensor" href="#ml4s.backend.Backend.is_tensor">is_tensor</a></code></li>
+<li><code><a title="ml4s.backend.Backend.isfinite" href="#ml4s.backend.Backend.isfinite">isfinite</a></code></li>
+<li><code><a title="ml4s.backend.Backend.isinf" href="#ml4s.backend.Backend.isinf">isinf</a></code></li>
+<li><code><a title="ml4s.backend.Backend.isnan" href="#ml4s.backend.Backend.isnan">isnan</a></code></li>
+<li><code><a title="ml4s.backend.Backend.jacobian" href="#ml4s.backend.Backend.jacobian">jacobian</a></code></li>
+<li><code><a title="ml4s.backend.Backend.jit_compile" href="#ml4s.backend.Backend.jit_compile">jit_compile</a></code></li>
+<li><code><a title="ml4s.backend.Backend.jit_compile_grad" href="#ml4s.backend.Backend.jit_compile_grad">jit_compile_grad</a></code></li>
+<li><code><a title="ml4s.backend.Backend.jit_compile_hessian" href="#ml4s.backend.Backend.jit_compile_hessian">jit_compile_hessian</a></code></li>
+<li><code><a title="ml4s.backend.Backend.linear" href="#ml4s.backend.Backend.linear">linear</a></code></li>
+<li><code><a title="ml4s.backend.Backend.linear_solve" href="#ml4s.backend.Backend.linear_solve">linear_solve</a></code></li>
+<li><code><a title="ml4s.backend.Backend.linspace" href="#ml4s.backend.Backend.linspace">linspace</a></code></li>
+<li><code><a title="ml4s.backend.Backend.linspace_without_last" href="#ml4s.backend.Backend.linspace_without_last">linspace_without_last</a></code></li>
+<li><code><a title="ml4s.backend.Backend.list_devices" href="#ml4s.backend.Backend.list_devices">list_devices</a></code></li>
+<li><code><a title="ml4s.backend.Backend.log" href="#ml4s.backend.Backend.log">log</a></code></li>
+<li><code><a title="ml4s.backend.Backend.log10" href="#ml4s.backend.Backend.log10">log10</a></code></li>
+<li><code><a title="ml4s.backend.Backend.log2" href="#ml4s.backend.Backend.log2">log2</a></code></li>
+<li><code><a title="ml4s.backend.Backend.log_gamma" href="#ml4s.backend.Backend.log_gamma">log_gamma</a></code></li>
+<li><code><a title="ml4s.backend.Backend.matrix_solve_least_squares" href="#ml4s.backend.Backend.matrix_solve_least_squares">matrix_solve_least_squares</a></code></li>
+<li><code><a title="ml4s.backend.Backend.max" href="#ml4s.backend.Backend.max">max</a></code></li>
+<li><code><a title="ml4s.backend.Backend.maximum" href="#ml4s.backend.Backend.maximum">maximum</a></code></li>
+<li><code><a title="ml4s.backend.Backend.mean" href="#ml4s.backend.Backend.mean">mean</a></code></li>
+<li><code><a title="ml4s.backend.Backend.meshgrid" href="#ml4s.backend.Backend.meshgrid">meshgrid</a></code></li>
+<li><code><a title="ml4s.backend.Backend.min" href="#ml4s.backend.Backend.min">min</a></code></li>
+<li><code><a title="ml4s.backend.Backend.minimize" href="#ml4s.backend.Backend.minimize">minimize</a></code></li>
+<li><code><a title="ml4s.backend.Backend.minimum" href="#ml4s.backend.Backend.minimum">minimum</a></code></li>
+<li><code><a title="ml4s.backend.Backend.mod" href="#ml4s.backend.Backend.mod">mod</a></code></li>
+<li><code><a title="ml4s.backend.Backend.mul" href="#ml4s.backend.Backend.mul">mul</a></code></li>
+<li><code><a title="ml4s.backend.Backend.mul_coo_dense" href="#ml4s.backend.Backend.mul_coo_dense">mul_coo_dense</a></code></li>
+<li><code><a title="ml4s.backend.Backend.mul_csr_dense" href="#ml4s.backend.Backend.mul_csr_dense">mul_csr_dense</a></code></li>
+<li><code><a title="ml4s.backend.Backend.mul_matrix_batched_vector" href="#ml4s.backend.Backend.mul_matrix_batched_vector">mul_matrix_batched_vector</a></code></li>
+<li><code><a title="ml4s.backend.Backend.multi_slice" href="#ml4s.backend.Backend.multi_slice">multi_slice</a></code></li>
+<li><code><a title="ml4s.backend.Backend.name" href="#ml4s.backend.Backend.name">name</a></code></li>
+<li><code><a title="ml4s.backend.Backend.ndims" href="#ml4s.backend.Backend.ndims">ndims</a></code></li>
+<li><code><a title="ml4s.backend.Backend.nn_library" href="#ml4s.backend.Backend.nn_library">nn_library</a></code></li>
+<li><code><a title="ml4s.backend.Backend.nonzero" href="#ml4s.backend.Backend.nonzero">nonzero</a></code></li>
+<li><code><a title="ml4s.backend.Backend.not_equal" href="#ml4s.backend.Backend.not_equal">not_equal</a></code></li>
+<li><code><a title="ml4s.backend.Backend.numpy" href="#ml4s.backend.Backend.numpy">numpy</a></code></li>
+<li><code><a title="ml4s.backend.Backend.numpy_call" href="#ml4s.backend.Backend.numpy_call">numpy_call</a></code></li>
+<li><code><a title="ml4s.backend.Backend.ones" href="#ml4s.backend.Backend.ones">ones</a></code></li>
+<li><code><a title="ml4s.backend.Backend.ones_like" href="#ml4s.backend.Backend.ones_like">ones_like</a></code></li>
+<li><code><a title="ml4s.backend.Backend.or_" href="#ml4s.backend.Backend.or_">or_</a></code></li>
+<li><code><a title="ml4s.backend.Backend.pad" href="#ml4s.backend.Backend.pad">pad</a></code></li>
+<li><code><a title="ml4s.backend.Backend.pad_to" href="#ml4s.backend.Backend.pad_to">pad_to</a></code></li>
+<li><code><a title="ml4s.backend.Backend.pow" href="#ml4s.backend.Backend.pow">pow</a></code></li>
+<li><code><a title="ml4s.backend.Backend.precision" href="#ml4s.backend.Backend.precision">precision</a></code></li>
+<li><code><a title="ml4s.backend.Backend.prefers_channels_last" href="#ml4s.backend.Backend.prefers_channels_last">prefers_channels_last</a></code></li>
+<li><code><a title="ml4s.backend.Backend.prod" href="#ml4s.backend.Backend.prod">prod</a></code></li>
+<li><code><a title="ml4s.backend.Backend.quantile" href="#ml4s.backend.Backend.quantile">quantile</a></code></li>
+<li><code><a title="ml4s.backend.Backend.random_normal" href="#ml4s.backend.Backend.random_normal">random_normal</a></code></li>
+<li><code><a title="ml4s.backend.Backend.random_uniform" href="#ml4s.backend.Backend.random_uniform">random_uniform</a></code></li>
+<li><code><a title="ml4s.backend.Backend.range" href="#ml4s.backend.Backend.range">range</a></code></li>
+<li><code><a title="ml4s.backend.Backend.ravel_multi_index" href="#ml4s.backend.Backend.ravel_multi_index">ravel_multi_index</a></code></li>
+<li><code><a title="ml4s.backend.Backend.real" href="#ml4s.backend.Backend.real">real</a></code></li>
+<li><code><a title="ml4s.backend.Backend.repeat" href="#ml4s.backend.Backend.repeat">repeat</a></code></li>
+<li><code><a title="ml4s.backend.Backend.requires_fixed_shapes_when_tracing" href="#ml4s.backend.Backend.requires_fixed_shapes_when_tracing">requires_fixed_shapes_when_tracing</a></code></li>
+<li><code><a title="ml4s.backend.Backend.reshape" href="#ml4s.backend.Backend.reshape">reshape</a></code></li>
+<li><code><a title="ml4s.backend.Backend.round" href="#ml4s.backend.Backend.round">round</a></code></li>
+<li><code><a title="ml4s.backend.Backend.scatter" href="#ml4s.backend.Backend.scatter">scatter</a></code></li>
+<li><code><a title="ml4s.backend.Backend.scatter_1d_scalar" href="#ml4s.backend.Backend.scatter_1d_scalar">scatter_1d_scalar</a></code></li>
+<li><code><a title="ml4s.backend.Backend.scatter_nd" href="#ml4s.backend.Backend.scatter_nd">scatter_nd</a></code></li>
+<li><code><a title="ml4s.backend.Backend.scatter_nd_scalar" href="#ml4s.backend.Backend.scatter_nd_scalar">scatter_nd_scalar</a></code></li>
+<li><code><a title="ml4s.backend.Backend.searchsorted" href="#ml4s.backend.Backend.searchsorted">searchsorted</a></code></li>
+<li><code><a title="ml4s.backend.Backend.seed" href="#ml4s.backend.Backend.seed">seed</a></code></li>
+<li><code><a title="ml4s.backend.Backend.set_default_device" href="#ml4s.backend.Backend.set_default_device">set_default_device</a></code></li>
+<li><code><a title="ml4s.backend.Backend.shape" href="#ml4s.backend.Backend.shape">shape</a></code></li>
+<li><code><a title="ml4s.backend.Backend.shift_bits_left" href="#ml4s.backend.Backend.shift_bits_left">shift_bits_left</a></code></li>
+<li><code><a title="ml4s.backend.Backend.shift_bits_right" href="#ml4s.backend.Backend.shift_bits_right">shift_bits_right</a></code></li>
+<li><code><a title="ml4s.backend.Backend.sigmoid" href="#ml4s.backend.Backend.sigmoid">sigmoid</a></code></li>
+<li><code><a title="ml4s.backend.Backend.sign" href="#ml4s.backend.Backend.sign">sign</a></code></li>
+<li><code><a title="ml4s.backend.Backend.sin" href="#ml4s.backend.Backend.sin">sin</a></code></li>
+<li><code><a title="ml4s.backend.Backend.sinh" href="#ml4s.backend.Backend.sinh">sinh</a></code></li>
+<li><code><a title="ml4s.backend.Backend.size" href="#ml4s.backend.Backend.size">size</a></code></li>
+<li><code><a title="ml4s.backend.Backend.softplus" href="#ml4s.backend.Backend.softplus">softplus</a></code></li>
+<li><code><a title="ml4s.backend.Backend.solve_triangular" href="#ml4s.backend.Backend.solve_triangular">solve_triangular</a></code></li>
+<li><code><a title="ml4s.backend.Backend.solve_triangular_dense" href="#ml4s.backend.Backend.solve_triangular_dense">solve_triangular_dense</a></code></li>
+<li><code><a title="ml4s.backend.Backend.solve_triangular_sparse" href="#ml4s.backend.Backend.solve_triangular_sparse">solve_triangular_sparse</a></code></li>
+<li><code><a title="ml4s.backend.Backend.sparse_coo_tensor" href="#ml4s.backend.Backend.sparse_coo_tensor">sparse_coo_tensor</a></code></li>
+<li><code><a title="ml4s.backend.Backend.sparse_coo_tensor_batched" href="#ml4s.backend.Backend.sparse_coo_tensor_batched">sparse_coo_tensor_batched</a></code></li>
+<li><code><a title="ml4s.backend.Backend.sqrt" href="#ml4s.backend.Backend.sqrt">sqrt</a></code></li>
+<li><code><a title="ml4s.backend.Backend.stack" href="#ml4s.backend.Backend.stack">stack</a></code></li>
+<li><code><a title="ml4s.backend.Backend.stack_leaves" href="#ml4s.backend.Backend.stack_leaves">stack_leaves</a></code></li>
+<li><code><a title="ml4s.backend.Backend.staticshape" href="#ml4s.backend.Backend.staticshape">staticshape</a></code></li>
+<li><code><a title="ml4s.backend.Backend.std" href="#ml4s.backend.Backend.std">std</a></code></li>
+<li><code><a title="ml4s.backend.Backend.stop_gradient" href="#ml4s.backend.Backend.stop_gradient">stop_gradient</a></code></li>
+<li><code><a title="ml4s.backend.Backend.stop_gradient_tree" href="#ml4s.backend.Backend.stop_gradient_tree">stop_gradient_tree</a></code></li>
+<li><code><a title="ml4s.backend.Backend.sub" href="#ml4s.backend.Backend.sub">sub</a></code></li>
+<li><code><a title="ml4s.backend.Backend.sum" href="#ml4s.backend.Backend.sum">sum</a></code></li>
+<li><code><a title="ml4s.backend.Backend.supports" href="#ml4s.backend.Backend.supports">supports</a></code></li>
+<li><code><a title="ml4s.backend.Backend.tan" href="#ml4s.backend.Backend.tan">tan</a></code></li>
+<li><code><a title="ml4s.backend.Backend.tanh" href="#ml4s.backend.Backend.tanh">tanh</a></code></li>
+<li><code><a title="ml4s.backend.Backend.tensordot" href="#ml4s.backend.Backend.tensordot">tensordot</a></code></li>
+<li><code><a title="ml4s.backend.Backend.tile" href="#ml4s.backend.Backend.tile">tile</a></code></li>
+<li><code><a title="ml4s.backend.Backend.tile_to" href="#ml4s.backend.Backend.tile_to">tile_to</a></code></li>
+<li><code><a title="ml4s.backend.Backend.to_complex" href="#ml4s.backend.Backend.to_complex">to_complex</a></code></li>
+<li><code><a title="ml4s.backend.Backend.to_dlpack" href="#ml4s.backend.Backend.to_dlpack">to_dlpack</a></code></li>
+<li><code><a title="ml4s.backend.Backend.to_float" href="#ml4s.backend.Backend.to_float">to_float</a></code></li>
+<li><code><a title="ml4s.backend.Backend.to_int32" href="#ml4s.backend.Backend.to_int32">to_int32</a></code></li>
+<li><code><a title="ml4s.backend.Backend.to_int64" href="#ml4s.backend.Backend.to_int64">to_int64</a></code></li>
+<li><code><a title="ml4s.backend.Backend.transpose" href="#ml4s.backend.Backend.transpose">transpose</a></code></li>
+<li><code><a title="ml4s.backend.Backend.unravel_index" href="#ml4s.backend.Backend.unravel_index">unravel_index</a></code></li>
+<li><code><a title="ml4s.backend.Backend.unstack" href="#ml4s.backend.Backend.unstack">unstack</a></code></li>
+<li><code><a title="ml4s.backend.Backend.variable" href="#ml4s.backend.Backend.variable">variable</a></code></li>
+<li><code><a title="ml4s.backend.Backend.vectorized_call" href="#ml4s.backend.Backend.vectorized_call">vectorized_call</a></code></li>
+<li><code><a title="ml4s.backend.Backend.where" href="#ml4s.backend.Backend.where">where</a></code></li>
+<li><code><a title="ml4s.backend.Backend.while_loop" href="#ml4s.backend.Backend.while_loop">while_loop</a></code></li>
+<li><code><a title="ml4s.backend.Backend.xor" href="#ml4s.backend.Backend.xor">xor</a></code></li>
+<li><code><a title="ml4s.backend.Backend.zeros" href="#ml4s.backend.Backend.zeros">zeros</a></code></li>
+<li><code><a title="ml4s.backend.Backend.zeros_like" href="#ml4s.backend.Backend.zeros_like">zeros_like</a></code></li>
 </ul>
 </li>
 <li>
-<h4><code><a title="unifyml.backend.ComputeDevice" href="#unifyml.backend.ComputeDevice">ComputeDevice</a></code></h4>
+<h4><code><a title="ml4s.backend.ComputeDevice" href="#ml4s.backend.ComputeDevice">ComputeDevice</a></code></h4>
 <ul class="two-column">
-<li><code><a title="unifyml.backend.ComputeDevice.backend" href="#unifyml.backend.ComputeDevice.backend">backend</a></code></li>
-<li><code><a title="unifyml.backend.ComputeDevice.description" href="#unifyml.backend.ComputeDevice.description">description</a></code></li>
-<li><code><a title="unifyml.backend.ComputeDevice.device_type" href="#unifyml.backend.ComputeDevice.device_type">device_type</a></code></li>
-<li><code><a title="unifyml.backend.ComputeDevice.memory" href="#unifyml.backend.ComputeDevice.memory">memory</a></code></li>
-<li><code><a title="unifyml.backend.ComputeDevice.name" href="#unifyml.backend.ComputeDevice.name">name</a></code></li>
-<li><code><a title="unifyml.backend.ComputeDevice.processor_count" href="#unifyml.backend.ComputeDevice.processor_count">processor_count</a></code></li>
-<li><code><a title="unifyml.backend.ComputeDevice.ref" href="#unifyml.backend.ComputeDevice.ref">ref</a></code></li>
+<li><code><a title="ml4s.backend.ComputeDevice.backend" href="#ml4s.backend.ComputeDevice.backend">backend</a></code></li>
+<li><code><a title="ml4s.backend.ComputeDevice.description" href="#ml4s.backend.ComputeDevice.description">description</a></code></li>
+<li><code><a title="ml4s.backend.ComputeDevice.device_type" href="#ml4s.backend.ComputeDevice.device_type">device_type</a></code></li>
+<li><code><a title="ml4s.backend.ComputeDevice.memory" href="#ml4s.backend.ComputeDevice.memory">memory</a></code></li>
+<li><code><a title="ml4s.backend.ComputeDevice.name" href="#ml4s.backend.ComputeDevice.name">name</a></code></li>
+<li><code><a title="ml4s.backend.ComputeDevice.processor_count" href="#ml4s.backend.ComputeDevice.processor_count">processor_count</a></code></li>
+<li><code><a title="ml4s.backend.ComputeDevice.ref" href="#ml4s.backend.ComputeDevice.ref">ref</a></code></li>
 </ul>
 </li>
 <li>
-<h4><code><a title="unifyml.backend.NoBackendFound" href="#unifyml.backend.NoBackendFound">NoBackendFound</a></code></h4>
+<h4><code><a title="ml4s.backend.NoBackendFound" href="#ml4s.backend.NoBackendFound">NoBackendFound</a></code></h4>
 </li>
 <li>
-<h4><code><a title="unifyml.backend.Profile" href="#unifyml.backend.Profile">Profile</a></code></h4>
+<h4><code><a title="ml4s.backend.Profile" href="#ml4s.backend.Profile">Profile</a></code></h4>
 <ul class="">
-<li><code><a title="unifyml.backend.Profile.add_external_message" href="#unifyml.backend.Profile.add_external_message">add_external_message</a></code></li>
-<li><code><a title="unifyml.backend.Profile.duration" href="#unifyml.backend.Profile.duration">duration</a></code></li>
-<li><code><a title="unifyml.backend.Profile.print" href="#unifyml.backend.Profile.print">print</a></code></li>
-<li><code><a title="unifyml.backend.Profile.retime" href="#unifyml.backend.Profile.retime">retime</a></code></li>
-<li><code><a title="unifyml.backend.Profile.save" href="#unifyml.backend.Profile.save">save</a></code></li>
-<li><code><a title="unifyml.backend.Profile.save_trace" href="#unifyml.backend.Profile.save_trace">save_trace</a></code></li>
+<li><code><a title="ml4s.backend.Profile.add_external_message" href="#ml4s.backend.Profile.add_external_message">add_external_message</a></code></li>
+<li><code><a title="ml4s.backend.Profile.duration" href="#ml4s.backend.Profile.duration">duration</a></code></li>
+<li><code><a title="ml4s.backend.Profile.print" href="#ml4s.backend.Profile.print">print</a></code></li>
+<li><code><a title="ml4s.backend.Profile.retime" href="#ml4s.backend.Profile.retime">retime</a></code></li>
+<li><code><a title="ml4s.backend.Profile.save" href="#ml4s.backend.Profile.save">save</a></code></li>
+<li><code><a title="ml4s.backend.Profile.save_trace" href="#ml4s.backend.Profile.save_trace">save_trace</a></code></li>
 </ul>
 </li>
 </ul>

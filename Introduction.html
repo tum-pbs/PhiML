@@ -15110,12 +15110,12 @@ body[data-format='mobile'] .jp-OutputArea-child .jp-OutputArea-output {
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<h1 id="UnifyML-Quickstart">UnifyML Quickstart<a class="anchor-link" href="#UnifyML-Quickstart">&#182;</a></h1><p><a href="https://colab.research.google.com/github/holl-/UnifyML/blob/main/docs/Introduction.ipynb"><img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Colab" /></a> 
-  •   <a href="https://github.com/holl-/UnifyML">🌐 <strong>UnifyML</strong></a>
-  •   <a href="https://holl-.github.io/UnifyML/unifyml/">📖 <strong>Documentation</strong></a>
-  •   <a href="https://holl-.github.io/UnifyML/unifyml">🔗 <strong>API</strong></a>
+<h1 id="ML4Science-Quickstart">ML4Science Quickstart<a class="anchor-link" href="#ML4Science-Quickstart">&#182;</a></h1><p><a href="https://colab.research.google.com/github/holl-/ML4Science/blob/main/docs/Introduction.ipynb"><img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Colab" /></a> 
+  •   <a href="https://github.com/holl-/ML4Science">🌐 <strong>ML4Science</strong></a>
+  •   <a href="https://holl-.github.io/ML4Science/ml4s/">📖 <strong>Documentation</strong></a>
+  •   <a href="https://holl-.github.io/ML4Science/ml4s">🔗 <strong>API</strong></a>
   •   <a href=""><strong>▶ Videos</strong></a>
-  •   <a href="https://colab.research.google.com/github/holl-/UnifyML/blob/main/docs/Examples.ipynb"><img src="images/colab_logo_small.png" height=4></a> <a href="https://holl-.github.io/UnifyML/Examples.html"><strong>Examples</strong></a></p>
+  •   <a href="https://colab.research.google.com/github/holl-/ML4Science/blob/main/docs/Examples.ipynb"><img src="images/colab_logo_small.png" height=4></a> <a href="https://holl-.github.io/ML4Science/Examples.html"><strong>Examples</strong></a></p>
 
 </div>
 </div>
@@ -15127,7 +15127,7 @@ body[data-format='mobile'] .jp-OutputArea-child .jp-OutputArea-output {
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<h2 id="Installation">Installation<a class="anchor-link" href="#Installation">&#182;</a></h2><p>Install UnifyML with <a href="https://pypi.org/project/pip/">pip</a> on <a href="https://www.python.org/downloads/">Python 3.6</a> and later:</p>
+<h2 id="Installation">Installation<a class="anchor-link" href="#Installation">&#182;</a></h2><p>Install ML4Science with <a href="https://pypi.org/project/pip/">pip</a> on <a href="https://www.python.org/downloads/">Python 3.6</a> and later:</p>
 
 </div>
 </div>
@@ -15141,7 +15141,7 @@ body[data-format='mobile'] .jp-OutputArea-child .jp-OutputArea-output {
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="o">%%capture</span>
-<span class="err">!</span><span class="n">pip</span> <span class="n">install</span> <span class="n">unifyml</span>
+<span class="err">!</span><span class="n">pip</span> <span class="n">install</span> <span class="n">ml4s</span>
 </pre></div>
 
      </div>
@@ -15157,7 +15157,7 @@ body[data-format='mobile'] .jp-OutputArea-child .jp-OutputArea-output {
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
 <p>Install <a href="https://pytorch.org/">PyTorch</a>, <a href="https://www.tensorflow.org/install">TensorFlow</a> or <a href="https://github.com/google/jax#installation">Jax</a> to enable machine learning capabilities and GPU execution.
-See the <a href="https://holl-.github.io/UnifyML/Installation_Instructions.html">detailed installation instructions</a>.</p>
+See the <a href="https://holl-.github.io/ML4Science/Installation_Instructions.html">detailed installation instructions</a>.</p>
 
 </div>
 </div>
@@ -15170,7 +15170,7 @@ See the <a href="https://holl-.github.io/UnifyML/Installation_Instructions.html"
 <div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[2]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">from</span> <span class="nn">unifyml</span> <span class="kn">import</span> <span class="n">math</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">from</span> <span class="nn">ml4s</span> <span class="kn">import</span> <span class="n">math</span>
 </pre></div>
 
      </div>
@@ -15185,8 +15185,8 @@ See the <a href="https://holl-.github.io/UnifyML/Installation_Instructions.html"
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<h2 id="Usage-without-UnifyML's-Tensors">Usage without UnifyML's Tensors<a class="anchor-link" href="#Usage-without-UnifyML's-Tensors">&#182;</a></h2><p>You can call many functions on native tensors directly.
-UnifyML will dispatch the call to the corresponding library and return the result as another native tensor.</p>
+<h2 id="Usage-without-ML4Science's-Tensors">Usage without ML4Science's Tensors<a class="anchor-link" href="#Usage-without-ML4Science's-Tensors">&#182;</a></h2><p>You can call many functions on native tensors directly.
+ML4Science will dispatch the call to the corresponding library and return the result as another native tensor.</p>
 
 </div>
 </div>
@@ -15349,7 +15349,7 @@ UnifyML will dispatch the call to the corresponding library and return the resul
 
 
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="application/vnd.jupyter.stderr">
-<pre>2023-07-14 12:19:31.875146: W tensorflow/compiler/tf2tensorrt/utils/py_utils.cc:38] TF-TRT Warning: Could not find TensorRT
+<pre>2023-07-14 16:00:03.873005: W tensorflow/compiler/tf2tensorrt/utils/py_utils.cc:38] TF-TRT Warning: Could not find TensorRT
 </pre>
 </div>
 </div>
@@ -15417,9 +15417,9 @@ UnifyML will dispatch the call to the corresponding library and return the resul
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<h2 id="UnifyML's-Tensor">UnifyML's <code>Tensor</code><a class="anchor-link" href="#UnifyML's-Tensor">&#182;</a></h2><p>For more advanced operations, we recommend using <a href="Tensors.html">UnifyML's tensors</a>.
-While UnifyML includes a <a href="https://holl-.github.io/UnifyML/unifyml/backend/#unifyml.backend.Backend">unified low-level API</a> that behaves much like NumPy, using it correctly (so that the code is actually compatible with all libraries) is difficult.
-Instead, UnifyML provides a higher-level API consisting of the <a href="https://holl-.github.io/UnifyML/unifyml/math/#unifyml.math.Tensor"><code>Tensor</code> class</a>, the <a href="https://holl-.github.io/UnifyML/unifyml/math"><code>math</code></a> functions and other odds and ends, that makes writing unified code easy.
+<h2 id="ML4Science's-Tensor">ML4Science's <code>Tensor</code><a class="anchor-link" href="#ML4Science's-Tensor">&#182;</a></h2><p>For more advanced operations, we recommend using <a href="Tensors.html">ML4Science's tensors</a>.
+While ML4Science includes a <a href="https://holl-.github.io/ML4Science/ml4s/backend/#ml4s.backend.Backend">unified low-level API</a> that behaves much like NumPy, using it correctly (so that the code is actually compatible with all libraries) is difficult.
+Instead, ML4Science provides a higher-level API consisting of the <a href="https://holl-.github.io/ML4Science/ml4s/math/#ml4s.math.Tensor"><code>Tensor</code> class</a>, the <a href="https://holl-.github.io/ML4Science/ml4s/math"><code>math</code></a> functions and other odds and ends, that makes writing unified code easy.
 Tensors can be created by wrapping an existing backend-specific tensor or array:</p>
 
 </div>
@@ -15511,7 +15511,7 @@ Tensors can be created by wrapping an existing backend-specific tensor or array:
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<p>The difference between <code>tensor</code> and <code>wrap</code> is that <code>wrap</code> keeps the original data you pass in while <code>tensor</code> will convert the data to the default backend which can be set using <a href="https://holl-.github.io/UnifyML/unifyml/math/#unifyml.math.use"><code>math.use()</code></a>.</p>
+<p>The difference between <code>tensor</code> and <code>wrap</code> is that <code>wrap</code> keeps the original data you pass in while <code>tensor</code> will convert the data to the default backend which can be set using <a href="https://holl-.github.io/ML4Science/ml4s/math/#ml4s.math.use"><code>math.use()</code></a>.</p>
 
 </div>
 </div>
@@ -15629,7 +15629,7 @@ For an exhaustive list, see <a href="Shapes.html">here</a></p>
 <div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[12]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">from</span> <span class="nn">unifyml.math</span> <span class="kn">import</span> <span class="n">batch</span><span class="p">,</span> <span class="n">spatial</span><span class="p">,</span> <span class="n">channel</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">from</span> <span class="nn">ml4s.math</span> <span class="kn">import</span> <span class="n">batch</span><span class="p">,</span> <span class="n">spatial</span><span class="p">,</span> <span class="n">channel</span>
 <span class="n">torch_tensor</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">([[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">],</span> <span class="p">[</span><span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">6</span><span class="p">]])</span>
 <span class="n">math</span><span class="o">.</span><span class="n">wrap</span><span class="p">(</span><span class="n">torch_tensor</span><span class="p">,</span> <span class="n">batch</span><span class="p">(</span><span class="s1">&#39;dim1&#39;</span><span class="p">),</span> <span class="n">channel</span><span class="p">(</span><span class="s1">&#39;dim2&#39;</span><span class="p">))</span>
 </pre></div>
@@ -15735,7 +15735,7 @@ For example, we can pass any number of batch and channel dimensions to an MLP.</
 <div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[14]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">from</span> <span class="nn">unifyml</span> <span class="kn">import</span> <span class="n">nn</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">from</span> <span class="nn">ml4s</span> <span class="kn">import</span> <span class="n">nn</span>
 <span class="n">mlp</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">mlp</span><span class="p">(</span><span class="n">in_channels</span><span class="o">=</span><span class="mi">6</span><span class="p">,</span> <span class="n">out_channels</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">layers</span><span class="o">=</span><span class="p">[</span><span class="mi">64</span><span class="p">,</span> <span class="mi">64</span><span class="p">])</span>
 <span class="n">data</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">random_normal</span><span class="p">(</span><span class="n">batch</span><span class="p">(</span><span class="n">b1</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">b2</span><span class="o">=</span><span class="mi">10</span><span class="p">),</span> <span class="n">channel</span><span class="p">(</span><span class="n">c1</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">c2</span><span class="o">=</span><span class="mi">3</span><span class="p">))</span>
 <span class="n">math</span><span class="o">.</span><span class="n">native_call</span><span class="p">(</span><span class="n">mlp</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
@@ -15844,7 +15844,7 @@ For a 1D or 3D variant, we would pass <code>in_spatial=1</code> or <code>3</code
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<h2 id="Slicing">Slicing<a class="anchor-link" href="#Slicing">&#182;</a></h2><p>Slicing in UnifyML is done by dimension names.
+<h2 id="Slicing">Slicing<a class="anchor-link" href="#Slicing">&#182;</a></h2><p>Slicing in ML4Science is done by dimension names.
 Say we have a set of images:</p>
 
 </div>
@@ -16347,14 +16347,14 @@ In the above example, we might name the red, green and blue channels explicitly:
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
 <h2 id="Further-Reading">Further Reading<a class="anchor-link" href="#Further-Reading">&#182;</a></h2><p>Learn more about the <a href="Shapes.html">dimension types</a> and how to efficiently <a href="Tensors.html">operate on tensors</a>.</p>
-<p>UnifyML unifies <a href="Data_Types.html">data types</a> as well and lets you set the floating point precision globally or by context.</p>
+<p>ML4Science unifies <a href="Data_Types.html">data types</a> as well and lets you set the floating point precision globally or by context.</p>
 <p>While the dimensionality of neural networks must be specified during network creation, this is not the case for math functions.
 These <a href="N_Dimensional.html">automatically adapt to the number of spatial dimensions of the data that is passed in</a>.</p>
-<p><a href="https://github.com/holl-/UnifyML">🌐 <strong>UnifyML</strong></a>
-  •   <a href="https://holl-.github.io/UnifyML/unifyml/">📖 <strong>Documentation</strong></a>
-  •   <a href="https://holl-.github.io/UnifyML/unifyml">🔗 <strong>API</strong></a>
+<p><a href="https://github.com/holl-/ML4Science">🌐 <strong>ML4Science</strong></a>
+  •   <a href="https://holl-.github.io/ML4Science/ml4s/">📖 <strong>Documentation</strong></a>
+  •   <a href="https://holl-.github.io/ML4Science/ml4s">🔗 <strong>API</strong></a>
   •   <a href=""><strong>▶ Videos</strong></a>
-  •   <a href="https://colab.research.google.com/github/holl-/UnifyML/blob/main/docs/Examples.ipynb"><img src="images/colab_logo_small.png" height=4></a> <a href="https://holl-.github.io/UnifyML/Examples.html"><strong>Examples</strong></a></p>
+  •   <a href="https://colab.research.google.com/github/holl-/ML4Science/blob/main/docs/Examples.ipynb"><img src="images/colab_logo_small.png" height=4></a> <a href="https://holl-.github.io/ML4Science/Examples.html"><strong>Examples</strong></a></p>
 
 </div>
 </div>

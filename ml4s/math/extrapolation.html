@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
 <meta name="generator" content="pdoc 0.10.0" />
-<title>unifyml.math.extrapolation API documentation</title>
+<title>ml4s.math.extrapolation API documentation</title>
 <meta name="description" content="Extrapolations are used for padding tensors and sampling coordinates lying outside the tensor bounds.
 Standard extrapolations are listed as global …" />
 <link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
@@ -20,13 +20,13 @@ Standard extrapolations are listed as global …" />
 <main>
 <article id="content">
 <header>
-<h1 class="title">Module <code>unifyml.math.extrapolation</code></h1>
+<h1 class="title">Module <code>ml4s.math.extrapolation</code></h1>
 </header>
 <section id="section-intro">
 <p>Extrapolations are used for padding tensors and sampling coordinates lying outside the tensor bounds.
 Standard extrapolations are listed as global variables in this module.</p>
 <p>Extrapolations are an important part of sampled fields such as grids.
-See the documentation at <a href="https://holl-.github.io/UnifyML/Fields.html#extrapolations">https://holl-.github.io/UnifyML/Fields.html#extrapolations</a> .</p>
+See the documentation at <a href="https://holl-.github.io/ML4Science/Fields.html#extrapolations">https://holl-.github.io/ML4Science/Fields.html#extrapolations</a> .</p>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -36,7 +36,7 @@ Extrapolations are used for padding tensors and sampling coordinates lying outsi
 Standard extrapolations are listed as global variables in this module.
 
 Extrapolations are an important part of sampled fields such as grids.
-See the documentation at https://holl-.github.io/UnifyML/Fields.html#extrapolations .
+See the documentation at https://holl-.github.io/ML4Science/Fields.html#extrapolations .
 &#34;&#34;&#34;
 import warnings
 from typing import Union, Dict, Callable, Tuple, Optional
@@ -1527,43 +1527,43 @@ def remove_constant_offset(extrapolation):
 <section>
 <h2 class="section-title" id="header-variables">Global variables</h2>
 <dl>
-<dt id="unifyml.math.extrapolation.ANTIREFLECT"><code class="name">var <span class="ident">ANTIREFLECT</span></code></dt>
+<dt id="ml4s.math.extrapolation.ANTIREFLECT"><code class="name">var <span class="ident">ANTIREFLECT</span></code></dt>
 <dd>
 <div class="desc"><p>Like REFLECT but extends a grid with the negative value of the corresponding counterpart instead.</p></div>
 </dd>
-<dt id="unifyml.math.extrapolation.ANTISYMMETRIC"><code class="name">var <span class="ident">ANTISYMMETRIC</span></code></dt>
+<dt id="ml4s.math.extrapolation.ANTISYMMETRIC"><code class="name">var <span class="ident">ANTISYMMETRIC</span></code></dt>
 <dd>
 <div class="desc"><p>Like SYMMETRIC but extends a grid with the negative value of the corresponding counterpart instead.</p></div>
 </dd>
-<dt id="unifyml.math.extrapolation.NONE"><code class="name">var <span class="ident">NONE</span></code></dt>
+<dt id="ml4s.math.extrapolation.NONE"><code class="name">var <span class="ident">NONE</span></code></dt>
 <dd>
 <div class="desc"><p>Raises AssertionError when used to determine outside values. Padding operations will have no effect with this extrapolation.</p></div>
 </dd>
-<dt id="unifyml.math.extrapolation.ONE"><code class="name">var <span class="ident">ONE</span></code></dt>
+<dt id="ml4s.math.extrapolation.ONE"><code class="name">var <span class="ident">ONE</span></code></dt>
 <dd>
 <div class="desc"><p>Extrapolates with the constant value 1 (Dirichlet boundary condition).</p></div>
 </dd>
-<dt id="unifyml.math.extrapolation.PERIODIC"><code class="name">var <span class="ident">PERIODIC</span></code></dt>
+<dt id="ml4s.math.extrapolation.PERIODIC"><code class="name">var <span class="ident">PERIODIC</span></code></dt>
 <dd>
 <div class="desc"><p>Extends a grid by tiling it (Periodic boundary condition).</p></div>
 </dd>
-<dt id="unifyml.math.extrapolation.REFLECT"><code class="name">var <span class="ident">REFLECT</span></code></dt>
+<dt id="ml4s.math.extrapolation.REFLECT"><code class="name">var <span class="ident">REFLECT</span></code></dt>
 <dd>
 <div class="desc"><p>Like SYMMETRIC but the edge values are not copied and only occur once per seam.</p></div>
 </dd>
-<dt id="unifyml.math.extrapolation.SYMMETRIC"><code class="name">var <span class="ident">SYMMETRIC</span></code></dt>
+<dt id="ml4s.math.extrapolation.SYMMETRIC"><code class="name">var <span class="ident">SYMMETRIC</span></code></dt>
 <dd>
 <div class="desc"><p>Extends a grid by tiling it. Every other copy of the grid is flipped. Edge values occur twice per seam.</p></div>
 </dd>
-<dt id="unifyml.math.extrapolation.SYMMETRIC_GRADIENT"><code class="name">var <span class="ident">SYMMETRIC_GRADIENT</span></code></dt>
+<dt id="ml4s.math.extrapolation.SYMMETRIC_GRADIENT"><code class="name">var <span class="ident">SYMMETRIC_GRADIENT</span></code></dt>
 <dd>
 <div class="desc"><p>Extrapolates in a continuous manner. The normal component of the spatial gradient is symmetric at the boundaries. The outer-most valid difference is duplicated.</p></div>
 </dd>
-<dt id="unifyml.math.extrapolation.ZERO"><code class="name">var <span class="ident">ZERO</span></code></dt>
+<dt id="ml4s.math.extrapolation.ZERO"><code class="name">var <span class="ident">ZERO</span></code></dt>
 <dd>
 <div class="desc"><p>Extrapolates with the constant value 0 (Dirichlet boundary condition).</p></div>
 </dd>
-<dt id="unifyml.math.extrapolation.ZERO_GRADIENT"><code class="name">var <span class="ident">ZERO_GRADIENT</span></code></dt>
+<dt id="ml4s.math.extrapolation.ZERO_GRADIENT"><code class="name">var <span class="ident">ZERO_GRADIENT</span></code></dt>
 <dd>
 <div class="desc"><p>Extends a grid with its edge values (Neumann boundary condition). The value of a point lying outside the grid is determined by the closest grid value(s).</p></div>
 </dd>
@@ -1572,18 +1572,18 @@ def remove_constant_offset(extrapolation):
 <section>
 <h2 class="section-title" id="header-functions">Functions</h2>
 <dl>
-<dt id="unifyml.math.extrapolation.as_extrapolation"><code class="name flex">
-<span>def <span class="ident">as_extrapolation</span></span>(<span>obj) ‑> <a title="unifyml.math.extrapolation.Extrapolation" href="#unifyml.math.extrapolation.Extrapolation">Extrapolation</a></span>
+<dt id="ml4s.math.extrapolation.as_extrapolation"><code class="name flex">
+<span>def <span class="ident">as_extrapolation</span></span>(<span>obj) ‑> <a title="ml4s.math.extrapolation.Extrapolation" href="#ml4s.math.extrapolation.Extrapolation">Extrapolation</a></span>
 </code></dt>
 <dd>
-<div class="desc"><p>Creates an <code><a title="unifyml.math.extrapolation.Extrapolation" href="#unifyml.math.extrapolation.Extrapolation">Extrapolation</a></code> from a descriptor object.</p>
+<div class="desc"><p>Creates an <code><a title="ml4s.math.extrapolation.Extrapolation" href="#ml4s.math.extrapolation.Extrapolation">Extrapolation</a></code> from a descriptor object.</p>
 <h2 id="args">Args</h2>
 <dl>
 <dt><strong><code>obj</code></strong></dt>
 <dd>
 <p>Extrapolation specification, one of the following:</p>
 <ul>
-<li><code><a title="unifyml.math.extrapolation.Extrapolation" href="#unifyml.math.extrapolation.Extrapolation">Extrapolation</a></code></li>
+<li><code><a title="ml4s.math.extrapolation.Extrapolation" href="#ml4s.math.extrapolation.Extrapolation">Extrapolation</a></code></li>
 <li>Primitive name as <code>str</code>: periodic, zero, one, zero-gradient, symmetric, symmetric-gradient, antisymmetric, reflect, antireflect</li>
 <li><code>dict</code> containing exactly the keys <code>'normal'</code> and <code>'tangential'</code></li>
 <li><code>dict</code> mapping spatial dimension names to extrapolations</li>
@@ -1591,7 +1591,7 @@ def remove_constant_offset(extrapolation):
 </dd>
 </dl>
 <h2 id="returns">Returns</h2>
-<p><code><a title="unifyml.math.extrapolation.Extrapolation" href="#unifyml.math.extrapolation.Extrapolation">Extrapolation</a></code></p></div>
+<p><code><a title="ml4s.math.extrapolation.Extrapolation" href="#ml4s.math.extrapolation.Extrapolation">Extrapolation</a></code></p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -1631,8 +1631,8 @@ def remove_constant_offset(extrapolation):
     return ConstantExtrapolation(obj)</code></pre>
 </details>
 </dd>
-<dt id="unifyml.math.extrapolation.combine_by_direction"><code class="name flex">
-<span>def <span class="ident">combine_by_direction</span></span>(<span>normal: Union[<a title="unifyml.math.extrapolation.Extrapolation" href="#unifyml.math.extrapolation.Extrapolation">Extrapolation</a>, float, unifyml.math._tensors.Tensor], tangential: Union[<a title="unifyml.math.extrapolation.Extrapolation" href="#unifyml.math.extrapolation.Extrapolation">Extrapolation</a>, float, unifyml.math._tensors.Tensor]) ‑> <a title="unifyml.math.extrapolation.Extrapolation" href="#unifyml.math.extrapolation.Extrapolation">Extrapolation</a></span>
+<dt id="ml4s.math.extrapolation.combine_by_direction"><code class="name flex">
+<span>def <span class="ident">combine_by_direction</span></span>(<span>normal: Union[<a title="ml4s.math.extrapolation.Extrapolation" href="#ml4s.math.extrapolation.Extrapolation">Extrapolation</a>, float, ml4s.math._tensors.Tensor], tangential: Union[<a title="ml4s.math.extrapolation.Extrapolation" href="#ml4s.math.extrapolation.Extrapolation">Extrapolation</a>, float, ml4s.math._tensors.Tensor]) ‑> <a title="ml4s.math.extrapolation.Extrapolation" href="#ml4s.math.extrapolation.Extrapolation">Extrapolation</a></span>
 </code></dt>
 <dd>
 <div class="desc"><p>Use a different extrapolation for the normal component of vector-valued tensors.</p>
@@ -1644,7 +1644,7 @@ def remove_constant_offset(extrapolation):
 <dd>Extrapolation for the component that is tangential to the boundary.</dd>
 </dl>
 <h2 id="returns">Returns</h2>
-<p><code><a title="unifyml.math.extrapolation.Extrapolation" href="#unifyml.math.extrapolation.Extrapolation">Extrapolation</a></code></p></div>
+<p><code><a title="ml4s.math.extrapolation.Extrapolation" href="#ml4s.math.extrapolation.Extrapolation">Extrapolation</a></code></p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -1665,18 +1665,18 @@ def remove_constant_offset(extrapolation):
     return normal if normal == tangential else _NormalTangentialExtrapolation(normal, tangential)</code></pre>
 </details>
 </dd>
-<dt id="unifyml.math.extrapolation.combine_sides"><code class="name flex">
-<span>def <span class="ident">combine_sides</span></span>(<span>**extrapolations: Union[<a title="unifyml.math.extrapolation.Extrapolation" href="#unifyml.math.extrapolation.Extrapolation">Extrapolation</a>, tuple]) ‑> <a title="unifyml.math.extrapolation.Extrapolation" href="#unifyml.math.extrapolation.Extrapolation">Extrapolation</a></span>
+<dt id="ml4s.math.extrapolation.combine_sides"><code class="name flex">
+<span>def <span class="ident">combine_sides</span></span>(<span>**extrapolations: Union[<a title="ml4s.math.extrapolation.Extrapolation" href="#ml4s.math.extrapolation.Extrapolation">Extrapolation</a>, tuple]) ‑> <a title="ml4s.math.extrapolation.Extrapolation" href="#ml4s.math.extrapolation.Extrapolation">Extrapolation</a></span>
 </code></dt>
 <dd>
 <div class="desc"><p>Specify extrapolations for each side / face of a box.</p>
 <h2 id="args">Args</h2>
 <dl>
 <dt><strong><code>**extrapolations</code></strong></dt>
-<dd>map from dim: str -&gt; <code><a title="unifyml.math.extrapolation.Extrapolation" href="#unifyml.math.extrapolation.Extrapolation">Extrapolation</a></code> or <code>tuple</code> (lower, upper)</dd>
+<dd>map from dim: str -&gt; <code><a title="ml4s.math.extrapolation.Extrapolation" href="#ml4s.math.extrapolation.Extrapolation">Extrapolation</a></code> or <code>tuple</code> (lower, upper)</dd>
 </dl>
 <h2 id="returns">Returns</h2>
-<p><code><a title="unifyml.math.extrapolation.Extrapolation" href="#unifyml.math.extrapolation.Extrapolation">Extrapolation</a></code></p></div>
+<p><code><a title="ml4s.math.extrapolation.Extrapolation" href="#ml4s.math.extrapolation.Extrapolation">Extrapolation</a></code></p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -1714,11 +1714,11 @@ def remove_constant_offset(extrapolation):
         return _MixedExtrapolation(proper_dict)</code></pre>
 </details>
 </dd>
-<dt id="unifyml.math.extrapolation.from_dict"><code class="name flex">
-<span>def <span class="ident">from_dict</span></span>(<span>dictionary: dict) ‑> <a title="unifyml.math.extrapolation.Extrapolation" href="#unifyml.math.extrapolation.Extrapolation">Extrapolation</a></span>
+<dt id="ml4s.math.extrapolation.from_dict"><code class="name flex">
+<span>def <span class="ident">from_dict</span></span>(<span>dictionary: dict) ‑> <a title="ml4s.math.extrapolation.Extrapolation" href="#ml4s.math.extrapolation.Extrapolation">Extrapolation</a></span>
 </code></dt>
 <dd>
-<div class="desc"><p>Loads an <code><a title="unifyml.math.extrapolation.Extrapolation" href="#unifyml.math.extrapolation.Extrapolation">Extrapolation</a></code> object from a dictionary that was created using <code><a title="unifyml.math.extrapolation.Extrapolation.to_dict" href="#unifyml.math.extrapolation.Extrapolation.to_dict">Extrapolation.to_dict()</a></code>.</p>
+<div class="desc"><p>Loads an <code><a title="ml4s.math.extrapolation.Extrapolation" href="#ml4s.math.extrapolation.Extrapolation">Extrapolation</a></code> object from a dictionary that was created using <code><a title="ml4s.math.extrapolation.Extrapolation.to_dict" href="#ml4s.math.extrapolation.Extrapolation.to_dict">Extrapolation.to_dict()</a></code>.</p>
 <h2 id="args">Args</h2>
 <dl>
 <dt><strong><code>dictionary</code></strong></dt>
@@ -1762,22 +1762,22 @@ def remove_constant_offset(extrapolation):
         raise ValueError(dictionary)</code></pre>
 </details>
 </dd>
-<dt id="unifyml.math.extrapolation.map"><code class="name flex">
-<span>def <span class="ident">map</span></span>(<span>f: Callable[[<a title="unifyml.math.extrapolation.Extrapolation" href="#unifyml.math.extrapolation.Extrapolation">Extrapolation</a>], <a title="unifyml.math.extrapolation.Extrapolation" href="#unifyml.math.extrapolation.Extrapolation">Extrapolation</a>], extrapolation)</span>
+<dt id="ml4s.math.extrapolation.map"><code class="name flex">
+<span>def <span class="ident">map</span></span>(<span>f: Callable[[<a title="ml4s.math.extrapolation.Extrapolation" href="#ml4s.math.extrapolation.Extrapolation">Extrapolation</a>], <a title="ml4s.math.extrapolation.Extrapolation" href="#ml4s.math.extrapolation.Extrapolation">Extrapolation</a>], extrapolation)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Applies a function to all leaf extrapolations in <code>extrapolation</code>.
-Non-leaves are those created by <code><a title="unifyml.math.extrapolation.combine_sides" href="#unifyml.math.extrapolation.combine_sides">combine_sides()</a></code> and <code><a title="unifyml.math.extrapolation.combine_by_direction" href="#unifyml.math.extrapolation.combine_by_direction">combine_by_direction()</a></code>.</p>
+Non-leaves are those created by <code><a title="ml4s.math.extrapolation.combine_sides" href="#ml4s.math.extrapolation.combine_sides">combine_sides()</a></code> and <code><a title="ml4s.math.extrapolation.combine_by_direction" href="#ml4s.math.extrapolation.combine_by_direction">combine_by_direction()</a></code>.</p>
 <p>The tree will be collapsed if possible.</p>
 <h2 id="args">Args</h2>
 <dl>
 <dt><strong><code>f</code></strong></dt>
-<dd>Function mapping a leaf <code><a title="unifyml.math.extrapolation.Extrapolation" href="#unifyml.math.extrapolation.Extrapolation">Extrapolation</a></code> to another <code><a title="unifyml.math.extrapolation.Extrapolation" href="#unifyml.math.extrapolation.Extrapolation">Extrapolation</a></code>.</dd>
+<dd>Function mapping a leaf <code><a title="ml4s.math.extrapolation.Extrapolation" href="#ml4s.math.extrapolation.Extrapolation">Extrapolation</a></code> to another <code><a title="ml4s.math.extrapolation.Extrapolation" href="#ml4s.math.extrapolation.Extrapolation">Extrapolation</a></code>.</dd>
 <dt><strong><code>extrapolation</code></strong></dt>
 <dd>Input tree for <code>f</code>.</dd>
 </dl>
 <h2 id="returns">Returns</h2>
-<p><code><a title="unifyml.math.extrapolation.Extrapolation" href="#unifyml.math.extrapolation.Extrapolation">Extrapolation</a></code></p></div>
+<p><code><a title="ml4s.math.extrapolation.Extrapolation" href="#ml4s.math.extrapolation.Extrapolation">Extrapolation</a></code></p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -1804,8 +1804,8 @@ Non-leaves are those created by <code><a title="unifyml.math.extrapolation.combi
         return f(extrapolation)</code></pre>
 </details>
 </dd>
-<dt id="unifyml.math.extrapolation.order_by_shape"><code class="name flex">
-<span>def <span class="ident">order_by_shape</span></span>(<span>shape: unifyml.math._shape.Shape, sequence, default=None) ‑> Union[tuple, list]</span>
+<dt id="ml4s.math.extrapolation.order_by_shape"><code class="name flex">
+<span>def <span class="ident">order_by_shape</span></span>(<span>shape: ml4s.math._shape.Shape, sequence, default=None) ‑> Union[tuple, list]</span>
 </code></dt>
 <dd>
 <div class="desc"><p>If sequence is a dict with dimension names as keys, orders its values according to this shape.</p>
@@ -1846,7 +1846,7 @@ Non-leaves are those created by <code><a title="unifyml.math.extrapolation.combi
         return sequence</code></pre>
 </details>
 </dd>
-<dt id="unifyml.math.extrapolation.remove_constant_offset"><code class="name flex">
+<dt id="ml4s.math.extrapolation.remove_constant_offset"><code class="name flex">
 <span>def <span class="ident">remove_constant_offset</span></span>(<span>extrapolation)</span>
 </code></dt>
 <dd>
@@ -1855,10 +1855,10 @@ This also includes <code>NaN</code> values in constants (unlike <code>ext - ext<
 <h2 id="args">Args</h2>
 <dl>
 <dt><strong><code>extrapolation</code></strong></dt>
-<dd><code><a title="unifyml.math.extrapolation.Extrapolation" href="#unifyml.math.extrapolation.Extrapolation">Extrapolation</a></code> object.</dd>
+<dd><code><a title="ml4s.math.extrapolation.Extrapolation" href="#ml4s.math.extrapolation.Extrapolation">Extrapolation</a></code> object.</dd>
 </dl>
 <h2 id="returns">Returns</h2>
-<p><code><a title="unifyml.math.extrapolation.Extrapolation" href="#unifyml.math.extrapolation.Extrapolation">Extrapolation</a></code> that has no constant offsets</p></div>
+<p><code><a title="ml4s.math.extrapolation.Extrapolation" href="#ml4s.math.extrapolation.Extrapolation">Extrapolation</a></code> that has no constant offsets</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -1887,9 +1887,9 @@ This also includes <code>NaN</code> values in constants (unlike <code>ext - ext<
 <section>
 <h2 class="section-title" id="header-classes">Classes</h2>
 <dl>
-<dt id="unifyml.math.extrapolation.ConstantExtrapolation"><code class="flex name class">
+<dt id="ml4s.math.extrapolation.ConstantExtrapolation"><code class="flex name class">
 <span>class <span class="ident">ConstantExtrapolation</span></span>
-<span>(</span><span>value: Union[float, unifyml.math._tensors.Tensor])</span>
+<span>(</span><span>value: Union[float, ml4s.math._tensors.Tensor])</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Extrapolate with a constant value.</p>
@@ -2085,11 +2085,11 @@ The typical order is periodic=1, boundary=2, symmetric=3, reflect=4, constant=5.
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
-<li><a title="unifyml.math.extrapolation.Extrapolation" href="#unifyml.math.extrapolation.Extrapolation">Extrapolation</a></li>
+<li><a title="ml4s.math.extrapolation.Extrapolation" href="#ml4s.math.extrapolation.Extrapolation">Extrapolation</a></li>
 </ul>
 <h3>Instance variables</h3>
 <dl>
-<dt id="unifyml.math.extrapolation.ConstantExtrapolation.native_grid_sample_mode"><code class="name">var <span class="ident">native_grid_sample_mode</span> : Optional[str]</code></dt>
+<dt id="ml4s.math.extrapolation.ConstantExtrapolation.native_grid_sample_mode"><code class="name">var <span class="ident">native_grid_sample_mode</span> : Optional[str]</code></dt>
 <dd>
 <div class="desc"></div>
 <details class="source">
@@ -2101,7 +2101,7 @@ def native_grid_sample_mode(self) -&gt; Union[str, None]:
     return &#39;zeros&#39; if self.is_zero() else None</code></pre>
 </details>
 </dd>
-<dt id="unifyml.math.extrapolation.ConstantExtrapolation.shape"><code class="name">var <span class="ident">shape</span></code></dt>
+<dt id="ml4s.math.extrapolation.ConstantExtrapolation.shape"><code class="name">var <span class="ident">shape</span></code></dt>
 <dd>
 <div class="desc"></div>
 <details class="source">
@@ -2113,14 +2113,14 @@ def shape(self):
     return self.value.shape</code></pre>
 </details>
 </dd>
-<dt id="unifyml.math.extrapolation.ConstantExtrapolation.value"><code class="name">var <span class="ident">value</span></code></dt>
+<dt id="ml4s.math.extrapolation.ConstantExtrapolation.value"><code class="name">var <span class="ident">value</span></code></dt>
 <dd>
 <div class="desc"><p>Extrapolation value</p></div>
 </dd>
 </dl>
 <h3>Methods</h3>
 <dl>
-<dt id="unifyml.math.extrapolation.ConstantExtrapolation.is_one"><code class="name flex">
+<dt id="ml4s.math.extrapolation.ConstantExtrapolation.is_one"><code class="name flex">
 <span>def <span class="ident">is_one</span></span>(<span>self)</span>
 </code></dt>
 <dd>
@@ -2133,7 +2133,7 @@ def shape(self):
     return self == ONE</code></pre>
 </details>
 </dd>
-<dt id="unifyml.math.extrapolation.ConstantExtrapolation.is_zero"><code class="name flex">
+<dt id="ml4s.math.extrapolation.ConstantExtrapolation.is_zero"><code class="name flex">
 <span>def <span class="ident">is_zero</span></span>(<span>self)</span>
 </code></dt>
 <dd>
@@ -2146,8 +2146,8 @@ def shape(self):
     return self == ZERO</code></pre>
 </details>
 </dd>
-<dt id="unifyml.math.extrapolation.ConstantExtrapolation.pad"><code class="name flex">
-<span>def <span class="ident">pad</span></span>(<span>self, value: unifyml.math._tensors.Tensor, widths: dict, **kwargs)</span>
+<dt id="ml4s.math.extrapolation.ConstantExtrapolation.pad"><code class="name flex">
+<span>def <span class="ident">pad</span></span>(<span>self, value: ml4s.math._tensors.Tensor, widths: dict, **kwargs)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Pads a tensor using constant values.</p>
@@ -2206,8 +2206,8 @@ def shape(self):
         return Extrapolation.pad(self, value, widths, **kwargs)</code></pre>
 </details>
 </dd>
-<dt id="unifyml.math.extrapolation.ConstantExtrapolation.sparse_pad_values"><code class="name flex">
-<span>def <span class="ident">sparse_pad_values</span></span>(<span>self, value: unifyml.math._tensors.Tensor, connectivity: unifyml.math._tensors.Tensor, dim: str, upper_edge: bool, **kwargs) ‑> unifyml.math._tensors.Tensor</span>
+<dt id="ml4s.math.extrapolation.ConstantExtrapolation.sparse_pad_values"><code class="name flex">
+<span>def <span class="ident">sparse_pad_values</span></span>(<span>self, value: ml4s.math._tensors.Tensor, connectivity: ml4s.math._tensors.Tensor, dim: str, upper_edge: bool, **kwargs) ‑> ml4s.math._tensors.Tensor</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -2222,21 +2222,21 @@ def shape(self):
 </dl>
 <h3>Inherited members</h3>
 <ul class="hlist">
-<li><code><b><a title="unifyml.math.extrapolation.Extrapolation" href="#unifyml.math.extrapolation.Extrapolation">Extrapolation</a></b></code>:
+<li><code><b><a title="ml4s.math.extrapolation.Extrapolation" href="#ml4s.math.extrapolation.Extrapolation">Extrapolation</a></b></code>:
 <ul class="hlist">
-<li><code><a title="unifyml.math.extrapolation.Extrapolation.is_copy_pad" href="#unifyml.math.extrapolation.Extrapolation.is_copy_pad">is_copy_pad</a></code></li>
-<li><code><a title="unifyml.math.extrapolation.Extrapolation.is_flexible" href="#unifyml.math.extrapolation.Extrapolation.is_flexible">is_flexible</a></code></li>
-<li><code><a title="unifyml.math.extrapolation.Extrapolation.pad_values" href="#unifyml.math.extrapolation.Extrapolation.pad_values">pad_values</a></code></li>
-<li><code><a title="unifyml.math.extrapolation.Extrapolation.shortest_distance" href="#unifyml.math.extrapolation.Extrapolation.shortest_distance">shortest_distance</a></code></li>
-<li><code><a title="unifyml.math.extrapolation.Extrapolation.spatial_gradient" href="#unifyml.math.extrapolation.Extrapolation.spatial_gradient">spatial_gradient</a></code></li>
-<li><code><a title="unifyml.math.extrapolation.Extrapolation.to_dict" href="#unifyml.math.extrapolation.Extrapolation.to_dict">to_dict</a></code></li>
-<li><code><a title="unifyml.math.extrapolation.Extrapolation.transform_coordinates" href="#unifyml.math.extrapolation.Extrapolation.transform_coordinates">transform_coordinates</a></code></li>
-<li><code><a title="unifyml.math.extrapolation.Extrapolation.valid_outer_faces" href="#unifyml.math.extrapolation.Extrapolation.valid_outer_faces">valid_outer_faces</a></code></li>
+<li><code><a title="ml4s.math.extrapolation.Extrapolation.is_copy_pad" href="#ml4s.math.extrapolation.Extrapolation.is_copy_pad">is_copy_pad</a></code></li>
+<li><code><a title="ml4s.math.extrapolation.Extrapolation.is_flexible" href="#ml4s.math.extrapolation.Extrapolation.is_flexible">is_flexible</a></code></li>
+<li><code><a title="ml4s.math.extrapolation.Extrapolation.pad_values" href="#ml4s.math.extrapolation.Extrapolation.pad_values">pad_values</a></code></li>
+<li><code><a title="ml4s.math.extrapolation.Extrapolation.shortest_distance" href="#ml4s.math.extrapolation.Extrapolation.shortest_distance">shortest_distance</a></code></li>
+<li><code><a title="ml4s.math.extrapolation.Extrapolation.spatial_gradient" href="#ml4s.math.extrapolation.Extrapolation.spatial_gradient">spatial_gradient</a></code></li>
+<li><code><a title="ml4s.math.extrapolation.Extrapolation.to_dict" href="#ml4s.math.extrapolation.Extrapolation.to_dict">to_dict</a></code></li>
+<li><code><a title="ml4s.math.extrapolation.Extrapolation.transform_coordinates" href="#ml4s.math.extrapolation.Extrapolation.transform_coordinates">transform_coordinates</a></code></li>
+<li><code><a title="ml4s.math.extrapolation.Extrapolation.valid_outer_faces" href="#ml4s.math.extrapolation.Extrapolation.valid_outer_faces">valid_outer_faces</a></code></li>
 </ul>
 </li>
 </ul>
 </dd>
-<dt id="unifyml.math.extrapolation.Extrapolation"><code class="flex name class">
+<dt id="ml4s.math.extrapolation.Extrapolation"><code class="flex name class">
 <span>class <span class="ident">Extrapolation</span></span>
 <span>(</span><span>pad_rank)</span>
 </code></dt>
@@ -2427,17 +2427,17 @@ The typical order is periodic=1, boundary=2, symmetric=3, reflect=4, constant=5.
 </details>
 <h3>Subclasses</h3>
 <ul class="hlist">
-<li><a title="unifyml.math.extrapolation.ConstantExtrapolation" href="#unifyml.math.extrapolation.ConstantExtrapolation">ConstantExtrapolation</a></li>
-<li><a title="unifyml.math.extrapolation.Undefined" href="#unifyml.math.extrapolation.Undefined">Undefined</a></li>
-<li>unifyml.math.extrapolation._CopyExtrapolation</li>
-<li>unifyml.math.extrapolation._MixedExtrapolation</li>
-<li>unifyml.math.extrapolation._NoExtrapolation</li>
-<li>unifyml.math.extrapolation._NormalTangentialExtrapolation</li>
-<li>unifyml.math.extrapolation._SymmetricGradientExtrapolation</li>
+<li><a title="ml4s.math.extrapolation.ConstantExtrapolation" href="#ml4s.math.extrapolation.ConstantExtrapolation">ConstantExtrapolation</a></li>
+<li><a title="ml4s.math.extrapolation.Undefined" href="#ml4s.math.extrapolation.Undefined">Undefined</a></li>
+<li>ml4s.math.extrapolation._CopyExtrapolation</li>
+<li>ml4s.math.extrapolation._MixedExtrapolation</li>
+<li>ml4s.math.extrapolation._NoExtrapolation</li>
+<li>ml4s.math.extrapolation._NormalTangentialExtrapolation</li>
+<li>ml4s.math.extrapolation._SymmetricGradientExtrapolation</li>
 </ul>
 <h3>Instance variables</h3>
 <dl>
-<dt id="unifyml.math.extrapolation.Extrapolation.is_flexible"><code class="name">var <span class="ident">is_flexible</span> : bool</code></dt>
+<dt id="ml4s.math.extrapolation.Extrapolation.is_flexible"><code class="name">var <span class="ident">is_flexible</span> : bool</code></dt>
 <dd>
 <div class="desc"><p>Whether the outside values are affected by the inside values.
 Only <code>True</code> if there are actual outside values, i.e. PERIODIC is not flexible.</p>
@@ -2457,7 +2457,7 @@ def is_flexible(self) -&gt; bool:
     raise NotImplementedError()</code></pre>
 </details>
 </dd>
-<dt id="unifyml.math.extrapolation.Extrapolation.native_grid_sample_mode"><code class="name">var <span class="ident">native_grid_sample_mode</span> : Optional[str]</code></dt>
+<dt id="ml4s.math.extrapolation.Extrapolation.native_grid_sample_mode"><code class="name">var <span class="ident">native_grid_sample_mode</span> : Optional[str]</code></dt>
 <dd>
 <div class="desc"></div>
 <details class="source">
@@ -2472,7 +2472,7 @@ def native_grid_sample_mode(self) -&gt; Union[str, None]:
 </dl>
 <h3>Methods</h3>
 <dl>
-<dt id="unifyml.math.extrapolation.Extrapolation.is_copy_pad"><code class="name flex">
+<dt id="ml4s.math.extrapolation.Extrapolation.is_copy_pad"><code class="name flex">
 <span>def <span class="ident">is_copy_pad</span></span>(<span>self, dim: str, upper_edge: bool)</span>
 </code></dt>
 <dd>
@@ -2486,8 +2486,8 @@ def native_grid_sample_mode(self) -&gt; Union[str, None]:
     return False</code></pre>
 </details>
 </dd>
-<dt id="unifyml.math.extrapolation.Extrapolation.pad"><code class="name flex">
-<span>def <span class="ident">pad</span></span>(<span>self, value: unifyml.math._tensors.Tensor, widths: dict, **kwargs) ‑> unifyml.math._tensors.Tensor</span>
+<dt id="ml4s.math.extrapolation.Extrapolation.pad"><code class="name flex">
+<span>def <span class="ident">pad</span></span>(<span>self, value: ml4s.math._tensors.Tensor, widths: dict, **kwargs) ‑> ml4s.math._tensors.Tensor</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Pads a tensor using values from <code>self.pad_values()</code>.</p>
@@ -2541,8 +2541,8 @@ To change this behavior, override this method.</p>
     return value</code></pre>
 </details>
 </dd>
-<dt id="unifyml.math.extrapolation.Extrapolation.pad_values"><code class="name flex">
-<span>def <span class="ident">pad_values</span></span>(<span>self, value: unifyml.math._tensors.Tensor, width: int, dim: str, upper_edge: bool, **kwargs) ‑> unifyml.math._tensors.Tensor</span>
+<dt id="ml4s.math.extrapolation.Extrapolation.pad_values"><code class="name flex">
+<span>def <span class="ident">pad_values</span></span>(<span>self, value: ml4s.math._tensors.Tensor, width: int, dim: str, upper_edge: bool, **kwargs) ‑> ml4s.math._tensors.Tensor</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Determines the values with which the given tensor would be padded at the specified using this extrapolation.</p>
@@ -2579,8 +2579,8 @@ To change this behavior, override this method.</p>
     raise NotImplementedError(self.__class__)</code></pre>
 </details>
 </dd>
-<dt id="unifyml.math.extrapolation.Extrapolation.shortest_distance"><code class="name flex">
-<span>def <span class="ident">shortest_distance</span></span>(<span>self, start: unifyml.math._tensors.Tensor, end: unifyml.math._tensors.Tensor, domain_size: unifyml.math._tensors.Tensor)</span>
+<dt id="ml4s.math.extrapolation.Extrapolation.shortest_distance"><code class="name flex">
+<span>def <span class="ident">shortest_distance</span></span>(<span>self, start: ml4s.math._tensors.Tensor, end: ml4s.math._tensors.Tensor, domain_size: ml4s.math._tensors.Tensor)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Computes the shortest distance between two points.
@@ -2616,8 +2616,8 @@ Both points are assumed to lie within the domain</p>
     return end - start</code></pre>
 </details>
 </dd>
-<dt id="unifyml.math.extrapolation.Extrapolation.sparse_pad_values"><code class="name flex">
-<span>def <span class="ident">sparse_pad_values</span></span>(<span>self, value: unifyml.math._tensors.Tensor, connectivity: unifyml.math._tensors.Tensor, dim: str, upper_edge: bool, **kwargs) ‑> unifyml.math._tensors.Tensor</span>
+<dt id="ml4s.math.extrapolation.Extrapolation.sparse_pad_values"><code class="name flex">
+<span>def <span class="ident">sparse_pad_values</span></span>(<span>self, value: ml4s.math._tensors.Tensor, connectivity: ml4s.math._tensors.Tensor, dim: str, upper_edge: bool, **kwargs) ‑> ml4s.math._tensors.Tensor</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -2629,13 +2629,13 @@ Both points are assumed to lie within the domain</p>
     raise NotImplementedError(self.__class__)</code></pre>
 </details>
 </dd>
-<dt id="unifyml.math.extrapolation.Extrapolation.spatial_gradient"><code class="name flex">
-<span>def <span class="ident">spatial_gradient</span></span>(<span>self) ‑> <a title="unifyml.math.extrapolation.Extrapolation" href="#unifyml.math.extrapolation.Extrapolation">Extrapolation</a></span>
+<dt id="ml4s.math.extrapolation.Extrapolation.spatial_gradient"><code class="name flex">
+<span>def <span class="ident">spatial_gradient</span></span>(<span>self) ‑> <a title="ml4s.math.extrapolation.Extrapolation" href="#ml4s.math.extrapolation.Extrapolation">Extrapolation</a></span>
 </code></dt>
 <dd>
 <div class="desc"><p>Returns the extrapolation for the spatial gradient of a tensor/field with this extrapolation.</p>
 <h2 id="returns">Returns</h2>
-<p><code><a title="unifyml.math.extrapolation.Extrapolation" href="#unifyml.math.extrapolation.Extrapolation">Extrapolation</a></code> or <code>NotImplemented</code></p></div>
+<p><code><a title="ml4s.math.extrapolation.Extrapolation" href="#ml4s.math.extrapolation.Extrapolation">Extrapolation</a></code> or <code>NotImplemented</code></p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -2650,12 +2650,12 @@ Both points are assumed to lie within the domain</p>
     raise NotImplementedError()</code></pre>
 </details>
 </dd>
-<dt id="unifyml.math.extrapolation.Extrapolation.to_dict"><code class="name flex">
+<dt id="ml4s.math.extrapolation.Extrapolation.to_dict"><code class="name flex">
 <span>def <span class="ident">to_dict</span></span>(<span>self) ‑> dict</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Serialize this extrapolation to a dictionary that is serializable (JSON-writable).</p>
-<p>Use <code><a title="unifyml.math.extrapolation.from_dict" href="#unifyml.math.extrapolation.from_dict">from_dict()</a></code> to restore the Extrapolation object.</p></div>
+<p>Use <code><a title="ml4s.math.extrapolation.from_dict" href="#ml4s.math.extrapolation.from_dict">from_dict()</a></code> to restore the Extrapolation object.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -2669,8 +2669,8 @@ Both points are assumed to lie within the domain</p>
     raise NotImplementedError()</code></pre>
 </details>
 </dd>
-<dt id="unifyml.math.extrapolation.Extrapolation.transform_coordinates"><code class="name flex">
-<span>def <span class="ident">transform_coordinates</span></span>(<span>self, coordinates: unifyml.math._tensors.Tensor, shape: unifyml.math._shape.Shape, **kwargs) ‑> unifyml.math._tensors.Tensor</span>
+<dt id="ml4s.math.extrapolation.Extrapolation.transform_coordinates"><code class="name flex">
+<span>def <span class="ident">transform_coordinates</span></span>(<span>self, coordinates: ml4s.math._tensors.Tensor, shape: ml4s.math._shape.Shape, **kwargs) ‑> ml4s.math._tensors.Tensor</span>
 </code></dt>
 <dd>
 <div class="desc"><p>If <code>self.is_copy_pad</code>, transforms outside coordinates to the index from which the value is copied.</p>
@@ -2709,7 +2709,7 @@ This is the default implementation.</p>
     return math.clip(coordinates, 0, math.wrap(res - 1, channel(&#39;vector&#39;)))</code></pre>
 </details>
 </dd>
-<dt id="unifyml.math.extrapolation.Extrapolation.valid_outer_faces"><code class="name flex">
+<dt id="ml4s.math.extrapolation.Extrapolation.valid_outer_faces"><code class="name flex">
 <span>def <span class="ident">valid_outer_faces</span></span>(<span>self, dim) ‑> Tuple[bool, bool]</span>
 </code></dt>
 <dd>
@@ -2725,9 +2725,9 @@ This is the default implementation.</p>
 </dd>
 </dl>
 </dd>
-<dt id="unifyml.math.extrapolation.Undefined"><code class="flex name class">
+<dt id="ml4s.math.extrapolation.Undefined"><code class="flex name class">
 <span>class <span class="ident">Undefined</span></span>
-<span>(</span><span>derived_from: <a title="unifyml.math.extrapolation.Extrapolation" href="#unifyml.math.extrapolation.Extrapolation">Extrapolation</a>)</span>
+<span>(</span><span>derived_from: <a title="ml4s.math.extrapolation.Extrapolation" href="#ml4s.math.extrapolation.Extrapolation">Extrapolation</a>)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>The extrapolation is unknown and must be replaced before usage.
@@ -2811,11 +2811,11 @@ The typical order is periodic=1, boundary=2, symmetric=3, reflect=4, constant=5.
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
-<li><a title="unifyml.math.extrapolation.Extrapolation" href="#unifyml.math.extrapolation.Extrapolation">Extrapolation</a></li>
+<li><a title="ml4s.math.extrapolation.Extrapolation" href="#ml4s.math.extrapolation.Extrapolation">Extrapolation</a></li>
 </ul>
 <h3>Instance variables</h3>
 <dl>
-<dt id="unifyml.math.extrapolation.Undefined.shape"><code class="name">var <span class="ident">shape</span></code></dt>
+<dt id="ml4s.math.extrapolation.Undefined.shape"><code class="name">var <span class="ident">shape</span></code></dt>
 <dd>
 <div class="desc"></div>
 <details class="source">
@@ -2830,17 +2830,17 @@ def shape(self):
 </dl>
 <h3>Inherited members</h3>
 <ul class="hlist">
-<li><code><b><a title="unifyml.math.extrapolation.Extrapolation" href="#unifyml.math.extrapolation.Extrapolation">Extrapolation</a></b></code>:
+<li><code><b><a title="ml4s.math.extrapolation.Extrapolation" href="#ml4s.math.extrapolation.Extrapolation">Extrapolation</a></b></code>:
 <ul class="hlist">
-<li><code><a title="unifyml.math.extrapolation.Extrapolation.is_copy_pad" href="#unifyml.math.extrapolation.Extrapolation.is_copy_pad">is_copy_pad</a></code></li>
-<li><code><a title="unifyml.math.extrapolation.Extrapolation.is_flexible" href="#unifyml.math.extrapolation.Extrapolation.is_flexible">is_flexible</a></code></li>
-<li><code><a title="unifyml.math.extrapolation.Extrapolation.pad" href="#unifyml.math.extrapolation.Extrapolation.pad">pad</a></code></li>
-<li><code><a title="unifyml.math.extrapolation.Extrapolation.pad_values" href="#unifyml.math.extrapolation.Extrapolation.pad_values">pad_values</a></code></li>
-<li><code><a title="unifyml.math.extrapolation.Extrapolation.shortest_distance" href="#unifyml.math.extrapolation.Extrapolation.shortest_distance">shortest_distance</a></code></li>
-<li><code><a title="unifyml.math.extrapolation.Extrapolation.spatial_gradient" href="#unifyml.math.extrapolation.Extrapolation.spatial_gradient">spatial_gradient</a></code></li>
-<li><code><a title="unifyml.math.extrapolation.Extrapolation.to_dict" href="#unifyml.math.extrapolation.Extrapolation.to_dict">to_dict</a></code></li>
-<li><code><a title="unifyml.math.extrapolation.Extrapolation.transform_coordinates" href="#unifyml.math.extrapolation.Extrapolation.transform_coordinates">transform_coordinates</a></code></li>
-<li><code><a title="unifyml.math.extrapolation.Extrapolation.valid_outer_faces" href="#unifyml.math.extrapolation.Extrapolation.valid_outer_faces">valid_outer_faces</a></code></li>
+<li><code><a title="ml4s.math.extrapolation.Extrapolation.is_copy_pad" href="#ml4s.math.extrapolation.Extrapolation.is_copy_pad">is_copy_pad</a></code></li>
+<li><code><a title="ml4s.math.extrapolation.Extrapolation.is_flexible" href="#ml4s.math.extrapolation.Extrapolation.is_flexible">is_flexible</a></code></li>
+<li><code><a title="ml4s.math.extrapolation.Extrapolation.pad" href="#ml4s.math.extrapolation.Extrapolation.pad">pad</a></code></li>
+<li><code><a title="ml4s.math.extrapolation.Extrapolation.pad_values" href="#ml4s.math.extrapolation.Extrapolation.pad_values">pad_values</a></code></li>
+<li><code><a title="ml4s.math.extrapolation.Extrapolation.shortest_distance" href="#ml4s.math.extrapolation.Extrapolation.shortest_distance">shortest_distance</a></code></li>
+<li><code><a title="ml4s.math.extrapolation.Extrapolation.spatial_gradient" href="#ml4s.math.extrapolation.Extrapolation.spatial_gradient">spatial_gradient</a></code></li>
+<li><code><a title="ml4s.math.extrapolation.Extrapolation.to_dict" href="#ml4s.math.extrapolation.Extrapolation.to_dict">to_dict</a></code></li>
+<li><code><a title="ml4s.math.extrapolation.Extrapolation.transform_coordinates" href="#ml4s.math.extrapolation.Extrapolation.transform_coordinates">transform_coordinates</a></code></li>
+<li><code><a title="ml4s.math.extrapolation.Extrapolation.valid_outer_faces" href="#ml4s.math.extrapolation.Extrapolation.valid_outer_faces">valid_outer_faces</a></code></li>
 </ul>
 </li>
 </ul>
@@ -2856,68 +2856,68 @@ def shape(self):
 <ul id="index">
 <li><h3>Super-module</h3>
 <ul>
-<li><code><a title="unifyml.math" href="index.html">unifyml.math</a></code></li>
+<li><code><a title="ml4s.math" href="index.html">ml4s.math</a></code></li>
 </ul>
 </li>
 <li><h3><a href="#header-variables">Global variables</a></h3>
 <ul class="two-column">
-<li><code><a title="unifyml.math.extrapolation.ANTIREFLECT" href="#unifyml.math.extrapolation.ANTIREFLECT">ANTIREFLECT</a></code></li>
-<li><code><a title="unifyml.math.extrapolation.ANTISYMMETRIC" href="#unifyml.math.extrapolation.ANTISYMMETRIC">ANTISYMMETRIC</a></code></li>
-<li><code><a title="unifyml.math.extrapolation.NONE" href="#unifyml.math.extrapolation.NONE">NONE</a></code></li>
-<li><code><a title="unifyml.math.extrapolation.ONE" href="#unifyml.math.extrapolation.ONE">ONE</a></code></li>
-<li><code><a title="unifyml.math.extrapolation.PERIODIC" href="#unifyml.math.extrapolation.PERIODIC">PERIODIC</a></code></li>
-<li><code><a title="unifyml.math.extrapolation.REFLECT" href="#unifyml.math.extrapolation.REFLECT">REFLECT</a></code></li>
-<li><code><a title="unifyml.math.extrapolation.SYMMETRIC" href="#unifyml.math.extrapolation.SYMMETRIC">SYMMETRIC</a></code></li>
-<li><code><a title="unifyml.math.extrapolation.SYMMETRIC_GRADIENT" href="#unifyml.math.extrapolation.SYMMETRIC_GRADIENT">SYMMETRIC_GRADIENT</a></code></li>
-<li><code><a title="unifyml.math.extrapolation.ZERO" href="#unifyml.math.extrapolation.ZERO">ZERO</a></code></li>
-<li><code><a title="unifyml.math.extrapolation.ZERO_GRADIENT" href="#unifyml.math.extrapolation.ZERO_GRADIENT">ZERO_GRADIENT</a></code></li>
+<li><code><a title="ml4s.math.extrapolation.ANTIREFLECT" href="#ml4s.math.extrapolation.ANTIREFLECT">ANTIREFLECT</a></code></li>
+<li><code><a title="ml4s.math.extrapolation.ANTISYMMETRIC" href="#ml4s.math.extrapolation.ANTISYMMETRIC">ANTISYMMETRIC</a></code></li>
+<li><code><a title="ml4s.math.extrapolation.NONE" href="#ml4s.math.extrapolation.NONE">NONE</a></code></li>
+<li><code><a title="ml4s.math.extrapolation.ONE" href="#ml4s.math.extrapolation.ONE">ONE</a></code></li>
+<li><code><a title="ml4s.math.extrapolation.PERIODIC" href="#ml4s.math.extrapolation.PERIODIC">PERIODIC</a></code></li>
+<li><code><a title="ml4s.math.extrapolation.REFLECT" href="#ml4s.math.extrapolation.REFLECT">REFLECT</a></code></li>
+<li><code><a title="ml4s.math.extrapolation.SYMMETRIC" href="#ml4s.math.extrapolation.SYMMETRIC">SYMMETRIC</a></code></li>
+<li><code><a title="ml4s.math.extrapolation.SYMMETRIC_GRADIENT" href="#ml4s.math.extrapolation.SYMMETRIC_GRADIENT">SYMMETRIC_GRADIENT</a></code></li>
+<li><code><a title="ml4s.math.extrapolation.ZERO" href="#ml4s.math.extrapolation.ZERO">ZERO</a></code></li>
+<li><code><a title="ml4s.math.extrapolation.ZERO_GRADIENT" href="#ml4s.math.extrapolation.ZERO_GRADIENT">ZERO_GRADIENT</a></code></li>
 </ul>
 </li>
 <li><h3><a href="#header-functions">Functions</a></h3>
 <ul class="">
-<li><code><a title="unifyml.math.extrapolation.as_extrapolation" href="#unifyml.math.extrapolation.as_extrapolation">as_extrapolation</a></code></li>
-<li><code><a title="unifyml.math.extrapolation.combine_by_direction" href="#unifyml.math.extrapolation.combine_by_direction">combine_by_direction</a></code></li>
-<li><code><a title="unifyml.math.extrapolation.combine_sides" href="#unifyml.math.extrapolation.combine_sides">combine_sides</a></code></li>
-<li><code><a title="unifyml.math.extrapolation.from_dict" href="#unifyml.math.extrapolation.from_dict">from_dict</a></code></li>
-<li><code><a title="unifyml.math.extrapolation.map" href="#unifyml.math.extrapolation.map">map</a></code></li>
-<li><code><a title="unifyml.math.extrapolation.order_by_shape" href="#unifyml.math.extrapolation.order_by_shape">order_by_shape</a></code></li>
-<li><code><a title="unifyml.math.extrapolation.remove_constant_offset" href="#unifyml.math.extrapolation.remove_constant_offset">remove_constant_offset</a></code></li>
+<li><code><a title="ml4s.math.extrapolation.as_extrapolation" href="#ml4s.math.extrapolation.as_extrapolation">as_extrapolation</a></code></li>
+<li><code><a title="ml4s.math.extrapolation.combine_by_direction" href="#ml4s.math.extrapolation.combine_by_direction">combine_by_direction</a></code></li>
+<li><code><a title="ml4s.math.extrapolation.combine_sides" href="#ml4s.math.extrapolation.combine_sides">combine_sides</a></code></li>
+<li><code><a title="ml4s.math.extrapolation.from_dict" href="#ml4s.math.extrapolation.from_dict">from_dict</a></code></li>
+<li><code><a title="ml4s.math.extrapolation.map" href="#ml4s.math.extrapolation.map">map</a></code></li>
+<li><code><a title="ml4s.math.extrapolation.order_by_shape" href="#ml4s.math.extrapolation.order_by_shape">order_by_shape</a></code></li>
+<li><code><a title="ml4s.math.extrapolation.remove_constant_offset" href="#ml4s.math.extrapolation.remove_constant_offset">remove_constant_offset</a></code></li>
 </ul>
 </li>
 <li><h3><a href="#header-classes">Classes</a></h3>
 <ul>
 <li>
-<h4><code><a title="unifyml.math.extrapolation.ConstantExtrapolation" href="#unifyml.math.extrapolation.ConstantExtrapolation">ConstantExtrapolation</a></code></h4>
+<h4><code><a title="ml4s.math.extrapolation.ConstantExtrapolation" href="#ml4s.math.extrapolation.ConstantExtrapolation">ConstantExtrapolation</a></code></h4>
 <ul class="">
-<li><code><a title="unifyml.math.extrapolation.ConstantExtrapolation.is_one" href="#unifyml.math.extrapolation.ConstantExtrapolation.is_one">is_one</a></code></li>
-<li><code><a title="unifyml.math.extrapolation.ConstantExtrapolation.is_zero" href="#unifyml.math.extrapolation.ConstantExtrapolation.is_zero">is_zero</a></code></li>
-<li><code><a title="unifyml.math.extrapolation.ConstantExtrapolation.native_grid_sample_mode" href="#unifyml.math.extrapolation.ConstantExtrapolation.native_grid_sample_mode">native_grid_sample_mode</a></code></li>
-<li><code><a title="unifyml.math.extrapolation.ConstantExtrapolation.pad" href="#unifyml.math.extrapolation.ConstantExtrapolation.pad">pad</a></code></li>
-<li><code><a title="unifyml.math.extrapolation.ConstantExtrapolation.shape" href="#unifyml.math.extrapolation.ConstantExtrapolation.shape">shape</a></code></li>
-<li><code><a title="unifyml.math.extrapolation.ConstantExtrapolation.sparse_pad_values" href="#unifyml.math.extrapolation.ConstantExtrapolation.sparse_pad_values">sparse_pad_values</a></code></li>
-<li><code><a title="unifyml.math.extrapolation.ConstantExtrapolation.value" href="#unifyml.math.extrapolation.ConstantExtrapolation.value">value</a></code></li>
+<li><code><a title="ml4s.math.extrapolation.ConstantExtrapolation.is_one" href="#ml4s.math.extrapolation.ConstantExtrapolation.is_one">is_one</a></code></li>
+<li><code><a title="ml4s.math.extrapolation.ConstantExtrapolation.is_zero" href="#ml4s.math.extrapolation.ConstantExtrapolation.is_zero">is_zero</a></code></li>
+<li><code><a title="ml4s.math.extrapolation.ConstantExtrapolation.native_grid_sample_mode" href="#ml4s.math.extrapolation.ConstantExtrapolation.native_grid_sample_mode">native_grid_sample_mode</a></code></li>
+<li><code><a title="ml4s.math.extrapolation.ConstantExtrapolation.pad" href="#ml4s.math.extrapolation.ConstantExtrapolation.pad">pad</a></code></li>
+<li><code><a title="ml4s.math.extrapolation.ConstantExtrapolation.shape" href="#ml4s.math.extrapolation.ConstantExtrapolation.shape">shape</a></code></li>
+<li><code><a title="ml4s.math.extrapolation.ConstantExtrapolation.sparse_pad_values" href="#ml4s.math.extrapolation.ConstantExtrapolation.sparse_pad_values">sparse_pad_values</a></code></li>
+<li><code><a title="ml4s.math.extrapolation.ConstantExtrapolation.value" href="#ml4s.math.extrapolation.ConstantExtrapolation.value">value</a></code></li>
 </ul>
 </li>
 <li>
-<h4><code><a title="unifyml.math.extrapolation.Extrapolation" href="#unifyml.math.extrapolation.Extrapolation">Extrapolation</a></code></h4>
+<h4><code><a title="ml4s.math.extrapolation.Extrapolation" href="#ml4s.math.extrapolation.Extrapolation">Extrapolation</a></code></h4>
 <ul class="">
-<li><code><a title="unifyml.math.extrapolation.Extrapolation.is_copy_pad" href="#unifyml.math.extrapolation.Extrapolation.is_copy_pad">is_copy_pad</a></code></li>
-<li><code><a title="unifyml.math.extrapolation.Extrapolation.is_flexible" href="#unifyml.math.extrapolation.Extrapolation.is_flexible">is_flexible</a></code></li>
-<li><code><a title="unifyml.math.extrapolation.Extrapolation.native_grid_sample_mode" href="#unifyml.math.extrapolation.Extrapolation.native_grid_sample_mode">native_grid_sample_mode</a></code></li>
-<li><code><a title="unifyml.math.extrapolation.Extrapolation.pad" href="#unifyml.math.extrapolation.Extrapolation.pad">pad</a></code></li>
-<li><code><a title="unifyml.math.extrapolation.Extrapolation.pad_values" href="#unifyml.math.extrapolation.Extrapolation.pad_values">pad_values</a></code></li>
-<li><code><a title="unifyml.math.extrapolation.Extrapolation.shortest_distance" href="#unifyml.math.extrapolation.Extrapolation.shortest_distance">shortest_distance</a></code></li>
-<li><code><a title="unifyml.math.extrapolation.Extrapolation.sparse_pad_values" href="#unifyml.math.extrapolation.Extrapolation.sparse_pad_values">sparse_pad_values</a></code></li>
-<li><code><a title="unifyml.math.extrapolation.Extrapolation.spatial_gradient" href="#unifyml.math.extrapolation.Extrapolation.spatial_gradient">spatial_gradient</a></code></li>
-<li><code><a title="unifyml.math.extrapolation.Extrapolation.to_dict" href="#unifyml.math.extrapolation.Extrapolation.to_dict">to_dict</a></code></li>
-<li><code><a title="unifyml.math.extrapolation.Extrapolation.transform_coordinates" href="#unifyml.math.extrapolation.Extrapolation.transform_coordinates">transform_coordinates</a></code></li>
-<li><code><a title="unifyml.math.extrapolation.Extrapolation.valid_outer_faces" href="#unifyml.math.extrapolation.Extrapolation.valid_outer_faces">valid_outer_faces</a></code></li>
+<li><code><a title="ml4s.math.extrapolation.Extrapolation.is_copy_pad" href="#ml4s.math.extrapolation.Extrapolation.is_copy_pad">is_copy_pad</a></code></li>
+<li><code><a title="ml4s.math.extrapolation.Extrapolation.is_flexible" href="#ml4s.math.extrapolation.Extrapolation.is_flexible">is_flexible</a></code></li>
+<li><code><a title="ml4s.math.extrapolation.Extrapolation.native_grid_sample_mode" href="#ml4s.math.extrapolation.Extrapolation.native_grid_sample_mode">native_grid_sample_mode</a></code></li>
+<li><code><a title="ml4s.math.extrapolation.Extrapolation.pad" href="#ml4s.math.extrapolation.Extrapolation.pad">pad</a></code></li>
+<li><code><a title="ml4s.math.extrapolation.Extrapolation.pad_values" href="#ml4s.math.extrapolation.Extrapolation.pad_values">pad_values</a></code></li>
+<li><code><a title="ml4s.math.extrapolation.Extrapolation.shortest_distance" href="#ml4s.math.extrapolation.Extrapolation.shortest_distance">shortest_distance</a></code></li>
+<li><code><a title="ml4s.math.extrapolation.Extrapolation.sparse_pad_values" href="#ml4s.math.extrapolation.Extrapolation.sparse_pad_values">sparse_pad_values</a></code></li>
+<li><code><a title="ml4s.math.extrapolation.Extrapolation.spatial_gradient" href="#ml4s.math.extrapolation.Extrapolation.spatial_gradient">spatial_gradient</a></code></li>
+<li><code><a title="ml4s.math.extrapolation.Extrapolation.to_dict" href="#ml4s.math.extrapolation.Extrapolation.to_dict">to_dict</a></code></li>
+<li><code><a title="ml4s.math.extrapolation.Extrapolation.transform_coordinates" href="#ml4s.math.extrapolation.Extrapolation.transform_coordinates">transform_coordinates</a></code></li>
+<li><code><a title="ml4s.math.extrapolation.Extrapolation.valid_outer_faces" href="#ml4s.math.extrapolation.Extrapolation.valid_outer_faces">valid_outer_faces</a></code></li>
 </ul>
 </li>
 <li>
-<h4><code><a title="unifyml.math.extrapolation.Undefined" href="#unifyml.math.extrapolation.Undefined">Undefined</a></code></h4>
+<h4><code><a title="ml4s.math.extrapolation.Undefined" href="#ml4s.math.extrapolation.Undefined">Undefined</a></code></h4>
 <ul class="">
-<li><code><a title="unifyml.math.extrapolation.Undefined.shape" href="#unifyml.math.extrapolation.Undefined.shape">shape</a></code></li>
+<li><code><a title="ml4s.math.extrapolation.Undefined.shape" href="#ml4s.math.extrapolation.Undefined.shape">shape</a></code></li>
 </ul>
 </li>
 </ul>

@@ -15110,13 +15110,13 @@ body[data-format='mobile'] .jp-OutputArea-child .jp-OutputArea-output {
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<h1 id="Writing-n-dimensional-Code-with-UnifyML">Writing <em>n</em>-dimensional Code with UnifyML<a class="anchor-link" href="#Writing-n-dimensional-Code-with-UnifyML">&#182;</a></h1><p><a href="https://colab.research.google.com/github/holl-/UnifyML/blob/main/docs/N_Dimensional.ipynb"><img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Colab" /></a>
-  •   <a href="https://github.com/holl-/UnifyML">🌐 <strong>UnifyML</strong></a>
-  •   <a href="https://holl-.github.io/UnifyML/unifyml/">📖 <strong>Documentation</strong></a>
-  •   <a href="https://holl-.github.io/UnifyML/unifyml">🔗 <strong>API</strong></a>
+<h1 id="Writing-n-dimensional-Code-with-ML4Science">Writing <em>n</em>-dimensional Code with ML4Science<a class="anchor-link" href="#Writing-n-dimensional-Code-with-ML4Science">&#182;</a></h1><p><a href="https://colab.research.google.com/github/holl-/ML4Science/blob/main/docs/N_Dimensional.ipynb"><img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Colab" /></a>
+  •   <a href="https://github.com/holl-/ML4Science">🌐 <strong>ML4Science</strong></a>
+  •   <a href="https://holl-.github.io/ML4Science/ml4s/">📖 <strong>Documentation</strong></a>
+  •   <a href="https://holl-.github.io/ML4Science/ml4s">🔗 <strong>API</strong></a>
   •   <a href=""><strong>▶ Videos</strong></a>
-  •   <a href="https://colab.research.google.com/github/holl-/UnifyML/blob/main/docs/Examples.ipynb"><img src="images/colab_logo_small.png" height=4></a> <a href="https://holl-.github.io/UnifyML/Examples.html"><strong>Examples</strong></a></p>
-<p>UnifyML's <a href="Shapes.html">dimension types</a> allow you to write abstract code that scales with the number of <em>spatial</em> dimensions.</p>
+  •   <a href="https://colab.research.google.com/github/holl-/ML4Science/blob/main/docs/Examples.ipynb"><img src="images/colab_logo_small.png" height=4></a> <a href="https://holl-.github.io/ML4Science/Examples.html"><strong>Examples</strong></a></p>
+<p>ML4Science's <a href="Shapes.html">dimension types</a> allow you to write abstract code that scales with the number of <em>spatial</em> dimensions.</p>
 
 </div>
 </div>
@@ -15130,10 +15130,10 @@ body[data-format='mobile'] .jp-OutputArea-child .jp-OutputArea-output {
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython2"><pre><span></span><span class="o">%%capture</span>
-<span class="err">!</span><span class="n">pip</span> <span class="n">install</span> <span class="n">unifyml</span>
+<span class="err">!</span><span class="n">pip</span> <span class="n">install</span> <span class="n">ml4s</span>
 
-<span class="kn">from</span> <span class="nn">unifyml</span> <span class="kn">import</span> <span class="n">math</span>
-<span class="kn">from</span> <span class="nn">unifyml.math</span> <span class="kn">import</span> <span class="n">spatial</span><span class="p">,</span> <span class="n">channel</span><span class="p">,</span> <span class="n">instance</span>
+<span class="kn">from</span> <span class="nn">ml4s</span> <span class="kn">import</span> <span class="n">math</span>
+<span class="kn">from</span> <span class="nn">ml4s.math</span> <span class="kn">import</span> <span class="n">spatial</span><span class="p">,</span> <span class="n">channel</span><span class="p">,</span> <span class="n">instance</span>
 </pre></div>
 
      </div>
@@ -15149,7 +15149,7 @@ body[data-format='mobile'] .jp-OutputArea-child .jp-OutputArea-output {
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
 <h2 id="Grids">Grids<a class="anchor-link" href="#Grids">&#182;</a></h2><p>Grids are a popular data structure that in <em>n</em> dimensions.
-In UnifyML, each axis of the grid is represented by a spatial dimension.</p>
+In ML4Science, each axis of the grid is represented by a spatial dimension.</p>
 
 </div>
 </div>
@@ -15212,7 +15212,7 @@ In 1D, this would be the stencil (.5, 0, .5) and in 2D (0, .25, 0; .25, 0, .25; 
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<p>This function uses <a href="unifyml/math#unifyml.math.shift"><code>math.shift()</code></a> to access the left and right neighbor in each direction.
+<p>This function uses <a href="ml4s/math#ml4s.math.shift"><code>math.shift()</code></a> to access the left and right neighbor in each direction.
 By default, <code>shift</code> shifts in all spatial dimensions and lists the result along a new channel dimension.
 Then we can take the mean of the <code>right</code> and the <code>left</code> values to compute the mean of all neighbors.</p>
 <p>We can now evaluate the function in 1D, 2D, 3D, etc. and it will automatically derive the correct stencil.</p>
@@ -15250,7 +15250,7 @@ Then we can take the mean of the <code>right</code> and the <code>left</code> va
 
 
 <div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre><span class="ansi-blue-intense-fg">(0.474, 0.420, 0.467, 0.447, 0.611)</span> along <span class="ansi-green-intense-fg">xˢ</span></pre>
+<pre><span class="ansi-blue-intense-fg">(0.767, 0.775, 0.864, 0.674, 0.864)</span> along <span class="ansi-green-intense-fg">xˢ</span></pre>
 </div>
 
 </div>
@@ -15289,7 +15289,7 @@ Then we can take the mean of the <code>right</code> and the <code>left</code> va
 
 
 <div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre><span class="ansi-green-intense-fg">(xˢ=3, yˢ=3)</span> <span class="ansi-blue-intense-fg">0.577 ± 0.147</span> <span class="ansi-white-fg">(3e-01...8e-01)</span></pre>
+<pre><span class="ansi-green-intense-fg">(xˢ=3, yˢ=3)</span> <span class="ansi-blue-intense-fg">0.406 ± 0.090</span> <span class="ansi-white-fg">(3e-01...6e-01)</span></pre>
 </div>
 
 </div>
@@ -15328,7 +15328,7 @@ Then we can take the mean of the <code>right</code> and the <code>left</code> va
 
 
 <div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre><span class="ansi-green-intense-fg">(xˢ=16, yˢ=16, zˢ=16)</span> <span class="ansi-blue-intense-fg">0.506 ± 0.118</span> <span class="ansi-white-fg">(1e-01...9e-01)</span></pre>
+<pre><span class="ansi-green-intense-fg">(xˢ=16, yˢ=16, zˢ=16)</span> <span class="ansi-blue-intense-fg">0.509 ± 0.117</span> <span class="ansi-white-fg">(1e-01...9e-01)</span></pre>
 </div>
 
 </div>
@@ -15442,7 +15442,7 @@ Then we can take the mean of the <code>right</code> and the <code>left</code> va
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<p>The same principle holds for all grid functions in the <code>unifyml.math</code> library.
+<p>The same principle holds for all grid functions in the <code>ml4s.math</code> library.
 For example, if we perform a Fourier transform, the algorithm will be selected based on the number of spatial dimensions.
 A 1D FFT will always be performed on our 1D grid, even if we add additional non-spatial dimensions.</p>
 
@@ -15479,7 +15479,7 @@ A 1D FFT will always be performed on our 1D grid, even if we add additional non-
 
 
 <div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre><span class="ansi-blue-intense-fg">((2.4196954+0j), (0.17070892+0.5496482j), (0.09530286-0.1627306j), (0.09530286+0.1627306j), (0.17070892-0.5496482j))</span> along <span class="ansi-green-intense-fg">xˢ</span> <span class="ansi-yellow-intense-fg">complex64</span></pre>
+<pre><span class="ansi-blue-intense-fg">((3.9435713+0j), (0.09575178-0.088899925j), (0.10365029-0.28822485j), (0.10365029+0.28822485j), (0.09575178+0.088899925j))</span> along <span class="ansi-green-intense-fg">xˢ</span> <span class="ansi-yellow-intense-fg">complex64</span></pre>
 </div>
 
 </div>
@@ -15518,7 +15518,7 @@ A 1D FFT will always be performed on our 1D grid, even if we add additional non-
 
 
 <div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre><span class="ansi-green-intense-fg">(xˢ=3, yˢ=3)</span> <span class="ansi-yellow-intense-fg">complex64</span> <span class="ansi-blue-intense-fg">|...| &lt; 5.1961212158203125</span></pre>
+<pre><span class="ansi-green-intense-fg">(xˢ=3, yˢ=3)</span> <span class="ansi-yellow-intense-fg">complex64</span> <span class="ansi-blue-intense-fg">|...| &lt; 3.655369281768799</span></pre>
 </div>
 
 </div>
@@ -15557,7 +15557,7 @@ A 1D FFT will always be performed on our 1D grid, even if we add additional non-
 
 
 <div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre><span class="ansi-green-intense-fg">(xˢ=16, yˢ=16, zˢ=16)</span> <span class="ansi-yellow-intense-fg">complex64</span> <span class="ansi-blue-intense-fg">|...| &lt; 2072.873291015625</span></pre>
+<pre><span class="ansi-green-intense-fg">(xˢ=16, yˢ=16, zˢ=16)</span> <span class="ansi-yellow-intense-fg">complex64</span> <span class="ansi-blue-intense-fg">|...| &lt; 2084.579345703125</span></pre>
 </div>
 
 </div>
@@ -15636,7 +15636,7 @@ Take the following function that computes the pairwise distances.</p>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
 <p>Here, we compute the distances between each pair of particles on a matrix with dimensions <code>points</code> and <code>others</code>.
-The intermediate matrix of position distances inherits the vector dimension from <code>x</code> and <a href="unifyml/math#unifyml.math.vec_length"><code>math.vec_length()</code></a> sums all components.
+The intermediate matrix of position distances inherits the vector dimension from <code>x</code> and <a href="ml4s/math#ml4s.math.vec_length"><code>math.vec_length()</code></a> sums all components.
 Consequently, this function computes the correct distances in 1D, 2D and 3D.</p>
 
 </div>
@@ -15672,7 +15672,7 @@ Consequently, this function computes the correct distances in 1D, 2D and 3D.</p>
 
 
 <div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre><span class="ansi-green-intense-fg">(othersⁱ=4, pointsⁱ=4)</span> <span class="ansi-blue-intense-fg">0.218 ± 0.197</span> <span class="ansi-white-fg">(0e+00...6e-01)</span></pre>
+<pre><span class="ansi-green-intense-fg">(othersⁱ=4, pointsⁱ=4)</span> <span class="ansi-blue-intense-fg">0.324 ± 0.260</span> <span class="ansi-white-fg">(0e+00...8e-01)</span></pre>
 </div>
 
 </div>
@@ -15711,7 +15711,7 @@ Consequently, this function computes the correct distances in 1D, 2D and 3D.</p>
 
 
 <div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre><span class="ansi-green-intense-fg">(othersⁱ=4, pointsⁱ=4)</span> <span class="ansi-blue-intense-fg">0.290 ± 0.194</span> <span class="ansi-white-fg">(0e+00...6e-01)</span></pre>
+<pre><span class="ansi-green-intense-fg">(othersⁱ=4, pointsⁱ=4)</span> <span class="ansi-blue-intense-fg">0.415 ± 0.343</span> <span class="ansi-white-fg">(0e+00...9e-01)</span></pre>
 </div>
 
 </div>
@@ -15750,7 +15750,7 @@ Consequently, this function computes the correct distances in 1D, 2D and 3D.</p>
 
 
 <div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre><span class="ansi-green-intense-fg">(othersⁱ=4, pointsⁱ=4)</span> <span class="ansi-blue-intense-fg">0.524 ± 0.373</span> <span class="ansi-white-fg">(0e+00...1e+00)</span></pre>
+<pre><span class="ansi-green-intense-fg">(othersⁱ=4, pointsⁱ=4)</span> <span class="ansi-blue-intense-fg">0.529 ± 0.359</span> <span class="ansi-white-fg">(0e+00...1e+00)</span></pre>
 </div>
 
 </div>
@@ -15766,13 +15766,13 @@ Consequently, this function computes the correct distances in 1D, 2D and 3D.</p>
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<h2 id="Further-Reading">Further Reading<a class="anchor-link" href="#Further-Reading">&#182;</a></h2><p>Here, we focussed on spatial dimensions, but each <a href="Shapes.html">dimension type</a> plays a unique role in UnifyML.</p>
-<p>The library <a href="https://github.com/tum-pbs/PhiFlow">Φ<sub>Flow</sub></a> uses UnifyML to implement an <em>n</em>-dimensional incompressible fluid solver.</p>
-<p><a href="https://github.com/holl-/UnifyML">🌐 <strong>UnifyML</strong></a>
-  •   <a href="https://holl-.github.io/UnifyML/unifyml/">📖 <strong>Documentation</strong></a>
-  •   <a href="https://holl-.github.io/UnifyML/unifyml">🔗 <strong>API</strong></a>
+<h2 id="Further-Reading">Further Reading<a class="anchor-link" href="#Further-Reading">&#182;</a></h2><p>Here, we focussed on spatial dimensions, but each <a href="Shapes.html">dimension type</a> plays a unique role in ML4Science.</p>
+<p>The library <a href="https://github.com/tum-pbs/PhiFlow">Φ<sub>Flow</sub></a> uses ML4Science to implement an <em>n</em>-dimensional incompressible fluid solver.</p>
+<p><a href="https://github.com/holl-/ML4Science">🌐 <strong>ML4Science</strong></a>
+  •   <a href="https://holl-.github.io/ML4Science/ml4s/">📖 <strong>Documentation</strong></a>
+  •   <a href="https://holl-.github.io/ML4Science/ml4s">🔗 <strong>API</strong></a>
   •   <a href=""><strong>▶ Videos</strong></a>
-  •   <a href="https://colab.research.google.com/github/holl-/UnifyML/blob/main/docs/Examples.ipynb"><img src="images/colab_logo_small.png" height=4></a> <a href="https://holl-.github.io/UnifyML/Examples.html"><strong>Examples</strong></a></p>
+  •   <a href="https://colab.research.google.com/github/holl-/ML4Science/blob/main/docs/Examples.ipynb"><img src="images/colab_logo_small.png" height=4></a> <a href="https://holl-.github.io/ML4Science/Examples.html"><strong>Examples</strong></a></p>
 
 </div>
 </div>

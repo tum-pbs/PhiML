@@ -15110,12 +15110,12 @@ body[data-format='mobile'] .jp-OutputArea-child .jp-OutputArea-output {
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<h1 id="Shapes-in-UnifyML">Shapes in UnifyML<a class="anchor-link" href="#Shapes-in-UnifyML">&#182;</a></h1><p><a href="https://colab.research.google.com/github/holl-/UnifyML/blob/main/docs/Shapes.ipynb"><img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Colab" /></a>
-  •   <a href="https://github.com/holl-/UnifyML">🌐 <strong>UnifyML</strong></a>
-  •   <a href="https://holl-.github.io/UnifyML/unifyml/">📖 <strong>Documentation</strong></a>
-  •   <a href="https://holl-.github.io/UnifyML/unifyml">🔗 <strong>API</strong></a>
+<h1 id="Shapes-in-ML4Science">Shapes in ML4Science<a class="anchor-link" href="#Shapes-in-ML4Science">&#182;</a></h1><p><a href="https://colab.research.google.com/github/holl-/ML4Science/blob/main/docs/Shapes.ipynb"><img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Colab" /></a>
+  •   <a href="https://github.com/holl-/ML4Science">🌐 <strong>ML4Science</strong></a>
+  •   <a href="https://holl-.github.io/ML4Science/ml4s/">📖 <strong>Documentation</strong></a>
+  •   <a href="https://holl-.github.io/ML4Science/ml4s">🔗 <strong>API</strong></a>
   •   <a href=""><strong>▶ Videos</strong></a>
-  •   <a href="https://colab.research.google.com/github/holl-/UnifyML/blob/main/docs/Examples.ipynb"><img src="images/colab_logo_small.png" height=4></a> <a href="https://holl-.github.io/UnifyML/Examples.html"><strong>Examples</strong></a></p>
+  •   <a href="https://colab.research.google.com/github/holl-/ML4Science/blob/main/docs/Examples.ipynb"><img src="images/colab_logo_small.png" height=4></a> <a href="https://holl-.github.io/ML4Science/Examples.html"><strong>Examples</strong></a></p>
 
 </div>
 </div>
@@ -15128,8 +15128,8 @@ body[data-format='mobile'] .jp-OutputArea-child .jp-OutputArea-output {
 <div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[1]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython2"><pre><span></span><span class="c1"># !pip install unifyml</span>
-<span class="kn">from</span> <span class="nn">unifyml</span> <span class="kn">import</span> <span class="n">math</span>
+<div class=" highlight hl-ipython2"><pre><span></span><span class="c1"># !pip install ml4s</span>
+<span class="kn">from</span> <span class="nn">ml4s</span> <span class="kn">import</span> <span class="n">math</span>
 </pre></div>
 
      </div>
@@ -15144,8 +15144,8 @@ body[data-format='mobile'] .jp-OutputArea-child .jp-OutputArea-output {
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<h2 id="Dimension-Types">Dimension Types<a class="anchor-link" href="#Dimension-Types">&#182;</a></h2><p>The largest difference between UnifyML and its backend libraries like PyTorch or Jax lies in the tensor shapes.
-When using <a href="Tensors.html">UnifyML's tensors</a>, all dimensions must be assigned a name and type flag.
+<h2 id="Dimension-Types">Dimension Types<a class="anchor-link" href="#Dimension-Types">&#182;</a></h2><p>The largest difference between ML4Science and its backend libraries like PyTorch or Jax lies in the tensor shapes.
+When using <a href="Tensors.html">ML4Science's tensors</a>, all dimensions must be assigned a name and type flag.
 The following dimension types are available:</p>
 <ul>
 <li><em>batch</em> dimensions can be added to any code in order to parallelize it. This is their only function. The code should always give the exact same result as if it was called sequentially on all slices and the results were stacked along the batch dimension.</li>
@@ -15166,7 +15166,7 @@ The following dimension types are available:</p>
 <div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[2]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython2"><pre><span></span><span class="kn">from</span> <span class="nn">unifyml.math</span> <span class="kn">import</span> <span class="n">batch</span><span class="p">,</span> <span class="n">channel</span><span class="p">,</span> <span class="n">spatial</span><span class="p">,</span> <span class="n">instance</span><span class="p">,</span> <span class="n">dual</span>
+<div class=" highlight hl-ipython2"><pre><span></span><span class="kn">from</span> <span class="nn">ml4s.math</span> <span class="kn">import</span> <span class="n">batch</span><span class="p">,</span> <span class="n">channel</span><span class="p">,</span> <span class="n">spatial</span><span class="p">,</span> <span class="n">instance</span><span class="p">,</span> <span class="n">dual</span>
 <span class="n">BATCH</span> <span class="o">=</span> <span class="n">batch</span><span class="p">(</span><span class="n">examples</span><span class="o">=</span><span class="mi">100</span><span class="p">)</span>
 <span class="n">BATCH</span>
 </pre></div>
@@ -15206,7 +15206,7 @@ The following dimension types are available:</p>
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<p>Here, we have created a <a href="https://holl-.github.io/UnifyML/unifyml/math/index.html#unifyml.math.Shape"><code>Shape</code></a> containing a single <em>batch</em> dimension with name <code>examples</code>.
+<p>Here, we have created a <a href="https://holl-.github.io/ML4Science/ml4s/math/index.html#ml4s.math.Shape"><code>Shape</code></a> containing a single <em>batch</em> dimension with name <code>examples</code>.
 Note the superscript <code>b</code> to indicate that this is a batch dimension. Naturally the other superscripts are <code>c</code> for <em>channel</em>, <code>s</code> for <em>spatial</em>, <code>i</code> for <em>instance</em> and <code>d</code> for <em>dual</em>.</p>
 <p>We can now use this shape to construct tensors:</p>
 
@@ -15313,7 +15313,7 @@ We can pass multiple shapes to tensor constructors and can construct multiple di
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<p>We can retrieve the <code>Shape</code> of x using either <code>x.shape</code> or <a href="https://holl-.github.io/UnifyML/unifyml/math/index.html#unifyml.math.shape"><code>math.shape(x)</code></a> which also works on primitive types.</p>
+<p>We can retrieve the <code>Shape</code> of x using either <code>x.shape</code> or <a href="https://holl-.github.io/ML4Science/ml4s/math/index.html#ml4s.math.shape"><code>math.shape(x)</code></a> which also works on primitive types.</p>
 
 </div>
 </div>
@@ -15415,7 +15415,7 @@ We can pass multiple shapes to tensor constructors and can construct multiple di
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<p>There are additional filter function, such as <a href="https://holl-.github.io/UnifyML/unifyml/math/index.html#unifyml.math.non_batch"><code>non_***</code></a> as well as <a href="https://holl-.github.io/UnifyML/unifyml/math/index.html#unifyml.math.primal"><code>primal</code></a> to exclude <em>batch</em> and <em>dual</em> dimensions.</p>
+<p>There are additional filter function, such as <a href="https://holl-.github.io/ML4Science/ml4s/math/index.html#ml4s.math.non_batch"><code>non_***</code></a> as well as <a href="https://holl-.github.io/ML4Science/ml4s/math/index.html#ml4s.math.primal"><code>primal</code></a> to exclude <em>batch</em> and <em>dual</em> dimensions.</p>
 <p>This way, we can easily construct a tensor without the batch dimension.</p>
 
 </div>
@@ -15429,7 +15429,7 @@ We can pass multiple shapes to tensor constructors and can construct multiple di
 <div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[7]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython2"><pre><span></span><span class="kn">from</span> <span class="nn">unifyml.math</span> <span class="kn">import</span> <span class="n">non_batch</span><span class="p">,</span> <span class="n">non_channel</span><span class="p">,</span> <span class="n">non_spatial</span><span class="p">,</span> <span class="n">non_instance</span><span class="p">,</span> <span class="n">non_dual</span><span class="p">,</span> <span class="n">primal</span><span class="p">,</span> <span class="n">non_primal</span>
+<div class=" highlight hl-ipython2"><pre><span></span><span class="kn">from</span> <span class="nn">ml4s.math</span> <span class="kn">import</span> <span class="n">non_batch</span><span class="p">,</span> <span class="n">non_channel</span><span class="p">,</span> <span class="n">non_spatial</span><span class="p">,</span> <span class="n">non_instance</span><span class="p">,</span> <span class="n">non_dual</span><span class="p">,</span> <span class="n">primal</span><span class="p">,</span> <span class="n">non_primal</span>
 <span class="n">math</span><span class="o">.</span><span class="n">random_uniform</span><span class="p">(</span><span class="n">non_batch</span><span class="p">(</span><span class="n">x</span><span class="p">))</span>
 </pre></div>
 
@@ -15452,7 +15452,7 @@ We can pass multiple shapes to tensor constructors and can construct multiple di
 
 
 <div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre><span class="ansi-green-intense-fg">(xˢ=28, yˢ=28)</span> <span class="ansi-blue-intense-fg">0.501 ± 0.293</span> <span class="ansi-white-fg">(1e-03...1e+00)</span></pre>
+<pre><span class="ansi-green-intense-fg">(xˢ=28, yˢ=28)</span> <span class="ansi-blue-intense-fg">0.507 ± 0.291</span> <span class="ansi-white-fg">(1e-03...1e+00)</span></pre>
 </div>
 
 </div>
@@ -15498,7 +15498,7 @@ Assuming we have a tensor with dimensions <code>a,b</code> and another with the 
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<p>When combining them in a tensor operation, UnifyML automatically transposes the tensors to match.</p>
+<p>When combining them in a tensor operation, ML4Science automatically transposes the tensors to match.</p>
 
 </div>
 </div>
@@ -15533,7 +15533,7 @@ Assuming we have a tensor with dimensions <code>a,b</code> and another with the 
 
 
 <div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre><span class="ansi-blue-intense-fg">(1.274, 0.834, -1.422, 1.348, -1.711, -0.040)</span> <span class="ansi-green-intense-fg">(aᶜ=2, bᶜ=3)</span></pre>
+<pre><span class="ansi-blue-intense-fg">(-0.329, -0.706, -2.198, 0.119, 3.034, -0.199)</span> <span class="ansi-green-intense-fg">(aᶜ=2, bᶜ=3)</span></pre>
 </div>
 
 </div>
@@ -15589,7 +15589,7 @@ In these cases, you can think of the value being constant along the missing dime
 
 
 <div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre><span class="ansi-blue-intense-fg">(1.951, -0.474, -0.826, 3.618, 1.193, 0.842)</span> <span class="ansi-green-intense-fg">(aᶜ=2, bᶜ=3)</span></pre>
+<pre><span class="ansi-blue-intense-fg">(1.116, -0.165, -0.297, 1.962, 0.681, 0.549)</span> <span class="ansi-green-intense-fg">(aᶜ=2, bᶜ=3)</span></pre>
 </div>
 
 </div>
@@ -15618,7 +15618,7 @@ In these cases, you can think of the value being constant along the missing dime
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
 <h2 id="Selecting-and-Combining-Dimensions">Selecting and Combining Dimensions<a class="anchor-link" href="#Selecting-and-Combining-Dimensions">&#182;</a></h2><p>All tensor creation functions accept a variable number of <code>Shape</code> objects as input and concatenate the dimensions internally.
-This can also be done explicitly using <a href="unifyml/math/#unifyml.math.concat_shapes"><code>concat_shapes()</code></a>.</p>
+This can also be done explicitly using <a href="ml4s/math/#ml4s.math.concat_shapes"><code>concat_shapes()</code></a>.</p>
 
 </div>
 </div>
@@ -15673,7 +15673,7 @@ This can also be done explicitly using <a href="unifyml/math/#unifyml.math.conca
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
 <p>This preserves the dimension order and fails if multiple dimensions with the same name are given.
-Alternatively, <a href="unifyml/math/#unifyml.math.merge_shapes"><code>merge_shapes()</code></a> can be used, which groups dimensions by type and allows for the same dimensions to be present on multiple inputs.</p>
+Alternatively, <a href="ml4s/math/#ml4s.math.merge_shapes"><code>merge_shapes()</code></a> can be used, which groups dimensions by type and allows for the same dimensions to be present on multiple inputs.</p>
 
 </div>
 </div>
@@ -15777,7 +15777,7 @@ Notice how the <em>batch</em> dimension is moved to the first place.</p>
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<p>Filtering shapes for specific dimensions can be done using <code>Shape[name]</code>, <a href="unifyml/math/#unifyml.math.Shape.only"><code>Shape.only()</code></a> and <a href="unifyml/math/#unifyml.math.Shape.without"><code>Shape.without()</code></a>.</p>
+<p>Filtering shapes for specific dimensions can be done using <code>Shape[name]</code>, <a href="ml4s/math/#ml4s.math.Shape.only"><code>Shape.only()</code></a> and <a href="ml4s/math/#ml4s.math.Shape.without"><code>Shape.without()</code></a>.</p>
 
 </div>
 </div>
@@ -16113,7 +16113,7 @@ Notice how the <em>batch</em> dimension is moved to the first place.</p>
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<h2 id="Properties-of-Shapes">Properties of Shapes<a class="anchor-link" href="#Properties-of-Shapes">&#182;</a></h2><p><a href="unifyml/math/#unifyml.math.Shape"><code>Shape</code></a> objects are <em>immutable</em>. Do not attempt to change any property of a <code>Shape</code> directly.
+<h2 id="Properties-of-Shapes">Properties of Shapes<a class="anchor-link" href="#Properties-of-Shapes">&#182;</a></h2><p><a href="ml4s/math/#ml4s.math.Shape"><code>Shape</code></a> objects are <em>immutable</em>. Do not attempt to change any property of a <code>Shape</code> directly.
 The sizes of all dimensions can be retrieved as a <code>tuple</code> using <code>Shape.sizes´. The result is equal to what NumPy or any of the other backends would return for</code>tensor.shape`.</p>
 
 </div>
@@ -16556,26 +16556,26 @@ Assume, we want to rename the <code>channels</code> dimension from above to <cod
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
 <h2 id="Response-to-Dimension-Types-by-Function">Response to Dimension Types by Function<a class="anchor-link" href="#Response-to-Dimension-Types-by-Function">&#182;</a></h2><p>The dimension types serve an important role in indicating what role a dimension plays.
 Many <code>math</code> functions behave differently, depending on the given dimension types.</p>
-<p>Vector operations like <a href="unifyml/math#unifyml.math.vec_length"><code>vec_length</code></a> or <a href="unifyml/math#unifyml.math.rotate_vector"><code>rotate_vector</code></a> require the input to have a <em>channel</em> dimension to list the vector components.</p>
-<p>Spatial operations like <a href="unifyml/math#unifyml.math.fft"><code>fft</code></a> or <a href="unifyml/math#unifyml.math.convolve"><code>convolve</code></a>,
+<p>Vector operations like <a href="ml4s/math#ml4s.math.vec_length"><code>vec_length</code></a> or <a href="ml4s/math#ml4s.math.rotate_vector"><code>rotate_vector</code></a> require the input to have a <em>channel</em> dimension to list the vector components.</p>
+<p>Spatial operations like <a href="ml4s/math#ml4s.math.fft"><code>fft</code></a> or <a href="ml4s/math#ml4s.math.convolve"><code>convolve</code></a>,
 as well as finite differences
-<a href="unifyml/math#unifyml.math.spatial_gradient"><code>spatial_gradient</code></a>, <a href="unifyml/math#unifyml.math.laplace"><code>laplace</code></a>,
-<a href="unifyml/math#unifyml.math.fourier_laplace"><code>fourier_laplace</code></a>, <a href="unifyml/math#unifyml.math.fourier_poisson"><code>fourier_poisson</code></a>,
+<a href="ml4s/math#ml4s.math.spatial_gradient"><code>spatial_gradient</code></a>, <a href="ml4s/math#ml4s.math.laplace"><code>laplace</code></a>,
+<a href="ml4s/math#ml4s.math.fourier_laplace"><code>fourier_laplace</code></a>, <a href="ml4s/math#ml4s.math.fourier_poisson"><code>fourier_poisson</code></a>,
 and resampling operations like
-<a href="unifyml/math#unifyml.math.downsample2x"><code>downsample2x</code></a>,
-<a href="unifyml/math#unifyml.math.upsample2x"><code>upsample2x</code></a>,
-<a href="unifyml/math#unifyml.math.grid_sample"><code>grid_sample</code></a> act only on <em>spatial</em> dimensions.
+<a href="ml4s/math#ml4s.math.downsample2x"><code>downsample2x</code></a>,
+<a href="ml4s/math#ml4s.math.upsample2x"><code>upsample2x</code></a>,
+<a href="ml4s/math#ml4s.math.grid_sample"><code>grid_sample</code></a> act only on <em>spatial</em> dimensions.
 Their dimensionality (1D/2D/3D/etc.) <a href="N_Dimensional.html">depends on the number of spatial dimensions</a> of the input.</p>
 <p>Dual dimensions are ignored (treated as batch dimensions) by almost all functions, except for <a href="Matrices.html">matrix multiplications</a>, <code>matrix @ vector</code>, which reduces the dual dimensions of the matrix against the corresponding primal dimensions of the vector.
-Dual dimensions are created by certain operations like <a href="unifyml/math#unifyml.math.pairwise_distances"><code>pairwise_distances</code></a>.</p>
+Dual dimensions are created by certain operations like <a href="ml4s/math#ml4s.math.pairwise_distances"><code>pairwise_distances</code></a>.</p>
 <p>All functions ignore <em>batch</em> dimensions.
 This also applies to functions that would usually reduce all dimensions by default, such as
-<a href="unifyml/math#unifyml.math.sum"><code>sum</code></a>, <a href="unifyml/math#unifyml.math.mean"><code>mean</code></a>, <a href="unifyml/math#unifyml.math.std"><code>std</code></a>,
-<a href="unifyml/math#unifyml.math.any"><code>any</code></a>, <a href="unifyml/math#unifyml.math.all"><code>all</code></a>,
-<a href="unifyml/math#unifyml.math.max"><code>max</code></a>, <a href="unifyml/math#unifyml.math.min"><code>min</code></a> and many more, as well as loss functions like the <a href="unifyml/math#unifyml.math.l2_loss"><code>l2_loss</code></a>.</p>
+<a href="ml4s/math#ml4s.math.sum"><code>sum</code></a>, <a href="ml4s/math#ml4s.math.mean"><code>mean</code></a>, <a href="ml4s/math#ml4s.math.std"><code>std</code></a>,
+<a href="ml4s/math#ml4s.math.any"><code>any</code></a>, <a href="ml4s/math#ml4s.math.all"><code>all</code></a>,
+<a href="ml4s/math#ml4s.math.max"><code>max</code></a>, <a href="ml4s/math#ml4s.math.min"><code>min</code></a> and many more, as well as loss functions like the <a href="ml4s/math#ml4s.math.l2_loss"><code>l2_loss</code></a>.</p>
 <p>The elementary functions
-<a href="unifyml/math#unifyml.math.gather"><code>gather</code></a> and
-<a href="unifyml/math#unifyml.math.scatter"><code>scatter</code></a> act on <em>spatial</em> or <em>instance</em> dimensions of the grid.
+<a href="ml4s/math#ml4s.math.gather"><code>gather</code></a> and
+<a href="ml4s/math#ml4s.math.scatter"><code>scatter</code></a> act on <em>spatial</em> or <em>instance</em> dimensions of the grid.
 The indices are listed along <em>instance</em> dimensions and the index components along a singular <em>channel</em> dimension.</p>
 
 </div>
@@ -16594,11 +16594,11 @@ To make your code more readable, you can also name slices along dimensions.</p>
 You can therefore write code that <a href="N_Dimensional.html">works in 1D, 2D, 3D and beyond</a>.</p>
 <p>Dual dimensions are used to represent <a href="Matrices.html#Primal-and-Dual-Dimensions">columns of matrices</a>.</p>
 <p>Stacking tensors with the same dimension names but different sizes results in <a href="Non_Uniform.html">non-uniform shapes</a>.</p>
-<p><a href="https://github.com/holl-/UnifyML">🌐 <strong>UnifyML</strong></a>
-  •   <a href="https://holl-.github.io/UnifyML/unifyml/">📖 <strong>Documentation</strong></a>
-  •   <a href="https://holl-.github.io/UnifyML/unifyml">🔗 <strong>API</strong></a>
+<p><a href="https://github.com/holl-/ML4Science">🌐 <strong>ML4Science</strong></a>
+  •   <a href="https://holl-.github.io/ML4Science/ml4s/">📖 <strong>Documentation</strong></a>
+  •   <a href="https://holl-.github.io/ML4Science/ml4s">🔗 <strong>API</strong></a>
   •   <a href=""><strong>▶ Videos</strong></a>
-  •   <a href="https://colab.research.google.com/github/holl-/UnifyML/blob/main/docs/Examples.ipynb"><img src="images/colab_logo_small.png" height=4></a> <a href="https://holl-.github.io/UnifyML/Examples.html"><strong>Examples</strong></a></p>
+  •   <a href="https://colab.research.google.com/github/holl-/ML4Science/blob/main/docs/Examples.ipynb"><img src="images/colab_logo_small.png" height=4></a> <a href="https://holl-.github.io/ML4Science/Examples.html"><strong>Examples</strong></a></p>
 
 </div>
 </div>

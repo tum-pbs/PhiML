@@ -15110,12 +15110,12 @@ body[data-format='mobile'] .jp-OutputArea-child .jp-OutputArea-output {
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<h1 id="JIT-Compilation-in-UnifyML">JIT Compilation in UnifyML<a class="anchor-link" href="#JIT-Compilation-in-UnifyML">&#182;</a></h1><p><a href="https://colab.research.google.com/github/holl-/UnifyML/blob/main/docs/JIT.ipynb"><img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Colab" /></a>
-  •   <a href="https://github.com/holl-/UnifyML">🌐 <strong>UnifyML</strong></a>
-  •   <a href="https://holl-.github.io/UnifyML/">📖 <strong>Documentation</strong></a>
-  •   <a href="https://holl-.github.io/UnifyML/unifyml">🔗 <strong>API</strong></a>
+<h1 id="JIT-Compilation-in-ML4Science">JIT Compilation in ML4Science<a class="anchor-link" href="#JIT-Compilation-in-ML4Science">&#182;</a></h1><p><a href="https://colab.research.google.com/github/holl-/ML4Science/blob/main/docs/JIT.ipynb"><img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Colab" /></a>
+  •   <a href="https://github.com/holl-/ML4Science">🌐 <strong>ML4Science</strong></a>
+  •   <a href="https://holl-.github.io/ML4Science/">📖 <strong>Documentation</strong></a>
+  •   <a href="https://holl-.github.io/ML4Science/ml4s">🔗 <strong>API</strong></a>
   •   <a href=""><strong>▶ Videos</strong></a>
-  •   <a href="https://colab.research.google.com/github/holl-/UnifyML/blob/main/docs/Examples.ipynb"><img src="images/colab_logo_small.png" height=4></a> <a href="https://holl-.github.io/UnifyML/Examples.html"><strong>Examples</strong></a></p>
+  •   <a href="https://colab.research.google.com/github/holl-/ML4Science/blob/main/docs/Examples.ipynb"><img src="images/colab_logo_small.png" height=4></a> <a href="https://holl-.github.io/ML4Science/Examples.html"><strong>Examples</strong></a></p>
 <p>Just-in-time (JIT) compilation can drastically speed up your code as Python-related overheads are eliminated and optimizations can be performed.</p>
 
 </div>
@@ -15130,9 +15130,9 @@ body[data-format='mobile'] .jp-OutputArea-child .jp-OutputArea-output {
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython2"><pre><span></span><span class="o">%%capture</span>
-<span class="err">!</span><span class="n">pip</span> <span class="n">install</span> <span class="n">unifyml</span>
+<span class="err">!</span><span class="n">pip</span> <span class="n">install</span> <span class="n">ml4s</span>
 
-<span class="kn">from</span> <span class="nn">unifyml</span> <span class="kn">import</span> <span class="n">math</span>
+<span class="kn">from</span> <span class="nn">ml4s</span> <span class="kn">import</span> <span class="n">math</span>
 
 <span class="n">math</span><span class="o">.</span><span class="n">use</span><span class="p">(</span><span class="s1">&#39;jax&#39;</span><span class="p">)</span>
 </pre></div>
@@ -15149,7 +15149,7 @@ body[data-format='mobile'] .jp-OutputArea-child .jp-OutputArea-output {
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<p>In UnifyML, you can JIT-compile a function using the <a href="unifyml/math#unifyml.math.jit_compile"><code>math.jit_compile()</code></a> decorator.</p>
+<p>In ML4Science, you can JIT-compile a function using the <a href="ml4s/math#ml4s.math.jit_compile"><code>math.jit_compile()</code></a> decorator.</p>
 
 </div>
 </div>
@@ -15183,7 +15183,7 @@ body[data-format='mobile'] .jp-OutputArea-child .jp-OutputArea-output {
 <p>The first time the function is called with new arguments, it is traced, i.e. all tensor operations are recorded.
 Then, the passed arguments have concrete shapes but no concrete values.
 Consequently, traced tensors cannot be used in control flow, such as <code>if</code> or loop conditions.
-Replace <code>if</code> statements by <a href="unifyml/math#unifyml.math.where"><code>math.where()</code></a>.</p>
+Replace <code>if</code> statements by <a href="ml4s/math#ml4s.math.where"><code>math.where()</code></a>.</p>
 <p>Depending on the used backend, the function may be called multiple times during tracing.</p>
 
 </div>
@@ -15507,7 +15507,7 @@ z = <span class="ansi-yellow-intense-fg">float64</span> <span class="ansi-blue-i
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
 <p>The function always needs to be re-traced if an auxiliary argument changes in any way.</p>
-<p>You can check whether a function would have to be traced using [`math.trace_check()](unifyml/math#unifyml.math.trace_check).</p>
+<p>You can check whether a function would have to be traced using [`math.trace_check()](ml4s/math#ml4s.math.trace_check).</p>
 
 </div>
 </div>
@@ -15597,11 +15597,11 @@ z = <span class="ansi-yellow-intense-fg">float64</span> <span class="ansi-blue-i
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<h2 id="Further-Reading">Further Reading<a class="anchor-link" href="#Further-Reading">&#182;</a></h2><p><a href="https://github.com/holl-/UnifyML">🌐 <strong>UnifyML</strong></a>
-  •   <a href="https://holl-.github.io/UnifyML/unifyml/">📖 <strong>Documentation</strong></a>
-  •   <a href="https://holl-.github.io/UnifyML/unifyml">🔗 <strong>API</strong></a>
+<h2 id="Further-Reading">Further Reading<a class="anchor-link" href="#Further-Reading">&#182;</a></h2><p><a href="https://github.com/holl-/ML4Science">🌐 <strong>ML4Science</strong></a>
+  •   <a href="https://holl-.github.io/ML4Science/ml4s/">📖 <strong>Documentation</strong></a>
+  •   <a href="https://holl-.github.io/ML4Science/ml4s">🔗 <strong>API</strong></a>
   •   <a href=""><strong>▶ Videos</strong></a>
-  •   <a href="https://colab.research.google.com/github/holl-/UnifyML/blob/main/docs/Examples.ipynb"><img src="images/colab_logo_small.png" height=4></a> <a href="https://holl-.github.io/UnifyML/Examples.html"><strong>Examples</strong></a></p>
+  •   <a href="https://colab.research.google.com/github/holl-/ML4Science/blob/main/docs/Examples.ipynb"><img src="images/colab_logo_small.png" height=4></a> <a href="https://holl-.github.io/ML4Science/Examples.html"><strong>Examples</strong></a></p>
 
 </div>
 </div>
