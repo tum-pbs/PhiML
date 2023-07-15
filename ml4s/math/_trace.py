@@ -47,25 +47,6 @@ class ShiftLinTracer(Tensor):
     def __repr__(self):
         return f"Linear tracer {self._shape}"
 
-    def native(self, order: Union[str, tuple, list, Shape] = None):
-        """
-        Evaluates the value of the linear operation applied to the original source tensor.
-
-        This is done by building a sparse matrix for all dimensions that are affected by the linear operation.
-        These dimensions are detected automatically during the creation of the linear operation.
-        All other dimensions (independent dimensions) are combined into a single batch dimensions for the sparse matrix multiplication.
-
-        Args:
-          order: str or tuple or list:  (Default value = None)
-
-        Returns:
-
-        """
-        order = parse_dim_order(order, check_rank=self.rank)
-        result = self.apply(self.source)
-        result_order = order if order is not None else self._shape.names
-        return result.native(result_order)
-
     @property
     def dependent_dims(self) -> Set[str]:
         """
