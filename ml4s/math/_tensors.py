@@ -1545,10 +1545,15 @@ def tensor(data,
     elif isinstance(data, Shape):
         if shape is None:
             shape = channel('dims')
+            shape = shape.with_size(data.names)
+            data = data.sizes
+        elif not shape:
+            assert data.rank == 1, f"When wrapping a Shape as a scalar tensor, it must be a rank-1 shape but got {data}"
+            data = data.size
         else:
             assert shape.rank == 1, "Can only convert 1D shapes to Tensors"
-        shape = shape.with_size(data.names)
-        data = data.sizes
+            shape = shape.with_size(data.names)
+            data = data.sizes
     elif isinstance(data, str) or data is None:
         return layout(data)
     elif isinstance(data, (numbers.Number, bool)):
