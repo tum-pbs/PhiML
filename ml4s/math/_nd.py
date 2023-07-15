@@ -389,14 +389,14 @@ def shift(x: Tensor,
         assert padding is not None
     offset_tensors = []
     for offset in offsets:
-        components = []
+        components = {}
         for dimension in dims:
             if padding:
                 slices = {dim: slice(pad_lower + offset, (-pad_upper + offset) or None) if dim == dimension else slice(pad_lower, -pad_upper or None) for dim in dims}
             else:
                 slices = {dim: slice(pad_lower + offset, (-pad_upper + offset) or None) if dim == dimension else slice(None, None) for dim in dims}
-            components.append(x[slices])
-        offset_tensors.append(stack(components, stack_dim) if stack_dim is not None else components[0])
+            components[dimension] = x[slices]
+        offset_tensors.append(stack(components, stack_dim) if stack_dim is not None else next(iter(components.values())))
     return offset_tensors
 
 
