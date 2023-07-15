@@ -14319,15 +14319,21 @@ When backed by an editable native tensor, e.g. a <code>numpy.ndarray</code>, do 
             else:
                 return self._op2(inputs[0], lambda x, y: y ** x, lambda x, y: choose_backend(x, y).pow(y, x), &#39;r_power&#39;, &#39;**&#39;)
         if ufunc.__name__ == &#39;equal&#39;:
-            if _EQUALITY_BY_REF:
+            if _EQUALITY_REDUCE[-1] == &#39;ref&#39;:
                 return wrap(inputs[0] is inputs[1])
+            elif _EQUALITY_REDUCE[-1] == &#39;value&#39;:
+                from ._ops import close
+                return wrap(close(inputs[0], inputs[1], rel_tolerance=0, abs_tolerance=0))
             if inputs[0] is self:
                 return self._op2(inputs[1], lambda x, y: x == y, lambda x, y: choose_backend(x, y).equal(x, y), &#39;equal&#39;, &#39;==&#39;)
             else:
                 return self._op2(inputs[0], lambda x, y: y == x, lambda x, y: choose_backend(x, y).equal(y, x), &#39;r_equal&#39;, &#39;==&#39;)
         if ufunc.__name__ == &#39;not_equal&#39;:
-            if _EQUALITY_BY_REF:
+            if _EQUALITY_REDUCE[-1] == &#39;ref&#39;:
                 return wrap(inputs[0] is not inputs[1])
+            elif _EQUALITY_REDUCE[-1] == &#39;value&#39;:
+                from ._ops import close
+                return wrap(not close(inputs[0], inputs[1], rel_tolerance=0, abs_tolerance=0))
             if inputs[0] is self:
                 return self._op2(inputs[1], lambda x, y: x != y, lambda x, y: choose_backend(x, y).not_equal(x, y), &#39;equal&#39;, &#39;!=&#39;)
             else:
@@ -14824,15 +14830,21 @@ When backed by an editable native tensor, e.g. a <code>numpy.ndarray</code>, do 
         return self._op2(other, lambda x, y: y % x, lambda x, y: choose_backend(x, y).mod(y, x), &#39;rmod&#39;, &#39;%&#39;)
 
     def __eq__(self, other):
-        if _EQUALITY_BY_REF:
+        if _EQUALITY_REDUCE[-1] == &#39;ref&#39;:
             return wrap(self is other)
+        elif _EQUALITY_REDUCE[-1] == &#39;value&#39;:
+            from ._ops import close
+            return wrap(close(self, other, rel_tolerance=0, abs_tolerance=0))
         if other is None:
             other = float(&#39;nan&#39;)
         return self._op2(other, lambda x, y: x == y, lambda x, y: choose_backend(x, y).equal(x, y), &#39;eq&#39;, &#39;==&#39;)
 
     def __ne__(self, other):
-        if _EQUALITY_BY_REF:
+        if _EQUALITY_REDUCE[-1] == &#39;ref&#39;:
             return wrap(self is not other)
+        elif _EQUALITY_REDUCE[-1] == &#39;value&#39;:
+            from ._ops import close
+            return wrap(not close(self, other, rel_tolerance=0, abs_tolerance=0))
         if other is None:
             other = float(&#39;nan&#39;)
         return self._op2(other, lambda x, y: x != y, lambda x, y: choose_backend(x, y).not_equal(x, y), &#39;ne&#39;, &#39;!=&#39;)
