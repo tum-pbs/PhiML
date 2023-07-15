@@ -1723,7 +1723,8 @@ def compatible_tensor(data, compat_shape: Shape = None, compat_natives=(), conve
         if compat_shape.channel_rank > 1 and len(shape) == 1 and 'vector' in compat_shape.channel:
             return wrap(data, compat_shape['vector'].without_sizes())
         elif len(shape) == compat_shape.rank:
-            warnings.warn(f"Combining a ml4s.math.Tensor with a {data_type} of same shape is not invariant under shape permutations. Please convert the {data_type} to a ml4s.math.Tensor first. Shapes: {shape} and {compat_shape}", SyntaxWarning, stacklevel=5)
+            if len(shape) > 1:
+                warnings.warn(f"Combining a ml4s.math.Tensor with a {data_type} of same shape is not invariant under shape permutations. Please convert the {data_type} to a ml4s.math.Tensor first. Shapes: {shape} and {compat_shape}", SyntaxWarning, stacklevel=5)
             return NativeTensor(data, compat_shape.with_sizes(shape))
         else:
             raise ValueError(f"Cannot combine tensor of shape {shape} with tensor of shape {compat_shape}")

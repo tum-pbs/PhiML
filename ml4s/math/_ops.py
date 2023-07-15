@@ -698,9 +698,11 @@ def meshgrid(dims: Union[Callable, Shape] = spatial, stack_dim=channel('vector')
     return stack_tensors(channels, stack_dim)
 
 
-def linspace(start: Union[float, Tensor], stop: Union[float, Tensor], dim: Shape) -> Tensor:
+def linspace(start: Union[float, Tensor, tuple, list], stop: Union[float, Tensor, tuple, list], dim: Shape) -> Tensor:
     """
-    Returns `number` evenly spaced numbers between `start` and `stop`.
+    Returns `number` evenly spaced numbers between `start` and `stop` along `dim`.
+
+    If `dim` contains multiple dimensions, evenly spaces values along each dimension, then stacks the result along a new channel dimension called `vector`.
 
     See Also:
         `arange()`, `meshgrid()`.
@@ -722,12 +724,14 @@ def linspace(start: Union[float, Tensor], stop: Union[float, Tensor], dim: Shape
         >>> math.linspace(0, (-1, 1), spatial(x=3))
         (0.000, 0.000); (-0.500, 0.500); (-1.000, 1.000) (xˢ=3, vectorᶜ=2)
     """
-    assert isinstance(dim, Shape) and dim.rank == 1, f"dim must be a single-dimension Shape but got {dim}"
+    assert isinstance(dim, Shape), f"dim must be a Shape but got {dim}"
+    start = wrap(start)
+    stop = wrap(stop)
+    if dim.rank > 1:
+        return meshgrid(dim) / (dim - 1) * (stop - start) + start
     if is_scalar(start) and is_scalar(stop):
-        if isinstance(start, Tensor):
-            start = start.native()
-        if isinstance(stop, Tensor):
-            stop = stop.native()
+        start = start.native()
+        stop = stop.native()
         native_linspace = choose_backend(start, stop, prefer_default=True).linspace(start, stop, dim.size)
         return NativeTensor(native_linspace, dim)
     else:

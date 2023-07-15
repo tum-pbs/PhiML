@@ -798,3 +798,15 @@ class TestOps(TestCase):
                 for v in [1., backend.random_uniform((), 0, 1, DType(float, 32))]:
                     math.to_device(v, 'CPU')
                     math.to_device(v, cpu)
+
+    def test_linspace(self):
+        for backend in BACKENDS:
+            with backend:
+                t = math.linspace(0, 1, instance(x=4))
+                math.assert_close([0, 1/3, 2/3, 1], t)
+                t = math.linspace(0, 1, spatial(x=4, y=3))
+                math.assert_close(math.linspace(0, 1, spatial(x=4)), t.vector['x'])
+                math.assert_close(math.linspace(0, 1, spatial(y=3)), t.vector['y'])
+                t = math.linspace((0, 1), (1, 2), spatial(x=4, y=3))
+                math.assert_close(math.linspace(0, 1, spatial(x=4)), t.vector['x'])
+                math.assert_close(math.linspace(1, 2, spatial(y=3)), t.vector['y'])
