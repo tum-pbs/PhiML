@@ -464,7 +464,7 @@ def _initialize(uniform_initializer, shapes: Tuple[Shape]) -> Tensor:
         return uniform_initializer(shape)
 
 
-def zeros(*shape: Shape, dtype=None) -> Tensor:
+def zeros(*shape: Shape, dtype: Union[DType, tuple, type] = None) -> Tensor:
     """
     Define a tensor with specified shape with value `0.0` / `0` / `False` everywhere.
     
@@ -494,7 +494,7 @@ def zeros_like(obj: Union[Tensor, PhiTreeNode]) -> Union[Tensor, PhiTreeNode]:
     return assemble_tree(nest, zeros_)
 
 
-def ones(*shape: Shape, dtype=None) -> Tensor:
+def ones(*shape: Shape, dtype: Union[DType, tuple, type] = None) -> Tensor:
     """
     Define a tensor with specified shape with value `1.0`/ `1` / `True` everywhere.
     
@@ -518,7 +518,7 @@ def ones_like(value: Tensor) -> Tensor:
     return zeros_like(value) + 1
 
 
-def random_normal(*shape: Shape, dtype=None) -> Tensor:
+def random_normal(*shape: Shape, dtype: Union[DType, tuple, type] = None) -> Tensor:
     """
     Creates a `Tensor` with the specified shape, filled with random values sampled from a normal / Gaussian distribution.
 
@@ -547,7 +547,7 @@ def random_normal(*shape: Shape, dtype=None) -> Tensor:
 def random_uniform(*shape: Shape,
                    low: Union[Tensor, float] = 0,
                    high: Union[Tensor, float] = 1,
-                   dtype: Union[DType, tuple] = None) -> Tensor:
+                   dtype: Union[DType, tuple, type] = None) -> Tensor:
     """
     Creates a `Tensor` with the specified shape, filled with random values sampled from a uniform distribution.
 
