@@ -130,15 +130,21 @@ class Tensor:
             else:
                 return self._op2(inputs[0], lambda x, y: y ** x, lambda x, y: choose_backend(x, y).pow(y, x), 'r_power', '**')
         if ufunc.__name__ == 'equal':
-            if _EQUALITY_BY_REF:
+            if _EQUALITY_REDUCE[-1] == 'ref':
                 return wrap(inputs[0] is inputs[1])
+            elif _EQUALITY_REDUCE[-1] == 'value':
+                from ._ops import close
+                return wrap(close(inputs[0], inputs[1], rel_tolerance=0, abs_tolerance=0))
             if inputs[0] is self:
                 return self._op2(inputs[1], lambda x, y: x == y, lambda x, y: choose_backend(x, y).equal(x, y), 'equal', '==')
             else:
                 return self._op2(inputs[0], lambda x, y: y == x, lambda x, y: choose_backend(x, y).equal(y, x), 'r_equal', '==')
         if ufunc.__name__ == 'not_equal':
-            if _EQUALITY_BY_REF:
+            if _EQUALITY_REDUCE[-1] == 'ref':
                 return wrap(inputs[0] is not inputs[1])
+            elif _EQUALITY_REDUCE[-1] == 'value':
+                from ._ops import close
+                return wrap(not close(inputs[0], inputs[1], rel_tolerance=0, abs_tolerance=0))
             if inputs[0] is self:
                 return self._op2(inputs[1], lambda x, y: x != y, lambda x, y: choose_backend(x, y).not_equal(x, y), 'equal', '!=')
             else:
@@ -635,15 +641,21 @@ class Tensor:
         return self._op2(other, lambda x, y: y % x, lambda x, y: choose_backend(x, y).mod(y, x), 'rmod', '%')
 
     def __eq__(self, other):
-        if _EQUALITY_BY_REF:
+        if _EQUALITY_REDUCE[-1] == 'ref':
             return wrap(self is other)
+        elif _EQUALITY_REDUCE[-1] == 'value':
+            from ._ops import close
+            return wrap(close(self, other, rel_tolerance=0, abs_tolerance=0))
         if other is None:
             other = float('nan')
         return self._op2(other, lambda x, y: x == y, lambda x, y: choose_backend(x, y).equal(x, y), 'eq', '==')
 
     def __ne__(self, other):
-        if _EQUALITY_BY_REF:
+        if _EQUALITY_REDUCE[-1] == 'ref':
             return wrap(self is not other)
+        elif _EQUALITY_REDUCE[-1] == 'value':
+            from ._ops import close
+            return wrap(not close(self, other, rel_tolerance=0, abs_tolerance=0))
         if other is None:
             other = float('nan')
         return self._op2(other, lambda x, y: x != y, lambda x, y: choose_backend(x, y).not_equal(x, y), 'ne', '!=')
@@ -872,7 +884,7 @@ class TensorDim(BoundDim):
         return prod(self.tensor, self.name)
 
 
-_EQUALITY_BY_REF = []
+_EQUALITY_REDUCE = [None]
 
 
 @contextmanager
@@ -880,11 +892,23 @@ def equality_by_ref():
     """
     Enables Tensor.__bool__
     """
-    _EQUALITY_BY_REF.append(True)
+    _EQUALITY_REDUCE.append('ref')
     try:
         yield None
     finally:
-        _EQUALITY_BY_REF.pop(-1)
+        assert _EQUALITY_REDUCE.pop(-1) == 'ref'
+
+
+@contextmanager
+def equality_by_value():
+    """
+    Enables Tensor.__bool__
+    """
+    _EQUALITY_REDUCE.append('value')
+    try:
+        yield None
+    finally:
+        assert _EQUALITY_REDUCE.pop(-1) == 'value'
 
 
 class Layout(Tensor):
@@ -1044,13 +1068,13 @@ class Layout(Tensor):
             return iter(self._as_list())
 
     def __eq__(self, other):
-        if _EQUALITY_BY_REF:
-            return wrap(self is other)
+        if _EQUALITY_REDUCE[-1]:
+            return Tensor.__eq__(self, other)
         return self._op2(other, lambda x, y: x == y, lambda x, y: x == y, 'eq', '==')
 
     def __ne__(self, other):
-        if _EQUALITY_BY_REF:
-            return wrap(self is not other)
+        if _EQUALITY_REDUCE[-1]:
+            return Tensor.__ne__(self, other)
         return self._op2(other, lambda x, y: x != y, lambda x, y: x != y, 'ne', '!=')
     
     def _assert_close(self, other: Tensor, rel_tolerance: float, abs_tolerance: float, msg: str, verbose: bool):
