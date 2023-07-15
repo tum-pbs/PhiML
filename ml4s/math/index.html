@@ -4350,10 +4350,11 @@ Calling <code><a title="ml4s.math.Tensor.native" href="#ml4s.math.Tensor.native"
 </details>
 </dd>
 <dt id="ml4s.math.linspace"><code class="name flex">
-<span>def <span class="ident">linspace</span></span>(<span>start: Union[float, ml4s.math._tensors.Tensor], stop: Union[float, ml4s.math._tensors.Tensor], dim: ml4s.math._shape.Shape) ‑> ml4s.math._tensors.Tensor</span>
+<span>def <span class="ident">linspace</span></span>(<span>start: Union[float, ml4s.math._tensors.Tensor, tuple, list], stop: Union[float, ml4s.math._tensors.Tensor, tuple, list], dim: ml4s.math._shape.Shape) ‑> ml4s.math._tensors.Tensor</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Returns <code>number</code> evenly spaced numbers between <code>start</code> and <code>stop</code>.</p>
+<div class="desc"><p>Returns <code>number</code> evenly spaced numbers between <code>start</code> and <code>stop</code> along <code>dim</code>.</p>
+<p>If <code>dim</code> contains multiple dimensions, evenly spaces values along each dimension, then stacks the result along a new channel dimension called <code>vector</code>.</p>
 <p>See Also:
 <code>arange()</code>, <code><a title="ml4s.math.meshgrid" href="#ml4s.math.meshgrid">meshgrid()</a></code>.</p>
 <h2 id="args">Args</h2>
@@ -4380,9 +4381,11 @@ The values will be laid out along <code>dim</code>.</dd>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def linspace(start: Union[float, Tensor], stop: Union[float, Tensor], dim: Shape) -&gt; Tensor:
+<pre><code class="python">def linspace(start: Union[float, Tensor, tuple, list], stop: Union[float, Tensor, tuple, list], dim: Shape) -&gt; Tensor:
     &#34;&#34;&#34;
-    Returns `number` evenly spaced numbers between `start` and `stop`.
+    Returns `number` evenly spaced numbers between `start` and `stop` along `dim`.
+
+    If `dim` contains multiple dimensions, evenly spaces values along each dimension, then stacks the result along a new channel dimension called `vector`.
 
     See Also:
         `arange()`, `meshgrid()`.
@@ -4404,12 +4407,14 @@ The values will be laid out along <code>dim</code>.</dd>
         &gt;&gt;&gt; math.linspace(0, (-1, 1), spatial(x=3))
         (0.000, 0.000); (-0.500, 0.500); (-1.000, 1.000) (xˢ=3, vectorᶜ=2)
     &#34;&#34;&#34;
-    assert isinstance(dim, Shape) and dim.rank == 1, f&#34;dim must be a single-dimension Shape but got {dim}&#34;
+    assert isinstance(dim, Shape), f&#34;dim must be a Shape but got {dim}&#34;
+    start = wrap(start)
+    stop = wrap(stop)
+    if dim.rank &gt; 1:
+        return meshgrid(dim) / (dim - 1) * (stop - start) + start
     if is_scalar(start) and is_scalar(stop):
-        if isinstance(start, Tensor):
-            start = start.native()
-        if isinstance(stop, Tensor):
-            stop = stop.native()
+        start = start.native()
+        stop = stop.native()
         native_linspace = choose_backend(start, stop, prefer_default=True).linspace(start, stop, dim.size)
         return NativeTensor(native_linspace, dim)
     else:
@@ -6528,7 +6533,7 @@ math.jacobian(f)(math.ones(x=6))
 </details>
 </dd>
 <dt id="ml4s.math.quantile"><code class="name flex">
-<span>def <span class="ident">quantile</span></span>(<span>value: ml4s.math._tensors.Tensor, quantiles: Union[float, tuple, list, ml4s.math._tensors.Tensor], dim: Union[str, tuple, list, set, ml4s.math._shape.Shape, Callable] = &lt;function non_batch&gt;)</span>
+<span>def <span class="ident">quantile</span></span>(<span>value: ml4s.math._tensors.Tensor, quantiles: Union[float, ml4s.math._tensors.Tensor, tuple, list], dim: Union[str, tuple, list, set, ml4s.math._shape.Shape, Callable] = &lt;function non_batch&gt;)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Compute the q-th quantile of <code>value</code> along <code>dim</code> for each q in <code>quantiles</code>.</p>
@@ -7764,13 +7769,13 @@ If <code>obj</code> is a <code><a title="ml4s.math.Shape" href="#ml4s.math.Shape
         assert padding is not None
     offset_tensors = []
     for offset in offsets:
-        components = []
+        components = {}
         for dimension in dims:
             if padding:
                 slices = {dim: slice(pad_lower + offset, (-pad_upper + offset) or None) if dim == dimension else slice(pad_lower, -pad_upper or None) for dim in dims}
             else:
                 slices = {dim: slice(pad_lower + offset, (-pad_upper + offset) or None) if dim == dimension else slice(None, None) for dim in dims}
-            components.append(x[slices])
+            components[dimension] = x[slices]
         offset_tensors.append(stack(components, stack_dim) if stack_dim is not None else components[0])
     return offset_tensors</code></pre>
 </details>
