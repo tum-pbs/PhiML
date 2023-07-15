@@ -5903,7 +5903,7 @@ If a dimension of the tensor is not listed in <code>order</code>, a <code>ValueE
 </details>
 </dd>
 <dt id="ml4s.math.ones"><code class="name flex">
-<span>def <span class="ident">ones</span></span>(<span>*shape: ml4s.math._shape.Shape, dtype=None) ‑> ml4s.math._tensors.Tensor</span>
+<span>def <span class="ident">ones</span></span>(<span>*shape: ml4s.math._shape.Shape, dtype: Union[ml4s.backend._dtype.DType, tuple, type] = None) ‑> ml4s.math._tensors.Tensor</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Define a tensor with specified shape with value <code>1.0</code>/ <code>1</code> / <code>True</code> everywhere.</p>
@@ -5923,7 +5923,7 @@ If a dimension of the tensor is not listed in <code>order</code>, a <code>ValueE
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def ones(*shape: Shape, dtype=None) -&gt; Tensor:
+<pre><code class="python">def ones(*shape: Shape, dtype: Union[DType, tuple, type] = None) -&gt; Tensor:
     &#34;&#34;&#34;
     Define a tensor with specified shape with value `1.0`/ `1` / `True` everywhere.
     
@@ -6604,7 +6604,7 @@ Must be of type <code>float</code>, <code>tuple</code>, <code>list</code> or <co
 </details>
 </dd>
 <dt id="ml4s.math.random_normal"><code class="name flex">
-<span>def <span class="ident">random_normal</span></span>(<span>*shape: ml4s.math._shape.Shape, dtype=None) ‑> ml4s.math._tensors.Tensor</span>
+<span>def <span class="ident">random_normal</span></span>(<span>*shape: ml4s.math._shape.Shape, dtype: Union[ml4s.backend._dtype.DType, tuple, type] = None) ‑> ml4s.math._tensors.Tensor</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Creates a <code><a title="ml4s.math.Tensor" href="#ml4s.math.Tensor">Tensor</a></code> with the specified shape, filled with random values sampled from a normal / Gaussian distribution.</p>
@@ -6628,7 +6628,7 @@ Must be of type <code>float</code>, <code>tuple</code>, <code>list</code> or <co
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def random_normal(*shape: Shape, dtype=None) -&gt; Tensor:
+<pre><code class="python">def random_normal(*shape: Shape, dtype: Union[DType, tuple, type] = None) -&gt; Tensor:
     &#34;&#34;&#34;
     Creates a `Tensor` with the specified shape, filled with random values sampled from a normal / Gaussian distribution.
 
@@ -6655,7 +6655,7 @@ Must be of type <code>float</code>, <code>tuple</code>, <code>list</code> or <co
 </details>
 </dd>
 <dt id="ml4s.math.random_uniform"><code class="name flex">
-<span>def <span class="ident">random_uniform</span></span>(<span>*shape: ml4s.math._shape.Shape, low: Union[float, ml4s.math._tensors.Tensor] = 0, high: Union[float, ml4s.math._tensors.Tensor] = 1, dtype: Union[ml4s.backend._dtype.DType, tuple] = None) ‑> ml4s.math._tensors.Tensor</span>
+<span>def <span class="ident">random_uniform</span></span>(<span>*shape: ml4s.math._shape.Shape, low: Union[float, ml4s.math._tensors.Tensor] = 0, high: Union[float, ml4s.math._tensors.Tensor] = 1, dtype: Union[ml4s.backend._dtype.DType, tuple, type] = None) ‑> ml4s.math._tensors.Tensor</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Creates a <code><a title="ml4s.math.Tensor" href="#ml4s.math.Tensor">Tensor</a></code> with the specified shape, filled with random values sampled from a uniform distribution.</p>
@@ -6681,7 +6681,7 @@ If not specified, a <code>float</code> tensor with the current default precision
 <pre><code class="python">def random_uniform(*shape: Shape,
                    low: Union[Tensor, float] = 0,
                    high: Union[Tensor, float] = 1,
-                   dtype: Union[DType, tuple] = None) -&gt; Tensor:
+                   dtype: Union[DType, tuple, type] = None) -&gt; Tensor:
     &#34;&#34;&#34;
     Creates a `Tensor` with the specified shape, filled with random values sampled from a uniform distribution.
 
@@ -10046,7 +10046,7 @@ To get the indices of True / non-zero values, use :func:<code><a title="ml4s.mat
 </details>
 </dd>
 <dt id="ml4s.math.zeros"><code class="name flex">
-<span>def <span class="ident">zeros</span></span>(<span>*shape: ml4s.math._shape.Shape, dtype=None) ‑> ml4s.math._tensors.Tensor</span>
+<span>def <span class="ident">zeros</span></span>(<span>*shape: ml4s.math._shape.Shape, dtype: Union[ml4s.backend._dtype.DType, tuple, type] = None) ‑> ml4s.math._tensors.Tensor</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Define a tensor with specified shape with value <code>0.0</code> / <code>0</code> / <code>False</code> everywhere.</p>
@@ -10066,7 +10066,7 @@ To get the indices of True / non-zero values, use :func:<code><a title="ml4s.mat
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def zeros(*shape: Shape, dtype=None) -&gt; Tensor:
+<pre><code class="python">def zeros(*shape: Shape, dtype: Union[DType, tuple, type] = None) -&gt; Tensor:
     &#34;&#34;&#34;
     Define a tensor with specified shape with value `0.0` / `0` / `False` everywhere.
     
