@@ -8467,7 +8467,7 @@ This value is added to the internal padding. For non-trivial extrapolations, thi
         `Tensor`
     &#34;&#34;&#34;
     grid = wrap(grid)
-    if stack_dim is not None and stack_dim in grid.shape:
+    if stack_dim and stack_dim in grid.shape:
         assert grid.shape.only(stack_dim).size == 1, f&#34;spatial_gradient() cannot list components along {stack_dim.name} because that dimension already exists on grid {grid}&#34;
         grid = grid[{stack_dim.name: 0}]
     dims = grid.shape.only(dims)
@@ -8583,6 +8583,9 @@ Adding batch dimensions must always work without keyword arguments.</dd>
     &#34;&#34;&#34;
     assert len(values) &gt; 0, f&#34;stack() got empty sequence {values}&#34;
     assert isinstance(dim, Shape)
+    if not dim:
+        assert len(values) == 1, f&#34;Only one element can be passed as `values` if no dim is passed but got {values}&#34;
+        return next(iter(values.values())) if isinstance(values, dict) else values[0]
     values_ = tuple(values.values()) if isinstance(values, dict) else values
     if not expand_values:
         for v in values_[1:]:
@@ -9115,10 +9118,15 @@ If False, wraps the data in a <code><a title="ml4s.math.Tensor" href="#ml4s.math
     elif isinstance(data, Shape):
         if shape is None:
             shape = channel(&#39;dims&#39;)
+            shape = shape.with_size(data.names)
+            data = data.sizes
+        elif not shape:
+            assert data.rank == 1, f&#34;When wrapping a Shape as a scalar tensor, it must be a rank-1 shape but got {data}&#34;
+            data = data.size
         else:
             assert shape.rank == 1, &#34;Can only convert 1D shapes to Tensors&#34;
-        shape = shape.with_size(data.names)
-        data = data.sizes
+            shape = shape.with_size(data.names)
+            data = data.sizes
     elif isinstance(data, str) or data is None:
         return layout(data)
     elif isinstance(data, (numbers.Number, bool)):
