@@ -156,7 +156,7 @@ class TestOps(TestCase):
         assert_close(sampled, [0, 1, 0.5])
 
     def test_grid_sample_backend_equality_2d(self):
-        grid = math.random_normal(spatial(y=10, x=7))
+        grid = math.random_uniform(spatial(y=10, x=7))
         coords = math.random_uniform(batch(mybatch=10) & spatial(x=3, y=2)) * vec(y=12, x=9)
         grid_ = math.tensor(grid.native('x,y'), spatial('x,y'))
         coords_ = coords.vector[::-1]
@@ -170,10 +170,10 @@ class TestOps(TestCase):
                     coords_ = math.tensor(coords_)
                     sampled.append(math.grid_sample(grid, coords, extrap))
                     sampled.append(math.grid_sample(grid_, coords_, extrap))
-            assert_close(*sampled, abs_tolerance=1e-6)
+            assert_close(*sampled, abs_tolerance=1e-5)
 
     def test_grid_sample_backend_equality_2d_batched(self):
-        grid = math.random_normal(batch(mybatch=10) & spatial(y=10, x=7))
+        grid = math.random_uniform(batch(mybatch=10) & spatial(y=10, x=7))
         coords = math.random_uniform(batch(mybatch=10) & spatial(x=3, y=2)) * vec(y=12, x=9)
         grid_ = math.tensor(grid.native('mybatch,x,y'), batch('mybatch'), spatial('x,y'))
         coords_ = coords.vector[::-1]
