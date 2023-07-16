@@ -826,7 +826,7 @@ def concat_tensor(values: Union[tuple, list], dim: str) -> Tensor:
     return result
 
 
-def pad(value: Tensor, widths: Union[dict, tuple], mode: Union['e_.Extrapolation', Tensor, Number] = 0, **kwargs) -> Tensor:
+def pad(value: Tensor, widths: Union[dict, tuple], mode: Union['e_.Extrapolation', Tensor, Number, str] = 0, **kwargs) -> Tensor:
     """
     Pads a tensor along the specified dimensions, determining the added values using the given extrapolation.
     Unlike `Extrapolation.pad()`, this function can handle negative widths which slice off outer values.
@@ -835,8 +835,8 @@ def pad(value: Tensor, widths: Union[dict, tuple], mode: Union['e_.Extrapolation
         value: `Tensor` to be padded
         widths: `dict` mapping dimension name (`str`) to `(lower, upper)`
             where `lower` and `upper` are `int` that can be positive (pad), negative (slice) or zero (pass).
-        mode: `Extrapolation` used to determine values added from positive `widths`.
-            Assumes constant extrapolation if given a number or `Tensor` instead.
+        mode: Padding mode used to determine values added from positive `widths`.
+            Must be one of the following: `Extrapolation`, `Tensor` or number for constant extrapolation, name of extrapolation as `str`.
         kwargs: Additional padding arguments.
             These are ignored by the standard extrapolations defined in `ml4s.math.extrapolation` but can be used to pass additional contextual information to custom extrapolations.
 
@@ -858,7 +858,7 @@ def pad(value: Tensor, widths: Union[dict, tuple], mode: Union['e_.Extrapolation
             assert len(widths) == non_batch(value), f"Cannot pad tensor with non-batch dims {non_batch(value)} by widths {widths}. Sizes must match."
             warnings.warn("Padding by sequence of (lower, upper) is not recommended. Please use a dict instead.", SyntaxWarning, stacklevel=2)
             widths = {dim: w for dim, w in zip(non_batch(value).names, widths)}
-    mode = mode if isinstance(mode, e_.Extrapolation) else e_.ConstantExtrapolation(mode)
+    mode = e_.as_extrapolation(mode)
     has_negative_widths = any(w0 < 0 or w1 < 0 for w0, w1 in widths.values())
     has_positive_widths = any(w0 > 0 or w1 > 0 for w0, w1 in widths.values())
     slices = None

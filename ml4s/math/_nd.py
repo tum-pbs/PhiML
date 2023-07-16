@@ -358,17 +358,24 @@ def abs_square(complex_values: Tensor) -> Tensor:
 def shift(x: Tensor,
           offsets: tuple,
           dims: DimFilter = math.spatial,
-          padding: Union[Extrapolation, Tensor, float, None] = extrapolation.BOUNDARY,
+          padding: Union[Extrapolation, float, Tensor, str, None] = extrapolation.BOUNDARY,
           stack_dim: Optional[Shape] = channel('shift'),
           extend_bounds=0) -> list:
     """
-    shift Tensor by a fixed offset and abiding by extrapolation
+    Similar to `numpy.roll()` but with major differences:
+
+    * Values shifted in from the boundary are defined by `padding`.
+    * Positive offsets represent negative shifts.
+    * Support for multi-dimensional shifts
+
+    Shift the tensor `x` by a fixed offset and abiding by extrapolation
 
     Args:
         x: Input data
         offsets: Shift size
         dims: Dimensions along which to shift, defaults to None
-        padding: padding to be performed at the boundary, defaults to extrapolation.BOUNDARY
+        padding: Padding to be performed at the boundary.
+            Must be one of the following: `Extrapolation`, `Tensor` or number for constant extrapolation, name of extrapolation as `str`.
         stack_dim: dimensions to be stacked, defaults to 'shift'
 
     Returns:
@@ -476,7 +483,7 @@ def finite_fill(values: Tensor, dims: DimFilter = spatial, distance: int = 1, di
 def spatial_gradient(grid: Tensor,
                      dx: Union[float, Tensor] = 1,
                      difference: str = 'central',
-                     padding: Union[Extrapolation, None] = extrapolation.BOUNDARY,
+                     padding: Union[Extrapolation, float, Tensor, str] = extrapolation.BOUNDARY,
                      dims: DimFilter = spatial,
                      stack_dim: Union[Shape, None] = channel('gradient'),
                      pad=0) -> Tensor:
@@ -490,7 +497,8 @@ def spatial_gradient(grid: Tensor,
         dx: Physical distance between grid points, `float` or `Tensor`.
             When passing a vector-valued `Tensor`, the dx values should be listed along `stack_dim`, matching `dims`.
         difference: type of difference, one of ('forward', 'backward', 'central') (default 'forward')
-        padding: tensor padding mode
+        padding: Padding mode.
+            Must be one of the following: `Extrapolation`, `Tensor` or number for constant extrapolation, name of extrapolation as `str`.
         stack_dim: name of the new vector dimension listing the spatial_gradient w.r.t. the various axes
         pad: How many cells to extend the result compared to `grid`.
             This value is added to the internal padding. For non-trivial extrapolations, this gives the correct result while manual padding before or after this operation would not respect the boundary locations.
@@ -525,7 +533,7 @@ def spatial_gradient(grid: Tensor,
 
 def laplace(x: Tensor,
             dx: Union[Tensor, float] = 1,
-            padding: Union[Extrapolation, float, Tensor] = extrapolation.BOUNDARY,
+            padding: Union[Extrapolation, float, Tensor, str] = extrapolation.BOUNDARY,
             dims: DimFilter = spatial,
             weights: Tensor = None):
     """
@@ -535,7 +543,8 @@ def laplace(x: Tensor,
     Args:
         x: n-dimensional field of shape (batch, spacial dimensions..., components)
         dx: scalar or 1d tensor
-        padding: extrapolation
+        padding: Padding mode.
+            Must be one of the following: `Extrapolation`, `Tensor` or number for constant extrapolation, name of extrapolation as `str`.
         dims: The second derivative along these dimensions is summed over
         weights: (Optional) Multiply the axis terms by these factors before summation.
             Must be a Tensor with a single channel dimension that lists all laplace dims by name.
