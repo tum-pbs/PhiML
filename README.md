@@ -9,23 +9,9 @@
 [![Code Coverage](https://codecov.io/gh/holl-/ML4Science/branch/develop/graph/badge.svg)](https://codecov.io/gh/holl-/ML4Science/branch/develop/)
 [![Google Collab Book](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/holl-/ML4Science/blob/main/docs/Introduction.ipynb)
 
-ML4Science is a math and neural network library built on top of either [Jax](https://github.com/google/jax#installation), [PyTorch](https://pytorch.org/), [TensorFlow](https://www.tensorflow.org/install) or [NumPy](https://numpy.org/), depending on your preferences.
-It lets you write complex code that [runs on any of these backends](https://holl-.github.io/ML4Science/Introduction.html).
-
-```python
-from jax import numpy as jnp
-import torch
-import tensorflow as tf
-import numpy as np
-
-from ml4s import math
-
-math.sin(1.)
-math.sin(jnp.asarray([1.]))
-math.sin(torch.tensor([1.]))
-math.sin(tf.constant([1.]))
-math.sin(np.asarray([1.]))
-```
+ML4Science is a math and neural network library designed for science applications.
+It enables you to quickly evaluate many network architectures on your data sets, perform linear and non-linear optimization, and write differentiable simulations.
+ML4Science is compatible with [Jax](https://github.com/google/jax#installation), [PyTorch](https://pytorch.org/), [TensorFlow](https://www.tensorflow.org/install) and [NumPy](https://numpy.org/) and your code can be [executed on all of these backends](https://holl-.github.io/ML4Science/Introduction.html).
 
 [📖 **Documentation**](https://holl-.github.io/ML4Science/)
 &nbsp; • &nbsp; [🔗 **API**](https://holl-.github.io/ML4Science/ml4s/)
@@ -51,6 +37,13 @@ This will check for compatible PyTorch, Jax and TensorFlow installations as well
 
 ## Why should I use ML4Science?
 
+**Unique features**
+
+* **Preconditioned (sparse) linear solves**: ML4Science can [build sparse matrices from your Python functions](https://holl-.github.io/ML4Science/Matrices.html) and run [linear solvers with preconditioners](https://holl-.github.io/ML4Science/Linear_Solves.html).
+* **n-dimensional operations**: With ML4Science, you can write code that [automatically works in 1D, 2D and 3D](https://holl-.github.io/ML4Science/N_Dimensional.html), choosing the corresponding operations based on the input dimensions.
+* **Flexible neural network architectures**: [ML4Science provides various configurable neural network architectures, from MLPs to U-Nets.](https://holl-.github.io/ML4Science/Networks.html)
+* **Non-uniform tensors**: ML4Science allows you to [stack tensors of different sizes and keeps track of the resulting shapes](https://holl-.github.io/ML4Science/Non_Uniform.html).
+
 **Compatibility**
 
 * Writing code that works with PyTorch, Jax, and TensorFlow makes it easier to share code with other people and collaborate.
@@ -65,15 +58,8 @@ This will check for compatible PyTorch, Jax and TensorFlow installations as well
 * *No more reshaping troubles*: ML4Science performs [reshaping under-the-hood.](https://holl-.github.io/ML4Science/Shapes.html)
 * *Is `neighbor_idx.at[jnp.reshape(idx, (-1,))].set(jnp.reshape(cell_idx, (-1,) + cell_idx.shape[-2:]))` correct?*: ML4Science provides a custom Tensor class that lets you write [easy-to-read, more concise, more explicit, less error-prone code](https://holl-.github.io/ML4Science/Tensors.html).
 
-**Unique features**
 
-* **n-dimensional operations**: With ML4Science, you can write code that [automatically works in 1D, 2D and 3D](https://holl-.github.io/ML4Science/N_Dimensional.html), choosing the corresponding operations based on the input dimensions.
-* **Preconditioned linear solves**: ML4Science can [build sparse matrices from your Python functions](https://holl-.github.io/ML4Science/Matrices.html) and run linear solvers [with preconditioners](https://holl-.github.io/ML4Science/Linear_Solves.html).
-* **Flexible neural network architectures**: [ML4Science provides various configurable neural network architectures, from MLPs to U-Nets.](https://holl-.github.io/ML4Science/Networks.html)
-* **Non-uniform tensors**: ML4Science allows you to [stack tensors of different sizes and keeps track of the resulting shapes](https://holl-.github.io/ML4Science/Non_Uniform.html).
-
-
-## What parts of my code can I unify?
+## What parts of my code are library-agnostic?
 
 With ML4Science, you can write a [full neural network training script](https://holl-.github.io/ML4Science/Examples.html) that can run with Jax, PyTorch and TensorFlow.
 In particular, ML4Science provides abstractions for the following functionality:
