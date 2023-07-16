@@ -4192,7 +4192,7 @@ For <code><a title="ml4s.math.magic.PhiTreeNode" href="magic.html#ml4s.math.magi
 </details>
 </dd>
 <dt id="ml4s.math.laplace"><code class="name flex">
-<span>def <span class="ident">laplace</span></span>(<span>x: ml4s.math._tensors.Tensor, dx: Union[float, ml4s.math._tensors.Tensor] = 1, padding: Union[<a title="ml4s.math.extrapolation.Extrapolation" href="extrapolation.html#ml4s.math.extrapolation.Extrapolation">Extrapolation</a>, float, ml4s.math._tensors.Tensor] = zero-gradient, dims: Union[str, tuple, list, set, ml4s.math._shape.Shape, Callable] = &lt;function spatial&gt;, weights: ml4s.math._tensors.Tensor = None)</span>
+<span>def <span class="ident">laplace</span></span>(<span>x: ml4s.math._tensors.Tensor, dx: Union[float, ml4s.math._tensors.Tensor] = 1, padding: Union[<a title="ml4s.math.extrapolation.Extrapolation" href="extrapolation.html#ml4s.math.extrapolation.Extrapolation">Extrapolation</a>, float, ml4s.math._tensors.Tensor, str] = zero-gradient, dims: Union[str, tuple, list, set, ml4s.math._shape.Shape, Callable] = &lt;function spatial&gt;, weights: ml4s.math._tensors.Tensor = None)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Spatial Laplace operator as defined for scalar fields.
@@ -4204,7 +4204,8 @@ If a vector field is passed, the laplace is computed component-wise.</p>
 <dt><strong><code>dx</code></strong></dt>
 <dd>scalar or 1d tensor</dd>
 <dt><strong><code>padding</code></strong></dt>
-<dd>extrapolation</dd>
+<dd>Padding mode.
+Must be one of the following: <code>Extrapolation</code>, <code><a title="ml4s.math.Tensor" href="#ml4s.math.Tensor">Tensor</a></code> or number for constant extrapolation, name of extrapolation as <code>str</code>.</dd>
 <dt><strong><code>dims</code></strong></dt>
 <dd>The second derivative along these dimensions is summed over</dd>
 <dt><strong><code>weights</code></strong></dt>
@@ -4219,7 +4220,7 @@ Must be a Tensor with a single channel dimension that lists all laplace dims by 
 </summary>
 <pre><code class="python">def laplace(x: Tensor,
             dx: Union[Tensor, float] = 1,
-            padding: Union[Extrapolation, float, Tensor] = extrapolation.BOUNDARY,
+            padding: Union[Extrapolation, float, Tensor, str] = extrapolation.BOUNDARY,
             dims: DimFilter = spatial,
             weights: Tensor = None):
     &#34;&#34;&#34;
@@ -4229,7 +4230,8 @@ Must be a Tensor with a single channel dimension that lists all laplace dims by 
     Args:
         x: n-dimensional field of shape (batch, spacial dimensions..., components)
         dx: scalar or 1d tensor
-        padding: extrapolation
+        padding: Padding mode.
+            Must be one of the following: `Extrapolation`, `Tensor` or number for constant extrapolation, name of extrapolation as `str`.
         dims: The second derivative along these dimensions is summed over
         weights: (Optional) Multiply the axis terms by these factors before summation.
             Must be a Tensor with a single channel dimension that lists all laplace dims by name.
@@ -6056,7 +6058,7 @@ Adding batch dimensions must always work without keyword arguments.</dd>
 </details>
 </dd>
 <dt id="ml4s.math.pad"><code class="name flex">
-<span>def <span class="ident">pad</span></span>(<span>value: ml4s.math._tensors.Tensor, widths: Union[dict, tuple], mode: Union[ForwardRef('e_.Extrapolation'), ml4s.math._tensors.Tensor, numbers.Number] = 0, **kwargs) ‑> ml4s.math._tensors.Tensor</span>
+<span>def <span class="ident">pad</span></span>(<span>value: ml4s.math._tensors.Tensor, widths: Union[dict, tuple], mode: Union[ForwardRef('e_.Extrapolation'), ml4s.math._tensors.Tensor, numbers.Number, str] = 0, **kwargs) ‑> ml4s.math._tensors.Tensor</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Pads a tensor along the specified dimensions, determining the added values using the given extrapolation.
@@ -6069,8 +6071,8 @@ Unlike <code>Extrapolation.pad()</code>, this function can handle negative width
 <dd><code>dict</code> mapping dimension name (<code>str</code>) to <code>(lower, upper)</code>
 where <code>lower</code> and <code>upper</code> are <code>int</code> that can be positive (pad), negative (slice) or zero (pass).</dd>
 <dt><strong><code>mode</code></strong></dt>
-<dd><code>Extrapolation</code> used to determine values added from positive <code>widths</code>.
-Assumes constant extrapolation if given a number or <code><a title="ml4s.math.Tensor" href="#ml4s.math.Tensor">Tensor</a></code> instead.</dd>
+<dd>Padding mode used to determine values added from positive <code>widths</code>.
+Must be one of the following: <code>Extrapolation</code>, <code><a title="ml4s.math.Tensor" href="#ml4s.math.Tensor">Tensor</a></code> or number for constant extrapolation, name of extrapolation as <code>str</code>.</dd>
 <dt><strong><code>kwargs</code></strong></dt>
 <dd>Additional padding arguments.
 These are ignored by the standard extrapolations defined in <code><a title="ml4s.math.extrapolation" href="extrapolation.html">ml4s.math.extrapolation</a></code> but can be used to pass additional contextual information to custom extrapolations.</dd>
@@ -6088,7 +6090,7 @@ These are ignored by the standard extrapolations defined in <code><a title="ml4s
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def pad(value: Tensor, widths: Union[dict, tuple], mode: Union[&#39;e_.Extrapolation&#39;, Tensor, Number] = 0, **kwargs) -&gt; Tensor:
+<pre><code class="python">def pad(value: Tensor, widths: Union[dict, tuple], mode: Union[&#39;e_.Extrapolation&#39;, Tensor, Number, str] = 0, **kwargs) -&gt; Tensor:
     &#34;&#34;&#34;
     Pads a tensor along the specified dimensions, determining the added values using the given extrapolation.
     Unlike `Extrapolation.pad()`, this function can handle negative widths which slice off outer values.
@@ -6097,8 +6099,8 @@ These are ignored by the standard extrapolations defined in <code><a title="ml4s
         value: `Tensor` to be padded
         widths: `dict` mapping dimension name (`str`) to `(lower, upper)`
             where `lower` and `upper` are `int` that can be positive (pad), negative (slice) or zero (pass).
-        mode: `Extrapolation` used to determine values added from positive `widths`.
-            Assumes constant extrapolation if given a number or `Tensor` instead.
+        mode: Padding mode used to determine values added from positive `widths`.
+            Must be one of the following: `Extrapolation`, `Tensor` or number for constant extrapolation, name of extrapolation as `str`.
         kwargs: Additional padding arguments.
             These are ignored by the standard extrapolations defined in `ml4s.math.extrapolation` but can be used to pass additional contextual information to custom extrapolations.
 
@@ -6120,7 +6122,7 @@ These are ignored by the standard extrapolations defined in <code><a title="ml4s
             assert len(widths) == non_batch(value), f&#34;Cannot pad tensor with non-batch dims {non_batch(value)} by widths {widths}. Sizes must match.&#34;
             warnings.warn(&#34;Padding by sequence of (lower, upper) is not recommended. Please use a dict instead.&#34;, SyntaxWarning, stacklevel=2)
             widths = {dim: w for dim, w in zip(non_batch(value).names, widths)}
-    mode = mode if isinstance(mode, e_.Extrapolation) else e_.ConstantExtrapolation(mode)
+    mode = e_.as_extrapolation(mode)
     has_negative_widths = any(w0 &lt; 0 or w1 &lt; 0 for w0, w1 in widths.values())
     has_positive_widths = any(w0 &gt; 0 or w1 &gt; 0 for w0, w1 in widths.values())
     slices = None
@@ -7709,7 +7711,7 @@ If <code>obj</code> is a <code><a title="ml4s.math.Shape" href="#ml4s.math.Shape
 </details>
 </dd>
 <dt id="ml4s.math.shift"><code class="name flex">
-<span>def <span class="ident">shift</span></span>(<span>x: ml4s.math._tensors.Tensor, offsets: tuple, dims: Union[str, tuple, list, set, ml4s.math._shape.Shape, Callable] = &lt;function spatial&gt;, padding: Union[<a title="ml4s.math.extrapolation.Extrapolation" href="extrapolation.html#ml4s.math.extrapolation.Extrapolation">Extrapolation</a>, ml4s.math._tensors.Tensor, float, None] = zero-gradient, stack_dim: Optional[ml4s.math._shape.Shape] = (shiftᶜ=None), extend_bounds=0) ‑> list</span>
+<span>def <span class="ident">shift</span></span>(<span>x: ml4s.math._tensors.Tensor, offsets: tuple, dims: Union[str, tuple, list, set, ml4s.math._shape.Shape, Callable] = &lt;function spatial&gt;, padding: Union[<a title="ml4s.math.extrapolation.Extrapolation" href="extrapolation.html#ml4s.math.extrapolation.Extrapolation">Extrapolation</a>, float, ml4s.math._tensors.Tensor, str, None] = zero-gradient, stack_dim: Optional[ml4s.math._shape.Shape] = (shiftᶜ=None), extend_bounds=0) ‑> list</span>
 </code></dt>
 <dd>
 <div class="desc"><p>shift Tensor by a fixed offset and abiding by extrapolation</p>
@@ -7722,7 +7724,8 @@ If <code>obj</code> is a <code><a title="ml4s.math.Shape" href="#ml4s.math.Shape
 <dt><strong><code>dims</code></strong></dt>
 <dd>Dimensions along which to shift, defaults to None</dd>
 <dt><strong><code>padding</code></strong></dt>
-<dd>padding to be performed at the boundary, defaults to extrapolation.BOUNDARY</dd>
+<dd>Padding to be performed at the boundary.
+Must be one of the following: <code>Extrapolation</code>, <code><a title="ml4s.math.Tensor" href="#ml4s.math.Tensor">Tensor</a></code> or number for constant extrapolation, name of extrapolation as <code>str</code>.</dd>
 <dt><strong><code>stack_dim</code></strong></dt>
 <dd>dimensions to be stacked, defaults to 'shift'</dd>
 </dl>
@@ -7738,7 +7741,7 @@ If <code>obj</code> is a <code><a title="ml4s.math.Shape" href="#ml4s.math.Shape
 <pre><code class="python">def shift(x: Tensor,
           offsets: tuple,
           dims: DimFilter = math.spatial,
-          padding: Union[Extrapolation, Tensor, float, None] = extrapolation.BOUNDARY,
+          padding: Union[Extrapolation, float, Tensor, str, None] = extrapolation.BOUNDARY,
           stack_dim: Optional[Shape] = channel(&#39;shift&#39;),
           extend_bounds=0) -&gt; list:
     &#34;&#34;&#34;
@@ -7748,7 +7751,8 @@ If <code>obj</code> is a <code><a title="ml4s.math.Shape" href="#ml4s.math.Shape
         x: Input data
         offsets: Shift size
         dims: Dimensions along which to shift, defaults to None
-        padding: padding to be performed at the boundary, defaults to extrapolation.BOUNDARY
+        padding: Padding to be performed at the boundary.
+            Must be one of the following: `Extrapolation`, `Tensor` or number for constant extrapolation, name of extrapolation as `str`.
         stack_dim: dimensions to be stacked, defaults to &#39;shift&#39;
 
     Returns:
@@ -8416,7 +8420,7 @@ Undefined sizes are automatically filled in by <code><a title="ml4s.math.tensor"
 </details>
 </dd>
 <dt id="ml4s.math.spatial_gradient"><code class="name flex">
-<span>def <span class="ident">spatial_gradient</span></span>(<span>grid: ml4s.math._tensors.Tensor, dx: Union[float, ml4s.math._tensors.Tensor] = 1, difference: str = 'central', padding: Optional[<a title="ml4s.math.extrapolation.Extrapolation" href="extrapolation.html#ml4s.math.extrapolation.Extrapolation">Extrapolation</a>] = zero-gradient, dims: Union[str, tuple, list, set, ml4s.math._shape.Shape, Callable] = &lt;function spatial&gt;, stack_dim: Optional[ml4s.math._shape.Shape] = (gradientᶜ=None), pad=0) ‑> ml4s.math._tensors.Tensor</span>
+<span>def <span class="ident">spatial_gradient</span></span>(<span>grid: ml4s.math._tensors.Tensor, dx: Union[float, ml4s.math._tensors.Tensor] = 1, difference: str = 'central', padding: Union[<a title="ml4s.math.extrapolation.Extrapolation" href="extrapolation.html#ml4s.math.extrapolation.Extrapolation">Extrapolation</a>, float, ml4s.math._tensors.Tensor, str] = zero-gradient, dims: Union[str, tuple, list, set, ml4s.math._shape.Shape, Callable] = &lt;function spatial&gt;, stack_dim: Optional[ml4s.math._shape.Shape] = (gradientᶜ=None), pad=0) ‑> ml4s.math._tensors.Tensor</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Calculates the spatial_gradient of a scalar channel from finite differences.
@@ -8433,7 +8437,8 @@ When passing a vector-valued <code><a title="ml4s.math.Tensor" href="#ml4s.math.
 <dt><strong><code>difference</code></strong></dt>
 <dd>type of difference, one of ('forward', 'backward', 'central') (default 'forward')</dd>
 <dt><strong><code>padding</code></strong></dt>
-<dd>tensor padding mode</dd>
+<dd>Padding mode.
+Must be one of the following: <code>Extrapolation</code>, <code><a title="ml4s.math.Tensor" href="#ml4s.math.Tensor">Tensor</a></code> or number for constant extrapolation, name of extrapolation as <code>str</code>.</dd>
 <dt><strong><code>stack_dim</code></strong></dt>
 <dd>name of the new vector dimension listing the spatial_gradient w.r.t. the various axes</dd>
 <dt><strong><code>pad</code></strong></dt>
@@ -8449,7 +8454,7 @@ This value is added to the internal padding. For non-trivial extrapolations, thi
 <pre><code class="python">def spatial_gradient(grid: Tensor,
                      dx: Union[float, Tensor] = 1,
                      difference: str = &#39;central&#39;,
-                     padding: Union[Extrapolation, None] = extrapolation.BOUNDARY,
+                     padding: Union[Extrapolation, float, Tensor, str] = extrapolation.BOUNDARY,
                      dims: DimFilter = spatial,
                      stack_dim: Union[Shape, None] = channel(&#39;gradient&#39;),
                      pad=0) -&gt; Tensor:
@@ -8463,7 +8468,8 @@ This value is added to the internal padding. For non-trivial extrapolations, thi
         dx: Physical distance between grid points, `float` or `Tensor`.
             When passing a vector-valued `Tensor`, the dx values should be listed along `stack_dim`, matching `dims`.
         difference: type of difference, one of (&#39;forward&#39;, &#39;backward&#39;, &#39;central&#39;) (default &#39;forward&#39;)
-        padding: tensor padding mode
+        padding: Padding mode.
+            Must be one of the following: `Extrapolation`, `Tensor` or number for constant extrapolation, name of extrapolation as `str`.
         stack_dim: name of the new vector dimension listing the spatial_gradient w.r.t. the various axes
         pad: How many cells to extend the result compared to `grid`.
             This value is added to the internal padding. For non-trivial extrapolations, this gives the correct result while manual padding before or after this operation would not respect the boundary locations.
