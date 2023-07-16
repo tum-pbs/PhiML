@@ -15215,7 +15215,7 @@ You can select your preferred one by changing the below <code>math.use()</code> 
 
 
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="application/vnd.jupyter.stderr">
-<pre>2023-07-16 21:15:39.663903: W tensorflow/compiler/tf2tensorrt/utils/py_utils.cc:38] TF-TRT Warning: Could not find TensorRT
+<pre>2023-07-16 21:21:53.904679: W tensorflow/compiler/tf2tensorrt/utils/py_utils.cc:38] TF-TRT Warning: Could not find TensorRT
 </pre>
 </div>
 </div>
@@ -15737,7 +15737,7 @@ An explanation of this automatic reshaping is given <a href="https://holl-.githu
     <span class="k">else</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">x</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">y</span>
 
-<span class="n">function</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+<span class="n">function</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span><span class="mi">2</span><span class="p">),</span> <span class="mi">2</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
 </pre></div>
 
      </div>
@@ -15751,17 +15751,6 @@ An explanation of this automatic reshaping is given <a href="https://holl-.githu
 
 
 <div class="jp-OutputArea jp-Cell-outputArea">
-<div class="jp-OutputArea-child">
-    
-    <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
-
-
-<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="application/vnd.jupyter.stderr">
-<pre>/opt/hostedtoolcache/Python/3.8.17/x64/lib/python3.8/site-packages/ml4s/math/_functional.py:186: RuntimeWarning: jit_copmile() not supported by numpy. Running function &#39;function&#39; as-is.
-  warnings.warn(f&#34;jit_copmile() not supported by {key.backend}. Running function &#39;{f_name(self.f)}&#39; as-is.&#34;, RuntimeWarning)
-</pre>
-</div>
-</div>
 <div class="jp-OutputArea-child jp-OutputArea-executeResult">
     
     <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[12]:</div>
@@ -15770,7 +15759,7 @@ An explanation of this automatic reshaping is given <a href="https://holl-.githu
 
 
 <div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre>8</pre>
+<pre><span class="ansi-blue-intense-fg">8</span></pre>
 </div>
 
 </div>
