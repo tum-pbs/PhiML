@@ -7714,7 +7714,13 @@ If <code>obj</code> is a <code><a title="ml4s.math.Shape" href="#ml4s.math.Shape
 <span>def <span class="ident">shift</span></span>(<span>x: ml4s.math._tensors.Tensor, offsets: tuple, dims: Union[str, tuple, list, set, ml4s.math._shape.Shape, Callable] = &lt;function spatial&gt;, padding: Union[<a title="ml4s.math.extrapolation.Extrapolation" href="extrapolation.html#ml4s.math.extrapolation.Extrapolation">Extrapolation</a>, float, ml4s.math._tensors.Tensor, str, None] = zero-gradient, stack_dim: Optional[ml4s.math._shape.Shape] = (shiftᶜ=None), extend_bounds=0) ‑> list</span>
 </code></dt>
 <dd>
-<div class="desc"><p>shift Tensor by a fixed offset and abiding by extrapolation</p>
+<div class="desc"><p>Similar to <code>numpy.roll()</code> but with major differences:</p>
+<ul>
+<li>Values shifted in from the boundary are defined by <code>padding</code>.</li>
+<li>Positive offsets represent negative shifts.</li>
+<li>Support for multi-dimensional shifts</li>
+</ul>
+<p>Shift the tensor <code>x</code> by a fixed offset and abiding by extrapolation</p>
 <h2 id="args">Args</h2>
 <dl>
 <dt><strong><code>x</code></strong></dt>
@@ -7745,7 +7751,13 @@ Must be one of the following: <code>Extrapolation</code>, <code><a title="ml4s.m
           stack_dim: Optional[Shape] = channel(&#39;shift&#39;),
           extend_bounds=0) -&gt; list:
     &#34;&#34;&#34;
-    shift Tensor by a fixed offset and abiding by extrapolation
+    Similar to `numpy.roll()` but with major differences:
+
+    * Values shifted in from the boundary are defined by `padding`.
+    * Positive offsets represent negative shifts.
+    * Support for multi-dimensional shifts
+
+    Shift the tensor `x` by a fixed offset and abiding by extrapolation
 
     Args:
         x: Input data

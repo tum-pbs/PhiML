@@ -42,7 +42,7 @@ Check out the corresponding introductory [▶ tutorial video]() as well!
 ## API Documentation
 
 The [🔗 API documentation](ml4s) is generated using [pdoc3](https://pdoc3.github.io/pdoc/).
-To manually generate the documentation, add the PhiFlow directory to your Python path and run
+To manually generate the documentation, add the ML4Science directory to your Python path and run
 ```bash
 $ pdoc --html --output-dir docs --force ml4s
 ```
