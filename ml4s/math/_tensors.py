@@ -34,7 +34,7 @@ class Tensor:
     To check whether a value is a tensor, use `isinstance(value, Tensor)`.
 
     To construct a Tensor, use `ml4s.math.tensor()`, `ml4s.math.wrap()` or one of the basic tensor creation functions,
-    see https://holl-.github.io/ML4Science/Math.html#tensor-creation .
+    see https://tum-pbs.github.io/ML4Science/Math.html#tensor-creation .
 
     Tensors are not editable.
     When backed by an editable native tensor, e.g. a `numpy.ndarray`, do not edit the underlying data structure.
@@ -808,7 +808,7 @@ class TensorDim(BoundDim):
 
     Indexing a `TensorDim` as `tdim[start:stop:step]` returns a sliced `Tensor`.
 
-    See the documentation at https://holl-.github.io/ML4Science/Math.html#indexing-slicing-unstacking .
+    See the documentation at https://tum-pbs.github.io/ML4Science/Math.html#indexing-slicing-unstacking .
     """
 
     def __init__(self, tensor: Tensor, name: str):

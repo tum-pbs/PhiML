@@ -68,7 +68,7 @@ def troubleshoot_tensorflow():
             if platform.system().lower() != 'linux':
                 cuda_str = f"Optional TensorFlow CUDA kernels not available and compilation not recommended on {platform.system()}. GPU will be used nevertheless."
             else:
-                cuda_str = f"Optional TensorFlow CUDA kernels not available. GPU will be used nevertheless. Clone the ML4Science source from GitHub and run 'python setup.py tf_cuda' to compile them. See https://holl-.github.io/ML4Science/Installation_Instructions.html"
+                cuda_str = f"Optional TensorFlow CUDA kernels not available. GPU will be used nevertheless. Clone the ML4Science source from GitHub and run 'python setup.py tf_cuda' to compile them. See https://tum-pbs.github.io/ML4Science/Installation_Instructions.html"
         return f"Installed ({tf_version}), {gpu_count} GPUs available.\n{cuda_str}"
 
 

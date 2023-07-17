@@ -133,7 +133,7 @@ with open(join(dirname(__file__), 'ml4s', 'VERSION'), 'r') as version_file:
 setup(
     name='ml4s',
     version=version,
-    download_url='https://github.com/holl-/ML4Science/archive/%s.tar.gz' % version,
+    download_url='https://github.com/tum-pbs/ML4Science/archive/%s.tar.gz' % version,
     packages=['ml4s',
               'ml4s.math',
               'ml4s.backend',
@@ -151,7 +151,7 @@ setup(
     license='MIT',
     author='Philipp Holl',
     author_email='philipp.holl@tum.de',
-    url='https://github.com/holl-/ML4Science',
+    url='https://github.com/tum-pbs/ML4Science',
     include_package_data=True,
     install_requires=[
         'numpy',  # 1.20 causes TensorFlow tracing errors: NotImplementedError: Cannot convert a symbolic Tensor to a numpy array.

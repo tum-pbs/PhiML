@@ -465,7 +465,7 @@ class BoundDim:
             raise AttributeError(f"'{type(self)}' object has no attribute '{name}'")
         if name == 'shape':
             raise AttributeError(f"{type(obj)} has no shape")
-        assert isinstance(obj, Sliceable) and isinstance(obj, Shaped), f"Cannot create BoundDim for {type(obj).__name__}. Objects must be Sliceable and Shaped, see https://holl-.github.io/ML4Science/ml4s/math/magic.html"
+        assert isinstance(obj, Sliceable) and isinstance(obj, Shaped), f"Cannot create BoundDim for {type(obj).__name__}. Objects must be Sliceable and Shaped, see https://tum-pbs.github.io/ML4Science/ml4s/math/magic.html"
         self.obj = obj
         self.name = name
 
@@ -748,12 +748,12 @@ def slicing_dict(obj, item) -> dict:
             return {name: selection for name, selection in zip(channel(obj).names, item[1:])}
         elif len(item) == shape(obj).channel_rank:
             if len(item) > 1:
-                warnings.warn("NumPy-style slicing for more than one channel dimension is highly discouraged. Use a dict or the special slicing syntax value.dim[slice] instead. See https://holl-.github.io/ML4Science/Math.html", SyntaxWarning, stacklevel=3)
+                warnings.warn("NumPy-style slicing for more than one channel dimension is highly discouraged. Use a dict or the special slicing syntax value.dim[slice] instead. See https://tum-pbs.github.io/ML4Science/Math.html", SyntaxWarning, stacklevel=3)
             return {name: selection for name, selection in zip(channel(obj).names, item)}
         elif shape(obj).channel_rank == 1 and all(isinstance(e, str) for e in item):
             return {channel(obj).name: item}
         else:
-            raise AssertionError(f"Cannot slice {obj}[{item}]. Use a dict or the special slicing syntax value.dim[slice] instead. See https://holl-.github.io/ML4Science/Math.html")
+            raise AssertionError(f"Cannot slice {obj}[{item}]. Use a dict or the special slicing syntax value.dim[slice] instead. See https://tum-pbs.github.io/ML4Science/Math.html")
     else:
         if shape(obj).channel_rank == 1:
             return {channel(obj).name: item}

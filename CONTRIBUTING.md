@@ -36,7 +36,7 @@ PyLint is part of the automatic testing pipeline.
 The warning log can be viewed online by selecting a `Tests` job and expanding the pylint output.
 
 ### Docstrings
-The [API documentation](https://holl-.github.io/ML4Science/) for ML4Science is generated using [pdoc](https://pdoc3.github.io/pdoc/).
+The [API documentation](https://tum-pbs.github.io/ML4Science/) for ML4Science is generated using [pdoc](https://pdoc3.github.io/pdoc/).
 We use [Google style docstrings](https://google.github.io/styleguide/pyguide.html#38-comments-and-docstrings)
 with Markdown formatting.
 

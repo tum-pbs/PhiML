@@ -1,10 +1,10 @@
 # ![ML4Science](images/Banner.png)
 
-[🌐 **GitHub**](https://github.com/holl-/ML4Science)
+[🌐 **GitHub**](https://github.com/tum-pbs/ML4Science)
 &nbsp;&nbsp;&nbsp; [🔗 **API**](ml4s)
 &nbsp;&nbsp;&nbsp; [**▶ Videos**]()
-&nbsp; • &nbsp; [<img src="https://www.tensorflow.org/images/colab_logo_32px.png" height=16>](https://colab.research.google.com/github/holl-/ML4Science/blob/main/docs/Introduction.ipynb) [**Introduction**](https://holl-.github.io/ML4Science/Introduction.html)
-&nbsp; • &nbsp; [<img src="https://www.tensorflow.org/images/colab_logo_32px.png" height=16>](https://colab.research.google.com/github/holl-/ML4Science/blob/main/docs/Examples.ipynb) [**Examples**](https://holl-.github.io/ML4Science/Examples.html)
+&nbsp; • &nbsp; [<img src="https://www.tensorflow.org/images/colab_logo_32px.png" height=16>](https://colab.research.google.com/github/tum-pbs/ML4Science/blob/main/docs/Introduction.ipynb) [**Introduction**](https://tum-pbs.github.io/ML4Science/Introduction.html)
+&nbsp; • &nbsp; [<img src="https://www.tensorflow.org/images/colab_logo_32px.png" height=16>](https://colab.research.google.com/github/tum-pbs/ML4Science/blob/main/docs/Examples.ipynb) [**Examples**](https://tum-pbs.github.io/ML4Science/Examples.html)
 
 
 We recommend starting with the [introduction notebook](Introduction.html) which walks you through the installation and introduces the general structure of ML4Science.
@@ -54,4 +54,4 @@ This requires PyTorch, TensorFlow and Jax to be installed, in addition to the st
 Contributions are welcome!
 
 If you find a bug, feel free to open a GitHub issue or get in touch with the developers.
-If you have changes to be merged, check out our [style guide](https://github.com/holl-/ML4Science/blob/main/CONTRIBUTING.md) before opening a pull request.
+If you have changes to be merged, check out our [style guide](https://github.com/tum-pbs/ML4Science/blob/main/CONTRIBUTING.md) before opening a pull request.

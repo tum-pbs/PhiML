@@ -45,7 +45,7 @@ class Shape:
         self.sizes: tuple = sizes
         """
         Ordered dimension sizes as `tuple`.
-        The size of a dimension can be an `int` or a `Tensor` for [non-uniform shapes](https://holl-.github.io/ML4Science/Math.html#non-uniform-tensors).
+        The size of a dimension can be an `int` or a `Tensor` for [non-uniform shapes](https://tum-pbs.github.io/ML4Science/Math.html#non-uniform-tensors).
         
         See Also:
             `Shape.get_size()`, `Shape.size`, `Shape.shape`.
@@ -489,7 +489,7 @@ class Shape:
         The dimension listing the sizes of the shape is referred to as `'dims'`.
 
         Non-uniform tensor shapes may be unstacked along other dimensions as well, see
-        https://holl-.github.io/ML4Science/Math.html#non-uniform-tensors
+        https://tum-pbs.github.io/ML4Science/Math.html#non-uniform-tensors
 
         Args:
             dim: dimension to unstack
@@ -779,7 +779,7 @@ class Shape:
         Higher-order `Shape`.
         The returned shape will always contain the channel dimension `dims` with a size equal to the `Shape.rank` of this shape.
 
-        For uniform shapes, `Shape.shape` will only contain the dimension `dims` but the shapes of [non-uniform shapes](https://holl-.github.io/ML4Science/Math.html#non-uniform-tensors)
+        For uniform shapes, `Shape.shape` will only contain the dimension `dims` but the shapes of [non-uniform shapes](https://tum-pbs.github.io/ML4Science/Math.html#non-uniform-tensors)
         may contain additional dimensions.
 
         See Also:

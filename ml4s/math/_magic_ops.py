@@ -78,7 +78,7 @@ def unstack(value, dim: DimFilter):
         >>> unstack(expand(0, spatial(x=5)), 'x')
         (0.0, 0.0, 0.0, 0.0, 0.0)
     """
-    assert isinstance(value, Sliceable) and isinstance(value, Shaped), f"Cannot unstack {type(value).__name__}. Must be Sliceable and Shaped, see https://holl-.github.io/ML4Science/ml4s/math/magic.html"
+    assert isinstance(value, Sliceable) and isinstance(value, Shaped), f"Cannot unstack {type(value).__name__}. Must be Sliceable and Shaped, see https://tum-pbs.github.io/ML4Science/ml4s/math/magic.html"
     dims = shape(value).only(dim)
     assert dims.rank > 0, "unstack() requires at least one dimension"
     if dims.rank == 1:

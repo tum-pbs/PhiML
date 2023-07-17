@@ -2,9 +2,9 @@
 Open-source ...
 
 
-Project homepage: https://github.com/holl-/ML4Science
+Project homepage: https://github.com/tum-pbs/ML4Science
 
-Documentation overview: https://holl-.github.io/ML4Science
+Documentation overview: https://tum-pbs.github.io/ML4Science
 
 PyPI: https://pypi.org/project/ml4s/
 """

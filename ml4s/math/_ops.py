@@ -1779,7 +1779,7 @@ def to_float(x) -> Union[Tensor, PhiTreeNode]:
     
     The precision can be set globally using `math.set_global_precision()` and locally using `with math.precision()`.
     
-    See the `ml4s.math` module documentation at https://holl-.github.io/ML4Science/Math.html
+    See the `ml4s.math` module documentation at https://tum-pbs.github.io/ML4Science/Math.html
 
     See Also:
         `cast()`.
@@ -1809,7 +1809,7 @@ def to_complex(x) -> Union[Tensor, PhiTreeNode]:
 
     The precision can be set globally using `math.set_global_precision()` and locally using `with math.precision()`.
 
-    See the `ml4s.math` module documentation at https://holl-.github.io/ML4Science/Math.html
+    See the `ml4s.math` module documentation at https://tum-pbs.github.io/ML4Science/Math.html
 
     See Also:
         `cast()`.

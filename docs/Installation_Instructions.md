@@ -23,7 +23,7 @@ $ pip install ml4s
 ```
 To install the latest developer version of ML4Science, run
 ```bash
-$ pip install --upgrade git+https://github.com/holl-/ML4Science@develop
+$ pip install --upgrade git+https://github.com/tum-pbs/ML4Science@develop
 ```
 
 Install [PyTorch](https://pytorch.org/), [TensorFlow](https://www.tensorflow.org/install) or [Jax](https://github.com/google/jax#installation) in addition to ML4Science to enable machine learning capabilities and GPU execution.
@@ -31,12 +31,12 @@ Install [PyTorch](https://pytorch.org/), [TensorFlow](https://www.tensorflow.org
 
 ## Installing ML4Science from Source
 The ML4Science source additionally contains demo scripts and tests.
-In particular, it includes [`tests/verify.py`](https://github.com/holl-/ML4Science/blob/develop/tests/verify.py),
+In particular, it includes [`tests/verify.py`](https://github.com/tum-pbs/ML4Science/blob/develop/tests/verify.py),
 which tests your configuration.
 
 Clone the git repository by running
 ```bash
-$ git clone https://github.com/holl-/ML4Science.git <target directory>
+$ git clone https://github.com/tum-pbs/ML4Science.git <target directory>
 ```
 This will create the folder \<target directory\> and copy all ML4Science source files into it.
 
