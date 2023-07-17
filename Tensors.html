@@ -15110,12 +15110,12 @@ body[data-format='mobile'] .jp-OutputArea-child .jp-OutputArea-output {
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<h1 id="Why-Use-ML4Science's-Tensors">Why Use ML4Science's Tensors<a class="anchor-link" href="#Why-Use-ML4Science's-Tensors">&#182;</a></h1><p><a href="https://colab.research.google.com/github/holl-/ML4Science/blob/main/docs/Tensors.ipynb"><img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Colab" /></a>
-  •   <a href="https://github.com/holl-/ML4Science">🌐 <strong>ML4Science</strong></a>
-  •   <a href="https://holl-.github.io/ML4Science/">📖 <strong>Documentation</strong></a>
-  •   <a href="https://holl-.github.io/ML4Science/ml4s">🔗 <strong>API</strong></a>
+<h1 id="Why-Use-ML4Science's-Tensors">Why Use ML4Science's Tensors<a class="anchor-link" href="#Why-Use-ML4Science's-Tensors">&#182;</a></h1><p><a href="https://colab.research.google.com/github/tum-pbs/ML4Science/blob/main/docs/Tensors.ipynb"><img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Colab" /></a>
+  •   <a href="https://github.com/tum-pbs/ML4Science">🌐 <strong>ML4Science</strong></a>
+  •   <a href="https://tum-pbs.github.io/ML4Science/">📖 <strong>Documentation</strong></a>
+  •   <a href="https://tum-pbs.github.io/ML4Science/ml4s">🔗 <strong>API</strong></a>
   •   <a href=""><strong>▶ Videos</strong></a>
-  •   <a href="https://colab.research.google.com/github/holl-/ML4Science/blob/main/docs/Examples.ipynb"><img src="images/colab_logo_small.png" height=4></a> <a href="https://holl-.github.io/ML4Science/Examples.html"><strong>Examples</strong></a></p>
+  •   <a href="https://colab.research.google.com/github/tum-pbs/ML4Science/blob/main/docs/Examples.ipynb"><img src="images/colab_logo_small.png" height=4></a> <a href="https://tum-pbs.github.io/ML4Science/Examples.html"><strong>Examples</strong></a></p>
 <p>While you can call many ML4Science function directly with native tensors, such as Jax tensors or NumPy arrays, we recommend wrapping them in ML4Science tensors.
 These provide several benefits over the native tensors and allow you to write easy-to-read, more concise, more explicit, less error-prone code.</p>
 <p>For an introduction into tensors and dimensions, check out the <a href="Introduction.ht">introduction notebook</a>.</p>
@@ -15232,7 +15232,7 @@ When creating a ML4Science tensor, you need to specify the names and types of al
 
 
 <div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre><span class="ansi-green-intense-fg">(examplesᵇ=2, xˢ=4, yˢ=3)</span> <span class="ansi-blue-intense-fg">0.526 ± 0.316</span> <span class="ansi-white-fg">(4e-02...1e+00)</span></pre>
+<pre><span class="ansi-green-intense-fg">(examplesᵇ=2, xˢ=4, yˢ=3)</span> <span class="ansi-blue-intense-fg">0.529 ± 0.306</span> <span class="ansi-white-fg">(2e-02...1e+00)</span></pre>
 </div>
 
 </div>
@@ -15283,7 +15283,7 @@ Here are some examples:</p>
 
 
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
-<pre><span class="ansi-green-intense-fg">(examplesᵇ=2, xˢ=4, yˢ=3)</span> <span class="ansi-yellow-intense-fg">float32</span> <span class="ansi-blue-intense-fg">5.25767e-01 ± 3.16155e-01</span> <span class="ansi-white-fg">(3.53561e-02...9.78052e-01)</span>
+<pre><span class="ansi-green-intense-fg">(examplesᵇ=2, xˢ=4, yˢ=3)</span> <span class="ansi-yellow-intense-fg">float32</span> <span class="ansi-blue-intense-fg">5.29250e-01 ± 3.06217e-01</span> <span class="ansi-white-fg">(1.75438e-02...9.93983e-01)</span>
 </pre>
 </div>
 </div>
@@ -15321,13 +15321,13 @@ Here are some examples:</p>
 
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
 <pre><span class="ansi-green-intense-fg">examples=0</span>  
-<span class="ansi-blue-intense-fg"> 0.356, 0.492, 0.109, 0.978,
- 0.067, 0.403, 0.043, 0.312,
- 0.613, 0.223, 0.850, 0.799</span>  along <span class="ansi-green-intense-fg">(xˢ=4, yˢ=3)</span>
+<span class="ansi-blue-intense-fg"> 0.829, 0.119, 0.832, 0.575,
+ 0.399, 0.636, 0.970, 0.018,
+ 0.949, 0.647, 0.668, 0.210</span>  along <span class="ansi-green-intense-fg">(xˢ=4, yˢ=3)</span>
 <span class="ansi-green-intense-fg">examples=1</span>  
-<span class="ansi-blue-intense-fg"> 0.830, 0.944, 0.828, 0.503,
- 0.175, 0.801, 0.770, 0.035,
- 0.570, 0.203, 0.967, 0.746</span>  along <span class="ansi-green-intense-fg">(xˢ=4, yˢ=3)</span>
+<span class="ansi-blue-intense-fg"> 0.732, 0.994, 0.772, 0.615,
+ 0.302, 0.845, 0.493, 0.066,
+ 0.134, 0.144, 0.549, 0.204</span>  along <span class="ansi-green-intense-fg">(xˢ=4, yˢ=3)</span>
 </pre>
 </div>
 </div>
@@ -15364,15 +15364,15 @@ Here are some examples:</p>
 
 
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
-<pre>[[[0.61 0.07 0.36]
-  [0.22 0.40 0.49]
-  [0.85 0.04 0.11]
-  [0.80 0.31 0.98]]
+<pre>[[[0.95 0.40 0.83]
+  [0.65 0.64 0.12]
+  [0.67 0.97 0.83]
+  [0.21 0.02 0.58]]
 
- [[0.57 0.17 0.83]
-  [0.20 0.80 0.94]
-  [0.97 0.77 0.83]
-  [0.75 0.04 0.50]]]
+ [[0.13 0.30 0.73]
+  [0.14 0.85 0.99]
+  [0.55 0.49 0.77]
+  [0.20 0.07 0.62]]]
 </pre>
 </div>
 </div>
@@ -15506,15 +15506,15 @@ In both cases, the requested dimension order needs to be specified.</p>
 
 
 <div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre>array([[[0.6129529 , 0.06708775, 0.35615006],
-        [0.2234882 , 0.40336388, 0.49210504],
-        [0.8499285 , 0.04276747, 0.10867774],
-        [0.79883313, 0.31225097, 0.9780524 ]],
+<pre>array([[[0.94861025, 0.39883843, 0.82926714],
+        [0.6474053 , 0.63583463, 0.11882138],
+        [0.6684243 , 0.97034806, 0.83213747],
+        [0.20985939, 0.01754383, 0.57529134]],
 
-       [[0.570445  , 0.1745178 , 0.82953477],
-        [0.20338123, 0.8009575 , 0.94386023],
-        [0.9668454 , 0.7704802 , 0.8280586 ],
-        [0.7463235 , 0.03535608, 0.5029823 ]]], dtype=float32)</pre>
+       [[0.13432793, 0.30194122, 0.73211694],
+        [0.14361206, 0.8451549 , 0.99398315],
+        [0.54942495, 0.4925637 , 0.7718786 ],
+        [0.20376548, 0.06565484, 0.6151904 ]]], dtype=float32)</pre>
 </div>
 
 </div>
@@ -15565,15 +15565,15 @@ In both cases, the requested dimension order needs to be specified.</p>
 
 
 <div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre>array([[[0.6129529 , 0.06708775, 0.35615006],
-        [0.2234882 , 0.40336388, 0.49210504],
-        [0.8499285 , 0.04276747, 0.10867774],
-        [0.79883313, 0.31225097, 0.9780524 ]],
+<pre>array([[[0.94861025, 0.39883843, 0.82926714],
+        [0.6474053 , 0.63583463, 0.11882138],
+        [0.6684243 , 0.97034806, 0.83213747],
+        [0.20985939, 0.01754383, 0.57529134]],
 
-       [[0.570445  , 0.1745178 , 0.82953477],
-        [0.20338123, 0.8009575 , 0.94386023],
-        [0.9668454 , 0.7704802 , 0.8280586 ],
-        [0.7463235 , 0.03535608, 0.5029823 ]]], dtype=float32)</pre>
+       [[0.13432793, 0.30194122, 0.73211694],
+        [0.14361206, 0.8451549 , 0.99398315],
+        [0.54942495, 0.4925637 , 0.7718786 ],
+        [0.20376548, 0.06565484, 0.6151904 ]]], dtype=float32)</pre>
 </div>
 
 </div>
@@ -15589,16 +15589,16 @@ In both cases, the requested dimension order needs to be specified.</p>
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<h2 id="Further-Reading">Further Reading<a class="anchor-link" href="#Further-Reading">&#182;</a></h2><p>Check out the <a href="https://holl-.github.io/ML4Science/Examples.html">examples</a> to see how using ML4Science's tensors is different from the other libraries.</p>
+<h2 id="Further-Reading">Further Reading<a class="anchor-link" href="#Further-Reading">&#182;</a></h2><p>Check out the <a href="https://tum-pbs.github.io/ML4Science/Examples.html">examples</a> to see how using ML4Science's tensors is different from the other libraries.</p>
 <p>Learn more about the <a href="Shapes.html">dimension types</a>.</p>
 <p>ML4Science unifies <a href="Data_Types.html">data types</a> as well and lets you set the floating point precision globally or by context.</p>
 <p>While the dimensionality of neural networks must be specified during network creation, this is not the case for math functions.
 These <a href="N_Dimensional.html">automatically adapt to the number of spatial dimensions of the data that is passed in</a>.</p>
-<p><a href="https://github.com/holl-/ML4Science">🌐 <strong>ML4Science</strong></a>
-  •   <a href="https://holl-.github.io/ML4Science/">📖 <strong>Documentation</strong></a>
-  •   <a href="https://holl-.github.io/ML4Science/ml4s">🔗 <strong>API</strong></a>
+<p><a href="https://github.com/tum-pbs/ML4Science">🌐 <strong>ML4Science</strong></a>
+  •   <a href="https://tum-pbs.github.io/ML4Science/">📖 <strong>Documentation</strong></a>
+  •   <a href="https://tum-pbs.github.io/ML4Science/ml4s">🔗 <strong>API</strong></a>
   •   <a href=""><strong>▶ Videos</strong></a>
-  •   <a href="https://colab.research.google.com/github/holl-/ML4Science/blob/main/docs/Examples.ipynb"><img src="images/colab_logo_small.png" height=4></a> <a href="https://holl-.github.io/ML4Science/Examples.html"><strong>Examples</strong></a></p>
+  •   <a href="https://colab.research.google.com/github/tum-pbs/ML4Science/blob/main/docs/Examples.ipynb"><img src="images/colab_logo_small.png" height=4></a> <a href="https://tum-pbs.github.io/ML4Science/Examples.html"><strong>Examples</strong></a></p>
 
 </div>
 </div>

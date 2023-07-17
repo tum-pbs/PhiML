@@ -29,7 +29,7 @@ Is internally uses NumPy, TensorFlow or PyTorch.</p>
 <p>The provided operations are not implemented directly.
 Instead, they delegate the actual computation to either NumPy, TensorFlow or PyTorch, depending on the configuration.
 This allows the user to write simulation code once and have it run with various computation backends.</p>
-<p>See the documentation at <a href="https://holl-.github.io/ML4Science/Math.html">https://holl-.github.io/ML4Science/Math.html</a></p>
+<p>See the documentation at <a href="https://tum-pbs.github.io/ML4Science/Math.html">https://tum-pbs.github.io/ML4Science/Math.html</a></p>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -46,7 +46,7 @@ The provided operations are not implemented directly.
 Instead, they delegate the actual computation to either NumPy, TensorFlow or PyTorch, depending on the configuration.
 This allows the user to write simulation code once and have it run with various computation backends.
 
-See the documentation at https://holl-.github.io/ML4Science/Math.html
+See the documentation at https://tum-pbs.github.io/ML4Science/Math.html
 &#34;&#34;&#34;
 
 from ..backend._dtype import DType
@@ -9261,7 +9261,7 @@ Note that the order of values may be changed upon creating a sparse tensor.</dd>
 <dd>
 <div class="desc"><p>Converts the given tensor to complex floating point format with the currently specified precision.</p>
 <p>The precision can be set globally using <code>math.set_global_precision()</code> and locally using <code>with math.precision()</code>.</p>
-<p>See the <code><a title="ml4s.math" href="#ml4s.math">ml4s.math</a></code> module documentation at <a href="https://holl-.github.io/ML4Science/Math.html">https://holl-.github.io/ML4Science/Math.html</a></p>
+<p>See the <code><a title="ml4s.math" href="#ml4s.math">ml4s.math</a></code> module documentation at <a href="https://tum-pbs.github.io/ML4Science/Math.html">https://tum-pbs.github.io/ML4Science/Math.html</a></p>
 <p>See Also:
 <code><a title="ml4s.math.cast" href="#ml4s.math.cast">cast()</a></code>.</p>
 <h2 id="args">Args</h2>
@@ -9281,7 +9281,7 @@ Note that the order of values may be changed upon creating a sparse tensor.</dd>
 
     The precision can be set globally using `math.set_global_precision()` and locally using `with math.precision()`.
 
-    See the `ml4s.math` module documentation at https://holl-.github.io/ML4Science/Math.html
+    See the `ml4s.math` module documentation at https://tum-pbs.github.io/ML4Science/Math.html
 
     See Also:
         `cast()`.
@@ -9393,7 +9393,7 @@ The result can be written to a JSON file, for example.</p>
 <dd>
 <div class="desc"><p>Converts the given tensor to floating point format with the currently specified precision.</p>
 <p>The precision can be set globally using <code>math.set_global_precision()</code> and locally using <code>with math.precision()</code>.</p>
-<p>See the <code><a title="ml4s.math" href="#ml4s.math">ml4s.math</a></code> module documentation at <a href="https://holl-.github.io/ML4Science/Math.html">https://holl-.github.io/ML4Science/Math.html</a></p>
+<p>See the <code><a title="ml4s.math" href="#ml4s.math">ml4s.math</a></code> module documentation at <a href="https://tum-pbs.github.io/ML4Science/Math.html">https://tum-pbs.github.io/ML4Science/Math.html</a></p>
 <p>See Also:
 <code><a title="ml4s.math.cast" href="#ml4s.math.cast">cast()</a></code>.</p>
 <h2 id="args">Args</h2>
@@ -9413,7 +9413,7 @@ The result can be written to a JSON file, for example.</p>
     
     The precision can be set globally using `math.set_global_precision()` and locally using `with math.precision()`.
     
-    See the `ml4s.math` module documentation at https://holl-.github.io/ML4Science/Math.html
+    See the `ml4s.math` module documentation at https://tum-pbs.github.io/ML4Science/Math.html
 
     See Also:
         `cast()`.
@@ -9713,7 +9713,7 @@ Adding batch dimensions must always work without keyword arguments.</dd>
         &gt;&gt;&gt; unstack(expand(0, spatial(x=5)), &#39;x&#39;)
         (0.0, 0.0, 0.0, 0.0, 0.0)
     &#34;&#34;&#34;
-    assert isinstance(value, Sliceable) and isinstance(value, Shaped), f&#34;Cannot unstack {type(value).__name__}. Must be Sliceable and Shaped, see https://holl-.github.io/ML4Science/ml4s/math/magic.html&#34;
+    assert isinstance(value, Sliceable) and isinstance(value, Shaped), f&#34;Cannot unstack {type(value).__name__}. Must be Sliceable and Shaped, see https://tum-pbs.github.io/ML4Science/ml4s/math/magic.html&#34;
     dims = shape(value).only(dim)
     assert dims.rank &gt; 0, &#34;unstack() requires at least one dimension&#34;
     if dims.rank == 1:
@@ -10914,7 +10914,7 @@ To create a shape with multiple types, use <code><a title="ml4s.math.merge_shape
         self.sizes: tuple = sizes
         &#34;&#34;&#34;
         Ordered dimension sizes as `tuple`.
-        The size of a dimension can be an `int` or a `Tensor` for [non-uniform shapes](https://holl-.github.io/ML4Science/Math.html#non-uniform-tensors).
+        The size of a dimension can be an `int` or a `Tensor` for [non-uniform shapes](https://tum-pbs.github.io/ML4Science/Math.html#non-uniform-tensors).
         
         See Also:
             `Shape.get_size()`, `Shape.size`, `Shape.shape`.
@@ -11358,7 +11358,7 @@ To create a shape with multiple types, use <code><a title="ml4s.math.merge_shape
         The dimension listing the sizes of the shape is referred to as `&#39;dims&#39;`.
 
         Non-uniform tensor shapes may be unstacked along other dimensions as well, see
-        https://holl-.github.io/ML4Science/Math.html#non-uniform-tensors
+        https://tum-pbs.github.io/ML4Science/Math.html#non-uniform-tensors
 
         Args:
             dim: dimension to unstack
@@ -11648,7 +11648,7 @@ To create a shape with multiple types, use <code><a title="ml4s.math.merge_shape
         Higher-order `Shape`.
         The returned shape will always contain the channel dimension `dims` with a size equal to the `Shape.rank` of this shape.
 
-        For uniform shapes, `Shape.shape` will only contain the dimension `dims` but the shapes of [non-uniform shapes](https://holl-.github.io/ML4Science/Math.html#non-uniform-tensors)
+        For uniform shapes, `Shape.shape` will only contain the dimension `dims` but the shapes of [non-uniform shapes](https://tum-pbs.github.io/ML4Science/Math.html#non-uniform-tensors)
         may contain additional dimensions.
 
         See Also:
@@ -12570,7 +12570,7 @@ def reversed(self):
 <dd>
 <div class="desc"><p>Higher-order <code><a title="ml4s.math.Shape" href="#ml4s.math.Shape">Shape</a></code>.
 The returned shape will always contain the channel dimension <code>dims</code> with a size equal to the <code><a title="ml4s.math.Shape.rank" href="#ml4s.math.Shape.rank">Shape.rank</a></code> of this shape.</p>
-<p>For uniform shapes, <code><a title="ml4s.math.Shape.shape" href="#ml4s.math.Shape.shape">Shape.shape</a></code> will only contain the dimension <code>dims</code> but the shapes of <a href="https://holl-.github.io/ML4Science/Math.html#non-uniform-tensors">non-uniform shapes</a>
+<p>For uniform shapes, <code><a title="ml4s.math.Shape.shape" href="#ml4s.math.Shape.shape">Shape.shape</a></code> will only contain the dimension <code>dims</code> but the shapes of <a href="https://tum-pbs.github.io/ML4Science/Math.html#non-uniform-tensors">non-uniform shapes</a>
 may contain additional dimensions.</p>
 <p>See Also:
 <code><a title="ml4s.math.Shape.is_uniform" href="#ml4s.math.Shape.is_uniform">Shape.is_uniform</a></code>.</p>
@@ -12586,7 +12586,7 @@ def shape(self) -&gt; &#39;Shape&#39;:
     Higher-order `Shape`.
     The returned shape will always contain the channel dimension `dims` with a size equal to the `Shape.rank` of this shape.
 
-    For uniform shapes, `Shape.shape` will only contain the dimension `dims` but the shapes of [non-uniform shapes](https://holl-.github.io/ML4Science/Math.html#non-uniform-tensors)
+    For uniform shapes, `Shape.shape` will only contain the dimension `dims` but the shapes of [non-uniform shapes](https://tum-pbs.github.io/ML4Science/Math.html#non-uniform-tensors)
     may contain additional dimensions.
 
     See Also:
@@ -12651,7 +12651,7 @@ def size(self) -&gt; int:
 <dt id="ml4s.math.Shape.sizes"><code class="name">var <span class="ident">sizes</span></code></dt>
 <dd>
 <div class="desc"><p>Ordered dimension sizes as <code>tuple</code>.
-The size of a dimension can be an <code>int</code> or a <code><a title="ml4s.math.Tensor" href="#ml4s.math.Tensor">Tensor</a></code> for <a href="https://holl-.github.io/ML4Science/Math.html#non-uniform-tensors">non-uniform shapes</a>.</p>
+The size of a dimension can be an <code>int</code> or a <code><a title="ml4s.math.Tensor" href="#ml4s.math.Tensor">Tensor</a></code> for <a href="https://tum-pbs.github.io/ML4Science/Math.html#non-uniform-tensors">non-uniform shapes</a>.</p>
 <p>See Also:
 <code><a title="ml4s.math.Shape.get_size" href="#ml4s.math.Shape.get_size">Shape.get_size()</a></code>, <code><a title="ml4s.math.Shape.size" href="#ml4s.math.Shape.size">Shape.size</a></code>, <code><a title="ml4s.math.Shape.shape" href="#ml4s.math.Shape.shape">Shape.shape</a></code>.</p></div>
 </dd>
@@ -13449,7 +13449,7 @@ If a <code><a title="ml4s.math.Shape" href="#ml4s.math.Shape">Shape</a></code> i
 <div class="desc"><p>Slices this <code><a title="ml4s.math.Shape" href="#ml4s.math.Shape">Shape</a></code> along a dimension.
 The dimension listing the sizes of the shape is referred to as <code>'dims'</code>.</p>
 <p>Non-uniform tensor shapes may be unstacked along other dimensions as well, see
-<a href="https://holl-.github.io/ML4Science/Math.html#non-uniform-tensors">https://holl-.github.io/ML4Science/Math.html#non-uniform-tensors</a></p>
+<a href="https://tum-pbs.github.io/ML4Science/Math.html#non-uniform-tensors">https://tum-pbs.github.io/ML4Science/Math.html#non-uniform-tensors</a></p>
 <h2 id="args">Args</h2>
 <dl>
 <dt><strong><code>dim</code></strong></dt>
@@ -13467,7 +13467,7 @@ The dimension listing the sizes of the shape is referred to as <code>'dims'</cod
     The dimension listing the sizes of the shape is referred to as `&#39;dims&#39;`.
 
     Non-uniform tensor shapes may be unstacked along other dimensions as well, see
-    https://holl-.github.io/ML4Science/Math.html#non-uniform-tensors
+    https://tum-pbs.github.io/ML4Science/Math.html#non-uniform-tensors
 
     Args:
         dim: dimension to unstack
@@ -14226,7 +14226,7 @@ This class replaces the native tensor classes <code>numpy.ndarray</code>, <code>
 </ul>
 <p>To check whether a value is a tensor, use <code>isinstance(value, <a title="ml4s.math.Tensor" href="#ml4s.math.Tensor">Tensor</a>)</code>.</p>
 <p>To construct a Tensor, use <code><a title="ml4s.math.tensor" href="#ml4s.math.tensor">tensor()</a></code>, <code><a title="ml4s.math.wrap" href="#ml4s.math.wrap">wrap()</a></code> or one of the basic tensor creation functions,
-see <a href="https://holl-.github.io/ML4Science/Math.html#tensor-creation">https://holl-.github.io/ML4Science/Math.html#tensor-creation</a> .</p>
+see <a href="https://tum-pbs.github.io/ML4Science/Math.html#tensor-creation">https://tum-pbs.github.io/ML4Science/Math.html#tensor-creation</a> .</p>
 <p>Tensors are not editable.
 When backed by an editable native tensor, e.g. a <code>numpy.ndarray</code>, do not edit the underlying data structure.</p></div>
 <details class="source">
@@ -14246,7 +14246,7 @@ When backed by an editable native tensor, e.g. a <code>numpy.ndarray</code>, do 
     To check whether a value is a tensor, use `isinstance(value, Tensor)`.
 
     To construct a Tensor, use `ml4s.math.tensor()`, `ml4s.math.wrap()` or one of the basic tensor creation functions,
-    see https://holl-.github.io/ML4Science/Math.html#tensor-creation .
+    see https://tum-pbs.github.io/ML4Science/Math.html#tensor-creation .
 
     Tensors are not editable.
     When backed by an editable native tensor, e.g. a `numpy.ndarray`, do not edit the underlying data structure.

@@ -15110,12 +15110,12 @@ body[data-format='mobile'] .jp-OutputArea-child .jp-OutputArea-output {
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<h1 id="Shapes-in-ML4Science">Shapes in ML4Science<a class="anchor-link" href="#Shapes-in-ML4Science">&#182;</a></h1><p><a href="https://colab.research.google.com/github/holl-/ML4Science/blob/main/docs/Shapes.ipynb"><img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Colab" /></a>
-  •   <a href="https://github.com/holl-/ML4Science">🌐 <strong>ML4Science</strong></a>
-  •   <a href="https://holl-.github.io/ML4Science/">📖 <strong>Documentation</strong></a>
-  •   <a href="https://holl-.github.io/ML4Science/ml4s">🔗 <strong>API</strong></a>
+<h1 id="Shapes-in-ML4Science">Shapes in ML4Science<a class="anchor-link" href="#Shapes-in-ML4Science">&#182;</a></h1><p><a href="https://colab.research.google.com/github/tum-pbs/ML4Science/blob/main/docs/Shapes.ipynb"><img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Colab" /></a>
+  •   <a href="https://github.com/tum-pbs/ML4Science">🌐 <strong>ML4Science</strong></a>
+  •   <a href="https://tum-pbs.github.io/ML4Science/">📖 <strong>Documentation</strong></a>
+  •   <a href="https://tum-pbs.github.io/ML4Science/ml4s">🔗 <strong>API</strong></a>
   •   <a href=""><strong>▶ Videos</strong></a>
-  •   <a href="https://colab.research.google.com/github/holl-/ML4Science/blob/main/docs/Examples.ipynb"><img src="images/colab_logo_small.png" height=4></a> <a href="https://holl-.github.io/ML4Science/Examples.html"><strong>Examples</strong></a></p>
+  •   <a href="https://colab.research.google.com/github/tum-pbs/ML4Science/blob/main/docs/Examples.ipynb"><img src="images/colab_logo_small.png" height=4></a> <a href="https://tum-pbs.github.io/ML4Science/Examples.html"><strong>Examples</strong></a></p>
 
 </div>
 </div>
@@ -15206,7 +15206,7 @@ The following dimension types are available:</p>
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<p>Here, we have created a <a href="https://holl-.github.io/ML4Science/ml4s/math/index.html#ml4s.math.Shape"><code>Shape</code></a> containing a single <em>batch</em> dimension with name <code>examples</code>.
+<p>Here, we have created a <a href="https://tum-pbs.github.io/ML4Science/ml4s/math/index.html#ml4s.math.Shape"><code>Shape</code></a> containing a single <em>batch</em> dimension with name <code>examples</code>.
 Note the superscript <code>b</code> to indicate that this is a batch dimension. Naturally the other superscripts are <code>c</code> for <em>channel</em>, <code>s</code> for <em>spatial</em>, <code>i</code> for <em>instance</em> and <code>d</code> for <em>dual</em>.</p>
 <p>We can now use this shape to construct tensors:</p>
 
@@ -15313,7 +15313,7 @@ We can pass multiple shapes to tensor constructors and can construct multiple di
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<p>We can retrieve the <code>Shape</code> of x using either <code>x.shape</code> or <a href="https://holl-.github.io/ML4Science/ml4s/math/index.html#ml4s.math.shape"><code>math.shape(x)</code></a> which also works on primitive types.</p>
+<p>We can retrieve the <code>Shape</code> of x using either <code>x.shape</code> or <a href="https://tum-pbs.github.io/ML4Science/ml4s/math/index.html#ml4s.math.shape"><code>math.shape(x)</code></a> which also works on primitive types.</p>
 
 </div>
 </div>
@@ -15415,7 +15415,7 @@ We can pass multiple shapes to tensor constructors and can construct multiple di
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<p>There are additional filter function, such as <a href="https://holl-.github.io/ML4Science/ml4s/math/index.html#ml4s.math.non_batch"><code>non_***</code></a> as well as <a href="https://holl-.github.io/ML4Science/ml4s/math/index.html#ml4s.math.primal"><code>primal</code></a> to exclude <em>batch</em> and <em>dual</em> dimensions.</p>
+<p>There are additional filter function, such as <a href="https://tum-pbs.github.io/ML4Science/ml4s/math/index.html#ml4s.math.non_batch"><code>non_***</code></a> as well as <a href="https://tum-pbs.github.io/ML4Science/ml4s/math/index.html#ml4s.math.primal"><code>primal</code></a> to exclude <em>batch</em> and <em>dual</em> dimensions.</p>
 <p>This way, we can easily construct a tensor without the batch dimension.</p>
 
 </div>
@@ -15452,7 +15452,7 @@ We can pass multiple shapes to tensor constructors and can construct multiple di
 
 
 <div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre><span class="ansi-green-intense-fg">(xˢ=28, yˢ=28)</span> <span class="ansi-blue-intense-fg">0.488 ± 0.289</span> <span class="ansi-white-fg">(8e-04...1e+00)</span></pre>
+<pre><span class="ansi-green-intense-fg">(xˢ=28, yˢ=28)</span> <span class="ansi-blue-intense-fg">0.493 ± 0.291</span> <span class="ansi-white-fg">(9e-04...1e+00)</span></pre>
 </div>
 
 </div>
@@ -15533,7 +15533,7 @@ Assuming we have a tensor with dimensions <code>a,b</code> and another with the 
 
 
 <div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre><span class="ansi-blue-intense-fg">(-2.226, 0.232, 0.430, -0.481, -0.706, -2.924)</span> <span class="ansi-green-intense-fg">(aᶜ=2, bᶜ=3)</span></pre>
+<pre><span class="ansi-blue-intense-fg">(-0.616, 1.094, 2.772, 1.062, -0.249, -0.178)</span> <span class="ansi-green-intense-fg">(aᶜ=2, bᶜ=3)</span></pre>
 </div>
 
 </div>
@@ -15589,7 +15589,7 @@ In these cases, you can think of the value being constant along the missing dime
 
 
 <div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre><span class="ansi-blue-intense-fg">(-1.160, -0.441, -0.516, -1.589, -0.870, -0.945)</span> <span class="ansi-green-intense-fg">(aᶜ=2, bᶜ=3)</span></pre>
+<pre><span class="ansi-blue-intense-fg">(0.738, 1.626, 1.798, -2.503, -1.616, -1.443)</span> <span class="ansi-green-intense-fg">(aᶜ=2, bᶜ=3)</span></pre>
 </div>
 
 </div>
@@ -16594,11 +16594,11 @@ To make your code more readable, you can also name slices along dimensions.</p>
 You can therefore write code that <a href="N_Dimensional.html">works in 1D, 2D, 3D and beyond</a>.</p>
 <p>Dual dimensions are used to represent <a href="Matrices.html#Primal-and-Dual-Dimensions">columns of matrices</a>.</p>
 <p>Stacking tensors with the same dimension names but different sizes results in <a href="Non_Uniform.html">non-uniform shapes</a>.</p>
-<p><a href="https://github.com/holl-/ML4Science">🌐 <strong>ML4Science</strong></a>
-  •   <a href="https://holl-.github.io/ML4Science/">📖 <strong>Documentation</strong></a>
-  •   <a href="https://holl-.github.io/ML4Science/ml4s">🔗 <strong>API</strong></a>
+<p><a href="https://github.com/tum-pbs/ML4Science">🌐 <strong>ML4Science</strong></a>
+  •   <a href="https://tum-pbs.github.io/ML4Science/">📖 <strong>Documentation</strong></a>
+  •   <a href="https://tum-pbs.github.io/ML4Science/ml4s">🔗 <strong>API</strong></a>
   •   <a href=""><strong>▶ Videos</strong></a>
-  •   <a href="https://colab.research.google.com/github/holl-/ML4Science/blob/main/docs/Examples.ipynb"><img src="images/colab_logo_small.png" height=4></a> <a href="https://holl-.github.io/ML4Science/Examples.html"><strong>Examples</strong></a></p>
+  •   <a href="https://colab.research.google.com/github/tum-pbs/ML4Science/blob/main/docs/Examples.ipynb"><img src="images/colab_logo_small.png" height=4></a> <a href="https://tum-pbs.github.io/ML4Science/Examples.html"><strong>Examples</strong></a></p>
 
 </div>
 </div>

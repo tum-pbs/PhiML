@@ -15110,12 +15110,12 @@ body[data-format='mobile'] .jp-OutputArea-child .jp-OutputArea-output {
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<h1 id="ML4Science-Quickstart">ML4Science Quickstart<a class="anchor-link" href="#ML4Science-Quickstart">&#182;</a></h1><p><a href="https://colab.research.google.com/github/holl-/ML4Science/blob/main/docs/Introduction.ipynb"><img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Colab" /></a> 
-  •   <a href="https://github.com/holl-/ML4Science">🌐 <strong>ML4Science</strong></a>
-  •   <a href="https://holl-.github.io/ML4Science/">📖 <strong>Documentation</strong></a>
-  •   <a href="https://holl-.github.io/ML4Science/ml4s">🔗 <strong>API</strong></a>
+<h1 id="ML4Science-Quickstart">ML4Science Quickstart<a class="anchor-link" href="#ML4Science-Quickstart">&#182;</a></h1><p><a href="https://colab.research.google.com/github/tum-pbs/ML4Science/blob/main/docs/Introduction.ipynb"><img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Colab" /></a> 
+  •   <a href="https://github.com/tum-pbs/ML4Science">🌐 <strong>ML4Science</strong></a>
+  •   <a href="https://tum-pbs.github.io/ML4Science/">📖 <strong>Documentation</strong></a>
+  •   <a href="https://tum-pbs.github.io/ML4Science/ml4s">🔗 <strong>API</strong></a>
   •   <a href=""><strong>▶ Videos</strong></a>
-  •   <a href="https://colab.research.google.com/github/holl-/ML4Science/blob/main/docs/Examples.ipynb"><img src="images/colab_logo_small.png" height=4></a> <a href="https://holl-.github.io/ML4Science/Examples.html"><strong>Examples</strong></a></p>
+  •   <a href="https://colab.research.google.com/github/tum-pbs/ML4Science/blob/main/docs/Examples.ipynb"><img src="images/colab_logo_small.png" height=4></a> <a href="https://tum-pbs.github.io/ML4Science/Examples.html"><strong>Examples</strong></a></p>
 
 </div>
 </div>
@@ -15157,7 +15157,7 @@ body[data-format='mobile'] .jp-OutputArea-child .jp-OutputArea-output {
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
 <p>Install <a href="https://pytorch.org/">PyTorch</a>, <a href="https://www.tensorflow.org/install">TensorFlow</a> or <a href="https://github.com/google/jax#installation">Jax</a> to enable machine learning capabilities and GPU execution.
-See the <a href="https://holl-.github.io/ML4Science/Installation_Instructions.html">detailed installation instructions</a>.</p>
+See the <a href="https://tum-pbs.github.io/ML4Science/Installation_Instructions.html">detailed installation instructions</a>.</p>
 
 </div>
 </div>
@@ -15349,7 +15349,7 @@ ML4Science will dispatch the call to the corresponding library and return the re
 
 
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="application/vnd.jupyter.stderr">
-<pre>2023-07-17 12:37:08.557425: W tensorflow/compiler/tf2tensorrt/utils/py_utils.cc:38] TF-TRT Warning: Could not find TensorRT
+<pre>2023-07-17 14:43:08.777026: W tensorflow/compiler/tf2tensorrt/utils/py_utils.cc:38] TF-TRT Warning: Could not find TensorRT
 </pre>
 </div>
 </div>
@@ -15418,8 +15418,8 @@ ML4Science will dispatch the call to the corresponding library and return the re
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
 <h2 id="ML4Science's-Tensor">ML4Science's <code>Tensor</code><a class="anchor-link" href="#ML4Science's-Tensor">&#182;</a></h2><p>For more advanced operations, we recommend using <a href="Tensors.html">ML4Science's tensors</a>.
-While ML4Science includes a <a href="https://holl-.github.io/ML4Science/ml4s/backend/#ml4s.backend.Backend">unified low-level API</a> that behaves much like NumPy, using it correctly (so that the code is actually compatible with all libraries) is difficult.
-Instead, ML4Science provides a higher-level API consisting of the <a href="https://holl-.github.io/ML4Science/ml4s/math/#ml4s.math.Tensor"><code>Tensor</code> class</a>, the <a href="https://holl-.github.io/ML4Science/ml4s/math"><code>math</code></a> functions and other odds and ends, that makes writing unified code easy.
+While ML4Science includes a <a href="https://tum-pbs.github.io/ML4Science/ml4s/backend/#ml4s.backend.Backend">unified low-level API</a> that behaves much like NumPy, using it correctly (so that the code is actually compatible with all libraries) is difficult.
+Instead, ML4Science provides a higher-level API consisting of the <a href="https://tum-pbs.github.io/ML4Science/ml4s/math/#ml4s.math.Tensor"><code>Tensor</code> class</a>, the <a href="https://tum-pbs.github.io/ML4Science/ml4s/math"><code>math</code></a> functions and other odds and ends, that makes writing unified code easy.
 Tensors can be created by wrapping an existing backend-specific tensor or array:</p>
 
 </div>
@@ -15511,7 +15511,7 @@ Tensors can be created by wrapping an existing backend-specific tensor or array:
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<p>The difference between <code>tensor</code> and <code>wrap</code> is that <code>wrap</code> keeps the original data you pass in while <code>tensor</code> will convert the data to the default backend which can be set using <a href="https://holl-.github.io/ML4Science/ml4s/math/#ml4s.math.use"><code>math.use()</code></a>.</p>
+<p>The difference between <code>tensor</code> and <code>wrap</code> is that <code>wrap</code> keeps the original data you pass in while <code>tensor</code> will convert the data to the default backend which can be set using <a href="https://tum-pbs.github.io/ML4Science/ml4s/math/#ml4s.math.use"><code>math.use()</code></a>.</p>
 
 </div>
 </div>
@@ -16350,11 +16350,11 @@ In the above example, we might name the red, green and blue channels explicitly:
 <p>ML4Science unifies <a href="Data_Types.html">data types</a> as well and lets you set the floating point precision globally or by context.</p>
 <p>While the dimensionality of neural networks must be specified during network creation, this is not the case for math functions.
 These <a href="N_Dimensional.html">automatically adapt to the number of spatial dimensions of the data that is passed in</a>.</p>
-<p><a href="https://github.com/holl-/ML4Science">🌐 <strong>ML4Science</strong></a>
-  •   <a href="https://holl-.github.io/ML4Science/">📖 <strong>Documentation</strong></a>
-  •   <a href="https://holl-.github.io/ML4Science/ml4s">🔗 <strong>API</strong></a>
+<p><a href="https://github.com/tum-pbs/ML4Science">🌐 <strong>ML4Science</strong></a>
+  •   <a href="https://tum-pbs.github.io/ML4Science/">📖 <strong>Documentation</strong></a>
+  •   <a href="https://tum-pbs.github.io/ML4Science/ml4s">🔗 <strong>API</strong></a>
   •   <a href=""><strong>▶ Videos</strong></a>
-  •   <a href="https://colab.research.google.com/github/holl-/ML4Science/blob/main/docs/Examples.ipynb"><img src="images/colab_logo_small.png" height=4></a> <a href="https://holl-.github.io/ML4Science/Examples.html"><strong>Examples</strong></a></p>
+  •   <a href="https://colab.research.google.com/github/tum-pbs/ML4Science/blob/main/docs/Examples.ipynb"><img src="images/colab_logo_small.png" height=4></a> <a href="https://tum-pbs.github.io/ML4Science/Examples.html"><strong>Examples</strong></a></p>
 
 </div>
 </div>
