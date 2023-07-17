@@ -26,3 +26,7 @@ exclude_lines =
 omit =
     ml4s/backend/tensorflow/_tf_cuda_resample.py
     ml4s/backend/tensorflow/_compile_cuda.py
+
+
+[run]
+data_file = .coverage

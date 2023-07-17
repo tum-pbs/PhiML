@@ -6,7 +6,7 @@
 ![Build Status](https://github.com/tum-pbs/ML4Science/actions/workflows/unit-tests.yml/badge.svg)
 [![PyPI pyversions](https://img.shields.io/pypi/pyversions/ml4s.svg)](https://pypi.org/project/ml4s/)
 [![PyPI license](https://img.shields.io/pypi/l/ml4s.svg)](https://pypi.org/project/ml4s/)
-[![Code Coverage](https://codecov.io/gh/tum-pbs/ML4Science/branch/develop/graph/badge.svg)](https://codecov.io/gh/tum-pbs/ML4Science/branch/develop/)
+[![Code Coverage](https://codecov.io/gh/tum-pbs/ML4Science/branch/main/graph/badge.svg)](https://codecov.io/gh/tum-pbs/ML4Science/branch/main/)
 [![Google Collab Book](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/tum-pbs/ML4Science/blob/main/docs/Introduction.ipynb)
 
 ML4Science is a math and neural network library designed for science applications.
