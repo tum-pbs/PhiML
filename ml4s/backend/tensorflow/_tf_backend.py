@@ -792,7 +792,7 @@ class TFBackend(Backend):
         @wraps(f)
         def eval_grad(*args):
             args = [self.as_tensor(arg, True) if i in wrt else arg for i, arg in enumerate(args)]
-            args = [self.to_float(arg) if self.dtype(arg).kind in (bool, int) else arg for arg in args]
+            args = [self.to_float(arg) if self.dtype(arg).kind in (bool, int) and i in wrt else arg for i, arg in enumerate(args)]
             wrt_args = [arg for i, arg in enumerate(args) if i in wrt]
             with tf.GradientTape(watch_accessed_variables=False) as tape:
                 for arg in wrt_args:
