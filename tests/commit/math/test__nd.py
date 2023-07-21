@@ -12,6 +12,17 @@ REF_DATA = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'reference_
 
 class TestMathNDNumpy(TestCase):
 
+    def test_const_vec(self):
+        v = math.const_vec(1, channel(v='x,y'))
+        math.assert_close(1, v)
+        self.assertEqual(v.shape, channel(v='x,y'))
+        v = math.const_vec(1, spatial(x=4, y=3))
+        math.assert_close(1, v)
+        self.assertEqual(v.shape, channel(vector='x,y'))
+        v = math.const_vec(1, 'x,y')
+        math.assert_close(1, v)
+        self.assertEqual(v.shape, channel(vector='x,y'))
+
     def test_gradient_scalar(self):
         ones = tensor(np.ones([2, 4, 3]), batch('batch'), spatial('x,y'))
         cases = dict(difference=('central', 'forward', 'backward'),
@@ -251,6 +262,24 @@ class TestMathNDNumpy(TestCase):
         math.assert_close(le, [0, 1.41421356237, 1])
         le = math.vec_length(v, eps=0.01)
         math.assert_close(le, [1e-1, 1.41421356237, 1])
+        le = math.vec_length(wrap(1+1j), eps=0.01)
+        math.assert_close(1.41421356237, le)
+
+    def test_vec_normalize(self):
+        vec = math.vec_normalize(math.vec(x=1, y=-1, Z=0))
+        math.assert_close((0.70710678118, -0.70710678118, 0), vec)
+
+    def test_normalize_to(self):
+        vec = math.normalize_to(math.vec(x=1, y=-1, Z=2), 1)
+        math.assert_close((.5, -.5, 1), vec)
+
+    def test_cross_product(self):
+        c = math.cross_product(math.vec(x=2, y=0), math.vec(x=0, y=1))
+        math.assert_close(2, c)
+
+    def test_rotate_vector(self):
+        vec = math.rotate_vector(math.vec(x=2, y=0), math.PI / 2)
+        math.assert_close(math.vec(x=0, y=2), vec, abs_tolerance=1e-5)
 
     def test_dim_mask(self):
         math.assert_close((1, 0, 0), math.dim_mask(spatial('x,y,z'), 'x'))
@@ -271,3 +300,22 @@ class TestMathNDNumpy(TestCase):
     def test_vec_component_sequence(self):
         math.assert_close(wrap([(0, 1), (0, 2)], spatial('sequence'), channel(vector='x,y')), vec(x=0, y=(1, 2)))
         math.assert_close(wrap([(0, 1), (0, 2)], instance('sequence'), channel(vector='x,y')), vec(x=0, y=[1, 2]))
+
+    def test_losses(self):
+        t = math.wrap([(1, 2), (3, 4), (0, 0)], batch('examples'), spatial('x'))
+        math.assert_close((3, 7, 0), math.l1_loss(t))
+        math.assert_close((2.5, 12.5, 0), math.l2_loss(t))
+        math.assert_close((4.5, 24.5, 0), math.frequency_loss(t, threshold=0))
+
+    def test_abs_square(self):
+        math.assert_close(2, math.abs_square(1+1j))
+
+    def test_fourier_poisson(self):
+        x = math.random_normal(batch(b=2), spatial(x=20, y=20))
+        x -= math.mean(x)
+        math.assert_close(x, math.fourier_laplace(math.fourier_poisson(x, .3), .3), abs_tolerance=1e-5)
+
+    def test_sample_subgrid(self):
+        grid = math.random_normal(batch(b=2), spatial(x=20, y=20))
+        s = math.sample_subgrid(grid, start=vec(x=4, y=.5), size=spatial(x=2, y=3))
+        self.assertEqual(batch(grid) & spatial(x=2, y=3), s.shape)

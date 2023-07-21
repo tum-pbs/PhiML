@@ -10,6 +10,12 @@ BACKENDS = init_installed_backends()
 
 class TestSparse(TestCase):
 
+    def test_sparse_tensor(self):
+        indices = math.vec(x=[0, 1], y=[0, 1])
+        values = math.ones(instance(indices))
+        t = math.sparse_tensor(indices, values, spatial(x=2, y=2), format='coo')
+        math.assert_close(wrap([[1, 0], [0, 1]], spatial('x,y')), t)
+
     def test_sparsity(self):
         self.assertEqual(1, get_sparsity(wrap(1)))
         self.assertEqual(0.25, get_sparsity(expand(1., batch(b=4))))
@@ -85,3 +91,8 @@ class TestSparse(TestCase):
         L, U = math.factor_ilu(matrix, 10)
         math.assert_close(L @ U, matrix)
 
+    def test_tensor_like(self):
+        matrix, _ = math.matrix_from_function(math.laplace, math.zeros(spatial(x=3)), padding=0)
+        other = math.tensor_like(matrix, 1)
+        math.assert_close(1, math.stored_values(other))
+        math.assert_close(math.stored_indices(matrix), math.stored_indices(other))

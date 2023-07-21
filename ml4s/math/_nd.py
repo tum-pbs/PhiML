@@ -307,7 +307,7 @@ def frequency_loss(x,
         raise ValueError(x)
 
 
-def abs_square(complex_values: Tensor) -> Tensor:
+def abs_square(complex_values: Union[Tensor, complex]) -> Tensor:
     """
     Squared magnitude of complex values.
 

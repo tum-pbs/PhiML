@@ -631,6 +631,7 @@ def fftfreq(resolution: Shape, dx: Union[Tensor, float] = 1, dtype: DType = None
     Returns:
         `Tensor` holding the frequencies of the corresponding values computed by math.fft
     """
+    assert resolution.spatial and f"resolution must contain at least one spatial dimension"
     k = meshgrid(**{dim: np.fft.fftfreq(int(n)) for dim, n in resolution.spatial._named_sizes})
     k /= dx
     return to_float(k) if dtype is None else cast(k, dtype)
