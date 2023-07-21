@@ -256,7 +256,7 @@ TensorFlow and PyTorch return 0 while Jax returns 1.</p>
 </details>
 </dd>
 <dt id="ml4s.math.abs_square"><code class="name flex">
-<span>def <span class="ident">abs_square</span></span>(<span>complex_values: ml4s.math._tensors.Tensor) ‑> ml4s.math._tensors.Tensor</span>
+<span>def <span class="ident">abs_square</span></span>(<span>complex_values: Union[ml4s.math._tensors.Tensor, complex]) ‑> ml4s.math._tensors.Tensor</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Squared magnitude of complex values.</p>
@@ -274,7 +274,7 @@ TensorFlow and PyTorch return 0 while Jax returns 1.</p>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def abs_square(complex_values: Tensor) -&gt; Tensor:
+<pre><code class="python">def abs_square(complex_values: Union[Tensor, complex]) -&gt; Tensor:
     &#34;&#34;&#34;
     Squared magnitude of complex values.
 
@@ -2467,6 +2467,7 @@ These are the frequencies corresponding to the components of the result of <code
     Returns:
         `Tensor` holding the frequencies of the corresponding values computed by math.fft
     &#34;&#34;&#34;
+    assert resolution.spatial and f&#34;resolution must contain at least one spatial dimension&#34;
     k = meshgrid(**{dim: np.fft.fftfreq(int(n)) for dim, n in resolution.spatial._named_sizes})
     k /= dx
     return to_float(k) if dtype is None else cast(k, dtype)</code></pre>
