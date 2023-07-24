@@ -274,8 +274,14 @@ class TestMathNDNumpy(TestCase):
         math.assert_close((.5, -.5, 1), vec)
 
     def test_cross_product(self):
+        # --- 2D ---
         c = math.cross_product(math.vec(x=2, y=0), math.vec(x=0, y=1))
         math.assert_close(2, c)
+        # --- 3D ---
+        c = math.cross_product(math.vec(x=1, y=0, z=0), math.vec(x=0, y=2, z=0))
+        math.assert_close(math.vec(x=0, y=0, z=2), c)
+        c = math.cross_product(math.vec(x=0, y=1, z=0), math.vec(x=0, y=2, z=0))
+        math.assert_close(math.vec(x=0, y=0, z=0), c)
 
     def test_rotate_vector(self):
         vec = math.rotate_vector(math.vec(x=2, y=0), math.PI / 2)
