@@ -33,6 +33,11 @@ class TestOps(TestCase):
             assert_not_close(math.zeros(a), math.ones(a) * 1e-100, rel_tolerance=0, abs_tolerance=0)
             assert_close(math.zeros(a), math.ones(a) * 1e-100, rel_tolerance=0, abs_tolerance=1e-15)
 
+    def test_assert_close_non_uniform(self):
+        t = math.stack([math.zeros(spatial(x=4)), math.zeros(spatial(x=3))], channel('stack'))
+        math.assert_close(t, t+0)
+        self.assertFalse(math.close(t, t+1))
+
     def test_soft_plus(self):
         for backend in BACKENDS:
             with backend:

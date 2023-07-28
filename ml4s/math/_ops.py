@@ -7,7 +7,7 @@ from typing import Tuple, Callable, Any, Union, Optional
 import numpy as np
 
 from . import extrapolation as e_
-from ._magic_ops import expand, pack_dims, unpack_dim, cast, copy_with, value_attributes, bool_to_int, tree_map, concat, stack
+from ._magic_ops import expand, pack_dims, unpack_dim, cast, copy_with, value_attributes, bool_to_int, tree_map, concat, stack, unstack
 from ._shape import (Shape, EMPTY_SHAPE,
                      spatial, batch, channel, instance, merge_shapes, parse_dim_order, concat_shapes,
                      IncompatibleShapes, DimFilter, non_batch, dual, non_channel, shape)
@@ -2432,9 +2432,17 @@ def close(*tensors, rel_tolerance=1e-5, abs_tolerance=0) -> bool:
     return True
 
 
-def _close(tensor1, tensor2, rel_tolerance=1e-5, abs_tolerance=0):
+def _close(tensor1: Tensor, tensor2: Tensor, rel_tolerance=1e-5, abs_tolerance=0):
     if tensor2 is tensor1:
         return True
+    non_uniform_dim = None
+    if tensor2.shape.is_non_uniform:
+        non_uniform_dim = tensor2.shape.non_uniform[0]
+    if tensor1.shape.is_non_uniform:
+        non_uniform_dim = tensor1.shape.non_uniform[0]
+    if non_uniform_dim:
+        inner_close = [_close(t1, t2) for t1, t2 in zip(unstack(tensor1, non_uniform_dim), unstack(tensor2, non_uniform_dim))]
+        return all(inner_close)
     new_shape, (native1, native2) = broadcastable_native_tensors(tensor1, tensor2)
     np1 = choose_backend(native1).numpy(native1)
     np2 = choose_backend(native2).numpy(native2)
