@@ -983,7 +983,10 @@ class TorchBackend(Backend):
         return self.hessian(jit, wrt, get_output, get_gradient)
 
     def stop_gradient(self, value):
-        return value.detach()
+        if isinstance(value, torch.Tensor):
+            return value.detach()
+        else:
+            return value
 
 
 def channels_first(x):
