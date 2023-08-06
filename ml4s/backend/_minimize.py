@@ -112,7 +112,7 @@ def scipy_minimize(self, method: str, f, x0, atol, max_iter, trj: bool):
         return SolveResult(method_description, x, residual, iterations, function_evaluations, converged, diverged, messages)
 
 
-def gradient_descent(self: Backend, f, x0, atol, max_iter, trj: bool, step_size='adaptive'):
+def gradient_descent(self: Backend, f, x0, atol, max_iter, trj: bool, step_size='adaptive', max_substeps=8):
     assert self.supports(Backend.jacobian)
     assert len(self.staticshape(x0)) == 2  # (batch, parameters)
     batch_size = self.staticshape(x0)[0]
@@ -129,7 +129,7 @@ def gradient_descent(self: Backend, f, x0, atol, max_iter, trj: bool, step_size=
     loss, grad = fg(x0)  # Evaluate function and gradient
     diverged = self.any(~self.isfinite(x0), axis=(1,))
     converged = self.zeros([batch_size], DType(bool))
-    trajectory = [SolveResult(method, x0, loss, iterations, function_evaluations, converged, diverged, [""] * batch_size)] if trj else None
+    trajectory = [SolveResult(method, self.numpy(x0), self.numpy(loss), self.numpy(iterations), self.numpy(function_evaluations), self.numpy(converged), self.numpy(diverged), [""] * batch_size)] if trj else None
     max_iter_ = self.to_int32(max_iter)
     continue_ = ~converged & ~diverged & (iterations < max_iter_)
 
@@ -138,28 +138,33 @@ def gradient_descent(self: Backend, f, x0, atol, max_iter, trj: bool, step_size=
         continue_1 = self.to_int32(continue_)
         iterations += continue_1
         if adaptive_step_size:
-            for i in range(20):
+            for i in range(max_substeps):
                 dx = - grad * self.expand_dims(step_size * self.to_float(continue_1), -1)
                 next_x = x + dx
                 predicted_loss_decrease = - self.sum(grad * dx, -1)  # >= 0
                 next_loss, next_grad = fg(next_x); function_evaluations += continue_1
-                converged = converged | (self.sum(next_grad ** 2, axis=-1) < atol ** 2)
                 ML_LOGGER.debug(f"Gradient: {self.numpy(next_grad)} with step_size={self.numpy(step_size)}")
                 actual_loss_decrease = loss - next_loss  # we want > 0
                 # we want actual_loss_decrease to be at least half of predicted_loss_decrease
                 act_pred = self.divide_no_nan(actual_loss_decrease, predicted_loss_decrease)
                 ML_LOGGER.debug(f"Actual/Predicted: {self.numpy(act_pred)}")
                 step_size_fac = self.clip(self.log(1 + 1.71828182845 * self.exp((act_pred - 0.5) * 2.)), 0.1, 10)
-                ML_LOGGER.debug(f"step_size *= {self.numpy(step_size_fac)}")
+                converged = converged | ((self.sum(dx ** 2, axis=-1) < atol ** 2) & (step_size_fac <= 1))
                 step_size *= step_size_fac
-                if self.all((act_pred > 0.4) & (act_pred < 0.9) | converged | diverged):
-                    ML_LOGGER.debug(f"GD minimization: Finished step_size adjustment after {i + 1} tries\n")
+                ML_LOGGER.debug(f"step_size *= {self.numpy(step_size_fac)} = {self.numpy(step_size)}")
+                diverged |= self.any(~self.isfinite(next_grad), axis=(1,))
+                step_size_ok = ((act_pred > 0.4) & (act_pred < 0.9)) | converged | diverged
+                if self.all(step_size_ok):
+                    ML_LOGGER.info(f"GD iter {self.numpy(iterations).max()}: Finished step_size adjustment after {i + 1} tries. step_size={self.numpy(step_size)}\n")
                     break
-            else:
-                converged = converged | (abs(actual_loss_decrease) < predicted_loss_decrease)
-                ML_LOGGER.debug("Backend._minimize_gradient_descent(): No step size found!\n")
+                else:
+                    ML_LOGGER.info(f"GD iter {self.numpy(iterations).max()} substep {i + 1}: step sizes not yet ready: {(~self.numpy(step_size_ok)).astype(int)}")
+            # else:
+            #     converged = converged | (abs(actual_loss_decrease) < predicted_loss_decrease)
+            #     ML_LOGGER.debug("Backend._minimize_gradient_descent(): No step size found!\n")
             diverged = diverged | (next_loss > loss)
             x, loss, grad = next_x, next_loss, next_grad
+            ML_LOGGER.info(f"GD iter {self.numpy(iterations).max()} new estimate x={x}")
         else:
             x -= grad * self.expand_dims(step_size * self.to_float(continue_1), -1)
             loss, grad = fg(x); function_evaluations += continue_1
@@ -172,7 +177,7 @@ def gradient_descent(self: Backend, f, x0, atol, max_iter, trj: bool, step_size=
 
     not_converged, x, loss, grad, iterations, function_evaluations, step_size, converged, diverged = self.while_loop(gd_step, (continue_, x0, loss, grad, iterations, function_evaluations, step_size, converged, diverged), int(max(max_iter)))
     if trj:
-        trajectory.append(SolveResult(method, x, loss, iterations, function_evaluations + 1, converged, diverged, [""] * batch_size))
+        trajectory.append(SolveResult(method, self.numpy(x), self.numpy(loss), self.numpy(iterations), self.numpy(function_evaluations) + 1, self.numpy(converged), self.numpy(diverged), [""] * batch_size))
         return trajectory
     else:
         return SolveResult(method, x, loss, iterations, function_evaluations, converged, diverged, [""] * batch_size)
