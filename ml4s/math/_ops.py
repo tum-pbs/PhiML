@@ -2150,7 +2150,7 @@ def gather(values: Tensor, indices: Tensor, dims: Union[DimFilter, None] = None)
     index_list_dims = indices.shape.non_channel.without(batch_)
     squeeze_index_list = False
     if not index_list_dims:
-        index_list_dims = instance('_single_index')
+        index_list_dims = instance(_single_index=1)
         squeeze_index_list = True
     native_values = reshaped_native(values, [batch_, *dims, channel_])
     native_indices = reshaped_native(indices, [batch_, *index_list_dims, channel(indices)])

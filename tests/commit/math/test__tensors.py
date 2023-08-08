@@ -671,3 +671,7 @@ class TestTensors(TestCase):
     def test_slice_outside(self):
         t = math.random_normal(spatial(x=3)).x[:5]
         self.assertEqual(t.x.size, 3)
+
+    def test_single_index_gather(self):
+        a = tensor([[1, 2, 3], [4, 5, 6]], spatial('y,x'))
+        math.assert_close(6, a[vec(y=1, x=2)])
