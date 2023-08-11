@@ -15110,12 +15110,12 @@ body[data-format='mobile'] .jp-OutputArea-child .jp-OutputArea-output {
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<h1 id="Automatic-Differentiation-in-ML4Science">Automatic Differentiation in ML4Science<a class="anchor-link" href="#Automatic-Differentiation-in-ML4Science">&#182;</a></h1><p><a href="https://colab.research.google.com/github/tum-pbs/ML4Science/blob/main/docs/Autodiff.ipynb"><img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Colab" /></a>
-  •   <a href="https://github.com/tum-pbs/ML4Science">🌐 <strong>ML4Science</strong></a>
-  •   <a href="https://tum-pbs.github.io/ML4Science/">📖 <strong>Documentation</strong></a>
-  •   <a href="https://tum-pbs.github.io/ML4Science/ml4s">🔗 <strong>API</strong></a>
+<h1 id="Automatic-Differentiation-in-%CE%A6ML">Automatic Differentiation in &#934;<sub>ML</sub><a class="anchor-link" href="#Automatic-Differentiation-in-%CE%A6ML">&#182;</a></h1><p><a href="https://colab.research.google.com/github/tum-pbs/PhiML/blob/main/docs/Autodiff.ipynb"><img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Colab" /></a>
+  •   <a href="https://github.com/tum-pbs/PhiML">🌐 <strong>Φ<sub>ML</sub></strong></a>
+  •   <a href="https://tum-pbs.github.io/%CE%A6%3Csub%3EML%3C/sub%3E/">📖 <strong>Documentation</strong></a>
+  •   <a href="https://tum-pbs.github.io/%CE%A6%3Csub%3EML%3C/sub%3E/phiml">🔗 <strong>API</strong></a>
   •   <a href=""><strong>▶ Videos</strong></a>
-  •   <a href="https://colab.research.google.com/github/tum-pbs/ML4Science/blob/main/docs/Examples.ipynb"><img src="images/colab_logo_small.png" height=4></a> <a href="https://tum-pbs.github.io/ML4Science/Examples.html"><strong>Examples</strong></a></p>
+  •   <a href="https://colab.research.google.com/github/tum-pbs/PhiML/blob/main/docs/Examples.ipynb"><img src="images/colab_logo_small.png" height=4></a> <a href="https://tum-pbs.github.io/%CE%A6%3Csub%3EML%3C/sub%3E/Examples.html"><strong>Examples</strong></a></p>
 
 </div>
 </div>
@@ -15129,9 +15129,9 @@ body[data-format='mobile'] .jp-OutputArea-child .jp-OutputArea-output {
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython2"><pre><span></span><span class="o">%%capture</span>
-<span class="err">!</span><span class="n">pip</span> <span class="n">install</span> <span class="n">ml4s</span>
+<span class="err">!</span><span class="n">pip</span> <span class="n">install</span> <span class="n">phiml</span>
 
-<span class="kn">from</span> <span class="nn">ml4s</span> <span class="kn">import</span> <span class="n">math</span>
+<span class="kn">from</span> <span class="nn">phiml</span> <span class="kn">import</span> <span class="n">math</span>
 </pre></div>
 
      </div>
@@ -15146,8 +15146,8 @@ body[data-format='mobile'] .jp-OutputArea-child .jp-OutputArea-output {
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<p>Like Jax, ML4Science provides a functional approach to automatic differentiation.
-You can obtain the derivative of a function using <a href="ml4s/math#ml4s.math.gradient"><code>math.gradient()</code></a>.
+<p>Like Jax, Φ<sub>ML</sub> provides a functional approach to automatic differentiation.
+You can obtain the derivative of a function using <a href="phiml/math#phiml.math.gradient"><code>math.gradient()</code></a>.
 Note that we have to set the backend to either Jax, PyTorch or TensorFlow since NumPy does not support automatic differentiation.</p>
 
 </div>
@@ -15187,7 +15187,7 @@ Note that we have to set the backend to either Jax, PyTorch or TensorFlow since 
 
 
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="application/vnd.jupyter.stderr">
-<pre>/opt/hostedtoolcache/Python/3.8.17/x64/lib/python3.8/site-packages/ml4s/math/_functional.py:475: RuntimeWarning: Using torch for gradient computation because numpy does not support jacobian()
+<pre>/opt/hostedtoolcache/Python/3.8.17/x64/lib/python3.8/site-packages/phiml/math/_functional.py:475: RuntimeWarning: Using torch for gradient computation because numpy does not support jacobian()
   warnings.warn(f&#34;Using {math.default_backend()} for gradient computation because {key.backend} does not support jacobian()&#34;, RuntimeWarning)
 </pre>
 </div>
@@ -15270,7 +15270,7 @@ In the above case, the loss value is <code>1</code> and the gradient is <code>2<
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<p>Since we passed in native types (not ML4Science tensors), we also get native types as a result.
+<p>Since we passed in native types (not Φ<sub>ML</sub> tensors), we also get native types as a result.
 Let's pass a tensor for <code>x</code> instead.</p>
 
 </div>
@@ -15377,7 +15377,7 @@ This restriction applies to all dimension types except for batch dimensions whic
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<p>A simple way to reduce all non-batch dimensions is <a href="ml4s/math#ml4s.math.l2_loss"><code>l2_loss()</code></a> or simply <a href="ml4s/math#ml4s.math.sum"><code>sum</code></a>.
+<p>A simple way to reduce all non-batch dimensions is <a href="phiml/math#phiml.math.l2_loss"><code>l2_loss()</code></a> or simply <a href="phiml/math#phiml.math.sum"><code>sum</code></a>.
 Both of these operations reduce all dimensions except for batch dimensions.</p>
 
 </div>
@@ -15552,8 +15552,8 @@ Both of these operations reduce all dimensions except for batch dimensions.</p>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
 <p>Here, we create the custom class <code>Vec</code> which holds two properties, <code>x1</code> and <code>x2</code>.
-In <a href="ml4s/math/magic#ml4s.math.magic.PhiTreeNode.__value_attrs__"><code>__value_attrs__</code></a>, we declare that both members should be considered as values for value operations, such as <code>l2_loss</code>.
-The analog method <a href="ml4s/math/magic#ml4s.math.magic.PhiTreeNode.__variable_attrs__"><code>__variable_attrs__</code></a> defines which values should be considered for automatic differentiation.
+In <a href="phiml/math/magic#phiml.math.magic.PhiTreeNode.__value_attrs__"><code>__value_attrs__</code></a>, we declare that both members should be considered as values for value operations, such as <code>l2_loss</code>.
+The analog method <a href="phiml/math/magic#phiml.math.magic.PhiTreeNode.__variable_attrs__"><code>__variable_attrs__</code></a> defines which values should be considered for automatic differentiation.
 This defaults to all variables if not implemented.</p>
 
 </div>
@@ -15566,14 +15566,14 @@ This defaults to all variables if not implemented.</p>
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<h2 id="Further-Reading">Further Reading<a class="anchor-link" href="#Further-Reading">&#182;</a></h2><p>ML4Science also provides <a href="N_Dimensional.html">finite difference differential operators</a>.</p>
+<h2 id="Further-Reading">Further Reading<a class="anchor-link" href="#Further-Reading">&#182;</a></h2><p>Φ<sub>ML</sub> also provides <a href="N_Dimensional.html">finite difference differential operators</a>.</p>
 <p>Another important function transformation is <a href="JIT.html">JIT-compilation</a>.</p>
 <p>When <a href="Networks.html">training neural networks</a>, the gradient is typically computed under-the-hood.</p>
-<p><a href="https://github.com/tum-pbs/ML4Science">🌐 <strong>ML4Science</strong></a>
-  •   <a href="https://tum-pbs.github.io/ML4Science/">📖 <strong>Documentation</strong></a>
-  •   <a href="https://tum-pbs.github.io/ML4Science/ml4s">🔗 <strong>API</strong></a>
+<p><a href="https://github.com/tum-pbs/PhiML">🌐 <strong>Φ<sub>ML</sub></strong></a>
+  •   <a href="https://tum-pbs.github.io/%CE%A6%3Csub%3EML%3C/sub%3E/">📖 <strong>Documentation</strong></a>
+  •   <a href="https://tum-pbs.github.io/%CE%A6%3Csub%3EML%3C/sub%3E/phiml">🔗 <strong>API</strong></a>
   •   <a href=""><strong>▶ Videos</strong></a>
-  •   <a href="https://colab.research.google.com/github/tum-pbs/ML4Science/blob/main/docs/Examples.ipynb"><img src="images/colab_logo_small.png" height=4></a> <a href="https://tum-pbs.github.io/ML4Science/Examples.html"><strong>Examples</strong></a></p>
+  •   <a href="https://colab.research.google.com/github/tum-pbs/PhiML/blob/main/docs/Examples.ipynb"><img src="images/colab_logo_small.png" height=4></a> <a href="https://tum-pbs.github.io/%CE%A6%3Csub%3EML%3C/sub%3E/Examples.html"><strong>Examples</strong></a></p>
 
 </div>
 </div>

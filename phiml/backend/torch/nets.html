@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
 <meta name="generator" content="pdoc 0.10.0" />
-<title>ml4s.backend.torch.nets API documentation</title>
+<title>phiml.backend.torch.nets API documentation</title>
 <meta name="description" content="PyTorch implementation of the unified machine learning API.
 Equivalent functions also exist for the other frameworks …" />
 <link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
@@ -20,12 +20,12 @@ Equivalent functions also exist for the other frameworks …" />
 <main>
 <article id="content">
 <header>
-<h1 class="title">Module <code>ml4s.backend.torch.nets</code></h1>
+<h1 class="title">Module <code>phiml.backend.torch.nets</code></h1>
 </header>
 <section id="section-intro">
 <p>PyTorch implementation of the unified machine learning API.
 Equivalent functions also exist for the other frameworks.</p>
-<p>For API documentation, see <code><a title="ml4s.nn" href="../../nn.html">ml4s.nn</a></code>.</p>
+<p>For API documentation, see <code><a title="phiml.nn" href="../../nn.html">phiml.nn</a></code>.</p>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -34,7 +34,7 @@ Equivalent functions also exist for the other frameworks.</p>
 PyTorch implementation of the unified machine learning API.
 Equivalent functions also exist for the other frameworks.
 
-For API documentation, see `ml4s.nn`.
+For API documentation, see `phiml.nn`.
 &#34;&#34;&#34;
 from typing import Callable, Union, Sequence
 
@@ -701,7 +701,7 @@ def coupling_layer(in_channels: int,
 <section>
 <h2 class="section-title" id="header-functions">Functions</h2>
 <dl>
-<dt id="ml4s.backend.torch.nets.adagrad"><code class="name flex">
+<dt id="phiml.backend.torch.nets.adagrad"><code class="name flex">
 <span>def <span class="ident">adagrad</span></span>(<span>net: torch.nn.modules.module.Module, learning_rate: float = 0.001, lr_decay=0, weight_decay=0, initial_accumulator_value=0, eps=1e-10)</span>
 </code></dt>
 <dd>
@@ -714,7 +714,7 @@ def coupling_layer(in_channels: int,
     return optim.Adagrad(net.parameters(), learning_rate, lr_decay, weight_decay, initial_accumulator_value, eps)</code></pre>
 </details>
 </dd>
-<dt id="ml4s.backend.torch.nets.adam"><code class="name flex">
+<dt id="phiml.backend.torch.nets.adam"><code class="name flex">
 <span>def <span class="ident">adam</span></span>(<span>net: torch.nn.modules.module.Module, learning_rate: float = 0.001, betas=(0.9, 0.999), epsilon=1e-07)</span>
 </code></dt>
 <dd>
@@ -727,7 +727,7 @@ def coupling_layer(in_channels: int,
     return optim.Adam(net.parameters(), learning_rate, betas, epsilon)</code></pre>
 </details>
 </dd>
-<dt id="ml4s.backend.torch.nets.conv_classifier"><code class="name flex">
+<dt id="phiml.backend.torch.nets.conv_classifier"><code class="name flex">
 <span>def <span class="ident">conv_classifier</span></span>(<span>in_features: int, in_spatial: Union[tuple, list], num_classes: int, blocks=(64, 128, 256, 256, 512, 512), block_sizes=(2, 2, 3, 3, 3), dense_layers=(4096, 4096, 100), batch_norm=True, activation='ReLU', softmax=True, periodic=False)</span>
 </code></dt>
 <dd>
@@ -752,7 +752,7 @@ def coupling_layer(in_channels: int,
     return net.to(TORCH.get_default_device().ref)</code></pre>
 </details>
 </dd>
-<dt id="ml4s.backend.torch.nets.conv_net"><code class="name flex">
+<dt id="phiml.backend.torch.nets.conv_net"><code class="name flex">
 <span>def <span class="ident">conv_net</span></span>(<span>in_channels: int, out_channels: int, layers: Sequence[int], batch_norm: bool = False, activation: Union[str, type] = 'ReLU', in_spatial: Union[int, tuple] = 2, periodic=False) ‑> torch.nn.modules.module.Module</span>
 </code></dt>
 <dd>
@@ -778,7 +778,7 @@ def coupling_layer(in_channels: int,
     return net</code></pre>
 </details>
 </dd>
-<dt id="ml4s.backend.torch.nets.coupling_layer"><code class="name flex">
+<dt id="phiml.backend.torch.nets.coupling_layer"><code class="name flex">
 <span>def <span class="ident">coupling_layer</span></span>(<span>in_channels: int, activation: Union[str, type] = 'ReLU', batch_norm=False, reverse_mask=False, in_spatial: Union[int, tuple] = 2)</span>
 </code></dt>
 <dd>
@@ -800,7 +800,7 @@ def coupling_layer(in_channels: int,
     return net</code></pre>
 </details>
 </dd>
-<dt id="ml4s.backend.torch.nets.get_mask"><code class="name flex">
+<dt id="phiml.backend.torch.nets.get_mask"><code class="name flex">
 <span>def <span class="ident">get_mask</span></span>(<span>inputs, reverse_mask, data_format='NHWC')</span>
 </code></dt>
 <dd>
@@ -836,7 +836,7 @@ def coupling_layer(in_channels: int,
     return checker.to(TORCH.get_default_device().ref)</code></pre>
 </details>
 </dd>
-<dt id="ml4s.backend.torch.nets.get_parameters"><code class="name flex">
+<dt id="phiml.backend.torch.nets.get_parameters"><code class="name flex">
 <span>def <span class="ident">get_parameters</span></span>(<span>net: torch.nn.modules.module.Module, wrap=True) ‑> dict</span>
 </code></dt>
 <dd>
@@ -868,7 +868,7 @@ def coupling_layer(in_channels: int,
     return result</code></pre>
 </details>
 </dd>
-<dt id="ml4s.backend.torch.nets.invertible_net"><code class="name flex">
+<dt id="phiml.backend.torch.nets.invertible_net"><code class="name flex">
 <span>def <span class="ident">invertible_net</span></span>(<span>num_blocks: int, construct_net: Union[str, Callable], **construct_kwargs)</span>
 </code></dt>
 <dd>
@@ -894,7 +894,7 @@ def coupling_layer(in_channels: int,
     return InvertibleNet(num_blocks, construct_net, construct_kwargs).to(TORCH.get_default_device().ref)</code></pre>
 </details>
 </dd>
-<dt id="ml4s.backend.torch.nets.load_state"><code class="name flex">
+<dt id="phiml.backend.torch.nets.load_state"><code class="name flex">
 <span>def <span class="ident">load_state</span></span>(<span>obj: Union[torch.nn.modules.module.Module, torch.optim.optimizer.Optimizer], path: str)</span>
 </code></dt>
 <dd>
@@ -909,7 +909,7 @@ def coupling_layer(in_channels: int,
     obj.load_state_dict(torch.load(path))</code></pre>
 </details>
 </dd>
-<dt id="ml4s.backend.torch.nets.mlp"><code class="name flex">
+<dt id="phiml.backend.torch.nets.mlp"><code class="name flex">
 <span>def <span class="ident">mlp</span></span>(<span>in_channels: int, out_channels: int, layers: Sequence[int], batch_norm=False, activation: Union[str, Callable] = 'ReLU', softmax=False) ‑> torch.nn.modules.module.Module</span>
 </code></dt>
 <dd>
@@ -930,7 +930,7 @@ def coupling_layer(in_channels: int,
     return net.to(TORCH.get_default_device().ref)</code></pre>
 </details>
 </dd>
-<dt id="ml4s.backend.torch.nets.res_net"><code class="name flex">
+<dt id="phiml.backend.torch.nets.res_net"><code class="name flex">
 <span>def <span class="ident">res_net</span></span>(<span>in_channels: int, out_channels: int, layers: Sequence[int], batch_norm: bool = False, activation: Union[str, type] = 'ReLU', in_spatial: Union[int, tuple] = 2, periodic=False) ‑> torch.nn.modules.module.Module</span>
 </code></dt>
 <dd>
@@ -957,7 +957,7 @@ def coupling_layer(in_channels: int,
     return net</code></pre>
 </details>
 </dd>
-<dt id="ml4s.backend.torch.nets.rmsprop"><code class="name flex">
+<dt id="phiml.backend.torch.nets.rmsprop"><code class="name flex">
 <span>def <span class="ident">rmsprop</span></span>(<span>net: torch.nn.modules.module.Module, learning_rate: float = 0.001, alpha=0.99, eps=1e-08, weight_decay=0, momentum=0, centered=False)</span>
 </code></dt>
 <dd>
@@ -970,7 +970,7 @@ def coupling_layer(in_channels: int,
     return optim.RMSprop(net.parameters(), learning_rate, alpha, eps, weight_decay, momentum, centered)</code></pre>
 </details>
 </dd>
-<dt id="ml4s.backend.torch.nets.save_state"><code class="name flex">
+<dt id="phiml.backend.torch.nets.save_state"><code class="name flex">
 <span>def <span class="ident">save_state</span></span>(<span>obj: Union[torch.nn.modules.module.Module, torch.optim.optimizer.Optimizer], path: str)</span>
 </code></dt>
 <dd>
@@ -985,7 +985,7 @@ def coupling_layer(in_channels: int,
     torch.save(obj.state_dict(), path)</code></pre>
 </details>
 </dd>
-<dt id="ml4s.backend.torch.nets.sgd"><code class="name flex">
+<dt id="phiml.backend.torch.nets.sgd"><code class="name flex">
 <span>def <span class="ident">sgd</span></span>(<span>net: torch.nn.modules.module.Module, learning_rate: float = 0.001, momentum=0, dampening=0, weight_decay=0, nesterov=False)</span>
 </code></dt>
 <dd>
@@ -998,7 +998,7 @@ def coupling_layer(in_channels: int,
     return optim.SGD(net.parameters(), learning_rate, momentum, dampening, weight_decay, nesterov)</code></pre>
 </details>
 </dd>
-<dt id="ml4s.backend.torch.nets.u_net"><code class="name flex">
+<dt id="phiml.backend.torch.nets.u_net"><code class="name flex">
 <span>def <span class="ident">u_net</span></span>(<span>in_channels: int, out_channels: int, levels: int = 4, filters: Union[int, tuple, list] = 16, batch_norm: bool = True, activation: Union[str, type] = 'ReLU', in_spatial: Union[int, tuple] = 2, periodic=False, use_res_blocks: bool = False) ‑> torch.nn.modules.module.Module</span>
 </code></dt>
 <dd>
@@ -1030,7 +1030,7 @@ def coupling_layer(in_channels: int,
     return net.to(TORCH.get_default_device().ref)</code></pre>
 </details>
 </dd>
-<dt id="ml4s.backend.torch.nets.update_weights"><code class="name flex">
+<dt id="phiml.backend.torch.nets.update_weights"><code class="name flex">
 <span>def <span class="ident">update_weights</span></span>(<span>net: torch.nn.modules.module.Module, optimizer: torch.optim.optimizer.Optimizer, loss_function: Callable, *loss_args, check_nan=False, **loss_kwargs)</span>
 </code></dt>
 <dd>
@@ -1064,7 +1064,7 @@ def coupling_layer(in_channels: int,
 <section>
 <h2 class="section-title" id="header-classes">Classes</h2>
 <dl>
-<dt id="ml4s.backend.torch.nets.ConvClassifier"><code class="flex name class">
+<dt id="phiml.backend.torch.nets.ConvClassifier"><code class="flex name class">
 <span>class <span class="ident">ConvClassifier</span></span>
 <span>(</span><span>in_features, in_spatial: list, num_classes: int, batch_norm: bool, use_softmax: bool, blocks: tuple, block_sizes: tuple, dense_layers: tuple, periodic: bool, activation)</span>
 </code></dt>
@@ -1135,22 +1135,22 @@ evaluation mode.
 </ul>
 <h3>Class variables</h3>
 <dl>
-<dt id="ml4s.backend.torch.nets.ConvClassifier.call_super_init"><code class="name">var <span class="ident">call_super_init</span> : bool</code></dt>
+<dt id="phiml.backend.torch.nets.ConvClassifier.call_super_init"><code class="name">var <span class="ident">call_super_init</span> : bool</code></dt>
 <dd>
 <div class="desc"></div>
 </dd>
-<dt id="ml4s.backend.torch.nets.ConvClassifier.dump_patches"><code class="name">var <span class="ident">dump_patches</span> : bool</code></dt>
+<dt id="phiml.backend.torch.nets.ConvClassifier.dump_patches"><code class="name">var <span class="ident">dump_patches</span> : bool</code></dt>
 <dd>
 <div class="desc"></div>
 </dd>
-<dt id="ml4s.backend.torch.nets.ConvClassifier.training"><code class="name">var <span class="ident">training</span> : bool</code></dt>
+<dt id="phiml.backend.torch.nets.ConvClassifier.training"><code class="name">var <span class="ident">training</span> : bool</code></dt>
 <dd>
 <div class="desc"></div>
 </dd>
 </dl>
 <h3>Methods</h3>
 <dl>
-<dt id="ml4s.backend.torch.nets.ConvClassifier.forward"><code class="name flex">
+<dt id="phiml.backend.torch.nets.ConvClassifier.forward"><code class="name flex">
 <span>def <span class="ident">forward</span></span>(<span>self, x) ‑> Callable[..., Any]</span>
 </code></dt>
 <dd>
@@ -1178,7 +1178,7 @@ registered hooks while the latter silently ignores them.</p>
 </dd>
 </dl>
 </dd>
-<dt id="ml4s.backend.torch.nets.ConvNet"><code class="flex name class">
+<dt id="phiml.backend.torch.nets.ConvNet"><code class="flex name class">
 <span>class <span class="ident">ConvNet</span></span>
 <span>(</span><span>in_spatial, in_channels, out_channels, layers, batch_norm, activation, periodic: bool)</span>
 </code></dt>
@@ -1247,22 +1247,22 @@ evaluation mode.
 </ul>
 <h3>Class variables</h3>
 <dl>
-<dt id="ml4s.backend.torch.nets.ConvNet.call_super_init"><code class="name">var <span class="ident">call_super_init</span> : bool</code></dt>
+<dt id="phiml.backend.torch.nets.ConvNet.call_super_init"><code class="name">var <span class="ident">call_super_init</span> : bool</code></dt>
 <dd>
 <div class="desc"></div>
 </dd>
-<dt id="ml4s.backend.torch.nets.ConvNet.dump_patches"><code class="name">var <span class="ident">dump_patches</span> : bool</code></dt>
+<dt id="phiml.backend.torch.nets.ConvNet.dump_patches"><code class="name">var <span class="ident">dump_patches</span> : bool</code></dt>
 <dd>
 <div class="desc"></div>
 </dd>
-<dt id="ml4s.backend.torch.nets.ConvNet.training"><code class="name">var <span class="ident">training</span> : bool</code></dt>
+<dt id="phiml.backend.torch.nets.ConvNet.training"><code class="name">var <span class="ident">training</span> : bool</code></dt>
 <dd>
 <div class="desc"></div>
 </dd>
 </dl>
 <h3>Methods</h3>
 <dl>
-<dt id="ml4s.backend.torch.nets.ConvNet.forward"><code class="name flex">
+<dt id="phiml.backend.torch.nets.ConvNet.forward"><code class="name flex">
 <span>def <span class="ident">forward</span></span>(<span>self, x) ‑> Callable[..., Any]</span>
 </code></dt>
 <dd>
@@ -1289,7 +1289,7 @@ registered hooks while the latter silently ignores them.</p>
 </dd>
 </dl>
 </dd>
-<dt id="ml4s.backend.torch.nets.CouplingLayer"><code class="flex name class">
+<dt id="phiml.backend.torch.nets.CouplingLayer"><code class="flex name class">
 <span>class <span class="ident">CouplingLayer</span></span>
 <span>(</span><span>construct_net: Callable, construction_kwargs: dict, reverse_mask)</span>
 </code></dt>
@@ -1358,22 +1358,22 @@ evaluation mode.
 </ul>
 <h3>Class variables</h3>
 <dl>
-<dt id="ml4s.backend.torch.nets.CouplingLayer.call_super_init"><code class="name">var <span class="ident">call_super_init</span> : bool</code></dt>
+<dt id="phiml.backend.torch.nets.CouplingLayer.call_super_init"><code class="name">var <span class="ident">call_super_init</span> : bool</code></dt>
 <dd>
 <div class="desc"></div>
 </dd>
-<dt id="ml4s.backend.torch.nets.CouplingLayer.dump_patches"><code class="name">var <span class="ident">dump_patches</span> : bool</code></dt>
+<dt id="phiml.backend.torch.nets.CouplingLayer.dump_patches"><code class="name">var <span class="ident">dump_patches</span> : bool</code></dt>
 <dd>
 <div class="desc"></div>
 </dd>
-<dt id="ml4s.backend.torch.nets.CouplingLayer.training"><code class="name">var <span class="ident">training</span> : bool</code></dt>
+<dt id="phiml.backend.torch.nets.CouplingLayer.training"><code class="name">var <span class="ident">training</span> : bool</code></dt>
 <dd>
 <div class="desc"></div>
 </dd>
 </dl>
 <h3>Methods</h3>
 <dl>
-<dt id="ml4s.backend.torch.nets.CouplingLayer.forward"><code class="name flex">
+<dt id="phiml.backend.torch.nets.CouplingLayer.forward"><code class="name flex">
 <span>def <span class="ident">forward</span></span>(<span>self, x, invert=False) ‑> Callable[..., Any]</span>
 </code></dt>
 <dd>
@@ -1409,7 +1409,7 @@ registered hooks while the latter silently ignores them.</p>
 </dd>
 </dl>
 </dd>
-<dt id="ml4s.backend.torch.nets.DenseNet"><code class="flex name class">
+<dt id="phiml.backend.torch.nets.DenseNet"><code class="flex name class">
 <span>class <span class="ident">DenseNet</span></span>
 <span>(</span><span>layers: list, activation: type, batch_norm: bool, use_softmax: bool)</span>
 </code></dt>
@@ -1482,22 +1482,22 @@ evaluation mode.
 </ul>
 <h3>Class variables</h3>
 <dl>
-<dt id="ml4s.backend.torch.nets.DenseNet.call_super_init"><code class="name">var <span class="ident">call_super_init</span> : bool</code></dt>
+<dt id="phiml.backend.torch.nets.DenseNet.call_super_init"><code class="name">var <span class="ident">call_super_init</span> : bool</code></dt>
 <dd>
 <div class="desc"></div>
 </dd>
-<dt id="ml4s.backend.torch.nets.DenseNet.dump_patches"><code class="name">var <span class="ident">dump_patches</span> : bool</code></dt>
+<dt id="phiml.backend.torch.nets.DenseNet.dump_patches"><code class="name">var <span class="ident">dump_patches</span> : bool</code></dt>
 <dd>
 <div class="desc"></div>
 </dd>
-<dt id="ml4s.backend.torch.nets.DenseNet.training"><code class="name">var <span class="ident">training</span> : bool</code></dt>
+<dt id="phiml.backend.torch.nets.DenseNet.training"><code class="name">var <span class="ident">training</span> : bool</code></dt>
 <dd>
 <div class="desc"></div>
 </dd>
 </dl>
 <h3>Methods</h3>
 <dl>
-<dt id="ml4s.backend.torch.nets.DenseNet.forward"><code class="name flex">
+<dt id="phiml.backend.torch.nets.DenseNet.forward"><code class="name flex">
 <span>def <span class="ident">forward</span></span>(<span>self, x) ‑> Callable[..., Any]</span>
 </code></dt>
 <dd>
@@ -1529,7 +1529,7 @@ registered hooks while the latter silently ignores them.</p>
 </dd>
 </dl>
 </dd>
-<dt id="ml4s.backend.torch.nets.DenseResNetBlock"><code class="flex name class">
+<dt id="phiml.backend.torch.nets.DenseResNetBlock"><code class="flex name class">
 <span>class <span class="ident">DenseResNetBlock</span></span>
 <span>(</span><span>layers, batch_norm, activation)</span>
 </code></dt>
@@ -1592,22 +1592,22 @@ evaluation mode.
 </ul>
 <h3>Class variables</h3>
 <dl>
-<dt id="ml4s.backend.torch.nets.DenseResNetBlock.call_super_init"><code class="name">var <span class="ident">call_super_init</span> : bool</code></dt>
+<dt id="phiml.backend.torch.nets.DenseResNetBlock.call_super_init"><code class="name">var <span class="ident">call_super_init</span> : bool</code></dt>
 <dd>
 <div class="desc"></div>
 </dd>
-<dt id="ml4s.backend.torch.nets.DenseResNetBlock.dump_patches"><code class="name">var <span class="ident">dump_patches</span> : bool</code></dt>
+<dt id="phiml.backend.torch.nets.DenseResNetBlock.dump_patches"><code class="name">var <span class="ident">dump_patches</span> : bool</code></dt>
 <dd>
 <div class="desc"></div>
 </dd>
-<dt id="ml4s.backend.torch.nets.DenseResNetBlock.training"><code class="name">var <span class="ident">training</span> : bool</code></dt>
+<dt id="phiml.backend.torch.nets.DenseResNetBlock.training"><code class="name">var <span class="ident">training</span> : bool</code></dt>
 <dd>
 <div class="desc"></div>
 </dd>
 </dl>
 <h3>Methods</h3>
 <dl>
-<dt id="ml4s.backend.torch.nets.DenseResNetBlock.forward"><code class="name flex">
+<dt id="phiml.backend.torch.nets.DenseResNetBlock.forward"><code class="name flex">
 <span>def <span class="ident">forward</span></span>(<span>self, x) ‑> Callable[..., Any]</span>
 </code></dt>
 <dd>
@@ -1635,7 +1635,7 @@ registered hooks while the latter silently ignores them.</p>
 </dd>
 </dl>
 </dd>
-<dt id="ml4s.backend.torch.nets.DoubleConv"><code class="flex name class">
+<dt id="phiml.backend.torch.nets.DoubleConv"><code class="flex name class">
 <span>class <span class="ident">DoubleConv</span></span>
 <span>(</span><span>d: int, in_channels: int, out_channels: int, mid_channels: int, batch_norm: bool, activation: type, periodic: bool)</span>
 </code></dt>
@@ -1669,22 +1669,22 @@ registered hooks while the latter silently ignores them.</p>
 </ul>
 <h3>Class variables</h3>
 <dl>
-<dt id="ml4s.backend.torch.nets.DoubleConv.call_super_init"><code class="name">var <span class="ident">call_super_init</span> : bool</code></dt>
+<dt id="phiml.backend.torch.nets.DoubleConv.call_super_init"><code class="name">var <span class="ident">call_super_init</span> : bool</code></dt>
 <dd>
 <div class="desc"></div>
 </dd>
-<dt id="ml4s.backend.torch.nets.DoubleConv.dump_patches"><code class="name">var <span class="ident">dump_patches</span> : bool</code></dt>
+<dt id="phiml.backend.torch.nets.DoubleConv.dump_patches"><code class="name">var <span class="ident">dump_patches</span> : bool</code></dt>
 <dd>
 <div class="desc"></div>
 </dd>
-<dt id="ml4s.backend.torch.nets.DoubleConv.training"><code class="name">var <span class="ident">training</span> : bool</code></dt>
+<dt id="phiml.backend.torch.nets.DoubleConv.training"><code class="name">var <span class="ident">training</span> : bool</code></dt>
 <dd>
 <div class="desc"></div>
 </dd>
 </dl>
 <h3>Methods</h3>
 <dl>
-<dt id="ml4s.backend.torch.nets.DoubleConv.forward"><code class="name flex">
+<dt id="phiml.backend.torch.nets.DoubleConv.forward"><code class="name flex">
 <span>def <span class="ident">forward</span></span>(<span>self, x) ‑> Callable[..., Any]</span>
 </code></dt>
 <dd>
@@ -1707,7 +1707,7 @@ registered hooks while the latter silently ignores them.</p>
 </dd>
 </dl>
 </dd>
-<dt id="ml4s.backend.torch.nets.Down"><code class="flex name class">
+<dt id="phiml.backend.torch.nets.Down"><code class="flex name class">
 <span>class <span class="ident">Down</span></span>
 <span>(</span><span>d: int, in_channels: int, out_channels: int, batch_norm: bool, activation: Union[str, type], use_res_blocks: bool, periodic)</span>
 </code></dt>
@@ -1739,22 +1739,22 @@ registered hooks while the latter silently ignores them.</p>
 </ul>
 <h3>Class variables</h3>
 <dl>
-<dt id="ml4s.backend.torch.nets.Down.call_super_init"><code class="name">var <span class="ident">call_super_init</span> : bool</code></dt>
+<dt id="phiml.backend.torch.nets.Down.call_super_init"><code class="name">var <span class="ident">call_super_init</span> : bool</code></dt>
 <dd>
 <div class="desc"></div>
 </dd>
-<dt id="ml4s.backend.torch.nets.Down.dump_patches"><code class="name">var <span class="ident">dump_patches</span> : bool</code></dt>
+<dt id="phiml.backend.torch.nets.Down.dump_patches"><code class="name">var <span class="ident">dump_patches</span> : bool</code></dt>
 <dd>
 <div class="desc"></div>
 </dd>
-<dt id="ml4s.backend.torch.nets.Down.training"><code class="name">var <span class="ident">training</span> : bool</code></dt>
+<dt id="phiml.backend.torch.nets.Down.training"><code class="name">var <span class="ident">training</span> : bool</code></dt>
 <dd>
 <div class="desc"></div>
 </dd>
 </dl>
 <h3>Methods</h3>
 <dl>
-<dt id="ml4s.backend.torch.nets.Down.forward"><code class="name flex">
+<dt id="phiml.backend.torch.nets.Down.forward"><code class="name flex">
 <span>def <span class="ident">forward</span></span>(<span>self, x) ‑> Callable[..., Any]</span>
 </code></dt>
 <dd>
@@ -1778,7 +1778,7 @@ registered hooks while the latter silently ignores them.</p>
 </dd>
 </dl>
 </dd>
-<dt id="ml4s.backend.torch.nets.InvertibleNet"><code class="flex name class">
+<dt id="phiml.backend.torch.nets.InvertibleNet"><code class="flex name class">
 <span>class <span class="ident">InvertibleNet</span></span>
 <span>(</span><span>num_blocks: int, construct_net, construction_kwargs: dict)</span>
 </code></dt>
@@ -1837,22 +1837,22 @@ evaluation mode.
 </ul>
 <h3>Class variables</h3>
 <dl>
-<dt id="ml4s.backend.torch.nets.InvertibleNet.call_super_init"><code class="name">var <span class="ident">call_super_init</span> : bool</code></dt>
+<dt id="phiml.backend.torch.nets.InvertibleNet.call_super_init"><code class="name">var <span class="ident">call_super_init</span> : bool</code></dt>
 <dd>
 <div class="desc"></div>
 </dd>
-<dt id="ml4s.backend.torch.nets.InvertibleNet.dump_patches"><code class="name">var <span class="ident">dump_patches</span> : bool</code></dt>
+<dt id="phiml.backend.torch.nets.InvertibleNet.dump_patches"><code class="name">var <span class="ident">dump_patches</span> : bool</code></dt>
 <dd>
 <div class="desc"></div>
 </dd>
-<dt id="ml4s.backend.torch.nets.InvertibleNet.training"><code class="name">var <span class="ident">training</span> : bool</code></dt>
+<dt id="phiml.backend.torch.nets.InvertibleNet.training"><code class="name">var <span class="ident">training</span> : bool</code></dt>
 <dd>
 <div class="desc"></div>
 </dd>
 </dl>
 <h3>Methods</h3>
 <dl>
-<dt id="ml4s.backend.torch.nets.InvertibleNet.forward"><code class="name flex">
+<dt id="phiml.backend.torch.nets.InvertibleNet.forward"><code class="name flex">
 <span>def <span class="ident">forward</span></span>(<span>self, x, backward=False) ‑> Callable[..., Any]</span>
 </code></dt>
 <dd>
@@ -1881,7 +1881,7 @@ registered hooks while the latter silently ignores them.</p>
 </dd>
 </dl>
 </dd>
-<dt id="ml4s.backend.torch.nets.ResNet"><code class="flex name class">
+<dt id="phiml.backend.torch.nets.ResNet"><code class="flex name class">
 <span>class <span class="ident">ResNet</span></span>
 <span>(</span><span>in_spatial, in_channels, out_channels, layers, batch_norm, activation, periodic: bool)</span>
 </code></dt>
@@ -1944,22 +1944,22 @@ evaluation mode.
 </ul>
 <h3>Class variables</h3>
 <dl>
-<dt id="ml4s.backend.torch.nets.ResNet.call_super_init"><code class="name">var <span class="ident">call_super_init</span> : bool</code></dt>
+<dt id="phiml.backend.torch.nets.ResNet.call_super_init"><code class="name">var <span class="ident">call_super_init</span> : bool</code></dt>
 <dd>
 <div class="desc"></div>
 </dd>
-<dt id="ml4s.backend.torch.nets.ResNet.dump_patches"><code class="name">var <span class="ident">dump_patches</span> : bool</code></dt>
+<dt id="phiml.backend.torch.nets.ResNet.dump_patches"><code class="name">var <span class="ident">dump_patches</span> : bool</code></dt>
 <dd>
 <div class="desc"></div>
 </dd>
-<dt id="ml4s.backend.torch.nets.ResNet.training"><code class="name">var <span class="ident">training</span> : bool</code></dt>
+<dt id="phiml.backend.torch.nets.ResNet.training"><code class="name">var <span class="ident">training</span> : bool</code></dt>
 <dd>
 <div class="desc"></div>
 </dd>
 </dl>
 <h3>Methods</h3>
 <dl>
-<dt id="ml4s.backend.torch.nets.ResNet.forward"><code class="name flex">
+<dt id="phiml.backend.torch.nets.ResNet.forward"><code class="name flex">
 <span>def <span class="ident">forward</span></span>(<span>self, x) ‑> Callable[..., Any]</span>
 </code></dt>
 <dd>
@@ -1987,7 +1987,7 @@ registered hooks while the latter silently ignores them.</p>
 </dd>
 </dl>
 </dd>
-<dt id="ml4s.backend.torch.nets.ResNetBlock"><code class="flex name class">
+<dt id="phiml.backend.torch.nets.ResNetBlock"><code class="flex name class">
 <span>class <span class="ident">ResNetBlock</span></span>
 <span>(</span><span>in_spatial, in_channels, out_channels, batch_norm, activation, periodic: bool)</span>
 </code></dt>
@@ -2054,22 +2054,22 @@ evaluation mode.
 </ul>
 <h3>Class variables</h3>
 <dl>
-<dt id="ml4s.backend.torch.nets.ResNetBlock.call_super_init"><code class="name">var <span class="ident">call_super_init</span> : bool</code></dt>
+<dt id="phiml.backend.torch.nets.ResNetBlock.call_super_init"><code class="name">var <span class="ident">call_super_init</span> : bool</code></dt>
 <dd>
 <div class="desc"></div>
 </dd>
-<dt id="ml4s.backend.torch.nets.ResNetBlock.dump_patches"><code class="name">var <span class="ident">dump_patches</span> : bool</code></dt>
+<dt id="phiml.backend.torch.nets.ResNetBlock.dump_patches"><code class="name">var <span class="ident">dump_patches</span> : bool</code></dt>
 <dd>
 <div class="desc"></div>
 </dd>
-<dt id="ml4s.backend.torch.nets.ResNetBlock.training"><code class="name">var <span class="ident">training</span> : bool</code></dt>
+<dt id="phiml.backend.torch.nets.ResNetBlock.training"><code class="name">var <span class="ident">training</span> : bool</code></dt>
 <dd>
 <div class="desc"></div>
 </dd>
 </dl>
 <h3>Methods</h3>
 <dl>
-<dt id="ml4s.backend.torch.nets.ResNetBlock.forward"><code class="name flex">
+<dt id="phiml.backend.torch.nets.ResNetBlock.forward"><code class="name flex">
 <span>def <span class="ident">forward</span></span>(<span>self, x) ‑> Callable[..., Any]</span>
 </code></dt>
 <dd>
@@ -2096,7 +2096,7 @@ registered hooks while the latter silently ignores them.</p>
 </dd>
 </dl>
 </dd>
-<dt id="ml4s.backend.torch.nets.UNet"><code class="flex name class">
+<dt id="phiml.backend.torch.nets.UNet"><code class="flex name class">
 <span>class <span class="ident">UNet</span></span>
 <span>(</span><span>d: int, in_channels: int, out_channels: int, filters: tuple, batch_norm: bool, activation: type, periodic: bool, use_res_blocks: bool)</span>
 </code></dt>
@@ -2167,22 +2167,22 @@ evaluation mode.
 </ul>
 <h3>Class variables</h3>
 <dl>
-<dt id="ml4s.backend.torch.nets.UNet.call_super_init"><code class="name">var <span class="ident">call_super_init</span> : bool</code></dt>
+<dt id="phiml.backend.torch.nets.UNet.call_super_init"><code class="name">var <span class="ident">call_super_init</span> : bool</code></dt>
 <dd>
 <div class="desc"></div>
 </dd>
-<dt id="ml4s.backend.torch.nets.UNet.dump_patches"><code class="name">var <span class="ident">dump_patches</span> : bool</code></dt>
+<dt id="phiml.backend.torch.nets.UNet.dump_patches"><code class="name">var <span class="ident">dump_patches</span> : bool</code></dt>
 <dd>
 <div class="desc"></div>
 </dd>
-<dt id="ml4s.backend.torch.nets.UNet.training"><code class="name">var <span class="ident">training</span> : bool</code></dt>
+<dt id="phiml.backend.torch.nets.UNet.training"><code class="name">var <span class="ident">training</span> : bool</code></dt>
 <dd>
 <div class="desc"></div>
 </dd>
 </dl>
 <h3>Methods</h3>
 <dl>
-<dt id="ml4s.backend.torch.nets.UNet.forward"><code class="name flex">
+<dt id="phiml.backend.torch.nets.UNet.forward"><code class="name flex">
 <span>def <span class="ident">forward</span></span>(<span>self, x) ‑> Callable[..., Any]</span>
 </code></dt>
 <dd>
@@ -2215,7 +2215,7 @@ registered hooks while the latter silently ignores them.</p>
 </dd>
 </dl>
 </dd>
-<dt id="ml4s.backend.torch.nets.Up"><code class="flex name class">
+<dt id="phiml.backend.torch.nets.Up"><code class="flex name class">
 <span>class <span class="ident">Up</span></span>
 <span>(</span><span>d: int, in_channels: int, out_channels: int, batch_norm: bool, activation: type, periodic: bool, use_res_blocks: bool)</span>
 </code></dt>
@@ -2259,22 +2259,22 @@ registered hooks while the latter silently ignores them.</p>
 </ul>
 <h3>Class variables</h3>
 <dl>
-<dt id="ml4s.backend.torch.nets.Up.call_super_init"><code class="name">var <span class="ident">call_super_init</span> : bool</code></dt>
+<dt id="phiml.backend.torch.nets.Up.call_super_init"><code class="name">var <span class="ident">call_super_init</span> : bool</code></dt>
 <dd>
 <div class="desc"></div>
 </dd>
-<dt id="ml4s.backend.torch.nets.Up.dump_patches"><code class="name">var <span class="ident">dump_patches</span> : bool</code></dt>
+<dt id="phiml.backend.torch.nets.Up.dump_patches"><code class="name">var <span class="ident">dump_patches</span> : bool</code></dt>
 <dd>
 <div class="desc"></div>
 </dd>
-<dt id="ml4s.backend.torch.nets.Up.training"><code class="name">var <span class="ident">training</span> : bool</code></dt>
+<dt id="phiml.backend.torch.nets.Up.training"><code class="name">var <span class="ident">training</span> : bool</code></dt>
 <dd>
 <div class="desc"></div>
 </dd>
 </dl>
 <h3>Methods</h3>
 <dl>
-<dt id="ml4s.backend.torch.nets.Up.forward"><code class="name flex">
+<dt id="phiml.backend.torch.nets.Up.forward"><code class="name flex">
 <span>def <span class="ident">forward</span></span>(<span>self, x1, x2) ‑> Callable[..., Any]</span>
 </code></dt>
 <dd>
@@ -2317,137 +2317,137 @@ registered hooks while the latter silently ignores them.</p>
 <ul id="index">
 <li><h3>Super-module</h3>
 <ul>
-<li><code><a title="ml4s.backend.torch" href="index.html">ml4s.backend.torch</a></code></li>
+<li><code><a title="phiml.backend.torch" href="index.html">phiml.backend.torch</a></code></li>
 </ul>
 </li>
 <li><h3><a href="#header-functions">Functions</a></h3>
 <ul class="two-column">
-<li><code><a title="ml4s.backend.torch.nets.adagrad" href="#ml4s.backend.torch.nets.adagrad">adagrad</a></code></li>
-<li><code><a title="ml4s.backend.torch.nets.adam" href="#ml4s.backend.torch.nets.adam">adam</a></code></li>
-<li><code><a title="ml4s.backend.torch.nets.conv_classifier" href="#ml4s.backend.torch.nets.conv_classifier">conv_classifier</a></code></li>
-<li><code><a title="ml4s.backend.torch.nets.conv_net" href="#ml4s.backend.torch.nets.conv_net">conv_net</a></code></li>
-<li><code><a title="ml4s.backend.torch.nets.coupling_layer" href="#ml4s.backend.torch.nets.coupling_layer">coupling_layer</a></code></li>
-<li><code><a title="ml4s.backend.torch.nets.get_mask" href="#ml4s.backend.torch.nets.get_mask">get_mask</a></code></li>
-<li><code><a title="ml4s.backend.torch.nets.get_parameters" href="#ml4s.backend.torch.nets.get_parameters">get_parameters</a></code></li>
-<li><code><a title="ml4s.backend.torch.nets.invertible_net" href="#ml4s.backend.torch.nets.invertible_net">invertible_net</a></code></li>
-<li><code><a title="ml4s.backend.torch.nets.load_state" href="#ml4s.backend.torch.nets.load_state">load_state</a></code></li>
-<li><code><a title="ml4s.backend.torch.nets.mlp" href="#ml4s.backend.torch.nets.mlp">mlp</a></code></li>
-<li><code><a title="ml4s.backend.torch.nets.res_net" href="#ml4s.backend.torch.nets.res_net">res_net</a></code></li>
-<li><code><a title="ml4s.backend.torch.nets.rmsprop" href="#ml4s.backend.torch.nets.rmsprop">rmsprop</a></code></li>
-<li><code><a title="ml4s.backend.torch.nets.save_state" href="#ml4s.backend.torch.nets.save_state">save_state</a></code></li>
-<li><code><a title="ml4s.backend.torch.nets.sgd" href="#ml4s.backend.torch.nets.sgd">sgd</a></code></li>
-<li><code><a title="ml4s.backend.torch.nets.u_net" href="#ml4s.backend.torch.nets.u_net">u_net</a></code></li>
-<li><code><a title="ml4s.backend.torch.nets.update_weights" href="#ml4s.backend.torch.nets.update_weights">update_weights</a></code></li>
+<li><code><a title="phiml.backend.torch.nets.adagrad" href="#phiml.backend.torch.nets.adagrad">adagrad</a></code></li>
+<li><code><a title="phiml.backend.torch.nets.adam" href="#phiml.backend.torch.nets.adam">adam</a></code></li>
+<li><code><a title="phiml.backend.torch.nets.conv_classifier" href="#phiml.backend.torch.nets.conv_classifier">conv_classifier</a></code></li>
+<li><code><a title="phiml.backend.torch.nets.conv_net" href="#phiml.backend.torch.nets.conv_net">conv_net</a></code></li>
+<li><code><a title="phiml.backend.torch.nets.coupling_layer" href="#phiml.backend.torch.nets.coupling_layer">coupling_layer</a></code></li>
+<li><code><a title="phiml.backend.torch.nets.get_mask" href="#phiml.backend.torch.nets.get_mask">get_mask</a></code></li>
+<li><code><a title="phiml.backend.torch.nets.get_parameters" href="#phiml.backend.torch.nets.get_parameters">get_parameters</a></code></li>
+<li><code><a title="phiml.backend.torch.nets.invertible_net" href="#phiml.backend.torch.nets.invertible_net">invertible_net</a></code></li>
+<li><code><a title="phiml.backend.torch.nets.load_state" href="#phiml.backend.torch.nets.load_state">load_state</a></code></li>
+<li><code><a title="phiml.backend.torch.nets.mlp" href="#phiml.backend.torch.nets.mlp">mlp</a></code></li>
+<li><code><a title="phiml.backend.torch.nets.res_net" href="#phiml.backend.torch.nets.res_net">res_net</a></code></li>
+<li><code><a title="phiml.backend.torch.nets.rmsprop" href="#phiml.backend.torch.nets.rmsprop">rmsprop</a></code></li>
+<li><code><a title="phiml.backend.torch.nets.save_state" href="#phiml.backend.torch.nets.save_state">save_state</a></code></li>
+<li><code><a title="phiml.backend.torch.nets.sgd" href="#phiml.backend.torch.nets.sgd">sgd</a></code></li>
+<li><code><a title="phiml.backend.torch.nets.u_net" href="#phiml.backend.torch.nets.u_net">u_net</a></code></li>
+<li><code><a title="phiml.backend.torch.nets.update_weights" href="#phiml.backend.torch.nets.update_weights">update_weights</a></code></li>
 </ul>
 </li>
 <li><h3><a href="#header-classes">Classes</a></h3>
 <ul>
 <li>
-<h4><code><a title="ml4s.backend.torch.nets.ConvClassifier" href="#ml4s.backend.torch.nets.ConvClassifier">ConvClassifier</a></code></h4>
+<h4><code><a title="phiml.backend.torch.nets.ConvClassifier" href="#phiml.backend.torch.nets.ConvClassifier">ConvClassifier</a></code></h4>
 <ul class="">
-<li><code><a title="ml4s.backend.torch.nets.ConvClassifier.call_super_init" href="#ml4s.backend.torch.nets.ConvClassifier.call_super_init">call_super_init</a></code></li>
-<li><code><a title="ml4s.backend.torch.nets.ConvClassifier.dump_patches" href="#ml4s.backend.torch.nets.ConvClassifier.dump_patches">dump_patches</a></code></li>
-<li><code><a title="ml4s.backend.torch.nets.ConvClassifier.forward" href="#ml4s.backend.torch.nets.ConvClassifier.forward">forward</a></code></li>
-<li><code><a title="ml4s.backend.torch.nets.ConvClassifier.training" href="#ml4s.backend.torch.nets.ConvClassifier.training">training</a></code></li>
+<li><code><a title="phiml.backend.torch.nets.ConvClassifier.call_super_init" href="#phiml.backend.torch.nets.ConvClassifier.call_super_init">call_super_init</a></code></li>
+<li><code><a title="phiml.backend.torch.nets.ConvClassifier.dump_patches" href="#phiml.backend.torch.nets.ConvClassifier.dump_patches">dump_patches</a></code></li>
+<li><code><a title="phiml.backend.torch.nets.ConvClassifier.forward" href="#phiml.backend.torch.nets.ConvClassifier.forward">forward</a></code></li>
+<li><code><a title="phiml.backend.torch.nets.ConvClassifier.training" href="#phiml.backend.torch.nets.ConvClassifier.training">training</a></code></li>
 </ul>
 </li>
 <li>
-<h4><code><a title="ml4s.backend.torch.nets.ConvNet" href="#ml4s.backend.torch.nets.ConvNet">ConvNet</a></code></h4>
+<h4><code><a title="phiml.backend.torch.nets.ConvNet" href="#phiml.backend.torch.nets.ConvNet">ConvNet</a></code></h4>
 <ul class="">
-<li><code><a title="ml4s.backend.torch.nets.ConvNet.call_super_init" href="#ml4s.backend.torch.nets.ConvNet.call_super_init">call_super_init</a></code></li>
-<li><code><a title="ml4s.backend.torch.nets.ConvNet.dump_patches" href="#ml4s.backend.torch.nets.ConvNet.dump_patches">dump_patches</a></code></li>
-<li><code><a title="ml4s.backend.torch.nets.ConvNet.forward" href="#ml4s.backend.torch.nets.ConvNet.forward">forward</a></code></li>
-<li><code><a title="ml4s.backend.torch.nets.ConvNet.training" href="#ml4s.backend.torch.nets.ConvNet.training">training</a></code></li>
+<li><code><a title="phiml.backend.torch.nets.ConvNet.call_super_init" href="#phiml.backend.torch.nets.ConvNet.call_super_init">call_super_init</a></code></li>
+<li><code><a title="phiml.backend.torch.nets.ConvNet.dump_patches" href="#phiml.backend.torch.nets.ConvNet.dump_patches">dump_patches</a></code></li>
+<li><code><a title="phiml.backend.torch.nets.ConvNet.forward" href="#phiml.backend.torch.nets.ConvNet.forward">forward</a></code></li>
+<li><code><a title="phiml.backend.torch.nets.ConvNet.training" href="#phiml.backend.torch.nets.ConvNet.training">training</a></code></li>
 </ul>
 </li>
 <li>
-<h4><code><a title="ml4s.backend.torch.nets.CouplingLayer" href="#ml4s.backend.torch.nets.CouplingLayer">CouplingLayer</a></code></h4>
+<h4><code><a title="phiml.backend.torch.nets.CouplingLayer" href="#phiml.backend.torch.nets.CouplingLayer">CouplingLayer</a></code></h4>
 <ul class="">
-<li><code><a title="ml4s.backend.torch.nets.CouplingLayer.call_super_init" href="#ml4s.backend.torch.nets.CouplingLayer.call_super_init">call_super_init</a></code></li>
-<li><code><a title="ml4s.backend.torch.nets.CouplingLayer.dump_patches" href="#ml4s.backend.torch.nets.CouplingLayer.dump_patches">dump_patches</a></code></li>
-<li><code><a title="ml4s.backend.torch.nets.CouplingLayer.forward" href="#ml4s.backend.torch.nets.CouplingLayer.forward">forward</a></code></li>
-<li><code><a title="ml4s.backend.torch.nets.CouplingLayer.training" href="#ml4s.backend.torch.nets.CouplingLayer.training">training</a></code></li>
+<li><code><a title="phiml.backend.torch.nets.CouplingLayer.call_super_init" href="#phiml.backend.torch.nets.CouplingLayer.call_super_init">call_super_init</a></code></li>
+<li><code><a title="phiml.backend.torch.nets.CouplingLayer.dump_patches" href="#phiml.backend.torch.nets.CouplingLayer.dump_patches">dump_patches</a></code></li>
+<li><code><a title="phiml.backend.torch.nets.CouplingLayer.forward" href="#phiml.backend.torch.nets.CouplingLayer.forward">forward</a></code></li>
+<li><code><a title="phiml.backend.torch.nets.CouplingLayer.training" href="#phiml.backend.torch.nets.CouplingLayer.training">training</a></code></li>
 </ul>
 </li>
 <li>
-<h4><code><a title="ml4s.backend.torch.nets.DenseNet" href="#ml4s.backend.torch.nets.DenseNet">DenseNet</a></code></h4>
+<h4><code><a title="phiml.backend.torch.nets.DenseNet" href="#phiml.backend.torch.nets.DenseNet">DenseNet</a></code></h4>
 <ul class="">
-<li><code><a title="ml4s.backend.torch.nets.DenseNet.call_super_init" href="#ml4s.backend.torch.nets.DenseNet.call_super_init">call_super_init</a></code></li>
-<li><code><a title="ml4s.backend.torch.nets.DenseNet.dump_patches" href="#ml4s.backend.torch.nets.DenseNet.dump_patches">dump_patches</a></code></li>
-<li><code><a title="ml4s.backend.torch.nets.DenseNet.forward" href="#ml4s.backend.torch.nets.DenseNet.forward">forward</a></code></li>
-<li><code><a title="ml4s.backend.torch.nets.DenseNet.training" href="#ml4s.backend.torch.nets.DenseNet.training">training</a></code></li>
+<li><code><a title="phiml.backend.torch.nets.DenseNet.call_super_init" href="#phiml.backend.torch.nets.DenseNet.call_super_init">call_super_init</a></code></li>
+<li><code><a title="phiml.backend.torch.nets.DenseNet.dump_patches" href="#phiml.backend.torch.nets.DenseNet.dump_patches">dump_patches</a></code></li>
+<li><code><a title="phiml.backend.torch.nets.DenseNet.forward" href="#phiml.backend.torch.nets.DenseNet.forward">forward</a></code></li>
+<li><code><a title="phiml.backend.torch.nets.DenseNet.training" href="#phiml.backend.torch.nets.DenseNet.training">training</a></code></li>
 </ul>
 </li>
 <li>
-<h4><code><a title="ml4s.backend.torch.nets.DenseResNetBlock" href="#ml4s.backend.torch.nets.DenseResNetBlock">DenseResNetBlock</a></code></h4>
+<h4><code><a title="phiml.backend.torch.nets.DenseResNetBlock" href="#phiml.backend.torch.nets.DenseResNetBlock">DenseResNetBlock</a></code></h4>
 <ul class="">
-<li><code><a title="ml4s.backend.torch.nets.DenseResNetBlock.call_super_init" href="#ml4s.backend.torch.nets.DenseResNetBlock.call_super_init">call_super_init</a></code></li>
-<li><code><a title="ml4s.backend.torch.nets.DenseResNetBlock.dump_patches" href="#ml4s.backend.torch.nets.DenseResNetBlock.dump_patches">dump_patches</a></code></li>
-<li><code><a title="ml4s.backend.torch.nets.DenseResNetBlock.forward" href="#ml4s.backend.torch.nets.DenseResNetBlock.forward">forward</a></code></li>
-<li><code><a title="ml4s.backend.torch.nets.DenseResNetBlock.training" href="#ml4s.backend.torch.nets.DenseResNetBlock.training">training</a></code></li>
+<li><code><a title="phiml.backend.torch.nets.DenseResNetBlock.call_super_init" href="#phiml.backend.torch.nets.DenseResNetBlock.call_super_init">call_super_init</a></code></li>
+<li><code><a title="phiml.backend.torch.nets.DenseResNetBlock.dump_patches" href="#phiml.backend.torch.nets.DenseResNetBlock.dump_patches">dump_patches</a></code></li>
+<li><code><a title="phiml.backend.torch.nets.DenseResNetBlock.forward" href="#phiml.backend.torch.nets.DenseResNetBlock.forward">forward</a></code></li>
+<li><code><a title="phiml.backend.torch.nets.DenseResNetBlock.training" href="#phiml.backend.torch.nets.DenseResNetBlock.training">training</a></code></li>
 </ul>
 </li>
 <li>
-<h4><code><a title="ml4s.backend.torch.nets.DoubleConv" href="#ml4s.backend.torch.nets.DoubleConv">DoubleConv</a></code></h4>
+<h4><code><a title="phiml.backend.torch.nets.DoubleConv" href="#phiml.backend.torch.nets.DoubleConv">DoubleConv</a></code></h4>
 <ul class="">
-<li><code><a title="ml4s.backend.torch.nets.DoubleConv.call_super_init" href="#ml4s.backend.torch.nets.DoubleConv.call_super_init">call_super_init</a></code></li>
-<li><code><a title="ml4s.backend.torch.nets.DoubleConv.dump_patches" href="#ml4s.backend.torch.nets.DoubleConv.dump_patches">dump_patches</a></code></li>
-<li><code><a title="ml4s.backend.torch.nets.DoubleConv.forward" href="#ml4s.backend.torch.nets.DoubleConv.forward">forward</a></code></li>
-<li><code><a title="ml4s.backend.torch.nets.DoubleConv.training" href="#ml4s.backend.torch.nets.DoubleConv.training">training</a></code></li>
+<li><code><a title="phiml.backend.torch.nets.DoubleConv.call_super_init" href="#phiml.backend.torch.nets.DoubleConv.call_super_init">call_super_init</a></code></li>
+<li><code><a title="phiml.backend.torch.nets.DoubleConv.dump_patches" href="#phiml.backend.torch.nets.DoubleConv.dump_patches">dump_patches</a></code></li>
+<li><code><a title="phiml.backend.torch.nets.DoubleConv.forward" href="#phiml.backend.torch.nets.DoubleConv.forward">forward</a></code></li>
+<li><code><a title="phiml.backend.torch.nets.DoubleConv.training" href="#phiml.backend.torch.nets.DoubleConv.training">training</a></code></li>
 </ul>
 </li>
 <li>
-<h4><code><a title="ml4s.backend.torch.nets.Down" href="#ml4s.backend.torch.nets.Down">Down</a></code></h4>
+<h4><code><a title="phiml.backend.torch.nets.Down" href="#phiml.backend.torch.nets.Down">Down</a></code></h4>
 <ul class="">
-<li><code><a title="ml4s.backend.torch.nets.Down.call_super_init" href="#ml4s.backend.torch.nets.Down.call_super_init">call_super_init</a></code></li>
-<li><code><a title="ml4s.backend.torch.nets.Down.dump_patches" href="#ml4s.backend.torch.nets.Down.dump_patches">dump_patches</a></code></li>
-<li><code><a title="ml4s.backend.torch.nets.Down.forward" href="#ml4s.backend.torch.nets.Down.forward">forward</a></code></li>
-<li><code><a title="ml4s.backend.torch.nets.Down.training" href="#ml4s.backend.torch.nets.Down.training">training</a></code></li>
+<li><code><a title="phiml.backend.torch.nets.Down.call_super_init" href="#phiml.backend.torch.nets.Down.call_super_init">call_super_init</a></code></li>
+<li><code><a title="phiml.backend.torch.nets.Down.dump_patches" href="#phiml.backend.torch.nets.Down.dump_patches">dump_patches</a></code></li>
+<li><code><a title="phiml.backend.torch.nets.Down.forward" href="#phiml.backend.torch.nets.Down.forward">forward</a></code></li>
+<li><code><a title="phiml.backend.torch.nets.Down.training" href="#phiml.backend.torch.nets.Down.training">training</a></code></li>
 </ul>
 </li>
 <li>
-<h4><code><a title="ml4s.backend.torch.nets.InvertibleNet" href="#ml4s.backend.torch.nets.InvertibleNet">InvertibleNet</a></code></h4>
+<h4><code><a title="phiml.backend.torch.nets.InvertibleNet" href="#phiml.backend.torch.nets.InvertibleNet">InvertibleNet</a></code></h4>
 <ul class="">
-<li><code><a title="ml4s.backend.torch.nets.InvertibleNet.call_super_init" href="#ml4s.backend.torch.nets.InvertibleNet.call_super_init">call_super_init</a></code></li>
-<li><code><a title="ml4s.backend.torch.nets.InvertibleNet.dump_patches" href="#ml4s.backend.torch.nets.InvertibleNet.dump_patches">dump_patches</a></code></li>
-<li><code><a title="ml4s.backend.torch.nets.InvertibleNet.forward" href="#ml4s.backend.torch.nets.InvertibleNet.forward">forward</a></code></li>
-<li><code><a title="ml4s.backend.torch.nets.InvertibleNet.training" href="#ml4s.backend.torch.nets.InvertibleNet.training">training</a></code></li>
+<li><code><a title="phiml.backend.torch.nets.InvertibleNet.call_super_init" href="#phiml.backend.torch.nets.InvertibleNet.call_super_init">call_super_init</a></code></li>
+<li><code><a title="phiml.backend.torch.nets.InvertibleNet.dump_patches" href="#phiml.backend.torch.nets.InvertibleNet.dump_patches">dump_patches</a></code></li>
+<li><code><a title="phiml.backend.torch.nets.InvertibleNet.forward" href="#phiml.backend.torch.nets.InvertibleNet.forward">forward</a></code></li>
+<li><code><a title="phiml.backend.torch.nets.InvertibleNet.training" href="#phiml.backend.torch.nets.InvertibleNet.training">training</a></code></li>
 </ul>
 </li>
 <li>
-<h4><code><a title="ml4s.backend.torch.nets.ResNet" href="#ml4s.backend.torch.nets.ResNet">ResNet</a></code></h4>
+<h4><code><a title="phiml.backend.torch.nets.ResNet" href="#phiml.backend.torch.nets.ResNet">ResNet</a></code></h4>
 <ul class="">
-<li><code><a title="ml4s.backend.torch.nets.ResNet.call_super_init" href="#ml4s.backend.torch.nets.ResNet.call_super_init">call_super_init</a></code></li>
-<li><code><a title="ml4s.backend.torch.nets.ResNet.dump_patches" href="#ml4s.backend.torch.nets.ResNet.dump_patches">dump_patches</a></code></li>
-<li><code><a title="ml4s.backend.torch.nets.ResNet.forward" href="#ml4s.backend.torch.nets.ResNet.forward">forward</a></code></li>
-<li><code><a title="ml4s.backend.torch.nets.ResNet.training" href="#ml4s.backend.torch.nets.ResNet.training">training</a></code></li>
+<li><code><a title="phiml.backend.torch.nets.ResNet.call_super_init" href="#phiml.backend.torch.nets.ResNet.call_super_init">call_super_init</a></code></li>
+<li><code><a title="phiml.backend.torch.nets.ResNet.dump_patches" href="#phiml.backend.torch.nets.ResNet.dump_patches">dump_patches</a></code></li>
+<li><code><a title="phiml.backend.torch.nets.ResNet.forward" href="#phiml.backend.torch.nets.ResNet.forward">forward</a></code></li>
+<li><code><a title="phiml.backend.torch.nets.ResNet.training" href="#phiml.backend.torch.nets.ResNet.training">training</a></code></li>
 </ul>
 </li>
 <li>
-<h4><code><a title="ml4s.backend.torch.nets.ResNetBlock" href="#ml4s.backend.torch.nets.ResNetBlock">ResNetBlock</a></code></h4>
+<h4><code><a title="phiml.backend.torch.nets.ResNetBlock" href="#phiml.backend.torch.nets.ResNetBlock">ResNetBlock</a></code></h4>
 <ul class="">
-<li><code><a title="ml4s.backend.torch.nets.ResNetBlock.call_super_init" href="#ml4s.backend.torch.nets.ResNetBlock.call_super_init">call_super_init</a></code></li>
-<li><code><a title="ml4s.backend.torch.nets.ResNetBlock.dump_patches" href="#ml4s.backend.torch.nets.ResNetBlock.dump_patches">dump_patches</a></code></li>
-<li><code><a title="ml4s.backend.torch.nets.ResNetBlock.forward" href="#ml4s.backend.torch.nets.ResNetBlock.forward">forward</a></code></li>
-<li><code><a title="ml4s.backend.torch.nets.ResNetBlock.training" href="#ml4s.backend.torch.nets.ResNetBlock.training">training</a></code></li>
+<li><code><a title="phiml.backend.torch.nets.ResNetBlock.call_super_init" href="#phiml.backend.torch.nets.ResNetBlock.call_super_init">call_super_init</a></code></li>
+<li><code><a title="phiml.backend.torch.nets.ResNetBlock.dump_patches" href="#phiml.backend.torch.nets.ResNetBlock.dump_patches">dump_patches</a></code></li>
+<li><code><a title="phiml.backend.torch.nets.ResNetBlock.forward" href="#phiml.backend.torch.nets.ResNetBlock.forward">forward</a></code></li>
+<li><code><a title="phiml.backend.torch.nets.ResNetBlock.training" href="#phiml.backend.torch.nets.ResNetBlock.training">training</a></code></li>
 </ul>
 </li>
 <li>
-<h4><code><a title="ml4s.backend.torch.nets.UNet" href="#ml4s.backend.torch.nets.UNet">UNet</a></code></h4>
+<h4><code><a title="phiml.backend.torch.nets.UNet" href="#phiml.backend.torch.nets.UNet">UNet</a></code></h4>
 <ul class="">
-<li><code><a title="ml4s.backend.torch.nets.UNet.call_super_init" href="#ml4s.backend.torch.nets.UNet.call_super_init">call_super_init</a></code></li>
-<li><code><a title="ml4s.backend.torch.nets.UNet.dump_patches" href="#ml4s.backend.torch.nets.UNet.dump_patches">dump_patches</a></code></li>
-<li><code><a title="ml4s.backend.torch.nets.UNet.forward" href="#ml4s.backend.torch.nets.UNet.forward">forward</a></code></li>
-<li><code><a title="ml4s.backend.torch.nets.UNet.training" href="#ml4s.backend.torch.nets.UNet.training">training</a></code></li>
+<li><code><a title="phiml.backend.torch.nets.UNet.call_super_init" href="#phiml.backend.torch.nets.UNet.call_super_init">call_super_init</a></code></li>
+<li><code><a title="phiml.backend.torch.nets.UNet.dump_patches" href="#phiml.backend.torch.nets.UNet.dump_patches">dump_patches</a></code></li>
+<li><code><a title="phiml.backend.torch.nets.UNet.forward" href="#phiml.backend.torch.nets.UNet.forward">forward</a></code></li>
+<li><code><a title="phiml.backend.torch.nets.UNet.training" href="#phiml.backend.torch.nets.UNet.training">training</a></code></li>
 </ul>
 </li>
 <li>
-<h4><code><a title="ml4s.backend.torch.nets.Up" href="#ml4s.backend.torch.nets.Up">Up</a></code></h4>
+<h4><code><a title="phiml.backend.torch.nets.Up" href="#phiml.backend.torch.nets.Up">Up</a></code></h4>
 <ul class="">
-<li><code><a title="ml4s.backend.torch.nets.Up.call_super_init" href="#ml4s.backend.torch.nets.Up.call_super_init">call_super_init</a></code></li>
-<li><code><a title="ml4s.backend.torch.nets.Up.dump_patches" href="#ml4s.backend.torch.nets.Up.dump_patches">dump_patches</a></code></li>
-<li><code><a title="ml4s.backend.torch.nets.Up.forward" href="#ml4s.backend.torch.nets.Up.forward">forward</a></code></li>
-<li><code><a title="ml4s.backend.torch.nets.Up.training" href="#ml4s.backend.torch.nets.Up.training">training</a></code></li>
+<li><code><a title="phiml.backend.torch.nets.Up.call_super_init" href="#phiml.backend.torch.nets.Up.call_super_init">call_super_init</a></code></li>
+<li><code><a title="phiml.backend.torch.nets.Up.dump_patches" href="#phiml.backend.torch.nets.Up.dump_patches">dump_patches</a></code></li>
+<li><code><a title="phiml.backend.torch.nets.Up.forward" href="#phiml.backend.torch.nets.Up.forward">forward</a></code></li>
+<li><code><a title="phiml.backend.torch.nets.Up.training" href="#phiml.backend.torch.nets.Up.training">training</a></code></li>
 </ul>
 </li>
 </ul>

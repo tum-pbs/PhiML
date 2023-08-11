@@ -15110,13 +15110,13 @@ body[data-format='mobile'] .jp-OutputArea-child .jp-OutputArea-output {
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<h1 id="Matrices-in-ML4Science">Matrices in ML4Science<a class="anchor-link" href="#Matrices-in-ML4Science">&#182;</a></h1><p><a href="https://colab.research.google.com/github/tum-pbs/ML4Science/blob/main/docs/Matrices.ipynb"><img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Colab" /></a>
-  •   <a href="https://github.com/tum-pbs/ML4Science">🌐 <strong>ML4Science</strong></a>
-  •   <a href="https://tum-pbs.github.io/ML4Science/">📖 <strong>Documentation</strong></a>
-  •   <a href="https://tum-pbs.github.io/ML4Science/ml4s">🔗 <strong>API</strong></a>
+<h1 id="Matrices-in-%CE%A6ML">Matrices in &#934;<sub>ML</sub><a class="anchor-link" href="#Matrices-in-%CE%A6ML">&#182;</a></h1><p><a href="https://colab.research.google.com/github/tum-pbs/PhiML/blob/main/docs/Matrices.ipynb"><img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Colab" /></a>
+  •   <a href="https://github.com/tum-pbs/PhiML">🌐 <strong>Φ<sub>ML</sub></strong></a>
+  •   <a href="https://tum-pbs.github.io/%CE%A6%3Csub%3EML%3C/sub%3E/">📖 <strong>Documentation</strong></a>
+  •   <a href="https://tum-pbs.github.io/%CE%A6%3Csub%3EML%3C/sub%3E/phiml">🔗 <strong>API</strong></a>
   •   <a href=""><strong>▶ Videos</strong></a>
-  •   <a href="https://colab.research.google.com/github/tum-pbs/ML4Science/blob/main/docs/Examples.ipynb"><img src="images/colab_logo_small.png" height=4></a> <a href="https://tum-pbs.github.io/ML4Science/Examples.html"><strong>Examples</strong></a></p>
-<p>This notebook introduces matrices in ML4Science.
+  •   <a href="https://colab.research.google.com/github/tum-pbs/PhiML/blob/main/docs/Examples.ipynb"><img src="images/colab_logo_small.png" height=4></a> <a href="https://tum-pbs.github.io/%CE%A6%3Csub%3EML%3C/sub%3E/Examples.html"><strong>Examples</strong></a></p>
+<p>This notebook introduces matrices in Φ<sub>ML</sub>.
 Also check out the introduction to <a href="Linear_Solves.html">linear solves</a>.</p>
 
 </div>
@@ -15131,7 +15131,7 @@ Also check out the introduction to <a href="Linear_Solves.html">linear solves</a
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython2"><pre><span></span><span class="o">%%capture</span>
-<span class="err">!</span><span class="n">pip</span> <span class="n">install</span> <span class="n">ml4s</span>
+<span class="err">!</span><span class="n">pip</span> <span class="n">install</span> <span class="n">phiml</span>
 </pre></div>
 
      </div>
@@ -15148,12 +15148,12 @@ Also check out the introduction to <a href="Linear_Solves.html">linear solves</a
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
 <h2 id="Primal-and-Dual-Dimensions">Primal and Dual Dimensions<a class="anchor-link" href="#Primal-and-Dual-Dimensions">&#182;</a></h2><p>Matrices are typically represented as a 2D array with N rows and M columns.
 They can be multiplied with an M-vector, producing an N-vector, i.e. the horizontal axis of the matrix is reduced in the operation.</p>
-<p>ML4Science generally deals with higher-dimensional tensors.
+<p>Φ<sub>ML</sub> generally deals with higher-dimensional tensors.
 Say we want to represent a matrix that transforms one image into another, then both vectors would have shape <code>(height, width, channels)</code>, which is too much for a matrix.
 This is typically resolved by packing these dimensions into one using reshaping, adding boilerplate and making code less readable.</p>
-<p>ML4Science allows you to keep all dimensions.
+<p>Φ<sub>ML</sub> allows you to keep all dimensions.
 This is possible because of dimension types.
-ML4Science provides the <a href="ml4s/math/#ml4s.math.dual"><code>dual</code></a> dimension type to mark dimensions that will be reduced during a matrix multiplication.</p>
+Φ<sub>ML</sub> provides the <a href="phiml/math/#phiml.math.dual"><code>dual</code></a> dimension type to mark dimensions that will be reduced during a matrix multiplication.</p>
 
 </div>
 </div>
@@ -15166,8 +15166,8 @@ ML4Science provides the <a href="ml4s/math/#ml4s.math.dual"><code>dual</code></a
 <div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[2]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython2"><pre><span></span><span class="kn">from</span> <span class="nn">ml4s</span> <span class="kn">import</span> <span class="n">math</span>
-<span class="kn">from</span> <span class="nn">ml4s.math</span> <span class="kn">import</span> <span class="n">wrap</span><span class="p">,</span> <span class="n">channel</span><span class="p">,</span> <span class="n">dual</span>
+<div class=" highlight hl-ipython2"><pre><span></span><span class="kn">from</span> <span class="nn">phiml</span> <span class="kn">import</span> <span class="n">math</span>
+<span class="kn">from</span> <span class="nn">phiml.math</span> <span class="kn">import</span> <span class="n">wrap</span><span class="p">,</span> <span class="n">channel</span><span class="p">,</span> <span class="n">dual</span>
 
 <span class="n">matrix</span> <span class="o">=</span> <span class="n">wrap</span><span class="p">([[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">]],</span> <span class="n">channel</span><span class="p">(</span><span class="s1">&#39;rows&#39;</span><span class="p">),</span> <span class="n">dual</span><span class="p">(</span><span class="s1">&#39;cols&#39;</span><span class="p">))</span>
 <span class="n">math</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="n">matrix</span><span class="p">)</span>
@@ -15316,7 +15316,7 @@ Dual dimensions are matched against vector dimensions of the same name.</p>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
 <h2 id="Dot-Product-between-Vectors">Dot Product between Vectors<a class="anchor-link" href="#Dot-Product-between-Vectors">&#182;</a></h2><p>Matrix multiplications are a special case of a dot product.
-You can perform general multiply-reduce using <a href="ml4s/math/#ml4s.math.dot"><code>math.dot()</code></a> or using the dimension referencing syntax:</p>
+You can perform general multiply-reduce using <a href="phiml/math/#phiml.math.dot"><code>math.dot()</code></a> or using the dimension referencing syntax:</p>
 
 </div>
 </div>
@@ -15381,8 +15381,8 @@ You can perform general multiply-reduce using <a href="ml4s/math/#ml4s.math.dot"
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<h2 id="Building-Matrices-from-Linear-Functions">Building Matrices from Linear Functions<a class="anchor-link" href="#Building-Matrices-from-Linear-Functions">&#182;</a></h2><p>ML4Science can convert linear Python functions into (sparse) matrices.
-To do this, pass an example input vector (matching the dual / column dimensions of the matrix) to <a href="ml4s/math/#ml4s.math.matrix_from_function"><code>math.matrix_from_function()</code></a>.</p>
+<h2 id="Building-Matrices-from-Linear-Functions">Building Matrices from Linear Functions<a class="anchor-link" href="#Building-Matrices-from-Linear-Functions">&#182;</a></h2><p>Φ<sub>ML</sub> can convert linear Python functions into (sparse) matrices.
+To do this, pass an example input vector (matching the dual / column dimensions of the matrix) to <a href="phiml/math/#phiml.math.matrix_from_function"><code>math.matrix_from_function()</code></a>.</p>
 
 </div>
 </div>
@@ -15395,7 +15395,7 @@ To do this, pass an example input vector (matching the dual / column dimensions 
 <div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[6]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython2"><pre><span></span><span class="kn">from</span> <span class="nn">ml4s.math</span> <span class="kn">import</span> <span class="n">matrix_from_function</span><span class="p">,</span> <span class="n">zeros</span>
+<div class=" highlight hl-ipython2"><pre><span></span><span class="kn">from</span> <span class="nn">phiml.math</span> <span class="kn">import</span> <span class="n">matrix_from_function</span><span class="p">,</span> <span class="n">zeros</span>
 
 <span class="k">def</span> <span class="nf">mul_by_2</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
     <span class="k">return</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">x</span>
@@ -15874,7 +15874,7 @@ When running a linear solve within a <a href="JIT.html">JIT-compiled</a> functio
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<p>Matrices can be converted to the selected backend using <a href="ml4s/math/#ml4s.math.convert"><code>convert</code></a>.</p>
+<p>Matrices can be converted to the selected backend using <a href="phiml/math/#phiml.math.convert"><code>convert</code></a>.</p>
 
 </div>
 </div>
@@ -15928,7 +15928,7 @@ When running a linear solve within a <a href="JIT.html">JIT-compiled</a> functio
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
 <h2 id="Dense-and-Sparse-Matrices">Dense and Sparse Matrices<a class="anchor-link" href="#Dense-and-Sparse-Matrices">&#182;</a></h2><p>Dense matrices are simply tensors that have one or multiple <em>dual</em> dimensions.
 Creating a sparse matrix is therefore as simple as setting the correct dimension type on a tensor.</p>
-<p>Sparse matrices can be created using <a href="ml4s/math/#ml4s.math.sparse_tensor"><code>math.sparse_tensor()</code></a>.
+<p>Sparse matrices can be created using <a href="phiml/math/#phiml.math.sparse_tensor"><code>math.sparse_tensor()</code></a>.
 All non-zero values need to be specified together with their indices.</p>
 
 </div>
@@ -15942,7 +15942,7 @@ All non-zero values need to be specified together with their indices.</p>
 <div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[16]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython2"><pre><span></span><span class="kn">from</span> <span class="nn">ml4s.math</span> <span class="kn">import</span> <span class="n">instance</span><span class="p">,</span> <span class="n">expand</span>
+<div class=" highlight hl-ipython2"><pre><span></span><span class="kn">from</span> <span class="nn">phiml.math</span> <span class="kn">import</span> <span class="n">instance</span><span class="p">,</span> <span class="n">expand</span>
 
 <span class="n">indices</span> <span class="o">=</span> <span class="n">wrap</span><span class="p">([(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)],</span> <span class="n">instance</span><span class="p">(</span><span class="s1">&#39;indices&#39;</span><span class="p">),</span> <span class="n">channel</span><span class="p">(</span><span class="n">vector</span><span class="o">=</span><span class="s1">&#39;rows,~cols&#39;</span><span class="p">))</span>
 <span class="n">values</span> <span class="o">=</span> <span class="n">expand</span><span class="p">(</span><span class="n">wrap</span><span class="p">(</span><span class="mf">1.</span><span class="p">),</span> <span class="n">instance</span><span class="p">(</span><span class="n">indices</span><span class="p">))</span>
@@ -16304,11 +16304,11 @@ The <code>csc</code> format is good for transposed matrix multiplications as wel
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
 <h2 id="Further-Reading">Further Reading<a class="anchor-link" href="#Further-Reading">&#182;</a></h2><p>Matrices with dual dimensions can be used in <a href="Linear_Solves.html">linear solves</a>.</p>
-<p><a href="https://github.com/tum-pbs/ML4Science">🌐 <strong>ML4Science</strong></a>
-  •   <a href="https://tum-pbs.github.io/ML4Science/">📖 <strong>Documentation</strong></a>
-  •   <a href="https://tum-pbs.github.io/ML4Science/ml4s">🔗 <strong>API</strong></a>
+<p><a href="https://github.com/tum-pbs/PhiML">🌐 <strong>Φ<sub>ML</sub></strong></a>
+  •   <a href="https://tum-pbs.github.io/%CE%A6%3Csub%3EML%3C/sub%3E/">📖 <strong>Documentation</strong></a>
+  •   <a href="https://tum-pbs.github.io/%CE%A6%3Csub%3EML%3C/sub%3E/phiml">🔗 <strong>API</strong></a>
   •   <a href=""><strong>▶ Videos</strong></a>
-  •   <a href="https://colab.research.google.com/github/tum-pbs/ML4Science/blob/main/docs/Examples.ipynb"><img src="images/colab_logo_small.png" height=4></a> <a href="https://tum-pbs.github.io/ML4Science/Examples.html"><strong>Examples</strong></a></p>
+  •   <a href="https://colab.research.google.com/github/tum-pbs/PhiML/blob/main/docs/Examples.ipynb"><img src="images/colab_logo_small.png" height=4></a> <a href="https://tum-pbs.github.io/%CE%A6%3Csub%3EML%3C/sub%3E/Examples.html"><strong>Examples</strong></a></p>
 
 </div>
 </div>

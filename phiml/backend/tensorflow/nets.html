@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
 <meta name="generator" content="pdoc 0.10.0" />
-<title>ml4s.backend.tensorflow.nets API documentation</title>
+<title>phiml.backend.tensorflow.nets API documentation</title>
 <meta name="description" content="TensorFlow implementation of the unified machine learning API.
 Equivalent functions also exist for the other frameworks …" />
 <link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
@@ -20,12 +20,12 @@ Equivalent functions also exist for the other frameworks …" />
 <main>
 <article id="content">
 <header>
-<h1 class="title">Module <code>ml4s.backend.tensorflow.nets</code></h1>
+<h1 class="title">Module <code>phiml.backend.tensorflow.nets</code></h1>
 </header>
 <section id="section-intro">
 <p>TensorFlow implementation of the unified machine learning API.
 Equivalent functions also exist for the other frameworks.</p>
-<p>For API documentation, see <code><a title="ml4s.nn" href="../../nn.html">ml4s.nn</a></code>.</p>
+<p>For API documentation, see <code><a title="phiml.nn" href="../../nn.html">phiml.nn</a></code>.</p>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -34,7 +34,7 @@ Equivalent functions also exist for the other frameworks.</p>
 TensorFlow implementation of the unified machine learning API.
 Equivalent functions also exist for the other frameworks.
 
-For API documentation, see `ml4s.nn`.
+For API documentation, see `phiml.nn`.
 &#34;&#34;&#34;
 import pickle
 from typing import Callable
@@ -586,7 +586,7 @@ def invertible_net(num_blocks: int,
 <section>
 <h2 class="section-title" id="header-functions">Functions</h2>
 <dl>
-<dt id="ml4s.backend.tensorflow.nets.adagrad"><code class="name flex">
+<dt id="phiml.backend.tensorflow.nets.adagrad"><code class="name flex">
 <span>def <span class="ident">adagrad</span></span>(<span>net: keras.src.engine.training.Model, learning_rate: float = 0.001, lr_decay=0, weight_decay=0, initial_accumulator_value=0, eps=1e-10)</span>
 </code></dt>
 <dd>
@@ -601,7 +601,7 @@ def invertible_net(num_blocks: int,
     return keras.optimizers.Adagrad(learning_rate, initial_accumulator_value, eps)</code></pre>
 </details>
 </dd>
-<dt id="ml4s.backend.tensorflow.nets.adam"><code class="name flex">
+<dt id="phiml.backend.tensorflow.nets.adam"><code class="name flex">
 <span>def <span class="ident">adam</span></span>(<span>net: keras.src.engine.training.Model, learning_rate: float = 0.001, betas=(0.9, 0.999), epsilon=1e-07)</span>
 </code></dt>
 <dd>
@@ -614,7 +614,7 @@ def invertible_net(num_blocks: int,
     return keras.optimizers.Adam(learning_rate, betas[0], betas[1], epsilon)</code></pre>
 </details>
 </dd>
-<dt id="ml4s.backend.tensorflow.nets.conv_classifier"><code class="name flex">
+<dt id="phiml.backend.tensorflow.nets.conv_classifier"><code class="name flex">
 <span>def <span class="ident">conv_classifier</span></span>(<span>in_features: int, in_spatial: Union[tuple, list], num_classes: int, blocks=(64, 128, 256, 256, 512, 512), block_sizes=(2, 2, 3, 3, 3), dense_layers=(4096, 4096, 100), batch_norm=True, activation='ReLU', softmax=True, periodic=False)</span>
 </code></dt>
 <dd>
@@ -650,7 +650,7 @@ def invertible_net(num_blocks: int,
     return keras.Model(inputs, x)</code></pre>
 </details>
 </dd>
-<dt id="ml4s.backend.tensorflow.nets.conv_net"><code class="name flex">
+<dt id="phiml.backend.tensorflow.nets.conv_net"><code class="name flex">
 <span>def <span class="ident">conv_net</span></span>(<span>in_channels: int, out_channels: int, layers: Sequence[int], batch_norm: bool = False, activation: Union[str, Callable] = 'ReLU', periodic=False, in_spatial: Union[int, tuple] = 2) ‑> keras.src.engine.training.Model</span>
 </code></dt>
 <dd>
@@ -685,7 +685,7 @@ def invertible_net(num_blocks: int,
     return keras.Model(inputs, x)</code></pre>
 </details>
 </dd>
-<dt id="ml4s.backend.tensorflow.nets.double_conv"><code class="name flex">
+<dt id="phiml.backend.tensorflow.nets.double_conv"><code class="name flex">
 <span>def <span class="ident">double_conv</span></span>(<span>x, d: int, out_channels: int, mid_channels: int, batch_norm: bool, activation: Callable, periodic: bool)</span>
 </code></dt>
 <dd>
@@ -706,7 +706,7 @@ def invertible_net(num_blocks: int,
     return x</code></pre>
 </details>
 </dd>
-<dt id="ml4s.backend.tensorflow.nets.get_mask"><code class="name flex">
+<dt id="phiml.backend.tensorflow.nets.get_mask"><code class="name flex">
 <span>def <span class="ident">get_mask</span></span>(<span>inputs, reverse_mask, data_format='NHWC')</span>
 </code></dt>
 <dd>
@@ -745,7 +745,7 @@ def invertible_net(num_blocks: int,
     return checker</code></pre>
 </details>
 </dd>
-<dt id="ml4s.backend.tensorflow.nets.get_parameters"><code class="name flex">
+<dt id="phiml.backend.tensorflow.nets.get_parameters"><code class="name flex">
 <span>def <span class="ident">get_parameters</span></span>(<span>model: keras.src.engine.training.Model, wrap=True) ‑> dict</span>
 </code></dt>
 <dd>
@@ -790,7 +790,7 @@ def invertible_net(num_blocks: int,
     return result</code></pre>
 </details>
 </dd>
-<dt id="ml4s.backend.tensorflow.nets.invertible_net"><code class="name flex">
+<dt id="phiml.backend.tensorflow.nets.invertible_net"><code class="name flex">
 <span>def <span class="ident">invertible_net</span></span>(<span>num_blocks: int, construct_net: Union[str, Callable], **construct_kwargs)</span>
 </code></dt>
 <dd>
@@ -811,7 +811,7 @@ def invertible_net(num_blocks: int,
     return InvertibleNet(num_blocks, construct_net, construct_kwargs)</code></pre>
 </details>
 </dd>
-<dt id="ml4s.backend.tensorflow.nets.load_state"><code class="name flex">
+<dt id="phiml.backend.tensorflow.nets.load_state"><code class="name flex">
 <span>def <span class="ident">load_state</span></span>(<span>obj: Union[keras.src.engine.training.Model, keras.src.optimizers.optimizer.Optimizer], path: str)</span>
 </code></dt>
 <dd>
@@ -835,7 +835,7 @@ def invertible_net(num_blocks: int,
         raise ValueError(&#34;obj must be a Keras model or optimizer&#34;)</code></pre>
 </details>
 </dd>
-<dt id="ml4s.backend.tensorflow.nets.mlp"><code class="name flex">
+<dt id="phiml.backend.tensorflow.nets.mlp"><code class="name flex">
 <span>def <span class="ident">mlp</span></span>(<span>in_channels: int, out_channels: int, layers: Sequence[int], batch_norm=False, activation='ReLU', softmax=False) ‑> keras.src.engine.training.Model</span>
 </code></dt>
 <dd>
@@ -862,7 +862,7 @@ def invertible_net(num_blocks: int,
                                     *([kl.Softmax()] if softmax else [])])</code></pre>
 </details>
 </dd>
-<dt id="ml4s.backend.tensorflow.nets.pad_periodic"><code class="name flex">
+<dt id="phiml.backend.tensorflow.nets.pad_periodic"><code class="name flex">
 <span>def <span class="ident">pad_periodic</span></span>(<span>x: tensorflow.python.framework.ops.Tensor)</span>
 </code></dt>
 <dd>
@@ -883,7 +883,7 @@ def invertible_net(num_blocks: int,
     return x</code></pre>
 </details>
 </dd>
-<dt id="ml4s.backend.tensorflow.nets.res_net"><code class="name flex">
+<dt id="phiml.backend.tensorflow.nets.res_net"><code class="name flex">
 <span>def <span class="ident">res_net</span></span>(<span>in_channels: int, out_channels: int, layers: Sequence[int], batch_norm: bool = False, activation: Union[str, Callable] = 'ReLU', periodic=False, in_spatial: Union[int, tuple] = 2)</span>
 </code></dt>
 <dd>
@@ -916,7 +916,7 @@ def invertible_net(num_blocks: int,
     return keras.Model(inputs, out)</code></pre>
 </details>
 </dd>
-<dt id="ml4s.backend.tensorflow.nets.resnet_block"><code class="name flex">
+<dt id="phiml.backend.tensorflow.nets.resnet_block"><code class="name flex">
 <span>def <span class="ident">resnet_block</span></span>(<span>in_channels: int, out_channels: int, periodic: bool, batch_norm: bool = False, activation: Union[str, Callable] = 'ReLU', in_spatial: Union[int, tuple] = 2)</span>
 </code></dt>
 <dd>
@@ -954,7 +954,7 @@ def invertible_net(num_blocks: int,
     return keras.Model(inputs, x)</code></pre>
 </details>
 </dd>
-<dt id="ml4s.backend.tensorflow.nets.rmsprop"><code class="name flex">
+<dt id="phiml.backend.tensorflow.nets.rmsprop"><code class="name flex">
 <span>def <span class="ident">rmsprop</span></span>(<span>net: keras.src.engine.training.Model, learning_rate: float = 0.001, alpha=0.99, eps=1e-08, weight_decay=0, momentum=0, centered=False)</span>
 </code></dt>
 <dd>
@@ -968,7 +968,7 @@ def invertible_net(num_blocks: int,
     return keras.optimizers.RMSprop(learning_rate, alpha, momentum, eps, centered)</code></pre>
 </details>
 </dd>
-<dt id="ml4s.backend.tensorflow.nets.save_state"><code class="name flex">
+<dt id="phiml.backend.tensorflow.nets.save_state"><code class="name flex">
 <span>def <span class="ident">save_state</span></span>(<span>obj: Union[keras.src.engine.training.Model, keras.src.optimizers.optimizer.Optimizer], path: str)</span>
 </code></dt>
 <dd>
@@ -992,7 +992,7 @@ def invertible_net(num_blocks: int,
         raise ValueError(&#34;obj must be a Keras model or optimizer&#34;)</code></pre>
 </details>
 </dd>
-<dt id="ml4s.backend.tensorflow.nets.sgd"><code class="name flex">
+<dt id="phiml.backend.tensorflow.nets.sgd"><code class="name flex">
 <span>def <span class="ident">sgd</span></span>(<span>net: keras.src.engine.training.Model, learning_rate: float = 0.001, momentum=0, dampening=0, weight_decay=0, nesterov=False)</span>
 </code></dt>
 <dd>
@@ -1007,7 +1007,7 @@ def invertible_net(num_blocks: int,
     return keras.optimizers.SGD(learning_rate, momentum, nesterov)</code></pre>
 </details>
 </dd>
-<dt id="ml4s.backend.tensorflow.nets.u_net"><code class="name flex">
+<dt id="phiml.backend.tensorflow.nets.u_net"><code class="name flex">
 <span>def <span class="ident">u_net</span></span>(<span>in_channels: int, out_channels: int, levels: int = 4, filters: Union[int, tuple, list] = 16, batch_norm: bool = True, activation: Union[str, Callable] = 'ReLU', in_spatial: Union[int, tuple] = 2, periodic=False, use_res_blocks: bool = False) ‑> keras.src.engine.training.Model</span>
 </code></dt>
 <dd>
@@ -1052,7 +1052,7 @@ def invertible_net(num_blocks: int,
     return keras.Model(inputs, x)</code></pre>
 </details>
 </dd>
-<dt id="ml4s.backend.tensorflow.nets.update_weights"><code class="name flex">
+<dt id="phiml.backend.tensorflow.nets.update_weights"><code class="name flex">
 <span>def <span class="ident">update_weights</span></span>(<span>net: keras.src.engine.training.Model, optimizer: keras.src.optimizers.optimizer.Optimizer, loss_function: Callable, *loss_args, **loss_kwargs)</span>
 </code></dt>
 <dd>
@@ -1075,7 +1075,7 @@ def invertible_net(num_blocks: int,
 <section>
 <h2 class="section-title" id="header-classes">Classes</h2>
 <dl>
-<dt id="ml4s.backend.tensorflow.nets.CouplingLayer"><code class="flex name class">
+<dt id="phiml.backend.tensorflow.nets.CouplingLayer"><code class="flex name class">
 <span>class <span class="ident">CouplingLayer</span></span>
 <span>(</span><span>construct_net: Callable, construction_kwargs: dict, reverse_mask)</span>
 </code></dt>
@@ -1211,7 +1211,7 @@ to do prediction with <code>model.predict()</code>.</p></div>
 </ul>
 <h3>Methods</h3>
 <dl>
-<dt id="ml4s.backend.tensorflow.nets.CouplingLayer.call"><code class="name flex">
+<dt id="phiml.backend.tensorflow.nets.CouplingLayer.call"><code class="name flex">
 <span>def <span class="ident">call</span></span>(<span>self, x, invert=False)</span>
 </code></dt>
 <dd>
@@ -1260,7 +1260,7 @@ a list of tensors if there are more than one outputs.</p></div>
 </dd>
 </dl>
 </dd>
-<dt id="ml4s.backend.tensorflow.nets.InvertibleNet"><code class="flex name class">
+<dt id="phiml.backend.tensorflow.nets.InvertibleNet"><code class="flex name class">
 <span>class <span class="ident">InvertibleNet</span></span>
 <span>(</span><span>num_blocks: int, construct_net, construction_kwargs: dict)</span>
 </code></dt>
@@ -1389,7 +1389,7 @@ to do prediction with <code>model.predict()</code>.</p></div>
 </ul>
 <h3>Methods</h3>
 <dl>
-<dt id="ml4s.backend.tensorflow.nets.InvertibleNet.call"><code class="name flex">
+<dt id="phiml.backend.tensorflow.nets.InvertibleNet.call"><code class="name flex">
 <span>def <span class="ident">call</span></span>(<span>self, x, backward=False)</span>
 </code></dt>
 <dd>
@@ -1443,43 +1443,43 @@ a list of tensors if there are more than one outputs.</p></div>
 <ul id="index">
 <li><h3>Super-module</h3>
 <ul>
-<li><code><a title="ml4s.backend.tensorflow" href="index.html">ml4s.backend.tensorflow</a></code></li>
+<li><code><a title="phiml.backend.tensorflow" href="index.html">phiml.backend.tensorflow</a></code></li>
 </ul>
 </li>
 <li><h3><a href="#header-functions">Functions</a></h3>
 <ul class="two-column">
-<li><code><a title="ml4s.backend.tensorflow.nets.adagrad" href="#ml4s.backend.tensorflow.nets.adagrad">adagrad</a></code></li>
-<li><code><a title="ml4s.backend.tensorflow.nets.adam" href="#ml4s.backend.tensorflow.nets.adam">adam</a></code></li>
-<li><code><a title="ml4s.backend.tensorflow.nets.conv_classifier" href="#ml4s.backend.tensorflow.nets.conv_classifier">conv_classifier</a></code></li>
-<li><code><a title="ml4s.backend.tensorflow.nets.conv_net" href="#ml4s.backend.tensorflow.nets.conv_net">conv_net</a></code></li>
-<li><code><a title="ml4s.backend.tensorflow.nets.double_conv" href="#ml4s.backend.tensorflow.nets.double_conv">double_conv</a></code></li>
-<li><code><a title="ml4s.backend.tensorflow.nets.get_mask" href="#ml4s.backend.tensorflow.nets.get_mask">get_mask</a></code></li>
-<li><code><a title="ml4s.backend.tensorflow.nets.get_parameters" href="#ml4s.backend.tensorflow.nets.get_parameters">get_parameters</a></code></li>
-<li><code><a title="ml4s.backend.tensorflow.nets.invertible_net" href="#ml4s.backend.tensorflow.nets.invertible_net">invertible_net</a></code></li>
-<li><code><a title="ml4s.backend.tensorflow.nets.load_state" href="#ml4s.backend.tensorflow.nets.load_state">load_state</a></code></li>
-<li><code><a title="ml4s.backend.tensorflow.nets.mlp" href="#ml4s.backend.tensorflow.nets.mlp">mlp</a></code></li>
-<li><code><a title="ml4s.backend.tensorflow.nets.pad_periodic" href="#ml4s.backend.tensorflow.nets.pad_periodic">pad_periodic</a></code></li>
-<li><code><a title="ml4s.backend.tensorflow.nets.res_net" href="#ml4s.backend.tensorflow.nets.res_net">res_net</a></code></li>
-<li><code><a title="ml4s.backend.tensorflow.nets.resnet_block" href="#ml4s.backend.tensorflow.nets.resnet_block">resnet_block</a></code></li>
-<li><code><a title="ml4s.backend.tensorflow.nets.rmsprop" href="#ml4s.backend.tensorflow.nets.rmsprop">rmsprop</a></code></li>
-<li><code><a title="ml4s.backend.tensorflow.nets.save_state" href="#ml4s.backend.tensorflow.nets.save_state">save_state</a></code></li>
-<li><code><a title="ml4s.backend.tensorflow.nets.sgd" href="#ml4s.backend.tensorflow.nets.sgd">sgd</a></code></li>
-<li><code><a title="ml4s.backend.tensorflow.nets.u_net" href="#ml4s.backend.tensorflow.nets.u_net">u_net</a></code></li>
-<li><code><a title="ml4s.backend.tensorflow.nets.update_weights" href="#ml4s.backend.tensorflow.nets.update_weights">update_weights</a></code></li>
+<li><code><a title="phiml.backend.tensorflow.nets.adagrad" href="#phiml.backend.tensorflow.nets.adagrad">adagrad</a></code></li>
+<li><code><a title="phiml.backend.tensorflow.nets.adam" href="#phiml.backend.tensorflow.nets.adam">adam</a></code></li>
+<li><code><a title="phiml.backend.tensorflow.nets.conv_classifier" href="#phiml.backend.tensorflow.nets.conv_classifier">conv_classifier</a></code></li>
+<li><code><a title="phiml.backend.tensorflow.nets.conv_net" href="#phiml.backend.tensorflow.nets.conv_net">conv_net</a></code></li>
+<li><code><a title="phiml.backend.tensorflow.nets.double_conv" href="#phiml.backend.tensorflow.nets.double_conv">double_conv</a></code></li>
+<li><code><a title="phiml.backend.tensorflow.nets.get_mask" href="#phiml.backend.tensorflow.nets.get_mask">get_mask</a></code></li>
+<li><code><a title="phiml.backend.tensorflow.nets.get_parameters" href="#phiml.backend.tensorflow.nets.get_parameters">get_parameters</a></code></li>
+<li><code><a title="phiml.backend.tensorflow.nets.invertible_net" href="#phiml.backend.tensorflow.nets.invertible_net">invertible_net</a></code></li>
+<li><code><a title="phiml.backend.tensorflow.nets.load_state" href="#phiml.backend.tensorflow.nets.load_state">load_state</a></code></li>
+<li><code><a title="phiml.backend.tensorflow.nets.mlp" href="#phiml.backend.tensorflow.nets.mlp">mlp</a></code></li>
+<li><code><a title="phiml.backend.tensorflow.nets.pad_periodic" href="#phiml.backend.tensorflow.nets.pad_periodic">pad_periodic</a></code></li>
+<li><code><a title="phiml.backend.tensorflow.nets.res_net" href="#phiml.backend.tensorflow.nets.res_net">res_net</a></code></li>
+<li><code><a title="phiml.backend.tensorflow.nets.resnet_block" href="#phiml.backend.tensorflow.nets.resnet_block">resnet_block</a></code></li>
+<li><code><a title="phiml.backend.tensorflow.nets.rmsprop" href="#phiml.backend.tensorflow.nets.rmsprop">rmsprop</a></code></li>
+<li><code><a title="phiml.backend.tensorflow.nets.save_state" href="#phiml.backend.tensorflow.nets.save_state">save_state</a></code></li>
+<li><code><a title="phiml.backend.tensorflow.nets.sgd" href="#phiml.backend.tensorflow.nets.sgd">sgd</a></code></li>
+<li><code><a title="phiml.backend.tensorflow.nets.u_net" href="#phiml.backend.tensorflow.nets.u_net">u_net</a></code></li>
+<li><code><a title="phiml.backend.tensorflow.nets.update_weights" href="#phiml.backend.tensorflow.nets.update_weights">update_weights</a></code></li>
 </ul>
 </li>
 <li><h3><a href="#header-classes">Classes</a></h3>
 <ul>
 <li>
-<h4><code><a title="ml4s.backend.tensorflow.nets.CouplingLayer" href="#ml4s.backend.tensorflow.nets.CouplingLayer">CouplingLayer</a></code></h4>
+<h4><code><a title="phiml.backend.tensorflow.nets.CouplingLayer" href="#phiml.backend.tensorflow.nets.CouplingLayer">CouplingLayer</a></code></h4>
 <ul class="">
-<li><code><a title="ml4s.backend.tensorflow.nets.CouplingLayer.call" href="#ml4s.backend.tensorflow.nets.CouplingLayer.call">call</a></code></li>
+<li><code><a title="phiml.backend.tensorflow.nets.CouplingLayer.call" href="#phiml.backend.tensorflow.nets.CouplingLayer.call">call</a></code></li>
 </ul>
 </li>
 <li>
-<h4><code><a title="ml4s.backend.tensorflow.nets.InvertibleNet" href="#ml4s.backend.tensorflow.nets.InvertibleNet">InvertibleNet</a></code></h4>
+<h4><code><a title="phiml.backend.tensorflow.nets.InvertibleNet" href="#phiml.backend.tensorflow.nets.InvertibleNet">InvertibleNet</a></code></h4>
 <ul class="">
-<li><code><a title="ml4s.backend.tensorflow.nets.InvertibleNet.call" href="#ml4s.backend.tensorflow.nets.InvertibleNet.call">call</a></code></li>
+<li><code><a title="phiml.backend.tensorflow.nets.InvertibleNet.call" href="#phiml.backend.tensorflow.nets.InvertibleNet.call">call</a></code></li>
 </ul>
 </li>
 </ul>

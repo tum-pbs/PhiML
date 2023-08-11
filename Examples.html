@@ -15110,10 +15110,10 @@ body[data-format='mobile'] .jp-OutputArea-child .jp-OutputArea-output {
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<h1 id="ML4Science-Examples">ML4Science Examples<a class="anchor-link" href="#ML4Science-Examples">&#182;</a></h1><p><a href="https://colab.research.google.com/github/tum-pbs/ML4Science/blob/main/docs/Examples.ipynb"><img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Colab" /></a>
-  •   <a href="https://github.com/tum-pbs/ML4Science">🌐 <strong>ML4Science</strong></a>
-  •   <a href="https://tum-pbs.github.io/ML4Science/">📖 <strong>Documentation</strong></a>
-  •   <a href="https://tum-pbs.github.io/ML4Science/ml4s">🔗 <strong>API</strong></a>
+<h1 id="%CE%A6ML-Examples">&#934;<sub>ML</sub> Examples<a class="anchor-link" href="#%CE%A6ML-Examples">&#182;</a></h1><p><a href="https://colab.research.google.com/github/tum-pbs/PhiML/blob/main/docs/Examples.ipynb"><img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Colab" /></a>
+  •   <a href="https://github.com/tum-pbs/PhiML">🌐 <strong>Φ<sub>ML</sub></strong></a>
+  •   <a href="https://tum-pbs.github.io/%CE%A6%3Csub%3EML%3C/sub%3E/">📖 <strong>Documentation</strong></a>
+  •   <a href="https://tum-pbs.github.io/%CE%A6%3Csub%3EML%3C/sub%3E/phiml">🔗 <strong>API</strong></a>
   •   <a href=""><strong>▶ Videos</strong></a></p>
 <p>All examples listed in this notebook can be run with any of the three supported ML backends: <code>jax</code>, <code>torch</code> and <code>tensorflow</code>.
 You can select your preferred one by changing the below <code>math.use()</code> call.</p>
@@ -15129,9 +15129,9 @@ You can select your preferred one by changing the below <code>math.use()</code> 
 <div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[1]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython2"><pre><span></span><span class="c1"># !pip install ml4s</span>
-<span class="kn">from</span> <span class="nn">ml4s</span> <span class="kn">import</span> <span class="n">math</span><span class="p">,</span> <span class="n">nn</span>
-<span class="kn">from</span> <span class="nn">ml4s.math</span> <span class="kn">import</span> <span class="n">channel</span><span class="p">,</span> <span class="n">spatial</span><span class="p">,</span> <span class="n">batch</span><span class="p">,</span> <span class="n">instance</span>
+<div class=" highlight hl-ipython2"><pre><span></span><span class="c1"># !pip install phiml</span>
+<span class="kn">from</span> <span class="nn">phiml</span> <span class="kn">import</span> <span class="n">math</span><span class="p">,</span> <span class="n">nn</span>
+<span class="kn">from</span> <span class="nn">phiml.math</span> <span class="kn">import</span> <span class="n">channel</span><span class="p">,</span> <span class="n">spatial</span><span class="p">,</span> <span class="n">batch</span><span class="p">,</span> <span class="n">instance</span>
 
 <span class="n">math</span><span class="o">.</span><span class="n">use</span><span class="p">(</span><span class="s1">&#39;jax&#39;</span><span class="p">)</span>
 
@@ -15171,7 +15171,7 @@ You can select your preferred one by changing the below <code>math.use()</code> 
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<h3 id="Training-an-MLP">Training an MLP<a class="anchor-link" href="#Training-an-MLP">&#182;</a></h3><p>The following script trains an <a href="https://tum-pbs.github.io/ML4Science/ml4s/nn#ml4s.nn.mlp">MLP</a> with three hidden layers to learn a noisy 1D sine function in the range [-2, 2].</p>
+<h3 id="Training-an-MLP">Training an MLP<a class="anchor-link" href="#Training-an-MLP">&#182;</a></h3><p>The following script trains an <a href="https://tum-pbs.github.io/%CE%A6%3Csub%3EML%3C/sub%3E/phiml/nn#phiml.nn.mlp">MLP</a> with three hidden layers to learn a noisy 1D sine function in the range [-2, 2].</p>
 
 </div>
 </div>
@@ -15215,7 +15215,7 @@ You can select your preferred one by changing the below <code>math.use()</code> 
 
 
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="application/vnd.jupyter.stderr">
-<pre>2023-08-10 15:43:24.245490: W tensorflow/compiler/tf2tensorrt/utils/py_utils.cc:38] TF-TRT Warning: Could not find TensorRT
+<pre>2023-08-11 10:26:09.245435: W tensorflow/compiler/tf2tensorrt/utils/py_utils.cc:38] TF-TRT Warning: Could not find TensorRT
 </pre>
 </div>
 </div>
@@ -15250,7 +15250,7 @@ You can select your preferred one by changing the below <code>math.use()</code> 
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<p>We didn't even have to import <code>torch</code> in this example since all calls were routed through ML4Science.
+<p>We didn't even have to import <code>torch</code> in this example since all calls were routed through Φ<sub>ML</sub>.
 See the <a href="Networks.html">introduction to network training</a> for more details.</p>
 
 </div>
@@ -15265,7 +15265,7 @@ See the <a href="Networks.html">introduction to network training</a> for more de
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
 <h2 id="Simulating-the-Heat-Equation">Simulating the Heat Equation<a class="anchor-link" href="#Simulating-the-Heat-Equation">&#182;</a></h2><p>The heat equation $\partial_t u = \nu \nabla^2 u$ describes heat convection, where $\nu$ denotes the diffusivity and $\nabla^2$ is the laplace operator.
 Discretizing $\partial_t u = (u_{t+1} - u_t) / \Delta t$ yields $u_{t+1} = u_t + \Delta t \cdot \nu \nabla^2 u$.
-Decorating the function with <a href="ml4s/math#ml4s.math.jit_compile_linear"><code>math.jit_compile_linear</code></a> makes it run faster as it is compiled to a matrix.</p>
+Decorating the function with <a href="phiml/math#phiml.math.jit_compile_linear"><code>math.jit_compile_linear</code></a> makes it run faster as it is compiled to a matrix.</p>
 
 </div>
 </div>
@@ -15300,7 +15300,7 @@ Notice how this equation looks like a time-reversed explicit step with $u_t$ and
 This important property is always true for differential equations.</p>
 <p>Rewriting the equation to $(1 - \Delta t \cdot \nu \nabla^2) u_{t+1} = u_t$ yields a linear system of equations for $u_{t+1}$.
 Advancing the simulation then becomes solving this linear system where the matrix encodes the time-reversed explicit step.
-While an implicit step is technically linear, the corresponding matrix would be dense (and typically very large). Therefore, we use <a href="ml4s/math#ml4s.math.jit_compile"><code>math.jit_compile</code></a> here.</p>
+While an implicit step is technically linear, the corresponding matrix would be dense (and typically very large). Therefore, we use <a href="phiml/math#phiml.math.jit_compile"><code>math.jit_compile</code></a> here.</p>
 
 </div>
 </div>
@@ -15588,7 +15588,7 @@ class="
 <div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[10]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython2"><pre><span></span><span class="kn">from</span> <span class="nn">ml4s</span> <span class="kn">import</span> <span class="n">math</span>  <span class="c1"># uses NumPy by default</span>
+<div class=" highlight hl-ipython2"><pre><span></span><span class="kn">from</span> <span class="nn">phiml</span> <span class="kn">import</span> <span class="n">math</span>  <span class="c1"># uses NumPy by default</span>
 
 <span class="k">def</span> <span class="nf">pairwise_distances</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="n">math</span><span class="o">.</span><span class="n">Tensor</span><span class="p">):</span>
     <span class="n">dx</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">rename_dims</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="s1">&#39;points&#39;</span><span class="p">,</span> <span class="s1">&#39;others&#39;</span><span class="p">)</span> <span class="o">-</span> <span class="n">x</span>
@@ -15634,8 +15634,8 @@ class="
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
 <p>Inside <code>pairwise_distances</code>, we rename 'points' to 'others'.
-When taking the difference, ML4Science automatically expands both operands by the missing dimensions, adding 'points' to the first argument and 'others' to the second.
-An explanation of this automatic reshaping is given <a href="https://tum-pbs.github.io/ML4Science/Shapes.html">here</a>.</p>
+When taking the difference, Φ<sub>ML</sub> automatically expands both operands by the missing dimensions, adding 'points' to the first argument and 'others' to the second.
+An explanation of this automatic reshaping is given <a href="https://tum-pbs.github.io/%CE%A6%3Csub%3EML%3C/sub%3E/Shapes.html">here</a>.</p>
 
 </div>
 </div>
@@ -15647,7 +15647,7 @@ An explanation of this automatic reshaping is given <a href="https://tum-pbs.git
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<h3 id="Automatic-Differentiation">Automatic Differentiation<a class="anchor-link" href="#Automatic-Differentiation">&#182;</a></h3><p>Next, let's compute the <a href="https://tum-pbs.github.io/ML4Science/Autodiff.html">gradient</a> of some function of <em>(x,y)</em> w.r.t. <em>x</em>.</p>
+<h3 id="Automatic-Differentiation">Automatic Differentiation<a class="anchor-link" href="#Automatic-Differentiation">&#182;</a></h3><p>Next, let's compute the <a href="https://tum-pbs.github.io/%CE%A6%3Csub%3EML%3C/sub%3E/Autodiff.html">gradient</a> of some function of <em>(x,y)</em> w.r.t. <em>x</em>.</p>
 
 </div>
 </div>
@@ -15660,7 +15660,7 @@ An explanation of this automatic reshaping is given <a href="https://tum-pbs.git
 <div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[11]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython2"><pre><span></span><span class="kn">from</span> <span class="nn">ml4s</span> <span class="kn">import</span> <span class="n">math</span>
+<div class=" highlight hl-ipython2"><pre><span></span><span class="kn">from</span> <span class="nn">phiml</span> <span class="kn">import</span> <span class="n">math</span>
 <span class="n">math</span><span class="o">.</span><span class="n">use</span><span class="p">(</span><span class="s1">&#39;jax&#39;</span><span class="p">)</span>
 
 <span class="k">def</span> <span class="nf">function</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
@@ -15697,7 +15697,7 @@ An explanation of this automatic reshaping is given <a href="https://tum-pbs.git
 
 
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="application/vnd.jupyter.stderr">
-<pre>/opt/hostedtoolcache/Python/3.8.17/x64/lib/python3.8/site-packages/ml4s/math/_functional.py:475: RuntimeWarning: Using jax for gradient computation because numpy does not support jacobian()
+<pre>/opt/hostedtoolcache/Python/3.8.17/x64/lib/python3.8/site-packages/phiml/math/_functional.py:475: RuntimeWarning: Using jax for gradient computation because numpy does not support jacobian()
   warnings.warn(f&#34;Using {math.default_backend()} for gradient computation because {key.backend} does not support jacobian()&#34;, RuntimeWarning)
 </pre>
 </div>
@@ -15714,7 +15714,7 @@ An explanation of this automatic reshaping is given <a href="https://tum-pbs.git
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<h3 id="JIT-compilation">JIT compilation<a class="anchor-link" href="#JIT-compilation">&#182;</a></h3><p>ML4Science provides two types of <a href="https://tum-pbs.github.io/ML4Science/JIT.html">JIT compilation</a>: the generic <a href="https://tum-pbs.github.io/ML4Science/ml4s/math#ml4s.math.jit_compile"><code>jit_compile</code></a> calls the corresponding library function while <a href="https://tum-pbs.github.io/ML4Science/ml4s/math#ml4s.math.jit_compile_linear"><code>jit_compile_linear</code></a> builds an <a href="https://tum-pbs.github.io/ML4Science/Matrices.html#Tracing">explicit representation for linear functions</a>.</p>
+<h3 id="JIT-compilation">JIT compilation<a class="anchor-link" href="#JIT-compilation">&#182;</a></h3><p>Φ<sub>ML</sub> provides two types of <a href="https://tum-pbs.github.io/%CE%A6%3Csub%3EML%3C/sub%3E/JIT.html">JIT compilation</a>: the generic <a href="https://tum-pbs.github.io/%CE%A6%3Csub%3EML%3C/sub%3E/phiml/math#phiml.math.jit_compile"><code>jit_compile</code></a> calls the corresponding library function while <a href="https://tum-pbs.github.io/%CE%A6%3Csub%3EML%3C/sub%3E/phiml/math#phiml.math.jit_compile_linear"><code>jit_compile_linear</code></a> builds an <a href="https://tum-pbs.github.io/%CE%A6%3Csub%3EML%3C/sub%3E/Matrices.html#Tracing">explicit representation for linear functions</a>.</p>
 
 </div>
 </div>
@@ -15727,7 +15727,7 @@ An explanation of this automatic reshaping is given <a href="https://tum-pbs.git
 <div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[12]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython2"><pre><span></span><span class="kn">from</span> <span class="nn">ml4s</span> <span class="kn">import</span> <span class="n">math</span>
+<div class=" highlight hl-ipython2"><pre><span></span><span class="kn">from</span> <span class="nn">phiml</span> <span class="kn">import</span> <span class="n">math</span>
 <span class="n">math</span><span class="o">.</span><span class="n">use</span><span class="p">(</span><span class="s1">&#39;tensorflow&#39;</span><span class="p">)</span>
 
 <span class="nd">@math</span><span class="o">.</span><span class="n">jit_compile</span><span class="p">(</span><span class="n">auxiliary_args</span><span class="o">=</span><span class="s1">&#39;divide_by_y&#39;</span><span class="p">)</span>
@@ -15790,7 +15790,7 @@ Otherwise, its concrete value would not be available inside the function and cou
 <div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[13]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython2"><pre><span></span><span class="kn">from</span> <span class="nn">ml4s</span> <span class="kn">import</span> <span class="n">math</span>
+<div class=" highlight hl-ipython2"><pre><span></span><span class="kn">from</span> <span class="nn">phiml</span> <span class="kn">import</span> <span class="n">math</span>
 <span class="n">math</span><span class="o">.</span><span class="n">use</span><span class="p">(</span><span class="s1">&#39;numpy&#39;</span><span class="p">)</span>
 
 <span class="nd">@math</span><span class="o">.</span><span class="n">jit_compile_linear</span><span class="p">(</span><span class="n">auxiliary_args</span><span class="o">=</span><span class="s1">&#39;compute_laplace&#39;</span><span class="p">)</span>
@@ -15838,7 +15838,7 @@ Otherwise, its concrete value would not be available inside the function and cou
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<p>Here, an <a href="https://tum-pbs.github.io/ML4Science/Matrices.html#Tracing">explicit sparse matrix representation</a> of <code>optional_sp_grad</code> is computed each time a new value of <code>compute_gradient</code> is passed.</p>
+<p>Here, an <a href="https://tum-pbs.github.io/%CE%A6%3Csub%3EML%3C/sub%3E/Matrices.html#Tracing">explicit sparse matrix representation</a> of <code>optional_sp_grad</code> is computed each time a new value of <code>compute_gradient</code> is passed.</p>
 
 </div>
 </div>
@@ -15850,8 +15850,8 @@ Otherwise, its concrete value would not be available inside the function and cou
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<h3 id="Solving-a-sparse-linear-system-with-preconditioners">Solving a sparse linear system with preconditioners<a class="anchor-link" href="#Solving-a-sparse-linear-system-with-preconditioners">&#182;</a></h3><p>ML4Science supports <a href="https://tum-pbs.github.io/ML4Science/Linear_Solves.html">solving dense as well as sparse linear systems</a> and can <a href="https://tum-pbs.github.io/ML4Science/Matrices.html">build an explicit matrix representation from linear Python functions</a> in order to compute preconditioners.
-We recommend using ML4Science's tensors, but you can pass native tensors to <a href="https://tum-pbs.github.io/ML4Science/ml4s/math#ml4s.math.solve_linear"><code>solve_linear()</code></a> as well.
+<h3 id="Solving-a-sparse-linear-system-with-preconditioners">Solving a sparse linear system with preconditioners<a class="anchor-link" href="#Solving-a-sparse-linear-system-with-preconditioners">&#182;</a></h3><p>Φ<sub>ML</sub> supports <a href="https://tum-pbs.github.io/%CE%A6%3Csub%3EML%3C/sub%3E/Linear_Solves.html">solving dense as well as sparse linear systems</a> and can <a href="https://tum-pbs.github.io/%CE%A6%3Csub%3EML%3C/sub%3E/Matrices.html">build an explicit matrix representation from linear Python functions</a> in order to compute preconditioners.
+We recommend using Φ<sub>ML</sub>'s tensors, but you can pass native tensors to <a href="https://tum-pbs.github.io/%CE%A6%3Csub%3EML%3C/sub%3E/phiml/math#phiml.math.solve_linear"><code>solve_linear()</code></a> as well.
 The following example solves the 1D Poisson problem ∇x = b with b=1 with incomplete LU decomposition.</p>
 
 </div>
@@ -15865,7 +15865,7 @@ The following example solves the 1D Poisson problem ∇x = b with b=1 with incom
 <div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[14]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython2"><pre><span></span><span class="kn">from</span> <span class="nn">ml4s</span> <span class="kn">import</span> <span class="n">math</span>
+<div class=" highlight hl-ipython2"><pre><span></span><span class="kn">from</span> <span class="nn">phiml</span> <span class="kn">import</span> <span class="n">math</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 
 <span class="k">def</span> <span class="nf">laplace_1d</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
@@ -15910,8 +15910,8 @@ The following example solves the 1D Poisson problem ∇x = b with b=1 with incom
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<p>Decorating the linear function with <a href="https://tum-pbs.github.io/ML4Science/ml4s/math#ml4s.math.jit_compile_linear"><code>math.jit_compile_linear</code></a> lets ML4Science compute the sparse matrix inside <a href="https://tum-pbs.github.io/ML4Science/ml4s/math#ml4s.math.solve_linear"><code>solve_linear()</code></a>. In this example, the matrix is a tridiagonal band matrix.
-Note that if you JIT-compile the <a href="https://tum-pbs.github.io/ML4Science/ml4s/math#ml4s.math.solve_linear"><code>math.solve_linear()</code></a> call, the sparsity pattern and incomplete LU preconditioner are <a href="https://tum-pbs.github.io/ML4Science/NumPy_Constants.html">computed at JIT time</a>.
+<p>Decorating the linear function with <a href="https://tum-pbs.github.io/%CE%A6%3Csub%3EML%3C/sub%3E/phiml/math#phiml.math.jit_compile_linear"><code>math.jit_compile_linear</code></a> lets Φ<sub>ML</sub> compute the sparse matrix inside <a href="https://tum-pbs.github.io/%CE%A6%3Csub%3EML%3C/sub%3E/phiml/math#phiml.math.solve_linear"><code>solve_linear()</code></a>. In this example, the matrix is a tridiagonal band matrix.
+Note that if you JIT-compile the <a href="https://tum-pbs.github.io/%CE%A6%3Csub%3EML%3C/sub%3E/phiml/math#phiml.math.solve_linear"><code>math.solve_linear()</code></a> call, the sparsity pattern and incomplete LU preconditioner are <a href="https://tum-pbs.github.io/%CE%A6%3Csub%3EML%3C/sub%3E/NumPy_Constants.html">computed at JIT time</a>.
 The L and U matrices then enter the computational graph as constants and are not recomputed every time the function is called.</p>
 
 </div>
@@ -15924,7 +15924,7 @@ The L and U matrices then enter the computational graph as constants and are not
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<h2 id="Average-of-Neighbor-Cells">Average of Neighbor Cells<a class="anchor-link" href="#Average-of-Neighbor-Cells">&#182;</a></h2><p>With ML4Science, you can write functions that <a href="N_Dimensional.html">work in any number of spatial dimensions</a>.
+<h2 id="Average-of-Neighbor-Cells">Average of Neighbor Cells<a class="anchor-link" href="#Average-of-Neighbor-Cells">&#182;</a></h2><p>With Φ<sub>ML</sub>, you can write functions that <a href="N_Dimensional.html">work in any number of spatial dimensions</a>.
 The function <code>neighbor_mean</code> computes the average of all direct neighbor cells (2 in 1D, 4 in 2D, 6 in 3D).
 We can inspect the derived factors by printing the function as a matrix.</p>
 
@@ -15984,9 +15984,9 @@ We can inspect the derived factors by printing the function as a matrix.</p>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
 <h2 id="Further-Reading">Further Reading<a class="anchor-link" href="#Further-Reading">&#182;</a></h2><p>Check out the <a href="Introduction.html">🚀 quickstart guide</a> for an introduction into <a href="Tensors.html">tensors</a> and <a href="Shapes.html">dimensions</a>.</p>
-<p><a href="https://github.com/tum-pbs/ML4Science">🌐 <strong>ML4Science</strong></a>
-  •   <a href="https://tum-pbs.github.io/ML4Science/">📖 <strong>Documentation</strong></a>
-  •   <a href="https://tum-pbs.github.io/ML4Science/ml4s">🔗 <strong>API</strong></a>
+<p><a href="https://github.com/tum-pbs/PhiML">🌐 <strong>Φ<sub>ML</sub></strong></a>
+  •   <a href="https://tum-pbs.github.io/%CE%A6%3Csub%3EML%3C/sub%3E/">📖 <strong>Documentation</strong></a>
+  •   <a href="https://tum-pbs.github.io/%CE%A6%3Csub%3EML%3C/sub%3E/phiml">🔗 <strong>API</strong></a>
   •   <a href=""><strong>▶ Videos</strong></a></p>
 
 </div>

@@ -15110,13 +15110,13 @@ body[data-format='mobile'] .jp-OutputArea-child .jp-OutputArea-output {
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<h1 id="Why-Use-ML4Science's-Tensors">Why Use ML4Science's Tensors<a class="anchor-link" href="#Why-Use-ML4Science's-Tensors">&#182;</a></h1><p><a href="https://colab.research.google.com/github/tum-pbs/ML4Science/blob/main/docs/Tensors.ipynb"><img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Colab" /></a>
-  •   <a href="https://github.com/tum-pbs/ML4Science">🌐 <strong>ML4Science</strong></a>
-  •   <a href="https://tum-pbs.github.io/ML4Science/">📖 <strong>Documentation</strong></a>
-  •   <a href="https://tum-pbs.github.io/ML4Science/ml4s">🔗 <strong>API</strong></a>
+<h1 id="Why-Use-%CE%A6ML's-Tensors">Why Use &#934;<sub>ML</sub>'s Tensors<a class="anchor-link" href="#Why-Use-%CE%A6ML's-Tensors">&#182;</a></h1><p><a href="https://colab.research.google.com/github/tum-pbs/PhiML/blob/main/docs/Tensors.ipynb"><img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Colab" /></a>
+  •   <a href="https://github.com/tum-pbs/PhiML">🌐 <strong>Φ<sub>ML</sub></strong></a>
+  •   <a href="https://tum-pbs.github.io/%CE%A6%3Csub%3EML%3C/sub%3E/">📖 <strong>Documentation</strong></a>
+  •   <a href="https://tum-pbs.github.io/%CE%A6%3Csub%3EML%3C/sub%3E/phiml">🔗 <strong>API</strong></a>
   •   <a href=""><strong>▶ Videos</strong></a>
-  •   <a href="https://colab.research.google.com/github/tum-pbs/ML4Science/blob/main/docs/Examples.ipynb"><img src="images/colab_logo_small.png" height=4></a> <a href="https://tum-pbs.github.io/ML4Science/Examples.html"><strong>Examples</strong></a></p>
-<p>While you can call many ML4Science function directly with native tensors, such as Jax tensors or NumPy arrays, we recommend wrapping them in ML4Science tensors.
+  •   <a href="https://colab.research.google.com/github/tum-pbs/PhiML/blob/main/docs/Examples.ipynb"><img src="images/colab_logo_small.png" height=4></a> <a href="https://tum-pbs.github.io/%CE%A6%3Csub%3EML%3C/sub%3E/Examples.html"><strong>Examples</strong></a></p>
+<p>While you can call many Φ<sub>ML</sub> function directly with native tensors, such as Jax tensors or NumPy arrays, we recommend wrapping them in Φ<sub>ML</sub> tensors.
 These provide several benefits over the native tensors and allow you to write easy-to-read, more concise, more explicit, less error-prone code.</p>
 <p>For an introduction into tensors and dimensions, check out the <a href="Introduction.ht">introduction notebook</a>.</p>
 <p>This notebook is work in progress. It will explain</p>
@@ -15137,7 +15137,7 @@ These provide several benefits over the native tensors and allow you to write ea
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython2"><pre><span></span><span class="o">%%capture</span>
-<span class="err">!</span><span class="n">pip</span> <span class="n">install</span> <span class="n">ml4s</span>
+<span class="err">!</span><span class="n">pip</span> <span class="n">install</span> <span class="n">phiml</span>
 </pre></div>
 
      </div>
@@ -15152,9 +15152,9 @@ These provide several benefits over the native tensors and allow you to write ea
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<h2 id="Named-Dimensions">Named Dimensions<a class="anchor-link" href="#Named-Dimensions">&#182;</a></h2><p>All tensor dimensions in ML4Science are required to have a name and type.
+<h2 id="Named-Dimensions">Named Dimensions<a class="anchor-link" href="#Named-Dimensions">&#182;</a></h2><p>All tensor dimensions in Φ<sub>ML</sub> are required to have a name and type.
 These properties are part of the <a href="Shapes.html">tensor shape</a>.
-When creating a ML4Science tensor, you need to specify the names and types of all dimensions.</p>
+When creating a Φ<sub>ML</sub> tensor, you need to specify the names and types of all dimensions.</p>
 
 </div>
 </div>
@@ -15167,8 +15167,8 @@ When creating a ML4Science tensor, you need to specify the names and types of al
 <div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[2]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython2"><pre><span></span><span class="kn">from</span> <span class="nn">ml4s</span> <span class="kn">import</span> <span class="n">math</span>
-<span class="kn">from</span> <span class="nn">ml4s.math</span> <span class="kn">import</span> <span class="n">channel</span><span class="p">,</span> <span class="n">batch</span><span class="p">,</span> <span class="n">spatial</span><span class="p">,</span> <span class="n">instance</span><span class="p">,</span> <span class="n">dual</span>  <span class="c1"># dimension types</span>
+<div class=" highlight hl-ipython2"><pre><span></span><span class="kn">from</span> <span class="nn">phiml</span> <span class="kn">import</span> <span class="n">math</span>
+<span class="kn">from</span> <span class="nn">phiml.math</span> <span class="kn">import</span> <span class="n">channel</span><span class="p">,</span> <span class="n">batch</span><span class="p">,</span> <span class="n">spatial</span><span class="p">,</span> <span class="n">instance</span><span class="p">,</span> <span class="n">dual</span>  <span class="c1"># dimension types</span>
 
 <span class="n">math</span><span class="o">.</span><span class="n">wrap</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span> <span class="n">channel</span><span class="p">(</span><span class="s1">&#39;integers&#39;</span><span class="p">))</span>
 </pre></div>
@@ -15232,7 +15232,7 @@ When creating a ML4Science tensor, you need to specify the names and types of al
 
 
 <div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre><span class="ansi-green-intense-fg">(examplesᵇ=2, xˢ=4, yˢ=3)</span> <span class="ansi-blue-intense-fg">0.458 ± 0.272</span> <span class="ansi-white-fg">(8e-02...1e+00)</span></pre>
+<pre><span class="ansi-green-intense-fg">(examplesᵇ=2, xˢ=4, yˢ=3)</span> <span class="ansi-blue-intense-fg">0.475 ± 0.263</span> <span class="ansi-white-fg">(3e-02...1e+00)</span></pre>
 </div>
 
 </div>
@@ -15248,7 +15248,7 @@ When creating a ML4Science tensor, you need to specify the names and types of al
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<h2 id="Printing-Options">Printing Options<a class="anchor-link" href="#Printing-Options">&#182;</a></h2><p>As you can see, ML4Science summarizes tensors by default and color-codes the result text.
+<h2 id="Printing-Options">Printing Options<a class="anchor-link" href="#Printing-Options">&#182;</a></h2><p>As you can see, Φ<sub>ML</sub> summarizes tensors by default and color-codes the result text.
 The Python formatting options let you customize how a tensor is printed, with options being separated by colons.
 Here are some examples:</p>
 
@@ -15283,7 +15283,7 @@ Here are some examples:</p>
 
 
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
-<pre><span class="ansi-green-intense-fg">(examplesᵇ=2, xˢ=4, yˢ=3)</span> <span class="ansi-yellow-intense-fg">float32</span> <span class="ansi-blue-intense-fg">4.57516e-01 ± 2.71912e-01</span> <span class="ansi-white-fg">(7.66638e-02...9.84676e-01)</span>
+<pre><span class="ansi-green-intense-fg">(examplesᵇ=2, xˢ=4, yˢ=3)</span> <span class="ansi-yellow-intense-fg">float32</span> <span class="ansi-blue-intense-fg">4.74929e-01 ± 2.62820e-01</span> <span class="ansi-white-fg">(2.93948e-02...9.90216e-01)</span>
 </pre>
 </div>
 </div>
@@ -15321,13 +15321,13 @@ Here are some examples:</p>
 
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
 <pre><span class="ansi-green-intense-fg">examples=0</span>  
-<span class="ansi-blue-intense-fg"> 0.678, 0.918, 0.409, 0.372,
- 0.231, 0.077, 0.198, 0.402,
- 0.499, 0.196, 0.583, 0.375</span>  along <span class="ansi-green-intense-fg">(xˢ=4, yˢ=3)</span>
+<span class="ansi-blue-intense-fg"> 0.598, 0.591, 0.328, 0.850,
+ 0.389, 0.504, 0.568, 0.520,
+ 0.262, 0.109, 0.195, 0.555</span>  along <span class="ansi-green-intense-fg">(xˢ=4, yˢ=3)</span>
 <span class="ansi-green-intense-fg">examples=1</span>  
-<span class="ansi-blue-intense-fg"> 0.184, 0.306, 0.811, 0.724,
- 0.889, 0.708, 0.253, 0.343,
- 0.087, 0.985, 0.619, 0.134</span>  along <span class="ansi-green-intense-fg">(xˢ=4, yˢ=3)</span>
+<span class="ansi-blue-intense-fg"> 0.300, 0.551, 0.073, 0.295,
+ 0.844, 0.081, 0.612, 0.711,
+ 0.029, 0.744, 0.699, 0.990</span>  along <span class="ansi-green-intense-fg">(xˢ=4, yˢ=3)</span>
 </pre>
 </div>
 </div>
@@ -15364,15 +15364,15 @@ Here are some examples:</p>
 
 
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
-<pre>[[[0.50 0.23 0.68]
-  [0.20 0.08 0.92]
-  [0.58 0.20 0.41]
-  [0.37 0.40 0.37]]
+<pre>[[[0.26 0.39 0.60]
+  [0.11 0.50 0.59]
+  [0.20 0.57 0.33]
+  [0.55 0.52 0.85]]
 
- [[0.09 0.89 0.18]
-  [0.98 0.71 0.31]
-  [0.62 0.25 0.81]
-  [0.13 0.34 0.72]]]
+ [[0.03 0.84 0.30]
+  [0.74 0.08 0.55]
+  [0.70 0.61 0.07]
+  [0.99 0.71 0.29]]]
 </pre>
 </div>
 </div>
@@ -15416,7 +15416,7 @@ The keywords <code>shape</code>, <code>no-shape</code>, <code>dtype</code> and <
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<h2 id="Wrapping-and-Unwrapping">Wrapping and Unwrapping<a class="anchor-link" href="#Wrapping-and-Unwrapping">&#182;</a></h2><p>You can wrap existing tensors in ML4Science tensors using <a href="ml4s/math#ml4s.math.wrap"><code>wrap()</code></a> or <a href="ml4s/math#ml4s.math.tensor"><code>tensor()</code></a>.
+<h2 id="Wrapping-and-Unwrapping">Wrapping and Unwrapping<a class="anchor-link" href="#Wrapping-and-Unwrapping">&#182;</a></h2><p>You can wrap existing tensors in Φ<sub>ML</sub> tensors using <a href="phiml/math#phiml.math.wrap"><code>wrap()</code></a> or <a href="phiml/math#phiml.math.tensor"><code>tensor()</code></a>.
 While <code>tensor()</code> will convert the data to the <a href="Convert.html">default backend</a>, <code>wrap()</code> will keep the data as-is.
 In either case, you need to specify the dimension names and types when wrapping a native tensor.</p>
 
@@ -15506,15 +15506,15 @@ In both cases, the requested dimension order needs to be specified.</p>
 
 
 <div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre>array([[[0.49946204, 0.23089767, 0.6784147 ],
-        [0.19559412, 0.07666379, 0.9182466 ],
-        [0.5829805 , 0.1982264 , 0.40915143],
-        [0.37467995, 0.40175757, 0.37191182]],
+<pre>array([[[0.26216072, 0.38872176, 0.5981757 ],
+        [0.10887258, 0.50372255, 0.5914081 ],
+        [0.19505556, 0.56846464, 0.32754856],
+        [0.55486447, 0.51993084, 0.8503902 ]],
 
-       [[0.08653969, 0.8887533 , 0.18413028],
-        [0.9846762 , 0.70836025, 0.3056869 ],
-        [0.6191487 , 0.25280863, 0.8114971 ],
-        [0.1342772 , 0.3428215 , 0.723688  ]]], dtype=float32)</pre>
+       [[0.02939477, 0.8442439 , 0.2995829 ],
+        [0.7442372 , 0.08092248, 0.5511175 ],
+        [0.69864583, 0.6116982 , 0.07312894],
+        [0.9902164 , 0.7112325 , 0.2945494 ]]], dtype=float32)</pre>
 </div>
 
 </div>
@@ -15565,15 +15565,15 @@ In both cases, the requested dimension order needs to be specified.</p>
 
 
 <div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre>array([[[0.49946204, 0.23089767, 0.6784147 ],
-        [0.19559412, 0.07666379, 0.9182466 ],
-        [0.5829805 , 0.1982264 , 0.40915143],
-        [0.37467995, 0.40175757, 0.37191182]],
+<pre>array([[[0.26216072, 0.38872176, 0.5981757 ],
+        [0.10887258, 0.50372255, 0.5914081 ],
+        [0.19505556, 0.56846464, 0.32754856],
+        [0.55486447, 0.51993084, 0.8503902 ]],
 
-       [[0.08653969, 0.8887533 , 0.18413028],
-        [0.9846762 , 0.70836025, 0.3056869 ],
-        [0.6191487 , 0.25280863, 0.8114971 ],
-        [0.1342772 , 0.3428215 , 0.723688  ]]], dtype=float32)</pre>
+       [[0.02939477, 0.8442439 , 0.2995829 ],
+        [0.7442372 , 0.08092248, 0.5511175 ],
+        [0.69864583, 0.6116982 , 0.07312894],
+        [0.9902164 , 0.7112325 , 0.2945494 ]]], dtype=float32)</pre>
 </div>
 
 </div>
@@ -15589,16 +15589,16 @@ In both cases, the requested dimension order needs to be specified.</p>
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<h2 id="Further-Reading">Further Reading<a class="anchor-link" href="#Further-Reading">&#182;</a></h2><p>Check out the <a href="https://tum-pbs.github.io/ML4Science/Examples.html">examples</a> to see how using ML4Science's tensors is different from the other libraries.</p>
+<h2 id="Further-Reading">Further Reading<a class="anchor-link" href="#Further-Reading">&#182;</a></h2><p>Check out the <a href="https://tum-pbs.github.io/%CE%A6%3Csub%3EML%3C/sub%3E/Examples.html">examples</a> to see how using Φ<sub>ML</sub>'s tensors is different from the other libraries.</p>
 <p>Learn more about the <a href="Shapes.html">dimension types</a>.</p>
-<p>ML4Science unifies <a href="Data_Types.html">data types</a> as well and lets you set the floating point precision globally or by context.</p>
+<p>Φ<sub>ML</sub> unifies <a href="Data_Types.html">data types</a> as well and lets you set the floating point precision globally or by context.</p>
 <p>While the dimensionality of neural networks must be specified during network creation, this is not the case for math functions.
 These <a href="N_Dimensional.html">automatically adapt to the number of spatial dimensions of the data that is passed in</a>.</p>
-<p><a href="https://github.com/tum-pbs/ML4Science">🌐 <strong>ML4Science</strong></a>
-  •   <a href="https://tum-pbs.github.io/ML4Science/">📖 <strong>Documentation</strong></a>
-  •   <a href="https://tum-pbs.github.io/ML4Science/ml4s">🔗 <strong>API</strong></a>
+<p><a href="https://github.com/tum-pbs/PhiML">🌐 <strong>Φ<sub>ML</sub></strong></a>
+  •   <a href="https://tum-pbs.github.io/%CE%A6%3Csub%3EML%3C/sub%3E/">📖 <strong>Documentation</strong></a>
+  •   <a href="https://tum-pbs.github.io/%CE%A6%3Csub%3EML%3C/sub%3E/phiml">🔗 <strong>API</strong></a>
   •   <a href=""><strong>▶ Videos</strong></a>
-  •   <a href="https://colab.research.google.com/github/tum-pbs/ML4Science/blob/main/docs/Examples.ipynb"><img src="images/colab_logo_small.png" height=4></a> <a href="https://tum-pbs.github.io/ML4Science/Examples.html"><strong>Examples</strong></a></p>
+  •   <a href="https://colab.research.google.com/github/tum-pbs/PhiML/blob/main/docs/Examples.ipynb"><img src="images/colab_logo_small.png" height=4></a> <a href="https://tum-pbs.github.io/%CE%A6%3Csub%3EML%3C/sub%3E/Examples.html"><strong>Examples</strong></a></p>
 
 </div>
 </div>

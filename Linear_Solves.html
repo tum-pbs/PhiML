@@ -15110,14 +15110,14 @@ body[data-format='mobile'] .jp-OutputArea-child .jp-OutputArea-output {
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<h1 id="Linear-Solves-in-ML4Science">Linear Solves in ML4Science<a class="anchor-link" href="#Linear-Solves-in-ML4Science">&#182;</a></h1><p><a href="https://colab.research.google.com/github/tum-pbs/ML4Science/blob/main/docs/Linear_Solves.ipynb"><img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Colab" /></a>
-  •   <a href="https://github.com/tum-pbs/ML4Science">🌐 <strong>ML4Science</strong></a>
-  •   <a href="https://tum-pbs.github.io/ML4Science/">📖 <strong>Documentation</strong></a>
-  •   <a href="https://tum-pbs.github.io/ML4Science/ml4s">🔗 <strong>API</strong></a>
+<h1 id="Linear-Solves-in-%CE%A6ML">Linear Solves in &#934;<sub>ML</sub><a class="anchor-link" href="#Linear-Solves-in-%CE%A6ML">&#182;</a></h1><p><a href="https://colab.research.google.com/github/tum-pbs/PhiML/blob/main/docs/Linear_Solves.ipynb"><img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Colab" /></a>
+  •   <a href="https://github.com/tum-pbs/PhiML">🌐 <strong>Φ<sub>ML</sub></strong></a>
+  •   <a href="https://tum-pbs.github.io/%CE%A6%3Csub%3EML%3C/sub%3E/">📖 <strong>Documentation</strong></a>
+  •   <a href="https://tum-pbs.github.io/%CE%A6%3Csub%3EML%3C/sub%3E/phiml">🔗 <strong>API</strong></a>
   •   <a href=""><strong>▶ Videos</strong></a>
-  •   <a href="https://colab.research.google.com/github/tum-pbs/ML4Science/blob/main/docs/Examples.ipynb"><img src="images/colab_logo_small.png" height=4></a> <a href="https://tum-pbs.github.io/ML4Science/Examples.html"><strong>Examples</strong></a></p>
+  •   <a href="https://colab.research.google.com/github/tum-pbs/PhiML/blob/main/docs/Examples.ipynb"><img src="images/colab_logo_small.png" height=4></a> <a href="https://tum-pbs.github.io/%CE%A6%3Csub%3EML%3C/sub%3E/Examples.html"><strong>Examples</strong></a></p>
 <p>Linear solves are a vital part in many simulations and machine learning applications.
-ML4Science provides an easy-to-use interface for performing linear solves that supports backpropagation via implicit gradients.
+Φ<sub>ML</sub> provides an easy-to-use interface for performing linear solves that supports backpropagation via implicit gradients.
 Dense, sparse, and matrix-free linear systems can be solved this way.</p>
 
 </div>
@@ -15132,7 +15132,7 @@ Dense, sparse, and matrix-free linear systems can be solved this way.</p>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython2"><pre><span></span><span class="o">%%capture</span>
-<span class="err">!</span><span class="n">pip</span> <span class="n">install</span> <span class="n">ml4s</span>
+<span class="err">!</span><span class="n">pip</span> <span class="n">install</span> <span class="n">phiml</span>
 </pre></div>
 
      </div>
@@ -15148,8 +15148,8 @@ Dense, sparse, and matrix-free linear systems can be solved this way.</p>
 <div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[2]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython2"><pre><span></span><span class="kn">from</span> <span class="nn">ml4s</span> <span class="kn">import</span> <span class="n">math</span>
-<span class="kn">from</span> <span class="nn">ml4s.math</span> <span class="kn">import</span> <span class="n">wrap</span><span class="p">,</span> <span class="n">channel</span><span class="p">,</span> <span class="n">dual</span><span class="p">,</span> <span class="n">Solve</span><span class="p">,</span> <span class="n">const_vec</span><span class="p">,</span> <span class="n">tensor</span>
+<div class=" highlight hl-ipython2"><pre><span></span><span class="kn">from</span> <span class="nn">phiml</span> <span class="kn">import</span> <span class="n">math</span>
+<span class="kn">from</span> <span class="nn">phiml.math</span> <span class="kn">import</span> <span class="n">wrap</span><span class="p">,</span> <span class="n">channel</span><span class="p">,</span> <span class="n">dual</span><span class="p">,</span> <span class="n">Solve</span><span class="p">,</span> <span class="n">const_vec</span><span class="p">,</span> <span class="n">tensor</span>
 </pre></div>
 
      </div>
@@ -15216,8 +15216,8 @@ Feel free to choose the below line to use <code>jax</code>, <code>tensorflow</co
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<p>We can perform a linear solve by passing a matrix <code>A</code>, right-hand-side vector <code>b</code> and initial guess <code>x0</code> to <a href="ml4s/math/#ml4s.math.solve_linear"><code>solve_linear()</code></a>.</p>
-<p>We recommend passing ML4Science tensors. Then, the <a href="Matrices.html#Primal-and-Dual-Dimensions">dual dimensions of the matrix</a> must match the initial guess and the primal dimensions must match the right-hand-side.</p>
+<p>We can perform a linear solve by passing a matrix <code>A</code>, right-hand-side vector <code>b</code> and initial guess <code>x0</code> to <a href="phiml/math/#phiml.math.solve_linear"><code>solve_linear()</code></a>.</p>
+<p>We recommend passing Φ<sub>ML</sub> tensors. Then, the <a href="Matrices.html#Primal-and-Dual-Dimensions">dual dimensions of the matrix</a> must match the initial guess and the primal dimensions must match the right-hand-side.</p>
 <p>Alternatively, <code>solve_linear()</code> can be used called with native tensors (see <a href="#Linear-Solves-with-Native-Tensors">below</a>).</p>
 
 </div>
@@ -15272,9 +15272,9 @@ Feel free to choose the below line to use <code>jax</code>, <code>tensorflow</co
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<p>ML4Science implements multiple algorithms to solve linear systems, such as the conjugate gradient method (<code>CG</code>) and the stabilized bi-conjugate gradient method (<code>biCG</code>).
+<p>Φ<sub>ML</sub> implements multiple algorithms to solve linear systems, such as the conjugate gradient method (<code>CG</code>) and the stabilized bi-conjugate gradient method (<code>biCG</code>).
 All SciPy solvers are also available.
-For a full list, see <a href="ml4s/math/#ml4s.math.solve_linear">here</a>.</p>
+For a full list, see <a href="phiml/math/#phiml.math.solve_linear">here</a>.</p>
 
 </div>
 </div>
@@ -15458,9 +15458,9 @@ This will typically be slower unless the function is compiled to a matrix.</p>
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<h2 id="Explicit-Matrices-from-Python-Functions">Explicit Matrices from Python Functions<a class="anchor-link" href="#Explicit-Matrices-from-Python-Functions">&#182;</a></h2><p>ML4Science can also <a href="Matrices.html#Building-Matrices-from-Linear-Functions">build an explicit matrix representation</a> of the provided Python function.
-You can do this either by explicitly obtaining the matrix first using <a href="ml4s/math#ml4s.math.matrix_from_function"><code>matrix_from_function</code></a> or by annotating the linear function with
-<a href="ml4s/math#ml4s.math.jit_compile_linear"><code>jit_compile_linear</code></a>.
+<h2 id="Explicit-Matrices-from-Python-Functions">Explicit Matrices from Python Functions<a class="anchor-link" href="#Explicit-Matrices-from-Python-Functions">&#182;</a></h2><p>Φ<sub>ML</sub> can also <a href="Matrices.html#Building-Matrices-from-Linear-Functions">build an explicit matrix representation</a> of the provided Python function.
+You can do this either by explicitly obtaining the matrix first using <a href="phiml/math#phiml.math.matrix_from_function"><code>matrix_from_function</code></a> or by annotating the linear function with
+<a href="phiml/math#phiml.math.jit_compile_linear"><code>jit_compile_linear</code></a>.
 If the function adds a constant offset to the output, this will automatically be subtracted from the right-hand-side vector.</p>
 
 </div>
@@ -15474,7 +15474,7 @@ If the function adds a constant offset to the output, this will automatically be
 <div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[9]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython2"><pre><span></span><span class="kn">from</span> <span class="nn">ml4s.math</span> <span class="kn">import</span> <span class="n">jit_compile_linear</span>
+<div class=" highlight hl-ipython2"><pre><span></span><span class="kn">from</span> <span class="nn">phiml.math</span> <span class="kn">import</span> <span class="n">jit_compile_linear</span>
 
 <span class="n">math</span><span class="o">.</span><span class="n">solve_linear</span><span class="p">(</span><span class="n">jit_compile_linear</span><span class="p">(</span><span class="n">linear_function</span><span class="p">),</span> <span class="n">b</span><span class="p">,</span> <span class="n">Solve</span><span class="p">(</span><span class="n">x0</span><span class="o">=</span><span class="n">x0</span><span class="p">))</span>
 </pre></div>
@@ -15496,7 +15496,7 @@ If the function adds a constant offset to the output, this will automatically be
 
 
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="application/vnd.jupyter.stderr">
-<pre>/opt/hostedtoolcache/Python/3.8.17/x64/lib/python3.8/site-packages/ml4s/backend/torch/_torch_backend.py:752: UserWarning: Sparse CSR tensor support is in beta state. If you miss a functionality in the sparse tensor support, please submit a feature request to https://github.com/pytorch/pytorch/issues. (Triggered internally at ../aten/src/ATen/SparseCsrTensorImpl.cpp:54.)
+<pre>/opt/hostedtoolcache/Python/3.8.17/x64/lib/python3.8/site-packages/phiml/backend/torch/_torch_backend.py:752: UserWarning: Sparse CSR tensor support is in beta state. If you miss a functionality in the sparse tensor support, please submit a feature request to https://github.com/pytorch/pytorch/issues. (Triggered internally at ../aten/src/ATen/SparseCsrTensorImpl.cpp:54.)
   return torch.sparse_csr_tensor(row_pointers, column_indices, values, shape, device=values.device)
 </pre>
 </div>
@@ -15525,7 +15525,7 @@ If the function adds a constant offset to the output, this will automatically be
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<h2 id="Preconditioned-Linear-Solves">Preconditioned Linear Solves<a class="anchor-link" href="#Preconditioned-Linear-Solves">&#182;</a></h2><p>ML4Science includes an ILU and experimental cluster preconditioner.
+<h2 id="Preconditioned-Linear-Solves">Preconditioned Linear Solves<a class="anchor-link" href="#Preconditioned-Linear-Solves">&#182;</a></h2><p>Φ<sub>ML</sub> includes an ILU and experimental cluster preconditioner.
 To use a preconditioner, simply specify <code>preconditioner='ilu'</code> when creating the <code>Solve</code> object.</p>
 
 </div>
@@ -15589,7 +15589,7 @@ To use a preconditioner, simply specify <code>preconditioner='ilu'</code> when c
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
 <p>The ILU preconditioner always runs on the CPU and should be paired with a SciPy linear solver for optimal efficiency.
-Available SciPy solvers include <code>'scipy-direct'</code>, <code>'scipy-CG'</code>, <code>'scipy-GMres'</code>, <code>'scipy-biCG'</code>, <code>'scipy-biCG-stab'</code>, <code>'scipy-CGS'</code>, <code>'scipy-QMR'</code>, <code>'scipy-GCrotMK'</code> (see the <a href="ml4s/math/index.html#ml4s.math.solve_linear">API</a>).</p>
+Available SciPy solvers include <code>'scipy-direct'</code>, <code>'scipy-CG'</code>, <code>'scipy-GMres'</code>, <code>'scipy-biCG'</code>, <code>'scipy-biCG-stab'</code>, <code>'scipy-CGS'</code>, <code>'scipy-QMR'</code>, <code>'scipy-GCrotMK'</code> (see the <a href="phiml/math/index.html#phiml.math.solve_linear">API</a>).</p>
 <p>If the matrix or linear function is constant, i.e. only <a href="NumPy_Constants.html">depends on NumPy arrays</a>, the preconditioner computation can be performed during <a href="JIT.html">JIT compilation</a>.</p>
 <p><a href="Matrices.html#Building-Matrices-from-Linear-Functions">Matrices.html#Building-Matrices-from-Linear-Functions</a>)</p>
 
@@ -15628,15 +15628,15 @@ Available SciPy solvers include <code>'scipy-direct'</code>, <code>'scipy-CG'</c
 
 
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="application/vnd.jupyter.stderr">
-<pre>/opt/hostedtoolcache/Python/3.8.17/x64/lib/python3.8/site-packages/ml4s/backend/torch/_torch_backend.py:60: TracerWarning: torch.from_numpy results are registered as constants in the trace. You can safely ignore this warning if you use this function to create tensors out of constant variables that would be the same every time you call this function. In any other case, this might cause the trace to be incorrect.
+<pre>/opt/hostedtoolcache/Python/3.8.17/x64/lib/python3.8/site-packages/phiml/backend/torch/_torch_backend.py:60: TracerWarning: torch.from_numpy results are registered as constants in the trace. You can safely ignore this warning if you use this function to create tensors out of constant variables that would be the same every time you call this function. In any other case, this might cause the trace to be incorrect.
   tensor = torch.from_numpy(x)
-/opt/hostedtoolcache/Python/3.8.17/x64/lib/python3.8/site-packages/ml4s/backend/torch/_torch_backend.py:752: TracerWarning: torch.sparse_csr_tensor results are registered as constants in the trace. You can safely ignore this warning if you use this function to create tensors out of constant variables that would be the same every time you call this function. In any other case, this might cause the trace to be incorrect.
+/opt/hostedtoolcache/Python/3.8.17/x64/lib/python3.8/site-packages/phiml/backend/torch/_torch_backend.py:752: TracerWarning: torch.sparse_csr_tensor results are registered as constants in the trace. You can safely ignore this warning if you use this function to create tensors out of constant variables that would be the same every time you call this function. In any other case, this might cause the trace to be incorrect.
   return torch.sparse_csr_tensor(row_pointers, column_indices, values, shape, device=values.device)
-/opt/hostedtoolcache/Python/3.8.17/x64/lib/python3.8/site-packages/ml4s/backend/torch/_torch_backend.py:125: TracerWarning: Converting a tensor to a NumPy array might cause the trace to be incorrect. We can&#39;t record the data flow of Python values, so this value will be treated as a constant in the future. This means that the trace might not generalize to other inputs!
+/opt/hostedtoolcache/Python/3.8.17/x64/lib/python3.8/site-packages/phiml/backend/torch/_torch_backend.py:125: TracerWarning: Converting a tensor to a NumPy array might cause the trace to be incorrect. We can&#39;t record the data flow of Python values, so this value will be treated as a constant in the future. This means that the trace might not generalize to other inputs!
   return tensor.cpu().numpy()
-/opt/hostedtoolcache/Python/3.8.17/x64/lib/python3.8/site-packages/ml4s/backend/torch/_torch_backend.py:594: TracerWarning: Converting a tensor to a Python integer might cause the trace to be incorrect. We can&#39;t record the data flow of Python values, so this value will be treated as a constant in the future. This means that the trace might not generalize to other inputs!
+/opt/hostedtoolcache/Python/3.8.17/x64/lib/python3.8/site-packages/phiml/backend/torch/_torch_backend.py:594: TracerWarning: Converting a tensor to a Python integer might cause the trace to be incorrect. We can&#39;t record the data flow of Python values, so this value will be treated as a constant in the future. This means that the trace might not generalize to other inputs!
   return tuple([int(s) for s in tensor.shape])
-/opt/hostedtoolcache/Python/3.8.17/x64/lib/python3.8/site-packages/ml4s/math/_tensors.py:711: TracerWarning: Iterating over a tensor might cause the trace to be incorrect. Passing a tensor of different shape won&#39;t change the number of iterations executed (and might lead to errors or silently give incorrect results).
+/opt/hostedtoolcache/Python/3.8.17/x64/lib/python3.8/site-packages/phiml/math/_tensors.py:711: TracerWarning: Iterating over a tensor might cause the trace to be incorrect. Passing a tensor of different shape won&#39;t change the number of iterations executed (and might lead to errors or silently give incorrect results).
   return iter(self.native())
 </pre>
 </div>
@@ -15677,7 +15677,7 @@ Available SciPy solvers include <code>'scipy-direct'</code>, <code>'scipy-CG'</c
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<h2 id="Implicit-Differentiation">Implicit Differentiation<a class="anchor-link" href="#Implicit-Differentiation">&#182;</a></h2><p>ML4Science enables backpropagation through linear solves.
+<h2 id="Implicit-Differentiation">Implicit Differentiation<a class="anchor-link" href="#Implicit-Differentiation">&#182;</a></h2><p>Φ<sub>ML</sub> enables backpropagation through linear solves.
 Instead of backpropagating through the unrolled loop (which can lead to inaccurate results and cause high memory consumption), Unify runs an ajoint linear solve for the pullback operation.</p>
 
 </div>
@@ -15734,7 +15734,7 @@ Instead of backpropagating through the unrolled loop (which can lead to inaccura
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<h2 id="Matrix-Gradients">Matrix Gradients<a class="anchor-link" href="#Matrix-Gradients">&#182;</a></h2><p>ML4Science can also compute gradients for the (sparse) matrix used in a linear solve, which allows differentiating w.r.t. parameters that influenced the matrix values via backpropagation.
+<h2 id="Matrix-Gradients">Matrix Gradients<a class="anchor-link" href="#Matrix-Gradients">&#182;</a></h2><p>Φ<sub>ML</sub> can also compute gradients for the (sparse) matrix used in a linear solve, which allows differentiating w.r.t. parameters that influenced the matrix values via backpropagation.
 To enable this, pass <code>grad_for_f=True</code> to the <code>solve_linear()</code> call.</p>
 
 </div>
@@ -15796,8 +15796,8 @@ To enable this, pass <code>grad_for_f=True</code> to the <code>solve_linear()</c
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<h2 id="Obtaining-Additional-Information-about-a-Solve">Obtaining Additional Information about a Solve<a class="anchor-link" href="#Obtaining-Additional-Information-about-a-Solve">&#182;</a></h2><p>All solves are logged internally and can be shown by setting <a href="ml4s#ml4s.set_logging_level"><code>ml4s.set_logging_level('debug')</code></a>.</p>
-<p>Additional solve properties can be recorded using a <a href="ml4s/math#ml4s.math.SolveTape"><code>SolveTape</code></a>.
+<h2 id="Obtaining-Additional-Information-about-a-Solve">Obtaining Additional Information about a Solve<a class="anchor-link" href="#Obtaining-Additional-Information-about-a-Solve">&#182;</a></h2><p>All solves are logged internally and can be shown by setting <a href="phiml#phiml.set_logging_level"><code>phiml.set_logging_level('debug')</code></a>.</p>
+<p>Additional solve properties can be recorded using a <a href="phiml/math#phiml.math.SolveTape"><code>SolveTape</code></a>.
 Recording the full optimization trajectory requires setting <code>record_trajectories=True</code>.</p>
 
 </div>
@@ -15811,8 +15811,8 @@ Recording the full optimization trajectory requires setting <code>record_traject
 <div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[14]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython2"><pre><span></span><span class="kn">import</span> <span class="nn">ml4s</span>
-<span class="n">ml4s</span><span class="o">.</span><span class="n">set_logging_level</span><span class="p">(</span><span class="s1">&#39;debug&#39;</span><span class="p">)</span>
+<div class=" highlight hl-ipython2"><pre><span></span><span class="kn">import</span> <span class="nn">phiml</span>
+<span class="n">phiml</span><span class="o">.</span><span class="n">set_logging_level</span><span class="p">(</span><span class="s1">&#39;debug&#39;</span><span class="p">)</span>
 
 <span class="k">with</span> <span class="n">math</span><span class="o">.</span><span class="n">SolveTape</span><span class="p">()</span> <span class="k">as</span> <span class="n">solves</span><span class="p">:</span>
     <span class="n">math</span><span class="o">.</span><span class="n">solve_linear</span><span class="p">(</span><span class="n">jit_compile_linear</span><span class="p">(</span><span class="n">linear_function</span><span class="p">),</span> <span class="n">b</span><span class="p">,</span> <span class="n">Solve</span><span class="p">(</span><span class="s1">&#39;scipy-CG&#39;</span><span class="p">,</span> <span class="n">x0</span><span class="o">=</span><span class="mi">0</span> <span class="o">*</span> <span class="n">b</span><span class="p">,</span> <span class="n">preconditioner</span><span class="o">=</span><span class="s1">&#39;ilu&#39;</span><span class="p">))</span>
@@ -15835,11 +15835,11 @@ Recording the full optimization trajectory requires setting <code>record_traject
 
 
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
-<pre>factor_ilu: auto-selecting iterations=1 (eager mode) for matrix <span class="ansi-blue-intense-fg">(2.000, 0.000)</span>; <span class="ansi-blue-intense-fg">(0.000, 1.000)</span> <span class="ansi-green-intense-fg">(b_vecᶜ=2, ~b_vecᵈ=2)</span> (DEBUG), 2023-08-10 15:44:01,442n
+<pre>factor_ilu: auto-selecting iterations=1 (eager mode) for matrix <span class="ansi-blue-intense-fg">(2.000, 0.000)</span>; <span class="ansi-blue-intense-fg">(0.000, 1.000)</span> <span class="ansi-green-intense-fg">(b_vecᶜ=2, ~b_vecᵈ=2)</span> (DEBUG), 2023-08-11 10:26:48,212n
 
-Running forward pass of custom op forward &#39;_matrix_solve_forward&#39; given args (&#39;y&#39;,) containing 1 native tensors (DEBUG), 2023-08-10 15:44:01,454n
+Running forward pass of custom op forward &#39;_matrix_solve_forward&#39; given args (&#39;y&#39;,) containing 1 native tensors (DEBUG), 2023-08-11 10:26:48,224n
 
-Performing linear solve scipy-CG with tolerance <span class="ansi-yellow-intense-fg">float64</span> <span class="ansi-blue-intense-fg">1e-05</span> (rel), <span class="ansi-yellow-intense-fg">float64</span> <span class="ansi-blue-intense-fg">1e-05</span> (abs), max_iterations=<span class="ansi-blue-intense-fg">1000</span> with backend torch (DEBUG), 2023-08-10 15:44:01,458n
+Performing linear solve scipy-CG with tolerance <span class="ansi-yellow-intense-fg">float64</span> <span class="ansi-blue-intense-fg">1e-05</span> (rel), <span class="ansi-yellow-intense-fg">float64</span> <span class="ansi-blue-intense-fg">1e-05</span> (abs), max_iterations=<span class="ansi-blue-intense-fg">1000</span> with backend torch (DEBUG), 2023-08-11 10:26:48,230n
 
 </pre>
 </div>
@@ -15917,7 +15917,7 @@ Converged <span class="ansi-blue-intense-fg">True</span>
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<h2 id="Linear-Solves-with-Native-Tensors">Linear Solves with Native Tensors<a class="anchor-link" href="#Linear-Solves-with-Native-Tensors">&#182;</a></h2><p>When performing a linear solve without ML4Science tensors, the matrix must have shape (..., N, N) and <code>x0</code> and <code>b</code> must have shape <code>(..., N)</code> where <code>...</code> denotes the batch dimensions.
+<h2 id="Linear-Solves-with-Native-Tensors">Linear Solves with Native Tensors<a class="anchor-link" href="#Linear-Solves-with-Native-Tensors">&#182;</a></h2><p>When performing a linear solve without Φ<sub>ML</sub> tensors, the matrix must have shape (..., N, N) and <code>x0</code> and <code>b</code> must have shape <code>(..., N)</code> where <code>...</code> denotes the batch dimensions.
 This matches the signatures of the native solve functions like <code>torch.linalg.solve</code> or <code>jax.numpy.linalg.solve</code>.</p>
 
 </div>
@@ -15956,9 +15956,9 @@ This matches the signatures of the native solve functions like <code>torch.linal
 
 
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
-<pre>Running forward pass of custom op forward &#39;_matrix_solve_forward&#39; given args (&#39;y&#39;, &#39;matrix&#39;) containing 2 native tensors (DEBUG), 2023-08-10 15:44:01,488n
+<pre>Running forward pass of custom op forward &#39;_matrix_solve_forward&#39; given args (&#39;y&#39;, &#39;matrix&#39;) containing 2 native tensors (DEBUG), 2023-08-11 10:26:48,261n
 
-Performing linear solve auto with tolerance <span class="ansi-yellow-intense-fg">float64</span> <span class="ansi-blue-intense-fg">1e-05</span> (rel), <span class="ansi-yellow-intense-fg">float64</span> <span class="ansi-blue-intense-fg">1e-05</span> (abs), max_iterations=<span class="ansi-blue-intense-fg">1000</span> with backend torch (DEBUG), 2023-08-10 15:44:01,490n
+Performing linear solve auto with tolerance <span class="ansi-yellow-intense-fg">float64</span> <span class="ansi-blue-intense-fg">1e-05</span> (rel), <span class="ansi-yellow-intense-fg">float64</span> <span class="ansi-blue-intense-fg">1e-05</span> (abs), max_iterations=<span class="ansi-blue-intense-fg">1000</span> with backend torch (DEBUG), 2023-08-11 10:26:48,264n
 
 </pre>
 </div>
@@ -15988,11 +15988,11 @@ Performing linear solve auto with tolerance <span class="ansi-yellow-intense-fg"
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
 <h2 id="Further-Reading">Further Reading<a class="anchor-link" href="#Further-Reading">&#182;</a></h2><p>We will upload a whitepaper to the ArXiv shortly, describing the implemented algorithms.</p>
-<p><a href="https://github.com/tum-pbs/ML4Science">🌐 <strong>ML4Science</strong></a>
-  •   <a href="https://tum-pbs.github.io/ML4Science/">📖 <strong>Documentation</strong></a>
-  •   <a href="https://tum-pbs.github.io/ML4Science/ml4s">🔗 <strong>API</strong></a>
+<p><a href="https://github.com/tum-pbs/PhiML">🌐 <strong>Φ<sub>ML</sub></strong></a>
+  •   <a href="https://tum-pbs.github.io/%CE%A6%3Csub%3EML%3C/sub%3E/">📖 <strong>Documentation</strong></a>
+  •   <a href="https://tum-pbs.github.io/%CE%A6%3Csub%3EML%3C/sub%3E/phiml">🔗 <strong>API</strong></a>
   •   <a href=""><strong>▶ Videos</strong></a>
-  •   <a href="https://colab.research.google.com/github/tum-pbs/ML4Science/blob/main/docs/Examples.ipynb"><img src="images/colab_logo_small.png" height=4></a> <a href="https://tum-pbs.github.io/ML4Science/Examples.html"><strong>Examples</strong></a></p>
+  •   <a href="https://colab.research.google.com/github/tum-pbs/PhiML/blob/main/docs/Examples.ipynb"><img src="images/colab_logo_small.png" height=4></a> <a href="https://tum-pbs.github.io/%CE%A6%3Csub%3EML%3C/sub%3E/Examples.html"><strong>Examples</strong></a></p>
 
 </div>
 </div>

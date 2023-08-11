@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
 <meta name="generator" content="pdoc 0.10.0" />
-<title>ml4s.backend.jax API documentation</title>
+<title>phiml.backend.jax API documentation</title>
 <meta name="description" content="" />
 <link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
 <link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/typography.min.css" integrity="sha256-7l/o7C8jubJiy74VsKTidCy1yBkRtiUGbVkYBylBqUg=" crossorigin>
@@ -19,7 +19,7 @@
 <main>
 <article id="content">
 <header>
-<h1 class="title">Module <code>ml4s.backend.jax</code></h1>
+<h1 class="title">Module <code>phiml.backend.jax</code></h1>
 </header>
 <section id="section-intro">
 <details class="source">
@@ -37,7 +37,7 @@ __all__ = [key for key in globals().keys() if not key.startswith(&#39;_&#39;)]</
 <section>
 <h2 class="section-title" id="header-submodules">Sub-modules</h2>
 <dl>
-<dt><code class="name"><a title="ml4s.backend.jax.stax_nets" href="stax_nets.html">ml4s.backend.jax.stax_nets</a></code></dt>
+<dt><code class="name"><a title="phiml.backend.jax.stax_nets" href="stax_nets.html">phiml.backend.jax.stax_nets</a></code></dt>
 <dd>
 <div class="desc"><p>Stax implementation of the unified machine learning API.
 Equivalent functions also exist for the other frameworks …</p></div>
@@ -51,7 +51,7 @@ Equivalent functions also exist for the other frameworks …</p></div>
 <section>
 <h2 class="section-title" id="header-classes">Classes</h2>
 <dl>
-<dt id="ml4s.backend.jax.JaxBackend"><code class="flex name class">
+<dt id="phiml.backend.jax.JaxBackend"><code class="flex name class">
 <span>class <span class="ident">JaxBackend</span></span>
 </code></dt>
 <dd>
@@ -630,46 +630,46 @@ The methods of <code>Backend</code> form a comprehensive list of available opera
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
-<li>ml4s.backend._backend.Backend</li>
+<li>phiml.backend._backend.Backend</li>
 </ul>
 <h3>Class variables</h3>
 <dl>
-<dt id="ml4s.backend.jax.JaxBackend.arccosh"><code class="name">var <span class="ident">arccosh</span></code></dt>
+<dt id="phiml.backend.jax.JaxBackend.arccosh"><code class="name">var <span class="ident">arccosh</span></code></dt>
 <dd>
 <div class="desc"></div>
 </dd>
-<dt id="ml4s.backend.jax.JaxBackend.arcsinh"><code class="name">var <span class="ident">arcsinh</span></code></dt>
+<dt id="phiml.backend.jax.JaxBackend.arcsinh"><code class="name">var <span class="ident">arcsinh</span></code></dt>
 <dd>
 <div class="desc"></div>
 </dd>
-<dt id="ml4s.backend.jax.JaxBackend.arctan"><code class="name">var <span class="ident">arctan</span></code></dt>
+<dt id="phiml.backend.jax.JaxBackend.arctan"><code class="name">var <span class="ident">arctan</span></code></dt>
 <dd>
 <div class="desc"></div>
 </dd>
-<dt id="ml4s.backend.jax.JaxBackend.arctan2"><code class="name">var <span class="ident">arctan2</span></code></dt>
+<dt id="phiml.backend.jax.JaxBackend.arctan2"><code class="name">var <span class="ident">arctan2</span></code></dt>
 <dd>
 <div class="desc"></div>
 </dd>
-<dt id="ml4s.backend.jax.JaxBackend.arctanh"><code class="name">var <span class="ident">arctanh</span></code></dt>
+<dt id="phiml.backend.jax.JaxBackend.arctanh"><code class="name">var <span class="ident">arctanh</span></code></dt>
 <dd>
 <div class="desc"></div>
 </dd>
-<dt id="ml4s.backend.jax.JaxBackend.cosh"><code class="name">var <span class="ident">cosh</span></code></dt>
+<dt id="phiml.backend.jax.JaxBackend.cosh"><code class="name">var <span class="ident">cosh</span></code></dt>
 <dd>
 <div class="desc"></div>
 </dd>
-<dt id="ml4s.backend.jax.JaxBackend.sinh"><code class="name">var <span class="ident">sinh</span></code></dt>
+<dt id="phiml.backend.jax.JaxBackend.sinh"><code class="name">var <span class="ident">sinh</span></code></dt>
 <dd>
 <div class="desc"></div>
 </dd>
-<dt id="ml4s.backend.jax.JaxBackend.tanh"><code class="name">var <span class="ident">tanh</span></code></dt>
+<dt id="phiml.backend.jax.JaxBackend.tanh"><code class="name">var <span class="ident">tanh</span></code></dt>
 <dd>
 <div class="desc"></div>
 </dd>
 </dl>
 <h3>Static methods</h3>
 <dl>
-<dt id="ml4s.backend.jax.JaxBackend.abs"><code class="name flex">
+<dt id="phiml.backend.jax.JaxBackend.abs"><code class="name flex">
 <span>def <span class="ident">abs</span></span>(<span>x: Union[jax.Array, numpy.ndarray, numpy.bool_, numpy.number, bool, int, float, complex], /) ‑> jax.Array</span>
 </code></dt>
 <dd>
@@ -686,7 +686,7 @@ def absolute(x: ArrayLike, /) -&gt; Array:
   return lax.asarray(x) if dt == np.bool_ or dtypes.issubdtype(dt, np.unsignedinteger) else lax.abs(x)</code></pre>
 </details>
 </dd>
-<dt id="ml4s.backend.jax.JaxBackend.arccos"><code class="name flex">
+<dt id="phiml.backend.jax.JaxBackend.arccos"><code class="name flex">
 <span>def <span class="ident">arccos</span></span>(<span>x, /)</span>
 </code></dt>
 <dd>
@@ -698,7 +698,7 @@ def absolute(x: ArrayLike, /) -&gt; Array:
 <pre><code class="python">fn = lambda x, /: lax_fn(*promote_args_inexact(numpy_fn.__name__, x))</code></pre>
 </details>
 </dd>
-<dt id="ml4s.backend.jax.JaxBackend.arcsin"><code class="name flex">
+<dt id="phiml.backend.jax.JaxBackend.arcsin"><code class="name flex">
 <span>def <span class="ident">arcsin</span></span>(<span>x, /)</span>
 </code></dt>
 <dd>
@@ -710,7 +710,7 @@ def absolute(x: ArrayLike, /) -&gt; Array:
 <pre><code class="python">fn = lambda x, /: lax_fn(*promote_args_inexact(numpy_fn.__name__, x))</code></pre>
 </details>
 </dd>
-<dt id="ml4s.backend.jax.JaxBackend.ceil"><code class="name flex">
+<dt id="phiml.backend.jax.JaxBackend.ceil"><code class="name flex">
 <span>def <span class="ident">ceil</span></span>(<span>x, /)</span>
 </code></dt>
 <dd>
@@ -722,7 +722,7 @@ def absolute(x: ArrayLike, /) -&gt; Array:
 <pre><code class="python">fn = lambda x, /: lax_fn(*promote_args_inexact(numpy_fn.__name__, x))</code></pre>
 </details>
 </dd>
-<dt id="ml4s.backend.jax.JaxBackend.clip"><code class="name flex">
+<dt id="phiml.backend.jax.JaxBackend.clip"><code class="name flex">
 <span>def <span class="ident">clip</span></span>(<span>a: Union[jax.Array, numpy.ndarray, numpy.bool_, numpy.number, bool, int, float, complex], a_min: Union[jax.Array, numpy.ndarray, numpy.bool_, numpy.number, bool, int, float, complex, None] = None, a_max: Union[jax.Array, numpy.ndarray, numpy.bool_, numpy.number, bool, int, float, complex, None] = None, out: None = None) ‑> jax.Array</span>
 </code></dt>
 <dd>
@@ -747,7 +747,7 @@ def clip(a: ArrayLike, a_min: Optional[ArrayLike] = None,
   return asarray(a)</code></pre>
 </details>
 </dd>
-<dt id="ml4s.backend.jax.JaxBackend.concat"><code class="name flex">
+<dt id="phiml.backend.jax.JaxBackend.concat"><code class="name flex">
 <span>def <span class="ident">concat</span></span>(<span>arrays: Union[numpy.ndarray, jax.Array, Sequence[Union[jax.Array, numpy.ndarray, numpy.bool_, numpy.number, bool, int, float, complex]]], axis: Optional[int] = 0, dtype: Union[Any, str, numpy.dtype, jax._src.SupportsDType, None] = None) ‑> jax.Array</span>
 </code></dt>
 <dd>
@@ -801,7 +801,7 @@ def concatenate(arrays: Union[np.ndarray, Array, Sequence[ArrayLike]],
   return arrays_out[0]</code></pre>
 </details>
 </dd>
-<dt id="ml4s.backend.jax.JaxBackend.conj"><code class="name flex">
+<dt id="phiml.backend.jax.JaxBackend.conj"><code class="name flex">
 <span>def <span class="ident">conj</span></span>(<span>x: Union[jax.Array, numpy.ndarray, numpy.bool_, numpy.number, bool, int, float, complex], /) ‑> jax.Array</span>
 </code></dt>
 <dd>
@@ -817,7 +817,7 @@ def conjugate(x: ArrayLike, /) -&gt; Array:
   return lax.conj(x) if np.iscomplexobj(x) else lax.asarray(x)</code></pre>
 </details>
 </dd>
-<dt id="ml4s.backend.jax.JaxBackend.cos"><code class="name flex">
+<dt id="phiml.backend.jax.JaxBackend.cos"><code class="name flex">
 <span>def <span class="ident">cos</span></span>(<span>x, /)</span>
 </code></dt>
 <dd>
@@ -829,7 +829,7 @@ def conjugate(x: ArrayLike, /) -&gt; Array:
 <pre><code class="python">fn = lambda x, /: lax_fn(*promote_args_inexact(numpy_fn.__name__, x))</code></pre>
 </details>
 </dd>
-<dt id="ml4s.backend.jax.JaxBackend.cumsum"><code class="name flex">
+<dt id="phiml.backend.jax.JaxBackend.cumsum"><code class="name flex">
 <span>def <span class="ident">cumsum</span></span>(<span>a: Union[jax.Array, numpy.ndarray, numpy.bool_, numpy.number, bool, int, float, complex], axis: Union[None, int, Sequence[int]] = None, dtype: Union[Any, str, numpy.dtype, jax._src.SupportsDType] = None, out: None = None) ‑> jax.Array</span>
 </code></dt>
 <dd>
@@ -868,7 +868,7 @@ def cumulative_reduction(a: ArrayLike, axis: Axis = None,
   return _cumulative_reduction(a, _ensure_optional_axes(axis), dtype, out)</code></pre>
 </details>
 </dd>
-<dt id="ml4s.backend.jax.JaxBackend.einsum"><code class="name flex">
+<dt id="phiml.backend.jax.JaxBackend.einsum"><code class="name flex">
 <span>def <span class="ident">einsum</span></span>(<span>subscripts, /, *operands, out: None = None, optimize: str = 'optimal', precision: Union[None, str, jax._src.lax.lax.Precision, Tuple[str, str], Tuple[jax._src.lax.lax.Precision, jax._src.lax.lax.Precision]] = None, preferred_element_type: Union[Any, str, numpy.dtype, jax._src.SupportsDType, None] = None) ‑> jax.Array</span>
 </code></dt>
 <dd>
@@ -960,7 +960,7 @@ def einsum(
                              preferred_element_type, _dot_general)</code></pre>
 </details>
 </dd>
-<dt id="ml4s.backend.jax.JaxBackend.equal"><code class="name flex">
+<dt id="phiml.backend.jax.JaxBackend.equal"><code class="name flex">
 <span>def <span class="ident">equal</span></span>(<span>x1, x2, /)</span>
 </code></dt>
 <dd>
@@ -972,7 +972,7 @@ def einsum(
 <pre><code class="python">fn = lambda x1, x2, /: lax_fn(*promote_args(numpy_fn.__name__, x1, x2))</code></pre>
 </details>
 </dd>
-<dt id="ml4s.backend.jax.JaxBackend.exp"><code class="name flex">
+<dt id="phiml.backend.jax.JaxBackend.exp"><code class="name flex">
 <span>def <span class="ident">exp</span></span>(<span>x, /)</span>
 </code></dt>
 <dd>
@@ -984,7 +984,7 @@ def einsum(
 <pre><code class="python">fn = lambda x, /: lax_fn(*promote_args_inexact(numpy_fn.__name__, x))</code></pre>
 </details>
 </dd>
-<dt id="ml4s.backend.jax.JaxBackend.flip"><code class="name flex">
+<dt id="phiml.backend.jax.JaxBackend.flip"><code class="name flex">
 <span>def <span class="ident">flip</span></span>(<span>m: Union[jax.Array, numpy.ndarray, numpy.bool_, numpy.number, bool, int, float, complex], axis: Union[int, Tuple[int, ...], None] = None) ‑> jax.Array</span>
 </code></dt>
 <dd>
@@ -1029,7 +1029,7 @@ def flip(m: ArrayLike, axis: Optional[Union[int, Tuple[int, ...]]] = None) -&gt;
   return _flip(asarray(m), reductions._ensure_optional_axes(axis))</code></pre>
 </details>
 </dd>
-<dt id="ml4s.backend.jax.JaxBackend.floor"><code class="name flex">
+<dt id="phiml.backend.jax.JaxBackend.floor"><code class="name flex">
 <span>def <span class="ident">floor</span></span>(<span>x, /)</span>
 </code></dt>
 <dd>
@@ -1041,7 +1041,7 @@ def flip(m: ArrayLike, axis: Optional[Union[int, Tuple[int, ...]]] = None) -&gt;
 <pre><code class="python">fn = lambda x, /: lax_fn(*promote_args_inexact(numpy_fn.__name__, x))</code></pre>
 </details>
 </dd>
-<dt id="ml4s.backend.jax.JaxBackend.imag"><code class="name flex">
+<dt id="phiml.backend.jax.JaxBackend.imag"><code class="name flex">
 <span>def <span class="ident">imag</span></span>(<span>val: Union[jax.Array, numpy.ndarray, numpy.bool_, numpy.number, bool, int, float, complex], /) ‑> jax.Array</span>
 </code></dt>
 <dd>
@@ -1057,7 +1057,7 @@ def imag(val: ArrayLike, /) -&gt; Array:
   return lax.imag(val) if np.iscomplexobj(val) else lax.full_like(val, 0)</code></pre>
 </details>
 </dd>
-<dt id="ml4s.backend.jax.JaxBackend.isfinite"><code class="name flex">
+<dt id="phiml.backend.jax.JaxBackend.isfinite"><code class="name flex">
 <span>def <span class="ident">isfinite</span></span>(<span>x: Union[jax.Array, numpy.ndarray, numpy.bool_, numpy.number, bool, int, float, complex], /) ‑> jax.Array</span>
 </code></dt>
 <dd>
@@ -1079,7 +1079,7 @@ def isfinite(x: ArrayLike, /) -&gt; Array:
     return lax.full_like(x, True, dtype=np.bool_)</code></pre>
 </details>
 </dd>
-<dt id="ml4s.backend.jax.JaxBackend.isinf"><code class="name flex">
+<dt id="phiml.backend.jax.JaxBackend.isinf"><code class="name flex">
 <span>def <span class="ident">isinf</span></span>(<span>x: Union[jax.Array, numpy.ndarray, numpy.bool_, numpy.number, bool, int, float, complex], /) ‑> jax.Array</span>
 </code></dt>
 <dd>
@@ -1104,7 +1104,7 @@ def isinf(x: ArrayLike, /) -&gt; Array:
     return lax.full_like(x, False, dtype=np.bool_)</code></pre>
 </details>
 </dd>
-<dt id="ml4s.backend.jax.JaxBackend.isnan"><code class="name flex">
+<dt id="phiml.backend.jax.JaxBackend.isnan"><code class="name flex">
 <span>def <span class="ident">isnan</span></span>(<span>x: Union[jax.Array, numpy.ndarray, numpy.bool_, numpy.number, bool, int, float, complex], /) ‑> jax.Array</span>
 </code></dt>
 <dd>
@@ -1120,7 +1120,7 @@ def isnan(x: ArrayLike, /) -&gt; Array:
   return lax.ne(x, x)</code></pre>
 </details>
 </dd>
-<dt id="ml4s.backend.jax.JaxBackend.log"><code class="name flex">
+<dt id="phiml.backend.jax.JaxBackend.log"><code class="name flex">
 <span>def <span class="ident">log</span></span>(<span>x, /)</span>
 </code></dt>
 <dd>
@@ -1132,7 +1132,7 @@ def isnan(x: ArrayLike, /) -&gt; Array:
 <pre><code class="python">fn = lambda x, /: lax_fn(*promote_args_inexact(numpy_fn.__name__, x))</code></pre>
 </details>
 </dd>
-<dt id="ml4s.backend.jax.JaxBackend.log10"><code class="name flex">
+<dt id="phiml.backend.jax.JaxBackend.log10"><code class="name flex">
 <span>def <span class="ident">log10</span></span>(<span>x: Union[jax.Array, numpy.ndarray, numpy.bool_, numpy.number, bool, int, float, complex], /) ‑> jax.Array</span>
 </code></dt>
 <dd>
@@ -1148,7 +1148,7 @@ def log10(x: ArrayLike, /) -&gt; Array:
   return lax.div(lax.log(x), lax.log(_constant_like(x, 10)))</code></pre>
 </details>
 </dd>
-<dt id="ml4s.backend.jax.JaxBackend.log2"><code class="name flex">
+<dt id="phiml.backend.jax.JaxBackend.log2"><code class="name flex">
 <span>def <span class="ident">log2</span></span>(<span>x: Union[jax.Array, numpy.ndarray, numpy.bool_, numpy.number, bool, int, float, complex], /) ‑> jax.Array</span>
 </code></dt>
 <dd>
@@ -1164,7 +1164,7 @@ def log2(x: ArrayLike, /) -&gt; Array:
   return lax.div(lax.log(x), lax.log(_constant_like(x, 2)))</code></pre>
 </details>
 </dd>
-<dt id="ml4s.backend.jax.JaxBackend.maximum"><code class="name flex">
+<dt id="phiml.backend.jax.JaxBackend.maximum"><code class="name flex">
 <span>def <span class="ident">maximum</span></span>(<span>x1, x2, /)</span>
 </code></dt>
 <dd>
@@ -1176,7 +1176,7 @@ def log2(x: ArrayLike, /) -&gt; Array:
 <pre><code class="python">fn = lambda x1, x2, /: lax_fn(*promote_args(numpy_fn.__name__, x1, x2))</code></pre>
 </details>
 </dd>
-<dt id="ml4s.backend.jax.JaxBackend.minimum"><code class="name flex">
+<dt id="phiml.backend.jax.JaxBackend.minimum"><code class="name flex">
 <span>def <span class="ident">minimum</span></span>(<span>x1, x2, /)</span>
 </code></dt>
 <dd>
@@ -1188,7 +1188,7 @@ def log2(x: ArrayLike, /) -&gt; Array:
 <pre><code class="python">fn = lambda x1, x2, /: lax_fn(*promote_args(numpy_fn.__name__, x1, x2))</code></pre>
 </details>
 </dd>
-<dt id="ml4s.backend.jax.JaxBackend.real"><code class="name flex">
+<dt id="phiml.backend.jax.JaxBackend.real"><code class="name flex">
 <span>def <span class="ident">real</span></span>(<span>val: Union[jax.Array, numpy.ndarray, numpy.bool_, numpy.number, bool, int, float, complex], /) ‑> jax.Array</span>
 </code></dt>
 <dd>
@@ -1204,7 +1204,7 @@ def real(val: ArrayLike, /) -&gt; Array:
   return lax.real(val) if np.iscomplexobj(val) else lax.asarray(val)</code></pre>
 </details>
 </dd>
-<dt id="ml4s.backend.jax.JaxBackend.round"><code class="name flex">
+<dt id="phiml.backend.jax.JaxBackend.round"><code class="name flex">
 <span>def <span class="ident">round</span></span>(<span>a: Union[jax.Array, numpy.ndarray, numpy.bool_, numpy.number, bool, int, float, complex], decimals: int = 0, out: None = None) ‑> jax.Array</span>
 </code></dt>
 <dd>
@@ -1247,7 +1247,7 @@ def round(a: ArrayLike, decimals: int = 0, out: None = None) -&gt; Array:
     return _round_float(a)</code></pre>
 </details>
 </dd>
-<dt id="ml4s.backend.jax.JaxBackend.shape"><code class="name flex">
+<dt id="phiml.backend.jax.JaxBackend.shape"><code class="name flex">
 <span>def <span class="ident">shape</span></span>(<span>a)</span>
 </code></dt>
 <dd>
@@ -1339,7 +1339,7 @@ def shape(a):
     return result</code></pre>
 </details>
 </dd>
-<dt id="ml4s.backend.jax.JaxBackend.sign"><code class="name flex">
+<dt id="phiml.backend.jax.JaxBackend.sign"><code class="name flex">
 <span>def <span class="ident">sign</span></span>(<span>x: Union[jax.Array, numpy.ndarray, numpy.bool_, numpy.number, bool, int, float, complex], /) ‑> jax.Array</span>
 </code></dt>
 <dd>
@@ -1360,7 +1360,7 @@ def sign(x: ArrayLike, /) -&gt; Array:
   return lax.sign(x)</code></pre>
 </details>
 </dd>
-<dt id="ml4s.backend.jax.JaxBackend.sin"><code class="name flex">
+<dt id="phiml.backend.jax.JaxBackend.sin"><code class="name flex">
 <span>def <span class="ident">sin</span></span>(<span>x, /)</span>
 </code></dt>
 <dd>
@@ -1372,7 +1372,7 @@ def sign(x: ArrayLike, /) -&gt; Array:
 <pre><code class="python">fn = lambda x, /: lax_fn(*promote_args_inexact(numpy_fn.__name__, x))</code></pre>
 </details>
 </dd>
-<dt id="ml4s.backend.jax.JaxBackend.softplus"><code class="name flex">
+<dt id="phiml.backend.jax.JaxBackend.softplus"><code class="name flex">
 <span>def <span class="ident">softplus</span></span>(<span>x: Any) ‑> Any</span>
 </code></dt>
 <dd>
@@ -1400,7 +1400,7 @@ def softplus(x: Array) -&gt; Array:
   return jnp.logaddexp(x, 0)</code></pre>
 </details>
 </dd>
-<dt id="ml4s.backend.jax.JaxBackend.sqrt"><code class="name flex">
+<dt id="phiml.backend.jax.JaxBackend.sqrt"><code class="name flex">
 <span>def <span class="ident">sqrt</span></span>(<span>x, /)</span>
 </code></dt>
 <dd>
@@ -1412,7 +1412,7 @@ def softplus(x: Array) -&gt; Array:
 <pre><code class="python">fn = lambda x, /: lax_fn(*promote_args_inexact(numpy_fn.__name__, x))</code></pre>
 </details>
 </dd>
-<dt id="ml4s.backend.jax.JaxBackend.stack"><code class="name flex">
+<dt id="phiml.backend.jax.JaxBackend.stack"><code class="name flex">
 <span>def <span class="ident">stack</span></span>(<span>arrays: Union[numpy.ndarray, jax.Array, Sequence[Union[jax.Array, numpy.ndarray, numpy.bool_, numpy.number, bool, int, float, complex]]], axis: int = 0, out: None = None, dtype: Union[Any, str, numpy.dtype, jax._src.SupportsDType, None] = None) ‑> jax.Array</span>
 </code></dt>
 <dd>
@@ -1466,7 +1466,7 @@ def stack(arrays: Union[np.ndarray, Array, Sequence[ArrayLike]],
     return concatenate(new_arrays, axis=axis, dtype=dtype)</code></pre>
 </details>
 </dd>
-<dt id="ml4s.backend.jax.JaxBackend.staticshape"><code class="name flex">
+<dt id="phiml.backend.jax.JaxBackend.staticshape"><code class="name flex">
 <span>def <span class="ident">staticshape</span></span>(<span>a)</span>
 </code></dt>
 <dd>
@@ -1558,7 +1558,7 @@ def shape(a):
     return result</code></pre>
 </details>
 </dd>
-<dt id="ml4s.backend.jax.JaxBackend.stop_gradient"><code class="name flex">
+<dt id="phiml.backend.jax.JaxBackend.stop_gradient"><code class="name flex">
 <span>def <span class="ident">stop_gradient</span></span>(<span>x: ~T) ‑> ~T</span>
 </code></dt>
 <dd>
@@ -1614,7 +1614,7 @@ Array(0., dtype=float32, weak_type=True)
   return tree_map(stop, x)</code></pre>
 </details>
 </dd>
-<dt id="ml4s.backend.jax.JaxBackend.tan"><code class="name flex">
+<dt id="phiml.backend.jax.JaxBackend.tan"><code class="name flex">
 <span>def <span class="ident">tan</span></span>(<span>x, /)</span>
 </code></dt>
 <dd>
@@ -1626,7 +1626,7 @@ Array(0., dtype=float32, weak_type=True)
 <pre><code class="python">fn = lambda x, /: lax_fn(*promote_args_inexact(numpy_fn.__name__, x))</code></pre>
 </details>
 </dd>
-<dt id="ml4s.backend.jax.JaxBackend.tile"><code class="name flex">
+<dt id="phiml.backend.jax.JaxBackend.tile"><code class="name flex">
 <span>def <span class="ident">tile</span></span>(<span>A: Union[jax.Array, numpy.ndarray, numpy.bool_, numpy.number, bool, int, float, complex], reps: Union[int, Any, Sequence[Union[int, Any]]]) ‑> jax.Array</span>
 </code></dt>
 <dd>
@@ -1679,7 +1679,7 @@ def tile(A: ArrayLike, reps: Union[DimSize, Sequence[DimSize]]) -&gt; Array:
   return reshape(result, tuple(np.multiply(A_shape, reps_tup)))</code></pre>
 </details>
 </dd>
-<dt id="ml4s.backend.jax.JaxBackend.transpose"><code class="name flex">
+<dt id="phiml.backend.jax.JaxBackend.transpose"><code class="name flex">
 <span>def <span class="ident">transpose</span></span>(<span>a: Union[jax.Array, numpy.ndarray, numpy.bool_, numpy.number, bool, int, float, complex], axes: Optional[Sequence[int]] = None) ‑> jax.Array</span>
 </code></dt>
 <dd>
@@ -1728,7 +1728,7 @@ def transpose(a: ArrayLike, axes: Optional[Sequence[int]] = None) -&gt; Array:
 </dl>
 <h3>Methods</h3>
 <dl>
-<dt id="ml4s.backend.jax.JaxBackend.all"><code class="name flex">
+<dt id="phiml.backend.jax.JaxBackend.all"><code class="name flex">
 <span>def <span class="ident">all</span></span>(<span>self, boolean_tensor, axis=None, keepdims=False)</span>
 </code></dt>
 <dd>
@@ -1743,8 +1743,8 @@ def transpose(a: ArrayLike, axes: Optional[Sequence[int]] = None) -&gt; Array:
     return jnp.all(boolean_tensor, axis=axis, keepdims=keepdims)</code></pre>
 </details>
 </dd>
-<dt id="ml4s.backend.jax.JaxBackend.allocate_on_device"><code class="name flex">
-<span>def <span class="ident">allocate_on_device</span></span>(<span>self, tensor: ~TensorType, device: ml4s.backend._backend.ComputeDevice) ‑> ~TensorType</span>
+<dt id="phiml.backend.jax.JaxBackend.allocate_on_device"><code class="name flex">
+<span>def <span class="ident">allocate_on_device</span></span>(<span>self, tensor: ~TensorType, device: phiml.backend._backend.ComputeDevice) ‑> ~TensorType</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Moves <code>tensor</code> to <code>device</code>. May copy the tensor if it is already on the device.</p>
@@ -1763,7 +1763,7 @@ def transpose(a: ArrayLike, axes: Optional[Sequence[int]] = None) -&gt; Array:
     return jax.device_put(tensor, device.ref)</code></pre>
 </details>
 </dd>
-<dt id="ml4s.backend.jax.JaxBackend.any"><code class="name flex">
+<dt id="phiml.backend.jax.JaxBackend.any"><code class="name flex">
 <span>def <span class="ident">any</span></span>(<span>self, boolean_tensor, axis=None, keepdims=False)</span>
 </code></dt>
 <dd>
@@ -1778,7 +1778,7 @@ def transpose(a: ArrayLike, axes: Optional[Sequence[int]] = None) -&gt; Array:
     return jnp.any(boolean_tensor, axis=axis, keepdims=keepdims)</code></pre>
 </details>
 </dd>
-<dt id="ml4s.backend.jax.JaxBackend.argsort"><code class="name flex">
+<dt id="phiml.backend.jax.JaxBackend.argsort"><code class="name flex">
 <span>def <span class="ident">argsort</span></span>(<span>self, x, axis=-1)</span>
 </code></dt>
 <dd>
@@ -1791,7 +1791,7 @@ def transpose(a: ArrayLike, axes: Optional[Sequence[int]] = None) -&gt; Array:
     return jnp.argsort(x, axis)</code></pre>
 </details>
 </dd>
-<dt id="ml4s.backend.jax.JaxBackend.as_tensor"><code class="name flex">
+<dt id="phiml.backend.jax.JaxBackend.as_tensor"><code class="name flex">
 <span>def <span class="ident">as_tensor</span></span>(<span>self, x, convert_external=True)</span>
 </code></dt>
 <dd>
@@ -1827,7 +1827,7 @@ If x is a Python number (numbers.Number instance), <code>convert_numbers</code> 
     return array</code></pre>
 </details>
 </dd>
-<dt id="ml4s.backend.jax.JaxBackend.batched_gather_nd"><code class="name flex">
+<dt id="phiml.backend.jax.JaxBackend.batched_gather_nd"><code class="name flex">
 <span>def <span class="ident">batched_gather_nd</span></span>(<span>self, values, indices)</span>
 </code></dt>
 <dd>
@@ -1859,7 +1859,7 @@ The first dimension of <code>values</code> and <code>indices</code> is the batch
     return jnp.stack(results)</code></pre>
 </details>
 </dd>
-<dt id="ml4s.backend.jax.JaxBackend.bincount"><code class="name flex">
+<dt id="phiml.backend.jax.JaxBackend.bincount"><code class="name flex">
 <span>def <span class="ident">bincount</span></span>(<span>self, x, weights: Optional[~TensorType], bins: int, x_sorted=False)</span>
 </code></dt>
 <dd>
@@ -1875,7 +1875,7 @@ The first dimension of <code>values</code> and <code>indices</code> is the batch
         return jnp.bincount(x, weights=weights, minlength=bins, length=bins)</code></pre>
 </details>
 </dd>
-<dt id="ml4s.backend.jax.JaxBackend.block_until_ready"><code class="name flex">
+<dt id="phiml.backend.jax.JaxBackend.block_until_ready"><code class="name flex">
 <span>def <span class="ident">block_until_ready</span></span>(<span>self, values)</span>
 </code></dt>
 <dd>
@@ -1892,7 +1892,7 @@ The first dimension of <code>values</code> and <code>indices</code> is the batch
             self.block_until_ready(v)</code></pre>
 </details>
 </dd>
-<dt id="ml4s.backend.jax.JaxBackend.boolean_mask"><code class="name flex">
+<dt id="phiml.backend.jax.JaxBackend.boolean_mask"><code class="name flex">
 <span>def <span class="ident">boolean_mask</span></span>(<span>self, x, mask, axis=0, new_length=None, fill_value=0)</span>
 </code></dt>
 <dd>
@@ -1925,8 +1925,8 @@ The first dimension of <code>values</code> and <code>indices</code> is the batch
         return jnp.where(valid, result, fill_value)</code></pre>
 </details>
 </dd>
-<dt id="ml4s.backend.jax.JaxBackend.cast"><code class="name flex">
-<span>def <span class="ident">cast</span></span>(<span>self, x, dtype: ml4s.backend._dtype.DType)</span>
+<dt id="phiml.backend.jax.JaxBackend.cast"><code class="name flex">
+<span>def <span class="ident">cast</span></span>(<span>self, x, dtype: phiml.backend._dtype.DType)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -1941,7 +1941,7 @@ The first dimension of <code>values</code> and <code>indices</code> is the batch
         return jnp.array(x, to_numpy_dtype(dtype))</code></pre>
 </details>
 </dd>
-<dt id="ml4s.backend.jax.JaxBackend.conv"><code class="name flex">
+<dt id="phiml.backend.jax.JaxBackend.conv"><code class="name flex">
 <span>def <span class="ident">conv</span></span>(<span>self, value, kernel, zero_padding=True)</span>
 </code></dt>
 <dd>
@@ -1981,7 +1981,7 @@ Higher dimensions may not be supported.</p>
     return jnp.stack(result, 0)</code></pre>
 </details>
 </dd>
-<dt id="ml4s.backend.jax.JaxBackend.copy"><code class="name flex">
+<dt id="phiml.backend.jax.JaxBackend.copy"><code class="name flex">
 <span>def <span class="ident">copy</span></span>(<span>self, tensor, only_mutable=False)</span>
 </code></dt>
 <dd>
@@ -1994,7 +1994,7 @@ Higher dimensions may not be supported.</p>
     return jnp.array(tensor, copy=True)</code></pre>
 </details>
 </dd>
-<dt id="ml4s.backend.jax.JaxBackend.custom_gradient"><code class="name flex">
+<dt id="phiml.backend.jax.JaxBackend.custom_gradient"><code class="name flex">
 <span>def <span class="ident">custom_gradient</span></span>(<span>self, f: Callable, gradient: Callable, get_external_cache: Callable = None, on_call_skipped: Callable = None) ‑> Callable</span>
 </code></dt>
 <dd>
@@ -2028,7 +2028,7 @@ Higher dimensions may not be supported.</p>
     return jax_fun</code></pre>
 </details>
 </dd>
-<dt id="ml4s.backend.jax.JaxBackend.divide_no_nan"><code class="name flex">
+<dt id="phiml.backend.jax.JaxBackend.divide_no_nan"><code class="name flex">
 <span>def <span class="ident">divide_no_nan</span></span>(<span>self, x, y)</span>
 </code></dt>
 <dd>
@@ -2042,8 +2042,8 @@ Higher dimensions may not be supported.</p>
     # jnp.nan_to_num(x / y, copy=True, nan=0) covers up NaNs from before</code></pre>
 </details>
 </dd>
-<dt id="ml4s.backend.jax.JaxBackend.dtype"><code class="name flex">
-<span>def <span class="ident">dtype</span></span>(<span>self, array) ‑> ml4s.backend._dtype.DType</span>
+<dt id="phiml.backend.jax.JaxBackend.dtype"><code class="name flex">
+<span>def <span class="ident">dtype</span></span>(<span>self, array) ‑> phiml.backend._dtype.DType</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -2063,7 +2063,7 @@ Higher dimensions may not be supported.</p>
     return from_numpy_dtype(array.dtype)</code></pre>
 </details>
 </dd>
-<dt id="ml4s.backend.jax.JaxBackend.expand_dims"><code class="name flex">
+<dt id="phiml.backend.jax.JaxBackend.expand_dims"><code class="name flex">
 <span>def <span class="ident">expand_dims</span></span>(<span>self, a, axis=0, number=1)</span>
 </code></dt>
 <dd>
@@ -2078,7 +2078,7 @@ Higher dimensions may not be supported.</p>
     return a</code></pre>
 </details>
 </dd>
-<dt id="ml4s.backend.jax.JaxBackend.fft"><code class="name flex">
+<dt id="phiml.backend.jax.JaxBackend.fft"><code class="name flex">
 <span>def <span class="ident">fft</span></span>(<span>self, x, axes: Union[tuple, list])</span>
 </code></dt>
 <dd>
@@ -2108,7 +2108,7 @@ Higher dimensions may not be supported.</p>
         return jnp.fft.fftn(x, axes=axes).astype(x.dtype)</code></pre>
 </details>
 </dd>
-<dt id="ml4s.backend.jax.JaxBackend.from_dlpack"><code class="name flex">
+<dt id="phiml.backend.jax.JaxBackend.from_dlpack"><code class="name flex">
 <span>def <span class="ident">from_dlpack</span></span>(<span>self, capsule)</span>
 </code></dt>
 <dd>
@@ -2122,7 +2122,7 @@ Higher dimensions may not be supported.</p>
     return dlpack.from_dlpack(capsule)</code></pre>
 </details>
 </dd>
-<dt id="ml4s.backend.jax.JaxBackend.gather"><code class="name flex">
+<dt id="phiml.backend.jax.JaxBackend.gather"><code class="name flex">
 <span>def <span class="ident">gather</span></span>(<span>self, values, indices, axis: int)</span>
 </code></dt>
 <dd>
@@ -2147,8 +2147,8 @@ Higher dimensions may not be supported.</p>
     return values[tuple(slices)]</code></pre>
 </details>
 </dd>
-<dt id="ml4s.backend.jax.JaxBackend.get_device"><code class="name flex">
-<span>def <span class="ident">get_device</span></span>(<span>self, tensor: ~TensorType) ‑> ml4s.backend._backend.ComputeDevice</span>
+<dt id="phiml.backend.jax.JaxBackend.get_device"><code class="name flex">
+<span>def <span class="ident">get_device</span></span>(<span>self, tensor: ~TensorType) ‑> phiml.backend._backend.ComputeDevice</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Returns the device <code>tensor</code> is located on.</p></div>
@@ -2160,7 +2160,7 @@ Higher dimensions may not be supported.</p>
     return self.get_device_by_ref(tensor.device())</code></pre>
 </details>
 </dd>
-<dt id="ml4s.backend.jax.JaxBackend.get_diagonal"><code class="name flex">
+<dt id="phiml.backend.jax.JaxBackend.get_diagonal"><code class="name flex">
 <span>def <span class="ident">get_diagonal</span></span>(<span>self, matrices, offset=0)</span>
 </code></dt>
 <dd>
@@ -2185,7 +2185,7 @@ Higher dimensions may not be supported.</p>
     return jnp.transpose(result, [0, 2, 1])</code></pre>
 </details>
 </dd>
-<dt id="ml4s.backend.jax.JaxBackend.histogram1d"><code class="name flex">
+<dt id="phiml.backend.jax.JaxBackend.histogram1d"><code class="name flex">
 <span>def <span class="ident">histogram1d</span></span>(<span>self, values, weights, bin_edges)</span>
 </code></dt>
 <dd>
@@ -2211,7 +2211,7 @@ Higher dimensions may not be supported.</p>
     return jax.vmap(unbatched_hist)(values, weights, bin_edges)</code></pre>
 </details>
 </dd>
-<dt id="ml4s.backend.jax.JaxBackend.ifft"><code class="name flex">
+<dt id="phiml.backend.jax.JaxBackend.ifft"><code class="name flex">
 <span>def <span class="ident">ifft</span></span>(<span>self, k, axes: Union[tuple, list])</span>
 </code></dt>
 <dd>
@@ -2240,7 +2240,7 @@ Higher dimensions may not be supported.</p>
         return jnp.fft.ifftn(k, axes=axes).astype(k.dtype)</code></pre>
 </details>
 </dd>
-<dt id="ml4s.backend.jax.JaxBackend.is_available"><code class="name flex">
+<dt id="phiml.backend.jax.JaxBackend.is_available"><code class="name flex">
 <span>def <span class="ident">is_available</span></span>(<span>self, tensor)</span>
 </code></dt>
 <dd>
@@ -2262,7 +2262,7 @@ If true, <code>numpy(tensor)</code> must return a valid NumPy representation of 
     return not isinstance(tensor, Tracer)</code></pre>
 </details>
 </dd>
-<dt id="ml4s.backend.jax.JaxBackend.is_module"><code class="name flex">
+<dt id="phiml.backend.jax.JaxBackend.is_module"><code class="name flex">
 <span>def <span class="ident">is_module</span></span>(<span>self, obj)</span>
 </code></dt>
 <dd>
@@ -2283,7 +2283,7 @@ If <code>True</code>, this backend will be chosen for operations involving <code
     return False</code></pre>
 </details>
 </dd>
-<dt id="ml4s.backend.jax.JaxBackend.is_sparse"><code class="name flex">
+<dt id="phiml.backend.jax.JaxBackend.is_sparse"><code class="name flex">
 <span>def <span class="ident">is_sparse</span></span>(<span>self, x) ‑> bool</span>
 </code></dt>
 <dd>
@@ -2300,7 +2300,7 @@ If <code>True</code>, this backend will be chosen for operations involving <code
     return isinstance(x, (COO, BCOO, CSR, CSC))</code></pre>
 </details>
 </dd>
-<dt id="ml4s.backend.jax.JaxBackend.is_tensor"><code class="name flex">
+<dt id="phiml.backend.jax.JaxBackend.is_tensor"><code class="name flex">
 <span>def <span class="ident">is_tensor</span></span>(<span>self, x, only_native=False)</span>
 </code></dt>
 <dd>
@@ -2347,7 +2347,7 @@ An object is considered a tensor (nativer or otherwise) by a backend if it is no
     return False</code></pre>
 </details>
 </dd>
-<dt id="ml4s.backend.jax.JaxBackend.jacobian"><code class="name flex">
+<dt id="phiml.backend.jax.JaxBackend.jacobian"><code class="name flex">
 <span>def <span class="ident">jacobian</span></span>(<span>self, f, wrt: Union[tuple, list], get_output: bool, is_f_scalar: bool)</span>
 </code></dt>
 <dd>
@@ -2392,7 +2392,7 @@ The gradients retain the dimensions of <code>reduced_loss</code> in order as out
         return call_jax_grad</code></pre>
 </details>
 </dd>
-<dt id="ml4s.backend.jax.JaxBackend.jit_compile"><code class="name flex">
+<dt id="phiml.backend.jax.JaxBackend.jit_compile"><code class="name flex">
 <span>def <span class="ident">jit_compile</span></span>(<span>self, f: Callable) ‑> Callable</span>
 </code></dt>
 <dd>
@@ -2412,7 +2412,7 @@ The gradients retain the dimensions of <code>reduced_loss</code> in order as out
     return run_jit_f</code></pre>
 </details>
 </dd>
-<dt id="ml4s.backend.jax.JaxBackend.linspace"><code class="name flex">
+<dt id="phiml.backend.jax.JaxBackend.linspace"><code class="name flex">
 <span>def <span class="ident">linspace</span></span>(<span>self, start, stop, number)</span>
 </code></dt>
 <dd>
@@ -2426,7 +2426,7 @@ The gradients retain the dimensions of <code>reduced_loss</code> in order as out
     return jax.device_put(jnp.linspace(start, stop, number, dtype=to_numpy_dtype(self.float_type)), self._default_device.ref)</code></pre>
 </details>
 </dd>
-<dt id="ml4s.backend.jax.JaxBackend.linspace_without_last"><code class="name flex">
+<dt id="phiml.backend.jax.JaxBackend.linspace_without_last"><code class="name flex">
 <span>def <span class="ident">linspace_without_last</span></span>(<span>self, start, stop, number)</span>
 </code></dt>
 <dd>
@@ -2440,7 +2440,7 @@ The gradients retain the dimensions of <code>reduced_loss</code> in order as out
     return jax.device_put(jnp.linspace(start, stop, number, endpoint=False, dtype=to_numpy_dtype(self.float_type)), self._default_device.ref)</code></pre>
 </details>
 </dd>
-<dt id="ml4s.backend.jax.JaxBackend.log_gamma"><code class="name flex">
+<dt id="phiml.backend.jax.JaxBackend.log_gamma"><code class="name flex">
 <span>def <span class="ident">log_gamma</span></span>(<span>self, x)</span>
 </code></dt>
 <dd>
@@ -2453,7 +2453,7 @@ The gradients retain the dimensions of <code>reduced_loss</code> in order as out
     return jax.lax.lgamma(self.to_float(x))</code></pre>
 </details>
 </dd>
-<dt id="ml4s.backend.jax.JaxBackend.matrix_solve_least_squares"><code class="name flex">
+<dt id="phiml.backend.jax.JaxBackend.matrix_solve_least_squares"><code class="name flex">
 <span>def <span class="ident">matrix_solve_least_squares</span></span>(<span>self, matrix: ~TensorType, rhs: ~TensorType) ‑> Tuple[~TensorType, ~TensorType, ~TensorType, ~TensorType]</span>
 </code></dt>
 <dd>
@@ -2484,7 +2484,7 @@ The gradients retain the dimensions of <code>reduced_loss</code> in order as out
     return solution, residuals, rank, singular_values</code></pre>
 </details>
 </dd>
-<dt id="ml4s.backend.jax.JaxBackend.max"><code class="name flex">
+<dt id="phiml.backend.jax.JaxBackend.max"><code class="name flex">
 <span>def <span class="ident">max</span></span>(<span>self, x, axis=None, keepdims=False)</span>
 </code></dt>
 <dd>
@@ -2497,7 +2497,7 @@ The gradients retain the dimensions of <code>reduced_loss</code> in order as out
     return jnp.max(x, axis, keepdims=keepdims)</code></pre>
 </details>
 </dd>
-<dt id="ml4s.backend.jax.JaxBackend.mean"><code class="name flex">
+<dt id="phiml.backend.jax.JaxBackend.mean"><code class="name flex">
 <span>def <span class="ident">mean</span></span>(<span>self, value, axis=None, keepdims=False)</span>
 </code></dt>
 <dd>
@@ -2510,7 +2510,7 @@ The gradients retain the dimensions of <code>reduced_loss</code> in order as out
     return jnp.mean(value, axis, keepdims=keepdims)</code></pre>
 </details>
 </dd>
-<dt id="ml4s.backend.jax.JaxBackend.meshgrid"><code class="name flex">
+<dt id="phiml.backend.jax.JaxBackend.meshgrid"><code class="name flex">
 <span>def <span class="ident">meshgrid</span></span>(<span>self, *coordinates)</span>
 </code></dt>
 <dd>
@@ -2525,7 +2525,7 @@ The gradients retain the dimensions of <code>reduced_loss</code> in order as out
     return [jax.device_put(c, self._default_device.ref) for c in jnp.meshgrid(*coordinates, indexing=&#39;ij&#39;)]</code></pre>
 </details>
 </dd>
-<dt id="ml4s.backend.jax.JaxBackend.min"><code class="name flex">
+<dt id="phiml.backend.jax.JaxBackend.min"><code class="name flex">
 <span>def <span class="ident">min</span></span>(<span>self, x, axis=None, keepdims=False)</span>
 </code></dt>
 <dd>
@@ -2538,7 +2538,7 @@ The gradients retain the dimensions of <code>reduced_loss</code> in order as out
     return jnp.min(x, axis, keepdims=keepdims)</code></pre>
 </details>
 </dd>
-<dt id="ml4s.backend.jax.JaxBackend.mul"><code class="name flex">
+<dt id="phiml.backend.jax.JaxBackend.mul"><code class="name flex">
 <span>def <span class="ident">mul</span></span>(<span>self, a, b)</span>
 </code></dt>
 <dd>
@@ -2556,7 +2556,7 @@ The gradients retain the dimensions of <code>reduced_loss</code> in order as out
         return Backend.mul(self, a, b)</code></pre>
 </details>
 </dd>
-<dt id="ml4s.backend.jax.JaxBackend.mul_matrix_batched_vector"><code class="name flex">
+<dt id="phiml.backend.jax.JaxBackend.mul_matrix_batched_vector"><code class="name flex">
 <span>def <span class="ident">mul_matrix_batched_vector</span></span>(<span>self, A, b)</span>
 </code></dt>
 <dd>
@@ -2572,7 +2572,7 @@ The gradients retain the dimensions of <code>reduced_loss</code> in order as out
     return jnp.stack([A.dot(b[i]) for i in range(b.shape[0])])</code></pre>
 </details>
 </dd>
-<dt id="ml4s.backend.jax.JaxBackend.nn_library"><code class="name flex">
+<dt id="phiml.backend.jax.JaxBackend.nn_library"><code class="name flex">
 <span>def <span class="ident">nn_library</span></span>(<span>self)</span>
 </code></dt>
 <dd>
@@ -2586,7 +2586,7 @@ The gradients retain the dimensions of <code>reduced_loss</code> in order as out
     return stax_nets</code></pre>
 </details>
 </dd>
-<dt id="ml4s.backend.jax.JaxBackend.nonzero"><code class="name flex">
+<dt id="phiml.backend.jax.JaxBackend.nonzero"><code class="name flex">
 <span>def <span class="ident">nonzero</span></span>(<span>self, values, length=None, fill_value=-1)</span>
 </code></dt>
 <dd>
@@ -2608,7 +2608,7 @@ The gradients retain the dimensions of <code>reduced_loss</code> in order as out
     return jnp.stack(result, -1)</code></pre>
 </details>
 </dd>
-<dt id="ml4s.backend.jax.JaxBackend.numpy"><code class="name flex">
+<dt id="phiml.backend.jax.JaxBackend.numpy"><code class="name flex">
 <span>def <span class="ident">numpy</span></span>(<span>self, tensor)</span>
 </code></dt>
 <dd>
@@ -2645,7 +2645,7 @@ Use <code>is_available(tensor)</code> to check if the value can be represented a
         return np.array(tensor)</code></pre>
 </details>
 </dd>
-<dt id="ml4s.backend.jax.JaxBackend.numpy_call"><code class="name flex">
+<dt id="phiml.backend.jax.JaxBackend.numpy_call"><code class="name flex">
 <span>def <span class="ident">numpy_call</span></span>(<span>self, f, output_shapes, output_dtypes, *args, **aux_args)</span>
 </code></dt>
 <dd>
@@ -2689,8 +2689,8 @@ Use <code>is_available(tensor)</code> to check if the value can be represented a
         return call(aux_f, args, result_shape=output_specs)</code></pre>
 </details>
 </dd>
-<dt id="ml4s.backend.jax.JaxBackend.ones"><code class="name flex">
-<span>def <span class="ident">ones</span></span>(<span>self, shape, dtype: ml4s.backend._dtype.DType = None)</span>
+<dt id="phiml.backend.jax.JaxBackend.ones"><code class="name flex">
+<span>def <span class="ident">ones</span></span>(<span>self, shape, dtype: phiml.backend._dtype.DType = None)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -2703,7 +2703,7 @@ Use <code>is_available(tensor)</code> to check if the value can be represented a
     return jax.device_put(jnp.ones(shape, dtype=to_numpy_dtype(dtype or self.float_type)), self._default_device.ref)</code></pre>
 </details>
 </dd>
-<dt id="ml4s.backend.jax.JaxBackend.ones_like"><code class="name flex">
+<dt id="phiml.backend.jax.JaxBackend.ones_like"><code class="name flex">
 <span>def <span class="ident">ones_like</span></span>(<span>self, tensor)</span>
 </code></dt>
 <dd>
@@ -2716,7 +2716,7 @@ Use <code>is_available(tensor)</code> to check if the value can be represented a
     return jax.device_put(jnp.ones_like(tensor), self._default_device.ref)</code></pre>
 </details>
 </dd>
-<dt id="ml4s.backend.jax.JaxBackend.pad"><code class="name flex">
+<dt id="phiml.backend.jax.JaxBackend.pad"><code class="name flex">
 <span>def <span class="ident">pad</span></span>(<span>self, value, pad_width, mode='constant', constant_values=0)</span>
 </code></dt>
 <dd>
@@ -2753,7 +2753,7 @@ Use <code>is_available(tensor)</code> to check if the value can be represented a
         return jnp.pad(value, pad_width, mode)</code></pre>
 </details>
 </dd>
-<dt id="ml4s.backend.jax.JaxBackend.prefers_channels_last"><code class="name flex">
+<dt id="phiml.backend.jax.JaxBackend.prefers_channels_last"><code class="name flex">
 <span>def <span class="ident">prefers_channels_last</span></span>(<span>self) ‑> bool</span>
 </code></dt>
 <dd>
@@ -2766,7 +2766,7 @@ Use <code>is_available(tensor)</code> to check if the value can be represented a
     return True</code></pre>
 </details>
 </dd>
-<dt id="ml4s.backend.jax.JaxBackend.prod"><code class="name flex">
+<dt id="phiml.backend.jax.JaxBackend.prod"><code class="name flex">
 <span>def <span class="ident">prod</span></span>(<span>self, value, axis=None)</span>
 </code></dt>
 <dd>
@@ -2783,7 +2783,7 @@ Use <code>is_available(tensor)</code> to check if the value can be represented a
     return jnp.prod(value, axis=axis)</code></pre>
 </details>
 </dd>
-<dt id="ml4s.backend.jax.JaxBackend.quantile"><code class="name flex">
+<dt id="phiml.backend.jax.JaxBackend.quantile"><code class="name flex">
 <span>def <span class="ident">quantile</span></span>(<span>self, x, quantiles)</span>
 </code></dt>
 <dd>
@@ -2805,8 +2805,8 @@ Use <code>is_available(tensor)</code> to check if the value can be represented a
     return jnp.quantile(x, quantiles, axis=-1)</code></pre>
 </details>
 </dd>
-<dt id="ml4s.backend.jax.JaxBackend.random_normal"><code class="name flex">
-<span>def <span class="ident">random_normal</span></span>(<span>self, shape, dtype: ml4s.backend._dtype.DType)</span>
+<dt id="phiml.backend.jax.JaxBackend.random_normal"><code class="name flex">
+<span>def <span class="ident">random_normal</span></span>(<span>self, shape, dtype: phiml.backend._dtype.DType)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Float tensor of selected precision containing random values sampled from a normal distribution with mean 0 and std 1.</p></div>
@@ -2821,8 +2821,8 @@ Use <code>is_available(tensor)</code> to check if the value can be represented a
     return jax.device_put(random.normal(subkey, shape, dtype=to_numpy_dtype(dtype)), self._default_device.ref)</code></pre>
 </details>
 </dd>
-<dt id="ml4s.backend.jax.JaxBackend.random_uniform"><code class="name flex">
-<span>def <span class="ident">random_uniform</span></span>(<span>self, shape, low, high, dtype: Optional[ml4s.backend._dtype.DType])</span>
+<dt id="phiml.backend.jax.JaxBackend.random_uniform"><code class="name flex">
+<span>def <span class="ident">random_uniform</span></span>(<span>self, shape, low, high, dtype: Optional[phiml.backend._dtype.DType])</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Float tensor of selected precision containing random values in the range [0, 1)</p></div>
@@ -2851,8 +2851,8 @@ Use <code>is_available(tensor)</code> to check if the value can be represented a
     return jax.device_put(tensor, self._default_device.ref)</code></pre>
 </details>
 </dd>
-<dt id="ml4s.backend.jax.JaxBackend.range"><code class="name flex">
-<span>def <span class="ident">range</span></span>(<span>self, start, limit=None, delta=1, dtype: ml4s.backend._dtype.DType = int32)</span>
+<dt id="phiml.backend.jax.JaxBackend.range"><code class="name flex">
+<span>def <span class="ident">range</span></span>(<span>self, start, limit=None, delta=1, dtype: phiml.backend._dtype.DType = int32)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -2866,7 +2866,7 @@ Use <code>is_available(tensor)</code> to check if the value can be represented a
     return jnp.arange(start, limit, delta, to_numpy_dtype(dtype))</code></pre>
 </details>
 </dd>
-<dt id="ml4s.backend.jax.JaxBackend.ravel_multi_index"><code class="name flex">
+<dt id="phiml.backend.jax.JaxBackend.ravel_multi_index"><code class="name flex">
 <span>def <span class="ident">ravel_multi_index</span></span>(<span>self, multi_index, shape, mode: Union[str, int] = 'undefined')</span>
 </code></dt>
 <dd>
@@ -2897,7 +2897,7 @@ Use <code>is_available(tensor)</code> to check if the value can be represented a
     return result</code></pre>
 </details>
 </dd>
-<dt id="ml4s.backend.jax.JaxBackend.repeat"><code class="name flex">
+<dt id="phiml.backend.jax.JaxBackend.repeat"><code class="name flex">
 <span>def <span class="ident">repeat</span></span>(<span>self, x, repeats, axis: int, new_length=None)</span>
 </code></dt>
 <dd>
@@ -2923,7 +2923,7 @@ Use <code>is_available(tensor)</code> to check if the value can be represented a
     return jnp.repeat(x, self.as_tensor(repeats), axis, total_repeat_length=new_length)</code></pre>
 </details>
 </dd>
-<dt id="ml4s.backend.jax.JaxBackend.requires_fixed_shapes_when_tracing"><code class="name flex">
+<dt id="phiml.backend.jax.JaxBackend.requires_fixed_shapes_when_tracing"><code class="name flex">
 <span>def <span class="ident">requires_fixed_shapes_when_tracing</span></span>(<span>self) ‑> bool</span>
 </code></dt>
 <dd>
@@ -2936,7 +2936,7 @@ Use <code>is_available(tensor)</code> to check if the value can be represented a
     return True</code></pre>
 </details>
 </dd>
-<dt id="ml4s.backend.jax.JaxBackend.reshape"><code class="name flex">
+<dt id="phiml.backend.jax.JaxBackend.reshape"><code class="name flex">
 <span>def <span class="ident">reshape</span></span>(<span>self, value, shape)</span>
 </code></dt>
 <dd>
@@ -2949,7 +2949,7 @@ Use <code>is_available(tensor)</code> to check if the value can be represented a
     return jnp.reshape(value, shape)</code></pre>
 </details>
 </dd>
-<dt id="ml4s.backend.jax.JaxBackend.scatter"><code class="name flex">
+<dt id="phiml.backend.jax.JaxBackend.scatter"><code class="name flex">
 <span>def <span class="ident">scatter</span></span>(<span>self, base_grid, indices, values, mode: str)</span>
 </code></dt>
 <dd>
@@ -2988,7 +2988,7 @@ Use <code>is_available(tensor)</code> to check if the value can be represented a
     return jnp.stack(result)</code></pre>
 </details>
 </dd>
-<dt id="ml4s.backend.jax.JaxBackend.searchsorted"><code class="name flex">
+<dt id="phiml.backend.jax.JaxBackend.searchsorted"><code class="name flex">
 <span>def <span class="ident">searchsorted</span></span>(<span>self, sorted_sequence, search_values, side: str, dtype=int32)</span>
 </code></dt>
 <dd>
@@ -3004,7 +3004,7 @@ Use <code>is_available(tensor)</code> to check if the value can be represented a
         return jax.vmap(partial(self.searchsorted, side=side, dtype=dtype))(sorted_sequence, search_values)</code></pre>
 </details>
 </dd>
-<dt id="ml4s.backend.jax.JaxBackend.seed"><code class="name flex">
+<dt id="phiml.backend.jax.JaxBackend.seed"><code class="name flex">
 <span>def <span class="ident">seed</span></span>(<span>self, seed: int)</span>
 </code></dt>
 <dd>
@@ -3017,7 +3017,7 @@ Use <code>is_available(tensor)</code> to check if the value can be represented a
     self.rnd_key = jax.random.PRNGKey(seed)</code></pre>
 </details>
 </dd>
-<dt id="ml4s.backend.jax.JaxBackend.solve_triangular_dense"><code class="name flex">
+<dt id="phiml.backend.jax.JaxBackend.solve_triangular_dense"><code class="name flex">
 <span>def <span class="ident">solve_triangular_dense</span></span>(<span>self, matrix, rhs, lower: bool, unit_diagonal: bool)</span>
 </code></dt>
 <dd>
@@ -3042,7 +3042,7 @@ unit_diagonal:</p>
     return x</code></pre>
 </details>
 </dd>
-<dt id="ml4s.backend.jax.JaxBackend.sparse_coo_tensor"><code class="name flex">
+<dt id="phiml.backend.jax.JaxBackend.sparse_coo_tensor"><code class="name flex">
 <span>def <span class="ident">sparse_coo_tensor</span></span>(<span>self, indices: Union[tuple, list], values, shape: tuple)</span>
 </code></dt>
 <dd>
@@ -3069,7 +3069,7 @@ unit_diagonal:</p>
     return BCOO((values, indices), shape=shape)</code></pre>
 </details>
 </dd>
-<dt id="ml4s.backend.jax.JaxBackend.std"><code class="name flex">
+<dt id="phiml.backend.jax.JaxBackend.std"><code class="name flex">
 <span>def <span class="ident">std</span></span>(<span>self, x, axis=None, keepdims=False)</span>
 </code></dt>
 <dd>
@@ -3082,7 +3082,7 @@ unit_diagonal:</p>
     return jnp.std(x, axis, keepdims=keepdims)</code></pre>
 </details>
 </dd>
-<dt id="ml4s.backend.jax.JaxBackend.sum"><code class="name flex">
+<dt id="phiml.backend.jax.JaxBackend.sum"><code class="name flex">
 <span>def <span class="ident">sum</span></span>(<span>self, value, axis=None, keepdims=False)</span>
 </code></dt>
 <dd>
@@ -3098,7 +3098,7 @@ unit_diagonal:</p>
     return jnp.sum(value, axis=axis, keepdims=keepdims)</code></pre>
 </details>
 </dd>
-<dt id="ml4s.backend.jax.JaxBackend.tensordot"><code class="name flex">
+<dt id="phiml.backend.jax.JaxBackend.tensordot"><code class="name flex">
 <span>def <span class="ident">tensordot</span></span>(<span>self, a, a_axes: Union[tuple, list], b, b_axes: Union[tuple, list])</span>
 </code></dt>
 <dd>
@@ -3111,7 +3111,7 @@ unit_diagonal:</p>
     return jnp.tensordot(a, b, (a_axes, b_axes))</code></pre>
 </details>
 </dd>
-<dt id="ml4s.backend.jax.JaxBackend.to_dlpack"><code class="name flex">
+<dt id="phiml.backend.jax.JaxBackend.to_dlpack"><code class="name flex">
 <span>def <span class="ident">to_dlpack</span></span>(<span>self, tensor)</span>
 </code></dt>
 <dd>
@@ -3125,7 +3125,7 @@ unit_diagonal:</p>
     return dlpack.to_dlpack(tensor)</code></pre>
 </details>
 </dd>
-<dt id="ml4s.backend.jax.JaxBackend.unravel_index"><code class="name flex">
+<dt id="phiml.backend.jax.JaxBackend.unravel_index"><code class="name flex">
 <span>def <span class="ident">unravel_index</span></span>(<span>self, flat_index, shape)</span>
 </code></dt>
 <dd>
@@ -3138,7 +3138,7 @@ unit_diagonal:</p>
     return jnp.stack(jnp.unravel_index(flat_index, shape), -1)</code></pre>
 </details>
 </dd>
-<dt id="ml4s.backend.jax.JaxBackend.vectorized_call"><code class="name flex">
+<dt id="phiml.backend.jax.JaxBackend.vectorized_call"><code class="name flex">
 <span>def <span class="ident">vectorized_call</span></span>(<span>self, f, *args, output_dtypes=None, **aux_args)</span>
 </code></dt>
 <dd>
@@ -3167,7 +3167,7 @@ All tensors in <code>args</code> must have the same size or <code>1</code> in th
     return vec_f(*args)</code></pre>
 </details>
 </dd>
-<dt id="ml4s.backend.jax.JaxBackend.where"><code class="name flex">
+<dt id="phiml.backend.jax.JaxBackend.where"><code class="name flex">
 <span>def <span class="ident">where</span></span>(<span>self, condition, x=None, y=None)</span>
 </code></dt>
 <dd>
@@ -3182,7 +3182,7 @@ All tensors in <code>args</code> must have the same size or <code>1</code> in th
     return jnp.where(condition, x, y)</code></pre>
 </details>
 </dd>
-<dt id="ml4s.backend.jax.JaxBackend.while_loop"><code class="name flex">
+<dt id="phiml.backend.jax.JaxBackend.while_loop"><code class="name flex">
 <span>def <span class="ident">while_loop</span></span>(<span>self, loop: Callable, values: tuple, max_iter: Union[int, Tuple[int, ...], List[int]])</span>
 </code></dt>
 <dd>
@@ -3232,8 +3232,8 @@ If the loop is broken, the values returned by the last loop are expected to be c
             return jax.lax.while_loop(cond, body, (self.as_tensor(0), values))[1]</code></pre>
 </details>
 </dd>
-<dt id="ml4s.backend.jax.JaxBackend.zeros"><code class="name flex">
-<span>def <span class="ident">zeros</span></span>(<span>self, shape, dtype: ml4s.backend._dtype.DType = None)</span>
+<dt id="phiml.backend.jax.JaxBackend.zeros"><code class="name flex">
+<span>def <span class="ident">zeros</span></span>(<span>self, shape, dtype: phiml.backend._dtype.DType = None)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -3246,7 +3246,7 @@ If the loop is broken, the values returned by the last loop are expected to be c
     return jax.device_put(jnp.zeros(shape, dtype=to_numpy_dtype(dtype or self.float_type)), self._default_device.ref)</code></pre>
 </details>
 </dd>
-<dt id="ml4s.backend.jax.JaxBackend.zeros_like"><code class="name flex">
+<dt id="phiml.backend.jax.JaxBackend.zeros_like"><code class="name flex">
 <span>def <span class="ident">zeros_like</span></span>(<span>self, tensor)</span>
 </code></dt>
 <dd>
@@ -3272,134 +3272,134 @@ If the loop is broken, the values returned by the last loop are expected to be c
 <ul id="index">
 <li><h3>Super-module</h3>
 <ul>
-<li><code><a title="ml4s.backend" href="../index.html">ml4s.backend</a></code></li>
+<li><code><a title="phiml.backend" href="../index.html">phiml.backend</a></code></li>
 </ul>
 </li>
 <li><h3><a href="#header-submodules">Sub-modules</a></h3>
 <ul>
-<li><code><a title="ml4s.backend.jax.stax_nets" href="stax_nets.html">ml4s.backend.jax.stax_nets</a></code></li>
+<li><code><a title="phiml.backend.jax.stax_nets" href="stax_nets.html">phiml.backend.jax.stax_nets</a></code></li>
 </ul>
 </li>
 <li><h3><a href="#header-classes">Classes</a></h3>
 <ul>
 <li>
-<h4><code><a title="ml4s.backend.jax.JaxBackend" href="#ml4s.backend.jax.JaxBackend">JaxBackend</a></code></h4>
+<h4><code><a title="phiml.backend.jax.JaxBackend" href="#phiml.backend.jax.JaxBackend">JaxBackend</a></code></h4>
 <ul class="">
-<li><code><a title="ml4s.backend.jax.JaxBackend.abs" href="#ml4s.backend.jax.JaxBackend.abs">abs</a></code></li>
-<li><code><a title="ml4s.backend.jax.JaxBackend.all" href="#ml4s.backend.jax.JaxBackend.all">all</a></code></li>
-<li><code><a title="ml4s.backend.jax.JaxBackend.allocate_on_device" href="#ml4s.backend.jax.JaxBackend.allocate_on_device">allocate_on_device</a></code></li>
-<li><code><a title="ml4s.backend.jax.JaxBackend.any" href="#ml4s.backend.jax.JaxBackend.any">any</a></code></li>
-<li><code><a title="ml4s.backend.jax.JaxBackend.arccos" href="#ml4s.backend.jax.JaxBackend.arccos">arccos</a></code></li>
-<li><code><a title="ml4s.backend.jax.JaxBackend.arccosh" href="#ml4s.backend.jax.JaxBackend.arccosh">arccosh</a></code></li>
-<li><code><a title="ml4s.backend.jax.JaxBackend.arcsin" href="#ml4s.backend.jax.JaxBackend.arcsin">arcsin</a></code></li>
-<li><code><a title="ml4s.backend.jax.JaxBackend.arcsinh" href="#ml4s.backend.jax.JaxBackend.arcsinh">arcsinh</a></code></li>
-<li><code><a title="ml4s.backend.jax.JaxBackend.arctan" href="#ml4s.backend.jax.JaxBackend.arctan">arctan</a></code></li>
-<li><code><a title="ml4s.backend.jax.JaxBackend.arctan2" href="#ml4s.backend.jax.JaxBackend.arctan2">arctan2</a></code></li>
-<li><code><a title="ml4s.backend.jax.JaxBackend.arctanh" href="#ml4s.backend.jax.JaxBackend.arctanh">arctanh</a></code></li>
-<li><code><a title="ml4s.backend.jax.JaxBackend.argsort" href="#ml4s.backend.jax.JaxBackend.argsort">argsort</a></code></li>
-<li><code><a title="ml4s.backend.jax.JaxBackend.as_tensor" href="#ml4s.backend.jax.JaxBackend.as_tensor">as_tensor</a></code></li>
-<li><code><a title="ml4s.backend.jax.JaxBackend.batched_gather_nd" href="#ml4s.backend.jax.JaxBackend.batched_gather_nd">batched_gather_nd</a></code></li>
-<li><code><a title="ml4s.backend.jax.JaxBackend.bincount" href="#ml4s.backend.jax.JaxBackend.bincount">bincount</a></code></li>
-<li><code><a title="ml4s.backend.jax.JaxBackend.block_until_ready" href="#ml4s.backend.jax.JaxBackend.block_until_ready">block_until_ready</a></code></li>
-<li><code><a title="ml4s.backend.jax.JaxBackend.boolean_mask" href="#ml4s.backend.jax.JaxBackend.boolean_mask">boolean_mask</a></code></li>
-<li><code><a title="ml4s.backend.jax.JaxBackend.cast" href="#ml4s.backend.jax.JaxBackend.cast">cast</a></code></li>
-<li><code><a title="ml4s.backend.jax.JaxBackend.ceil" href="#ml4s.backend.jax.JaxBackend.ceil">ceil</a></code></li>
-<li><code><a title="ml4s.backend.jax.JaxBackend.clip" href="#ml4s.backend.jax.JaxBackend.clip">clip</a></code></li>
-<li><code><a title="ml4s.backend.jax.JaxBackend.concat" href="#ml4s.backend.jax.JaxBackend.concat">concat</a></code></li>
-<li><code><a title="ml4s.backend.jax.JaxBackend.conj" href="#ml4s.backend.jax.JaxBackend.conj">conj</a></code></li>
-<li><code><a title="ml4s.backend.jax.JaxBackend.conv" href="#ml4s.backend.jax.JaxBackend.conv">conv</a></code></li>
-<li><code><a title="ml4s.backend.jax.JaxBackend.copy" href="#ml4s.backend.jax.JaxBackend.copy">copy</a></code></li>
-<li><code><a title="ml4s.backend.jax.JaxBackend.cos" href="#ml4s.backend.jax.JaxBackend.cos">cos</a></code></li>
-<li><code><a title="ml4s.backend.jax.JaxBackend.cosh" href="#ml4s.backend.jax.JaxBackend.cosh">cosh</a></code></li>
-<li><code><a title="ml4s.backend.jax.JaxBackend.cumsum" href="#ml4s.backend.jax.JaxBackend.cumsum">cumsum</a></code></li>
-<li><code><a title="ml4s.backend.jax.JaxBackend.custom_gradient" href="#ml4s.backend.jax.JaxBackend.custom_gradient">custom_gradient</a></code></li>
-<li><code><a title="ml4s.backend.jax.JaxBackend.divide_no_nan" href="#ml4s.backend.jax.JaxBackend.divide_no_nan">divide_no_nan</a></code></li>
-<li><code><a title="ml4s.backend.jax.JaxBackend.dtype" href="#ml4s.backend.jax.JaxBackend.dtype">dtype</a></code></li>
-<li><code><a title="ml4s.backend.jax.JaxBackend.einsum" href="#ml4s.backend.jax.JaxBackend.einsum">einsum</a></code></li>
-<li><code><a title="ml4s.backend.jax.JaxBackend.equal" href="#ml4s.backend.jax.JaxBackend.equal">equal</a></code></li>
-<li><code><a title="ml4s.backend.jax.JaxBackend.exp" href="#ml4s.backend.jax.JaxBackend.exp">exp</a></code></li>
-<li><code><a title="ml4s.backend.jax.JaxBackend.expand_dims" href="#ml4s.backend.jax.JaxBackend.expand_dims">expand_dims</a></code></li>
-<li><code><a title="ml4s.backend.jax.JaxBackend.fft" href="#ml4s.backend.jax.JaxBackend.fft">fft</a></code></li>
-<li><code><a title="ml4s.backend.jax.JaxBackend.flip" href="#ml4s.backend.jax.JaxBackend.flip">flip</a></code></li>
-<li><code><a title="ml4s.backend.jax.JaxBackend.floor" href="#ml4s.backend.jax.JaxBackend.floor">floor</a></code></li>
-<li><code><a title="ml4s.backend.jax.JaxBackend.from_dlpack" href="#ml4s.backend.jax.JaxBackend.from_dlpack">from_dlpack</a></code></li>
-<li><code><a title="ml4s.backend.jax.JaxBackend.gather" href="#ml4s.backend.jax.JaxBackend.gather">gather</a></code></li>
-<li><code><a title="ml4s.backend.jax.JaxBackend.get_device" href="#ml4s.backend.jax.JaxBackend.get_device">get_device</a></code></li>
-<li><code><a title="ml4s.backend.jax.JaxBackend.get_diagonal" href="#ml4s.backend.jax.JaxBackend.get_diagonal">get_diagonal</a></code></li>
-<li><code><a title="ml4s.backend.jax.JaxBackend.histogram1d" href="#ml4s.backend.jax.JaxBackend.histogram1d">histogram1d</a></code></li>
-<li><code><a title="ml4s.backend.jax.JaxBackend.ifft" href="#ml4s.backend.jax.JaxBackend.ifft">ifft</a></code></li>
-<li><code><a title="ml4s.backend.jax.JaxBackend.imag" href="#ml4s.backend.jax.JaxBackend.imag">imag</a></code></li>
-<li><code><a title="ml4s.backend.jax.JaxBackend.is_available" href="#ml4s.backend.jax.JaxBackend.is_available">is_available</a></code></li>
-<li><code><a title="ml4s.backend.jax.JaxBackend.is_module" href="#ml4s.backend.jax.JaxBackend.is_module">is_module</a></code></li>
-<li><code><a title="ml4s.backend.jax.JaxBackend.is_sparse" href="#ml4s.backend.jax.JaxBackend.is_sparse">is_sparse</a></code></li>
-<li><code><a title="ml4s.backend.jax.JaxBackend.is_tensor" href="#ml4s.backend.jax.JaxBackend.is_tensor">is_tensor</a></code></li>
-<li><code><a title="ml4s.backend.jax.JaxBackend.isfinite" href="#ml4s.backend.jax.JaxBackend.isfinite">isfinite</a></code></li>
-<li><code><a title="ml4s.backend.jax.JaxBackend.isinf" href="#ml4s.backend.jax.JaxBackend.isinf">isinf</a></code></li>
-<li><code><a title="ml4s.backend.jax.JaxBackend.isnan" href="#ml4s.backend.jax.JaxBackend.isnan">isnan</a></code></li>
-<li><code><a title="ml4s.backend.jax.JaxBackend.jacobian" href="#ml4s.backend.jax.JaxBackend.jacobian">jacobian</a></code></li>
-<li><code><a title="ml4s.backend.jax.JaxBackend.jit_compile" href="#ml4s.backend.jax.JaxBackend.jit_compile">jit_compile</a></code></li>
-<li><code><a title="ml4s.backend.jax.JaxBackend.linspace" href="#ml4s.backend.jax.JaxBackend.linspace">linspace</a></code></li>
-<li><code><a title="ml4s.backend.jax.JaxBackend.linspace_without_last" href="#ml4s.backend.jax.JaxBackend.linspace_without_last">linspace_without_last</a></code></li>
-<li><code><a title="ml4s.backend.jax.JaxBackend.log" href="#ml4s.backend.jax.JaxBackend.log">log</a></code></li>
-<li><code><a title="ml4s.backend.jax.JaxBackend.log10" href="#ml4s.backend.jax.JaxBackend.log10">log10</a></code></li>
-<li><code><a title="ml4s.backend.jax.JaxBackend.log2" href="#ml4s.backend.jax.JaxBackend.log2">log2</a></code></li>
-<li><code><a title="ml4s.backend.jax.JaxBackend.log_gamma" href="#ml4s.backend.jax.JaxBackend.log_gamma">log_gamma</a></code></li>
-<li><code><a title="ml4s.backend.jax.JaxBackend.matrix_solve_least_squares" href="#ml4s.backend.jax.JaxBackend.matrix_solve_least_squares">matrix_solve_least_squares</a></code></li>
-<li><code><a title="ml4s.backend.jax.JaxBackend.max" href="#ml4s.backend.jax.JaxBackend.max">max</a></code></li>
-<li><code><a title="ml4s.backend.jax.JaxBackend.maximum" href="#ml4s.backend.jax.JaxBackend.maximum">maximum</a></code></li>
-<li><code><a title="ml4s.backend.jax.JaxBackend.mean" href="#ml4s.backend.jax.JaxBackend.mean">mean</a></code></li>
-<li><code><a title="ml4s.backend.jax.JaxBackend.meshgrid" href="#ml4s.backend.jax.JaxBackend.meshgrid">meshgrid</a></code></li>
-<li><code><a title="ml4s.backend.jax.JaxBackend.min" href="#ml4s.backend.jax.JaxBackend.min">min</a></code></li>
-<li><code><a title="ml4s.backend.jax.JaxBackend.minimum" href="#ml4s.backend.jax.JaxBackend.minimum">minimum</a></code></li>
-<li><code><a title="ml4s.backend.jax.JaxBackend.mul" href="#ml4s.backend.jax.JaxBackend.mul">mul</a></code></li>
-<li><code><a title="ml4s.backend.jax.JaxBackend.mul_matrix_batched_vector" href="#ml4s.backend.jax.JaxBackend.mul_matrix_batched_vector">mul_matrix_batched_vector</a></code></li>
-<li><code><a title="ml4s.backend.jax.JaxBackend.nn_library" href="#ml4s.backend.jax.JaxBackend.nn_library">nn_library</a></code></li>
-<li><code><a title="ml4s.backend.jax.JaxBackend.nonzero" href="#ml4s.backend.jax.JaxBackend.nonzero">nonzero</a></code></li>
-<li><code><a title="ml4s.backend.jax.JaxBackend.numpy" href="#ml4s.backend.jax.JaxBackend.numpy">numpy</a></code></li>
-<li><code><a title="ml4s.backend.jax.JaxBackend.numpy_call" href="#ml4s.backend.jax.JaxBackend.numpy_call">numpy_call</a></code></li>
-<li><code><a title="ml4s.backend.jax.JaxBackend.ones" href="#ml4s.backend.jax.JaxBackend.ones">ones</a></code></li>
-<li><code><a title="ml4s.backend.jax.JaxBackend.ones_like" href="#ml4s.backend.jax.JaxBackend.ones_like">ones_like</a></code></li>
-<li><code><a title="ml4s.backend.jax.JaxBackend.pad" href="#ml4s.backend.jax.JaxBackend.pad">pad</a></code></li>
-<li><code><a title="ml4s.backend.jax.JaxBackend.prefers_channels_last" href="#ml4s.backend.jax.JaxBackend.prefers_channels_last">prefers_channels_last</a></code></li>
-<li><code><a title="ml4s.backend.jax.JaxBackend.prod" href="#ml4s.backend.jax.JaxBackend.prod">prod</a></code></li>
-<li><code><a title="ml4s.backend.jax.JaxBackend.quantile" href="#ml4s.backend.jax.JaxBackend.quantile">quantile</a></code></li>
-<li><code><a title="ml4s.backend.jax.JaxBackend.random_normal" href="#ml4s.backend.jax.JaxBackend.random_normal">random_normal</a></code></li>
-<li><code><a title="ml4s.backend.jax.JaxBackend.random_uniform" href="#ml4s.backend.jax.JaxBackend.random_uniform">random_uniform</a></code></li>
-<li><code><a title="ml4s.backend.jax.JaxBackend.range" href="#ml4s.backend.jax.JaxBackend.range">range</a></code></li>
-<li><code><a title="ml4s.backend.jax.JaxBackend.ravel_multi_index" href="#ml4s.backend.jax.JaxBackend.ravel_multi_index">ravel_multi_index</a></code></li>
-<li><code><a title="ml4s.backend.jax.JaxBackend.real" href="#ml4s.backend.jax.JaxBackend.real">real</a></code></li>
-<li><code><a title="ml4s.backend.jax.JaxBackend.repeat" href="#ml4s.backend.jax.JaxBackend.repeat">repeat</a></code></li>
-<li><code><a title="ml4s.backend.jax.JaxBackend.requires_fixed_shapes_when_tracing" href="#ml4s.backend.jax.JaxBackend.requires_fixed_shapes_when_tracing">requires_fixed_shapes_when_tracing</a></code></li>
-<li><code><a title="ml4s.backend.jax.JaxBackend.reshape" href="#ml4s.backend.jax.JaxBackend.reshape">reshape</a></code></li>
-<li><code><a title="ml4s.backend.jax.JaxBackend.round" href="#ml4s.backend.jax.JaxBackend.round">round</a></code></li>
-<li><code><a title="ml4s.backend.jax.JaxBackend.scatter" href="#ml4s.backend.jax.JaxBackend.scatter">scatter</a></code></li>
-<li><code><a title="ml4s.backend.jax.JaxBackend.searchsorted" href="#ml4s.backend.jax.JaxBackend.searchsorted">searchsorted</a></code></li>
-<li><code><a title="ml4s.backend.jax.JaxBackend.seed" href="#ml4s.backend.jax.JaxBackend.seed">seed</a></code></li>
-<li><code><a title="ml4s.backend.jax.JaxBackend.shape" href="#ml4s.backend.jax.JaxBackend.shape">shape</a></code></li>
-<li><code><a title="ml4s.backend.jax.JaxBackend.sign" href="#ml4s.backend.jax.JaxBackend.sign">sign</a></code></li>
-<li><code><a title="ml4s.backend.jax.JaxBackend.sin" href="#ml4s.backend.jax.JaxBackend.sin">sin</a></code></li>
-<li><code><a title="ml4s.backend.jax.JaxBackend.sinh" href="#ml4s.backend.jax.JaxBackend.sinh">sinh</a></code></li>
-<li><code><a title="ml4s.backend.jax.JaxBackend.softplus" href="#ml4s.backend.jax.JaxBackend.softplus">softplus</a></code></li>
-<li><code><a title="ml4s.backend.jax.JaxBackend.solve_triangular_dense" href="#ml4s.backend.jax.JaxBackend.solve_triangular_dense">solve_triangular_dense</a></code></li>
-<li><code><a title="ml4s.backend.jax.JaxBackend.sparse_coo_tensor" href="#ml4s.backend.jax.JaxBackend.sparse_coo_tensor">sparse_coo_tensor</a></code></li>
-<li><code><a title="ml4s.backend.jax.JaxBackend.sqrt" href="#ml4s.backend.jax.JaxBackend.sqrt">sqrt</a></code></li>
-<li><code><a title="ml4s.backend.jax.JaxBackend.stack" href="#ml4s.backend.jax.JaxBackend.stack">stack</a></code></li>
-<li><code><a title="ml4s.backend.jax.JaxBackend.staticshape" href="#ml4s.backend.jax.JaxBackend.staticshape">staticshape</a></code></li>
-<li><code><a title="ml4s.backend.jax.JaxBackend.std" href="#ml4s.backend.jax.JaxBackend.std">std</a></code></li>
-<li><code><a title="ml4s.backend.jax.JaxBackend.stop_gradient" href="#ml4s.backend.jax.JaxBackend.stop_gradient">stop_gradient</a></code></li>
-<li><code><a title="ml4s.backend.jax.JaxBackend.sum" href="#ml4s.backend.jax.JaxBackend.sum">sum</a></code></li>
-<li><code><a title="ml4s.backend.jax.JaxBackend.tan" href="#ml4s.backend.jax.JaxBackend.tan">tan</a></code></li>
-<li><code><a title="ml4s.backend.jax.JaxBackend.tanh" href="#ml4s.backend.jax.JaxBackend.tanh">tanh</a></code></li>
-<li><code><a title="ml4s.backend.jax.JaxBackend.tensordot" href="#ml4s.backend.jax.JaxBackend.tensordot">tensordot</a></code></li>
-<li><code><a title="ml4s.backend.jax.JaxBackend.tile" href="#ml4s.backend.jax.JaxBackend.tile">tile</a></code></li>
-<li><code><a title="ml4s.backend.jax.JaxBackend.to_dlpack" href="#ml4s.backend.jax.JaxBackend.to_dlpack">to_dlpack</a></code></li>
-<li><code><a title="ml4s.backend.jax.JaxBackend.transpose" href="#ml4s.backend.jax.JaxBackend.transpose">transpose</a></code></li>
-<li><code><a title="ml4s.backend.jax.JaxBackend.unravel_index" href="#ml4s.backend.jax.JaxBackend.unravel_index">unravel_index</a></code></li>
-<li><code><a title="ml4s.backend.jax.JaxBackend.vectorized_call" href="#ml4s.backend.jax.JaxBackend.vectorized_call">vectorized_call</a></code></li>
-<li><code><a title="ml4s.backend.jax.JaxBackend.where" href="#ml4s.backend.jax.JaxBackend.where">where</a></code></li>
-<li><code><a title="ml4s.backend.jax.JaxBackend.while_loop" href="#ml4s.backend.jax.JaxBackend.while_loop">while_loop</a></code></li>
-<li><code><a title="ml4s.backend.jax.JaxBackend.zeros" href="#ml4s.backend.jax.JaxBackend.zeros">zeros</a></code></li>
-<li><code><a title="ml4s.backend.jax.JaxBackend.zeros_like" href="#ml4s.backend.jax.JaxBackend.zeros_like">zeros_like</a></code></li>
+<li><code><a title="phiml.backend.jax.JaxBackend.abs" href="#phiml.backend.jax.JaxBackend.abs">abs</a></code></li>
+<li><code><a title="phiml.backend.jax.JaxBackend.all" href="#phiml.backend.jax.JaxBackend.all">all</a></code></li>
+<li><code><a title="phiml.backend.jax.JaxBackend.allocate_on_device" href="#phiml.backend.jax.JaxBackend.allocate_on_device">allocate_on_device</a></code></li>
+<li><code><a title="phiml.backend.jax.JaxBackend.any" href="#phiml.backend.jax.JaxBackend.any">any</a></code></li>
+<li><code><a title="phiml.backend.jax.JaxBackend.arccos" href="#phiml.backend.jax.JaxBackend.arccos">arccos</a></code></li>
+<li><code><a title="phiml.backend.jax.JaxBackend.arccosh" href="#phiml.backend.jax.JaxBackend.arccosh">arccosh</a></code></li>
+<li><code><a title="phiml.backend.jax.JaxBackend.arcsin" href="#phiml.backend.jax.JaxBackend.arcsin">arcsin</a></code></li>
+<li><code><a title="phiml.backend.jax.JaxBackend.arcsinh" href="#phiml.backend.jax.JaxBackend.arcsinh">arcsinh</a></code></li>
+<li><code><a title="phiml.backend.jax.JaxBackend.arctan" href="#phiml.backend.jax.JaxBackend.arctan">arctan</a></code></li>
+<li><code><a title="phiml.backend.jax.JaxBackend.arctan2" href="#phiml.backend.jax.JaxBackend.arctan2">arctan2</a></code></li>
+<li><code><a title="phiml.backend.jax.JaxBackend.arctanh" href="#phiml.backend.jax.JaxBackend.arctanh">arctanh</a></code></li>
+<li><code><a title="phiml.backend.jax.JaxBackend.argsort" href="#phiml.backend.jax.JaxBackend.argsort">argsort</a></code></li>
+<li><code><a title="phiml.backend.jax.JaxBackend.as_tensor" href="#phiml.backend.jax.JaxBackend.as_tensor">as_tensor</a></code></li>
+<li><code><a title="phiml.backend.jax.JaxBackend.batched_gather_nd" href="#phiml.backend.jax.JaxBackend.batched_gather_nd">batched_gather_nd</a></code></li>
+<li><code><a title="phiml.backend.jax.JaxBackend.bincount" href="#phiml.backend.jax.JaxBackend.bincount">bincount</a></code></li>
+<li><code><a title="phiml.backend.jax.JaxBackend.block_until_ready" href="#phiml.backend.jax.JaxBackend.block_until_ready">block_until_ready</a></code></li>
+<li><code><a title="phiml.backend.jax.JaxBackend.boolean_mask" href="#phiml.backend.jax.JaxBackend.boolean_mask">boolean_mask</a></code></li>
+<li><code><a title="phiml.backend.jax.JaxBackend.cast" href="#phiml.backend.jax.JaxBackend.cast">cast</a></code></li>
+<li><code><a title="phiml.backend.jax.JaxBackend.ceil" href="#phiml.backend.jax.JaxBackend.ceil">ceil</a></code></li>
+<li><code><a title="phiml.backend.jax.JaxBackend.clip" href="#phiml.backend.jax.JaxBackend.clip">clip</a></code></li>
+<li><code><a title="phiml.backend.jax.JaxBackend.concat" href="#phiml.backend.jax.JaxBackend.concat">concat</a></code></li>
+<li><code><a title="phiml.backend.jax.JaxBackend.conj" href="#phiml.backend.jax.JaxBackend.conj">conj</a></code></li>
+<li><code><a title="phiml.backend.jax.JaxBackend.conv" href="#phiml.backend.jax.JaxBackend.conv">conv</a></code></li>
+<li><code><a title="phiml.backend.jax.JaxBackend.copy" href="#phiml.backend.jax.JaxBackend.copy">copy</a></code></li>
+<li><code><a title="phiml.backend.jax.JaxBackend.cos" href="#phiml.backend.jax.JaxBackend.cos">cos</a></code></li>
+<li><code><a title="phiml.backend.jax.JaxBackend.cosh" href="#phiml.backend.jax.JaxBackend.cosh">cosh</a></code></li>
+<li><code><a title="phiml.backend.jax.JaxBackend.cumsum" href="#phiml.backend.jax.JaxBackend.cumsum">cumsum</a></code></li>
+<li><code><a title="phiml.backend.jax.JaxBackend.custom_gradient" href="#phiml.backend.jax.JaxBackend.custom_gradient">custom_gradient</a></code></li>
+<li><code><a title="phiml.backend.jax.JaxBackend.divide_no_nan" href="#phiml.backend.jax.JaxBackend.divide_no_nan">divide_no_nan</a></code></li>
+<li><code><a title="phiml.backend.jax.JaxBackend.dtype" href="#phiml.backend.jax.JaxBackend.dtype">dtype</a></code></li>
+<li><code><a title="phiml.backend.jax.JaxBackend.einsum" href="#phiml.backend.jax.JaxBackend.einsum">einsum</a></code></li>
+<li><code><a title="phiml.backend.jax.JaxBackend.equal" href="#phiml.backend.jax.JaxBackend.equal">equal</a></code></li>
+<li><code><a title="phiml.backend.jax.JaxBackend.exp" href="#phiml.backend.jax.JaxBackend.exp">exp</a></code></li>
+<li><code><a title="phiml.backend.jax.JaxBackend.expand_dims" href="#phiml.backend.jax.JaxBackend.expand_dims">expand_dims</a></code></li>
+<li><code><a title="phiml.backend.jax.JaxBackend.fft" href="#phiml.backend.jax.JaxBackend.fft">fft</a></code></li>
+<li><code><a title="phiml.backend.jax.JaxBackend.flip" href="#phiml.backend.jax.JaxBackend.flip">flip</a></code></li>
+<li><code><a title="phiml.backend.jax.JaxBackend.floor" href="#phiml.backend.jax.JaxBackend.floor">floor</a></code></li>
+<li><code><a title="phiml.backend.jax.JaxBackend.from_dlpack" href="#phiml.backend.jax.JaxBackend.from_dlpack">from_dlpack</a></code></li>
+<li><code><a title="phiml.backend.jax.JaxBackend.gather" href="#phiml.backend.jax.JaxBackend.gather">gather</a></code></li>
+<li><code><a title="phiml.backend.jax.JaxBackend.get_device" href="#phiml.backend.jax.JaxBackend.get_device">get_device</a></code></li>
+<li><code><a title="phiml.backend.jax.JaxBackend.get_diagonal" href="#phiml.backend.jax.JaxBackend.get_diagonal">get_diagonal</a></code></li>
+<li><code><a title="phiml.backend.jax.JaxBackend.histogram1d" href="#phiml.backend.jax.JaxBackend.histogram1d">histogram1d</a></code></li>
+<li><code><a title="phiml.backend.jax.JaxBackend.ifft" href="#phiml.backend.jax.JaxBackend.ifft">ifft</a></code></li>
+<li><code><a title="phiml.backend.jax.JaxBackend.imag" href="#phiml.backend.jax.JaxBackend.imag">imag</a></code></li>
+<li><code><a title="phiml.backend.jax.JaxBackend.is_available" href="#phiml.backend.jax.JaxBackend.is_available">is_available</a></code></li>
+<li><code><a title="phiml.backend.jax.JaxBackend.is_module" href="#phiml.backend.jax.JaxBackend.is_module">is_module</a></code></li>
+<li><code><a title="phiml.backend.jax.JaxBackend.is_sparse" href="#phiml.backend.jax.JaxBackend.is_sparse">is_sparse</a></code></li>
+<li><code><a title="phiml.backend.jax.JaxBackend.is_tensor" href="#phiml.backend.jax.JaxBackend.is_tensor">is_tensor</a></code></li>
+<li><code><a title="phiml.backend.jax.JaxBackend.isfinite" href="#phiml.backend.jax.JaxBackend.isfinite">isfinite</a></code></li>
+<li><code><a title="phiml.backend.jax.JaxBackend.isinf" href="#phiml.backend.jax.JaxBackend.isinf">isinf</a></code></li>
+<li><code><a title="phiml.backend.jax.JaxBackend.isnan" href="#phiml.backend.jax.JaxBackend.isnan">isnan</a></code></li>
+<li><code><a title="phiml.backend.jax.JaxBackend.jacobian" href="#phiml.backend.jax.JaxBackend.jacobian">jacobian</a></code></li>
+<li><code><a title="phiml.backend.jax.JaxBackend.jit_compile" href="#phiml.backend.jax.JaxBackend.jit_compile">jit_compile</a></code></li>
+<li><code><a title="phiml.backend.jax.JaxBackend.linspace" href="#phiml.backend.jax.JaxBackend.linspace">linspace</a></code></li>
+<li><code><a title="phiml.backend.jax.JaxBackend.linspace_without_last" href="#phiml.backend.jax.JaxBackend.linspace_without_last">linspace_without_last</a></code></li>
+<li><code><a title="phiml.backend.jax.JaxBackend.log" href="#phiml.backend.jax.JaxBackend.log">log</a></code></li>
+<li><code><a title="phiml.backend.jax.JaxBackend.log10" href="#phiml.backend.jax.JaxBackend.log10">log10</a></code></li>
+<li><code><a title="phiml.backend.jax.JaxBackend.log2" href="#phiml.backend.jax.JaxBackend.log2">log2</a></code></li>
+<li><code><a title="phiml.backend.jax.JaxBackend.log_gamma" href="#phiml.backend.jax.JaxBackend.log_gamma">log_gamma</a></code></li>
+<li><code><a title="phiml.backend.jax.JaxBackend.matrix_solve_least_squares" href="#phiml.backend.jax.JaxBackend.matrix_solve_least_squares">matrix_solve_least_squares</a></code></li>
+<li><code><a title="phiml.backend.jax.JaxBackend.max" href="#phiml.backend.jax.JaxBackend.max">max</a></code></li>
+<li><code><a title="phiml.backend.jax.JaxBackend.maximum" href="#phiml.backend.jax.JaxBackend.maximum">maximum</a></code></li>
+<li><code><a title="phiml.backend.jax.JaxBackend.mean" href="#phiml.backend.jax.JaxBackend.mean">mean</a></code></li>
+<li><code><a title="phiml.backend.jax.JaxBackend.meshgrid" href="#phiml.backend.jax.JaxBackend.meshgrid">meshgrid</a></code></li>
+<li><code><a title="phiml.backend.jax.JaxBackend.min" href="#phiml.backend.jax.JaxBackend.min">min</a></code></li>
+<li><code><a title="phiml.backend.jax.JaxBackend.minimum" href="#phiml.backend.jax.JaxBackend.minimum">minimum</a></code></li>
+<li><code><a title="phiml.backend.jax.JaxBackend.mul" href="#phiml.backend.jax.JaxBackend.mul">mul</a></code></li>
+<li><code><a title="phiml.backend.jax.JaxBackend.mul_matrix_batched_vector" href="#phiml.backend.jax.JaxBackend.mul_matrix_batched_vector">mul_matrix_batched_vector</a></code></li>
+<li><code><a title="phiml.backend.jax.JaxBackend.nn_library" href="#phiml.backend.jax.JaxBackend.nn_library">nn_library</a></code></li>
+<li><code><a title="phiml.backend.jax.JaxBackend.nonzero" href="#phiml.backend.jax.JaxBackend.nonzero">nonzero</a></code></li>
+<li><code><a title="phiml.backend.jax.JaxBackend.numpy" href="#phiml.backend.jax.JaxBackend.numpy">numpy</a></code></li>
+<li><code><a title="phiml.backend.jax.JaxBackend.numpy_call" href="#phiml.backend.jax.JaxBackend.numpy_call">numpy_call</a></code></li>
+<li><code><a title="phiml.backend.jax.JaxBackend.ones" href="#phiml.backend.jax.JaxBackend.ones">ones</a></code></li>
+<li><code><a title="phiml.backend.jax.JaxBackend.ones_like" href="#phiml.backend.jax.JaxBackend.ones_like">ones_like</a></code></li>
+<li><code><a title="phiml.backend.jax.JaxBackend.pad" href="#phiml.backend.jax.JaxBackend.pad">pad</a></code></li>
+<li><code><a title="phiml.backend.jax.JaxBackend.prefers_channels_last" href="#phiml.backend.jax.JaxBackend.prefers_channels_last">prefers_channels_last</a></code></li>
+<li><code><a title="phiml.backend.jax.JaxBackend.prod" href="#phiml.backend.jax.JaxBackend.prod">prod</a></code></li>
+<li><code><a title="phiml.backend.jax.JaxBackend.quantile" href="#phiml.backend.jax.JaxBackend.quantile">quantile</a></code></li>
+<li><code><a title="phiml.backend.jax.JaxBackend.random_normal" href="#phiml.backend.jax.JaxBackend.random_normal">random_normal</a></code></li>
+<li><code><a title="phiml.backend.jax.JaxBackend.random_uniform" href="#phiml.backend.jax.JaxBackend.random_uniform">random_uniform</a></code></li>
+<li><code><a title="phiml.backend.jax.JaxBackend.range" href="#phiml.backend.jax.JaxBackend.range">range</a></code></li>
+<li><code><a title="phiml.backend.jax.JaxBackend.ravel_multi_index" href="#phiml.backend.jax.JaxBackend.ravel_multi_index">ravel_multi_index</a></code></li>
+<li><code><a title="phiml.backend.jax.JaxBackend.real" href="#phiml.backend.jax.JaxBackend.real">real</a></code></li>
+<li><code><a title="phiml.backend.jax.JaxBackend.repeat" href="#phiml.backend.jax.JaxBackend.repeat">repeat</a></code></li>
+<li><code><a title="phiml.backend.jax.JaxBackend.requires_fixed_shapes_when_tracing" href="#phiml.backend.jax.JaxBackend.requires_fixed_shapes_when_tracing">requires_fixed_shapes_when_tracing</a></code></li>
+<li><code><a title="phiml.backend.jax.JaxBackend.reshape" href="#phiml.backend.jax.JaxBackend.reshape">reshape</a></code></li>
+<li><code><a title="phiml.backend.jax.JaxBackend.round" href="#phiml.backend.jax.JaxBackend.round">round</a></code></li>
+<li><code><a title="phiml.backend.jax.JaxBackend.scatter" href="#phiml.backend.jax.JaxBackend.scatter">scatter</a></code></li>
+<li><code><a title="phiml.backend.jax.JaxBackend.searchsorted" href="#phiml.backend.jax.JaxBackend.searchsorted">searchsorted</a></code></li>
+<li><code><a title="phiml.backend.jax.JaxBackend.seed" href="#phiml.backend.jax.JaxBackend.seed">seed</a></code></li>
+<li><code><a title="phiml.backend.jax.JaxBackend.shape" href="#phiml.backend.jax.JaxBackend.shape">shape</a></code></li>
+<li><code><a title="phiml.backend.jax.JaxBackend.sign" href="#phiml.backend.jax.JaxBackend.sign">sign</a></code></li>
+<li><code><a title="phiml.backend.jax.JaxBackend.sin" href="#phiml.backend.jax.JaxBackend.sin">sin</a></code></li>
+<li><code><a title="phiml.backend.jax.JaxBackend.sinh" href="#phiml.backend.jax.JaxBackend.sinh">sinh</a></code></li>
+<li><code><a title="phiml.backend.jax.JaxBackend.softplus" href="#phiml.backend.jax.JaxBackend.softplus">softplus</a></code></li>
+<li><code><a title="phiml.backend.jax.JaxBackend.solve_triangular_dense" href="#phiml.backend.jax.JaxBackend.solve_triangular_dense">solve_triangular_dense</a></code></li>
+<li><code><a title="phiml.backend.jax.JaxBackend.sparse_coo_tensor" href="#phiml.backend.jax.JaxBackend.sparse_coo_tensor">sparse_coo_tensor</a></code></li>
+<li><code><a title="phiml.backend.jax.JaxBackend.sqrt" href="#phiml.backend.jax.JaxBackend.sqrt">sqrt</a></code></li>
+<li><code><a title="phiml.backend.jax.JaxBackend.stack" href="#phiml.backend.jax.JaxBackend.stack">stack</a></code></li>
+<li><code><a title="phiml.backend.jax.JaxBackend.staticshape" href="#phiml.backend.jax.JaxBackend.staticshape">staticshape</a></code></li>
+<li><code><a title="phiml.backend.jax.JaxBackend.std" href="#phiml.backend.jax.JaxBackend.std">std</a></code></li>
+<li><code><a title="phiml.backend.jax.JaxBackend.stop_gradient" href="#phiml.backend.jax.JaxBackend.stop_gradient">stop_gradient</a></code></li>
+<li><code><a title="phiml.backend.jax.JaxBackend.sum" href="#phiml.backend.jax.JaxBackend.sum">sum</a></code></li>
+<li><code><a title="phiml.backend.jax.JaxBackend.tan" href="#phiml.backend.jax.JaxBackend.tan">tan</a></code></li>
+<li><code><a title="phiml.backend.jax.JaxBackend.tanh" href="#phiml.backend.jax.JaxBackend.tanh">tanh</a></code></li>
+<li><code><a title="phiml.backend.jax.JaxBackend.tensordot" href="#phiml.backend.jax.JaxBackend.tensordot">tensordot</a></code></li>
+<li><code><a title="phiml.backend.jax.JaxBackend.tile" href="#phiml.backend.jax.JaxBackend.tile">tile</a></code></li>
+<li><code><a title="phiml.backend.jax.JaxBackend.to_dlpack" href="#phiml.backend.jax.JaxBackend.to_dlpack">to_dlpack</a></code></li>
+<li><code><a title="phiml.backend.jax.JaxBackend.transpose" href="#phiml.backend.jax.JaxBackend.transpose">transpose</a></code></li>
+<li><code><a title="phiml.backend.jax.JaxBackend.unravel_index" href="#phiml.backend.jax.JaxBackend.unravel_index">unravel_index</a></code></li>
+<li><code><a title="phiml.backend.jax.JaxBackend.vectorized_call" href="#phiml.backend.jax.JaxBackend.vectorized_call">vectorized_call</a></code></li>
+<li><code><a title="phiml.backend.jax.JaxBackend.where" href="#phiml.backend.jax.JaxBackend.where">where</a></code></li>
+<li><code><a title="phiml.backend.jax.JaxBackend.while_loop" href="#phiml.backend.jax.JaxBackend.while_loop">while_loop</a></code></li>
+<li><code><a title="phiml.backend.jax.JaxBackend.zeros" href="#phiml.backend.jax.JaxBackend.zeros">zeros</a></code></li>
+<li><code><a title="phiml.backend.jax.JaxBackend.zeros_like" href="#phiml.backend.jax.JaxBackend.zeros_like">zeros_like</a></code></li>
 </ul>
 </li>
 </ul>

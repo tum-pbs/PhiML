@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
 <meta name="generator" content="pdoc 0.10.0" />
-<title>ml4s.nn API documentation</title>
+<title>phiml.nn API documentation</title>
 <meta name="description" content="Unified neural network library.
 Includes …" />
 <link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
@@ -20,7 +20,7 @@ Includes …" />
 <main>
 <article id="content">
 <header>
-<h1 class="title">Module <code>ml4s.nn</code></h1>
+<h1 class="title">Module <code>phiml.nn</code></h1>
 </header>
 <section id="section-intro">
 <p>Unified neural network library.
@@ -98,7 +98,7 @@ def get_parameters(net: Network) -&gt; Dict[str, Tensor]:
         net: Neural network.
 
     Returns:
-        `dict` mapping parameter names to `ml4s.math.Tensor`s.
+        `dict` mapping parameter names to `phiml.math.Tensor`s.
     &#34;&#34;&#34;
     return _native_lib().get_parameters(net)
 
@@ -191,7 +191,7 @@ def mlp(in_channels: int,
               activation: Union[str, Callable] = &#39;ReLU&#39;,
               softmax=False) -&gt; Network:
     &#34;&#34;&#34;
-    Fully-connected neural networks are available in ML4Science via mlp().
+    Fully-connected neural networks are available in Φ-ML via mlp().
 
     Args:
         in_channels : size of input layer, int
@@ -361,7 +361,7 @@ def invertible_net(num_blocks: int = 3,
 <section>
 <h2 class="section-title" id="header-functions">Functions</h2>
 <dl>
-<dt id="ml4s.nn.adagrad"><code class="name flex">
+<dt id="phiml.nn.adagrad"><code class="name flex">
 <span>def <span class="ident">adagrad</span></span>(<span>net: ~Network, learning_rate: float = 0.001, lr_decay=0, weight_decay=0, initial_accumulator_value=0, eps=1e-10)</span>
 </code></dt>
 <dd>
@@ -380,7 +380,7 @@ Analogue functions exist for other learning frameworks.</p></div>
     return _native_lib().adagrad(**locals())</code></pre>
 </details>
 </dd>
-<dt id="ml4s.nn.adam"><code class="name flex">
+<dt id="phiml.nn.adam"><code class="name flex">
 <span>def <span class="ident">adam</span></span>(<span>net: ~Network, learning_rate: float = 0.001, betas=(0.9, 0.999), epsilon=1e-07)</span>
 </code></dt>
 <dd>
@@ -398,7 +398,7 @@ Analogue functions exist for other learning frameworks.</p></div>
     return _native_lib().adam(**locals())</code></pre>
 </details>
 </dd>
-<dt id="ml4s.nn.conv_classifier"><code class="name flex">
+<dt id="phiml.nn.conv_classifier"><code class="name flex">
 <span>def <span class="ident">conv_classifier</span></span>(<span>in_features: int, in_spatial: Union[tuple, list], num_classes: int, blocks=(64, 128, 256, 256, 512, 512), block_sizes=(2, 2, 3, 3, 3), dense_layers=(4096, 4096, 100), batch_norm=True, activation='ReLU', softmax=True, periodic=False)</span>
 </code></dt>
 <dd>
@@ -423,7 +423,7 @@ Analogue functions exist for other learning frameworks.</p></div>
     return _native_lib().conv_classifier(**locals())</code></pre>
 </details>
 </dd>
-<dt id="ml4s.nn.conv_net"><code class="name flex">
+<dt id="phiml.nn.conv_net"><code class="name flex">
 <span>def <span class="ident">conv_net</span></span>(<span>in_channels: int, out_channels: int, layers: Sequence[int], batch_norm: bool = False, activation: Union[str, type] = 'ReLU', in_spatial: Union[int, tuple] = 2, periodic=False) ‑> ~Network</span>
 </code></dt>
 <dd>
@@ -465,8 +465,8 @@ in_spatial : spatial dimensions of the input feature map, dtype : int</p>
     return _native_lib().conv_net(**locals())</code></pre>
 </details>
 </dd>
-<dt id="ml4s.nn.get_parameters"><code class="name flex">
-<span>def <span class="ident">get_parameters</span></span>(<span>net: ~Network) ‑> Dict[str, ml4s.math._tensors.Tensor]</span>
+<dt id="phiml.nn.get_parameters"><code class="name flex">
+<span>def <span class="ident">get_parameters</span></span>(<span>net: ~Network) ‑> Dict[str, phiml.math._tensors.Tensor]</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Returns all parameters of a neural network.</p>
@@ -476,7 +476,7 @@ in_spatial : spatial dimensions of the input feature map, dtype : int</p>
 <dd>Neural network.</dd>
 </dl>
 <h2 id="returns">Returns</h2>
-<p><code>dict</code> mapping parameter names to <code><a title="ml4s.math.Tensor" href="math/index.html#ml4s.math.Tensor">Tensor</a></code>s.</p></div>
+<p><code>dict</code> mapping parameter names to <code><a title="phiml.math.Tensor" href="math/index.html#phiml.math.Tensor">Tensor</a></code>s.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -489,12 +489,12 @@ in_spatial : spatial dimensions of the input feature map, dtype : int</p>
         net: Neural network.
 
     Returns:
-        `dict` mapping parameter names to `ml4s.math.Tensor`s.
+        `dict` mapping parameter names to `phiml.math.Tensor`s.
     &#34;&#34;&#34;
     return _native_lib().get_parameters(net)</code></pre>
 </details>
 </dd>
-<dt id="ml4s.nn.invertible_net"><code class="name flex">
+<dt id="phiml.nn.invertible_net"><code class="name flex">
 <span>def <span class="ident">invertible_net</span></span>(<span>num_blocks: int = 3, construct_net: Union[str, Callable] = 'u_net', **construct_kwargs)</span>
 </code></dt>
 <dd>
@@ -508,7 +508,7 @@ The architecture used is popularized by <a href="https://arxiv.org/abs/1605.0880
 <p>num_blocks : number of coupling blocks inside the invertible net, dtype : int
 construct_net : Function to construct one part of the neural network.
 This network must have the same number of inputs and outputs.
-Can be a <code>lambda</code> function or one of the following strings: <code><a title="ml4s.nn.mlp" href="#ml4s.nn.mlp">mlp()</a>, <a title="ml4s.nn.u_net" href="#ml4s.nn.u_net">u_net()</a>, <a title="ml4s.nn.res_net" href="#ml4s.nn.res_net">res_net()</a>, <a title="ml4s.nn.conv_net" href="#ml4s.nn.conv_net">conv_net()</a></code>
+Can be a <code>lambda</code> function or one of the following strings: <code><a title="phiml.nn.mlp" href="#phiml.nn.mlp">mlp()</a>, <a title="phiml.nn.u_net" href="#phiml.nn.u_net">u_net()</a>, <a title="phiml.nn.res_net" href="#phiml.nn.res_net">res_net()</a>, <a title="phiml.nn.conv_net" href="#phiml.nn.conv_net">conv_net()</a></code>
 construct_kwargs : Keyword arguments passed to <code>construct_net</code>.</p>
 <h2 id="returns">Returns</h2>
 <p>Invertible neural network model</p></div>
@@ -542,13 +542,13 @@ construct_kwargs : Keyword arguments passed to <code>construct_net</code>.</p>
     return _native_lib().invertible_net(num_blocks, construct_net, **construct_kwargs)</code></pre>
 </details>
 </dd>
-<dt id="ml4s.nn.load_state"><code class="name flex">
+<dt id="phiml.nn.load_state"><code class="name flex">
 <span>def <span class="ident">load_state</span></span>(<span>obj: Union[~Network, ~Optimizer], path: str)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Read the state of a module or optimizer from a file.</p>
 <p>See Also:
-<code><a title="ml4s.nn.save_state" href="#ml4s.nn.save_state">save_state()</a></code></p>
+<code><a title="phiml.nn.save_state" href="#phiml.nn.save_state">save_state()</a></code></p>
 <h2 id="args">Args</h2>
 <dl>
 <dt><strong><code>obj</code></strong></dt>
@@ -574,11 +574,11 @@ construct_kwargs : Keyword arguments passed to <code>construct_net</code>.</p>
     return _native_lib().load_state(**locals())</code></pre>
 </details>
 </dd>
-<dt id="ml4s.nn.mlp"><code class="name flex">
+<dt id="phiml.nn.mlp"><code class="name flex">
 <span>def <span class="ident">mlp</span></span>(<span>in_channels: int, out_channels: int, layers: Sequence[int], batch_norm=False, activation: Union[str, Callable] = 'ReLU', softmax=False) ‑> ~Network</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Fully-connected neural networks are available in ML4Science via mlp().</p>
+<div class="desc"><p>Fully-connected neural networks are available in Φ-ML via mlp().</p>
 <h2 id="args">Args</h2>
 <p>in_channels : size of input layer, int
 out_channels = size of output layer, int
@@ -598,7 +598,7 @@ batch_norm : use of batch norm after each linear layer, bool</p>
               activation: Union[str, Callable] = &#39;ReLU&#39;,
               softmax=False) -&gt; Network:
     &#34;&#34;&#34;
-    Fully-connected neural networks are available in ML4Science via mlp().
+    Fully-connected neural networks are available in Φ-ML via mlp().
 
     Args:
         in_channels : size of input layer, int
@@ -613,13 +613,13 @@ batch_norm : use of batch norm after each linear layer, bool</p>
     return _native_lib().mlp(**locals())</code></pre>
 </details>
 </dd>
-<dt id="ml4s.nn.parameter_count"><code class="name flex">
+<dt id="phiml.nn.parameter_count"><code class="name flex">
 <span>def <span class="ident">parameter_count</span></span>(<span>net: ~Network) ‑> int</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Counts the number of parameters in a model.</p>
 <p>See Also:
-<code><a title="ml4s.nn.get_parameters" href="#ml4s.nn.get_parameters">get_parameters()</a></code>.</p>
+<code><a title="phiml.nn.get_parameters" href="#phiml.nn.get_parameters">get_parameters()</a></code>.</p>
 <h2 id="args">Args</h2>
 <dl>
 <dt><strong><code>net</code></strong></dt>
@@ -647,7 +647,7 @@ batch_norm : use of batch norm after each linear layer, bool</p>
     return sum([value.shape.volume for name, value in get_parameters(net).items()])</code></pre>
 </details>
 </dd>
-<dt id="ml4s.nn.res_net"><code class="name flex">
+<dt id="phiml.nn.res_net"><code class="name flex">
 <span>def <span class="ident">res_net</span></span>(<span>in_channels: int, out_channels: int, layers: Sequence[int], batch_norm: bool = False, activation: Union[str, type] = 'ReLU', in_spatial: Union[int, tuple] = 2, periodic=False) ‑> ~Network</span>
 </code></dt>
 <dd>
@@ -693,7 +693,7 @@ in_spatial : spatial dimensions of the input feature map, dtype : int</p>
     return _native_lib().res_net(**locals())</code></pre>
 </details>
 </dd>
-<dt id="ml4s.nn.rmsprop"><code class="name flex">
+<dt id="phiml.nn.rmsprop"><code class="name flex">
 <span>def <span class="ident">rmsprop</span></span>(<span>net: ~Network, learning_rate: float = 0.001, alpha=0.99, eps=1e-08, weight_decay=0, momentum=0, centered=False)</span>
 </code></dt>
 <dd>
@@ -712,13 +712,13 @@ Analogue functions exist for other learning frameworks.</p></div>
     return _native_lib().rmsprop(**locals())</code></pre>
 </details>
 </dd>
-<dt id="ml4s.nn.save_state"><code class="name flex">
+<dt id="phiml.nn.save_state"><code class="name flex">
 <span>def <span class="ident">save_state</span></span>(<span>obj: Union[~Network, ~Optimizer], path: str)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Write the state of a module or optimizer to a file.</p>
 <p>See Also:
-<code><a title="ml4s.nn.load_state" href="#ml4s.nn.load_state">load_state()</a></code></p>
+<code><a title="phiml.nn.load_state" href="#phiml.nn.load_state">load_state()</a></code></p>
 <h2 id="args">Args</h2>
 <dl>
 <dt><strong><code>obj</code></strong></dt>
@@ -744,7 +744,7 @@ Analogue functions exist for other learning frameworks.</p></div>
     return _native_lib().save_state(**locals())</code></pre>
 </details>
 </dd>
-<dt id="ml4s.nn.sgd"><code class="name flex">
+<dt id="phiml.nn.sgd"><code class="name flex">
 <span>def <span class="ident">sgd</span></span>(<span>net: ~Network, learning_rate: float = 0.001, momentum=0, dampening=0, weight_decay=0, nesterov=False)</span>
 </code></dt>
 <dd>
@@ -762,7 +762,7 @@ Analogue functions exist for other learning frameworks.</p></div>
     return _native_lib().sgd(**locals())</code></pre>
 </details>
 </dd>
-<dt id="ml4s.nn.u_net"><code class="name flex">
+<dt id="phiml.nn.u_net"><code class="name flex">
 <span>def <span class="ident">u_net</span></span>(<span>in_channels: int, out_channels: int, levels: int = 4, filters: Union[int, tuple, list] = 16, batch_norm: bool = True, activation: Union[str, type] = 'ReLU', in_spatial: Union[int, tuple] = 2, periodic=False, use_res_blocks: bool = False) ‑> ~Network</span>
 </code></dt>
 <dd>
@@ -813,7 +813,7 @@ use_res_blocks : use convolutional blocks with skip connections instead of regul
     return _native_lib().u_net(**locals())</code></pre>
 </details>
 </dd>
-<dt id="ml4s.nn.update_weights"><code class="name flex">
+<dt id="phiml.nn.update_weights"><code class="name flex">
 <span>def <span class="ident">update_weights</span></span>(<span>net: ~Network, optimizer: ~Optimizer, loss_function: Callable, *loss_args, **loss_kwargs)</span>
 </code></dt>
 <dd>
@@ -870,26 +870,26 @@ use_res_blocks : use convolutional blocks with skip connections instead of regul
 <ul id="index">
 <li><h3>Super-module</h3>
 <ul>
-<li><code><a title="ml4s" href="index.html">ml4s</a></code></li>
+<li><code><a title="phiml" href="index.html">phiml</a></code></li>
 </ul>
 </li>
 <li><h3><a href="#header-functions">Functions</a></h3>
 <ul class="two-column">
-<li><code><a title="ml4s.nn.adagrad" href="#ml4s.nn.adagrad">adagrad</a></code></li>
-<li><code><a title="ml4s.nn.adam" href="#ml4s.nn.adam">adam</a></code></li>
-<li><code><a title="ml4s.nn.conv_classifier" href="#ml4s.nn.conv_classifier">conv_classifier</a></code></li>
-<li><code><a title="ml4s.nn.conv_net" href="#ml4s.nn.conv_net">conv_net</a></code></li>
-<li><code><a title="ml4s.nn.get_parameters" href="#ml4s.nn.get_parameters">get_parameters</a></code></li>
-<li><code><a title="ml4s.nn.invertible_net" href="#ml4s.nn.invertible_net">invertible_net</a></code></li>
-<li><code><a title="ml4s.nn.load_state" href="#ml4s.nn.load_state">load_state</a></code></li>
-<li><code><a title="ml4s.nn.mlp" href="#ml4s.nn.mlp">mlp</a></code></li>
-<li><code><a title="ml4s.nn.parameter_count" href="#ml4s.nn.parameter_count">parameter_count</a></code></li>
-<li><code><a title="ml4s.nn.res_net" href="#ml4s.nn.res_net">res_net</a></code></li>
-<li><code><a title="ml4s.nn.rmsprop" href="#ml4s.nn.rmsprop">rmsprop</a></code></li>
-<li><code><a title="ml4s.nn.save_state" href="#ml4s.nn.save_state">save_state</a></code></li>
-<li><code><a title="ml4s.nn.sgd" href="#ml4s.nn.sgd">sgd</a></code></li>
-<li><code><a title="ml4s.nn.u_net" href="#ml4s.nn.u_net">u_net</a></code></li>
-<li><code><a title="ml4s.nn.update_weights" href="#ml4s.nn.update_weights">update_weights</a></code></li>
+<li><code><a title="phiml.nn.adagrad" href="#phiml.nn.adagrad">adagrad</a></code></li>
+<li><code><a title="phiml.nn.adam" href="#phiml.nn.adam">adam</a></code></li>
+<li><code><a title="phiml.nn.conv_classifier" href="#phiml.nn.conv_classifier">conv_classifier</a></code></li>
+<li><code><a title="phiml.nn.conv_net" href="#phiml.nn.conv_net">conv_net</a></code></li>
+<li><code><a title="phiml.nn.get_parameters" href="#phiml.nn.get_parameters">get_parameters</a></code></li>
+<li><code><a title="phiml.nn.invertible_net" href="#phiml.nn.invertible_net">invertible_net</a></code></li>
+<li><code><a title="phiml.nn.load_state" href="#phiml.nn.load_state">load_state</a></code></li>
+<li><code><a title="phiml.nn.mlp" href="#phiml.nn.mlp">mlp</a></code></li>
+<li><code><a title="phiml.nn.parameter_count" href="#phiml.nn.parameter_count">parameter_count</a></code></li>
+<li><code><a title="phiml.nn.res_net" href="#phiml.nn.res_net">res_net</a></code></li>
+<li><code><a title="phiml.nn.rmsprop" href="#phiml.nn.rmsprop">rmsprop</a></code></li>
+<li><code><a title="phiml.nn.save_state" href="#phiml.nn.save_state">save_state</a></code></li>
+<li><code><a title="phiml.nn.sgd" href="#phiml.nn.sgd">sgd</a></code></li>
+<li><code><a title="phiml.nn.u_net" href="#phiml.nn.u_net">u_net</a></code></li>
+<li><code><a title="phiml.nn.update_weights" href="#phiml.nn.update_weights">update_weights</a></code></li>
 </ul>
 </li>
 </ul>

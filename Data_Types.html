@@ -15110,17 +15110,17 @@ body[data-format='mobile'] .jp-OutputArea-child .jp-OutputArea-output {
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<h1 id="Data-Types-in-ML4Science">Data Types in ML4Science<a class="anchor-link" href="#Data-Types-in-ML4Science">&#182;</a></h1><p><a href="https://colab.research.google.com/github/tum-pbs/ML4Science/blob/main/docs/Data_Types.ipynb"><img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Colab" /></a>
-  •   <a href="https://github.com/tum-pbs/ML4Science">🌐 <strong>ML4Science</strong></a>
-  •   <a href="https://tum-pbs.github.io/ML4Science/">📖 <strong>Documentation</strong></a>
-  •   <a href="https://tum-pbs.github.io/ML4Science/ml4s">🔗 <strong>API</strong></a>
+<h1 id="Data-Types-in-%CE%A6ML">Data Types in &#934;<sub>ML</sub><a class="anchor-link" href="#Data-Types-in-%CE%A6ML">&#182;</a></h1><p><a href="https://colab.research.google.com/github/tum-pbs/PhiML/blob/main/docs/Data_Types.ipynb"><img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Colab" /></a>
+  •   <a href="https://github.com/tum-pbs/PhiML">🌐 <strong>Φ<sub>ML</sub></strong></a>
+  •   <a href="https://tum-pbs.github.io/%CE%A6%3Csub%3EML%3C/sub%3E/">📖 <strong>Documentation</strong></a>
+  •   <a href="https://tum-pbs.github.io/%CE%A6%3Csub%3EML%3C/sub%3E/phiml">🔗 <strong>API</strong></a>
   •   <a href=""><strong>▶ Videos</strong></a>
-  •   <a href="https://colab.research.google.com/github/tum-pbs/ML4Science/blob/main/docs/Examples.ipynb"><img src="images/colab_logo_small.png" height=4></a> <a href="https://tum-pbs.github.io/ML4Science/Examples.html"><strong>Examples</strong></a></p>
+  •   <a href="https://colab.research.google.com/github/tum-pbs/PhiML/blob/main/docs/Examples.ipynb"><img src="images/colab_logo_small.png" height=4></a> <a href="https://tum-pbs.github.io/%CE%A6%3Csub%3EML%3C/sub%3E/Examples.html"><strong>Examples</strong></a></p>
 <p><em>Need to differentiate but your input is an <code>int</code> tensor?
 Need an <code>int64</code> tensor but got <code>int32</code>?
 Need a <code>tensor</code> but got an <code>ndarray</code>?
 Want an <code>ndarray</code> but your tensor is bound in a computational graph on the GPU?
-Worry no longer for ML4Science has you covered!</em></p>
+Worry no longer for Φ<sub>ML</sub> has you covered!</em></p>
 
 </div>
 </div>
@@ -15134,7 +15134,7 @@ Worry no longer for ML4Science has you covered!</em></p>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython2"><pre><span></span><span class="o">%%capture</span>
-<span class="err">!</span><span class="n">pip</span> <span class="n">install</span> <span class="n">ml4s</span>
+<span class="err">!</span><span class="n">pip</span> <span class="n">install</span> <span class="n">phiml</span>
 </pre></div>
 
      </div>
@@ -15149,9 +15149,9 @@ Worry no longer for ML4Science has you covered!</em></p>
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<h2 id="Floating-Point-Precision">Floating Point Precision<a class="anchor-link" href="#Floating-Point-Precision">&#182;</a></h2><p>A major difference between ML4Science and its backends is the handling of floating point (FP) precision.
+<h2 id="Floating-Point-Precision">Floating Point Precision<a class="anchor-link" href="#Floating-Point-Precision">&#182;</a></h2><p>A major difference between Φ<sub>ML</sub> and its backends is the handling of floating point (FP) precision.
 NumPy automatically casts arrays to the highest precision and other ML libraries will raise errors if data types do not match.
-Instead, ML4Science lets you set the FP precision globally using <a href="ml4s/math/#ml4s.math.set_global_precision"><code>set_global_precision(64)</code></a>
+Instead, Φ<sub>ML</sub> lets you set the FP precision globally using <a href="phiml/math/#phiml.math.set_global_precision"><code>set_global_precision(64)</code></a>
 or by context and automatically casts tensors to that precision when needed.
 The default is FP32 (single precision).
 Let's set the global precision to FP64 (double precision)!</p>
@@ -15167,7 +15167,7 @@ Let's set the global precision to FP64 (double precision)!</p>
 <div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[2]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython2"><pre><span></span><span class="kn">from</span> <span class="nn">ml4s</span> <span class="kn">import</span> <span class="n">math</span>
+<div class=" highlight hl-ipython2"><pre><span></span><span class="kn">from</span> <span class="nn">phiml</span> <span class="kn">import</span> <span class="n">math</span>
 
 <span class="n">math</span><span class="o">.</span><span class="n">set_global_precision</span><span class="p">(</span><span class="mi">64</span><span class="p">)</span>  <span class="c1"># double precision</span>
 </pre></div>
@@ -15235,7 +15235,7 @@ Let's set the global precision to FP64 (double precision)!</p>
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<p>We can run parts of our code with a different precision by executing them within a <a href="ml4s/math/#ml4s.math.precision"><code>precision</code></a> block:</p>
+<p>We can run parts of our code with a different precision by executing them within a <a href="phiml/math/#phiml.math.precision"><code>precision</code></a> block:</p>
 
 </div>
 </div>
@@ -15285,7 +15285,7 @@ Let's set the global precision to FP64 (double precision)!</p>
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<p>ML4Science automatically casts tensors to the current precision level during operations.
+<p>Φ<sub>ML</sub> automatically casts tensors to the current precision level during operations.
 Say we have a <code>float64</code> tensor but want to run 32-bit operations.</p>
 
 </div>
@@ -15338,7 +15338,7 @@ Say we have a <code>float64</code> tensor but want to run 32-bit operations.</p>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
 <p>Here, the tensor was cast to <code>float32</code> before applying the <code>sin</code> function.
-If you want to explicitly cast a tensor to the current precision, use <a href="ml4s/math#ml4s.math.to_float"><code>math.to_float()</code></a></p>
+If you want to explicitly cast a tensor to the current precision, use <a href="phiml/math#phiml.math.to_float"><code>math.to_float()</code></a></p>
 <p>This system precludes any precision conflicts and you will never accidentally execute code with the wrong precision!</p>
 
 </div>
@@ -15351,7 +15351,7 @@ If you want to explicitly cast a tensor to the current precision, use <a href="m
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<h2 id="Specifying-Data-Types">Specifying Data Types<a class="anchor-link" href="#Specifying-Data-Types">&#182;</a></h2><p>ML4Science provides a unified data type class, <a href="ml4s/math#ml4s.math.DType"><code>DType</code></a>.
+<h2 id="Specifying-Data-Types">Specifying Data Types<a class="anchor-link" href="#Specifying-Data-Types">&#182;</a></h2><p>Φ<sub>ML</sub> provides a unified data type class, <a href="phiml/math#phiml.math.DType"><code>DType</code></a>.
 However, you only need to specify the data type when creating a new <code>Tensor</code> from scratch.
 When wrapping an existing tensor, the data type is kept as-is.</p>
 
@@ -15366,7 +15366,7 @@ When wrapping an existing tensor, the data type is kept as-is.</p>
 <div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[6]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython2"><pre><span></span><span class="kn">from</span> <span class="nn">ml4s.math</span> <span class="kn">import</span> <span class="n">DType</span>
+<div class=" highlight hl-ipython2"><pre><span></span><span class="kn">from</span> <span class="nn">phiml.math</span> <span class="kn">import</span> <span class="n">DType</span>
 
 <span class="n">math</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">dtype</span><span class="o">=</span><span class="n">DType</span><span class="p">(</span><span class="nb">float</span><span class="p">,</span> <span class="mi">16</span><span class="p">))</span>
 </pre></div>
@@ -15588,11 +15588,11 @@ Then, just specify the kind of data type (<code>bool</code>, <code>int</code>, <
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<h2 id="Further-Reading">Further Reading<a class="anchor-link" href="#Further-Reading">&#182;</a></h2><p><a href="https://github.com/tum-pbs/ML4Science">🌐 <strong>ML4Science</strong></a>
-  •   <a href="https://tum-pbs.github.io/ML4Science/">📖 <strong>Documentation</strong></a>
-  •   <a href="https://tum-pbs.github.io/ML4Science/ml4s">🔗 <strong>API</strong></a>
+<h2 id="Further-Reading">Further Reading<a class="anchor-link" href="#Further-Reading">&#182;</a></h2><p><a href="https://github.com/tum-pbs/PhiML">🌐 <strong>Φ<sub>ML</sub></strong></a>
+  •   <a href="https://tum-pbs.github.io/%CE%A6%3Csub%3EML%3C/sub%3E/">📖 <strong>Documentation</strong></a>
+  •   <a href="https://tum-pbs.github.io/%CE%A6%3Csub%3EML%3C/sub%3E/phiml">🔗 <strong>API</strong></a>
   •   <a href=""><strong>▶ Videos</strong></a>
-  •   <a href="https://colab.research.google.com/github/tum-pbs/ML4Science/blob/main/docs/Examples.ipynb"><img src="images/colab_logo_small.png" height=4></a> <a href="https://tum-pbs.github.io/ML4Science/Examples.html"><strong>Examples</strong></a></p>
+  •   <a href="https://colab.research.google.com/github/tum-pbs/PhiML/blob/main/docs/Examples.ipynb"><img src="images/colab_logo_small.png" height=4></a> <a href="https://tum-pbs.github.io/%CE%A6%3Csub%3EML%3C/sub%3E/Examples.html"><strong>Examples</strong></a></p>
 
 </div>
 </div>

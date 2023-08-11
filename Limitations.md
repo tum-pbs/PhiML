@@ -1,4 +1,4 @@
-# What to avoid in ML4Science
+# What to avoid in Φ<sub>ML</sub>
 
 The feature sets of PyTorch, Jax and TensorFlow vary, especially when it comes to function operations.
 This document outlines what should be avoided in order to keep your code compatible with all backends.
@@ -27,7 +27,7 @@ This may result in errors when jit-compiling the function.
 ### Do not jit-compile neural networks (Jax)
 Do not run neural networks within jit-compiled functions.
 The only exception is the `loss_function` passed to `update_weights()`.
-This is because Jax requires all parameters including network weights to be declared as parameters but ML4Science does not.
+This is because Jax requires all parameters including network weights to be declared as parameters but Φ<sub>ML</sub> does not.
 
 
 ### Do no compute gradients (PyTorch)
@@ -43,16 +43,16 @@ This is because PyTorch does not correctly trace `torch.autograd.Function` insta
 ## Avoid repeated tracing
 
 Repeated traces can drastically slow down your code and even cause memory leaks.
-If you need to jit compile functions many times, make sure to use `@jit_compile(forget_traces=True)` which makes ML4Science remember only the most recent trace.
+If you need to jit compile functions many times, make sure to use `@jit_compile(forget_traces=True)` which makes Φ<sub>ML</sub> remember only the most recent trace.
 Other function transformation, such as `custom_gradient` or `functional_gradient` can also lead to memory leaks if traced very often.
 Generally, new traces are performed when auxiliary arguments or the number or structure of non-auxiliary arguments change.
-You can use [`math.trace_check()`](https://tum-pbs.github.io/ML4Science/ml4s/math#ml4s.math.trace_check) to find out whether and why a function needs to be re-traced.
+You can use [`math.trace_check()`](https://tum-pbs.github.io/Φ<sub>ML</sub>/phiml/math#phiml.math.trace_check) to find out whether and why a function needs to be re-traced.
 
 
 ## Further Reading
 
-[🌐 **ML4Science**](https://github.com/tum-pbs/ML4Science)
-&nbsp; • &nbsp; [📖 **Documentation**](https://tum-pbs.github.io/ML4Science/)
-&nbsp; • &nbsp; [🔗 **API**](https://tum-pbs.github.io/ML4Science/ml4s)
+[🌐 **Φ<sub>ML</sub>**](https://github.com/tum-pbs/PhiML)
+&nbsp; • &nbsp; [📖 **Documentation**](https://tum-pbs.github.io/Φ<sub>ML</sub>/)
+&nbsp; • &nbsp; [🔗 **API**](https://tum-pbs.github.io/Φ<sub>ML</sub>/phiml)
 &nbsp; • &nbsp; [**▶ Videos**]()
-&nbsp; • &nbsp; [<img src="images/colab_logo_small.png" height=4>](https://colab.research.google.com/github/tum-pbs/ML4Science/blob/main/docs/Examples.ipynb) [**Examples**](https://tum-pbs.github.io/ML4Science/Examples.html)
+&nbsp; • &nbsp; [<img src="images/colab_logo_small.png" height=4>](https://colab.research.google.com/github/tum-pbs/PhiML/blob/main/docs/Examples.ipynb) [**Examples**](https://tum-pbs.github.io/Φ<sub>ML</sub>/Examples.html)
