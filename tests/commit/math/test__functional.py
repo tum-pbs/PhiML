@@ -2,10 +2,10 @@ import time
 from functools import partial
 from unittest import TestCase
 
-from ml4s import math
-from ml4s.backend import Backend
-from ml4s.backend._backend import init_installed_backends
-from ml4s.math import tensor, spatial, batch, channel
+from phiml import math
+from phiml.backend import Backend
+from phiml.backend._backend import init_installed_backends
+from phiml.math import tensor, spatial, batch, channel
 
 BACKENDS = init_installed_backends()
 

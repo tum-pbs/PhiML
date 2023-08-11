@@ -88,9 +88,9 @@ class CudaCommand(distutils.cmd.Command):
         pass
 
     def run(self):
-        src_path = abspath('./ml4s/tf/cuda/src')
-        build_path = abspath('./ml4s/tf/cuda/build')
-        logfile_path = abspath('./ml4s/tf/cuda/log.txt')
+        src_path = abspath('./phiml/tf/cuda/src')
+        build_path = abspath('./phiml/tf/cuda/build')
+        logfile_path = abspath('./phiml/tf/cuda/log.txt')
         print("Source Path:\t" + src_path)
         print("Build Path:\t" + build_path)
         print("GCC:\t\t" + self.gcc)
@@ -127,19 +127,19 @@ except FileNotFoundError:
     long_description = ""
     pass
 
-with open(join(dirname(__file__), 'ml4s', 'VERSION'), 'r') as version_file:
+with open(join(dirname(__file__), 'phiml', 'VERSION'), 'r') as version_file:
     version = version_file.read()
 
 setup(
-    name='ml4s',
+    name='phiml',
     version=version,
-    download_url='https://github.com/tum-pbs/ML4Science/archive/%s.tar.gz' % version,
-    packages=['ml4s',
-              'ml4s.math',
-              'ml4s.backend',
-              'ml4s.backend.jax',
-              'ml4s.backend.torch',
-              'ml4s.backend.tensorflow',
+    download_url='https://github.com/tum-pbs/PhiML/archive/%s.tar.gz' % version,
+    packages=['phiml',
+              'phiml.math',
+              'phiml.backend',
+              'phiml.backend.jax',
+              'phiml.backend.torch',
+              'phiml.backend.tensorflow',
           ],
     cmdclass={
         'tf_cuda': CudaCommand,
@@ -151,7 +151,7 @@ setup(
     license='MIT',
     author='Philipp Holl',
     author_email='philipp.holl@tum.de',
-    url='https://github.com/tum-pbs/ML4Science',
+    url='https://github.com/tum-pbs/PhiML',
     include_package_data=True,
     install_requires=[
         'numpy',  # 1.20 causes TensorFlow tracing errors: NotImplementedError: Cannot convert a symbolic Tensor to a numpy array.
@@ -163,7 +163,7 @@ setup(
     # - tensorflow
     # - jax
     #
-    # ml4s.verify() should detect missing packages.
+    # phiml.verify() should detect missing packages.
     classifiers=[
         'Development Status :: 5 - Production/Stable',
         'Intended Audience :: Developers',

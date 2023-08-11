@@ -30,7 +30,7 @@ def choose_backend_t(*values, prefer_default=False) -> Backend:
         prefer_default: Whether to always select the default backend if it can work with `values`, see `default_backend()`.
 
     Returns:
-        The selected `ml4s.math.backend.Backend`
+        The selected `phiml.math.backend.Backend`
     """
     natives = sum([v._natives() if isinstance(v, Tensor) else (v,) for v in values], ())
     return choose_backend(*natives, prefer_default=prefer_default)
@@ -38,16 +38,16 @@ def choose_backend_t(*values, prefer_default=False) -> Backend:
 
 def convert(x, backend: Backend = None, use_dlpack=True):
     """
-    Convert the native representation of a `Tensor` or `ml4s.math.magic.PhiTreeNode` to the native format of `backend`.
+    Convert the native representation of a `Tensor` or `phiml.math.magic.PhiTreeNode` to the native format of `backend`.
 
     *Warning*: This operation breaks the automatic differentiation chain.
 
     See Also:
-        `ml4s.math.backend.convert()`.
+        `phiml.math.backend.convert()`.
 
     Args:
-        x: `Tensor` to convert. If `x` is a `ml4s.math.magic.PhiTreeNode`, its variable attributes are converted.
-        backend: Target backend. If `None`, uses the current default backend, see `ml4s.math.backend.default_backend()`.
+        x: `Tensor` to convert. If `x` is a `phiml.math.magic.PhiTreeNode`, its variable attributes are converted.
+        backend: Target backend. If `None`, uses the current default backend, see `phiml.math.backend.default_backend()`.
 
     Returns:
         `Tensor` with native representation belonging to `backend`.
@@ -69,7 +69,7 @@ def to_device(value, device: ComputeDevice or str, convert=True, use_dlpack=True
         `to_cpu()`.
 
     Args:
-        value: `Tensor` or `ml4s.math.magic.PhiTreeNode` or native tensor.
+        value: `Tensor` or `phiml.math.magic.PhiTreeNode` or native tensor.
         device: Device to allocate value on.
             Either `ComputeDevice` or category `str`, such as `'CPU'` or `'GPU'`.
         convert: Whether to convert tensors that do not belong to the corresponding backend to compatible native tensors.
@@ -145,7 +145,7 @@ def seed(seed: int):
 def native(value: Union[Tensor, Number, tuple, list, Any]):
     """
     Returns the native tensor representation of `value`.
-    If `value` is a `ml4s.math.Tensor`, this is equal to calling `ml4s.math.Tensor.native()`.
+    If `value` is a `phiml.math.Tensor`, this is equal to calling `phiml.math.Tensor.native()`.
     Otherwise, checks that `value` is a valid tensor object and returns it.
 
     Args:
@@ -167,7 +167,7 @@ def native(value: Union[Tensor, Number, tuple, list, Any]):
 def numpy(value: Union[Tensor, Number, tuple, list, Any]):
     """
     Converts `value` to a `numpy.ndarray` where value must be a `Tensor`, backend tensor or tensor-like.
-    If `value` is a `ml4s.math.Tensor`, this is equal to calling `ml4s.math.Tensor.numpy()`.
+    If `value` is a `phiml.math.Tensor`, this is equal to calling `phiml.math.Tensor.numpy()`.
 
     *Note*: Using this function breaks the autograd chain. The returned tensor is not differentiable.
     To get a differentiable tensor, use `Tensor.native()` instead.
@@ -265,7 +265,7 @@ def reshaped_tensor(value: Any,
     Creates a `Tensor` from a native tensor or tensor-like whereby the dimensions of `value` are split according to `groups`.
 
     See Also:
-        `ml4s.math.tensor()`, `reshaped_native()`, `unpack_dim()`.
+        `phiml.math.tensor()`, `reshaped_native()`, `unpack_dim()`.
 
     Args:
         value: Native tensor or tensor-like.
@@ -330,7 +330,7 @@ def native_call(f: Callable, *inputs: Tensor, channels_last=None, channel_dim='v
         *inputs: Uniform `Tensor` arguments
         channels_last: (Optional) Whether to put channels as the last dimension of the native representation.
             If `None`, the channels are put in the default position associated with the current backend,
-            see `ml4s.math.backend.Backend.prefers_channels_last()`.
+            see `phiml.math.backend.Backend.prefers_channels_last()`.
         channel_dim: Name of the channel dimension of the result.
         spatial_dim: Name of the spatial dimension of the result.
 
@@ -839,7 +839,7 @@ def pad(value: Tensor, widths: Union[dict, tuple], mode: Union['e_.Extrapolation
         mode: Padding mode used to determine values added from positive `widths`.
             Must be one of the following: `Extrapolation`, `Tensor` or number for constant extrapolation, name of extrapolation as `str`.
         kwargs: Additional padding arguments.
-            These are ignored by the standard extrapolations defined in `ml4s.math.extrapolation` but can be used to pass additional contextual information to custom extrapolations.
+            These are ignored by the standard extrapolations defined in `phiml.math.extrapolation` but can be used to pass additional contextual information to custom extrapolations.
 
     Returns:
         Padded `Tensor`
@@ -1707,7 +1707,7 @@ def abs_(x) -> Union[Tensor, PhiTreeNode]:
     TensorFlow and PyTorch return 0 while Jax returns 1.
 
     Args:
-        x: `Tensor` or `ml4s.math.magic.PhiTreeNode`
+        x: `Tensor` or `phiml.math.magic.PhiTreeNode`
 
     Returns:
         Absolute value of `x` of same type as `x`.
@@ -1721,47 +1721,47 @@ def sign(x) -> Union[Tensor, PhiTreeNode]:
     The sign of 0 is undefined.
 
     Args:
-        x: `Tensor` or `ml4s.math.magic.PhiTreeNode`
+        x: `Tensor` or `phiml.math.magic.PhiTreeNode`
 
     Returns:
-        `Tensor` or `ml4s.math.magic.PhiTreeNode` matching `x`.
+        `Tensor` or `phiml.math.magic.PhiTreeNode` matching `x`.
     """
     return _backend_op1(x, Backend.sign)
 
 
 def round_(x) -> Union[Tensor, PhiTreeNode]:
-    """ Rounds the `Tensor` or `ml4s.math.magic.PhiTreeNode` `x` to the closest integer. """
+    """ Rounds the `Tensor` or `phiml.math.magic.PhiTreeNode` `x` to the closest integer. """
     return _backend_op1(x, Backend.round)
 
 
 def ceil(x) -> Union[Tensor, PhiTreeNode]:
-    """ Computes *⌈x⌉* of the `Tensor` or `ml4s.math.magic.PhiTreeNode` `x`. """
+    """ Computes *⌈x⌉* of the `Tensor` or `phiml.math.magic.PhiTreeNode` `x`. """
     return _backend_op1(x, Backend.ceil)
 
 
 def floor(x) -> Union[Tensor, PhiTreeNode]:
-    """ Computes *⌊x⌋* of the `Tensor` or `ml4s.math.magic.PhiTreeNode` `x`. """
+    """ Computes *⌊x⌋* of the `Tensor` or `phiml.math.magic.PhiTreeNode` `x`. """
     return _backend_op1(x, Backend.floor)
 
 
 def sqrt(x) -> Union[Tensor, PhiTreeNode]:
-    """ Computes *sqrt(x)* of the `Tensor` or `ml4s.math.magic.PhiTreeNode` `x`. """
+    """ Computes *sqrt(x)* of the `Tensor` or `phiml.math.magic.PhiTreeNode` `x`. """
     return _backend_op1(x, Backend.sqrt)
 
 
 def exp(x) -> Union[Tensor, PhiTreeNode]:
-    """ Computes *exp(x)* of the `Tensor` or `ml4s.math.magic.PhiTreeNode` `x`. """
+    """ Computes *exp(x)* of the `Tensor` or `phiml.math.magic.PhiTreeNode` `x`. """
     return _backend_op1(x, Backend.exp)
 
 
 def soft_plus(x) -> Union[Tensor, PhiTreeNode]:
-    """ Computes *softplus(x)* of the `Tensor` or `ml4s.math.magic.PhiTreeNode` `x`. """
+    """ Computes *softplus(x)* of the `Tensor` or `phiml.math.magic.PhiTreeNode` `x`. """
     return _backend_op1(x, Backend.softplus)
 
 
 def factorial(x) -> Union[Tensor, PhiTreeNode]:
     """
-    Computes *factorial(x)* of the `Tensor` or `ml4s.math.magic.PhiTreeNode` `x`.
+    Computes *factorial(x)* of the `Tensor` or `phiml.math.magic.PhiTreeNode` `x`.
     For floating-point numbers computes the continuous factorial using the gamma function.
     For integer numbers computes the exact factorial and returns the same integer type.
     However, this results in integer overflow for inputs larger than 12 (int32) or 19 (int64).
@@ -1770,7 +1770,7 @@ def factorial(x) -> Union[Tensor, PhiTreeNode]:
 
 
 def log_gamma(x) -> Union[Tensor, PhiTreeNode]:
-    """ Computes *log(gamma(x))* of the `Tensor` or `ml4s.math.magic.PhiTreeNode` `x`. """
+    """ Computes *log(gamma(x))* of the `Tensor` or `phiml.math.magic.PhiTreeNode` `x`. """
     return _backend_op1(x, Backend.log_gamma)
 
 
@@ -1780,27 +1780,27 @@ def to_float(x) -> Union[Tensor, PhiTreeNode]:
     
     The precision can be set globally using `math.set_global_precision()` and locally using `with math.precision()`.
     
-    See the `ml4s.math` module documentation at https://tum-pbs.github.io/ML4Science/Math.html
+    See the `phiml.math` module documentation at https://tum-pbs.github.io/PhiML/Math.html
 
     See Also:
         `cast()`.
 
     Args:
-        x: `Tensor` or `ml4s.math.magic.PhiTreeNode` to convert
+        x: `Tensor` or `phiml.math.magic.PhiTreeNode` to convert
 
     Returns:
-        `Tensor` or `ml4s.math.magic.PhiTreeNode` matching `x`.
+        `Tensor` or `phiml.math.magic.PhiTreeNode` matching `x`.
     """
     return _backend_op1(x, Backend.to_float)
 
 
 def to_int32(x) -> Union[Tensor, PhiTreeNode]:
-    """ Converts the `Tensor` or `ml4s.math.magic.PhiTreeNode` `x` to 32-bit integer. """
+    """ Converts the `Tensor` or `phiml.math.magic.PhiTreeNode` `x` to 32-bit integer. """
     return _backend_op1(x, Backend.to_int32)
 
 
 def to_int64(x) -> Union[Tensor, PhiTreeNode]:
-    """ Converts the `Tensor` or `ml4s.math.magic.PhiTreeNode` `x` to 64-bit integer. """
+    """ Converts the `Tensor` or `phiml.math.magic.PhiTreeNode` `x` to 64-bit integer. """
     return _backend_op1(x, Backend.to_int64)
 
 
@@ -1810,7 +1810,7 @@ def to_complex(x) -> Union[Tensor, PhiTreeNode]:
 
     The precision can be set globally using `math.set_global_precision()` and locally using `with math.precision()`.
 
-    See the `ml4s.math` module documentation at https://tum-pbs.github.io/ML4Science/Math.html
+    See the `phiml.math` module documentation at https://tum-pbs.github.io/PhiML/Math.html
 
     See Also:
         `cast()`.
@@ -1825,17 +1825,17 @@ def to_complex(x) -> Union[Tensor, PhiTreeNode]:
 
 
 def is_finite(x) -> Union[Tensor, PhiTreeNode]:
-    """ Returns a `Tensor` or `ml4s.math.magic.PhiTreeNode` matching `x` with values `True` where `x` has a finite value and `False` otherwise. """
+    """ Returns a `Tensor` or `phiml.math.magic.PhiTreeNode` matching `x` with values `True` where `x` has a finite value and `False` otherwise. """
     return _backend_op1(x, Backend.isfinite)
 
 
 def is_nan(x) -> Union[Tensor, PhiTreeNode]:
-    """ Returns a `Tensor` or `ml4s.math.magic.PhiTreeNode` matching `x` with values `True` where `x` is `NaN` and `False` otherwise. """
+    """ Returns a `Tensor` or `phiml.math.magic.PhiTreeNode` matching `x` with values `True` where `x` is `NaN` and `False` otherwise. """
     return _backend_op1(x, Backend.isnan)
 
 
 def is_inf(x) -> Union[Tensor, PhiTreeNode]:
-    """ Returns a `Tensor` or `ml4s.math.magic.PhiTreeNode` matching `x` with values `True` where `x` is `+inf` or `-inf` and `False` otherwise. """
+    """ Returns a `Tensor` or `phiml.math.magic.PhiTreeNode` matching `x` with values `True` where `x` is `+inf` or `-inf` and `False` otherwise. """
     return _backend_op1(x, Backend.isnan)
 
 
@@ -1845,7 +1845,7 @@ def real(x) -> Union[Tensor, PhiTreeNode]:
         `imag()`, `conjugate()`.
 
     Args:
-        x: `Tensor` or `ml4s.math.magic.PhiTreeNode` or native tensor.
+        x: `Tensor` or `phiml.math.magic.PhiTreeNode` or native tensor.
 
     Returns:
         Real component of `x`.
@@ -1862,7 +1862,7 @@ def imag(x) -> Union[Tensor, PhiTreeNode]:
         `real()`, `conjugate()`.
 
     Args:
-        x: `Tensor` or `ml4s.math.magic.PhiTreeNode` or native tensor.
+        x: `Tensor` or `phiml.math.magic.PhiTreeNode` or native tensor.
 
     Returns:
         Imaginary component of `x` if `x` is complex, zeros otherwise.
@@ -1876,7 +1876,7 @@ def conjugate(x) -> Union[Tensor, PhiTreeNode]:
         `imag()`, `real()`.
 
     Args:
-        x: Real or complex `Tensor` or `ml4s.math.magic.PhiTreeNode` or native tensor.
+        x: Real or complex `Tensor` or `phiml.math.magic.PhiTreeNode` or native tensor.
 
     Returns:
         Complex conjugate of `x` if `x` is complex, else `x`.
@@ -1890,37 +1890,37 @@ def degrees(deg):
 
 
 def sin(x) -> Union[Tensor, PhiTreeNode]:
-    """ Computes *sin(x)* of the `Tensor` or `ml4s.math.magic.PhiTreeNode` `x`. """
+    """ Computes *sin(x)* of the `Tensor` or `phiml.math.magic.PhiTreeNode` `x`. """
     return _backend_op1(x, Backend.sin)
 
 
 def arcsin(x) -> Union[Tensor, PhiTreeNode]:
-    """ Computes the inverse of *sin(x)* of the `Tensor` or `ml4s.math.magic.PhiTreeNode` `x`.
+    """ Computes the inverse of *sin(x)* of the `Tensor` or `phiml.math.magic.PhiTreeNode` `x`.
     For real arguments, the result lies in the range [-π/2, π/2].
     """
     return _backend_op1(x, Backend.arcsin)
 
 
 def cos(x) -> Union[Tensor, PhiTreeNode]:
-    """ Computes *cos(x)* of the `Tensor` or `ml4s.math.magic.PhiTreeNode` `x`. """
+    """ Computes *cos(x)* of the `Tensor` or `phiml.math.magic.PhiTreeNode` `x`. """
     return _backend_op1(x, Backend.cos)
 
 
 def arccos(x) -> Union[Tensor, PhiTreeNode]:
-    """ Computes the inverse of *cos(x)* of the `Tensor` or `ml4s.math.magic.PhiTreeNode` `x`.
+    """ Computes the inverse of *cos(x)* of the `Tensor` or `phiml.math.magic.PhiTreeNode` `x`.
     For real arguments, the result lies in the range [0, π].
     """
     return _backend_op1(x, Backend.cos)
 
 
 def tan(x) -> Union[Tensor, PhiTreeNode]:
-    """ Computes *tan(x)* of the `Tensor` or `ml4s.math.magic.PhiTreeNode` `x`. """
+    """ Computes *tan(x)* of the `Tensor` or `phiml.math.magic.PhiTreeNode` `x`. """
     return _backend_op1(x, Backend.tan)
 
 
 def arctan(x, divide_by=None) -> Union[Tensor, PhiTreeNode]:
     """
-    Computes the inverse of *tan(x)* of the `Tensor` or `ml4s.math.magic.PhiTreeNode` `x`.
+    Computes the inverse of *tan(x)* of the `Tensor` or `phiml.math.magic.PhiTreeNode` `x`.
 
     Args:
         x: Input. The single-argument `arctan` function cannot output π/2 or -π/2 since tan(π/2) is infinite.
@@ -1935,52 +1935,52 @@ def arctan(x, divide_by=None) -> Union[Tensor, PhiTreeNode]:
 
 
 def sinh(x) -> Union[Tensor, PhiTreeNode]:
-    """ Computes *sinh(x)* of the `Tensor` or `ml4s.math.magic.PhiTreeNode` `x`. """
+    """ Computes *sinh(x)* of the `Tensor` or `phiml.math.magic.PhiTreeNode` `x`. """
     return _backend_op1(x, Backend.sinh)
 
 
 def arcsinh(x) -> Union[Tensor, PhiTreeNode]:
-    """ Computes the inverse of *sinh(x)* of the `Tensor` or `ml4s.math.magic.PhiTreeNode` `x`. """
+    """ Computes the inverse of *sinh(x)* of the `Tensor` or `phiml.math.magic.PhiTreeNode` `x`. """
     return _backend_op1(x, Backend.arcsinh)
 
 
 def cosh(x) -> Union[Tensor, PhiTreeNode]:
-    """ Computes *cosh(x)* of the `Tensor` or `ml4s.math.magic.PhiTreeNode` `x`. """
+    """ Computes *cosh(x)* of the `Tensor` or `phiml.math.magic.PhiTreeNode` `x`. """
     return _backend_op1(x, Backend.cosh)
 
 
 def arccosh(x) -> Union[Tensor, PhiTreeNode]:
-    """ Computes the inverse of *cosh(x)* of the `Tensor` or `ml4s.math.magic.PhiTreeNode` `x`. """
+    """ Computes the inverse of *cosh(x)* of the `Tensor` or `phiml.math.magic.PhiTreeNode` `x`. """
     return _backend_op1(x, Backend.arccosh)
 
 
 def tanh(x) -> Union[Tensor, PhiTreeNode]:
-    """ Computes *tanh(x)* of the `Tensor` or `ml4s.math.magic.PhiTreeNode` `x`. """
+    """ Computes *tanh(x)* of the `Tensor` or `phiml.math.magic.PhiTreeNode` `x`. """
     return _backend_op1(x, Backend.tanh)
 
 
 def arctanh(x) -> Union[Tensor, PhiTreeNode]:
-    """ Computes the inverse of *tanh(x)* of the `Tensor` or `ml4s.math.magic.PhiTreeNode` `x`. """
+    """ Computes the inverse of *tanh(x)* of the `Tensor` or `phiml.math.magic.PhiTreeNode` `x`. """
     return _backend_op1(x, Backend.arctanh)
 
 
 def log(x) -> Union[Tensor, PhiTreeNode]:
-    """ Computes the natural logarithm of the `Tensor` or `ml4s.math.magic.PhiTreeNode` `x`. """
+    """ Computes the natural logarithm of the `Tensor` or `phiml.math.magic.PhiTreeNode` `x`. """
     return _backend_op1(x, Backend.log)
 
 
 def log2(x) -> Union[Tensor, PhiTreeNode]:
-    """ Computes *log(x)* of the `Tensor` or `ml4s.math.magic.PhiTreeNode` `x` with base 2. """
+    """ Computes *log(x)* of the `Tensor` or `phiml.math.magic.PhiTreeNode` `x` with base 2. """
     return _backend_op1(x, Backend.log2)
 
 
 def log10(x) -> Union[Tensor, PhiTreeNode]:
-    """ Computes *log(x)* of the `Tensor` or `ml4s.math.magic.PhiTreeNode` `x` with base 10. """
+    """ Computes *log(x)* of the `Tensor` or `phiml.math.magic.PhiTreeNode` `x` with base 10. """
     return _backend_op1(x, Backend.log10)
 
 
 def sigmoid(x) -> Union[Tensor, PhiTreeNode]:
-    """ Computes the sigmoid function of the `Tensor` or `ml4s.math.magic.PhiTreeNode` `x`. """
+    """ Computes the sigmoid function of the `Tensor` or `phiml.math.magic.PhiTreeNode` `x`. """
     return _backend_op1(x, Backend.sigmoid)
 
 
@@ -2567,7 +2567,7 @@ def stop_gradient(x):
     * Jax: [`jax.lax.stop_gradient`](https://jax.readthedocs.io/en/latest/_autosummary/jax.lax.stop_gradient.html)
 
     Args:
-        x: `Tensor` or `ml4s.math.magic.PhiTreeNode` for which gradients should be disabled.
+        x: `Tensor` or `phiml.math.magic.PhiTreeNode` for which gradients should be disabled.
 
     Returns:
         Copy of `x`.

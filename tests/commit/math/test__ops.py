@@ -2,10 +2,10 @@ from unittest import TestCase
 
 import numpy as np
 
-from ml4s import math
-from ml4s.backend import Backend
-from ml4s.backend._backend import init_installed_backends
-from ml4s.math import extrapolation, spatial, channel, instance, batch, DType, IncompatibleShapes, NAN, vec, non_spatial, wrap, assert_close
+from phiml import math
+from phiml.backend import Backend
+from phiml.backend._backend import init_installed_backends
+from phiml.math import extrapolation, spatial, channel, instance, batch, DType, IncompatibleShapes, NAN, vec, non_spatial, wrap, assert_close
 
 BACKENDS = init_installed_backends()
 
@@ -765,7 +765,7 @@ class TestOps(TestCase):
             with backend:
                 x = math.random_normal(instance(batch=20), channel(vector='x0,x1')) + (1, 1)
                 y = math.stack([0.8 * x[0] - x[1] + 1, -0.8 * x[0]], channel(features='y0,y1'))
-                from ml4s.math._fit import fit_hyperplane
+                from phiml.math._fit import fit_hyperplane
                 w, b = fit_hyperplane(x, y, 'batch')
                 assert_close(w, wrap([(0.8, -1), (-0.8, 0)], channel(y), channel(x)), abs_tolerance=1e-3)
                 assert_close(b, wrap((1, 0), channel(y)), abs_tolerance=1e-3)

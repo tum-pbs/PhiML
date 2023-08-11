@@ -3,9 +3,9 @@ from unittest import TestCase
 
 import numpy
 
-from ml4s.backend._backend import init_installed_backends
-from ml4s.math import DType
-from ml4s.backend import ComputeDevice, convert, Backend, NUMPY, set_global_default_backend, default_backend
+from phiml.backend._backend import init_installed_backends
+from phiml.math import DType
+from phiml.backend import ComputeDevice, convert, Backend, NUMPY, set_global_default_backend, default_backend
 
 BACKENDS: Tuple[Backend] = init_installed_backends()
 

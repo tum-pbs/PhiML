@@ -26,7 +26,7 @@ jobs:
           pip list
         
       - name: Build API with pdoc3
-        run: pdoc --html --output-dir docs --force ml4s
+        run: pdoc --html --output-dir docs --force phiml
         
       - name: Build static HTML for Jupyter Notebooks
         run: |

@@ -1,10 +1,10 @@
 from unittest import TestCase
 
-from ml4s import math
-from ml4s.backend._backend import init_installed_backends
-from ml4s.math import batch, extrapolation, shape, spatial, channel, EMPTY_SHAPE
-from ml4s.math._tensors import wrap
-from ml4s.math.extrapolation import ConstantExtrapolation, ONE, ZERO, PERIODIC, BOUNDARY, SYMMETRIC, REFLECT, combine_sides, from_dict, combine_by_direction, SYMMETRIC_GRADIENT, as_extrapolation, \
+from phiml import math
+from phiml.backend._backend import init_installed_backends
+from phiml.math import batch, extrapolation, shape, spatial, channel, EMPTY_SHAPE
+from phiml.math._tensors import wrap
+from phiml.math.extrapolation import ConstantExtrapolation, ONE, ZERO, PERIODIC, BOUNDARY, SYMMETRIC, REFLECT, combine_sides, from_dict, combine_by_direction, SYMMETRIC_GRADIENT, as_extrapolation, \
     ZERO_GRADIENT
 
 BACKENDS = init_installed_backends()

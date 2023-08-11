@@ -1,8 +1,8 @@
 """
-Magic methods allow custom classes to be compatible with various functions defined in `ml4s.math`, analogous to how implementing `__hash__` allows objects to be used with `hash()`.
+Magic methods allow custom classes to be compatible with various functions defined in `phiml.math`, analogous to how implementing `__hash__` allows objects to be used with `hash()`.
 The magic methods are grouped into purely declarative classes (interfaces) by what functionality they provide.
 
-* `Shaped` objects have a `ml4s.math.Shape`.
+* `Shaped` objects have a `phiml.math.Shape`.
 * `Sliceable` objects can be sliced along dimensions.
 * `Shapable` objects can additionally be reshaped.
 * `PhiTreeNode` objects can be disassembled into tensors.
@@ -39,13 +39,13 @@ class _ShapedType(type):
 class Shaped(metaclass=_ShapedType):
     """
     To be considered shaped, an object must either implement the magic method `__shape__()` or have a valid `shape` property.
-    In either case, the returned shape must be an instance of `ml4s.math.Shape`.
+    In either case, the returned shape must be an instance of `phiml.math.Shape`.
 
     To check whether an object is `Shaped`, use `isinstance(obj, Shaped)`.
 
-    **Usage in `ml4s.math`:**
+    **Usage in `phiml.math`:**
 
-    The functions `ml4s.math.shape` as well as dimension filters, such as `ml4s.math.spatial` or `ml4s.math.non_batch` can be called on all shaped objects.
+    The functions `phiml.math.shape` as well as dimension filters, such as `phiml.math.spatial` or `phiml.math.non_batch` can be called on all shaped objects.
 
     See Also:
         `Sliceable`, `Shapable`
@@ -58,7 +58,7 @@ class Shaped(metaclass=_ShapedType):
         Alternatively, the shape can be declared via the property `shape`.
 
         Returns:
-            `ml4s.math.Shape`
+            `phiml.math.Shape`
         """
         raise NotImplementedError
 
@@ -69,7 +69,7 @@ class Shaped(metaclass=_ShapedType):
         Implement either to be considered `Shaped`.
 
         Returns:
-            `ml4s.math.Shape`
+            `phiml.math.Shape`
         """
         raise NotImplementedError
 
@@ -94,9 +94,9 @@ class Sliceable(metaclass=_SliceableType):
 
     Classes implementing `Sliceable` should override `__getattr__` to enable the special slicing syntax defined in `BoundDim`.
 
-    **Usage in `ml4s.math`:**
+    **Usage in `phiml.math`:**
 
-    In addition to slicing, sliceable objects can be unstacked along one or multiple dimensions using `ml4s.math.unstack`.
+    In addition to slicing, sliceable objects can be unstacked along one or multiple dimensions using `phiml.math.unstack`.
 
     See Also
         `Shapable`, `Shaped`
@@ -155,19 +155,19 @@ class Shapable(metaclass=_ShapableType):
 
     Objects should additionally implement the other magic methods for performance reasons.
 
-    **Usage in `ml4s.math`:**
+    **Usage in `phiml.math`:**
 
     Shapable objects can be used with the following functions in addition to what they inherit from being `Sliceable` and `Shaped`:
 
-    * `ml4s.math.stack`
-    * `ml4s.math.concat`
-    * `ml4s.math.expand`
-    * `ml4s.math.rename_dims`
-    * `ml4s.math.pack_dims`
-    * `ml4s.math.unpack_dim`
-    * `ml4s.math.flatten`
+    * `phiml.math.stack`
+    * `phiml.math.concat`
+    * `phiml.math.expand`
+    * `phiml.math.rename_dims`
+    * `phiml.math.pack_dims`
+    * `phiml.math.unpack_dim`
+    * `phiml.math.flatten`
 
-    Additionally, the `ml4s.math.BoundDim` syntax for dimension renaming and retyping is enabled, e.g. `obj.dim.as_channel('vector')`.
+    Additionally, the `phiml.math.BoundDim` syntax for dimension renaming and retyping is enabled, e.g. `obj.dim.as_channel('vector')`.
     """
     @staticmethod
     def __stack__(values: tuple, dim: Shape, **kwargs) -> 'Shapable':
@@ -341,7 +341,7 @@ class _PhiTreeNodeType(type):
 class PhiTreeNode(metaclass=_PhiTreeNodeType):
     """
     Φ-tree nodes can be iterated over and disassembled or flattened into elementary objects, such as tensors.
-    `ml4s.math.Tensor` instances as well as PyTree nodes (`tuple`, `list`, `dict` with `str` keys) are Φ-tree nodes.
+    `phiml.math.Tensor` instances as well as PyTree nodes (`tuple`, `list`, `dict` with `str` keys) are Φ-tree nodes.
     All data classes are also considered PhiTreeNodes as of version 2.3.
 
     For custom classes to be considered Φ-tree nodes, they have to be a dataclass or implement one of the following magic methods:
@@ -355,13 +355,13 @@ class PhiTreeNode(metaclass=_PhiTreeNodeType):
 
     To check whether an object is a Φ-tree node, use `isinstance(obj, PhiTreeNode)`.
 
-    **Usage in `ml4s.math`:**
+    **Usage in `phiml.math`:**
 
     Φ-tree nodes can be used as keys, for example in `jit_compile()`.
     They are converted to keys by stripping all variable tensors and replacing them by a placeholder object.
     In key mode, `__eq__()` compares all non-variable properties that might invalidate a trace when changed.
 
-    Disassembly and assembly of Φ-tree nodes uses `ml4s.math.copy_with` which will call `__with_attrs__` if implemented.
+    Disassembly and assembly of Φ-tree nodes uses `phiml.math.copy_with` which will call `__with_attrs__` if implemented.
     """
 
     def __value_attrs__(self) -> Tuple[str, ...]:
@@ -397,7 +397,7 @@ class PhiTreeNode(metaclass=_PhiTreeNodeType):
 
     def __with_attrs__(self, **attrs):
         """
-        Used by `ml4s.math.copy_with`.
+        Used by `phiml.math.copy_with`.
         Create a copy of this object which has the `Tensor` or `PhiTreeNode` attributes contained in `attrs` replaced.
         If this method is not implemented, tensor attributes are replaced using `setattr()`.
 
@@ -424,7 +424,7 @@ class BoundDim:
     These objects should declare the following method to support the `.dim` syntax:
 
     ```python
-    from ml4s.math.magic import BoundDim
+    from phiml.math.magic import BoundDim
 
     class MyClass:
 
@@ -465,7 +465,7 @@ class BoundDim:
             raise AttributeError(f"'{type(self)}' object has no attribute '{name}'")
         if name == 'shape':
             raise AttributeError(f"{type(obj)} has no shape")
-        assert isinstance(obj, Sliceable) and isinstance(obj, Shaped), f"Cannot create BoundDim for {type(obj).__name__}. Objects must be Sliceable and Shaped, see https://tum-pbs.github.io/ML4Science/ml4s/math/magic.html"
+        assert isinstance(obj, Sliceable) and isinstance(obj, Shaped), f"Cannot create BoundDim for {type(obj).__name__}. Objects must be Sliceable and Shaped, see https://tum-pbs.github.io/PhiML/phiml/math/magic.html"
         self.obj = obj
         self.name = name
 
@@ -577,7 +577,7 @@ class BoundDim:
         Returns a shallow copy of the `Tensor` where this dimension has the specified name.
 
         See Also:
-            `ml4s.math.rename_dims()`
+            `phiml.math.rename_dims()`
         """
         if not self.exists:
             return self.obj
@@ -589,7 +589,7 @@ class BoundDim:
         Returns a shallow copy of the `Tensor` where this dimension has the specified type.
 
         See Also:
-            `ml4s.math.rename_dims()`
+            `phiml.math.rename_dims()`
         """
         new_dim = dim_type(**{self.name: self.item_names or self.size})
         from ._magic_ops import rename_dims
@@ -620,7 +620,7 @@ class BoundDim:
         Returns a shallow copy of the `Tensor` where this dimension has been replaced by `dim`.
 
         See Also:
-            `ml4s.math.rename_dims()`
+            `phiml.math.rename_dims()`
         """
         from ._magic_ops import rename_dims
         return rename_dims(self.obj, self.name, dim, **kwargs)
@@ -630,7 +630,7 @@ class BoundDim:
         Returns a shallow copy of the `Tensor` where this dimension has been unpacked into `dims`.
 
         See Also:
-            `ml4s.math.unpack_dim()`
+            `phiml.math.unpack_dim()`
         """
         from ._magic_ops import unpack_dim
         return unpack_dim(self.obj, self.name, *dims, **kwargs)
@@ -695,7 +695,7 @@ class _BoundDims:
         Returns a shallow copy of the `Tensor` where this dimension has the specified type.
 
         See Also:
-            `ml4s.math.rename_dims()`
+            `phiml.math.rename_dims()`
         """
         s = shape(self.obj)
         new_dims = concat_shapes(*[dim_type(**{dim: s.get_item_names(dim) or s.get_size(dim)}) for dim in self.dims])
@@ -748,12 +748,12 @@ def slicing_dict(obj, item) -> dict:
             return {name: selection for name, selection in zip(channel(obj).names, item[1:])}
         elif len(item) == shape(obj).channel_rank:
             if len(item) > 1:
-                warnings.warn("NumPy-style slicing for more than one channel dimension is highly discouraged. Use a dict or the special slicing syntax value.dim[slice] instead. See https://tum-pbs.github.io/ML4Science/Math.html", SyntaxWarning, stacklevel=3)
+                warnings.warn("NumPy-style slicing for more than one channel dimension is highly discouraged. Use a dict or the special slicing syntax value.dim[slice] instead. See https://tum-pbs.github.io/PhiML/Math.html", SyntaxWarning, stacklevel=3)
             return {name: selection for name, selection in zip(channel(obj).names, item)}
         elif shape(obj).channel_rank == 1 and all(isinstance(e, str) for e in item):
             return {channel(obj).name: item}
         else:
-            raise AssertionError(f"Cannot slice {obj}[{item}]. Use a dict or the special slicing syntax value.dim[slice] instead. See https://tum-pbs.github.io/ML4Science/Math.html")
+            raise AssertionError(f"Cannot slice {obj}[{item}]. Use a dict or the special slicing syntax value.dim[slice] instead. See https://tum-pbs.github.io/PhiML/Math.html")
     else:
         if shape(obj).channel_rank == 1:
             return {channel(obj).name: item}

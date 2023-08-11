@@ -1,7 +1,7 @@
 from unittest import TestCase
 
-from ml4s import math
-from ml4s.backend import profile
+from phiml import math
+from phiml.backend import profile
 
 
 class TestProfile(TestCase):

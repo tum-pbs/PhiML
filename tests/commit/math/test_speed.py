@@ -2,8 +2,8 @@ import time
 from unittest import TestCase
 import numpy as np
 
-from ml4s import math
-from ml4s.math import spatial, batch, channel
+from phiml import math
+from phiml.math import spatial, batch, channel
 
 
 def rnpv(size=64, d=2):

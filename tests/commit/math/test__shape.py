@@ -1,8 +1,8 @@
 from unittest import TestCase
 
-from ml4s import math
-from ml4s.math import spatial, channel, batch, instance, non_instance, non_channel, non_spatial, non_batch
-from ml4s.math._shape import shape_stack, vector_add, EMPTY_SHAPE, Shape, dual
+from phiml import math
+from phiml.math import spatial, channel, batch, instance, non_instance, non_channel, non_spatial, non_batch
+from phiml.math._shape import shape_stack, vector_add, EMPTY_SHAPE, Shape, dual
 
 
 class ShapedDummy:

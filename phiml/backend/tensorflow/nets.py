@@ -2,7 +2,7 @@
 TensorFlow implementation of the unified machine learning API.
 Equivalent functions also exist for the other frameworks.
 
-For API documentation, see `ml4s.nn`.
+For API documentation, see `phiml.nn`.
 """
 import pickle
 from typing import Callable

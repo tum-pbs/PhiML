@@ -1,7 +1,7 @@
 from unittest import TestCase
 
-from ml4s._troubleshoot import assert_minimal_config, troubleshoot, count_tensors_in_memory, plot_solves
-from ml4s import math
+from phiml._troubleshoot import assert_minimal_config, troubleshoot, count_tensors_in_memory, plot_solves
+from phiml import math
 
 class TestTroubleshoot(TestCase):
 

@@ -3,12 +3,12 @@ from unittest import TestCase
 
 import dataclasses
 
-from ml4s import math
+from phiml import math
 
-from ml4s.math import batch, unstack, Shape, merge_shapes, stack, concat, expand, spatial, shape, instance, rename_dims, \
+from phiml.math import batch, unstack, Shape, merge_shapes, stack, concat, expand, spatial, shape, instance, rename_dims, \
     pack_dims, random_normal, flatten, unpack_dim, EMPTY_SHAPE, Tensor, Dict, channel, linspace, zeros, meshgrid, assert_close, wrap, vec
-from ml4s.math._magic_ops import bool_to_int
-from ml4s.math.magic import BoundDim, Shaped, Sliceable, Shapable, PhiTreeNode, slicing_dict
+from phiml.math._magic_ops import bool_to_int
+from phiml.math.magic import BoundDim, Shaped, Sliceable, Shapable, PhiTreeNode, slicing_dict
 
 
 class Stackable:

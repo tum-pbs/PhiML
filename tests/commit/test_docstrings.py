@@ -31,10 +31,10 @@ class TestWildcardImportDocs(TestCase):
         self.assertLessEqual(undocumented_fraction, max_undoc_frac, f"{len(undocumented)/loc_len:.2%} of {modulename} imports undocumented. Missing Docstrings in {len(undocumented)}/{loc_len}:\n- " + "\n- ".join(undocumented))
 
     def test_math(self):
-        self.assert_less_undocumented_wc('ml4s.math', 0)
+        self.assert_less_undocumented_wc('phiml.math', 0)
 
     def test_backend(self):
-        self.assert_less_undocumented_wc('ml4s.backend', 0)
+        self.assert_less_undocumented_wc('phiml.backend', 0)
 
     def test_nn(self):
-        self.assert_less_undocumented_wc('ml4s.nn', 0)
+        self.assert_less_undocumented_wc('phiml.nn', 0)

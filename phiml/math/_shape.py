@@ -45,7 +45,7 @@ class Shape:
         self.sizes: tuple = sizes
         """
         Ordered dimension sizes as `tuple`.
-        The size of a dimension can be an `int` or a `Tensor` for [non-uniform shapes](https://tum-pbs.github.io/ML4Science/Math.html#non-uniform-tensors).
+        The size of a dimension can be an `int` or a `Tensor` for [non-uniform shapes](https://tum-pbs.github.io/PhiML/Math.html#non-uniform-tensors).
         
         See Also:
             `Shape.get_size()`, `Shape.size`, `Shape.shape`.
@@ -489,7 +489,7 @@ class Shape:
         The dimension listing the sizes of the shape is referred to as `'dims'`.
 
         Non-uniform tensor shapes may be unstacked along other dimensions as well, see
-        https://tum-pbs.github.io/ML4Science/Math.html#non-uniform-tensors
+        https://tum-pbs.github.io/PhiML/Math.html#non-uniform-tensors
 
         Args:
             dim: dimension to unstack
@@ -642,7 +642,7 @@ class Shape:
         return merge_shapes(self, other)
 
     def _expand(self, dim: 'Shape', pos=None) -> 'Shape':
-        """**Deprecated.** Use `ml4s.math.merge_shapes()` or `ml4s.math.concat_shapes()` instead. """
+        """**Deprecated.** Use `phiml.math.merge_shapes()` or `phiml.math.concat_shapes()` instead. """
         warnings.warn("Shape.expand() is deprecated. Use merge_shapes() or concat_shapes() instead.", DeprecationWarning)
         if not dim:
             return self
@@ -763,7 +763,7 @@ class Shape:
         """
         Returns `True` if no dimension size is `None`.
 
-        Shapes with undefined sizes may be used in `ml4s.math.tensor()`, `ml4s.math.wrap()`, `ml4s.math.stack()` or `ml4s.math.concat()`.
+        Shapes with undefined sizes may be used in `phiml.math.tensor()`, `phiml.math.wrap()`, `phiml.math.stack()` or `phiml.math.concat()`.
 
         To create an undefined size, call a constructor function (`batch()`, `spatial()`, `channel()`, `instance()`)
         with positional `str` arguments, e.g. `spatial('x')`.
@@ -779,7 +779,7 @@ class Shape:
         Higher-order `Shape`.
         The returned shape will always contain the channel dimension `dims` with a size equal to the `Shape.rank` of this shape.
 
-        For uniform shapes, `Shape.shape` will only contain the dimension `dims` but the shapes of [non-uniform shapes](https://tum-pbs.github.io/ML4Science/Math.html#non-uniform-tensors)
+        For uniform shapes, `Shape.shape` will only contain the dimension `dims` but the shapes of [non-uniform shapes](https://tum-pbs.github.io/PhiML/Math.html#non-uniform-tensors)
         may contain additional dimensions.
 
         See Also:
@@ -1323,7 +1323,7 @@ def _apply_prefix(name: str, prefix: str):
 
 def shape(obj) -> Shape:
     """
-    If `obj` is a `Tensor` or `ml4s.math.magic.Shaped`, returns its shape.
+    If `obj` is a `Tensor` or `phiml.math.magic.Shaped`, returns its shape.
     If `obj` is a `Shape`, returns `obj`.
 
     This function can be passed as a `dim` argument to an operation to specify that it should act upon all dimensions.
@@ -1364,7 +1364,7 @@ def shape(obj) -> Shape:
             elif len(shape_tuple) == 1:
                 return channel('vector')
             else:
-                raise ValueError(f"Cannot auto-complete shape of {backend} tensor with shape {shape_tuple}. Only 0D and 1D tensors have a ML4Science shape by default.")
+                raise ValueError(f"Cannot auto-complete shape of {backend} tensor with shape {shape_tuple}. Only 0D and 1D tensors have a Φ-ML shape by default.")
         except NoBackendFound:
             raise ValueError(f'shape() requires Shaped or Shape argument but got {type(obj)}')
 

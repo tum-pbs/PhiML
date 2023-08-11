@@ -24,7 +24,7 @@ from .magic import Shapable
 class Tensor:
     """
     Abstract base class to represent structured data of one data type.
-    This class replaces the native tensor classes `numpy.ndarray`, `torch.Tensor`, `tensorflow.Tensor` or `jax.numpy.ndarray` as the main data container in ML4Science.
+    This class replaces the native tensor classes `numpy.ndarray`, `torch.Tensor`, `tensorflow.Tensor` or `jax.numpy.ndarray` as the main data container in Φ-ML.
 
     `Tensor` instances are different from native tensors in two important ways:
 
@@ -33,8 +33,8 @@ class Tensor:
 
     To check whether a value is a tensor, use `isinstance(value, Tensor)`.
 
-    To construct a Tensor, use `ml4s.math.tensor()`, `ml4s.math.wrap()` or one of the basic tensor creation functions,
-    see https://tum-pbs.github.io/ML4Science/Math.html#tensor-creation .
+    To construct a Tensor, use `phiml.math.tensor()`, `phiml.math.wrap()` or one of the basic tensor creation functions,
+    see https://tum-pbs.github.io/PhiML/Math.html#tensor-creation .
 
     Tensors are not editable.
     When backed by an editable native tensor, e.g. a `numpy.ndarray`, do not edit the underlying data structure.
@@ -72,7 +72,7 @@ class Tensor:
         If this `Tensor` is backed by a NumPy array, a reference to this array may be returned.
 
         See Also:
-            `ml4s.math.numpy()`
+            `phiml.math.numpy()`
 
         Args:
             order: (Optional) Order of dimension names as comma-separated string, list or `Shape`.
@@ -88,7 +88,7 @@ class Tensor:
 
     def __array__(self, dtype=None):  # NumPy conversion
         if self.rank > 1:
-            warnings.warn("Automatic conversion of ML4Science tensors to NumPy can cause problems because the dimension order is not guaranteed.", SyntaxWarning, stacklevel=3)
+            warnings.warn("Automatic conversion of Φ-ML tensors to NumPy can cause problems because the dimension order is not guaranteed.", SyntaxWarning, stacklevel=3)
         return self.numpy(self._shape)
 
     def __array_ufunc__(self, ufunc, method, *inputs, **kwargs):  # NumPy interface
@@ -179,7 +179,7 @@ class Tensor:
                 return self._op2(inputs[1], lambda x, y: x >> y, lambda x, y: choose_backend(x, y).shift_bits_right(x, y), 'right_shift', '>>')
             else:
                 return self._op2(inputs[0], lambda x, y: y >> x, lambda x, y: choose_backend(x, y).shift_bits_right(y, x), 'r_right_shift', '>>')
-        raise NotImplementedError(f"NumPy function '{ufunc.__name__}' is not compatible with ML4Science tensors.")
+        raise NotImplementedError(f"NumPy function '{ufunc.__name__}' is not compatible with Φ-ML tensors.")
 
     @property
     def dtype(self) -> DType:
@@ -319,7 +319,7 @@ class Tensor:
         Returns the real part of this tensor.
 
         See Also:
-            `ml4s.math.real()`
+            `phiml.math.real()`
         """
         from ._ops import real
         return real(self)
@@ -331,7 +331,7 @@ class Tensor:
         If this tensor does not store complex numbers, returns a zero tensor with the same shape and dtype as this tensor.
 
         See Also:
-            `ml4s.math.imag()`
+            `phiml.math.imag()`
         """
         from ._ops import imag
         return imag(self)
@@ -344,7 +344,7 @@ class Tensor:
         Tracers used inside jit compilation are typically not available.
 
         See Also:
-            `ml4s.math.jit_compile()`.
+            `phiml.math.jit_compile()`.
         """
         if self._is_tracer:
             return False
@@ -451,7 +451,7 @@ class Tensor:
     def __setitem__(self, key, value):
         raise SyntaxError("Tensors are not editable to preserve the autodiff chain. This feature might be added in the future. To update part of a tensor, use math.where() or math.scatter()")
 
-    def __unstack__(self, dims: Tuple[str, ...]) -> Tuple['Tensor', ...]:  # from ml4s.math.magic.Sliceable
+    def __unstack__(self, dims: Tuple[str, ...]) -> Tuple['Tensor', ...]:  # from phiml.math.magic.Sliceable
         if len(dims) == 1:
             return self._unstack(dims[0])
         else:
@@ -808,7 +808,7 @@ class TensorDim(BoundDim):
 
     Indexing a `TensorDim` as `tdim[start:stop:step]` returns a sliced `Tensor`.
 
-    See the documentation at https://tum-pbs.github.io/ML4Science/Math.html#indexing-slicing-unstacking .
+    See the documentation at https://tum-pbs.github.io/PhiML/Math.html#indexing-slicing-unstacking .
     """
 
     def __init__(self, tensor: Tensor, name: str):
@@ -856,7 +856,7 @@ class TensorDim(BoundDim):
         return self.tensor.shape.index(self.name)
 
     def split(self, split_dimensions: Shape):
-        """ See `ml4s.math.unpack_dim()` """
+        """ See `phiml.math.unpack_dim()` """
         warnings.warn("dim.split() is deprecated. Use math.split_dims() instead.", stacklevel=2)
         from ._magic_ops import unpack_dim
         return unpack_dim(self.tensor, self.name, split_dimensions)
@@ -1522,7 +1522,7 @@ def tensor(data,
     * Jax: [`jax.numpy.array`](https://jax.readthedocs.io/en/latest/_autosummary/jax.numpy.array.html)
 
     See Also:
-        `ml4s.math.wrap()` which uses `convert=False`, `layout()`.
+        `phiml.math.wrap()` which uses `convert=False`, `layout()`.
 
     Args:
         data: native tensor, scalar, sequence, Shape or Tensor
@@ -1627,7 +1627,7 @@ def tensor(data,
 
 def wrap(data,
          *shape: Shape) -> Tensor:
-    """ Short for `ml4s.math.tensor()` with `convert=False`. """
+    """ Short for `phiml.math.tensor()` with `convert=False`. """
     return tensor(data, *shape, convert=False)  # TODO inline, simplify
 
 
@@ -1724,7 +1724,7 @@ def compatible_tensor(data, compat_shape: Shape = None, compat_natives=(), conve
             return wrap(data, compat_shape['vector'].without_sizes())
         elif len(shape) == compat_shape.rank:
             if len(shape) > 1:
-                warnings.warn(f"Combining a ml4s.math.Tensor with a {data_type} of same shape is not invariant under shape permutations. Please convert the {data_type} to a ml4s.math.Tensor first. Shapes: {shape} and {compat_shape}", SyntaxWarning, stacklevel=5)
+                warnings.warn(f"Combining a phiml.math.Tensor with a {data_type} of same shape is not invariant under shape permutations. Please convert the {data_type} to a phiml.math.Tensor first. Shapes: {shape} and {compat_shape}", SyntaxWarning, stacklevel=5)
             return NativeTensor(data, compat_shape.with_sizes(shape))
         else:
             raise ValueError(f"Cannot combine tensor of shape {shape} with tensor of shape {compat_shape}")
@@ -1819,14 +1819,14 @@ NATIVE_TENSOR = 'native'
 def disassemble_tree(obj: PhiTreeNodeType) -> Tuple[PhiTreeNodeType, List[Tensor]]:
     """
     Splits a nested structure of Tensors into the structure without the tensors and an ordered list of tensors.
-    Native tensors will be wrapped in ml4s.math.Tensors with default dimension names and dimension types `None`.
+    Native tensors will be wrapped in phiml.math.Tensors with default dimension names and dimension types `None`.
 
     See Also:
         `assemble_tree()`
 
     Args:
         obj: Nested structure of `Tensor` objects.
-            Nested structures include: `tuple`, `list`, `dict`, `ml4s.math.magic.PhiTreeNode`.
+            Nested structures include: `tuple`, `list`, `dict`, `phiml.math.magic.PhiTreeNode`.
 
     Returns:
         empty structure: Same structure as `obj` but with the tensors replaced by `None`.
@@ -1944,12 +1944,12 @@ def expand_tensor(value: Tensor, dims: Shape):
 
 class Dict(dict):
     """
-    Dictionary of `Tensor` or `ml4s.math.magic.PhiTreeNode` values.
+    Dictionary of `Tensor` or `phiml.math.magic.PhiTreeNode` values.
     Dicts are not themselves tensors and do not have a shape.
     Use `layout()` to treat `dict` instances like tensors.
 
     In addition to dictionary functions, supports mathematical operators with other `Dict`s and lookup via `.key` syntax.
-    `Dict` implements `ml4s.math.magic.PhiTreeNode` so instances can be passed to math operations like `sin`.
+    `Dict` implements `phiml.math.magic.PhiTreeNode` so instances can be passed to math operations like `sin`.
     """
 
     def __value_attrs__(self):

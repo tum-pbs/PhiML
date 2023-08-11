@@ -3,10 +3,10 @@ from unittest import TestCase
 
 import numpy
 
-from ml4s import math
-from ml4s.backend import Backend
-from ml4s.backend._backend import init_installed_backends
-from ml4s.math import Solve, Diverged, tensor, SolveTape, extrapolation, spatial, batch, channel
+from phiml import math
+from phiml.backend import Backend
+from phiml.backend._backend import init_installed_backends
+from phiml.math import Solve, Diverged, tensor, SolveTape, extrapolation, spatial, batch, channel
 
 BACKENDS = init_installed_backends()
 
@@ -187,7 +187,7 @@ class TestOptimize(TestCase):
                 math.assert_close([-1.5, -2, -1.5], x)
 
     def test_solve_np(self):
-        from ml4s import math
+        from phiml import math
 
         def laplace_1d(x):
             return math.pad(x[1:], (0, 1)) + math.pad(x[:-1], (1, 0)) - 2 * x

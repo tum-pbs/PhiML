@@ -2,11 +2,11 @@
 Open-source ...
 
 
-Project homepage: https://github.com/tum-pbs/ML4Science
+Project homepage: https://github.com/tum-pbs/PhiML
 
-Documentation overview: https://tum-pbs.github.io/ML4Science
+Documentation overview: https://tum-pbs.github.io/PhiML
 
-PyPI: https://pypi.org/project/ml4s/
+PyPI: https://pypi.org/project/phiml/
 """
 
 import os as _os
@@ -20,7 +20,7 @@ def verify():
     """
     Checks your configuration for potential problems and prints a summary.
 
-    To run verify without importing `ml4s`, run the script `tests/verify.py` included in the source distribution.
+    To run verify without importing `phiml`, run the script `tests/verify.py` included in the source distribution.
     """
     import sys
     from ._troubleshoot import assert_minimal_config, troubleshoot
@@ -34,7 +34,7 @@ def verify():
 
 def set_logging_level(level='debug'):
     """
-    Sets the logging level for ML4Science functions.
+    Sets the logging level for Φ-ML functions.
 
     Args:
         level: Logging level, one of `'critical', 'fatal', 'error', 'warning', 'info', 'debug'`

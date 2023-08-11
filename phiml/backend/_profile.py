@@ -106,7 +106,7 @@ class ExtCall:
             if fun == '__init__':
                 return f"{type(info.frame.f_locals['self']).__name__}()"
             return f"{type(info.frame.f_locals['self']).__name__}.{fun}"
-        if 'ml4s/math' in info.filename or 'ml4s\\math' in info.filename:
+        if 'phiml/math' in info.filename or 'phiml\\math' in info.filename:
             return f"math.{fun}"
         else:
             return fun

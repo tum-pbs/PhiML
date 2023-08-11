@@ -37,4 +37,4 @@ jobs:
         continue-on-error: true
         run: |
           pylint --rcfile=./tests/.pylintrc tests
-          pylint --rcfile=./ml4s/.pylintrc ml4s
+          pylint --rcfile=./phiml/.pylintrc phiml

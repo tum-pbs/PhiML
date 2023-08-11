@@ -1,9 +1,9 @@
 # import os; os.environ['CUDA_VISIBLE_DEVICES'] = ""
 from unittest import TestCase
 
-from ml4s import math
-from ml4s.math import channel, batch
-from ml4s import nn
+from phiml import math
+from phiml.math import channel, batch
+from phiml import nn
 
 
 LIBRARIES = ['jax', 'tensorflow', 'torch']

@@ -6,16 +6,16 @@ import packaging.version
 
 def assert_minimal_config():  # raises AssertionError
     import sys
-    assert sys.version_info.major == 3 and sys.version_info.minor >= 6, "ML4Science requires Python 3.6 or newer to run"
+    assert sys.version_info.major == 3 and sys.version_info.minor >= 6, "Φ-ML requires Python 3.6 or newer to run"
 
     try:
         import numpy
     except ImportError:
-        raise AssertionError("ML4Science is unable to run because NumPy is not installed.")
+        raise AssertionError("Φ-ML is unable to run because NumPy is not installed.")
     try:
         import scipy
     except ImportError:
-        raise AssertionError("ML4Science is unable to run because SciPy is not installed.")
+        raise AssertionError("Φ-ML is unable to run because SciPy is not installed.")
     from . import math
     with math.NUMPY:
         a = math.ones()
@@ -24,7 +24,7 @@ def assert_minimal_config():  # raises AssertionError
 
 def troubleshoot():
     from . import __version__
-    return f"ML4Science {__version__} at {dirname(__file__)}\n"\
+    return f"Φ-ML {__version__} at {dirname(__file__)}\n"\
            f"PyTorch: {troubleshoot_torch()}\n"\
            f"Jax: {troubleshoot_jax()}\n"\
            f"TensorFlow: {troubleshoot_tensorflow()}\n"  # TF last so avoid VRAM issues
@@ -68,7 +68,7 @@ def troubleshoot_tensorflow():
             if platform.system().lower() != 'linux':
                 cuda_str = f"Optional TensorFlow CUDA kernels not available and compilation not recommended on {platform.system()}. GPU will be used nevertheless."
             else:
-                cuda_str = f"Optional TensorFlow CUDA kernels not available. GPU will be used nevertheless. Clone the ML4Science source from GitHub and run 'python setup.py tf_cuda' to compile them. See https://tum-pbs.github.io/ML4Science/Installation_Instructions.html"
+                cuda_str = f"Optional TensorFlow CUDA kernels not available. GPU will be used nevertheless. Clone the Φ-ML source from GitHub and run 'python setup.py tf_cuda' to compile them. See https://tum-pbs.github.io/PhiML/Installation_Instructions.html"
         return f"Installed ({tf_version}), {gpu_count} GPUs available.\n{cuda_str}"
 
 
@@ -184,4 +184,4 @@ def count_tensors_in_memory(min_print_size: int = None):
                     # print([type(r) for r in referrers])
         except Exception:
             pass
-    print(f"There are {total} ML4Science Tensors with a total size of {bytes / 1024 / 1024:.1f} MB")
+    print(f"There are {total} Φ-ML Tensors with a total size of {bytes / 1024 / 1024:.1f} MB")

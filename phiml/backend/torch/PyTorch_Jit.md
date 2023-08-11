@@ -1,4 +1,4 @@
-# Making PyTorch compatible with ML4Science's `jit`
+# Making PyTorch compatible with Φ-ML's `jit`
 
 
 ## PyTorch Limitations
@@ -26,7 +26,7 @@ Nested jit calls are ignored.
 All called modules can be added as submodules and can therefore be traced.
 This requires a call to `._torch_backend.register_module_call()` inside  `nn.Module.forward()`
 
-Jit-functions are represented by `ml4s.backend.torch._torch_backend.JITFunction` which instantiates a `JITFunction.__call__.JitModule`
+Jit-functions are represented by `phiml.backend.torch._torch_backend.JITFunction` which instantiates a `JITFunction.__call__.JitModule`
 
 
 ### Separate traces for `autograd.Function`

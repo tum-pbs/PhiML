@@ -10,7 +10,7 @@ The provided operations are not implemented directly.
 Instead, they delegate the actual computation to either NumPy, TensorFlow or PyTorch, depending on the configuration.
 This allows the user to write simulation code once and have it run with various computation backends.
 
-See the documentation at https://tum-pbs.github.io/ML4Science/Math.html
+See the documentation at https://tum-pbs.github.io/PhiML/Math.html
 """
 
 from ..backend._dtype import DType
@@ -116,7 +116,7 @@ Automatic mapper for broadcast string formatting of tensors, resulting in tensor
 Used with the special `-f-` syntax.
 
 Examples:
-    >>> from ml4s.math import f
+    >>> from phiml.math import f
     >>> -f-f'String containing {tensor1} and {tensor2:.1f}'
     # Result is a str tensor containing all dims of tensor1 and tensor2
 """

@@ -1,9 +1,9 @@
 from unittest import TestCase
 
-from ml4s import math
-from ml4s.backend._backend import init_installed_backends
-from ml4s.math import batch, get_sparsity, expand, wrap, stack, zeros, channel, spatial, ones, instance, tensor, pairwise_distances, dense, assert_close, non_dual, dual
-from ml4s.math._sparse import SparseCoordinateTensor, CompressedSparseMatrix
+from phiml import math
+from phiml.backend._backend import init_installed_backends
+from phiml.math import batch, get_sparsity, expand, wrap, stack, zeros, channel, spatial, ones, instance, tensor, pairwise_distances, dense, assert_close, non_dual, dual
+from phiml.math._sparse import SparseCoordinateTensor, CompressedSparseMatrix
 
 BACKENDS = init_installed_backends()
 

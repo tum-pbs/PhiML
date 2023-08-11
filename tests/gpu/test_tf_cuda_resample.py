@@ -7,7 +7,7 @@ from packaging import version
 import numpy as np
 import tensorflow.compat.v1 as tf
 
-from ml4s.backend.tensorflow._tf_cuda_resample import resample_cuda
+from phiml.backend.tensorflow._tf_cuda_resample import resample_cuda
 
 
 tf.disable_eager_execution()
