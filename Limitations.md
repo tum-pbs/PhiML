@@ -46,13 +46,13 @@ Repeated traces can drastically slow down your code and even cause memory leaks.
 If you need to jit compile functions many times, make sure to use `@jit_compile(forget_traces=True)` which makes Φ<sub>ML</sub> remember only the most recent trace.
 Other function transformation, such as `custom_gradient` or `functional_gradient` can also lead to memory leaks if traced very often.
 Generally, new traces are performed when auxiliary arguments or the number or structure of non-auxiliary arguments change.
-You can use [`math.trace_check()`](https://tum-pbs.github.io/Φ<sub>ML</sub>/phiml/math#phiml.math.trace_check) to find out whether and why a function needs to be re-traced.
+You can use [`math.trace_check()`](https://tum-pbs.github.io/PhiML/phiml/math#phiml.math.trace_check) to find out whether and why a function needs to be re-traced.
 
 
 ## Further Reading
 
 [🌐 **Φ<sub>ML</sub>**](https://github.com/tum-pbs/PhiML)
-&nbsp; • &nbsp; [📖 **Documentation**](https://tum-pbs.github.io/Φ<sub>ML</sub>/)
-&nbsp; • &nbsp; [🔗 **API**](https://tum-pbs.github.io/Φ<sub>ML</sub>/phiml)
+&nbsp; • &nbsp; [📖 **Documentation**](https://tum-pbs.github.io/PhiML/)
+&nbsp; • &nbsp; [🔗 **API**](https://tum-pbs.github.io/PhiML/phiml)
 &nbsp; • &nbsp; [**▶ Videos**]()
-&nbsp; • &nbsp; [<img src="images/colab_logo_small.png" height=4>](https://colab.research.google.com/github/tum-pbs/PhiML/blob/main/docs/Examples.ipynb) [**Examples**](https://tum-pbs.github.io/Φ<sub>ML</sub>/Examples.html)
+&nbsp; • &nbsp; [<img src="images/colab_logo_small.png" height=4>](https://colab.research.google.com/github/tum-pbs/PhiML/blob/main/docs/Examples.ipynb) [**Examples**](https://tum-pbs.github.io/PhiML/Examples.html)

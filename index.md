@@ -3,8 +3,8 @@
 [🌐 **GitHub**](https://github.com/tum-pbs/PhiML)
 &nbsp;&nbsp;&nbsp; [🔗 **API**](phiml)
 &nbsp;&nbsp;&nbsp; [**▶ Videos**]()
-&nbsp; • &nbsp; [<img src="https://www.tensorflow.org/images/colab_logo_32px.png" height=16>](https://colab.research.google.com/github/tum-pbs/PhiML/blob/main/docs/Introduction.ipynb) [**Introduction**](https://tum-pbs.github.io/Φ<sub>ML</sub>/Introduction.html)
-&nbsp; • &nbsp; [<img src="https://www.tensorflow.org/images/colab_logo_32px.png" height=16>](https://colab.research.google.com/github/tum-pbs/PhiML/blob/main/docs/Examples.ipynb) [**Examples**](https://tum-pbs.github.io/Φ<sub>ML</sub>/Examples.html)
+&nbsp; • &nbsp; [<img src="https://www.tensorflow.org/images/colab_logo_32px.png" height=16>](https://colab.research.google.com/github/tum-pbs/PhiML/blob/main/docs/Introduction.ipynb) [**Introduction**](https://tum-pbs.github.io/PhiML/Introduction.html)
+&nbsp; • &nbsp; [<img src="https://www.tensorflow.org/images/colab_logo_32px.png" height=16>](https://colab.research.google.com/github/tum-pbs/PhiML/blob/main/docs/Examples.ipynb) [**Examples**](https://tum-pbs.github.io/PhiML/Examples.html)
 
 
 We recommend starting with the [introduction notebook](Introduction.html) which walks you through the installation and introduces the general structure of Φ<sub>ML</sub>.

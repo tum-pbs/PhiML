@@ -15112,8 +15112,8 @@ body[data-format='mobile'] .jp-OutputArea-child .jp-OutputArea-output {
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
 <h1 id="%CE%A6ML-Examples">&#934;<sub>ML</sub> Examples<a class="anchor-link" href="#%CE%A6ML-Examples">&#182;</a></h1><p><a href="https://colab.research.google.com/github/tum-pbs/PhiML/blob/main/docs/Examples.ipynb"><img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Colab" /></a>
   •   <a href="https://github.com/tum-pbs/PhiML">🌐 <strong>Φ<sub>ML</sub></strong></a>
-  •   <a href="https://tum-pbs.github.io/%CE%A6%3Csub%3EML%3C/sub%3E/">📖 <strong>Documentation</strong></a>
-  •   <a href="https://tum-pbs.github.io/%CE%A6%3Csub%3EML%3C/sub%3E/phiml">🔗 <strong>API</strong></a>
+  •   <a href="https://tum-pbs.github.io/PhiML/">📖 <strong>Documentation</strong></a>
+  •   <a href="https://tum-pbs.github.io/PhiML/phiml">🔗 <strong>API</strong></a>
   •   <a href=""><strong>▶ Videos</strong></a></p>
 <p>All examples listed in this notebook can be run with any of the three supported ML backends: <code>jax</code>, <code>torch</code> and <code>tensorflow</code>.
 You can select your preferred one by changing the below <code>math.use()</code> call.</p>
@@ -15171,7 +15171,7 @@ You can select your preferred one by changing the below <code>math.use()</code> 
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<h3 id="Training-an-MLP">Training an MLP<a class="anchor-link" href="#Training-an-MLP">&#182;</a></h3><p>The following script trains an <a href="https://tum-pbs.github.io/%CE%A6%3Csub%3EML%3C/sub%3E/phiml/nn#phiml.nn.mlp">MLP</a> with three hidden layers to learn a noisy 1D sine function in the range [-2, 2].</p>
+<h3 id="Training-an-MLP">Training an MLP<a class="anchor-link" href="#Training-an-MLP">&#182;</a></h3><p>The following script trains an <a href="https://tum-pbs.github.io/PhiML/phiml/nn#phiml.nn.mlp">MLP</a> with three hidden layers to learn a noisy 1D sine function in the range [-2, 2].</p>
 
 </div>
 </div>
@@ -15215,7 +15215,7 @@ You can select your preferred one by changing the below <code>math.use()</code> 
 
 
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="application/vnd.jupyter.stderr">
-<pre>2023-08-11 10:26:09.245435: W tensorflow/compiler/tf2tensorrt/utils/py_utils.cc:38] TF-TRT Warning: Could not find TensorRT
+<pre>2023-08-11 10:36:59.598230: W tensorflow/compiler/tf2tensorrt/utils/py_utils.cc:38] TF-TRT Warning: Could not find TensorRT
 </pre>
 </div>
 </div>
@@ -15635,7 +15635,7 @@ class="
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
 <p>Inside <code>pairwise_distances</code>, we rename 'points' to 'others'.
 When taking the difference, Φ<sub>ML</sub> automatically expands both operands by the missing dimensions, adding 'points' to the first argument and 'others' to the second.
-An explanation of this automatic reshaping is given <a href="https://tum-pbs.github.io/%CE%A6%3Csub%3EML%3C/sub%3E/Shapes.html">here</a>.</p>
+An explanation of this automatic reshaping is given <a href="https://tum-pbs.github.io/PhiML/Shapes.html">here</a>.</p>
 
 </div>
 </div>
@@ -15647,7 +15647,7 @@ An explanation of this automatic reshaping is given <a href="https://tum-pbs.git
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<h3 id="Automatic-Differentiation">Automatic Differentiation<a class="anchor-link" href="#Automatic-Differentiation">&#182;</a></h3><p>Next, let's compute the <a href="https://tum-pbs.github.io/%CE%A6%3Csub%3EML%3C/sub%3E/Autodiff.html">gradient</a> of some function of <em>(x,y)</em> w.r.t. <em>x</em>.</p>
+<h3 id="Automatic-Differentiation">Automatic Differentiation<a class="anchor-link" href="#Automatic-Differentiation">&#182;</a></h3><p>Next, let's compute the <a href="https://tum-pbs.github.io/PhiML/Autodiff.html">gradient</a> of some function of <em>(x,y)</em> w.r.t. <em>x</em>.</p>
 
 </div>
 </div>
@@ -15714,7 +15714,7 @@ An explanation of this automatic reshaping is given <a href="https://tum-pbs.git
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<h3 id="JIT-compilation">JIT compilation<a class="anchor-link" href="#JIT-compilation">&#182;</a></h3><p>Φ<sub>ML</sub> provides two types of <a href="https://tum-pbs.github.io/%CE%A6%3Csub%3EML%3C/sub%3E/JIT.html">JIT compilation</a>: the generic <a href="https://tum-pbs.github.io/%CE%A6%3Csub%3EML%3C/sub%3E/phiml/math#phiml.math.jit_compile"><code>jit_compile</code></a> calls the corresponding library function while <a href="https://tum-pbs.github.io/%CE%A6%3Csub%3EML%3C/sub%3E/phiml/math#phiml.math.jit_compile_linear"><code>jit_compile_linear</code></a> builds an <a href="https://tum-pbs.github.io/%CE%A6%3Csub%3EML%3C/sub%3E/Matrices.html#Tracing">explicit representation for linear functions</a>.</p>
+<h3 id="JIT-compilation">JIT compilation<a class="anchor-link" href="#JIT-compilation">&#182;</a></h3><p>Φ<sub>ML</sub> provides two types of <a href="https://tum-pbs.github.io/PhiML/JIT.html">JIT compilation</a>: the generic <a href="https://tum-pbs.github.io/PhiML/phiml/math#phiml.math.jit_compile"><code>jit_compile</code></a> calls the corresponding library function while <a href="https://tum-pbs.github.io/PhiML/phiml/math#phiml.math.jit_compile_linear"><code>jit_compile_linear</code></a> builds an <a href="https://tum-pbs.github.io/PhiML/Matrices.html#Tracing">explicit representation for linear functions</a>.</p>
 
 </div>
 </div>
@@ -15838,7 +15838,7 @@ Otherwise, its concrete value would not be available inside the function and cou
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<p>Here, an <a href="https://tum-pbs.github.io/%CE%A6%3Csub%3EML%3C/sub%3E/Matrices.html#Tracing">explicit sparse matrix representation</a> of <code>optional_sp_grad</code> is computed each time a new value of <code>compute_gradient</code> is passed.</p>
+<p>Here, an <a href="https://tum-pbs.github.io/PhiML/Matrices.html#Tracing">explicit sparse matrix representation</a> of <code>optional_sp_grad</code> is computed each time a new value of <code>compute_gradient</code> is passed.</p>
 
 </div>
 </div>
@@ -15850,8 +15850,8 @@ Otherwise, its concrete value would not be available inside the function and cou
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<h3 id="Solving-a-sparse-linear-system-with-preconditioners">Solving a sparse linear system with preconditioners<a class="anchor-link" href="#Solving-a-sparse-linear-system-with-preconditioners">&#182;</a></h3><p>Φ<sub>ML</sub> supports <a href="https://tum-pbs.github.io/%CE%A6%3Csub%3EML%3C/sub%3E/Linear_Solves.html">solving dense as well as sparse linear systems</a> and can <a href="https://tum-pbs.github.io/%CE%A6%3Csub%3EML%3C/sub%3E/Matrices.html">build an explicit matrix representation from linear Python functions</a> in order to compute preconditioners.
-We recommend using Φ<sub>ML</sub>'s tensors, but you can pass native tensors to <a href="https://tum-pbs.github.io/%CE%A6%3Csub%3EML%3C/sub%3E/phiml/math#phiml.math.solve_linear"><code>solve_linear()</code></a> as well.
+<h3 id="Solving-a-sparse-linear-system-with-preconditioners">Solving a sparse linear system with preconditioners<a class="anchor-link" href="#Solving-a-sparse-linear-system-with-preconditioners">&#182;</a></h3><p>Φ<sub>ML</sub> supports <a href="https://tum-pbs.github.io/PhiML/Linear_Solves.html">solving dense as well as sparse linear systems</a> and can <a href="https://tum-pbs.github.io/PhiML/Matrices.html">build an explicit matrix representation from linear Python functions</a> in order to compute preconditioners.
+We recommend using Φ<sub>ML</sub>'s tensors, but you can pass native tensors to <a href="https://tum-pbs.github.io/PhiML/phiml/math#phiml.math.solve_linear"><code>solve_linear()</code></a> as well.
 The following example solves the 1D Poisson problem ∇x = b with b=1 with incomplete LU decomposition.</p>
 
 </div>
@@ -15910,8 +15910,8 @@ The following example solves the 1D Poisson problem ∇x = b with b=1 with incom
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<p>Decorating the linear function with <a href="https://tum-pbs.github.io/%CE%A6%3Csub%3EML%3C/sub%3E/phiml/math#phiml.math.jit_compile_linear"><code>math.jit_compile_linear</code></a> lets Φ<sub>ML</sub> compute the sparse matrix inside <a href="https://tum-pbs.github.io/%CE%A6%3Csub%3EML%3C/sub%3E/phiml/math#phiml.math.solve_linear"><code>solve_linear()</code></a>. In this example, the matrix is a tridiagonal band matrix.
-Note that if you JIT-compile the <a href="https://tum-pbs.github.io/%CE%A6%3Csub%3EML%3C/sub%3E/phiml/math#phiml.math.solve_linear"><code>math.solve_linear()</code></a> call, the sparsity pattern and incomplete LU preconditioner are <a href="https://tum-pbs.github.io/%CE%A6%3Csub%3EML%3C/sub%3E/NumPy_Constants.html">computed at JIT time</a>.
+<p>Decorating the linear function with <a href="https://tum-pbs.github.io/PhiML/phiml/math#phiml.math.jit_compile_linear"><code>math.jit_compile_linear</code></a> lets Φ<sub>ML</sub> compute the sparse matrix inside <a href="https://tum-pbs.github.io/PhiML/phiml/math#phiml.math.solve_linear"><code>solve_linear()</code></a>. In this example, the matrix is a tridiagonal band matrix.
+Note that if you JIT-compile the <a href="https://tum-pbs.github.io/PhiML/phiml/math#phiml.math.solve_linear"><code>math.solve_linear()</code></a> call, the sparsity pattern and incomplete LU preconditioner are <a href="https://tum-pbs.github.io/PhiML/NumPy_Constants.html">computed at JIT time</a>.
 The L and U matrices then enter the computational graph as constants and are not recomputed every time the function is called.</p>
 
 </div>
@@ -15985,8 +15985,8 @@ We can inspect the derived factors by printing the function as a matrix.</p>
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
 <h2 id="Further-Reading">Further Reading<a class="anchor-link" href="#Further-Reading">&#182;</a></h2><p>Check out the <a href="Introduction.html">🚀 quickstart guide</a> for an introduction into <a href="Tensors.html">tensors</a> and <a href="Shapes.html">dimensions</a>.</p>
 <p><a href="https://github.com/tum-pbs/PhiML">🌐 <strong>Φ<sub>ML</sub></strong></a>
-  •   <a href="https://tum-pbs.github.io/%CE%A6%3Csub%3EML%3C/sub%3E/">📖 <strong>Documentation</strong></a>
-  •   <a href="https://tum-pbs.github.io/%CE%A6%3Csub%3EML%3C/sub%3E/phiml">🔗 <strong>API</strong></a>
+  •   <a href="https://tum-pbs.github.io/PhiML/">📖 <strong>Documentation</strong></a>
+  •   <a href="https://tum-pbs.github.io/PhiML/phiml">🔗 <strong>API</strong></a>
   •   <a href=""><strong>▶ Videos</strong></a></p>
 
 </div>

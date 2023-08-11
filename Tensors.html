@@ -15112,10 +15112,10 @@ body[data-format='mobile'] .jp-OutputArea-child .jp-OutputArea-output {
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
 <h1 id="Why-Use-%CE%A6ML's-Tensors">Why Use &#934;<sub>ML</sub>'s Tensors<a class="anchor-link" href="#Why-Use-%CE%A6ML's-Tensors">&#182;</a></h1><p><a href="https://colab.research.google.com/github/tum-pbs/PhiML/blob/main/docs/Tensors.ipynb"><img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Colab" /></a>
   •   <a href="https://github.com/tum-pbs/PhiML">🌐 <strong>Φ<sub>ML</sub></strong></a>
-  •   <a href="https://tum-pbs.github.io/%CE%A6%3Csub%3EML%3C/sub%3E/">📖 <strong>Documentation</strong></a>
-  •   <a href="https://tum-pbs.github.io/%CE%A6%3Csub%3EML%3C/sub%3E/phiml">🔗 <strong>API</strong></a>
+  •   <a href="https://tum-pbs.github.io/PhiML/">📖 <strong>Documentation</strong></a>
+  •   <a href="https://tum-pbs.github.io/PhiML/phiml">🔗 <strong>API</strong></a>
   •   <a href=""><strong>▶ Videos</strong></a>
-  •   <a href="https://colab.research.google.com/github/tum-pbs/PhiML/blob/main/docs/Examples.ipynb"><img src="images/colab_logo_small.png" height=4></a> <a href="https://tum-pbs.github.io/%CE%A6%3Csub%3EML%3C/sub%3E/Examples.html"><strong>Examples</strong></a></p>
+  •   <a href="https://colab.research.google.com/github/tum-pbs/PhiML/blob/main/docs/Examples.ipynb"><img src="images/colab_logo_small.png" height=4></a> <a href="https://tum-pbs.github.io/PhiML/Examples.html"><strong>Examples</strong></a></p>
 <p>While you can call many Φ<sub>ML</sub> function directly with native tensors, such as Jax tensors or NumPy arrays, we recommend wrapping them in Φ<sub>ML</sub> tensors.
 These provide several benefits over the native tensors and allow you to write easy-to-read, more concise, more explicit, less error-prone code.</p>
 <p>For an introduction into tensors and dimensions, check out the <a href="Introduction.ht">introduction notebook</a>.</p>
@@ -15232,7 +15232,7 @@ When creating a Φ<sub>ML</sub> tensor, you need to specify the names and types 
 
 
 <div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre><span class="ansi-green-intense-fg">(examplesᵇ=2, xˢ=4, yˢ=3)</span> <span class="ansi-blue-intense-fg">0.475 ± 0.263</span> <span class="ansi-white-fg">(3e-02...1e+00)</span></pre>
+<pre><span class="ansi-green-intense-fg">(examplesᵇ=2, xˢ=4, yˢ=3)</span> <span class="ansi-blue-intense-fg">0.538 ± 0.315</span> <span class="ansi-white-fg">(1e-02...1e+00)</span></pre>
 </div>
 
 </div>
@@ -15283,7 +15283,7 @@ Here are some examples:</p>
 
 
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
-<pre><span class="ansi-green-intense-fg">(examplesᵇ=2, xˢ=4, yˢ=3)</span> <span class="ansi-yellow-intense-fg">float32</span> <span class="ansi-blue-intense-fg">4.74929e-01 ± 2.62820e-01</span> <span class="ansi-white-fg">(2.93948e-02...9.90216e-01)</span>
+<pre><span class="ansi-green-intense-fg">(examplesᵇ=2, xˢ=4, yˢ=3)</span> <span class="ansi-yellow-intense-fg">float32</span> <span class="ansi-blue-intense-fg">5.37980e-01 ± 3.15046e-01</span> <span class="ansi-white-fg">(1.33520e-02...9.59836e-01)</span>
 </pre>
 </div>
 </div>
@@ -15321,13 +15321,13 @@ Here are some examples:</p>
 
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
 <pre><span class="ansi-green-intense-fg">examples=0</span>  
-<span class="ansi-blue-intense-fg"> 0.598, 0.591, 0.328, 0.850,
- 0.389, 0.504, 0.568, 0.520,
- 0.262, 0.109, 0.195, 0.555</span>  along <span class="ansi-green-intense-fg">(xˢ=4, yˢ=3)</span>
+<span class="ansi-blue-intense-fg"> 0.265, 0.863, 0.071, 0.768,
+ 0.138, 0.501, 0.825, 0.105,
+ 0.218, 0.640, 0.725, 0.030</span>  along <span class="ansi-green-intense-fg">(xˢ=4, yˢ=3)</span>
 <span class="ansi-green-intense-fg">examples=1</span>  
-<span class="ansi-blue-intense-fg"> 0.300, 0.551, 0.073, 0.295,
- 0.844, 0.081, 0.612, 0.711,
- 0.029, 0.744, 0.699, 0.990</span>  along <span class="ansi-green-intense-fg">(xˢ=4, yˢ=3)</span>
+<span class="ansi-blue-intense-fg"> 0.950, 0.716, 0.388, 0.772,
+ 0.662, 0.688, 0.807, 0.960,
+ 0.013, 0.704, 0.887, 0.217</span>  along <span class="ansi-green-intense-fg">(xˢ=4, yˢ=3)</span>
 </pre>
 </div>
 </div>
@@ -15364,15 +15364,15 @@ Here are some examples:</p>
 
 
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
-<pre>[[[0.26 0.39 0.60]
-  [0.11 0.50 0.59]
-  [0.20 0.57 0.33]
-  [0.55 0.52 0.85]]
+<pre>[[[0.22 0.14 0.26]
+  [0.64 0.50 0.86]
+  [0.73 0.82 0.07]
+  [0.03 0.11 0.77]]
 
- [[0.03 0.84 0.30]
-  [0.74 0.08 0.55]
-  [0.70 0.61 0.07]
-  [0.99 0.71 0.29]]]
+ [[0.01 0.66 0.95]
+  [0.70 0.69 0.72]
+  [0.89 0.81 0.39]
+  [0.22 0.96 0.77]]]
 </pre>
 </div>
 </div>
@@ -15506,15 +15506,15 @@ In both cases, the requested dimension order needs to be specified.</p>
 
 
 <div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre>array([[[0.26216072, 0.38872176, 0.5981757 ],
-        [0.10887258, 0.50372255, 0.5914081 ],
-        [0.19505556, 0.56846464, 0.32754856],
-        [0.55486447, 0.51993084, 0.8503902 ]],
+<pre>array([[[0.21828969, 0.13758431, 0.2649446 ],
+        [0.64043933, 0.5007067 , 0.8625739 ],
+        [0.72515285, 0.824913  , 0.07103453],
+        [0.02982365, 0.10543036, 0.76766086]],
 
-       [[0.02939477, 0.8442439 , 0.2995829 ],
-        [0.7442372 , 0.08092248, 0.5511175 ],
-        [0.69864583, 0.6116982 , 0.07312894],
-        [0.9902164 , 0.7112325 , 0.2945494 ]]], dtype=float32)</pre>
+       [[0.01335204, 0.66228044, 0.949737  ],
+        [0.70403403, 0.6880018 , 0.71624035],
+        [0.8866238 , 0.8068826 , 0.38759804],
+        [0.21675295, 0.9598361 , 0.77162933]]], dtype=float32)</pre>
 </div>
 
 </div>
@@ -15565,15 +15565,15 @@ In both cases, the requested dimension order needs to be specified.</p>
 
 
 <div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre>array([[[0.26216072, 0.38872176, 0.5981757 ],
-        [0.10887258, 0.50372255, 0.5914081 ],
-        [0.19505556, 0.56846464, 0.32754856],
-        [0.55486447, 0.51993084, 0.8503902 ]],
+<pre>array([[[0.21828969, 0.13758431, 0.2649446 ],
+        [0.64043933, 0.5007067 , 0.8625739 ],
+        [0.72515285, 0.824913  , 0.07103453],
+        [0.02982365, 0.10543036, 0.76766086]],
 
-       [[0.02939477, 0.8442439 , 0.2995829 ],
-        [0.7442372 , 0.08092248, 0.5511175 ],
-        [0.69864583, 0.6116982 , 0.07312894],
-        [0.9902164 , 0.7112325 , 0.2945494 ]]], dtype=float32)</pre>
+       [[0.01335204, 0.66228044, 0.949737  ],
+        [0.70403403, 0.6880018 , 0.71624035],
+        [0.8866238 , 0.8068826 , 0.38759804],
+        [0.21675295, 0.9598361 , 0.77162933]]], dtype=float32)</pre>
 </div>
 
 </div>
@@ -15589,16 +15589,16 @@ In both cases, the requested dimension order needs to be specified.</p>
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<h2 id="Further-Reading">Further Reading<a class="anchor-link" href="#Further-Reading">&#182;</a></h2><p>Check out the <a href="https://tum-pbs.github.io/%CE%A6%3Csub%3EML%3C/sub%3E/Examples.html">examples</a> to see how using Φ<sub>ML</sub>'s tensors is different from the other libraries.</p>
+<h2 id="Further-Reading">Further Reading<a class="anchor-link" href="#Further-Reading">&#182;</a></h2><p>Check out the <a href="https://tum-pbs.github.io/PhiML/Examples.html">examples</a> to see how using Φ<sub>ML</sub>'s tensors is different from the other libraries.</p>
 <p>Learn more about the <a href="Shapes.html">dimension types</a>.</p>
 <p>Φ<sub>ML</sub> unifies <a href="Data_Types.html">data types</a> as well and lets you set the floating point precision globally or by context.</p>
 <p>While the dimensionality of neural networks must be specified during network creation, this is not the case for math functions.
 These <a href="N_Dimensional.html">automatically adapt to the number of spatial dimensions of the data that is passed in</a>.</p>
 <p><a href="https://github.com/tum-pbs/PhiML">🌐 <strong>Φ<sub>ML</sub></strong></a>
-  •   <a href="https://tum-pbs.github.io/%CE%A6%3Csub%3EML%3C/sub%3E/">📖 <strong>Documentation</strong></a>
-  •   <a href="https://tum-pbs.github.io/%CE%A6%3Csub%3EML%3C/sub%3E/phiml">🔗 <strong>API</strong></a>
+  •   <a href="https://tum-pbs.github.io/PhiML/">📖 <strong>Documentation</strong></a>
+  •   <a href="https://tum-pbs.github.io/PhiML/phiml">🔗 <strong>API</strong></a>
   •   <a href=""><strong>▶ Videos</strong></a>
-  •   <a href="https://colab.research.google.com/github/tum-pbs/PhiML/blob/main/docs/Examples.ipynb"><img src="images/colab_logo_small.png" height=4></a> <a href="https://tum-pbs.github.io/%CE%A6%3Csub%3EML%3C/sub%3E/Examples.html"><strong>Examples</strong></a></p>
+  •   <a href="https://colab.research.google.com/github/tum-pbs/PhiML/blob/main/docs/Examples.ipynb"><img src="images/colab_logo_small.png" height=4></a> <a href="https://tum-pbs.github.io/PhiML/Examples.html"><strong>Examples</strong></a></p>
 
 </div>
 </div>
