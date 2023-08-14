@@ -15149,7 +15149,7 @@ Dense, sparse, and matrix-free linear systems can be solved this way.</p>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython2"><pre><span></span><span class="kn">from</span> <span class="nn">phiml</span> <span class="kn">import</span> <span class="n">math</span>
-<span class="kn">from</span> <span class="nn">phiml.math</span> <span class="kn">import</span> <span class="n">wrap</span><span class="p">,</span> <span class="n">channel</span><span class="p">,</span> <span class="n">dual</span><span class="p">,</span> <span class="n">Solve</span><span class="p">,</span> <span class="n">const_vec</span><span class="p">,</span> <span class="n">tensor</span>
+<span class="kn">from</span> <span class="nn">phiml.math</span> <span class="kn">import</span> <span class="n">wrap</span><span class="p">,</span> <span class="n">channel</span><span class="p">,</span> <span class="n">dual</span><span class="p">,</span> <span class="n">spatial</span><span class="p">,</span> <span class="n">Solve</span><span class="p">,</span> <span class="n">tensor</span>
 </pre></div>
 
      </div>
@@ -15796,6 +15796,79 @@ To enable this, pass <code>grad_for_f=True</code> to the <code>solve_linear()</c
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
+<h2 id="Handling-Failed-Optimizations">Handling Failed Optimizations<a class="anchor-link" href="#Handling-Failed-Optimizations">&#182;</a></h2><p>When a linear solve (or <code>minimize</code> call) does not find a solution, a subclass of <a href="phiml/math/#phiml.math.ConvergenceException"><code>ConvergenceException</code></a> is thrown, depending on the reason.</p>
+<ul>
+<li>If the maximum number of iterations was reached, <a href="phiml/math/#phiml.math.NotConverged"><code>NotConverged</code></a> is thrown.</li>
+<li>If the solve diverged or failed prematurely, <a href="phiml/math/#phiml.math.Diverged"><code>Diverged</code></a> is thrown.</li>
+</ul>
+<p>These exceptions can also be thrown during backpropagation if the adjoint solve fails (except for TensorFlow).</p>
+<p>You can deal with failed solves using Python's <code>try</code>-<code>except</code> clause.</p>
+
+</div>
+</div>
+</div>
+</div><div  class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[14]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-ipython2"><pre><span></span><span class="k">try</span><span class="p">:</span>
+    <span class="n">solution</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">solve_linear</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="mi">0</span> <span class="o">*</span> <span class="n">x</span><span class="p">,</span> <span class="n">wrap</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">],</span> <span class="n">spatial</span><span class="p">(</span><span class="s1">&#39;x&#39;</span><span class="p">)),</span> <span class="n">solve</span><span class="o">=</span><span class="n">math</span><span class="o">.</span><span class="n">Solve</span><span class="p">(</span><span class="n">x0</span><span class="o">=</span><span class="n">math</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">spatial</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="mi">3</span><span class="p">))))</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;converged&quot;</span><span class="p">,</span> <span class="n">solution</span><span class="p">)</span>
+<span class="k">except</span> <span class="n">math</span><span class="o">.</span><span class="n">ConvergenceException</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">exc</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Last estimate: </span><span class="si">{</span><span class="n">exc</span><span class="o">.</span><span class="n">result</span><span class="o">.</span><span class="n">x</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+<div class="jp-Cell-outputWrapper">
+<div class="jp-Collapser jp-OutputCollapser jp-Cell-outputCollapser">
+</div>
+
+
+<div class="jp-OutputArea jp-Cell-outputArea">
+<div class="jp-OutputArea-child">
+    
+    <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+
+
+<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
+<pre>&#39;Φ-ML CG-adaptive (torch)  did not converge to rel_tol=1e-05, abs_tol=1e-05 within 1000 iterations. Max residual: 3.0&#39;
+Last estimate: <span class="ansi-blue-intense-fg">(0.000, 0.000, 0.000)</span> along <span class="ansi-green-intense-fg">xˢ</span>
+</pre>
+</div>
+</div>
+
+</div>
+
+</div>
+
+</div>
+<div  class="jp-Cell jp-MarkdownCell jp-Notebook-cell">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
+</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
+<p>If you want the regular execution flow to continue despite non-convergence, you can pass <code>suppress=[math.Diverged, math.NotConverged]</code> to the <code>Solve</code> constructor.</p>
+
+</div>
+</div>
+</div>
+</div>
+<div  class="jp-Cell jp-MarkdownCell jp-Notebook-cell">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
+</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
 <h2 id="Obtaining-Additional-Information-about-a-Solve">Obtaining Additional Information about a Solve<a class="anchor-link" href="#Obtaining-Additional-Information-about-a-Solve">&#182;</a></h2><p>All solves are logged internally and can be shown by setting <a href="phiml#phiml.set_logging_level"><code>phiml.set_logging_level('debug')</code></a>.</p>
 <p>Additional solve properties can be recorded using a <a href="phiml/math#phiml.math.SolveTape"><code>SolveTape</code></a>.
 Recording the full optimization trajectory requires setting <code>record_trajectories=True</code>.</p>
@@ -15808,7 +15881,7 @@ Recording the full optimization trajectory requires setting <code>record_traject
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[14]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[15]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython2"><pre><span></span><span class="kn">import</span> <span class="nn">phiml</span>
@@ -15835,11 +15908,11 @@ Recording the full optimization trajectory requires setting <code>record_traject
 
 
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
-<pre>factor_ilu: auto-selecting iterations=1 (eager mode) for matrix <span class="ansi-blue-intense-fg">(2.000, 0.000)</span>; <span class="ansi-blue-intense-fg">(0.000, 1.000)</span> <span class="ansi-green-intense-fg">(b_vecᶜ=2, ~b_vecᵈ=2)</span> (DEBUG), 2023-08-11 10:37:33,821n
+<pre>factor_ilu: auto-selecting iterations=1 (eager mode) for matrix <span class="ansi-blue-intense-fg">(2.000, 0.000)</span>; <span class="ansi-blue-intense-fg">(0.000, 1.000)</span> <span class="ansi-green-intense-fg">(b_vecᶜ=2, ~b_vecᵈ=2)</span> (DEBUG), 2023-08-14 09:35:50,094n
 
-Running forward pass of custom op forward &#39;_matrix_solve_forward&#39; given args (&#39;y&#39;,) containing 1 native tensors (DEBUG), 2023-08-11 10:37:33,833n
+Running forward pass of custom op forward &#39;_matrix_solve_forward&#39; given args (&#39;y&#39;,) containing 1 native tensors (DEBUG), 2023-08-14 09:35:50,107n
 
-Performing linear solve scipy-CG with tolerance <span class="ansi-yellow-intense-fg">float64</span> <span class="ansi-blue-intense-fg">1e-05</span> (rel), <span class="ansi-yellow-intense-fg">float64</span> <span class="ansi-blue-intense-fg">1e-05</span> (abs), max_iterations=<span class="ansi-blue-intense-fg">1000</span> with backend torch (DEBUG), 2023-08-11 10:37:33,837n
+Performing linear solve scipy-CG with tolerance <span class="ansi-yellow-intense-fg">float64</span> <span class="ansi-blue-intense-fg">1e-05</span> (rel), <span class="ansi-yellow-intense-fg">float64</span> <span class="ansi-blue-intense-fg">1e-05</span> (abs), max_iterations=<span class="ansi-blue-intense-fg">1000</span> with backend torch (DEBUG), 2023-08-14 09:35:50,111n
 
 </pre>
 </div>
@@ -15866,7 +15939,7 @@ Performing linear solve scipy-CG with tolerance <span class="ansi-yellow-intense
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[15]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[16]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython2"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="n">solves</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">solve</span><span class="p">)</span>
@@ -15928,7 +16001,7 @@ This matches the signatures of the native solve functions like <code>torch.linal
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[16]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[17]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython2"><pre><span></span><span class="kn">import</span> <span class="nn">torch</span>
@@ -15956,16 +16029,16 @@ This matches the signatures of the native solve functions like <code>torch.linal
 
 
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
-<pre>Running forward pass of custom op forward &#39;_matrix_solve_forward&#39; given args (&#39;y&#39;, &#39;matrix&#39;) containing 2 native tensors (DEBUG), 2023-08-11 10:37:33,865n
+<pre>Running forward pass of custom op forward &#39;_matrix_solve_forward&#39; given args (&#39;y&#39;, &#39;matrix&#39;) containing 2 native tensors (DEBUG), 2023-08-14 09:35:50,141n
 
-Performing linear solve auto with tolerance <span class="ansi-yellow-intense-fg">float64</span> <span class="ansi-blue-intense-fg">1e-05</span> (rel), <span class="ansi-yellow-intense-fg">float64</span> <span class="ansi-blue-intense-fg">1e-05</span> (abs), max_iterations=<span class="ansi-blue-intense-fg">1000</span> with backend torch (DEBUG), 2023-08-11 10:37:33,867n
+Performing linear solve auto with tolerance <span class="ansi-yellow-intense-fg">float64</span> <span class="ansi-blue-intense-fg">1e-05</span> (rel), <span class="ansi-yellow-intense-fg">float64</span> <span class="ansi-blue-intense-fg">1e-05</span> (abs), max_iterations=<span class="ansi-blue-intense-fg">1000</span> with backend torch (DEBUG), 2023-08-14 09:35:50,144n
 
 </pre>
 </div>
 </div>
 <div class="jp-OutputArea-child jp-OutputArea-executeResult">
     
-    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[16]:</div>
+    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[17]:</div>
 
 
 
