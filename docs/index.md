@@ -26,7 +26,7 @@ Check out the corresponding introductory [▶ tutorial video]() as well!
 * [Linear solves](Linear_Solves.html)
 * [Non-uniform tensors](Non_Uniform.html)
 * [NumPy for constants](NumPy_Constants.html)
-* [Selecting compute devices](Devices.html)
+* [Selecting compute devices (CPU/GPU/TPU)](Devices.html)
 * [Automatic differentiation](Autodiff.html)
 * [Just-in-time (JIT) compilation](JIT.html)
 * [Converting between Jax, PyTorch, TensorFlow, NumPy](Convert.html)
