@@ -5,7 +5,7 @@ import numpy as np
 from . import _ops as math
 from . import extrapolation as extrapolation
 from ._magic_ops import stack, rename_dims, concat, variable_values
-from ._shape import Shape, channel, batch, spatial, DimFilter, parse_dim_order, shape, instance
+from ._shape import Shape, channel, batch, spatial, DimFilter, parse_dim_order, shape, instance, dual
 from ._tensors import Tensor, wrap, tensor
 from .extrapolation import Extrapolation
 from .magic import PhiTreeNode
@@ -155,33 +155,40 @@ def rotate_vector(vector: math.Tensor, angle: Union[float, math.Tensor]) -> Tens
     Rotates `vector` around the origin.
 
     Args:
-        vector: n-dimensional vector with a channel dimension called `'vector'`
+        vector: n-dimensional vector with exactly one channel dimension
         angle: Euler angle. The direction is the rotation axis and the length is the amount (in radians).
 
     Returns:
         Rotated vector as `Tensor`
     """
-    assert 'vector' in vector.shape, "vector must have 'vector' dimension."
-    if vector.vector.size == 1:
-        raise AssertionError(f"Cannot rotate a 1D vector. shape={vector.shape}")
-    elif vector.vector.size == 2:
+    assert channel(vector).rank == 1, f"vector must have exactly one channel dimension"
+    matrix = rotation_matrix(angle, matrix_dim_2d=channel(vector))
+    return matrix @ vector
+
+
+def rotation_matrix(angle: Union[float, math.Tensor], matrix_dim_2d=channel(vector='x,y')):
+    """
+    Create a 2D or 3D rotation matrix.
+
+    Args:
+        angle: Either scalar angle for a 2D rotation or euler angles in 3D.
+        matrix_dim_2d: Matrix dimension for 2D rotations. In 3D, the channel dimension of angle is used.
+
+    Returns:
+        Matrix with one channel and one dual dimension as well as all non-channel dimensions of `angle`.
+        In 2D, the channel and dual dimensions are derived from `matrix_dim_2d` and in 3D, the channel dimension of `angle` is used instead.
+    """
+    if not channel(angle):  # 1D rotation
         sin = wrap(math.sin(angle))
         cos = wrap(math.cos(angle))
-        x, y = vector.vector
-        rot_x = cos * x - sin * y
-        rot_y = sin * x + cos * y
-        return math.stack_tensors([rot_x, rot_y], channel(vector=vector.vector.item_names))
-    elif vector.vector.size == 3:
-        assert 'vector' in angle.shape and angle.vector.size == 3, f"angle for 3D rotations needs to be a 3-vector but got {angle}"
+        return wrap([[cos, -sin], [sin, cos]], matrix_dim_2d, dual(**matrix_dim_2d.untyped_dict))
+    else:
+        assert channel(angle).rank == 1 and channel(angle).size == 3, f"angle for 3D rotations needs to be a 3-vector but got {angle}"
         s1, s2, s3 = math.sin(angle).vector
         c1, c2, c3 = math.cos(angle).vector
-        matrix = wrap([[c1 * c2, c1 * s2 * s3 - s1 * c3, c1 * s2 * c3 + s1 * s3],
+        return wrap([[c1 * c2, c1 * s2 * s3 - s1 * c3, c1 * s2 * c3 + s1 * s3],
                        [s1 * c2, s1 * s2 * s3 + c1 * c3, s1 * s2 * c3 - c1 * s3],
-                       [-s2, c2 * s3, c2 * c3]],
-                      vector.shape['vector'], math.dual('vector'))  # Rz * Ry * Rx
-        return matrix @ vector
-    else:
-        raise NotImplementedError(f"Rotation in {vector.vector.size}D not yet implemented.")
+                       [-s2, c2 * s3, c2 * c3]], channel(angle), dual(**channel(angle).untyped_dict))  # Rz * Ry * Rx
 
 
 def dim_mask(all_dims: Union[Shape, tuple, list], dims: DimFilter, mask_dim=channel('vector')) -> Tensor:

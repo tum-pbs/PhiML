@@ -71,7 +71,7 @@ from ._ops import (
 
 from ._nd import (
     shift,
-    vec, const_vec, vec_length, vec_squared, vec_normalize, cross_product, rotate_vector, dim_mask,
+    vec, const_vec, vec_length, vec_squared, vec_normalize, cross_product, rotate_vector, rotation_matrix, dim_mask,
     normalize_to,
     l1_loss, l2_loss, frequency_loss,
     spatial_gradient, laplace,
