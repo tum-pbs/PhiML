@@ -33,6 +33,25 @@ class TestOps(TestCase):
             assert_not_close(math.zeros(a), math.ones(a) * 1e-100, rel_tolerance=0, abs_tolerance=0)
             assert_close(math.zeros(a), math.ones(a) * 1e-100, rel_tolerance=0, abs_tolerance=1e-15)
 
+    def test_always_close(self):
+        @math.jit_compile
+        def jit(x, y):
+            if not math.always_close(x, x):
+                return 0
+            if not math.always_close(x, wrap(x.native())):
+                return 0
+            if math.always_close(x, y):
+                return 0
+            if math.always_close(x, 0):
+                return 0
+            return 1 + 0 * x
+        for b in BACKENDS:
+            if b.supports(Backend.jit_compile):
+                with b:
+                    x = math.tensor(0)
+                    y = math.tensor(0)
+                    self.assertEqual(1, jit(x, y).native(), msg=b.name)
+
     def test_assert_close_non_uniform(self):
         t = math.stack([math.zeros(spatial(x=4)), math.zeros(spatial(x=3))], channel('stack'))
         math.assert_close(t, t+0)

@@ -2410,6 +2410,35 @@ def dtype(x) -> DType:
         return choose_backend(x).dtype(x)
 
 
+def always_close(t1: Union[Number, Tensor, bool], t2: Union[Number, Tensor, bool], rel_tolerance=1e-5, abs_tolerance=0) -> bool:
+    """
+    Checks whether two tensors are guaranteed to be `close` in all values.
+    Unlike `close()`, this function can be used with JIT compilation.
+
+    If one of the given tensors is being traced, the tensors are only equal if they reference the same native tensor.
+    Otherwise, an element-wise equality check is performed.
+
+    Args:
+        t1: First tensor or number to compare.
+        t2: Second tensor or number to compare.
+        rel_tolerance: Relative tolerance, only used if neither tensor is traced.
+        abs_tolerance: Absolute tolerance, only used if neither tensor is traced.
+
+    Returns:
+        `bool`
+    """
+    t1 = wrap(t1)
+    t2 = wrap(t2)
+    if t1.available != t2.available:
+        return False
+    if t1.available and t2.available:
+        return close(t1, t2, rel_tolerance=rel_tolerance, abs_tolerance=abs_tolerance)
+    elif isinstance(t1, NativeTensor) and isinstance(t2, NativeTensor):
+        return t1._native is t2._native
+    else:
+        return t1 is t2
+
+
 def close(*tensors, rel_tolerance=1e-5, abs_tolerance=0) -> bool:
     """
     Checks whether all tensors have equal values within the specified tolerance.
@@ -2419,8 +2448,8 @@ def close(*tensors, rel_tolerance=1e-5, abs_tolerance=0) -> bool:
 
     Args:
         *tensors: `Tensor` or tensor-like (constant) each
-        rel_tolerance: relative tolerance (Default value = 1e-5)
-        abs_tolerance: absolute tolerance (Default value = 0)
+        rel_tolerance: Relative tolerance
+        abs_tolerance: Absolute tolerance
 
     Returns:
         Whether all given tensors are equal to the first tensor within the specified tolerance.
