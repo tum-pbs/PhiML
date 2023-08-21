@@ -2731,13 +2731,13 @@ Use <code>is_available(tensor)</code> to check if the value can be represented a
 <dt><strong><code>mode</code></strong></dt>
 <dd>constant', 'boundary', 'periodic', 'symmetric', 'reflect'</dd>
 <dt><strong><code>constant_values</code></strong></dt>
-<dd>used for out-of-bounds points if mode='constant' (Default value = 0)</dd>
+<dd>Scalar value used for out-of-bounds points if mode='constant'. Must be a Python primitive type or scalar tensor.</dd>
 <dt><strong><code>mode</code></strong></dt>
 <dd>str:
 (Default value = 'constant')</dd>
 </dl>
 <h2 id="returns">Returns</h2>
-<p>padded tensor or NotImplemented</p></div>
+<p>padded tensor or <code>NotImplemented</code></p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>

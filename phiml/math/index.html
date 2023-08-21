@@ -100,7 +100,7 @@ from ._ops import (
     histogram,
     fft, ifft, convolve, cumulative_sum,
     dtype, cast,
-    close, assert_close,
+    close, always_close, assert_close,
     stop_gradient,
     pairwise_distances, map_pairs,
 )
@@ -384,6 +384,58 @@ Tracing placeholders are considered not available, even when they hold example v
         `True` if no value is a placeholder or being traced, `False` otherwise.
     &#34;&#34;&#34;
     return all([v.available for v in values])</code></pre>
+</details>
+</dd>
+<dt id="phiml.math.always_close"><code class="name flex">
+<span>def <span class="ident">always_close</span></span>(<span>t1: phiml.math._tensors.Tensor, t2: phiml.math._tensors.Tensor, rel_tolerance=1e-05, abs_tolerance=0) ‑> bool</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Checks whether two tensors are guaranteed to be <code><a title="phiml.math.close" href="#phiml.math.close">close()</a></code> in all values.
+Unlike <code><a title="phiml.math.close" href="#phiml.math.close">close()</a></code>, this function can be used with JIT compilation.</p>
+<p>If one of the given tensors is being traced, the tensors are only equal if they reference the same native tensor.
+Otherwise, an element-wise equality check is performed.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>t1</code></strong></dt>
+<dd>First tensor or number to compare.</dd>
+<dt><strong><code>t2</code></strong></dt>
+<dd>Second tensor or number to compare.</dd>
+<dt><strong><code>rel_tolerance</code></strong></dt>
+<dd>Relative tolerance, only used if neither tensor is traced.</dd>
+<dt><strong><code>abs_tolerance</code></strong></dt>
+<dd>Absolute tolerance, only used if neither tensor is traced.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<p><code>bool</code></p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def always_close(t1: Tensor, t2: Tensor, rel_tolerance=1e-5, abs_tolerance=0) -&gt; bool:
+    &#34;&#34;&#34;
+    Checks whether two tensors are guaranteed to be `close` in all values.
+    Unlike `close()`, this function can be used with JIT compilation.
+
+    If one of the given tensors is being traced, the tensors are only equal if they reference the same native tensor.
+    Otherwise, an element-wise equality check is performed.
+
+    Args:
+        t1: First tensor or number to compare.
+        t2: Second tensor or number to compare.
+        rel_tolerance: Relative tolerance, only used if neither tensor is traced.
+        abs_tolerance: Absolute tolerance, only used if neither tensor is traced.
+
+    Returns:
+        `bool`
+    &#34;&#34;&#34;
+    if t1.available != t2.available:
+        return False
+    if t1.available and t2.available:
+        close(t1, t2, rel_tolerance=rel_tolerance, abs_tolerance=abs_tolerance)
+    elif isinstance(t1, NativeTensor) and isinstance(t2, NativeTensor):
+        return t1._native is t2._native
+    else:
+        return t1 is t2</code></pre>
 </details>
 </dd>
 <dt id="phiml.math.any"><code class="name flex">
@@ -1068,9 +1120,9 @@ Tensors with different shapes are reshaped before comparing.</p>
 <dt><strong><code>*tensors</code></strong></dt>
 <dd><code><a title="phiml.math.Tensor" href="#phiml.math.Tensor">Tensor</a></code> or tensor-like (constant) each</dd>
 <dt><strong><code>rel_tolerance</code></strong></dt>
-<dd>relative tolerance (Default value = 1e-5)</dd>
+<dd>Relative tolerance</dd>
 <dt><strong><code>abs_tolerance</code></strong></dt>
-<dd>absolute tolerance (Default value = 0)</dd>
+<dd>Absolute tolerance</dd>
 </dl>
 <h2 id="returns">Returns</h2>
 <p>Whether all given tensors are equal to the first tensor within the specified tolerance.</p></div>
@@ -1087,8 +1139,8 @@ Tensors with different shapes are reshaped before comparing.</p>
 
     Args:
         *tensors: `Tensor` or tensor-like (constant) each
-        rel_tolerance: relative tolerance (Default value = 1e-5)
-        abs_tolerance: absolute tolerance (Default value = 0)
+        rel_tolerance: Relative tolerance
+        abs_tolerance: Absolute tolerance
 
     Returns:
         Whether all given tensors are equal to the first tensor within the specified tolerance.
@@ -15587,6 +15639,7 @@ If a dimension of the tensor is not listed in <code>order</code>, a <code>ValueE
 <li><code><a title="phiml.math.abs_square" href="#phiml.math.abs_square">abs_square</a></code></li>
 <li><code><a title="phiml.math.all" href="#phiml.math.all">all</a></code></li>
 <li><code><a title="phiml.math.all_available" href="#phiml.math.all_available">all_available</a></code></li>
+<li><code><a title="phiml.math.always_close" href="#phiml.math.always_close">always_close</a></code></li>
 <li><code><a title="phiml.math.any" href="#phiml.math.any">any</a></code></li>
 <li><code><a title="phiml.math.arccos" href="#phiml.math.arccos">arccos</a></code></li>
 <li><code><a title="phiml.math.arccosh" href="#phiml.math.arccosh">arccosh</a></code></li>

@@ -1016,14 +1016,14 @@ The methods of <code><a title="phiml.backend.Backend" href="#phiml.backend.Backe
         If the mode is not supported, returns NotImplemented.
 
         Args:
-          value: tensor
-          pad_width: 2D tensor specifying the number of values padded to the edges of each axis in the form [[axis 0 lower, axis 0 upper], ...] including batch and component axes.
-          mode: constant&#39;, &#39;boundary&#39;, &#39;periodic&#39;, &#39;symmetric&#39;, &#39;reflect&#39;
-          constant_values: used for out-of-bounds points if mode=&#39;constant&#39; (Default value = 0)
-          mode: str:  (Default value = &#39;constant&#39;)
+            value: tensor
+            pad_width: 2D tensor specifying the number of values padded to the edges of each axis in the form [[axis 0 lower, axis 0 upper], ...] including batch and component axes.
+            mode: constant&#39;, &#39;boundary&#39;, &#39;periodic&#39;, &#39;symmetric&#39;, &#39;reflect&#39;
+            constant_values: Scalar value used for out-of-bounds points if mode=&#39;constant&#39;. Must be a Python primitive type or scalar tensor.
+            mode: str:  (Default value = &#39;constant&#39;)
 
         Returns:
-          padded tensor or NotImplemented
+            padded tensor or `NotImplemented`
 
         &#34;&#34;&#34;
         raise NotImplementedError(self)
@@ -4692,13 +4692,13 @@ Use <code>is_available(tensor)</code> to check if the value can be represented a
 <dt><strong><code>mode</code></strong></dt>
 <dd>constant', 'boundary', 'periodic', 'symmetric', 'reflect'</dd>
 <dt><strong><code>constant_values</code></strong></dt>
-<dd>used for out-of-bounds points if mode='constant' (Default value = 0)</dd>
+<dd>Scalar value used for out-of-bounds points if mode='constant'. Must be a Python primitive type or scalar tensor.</dd>
 <dt><strong><code>mode</code></strong></dt>
 <dd>str:
 (Default value = 'constant')</dd>
 </dl>
 <h2 id="returns">Returns</h2>
-<p>padded tensor or NotImplemented</p></div>
+<p>padded tensor or <code>NotImplemented</code></p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -4710,14 +4710,14 @@ Use <code>is_available(tensor)</code> to check if the value can be represented a
     If the mode is not supported, returns NotImplemented.
 
     Args:
-      value: tensor
-      pad_width: 2D tensor specifying the number of values padded to the edges of each axis in the form [[axis 0 lower, axis 0 upper], ...] including batch and component axes.
-      mode: constant&#39;, &#39;boundary&#39;, &#39;periodic&#39;, &#39;symmetric&#39;, &#39;reflect&#39;
-      constant_values: used for out-of-bounds points if mode=&#39;constant&#39; (Default value = 0)
-      mode: str:  (Default value = &#39;constant&#39;)
+        value: tensor
+        pad_width: 2D tensor specifying the number of values padded to the edges of each axis in the form [[axis 0 lower, axis 0 upper], ...] including batch and component axes.
+        mode: constant&#39;, &#39;boundary&#39;, &#39;periodic&#39;, &#39;symmetric&#39;, &#39;reflect&#39;
+        constant_values: Scalar value used for out-of-bounds points if mode=&#39;constant&#39;. Must be a Python primitive type or scalar tensor.
+        mode: str:  (Default value = &#39;constant&#39;)
 
     Returns:
-      padded tensor or NotImplemented
+        padded tensor or `NotImplemented`
 
     &#34;&#34;&#34;
     raise NotImplementedError(self)</code></pre>
