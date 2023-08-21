@@ -256,7 +256,7 @@ class ConstantExtrapolation(Extrapolation):
                 if not equal_values:
                     required_dims = value._shape.only(tuple(widths.keys()))
                     value = value._cached(required_dims)
-                should_pad_native = any(dim in value._native_shape for dim in widths)
+                should_pad_native = any(dim in value._native_shape for dim in widths) and pad_value.shape.volume == 1
                 if should_pad_native:
                     ordered_pad_widths = order_by_shape(value._native_shape, widths, default=(0, 0))
                     result_native = backend.pad(value._native, ordered_pad_widths, 'constant', pad_value.native())
@@ -282,7 +282,7 @@ class ConstantExtrapolation(Extrapolation):
         return math.expand(self.value, dual(connectivity) & non_dual(value))
 
     def __eq__(self, other):
-        return isinstance(other, ConstantExtrapolation) and math.close(self.value, other.value)
+        return isinstance(other, ConstantExtrapolation) and math.always_close(self.value, other.value)
 
     def __hash__(self):
         return hash(self.__class__)

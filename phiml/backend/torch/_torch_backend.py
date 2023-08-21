@@ -264,18 +264,6 @@ class TorchBackend(Backend):
         return torch.cat(values, dim=axis)
 
     def pad(self, value, pad_width, mode='constant', constant_values=0):
-        """
-        pad tensor using mode
-
-        Args:
-          value(torch.Tensor): values
-          pad_width(iterable): left, right, upper, lower
-          mode(str, optional, optional): type of padding to be applied, defaults to 'constant'
-          constant_values(int, optional, optional): value to pad, defaults to 0
-
-        Returns:
-          torch.Tensor: padded tensor
-        """
         mode = {'constant': 'constant', 'reflect': 'reflect', 'boundary': 'replicate', 'periodic': 'circular'}.get(mode, None)
         if not mode:
             return NotImplemented
@@ -302,8 +290,10 @@ class TorchBackend(Backend):
             undo_transform = lambda x: x.view(*[old_shape[i] for i in range(len(no_pad_dims))], *x.shape[2:])
         pad_width_reordered = [pad_width[i] for i in pad_dims]
         pad_width_spatial = [item for sublist in reversed(pad_width_reordered) for item in sublist]  # flatten
+        if isinstance(constant_values, torch.Tensor) and constant_values.requires_grad:
+            return NotImplemented  # torchf.pad only supports primitive numbers
+        constant_values = self.dtype(value).kind(constant_values)
         try:
-            constant_values = self.dtype(value).kind(constant_values)
             result = torchf.pad(value, pad_width_spatial, mode, value=constant_values)  # supports 3D to 5D (batch, channel, 1D to 3D)
         except RuntimeError as err:
             warnings.warn(f"PyTorch error {err}", RuntimeWarning)
@@ -879,6 +869,7 @@ class TorchBackend(Backend):
             args, wrt_args = self._prepare_graph_inputs(args, wrt)
             loss, output = f(*args)
             if np.prod(self.staticshape(loss)) == 1:
+                assert loss.requires_grad, f"Failed to compute gradient because function output does not depend on any input. Inputs: {args}"
                 grads = torch.autograd.grad(loss, wrt_args)  # grad() cannot be called during jit trace
             else:
                 raise NotImplementedError(f"Loss must be reduced to a scalar")

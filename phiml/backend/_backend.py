@@ -534,14 +534,14 @@ class Backend:
         If the mode is not supported, returns NotImplemented.
 
         Args:
-          value: tensor
-          pad_width: 2D tensor specifying the number of values padded to the edges of each axis in the form [[axis 0 lower, axis 0 upper], ...] including batch and component axes.
-          mode: constant', 'boundary', 'periodic', 'symmetric', 'reflect'
-          constant_values: used for out-of-bounds points if mode='constant' (Default value = 0)
-          mode: str:  (Default value = 'constant')
+            value: tensor
+            pad_width: 2D tensor specifying the number of values padded to the edges of each axis in the form [[axis 0 lower, axis 0 upper], ...] including batch and component axes.
+            mode: constant', 'boundary', 'periodic', 'symmetric', 'reflect'
+            constant_values: Scalar value used for out-of-bounds points if mode='constant'. Must be a Python primitive type or scalar tensor.
+            mode: str:  (Default value = 'constant')
 
         Returns:
-          padded tensor or NotImplemented
+            padded tensor or `NotImplemented`
 
         """
         raise NotImplementedError(self)
