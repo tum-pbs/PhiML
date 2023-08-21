@@ -387,7 +387,7 @@ Tracing placeholders are considered not available, even when they hold example v
 </details>
 </dd>
 <dt id="phiml.math.always_close"><code class="name flex">
-<span>def <span class="ident">always_close</span></span>(<span>t1: phiml.math._tensors.Tensor, t2: phiml.math._tensors.Tensor, rel_tolerance=1e-05, abs_tolerance=0) ‑> bool</span>
+<span>def <span class="ident">always_close</span></span>(<span>t1: Union[numbers.Number, phiml.math._tensors.Tensor, bool], t2: Union[numbers.Number, phiml.math._tensors.Tensor, bool], rel_tolerance=1e-05, abs_tolerance=0) ‑> bool</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Checks whether two tensors are guaranteed to be <code><a title="phiml.math.close" href="#phiml.math.close">close()</a></code> in all values.
@@ -411,7 +411,7 @@ Otherwise, an element-wise equality check is performed.</p>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def always_close(t1: Tensor, t2: Tensor, rel_tolerance=1e-5, abs_tolerance=0) -&gt; bool:
+<pre><code class="python">def always_close(t1: Union[Number, Tensor, bool], t2: Union[Number, Tensor, bool], rel_tolerance=1e-5, abs_tolerance=0) -&gt; bool:
     &#34;&#34;&#34;
     Checks whether two tensors are guaranteed to be `close` in all values.
     Unlike `close()`, this function can be used with JIT compilation.
@@ -428,10 +428,12 @@ Otherwise, an element-wise equality check is performed.</p>
     Returns:
         `bool`
     &#34;&#34;&#34;
+    t1 = wrap(t1)
+    t2 = wrap(t2)
     if t1.available != t2.available:
         return False
     if t1.available and t2.available:
-        close(t1, t2, rel_tolerance=rel_tolerance, abs_tolerance=abs_tolerance)
+        return close(t1, t2, rel_tolerance=rel_tolerance, abs_tolerance=abs_tolerance)
     elif isinstance(t1, NativeTensor) and isinstance(t2, NativeTensor):
         return t1._native is t2._native
     else:
@@ -9293,7 +9295,7 @@ If False, wraps the data in a <code><a title="phiml.math.Tensor" href="#phiml.ma
 </details>
 </dd>
 <dt id="phiml.math.tensor_like"><code class="name flex">
-<span>def <span class="ident">tensor_like</span></span>(<span>existing_tensor: phiml.math._tensors.Tensor, values: Union[phiml.math._tensors.Tensor, numbers.Number, bool], value_order: str = None)</span>
+<span>def <span class="ident">tensor_like</span></span>(<span>existing_tensor: phiml.math._tensors.Tensor, values: Union[numbers.Number, phiml.math._tensors.Tensor, bool], value_order: str = None)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Creates a tensor with the same format and shape as <code>existing_tensor</code>.</p>
