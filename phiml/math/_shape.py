@@ -1347,6 +1347,8 @@ def shape(obj) -> Shape:
         return channel('vector')
     elif isinstance(obj, (Number, bool)):
         return EMPTY_SHAPE
+    elif obj is None:
+        return EMPTY_SHAPE
     elif isinstance(obj, (tuple, list)) and all(isinstance(item, (PhiTreeNode, Shaped)) for item in obj):
         return merge_shapes(*obj, allow_varying_sizes=True)
     if isinstance(obj, dict) and all(isinstance(item, (PhiTreeNode, Shaped)) for item in obj):
