@@ -107,7 +107,7 @@ from ._ops import (
 
 from ._nd import (
     shift,
-    vec, const_vec, vec_length, vec_squared, vec_normalize, cross_product, rotate_vector, rotation_matrix, dim_mask,
+    vec, const_vec, vec_length, vec_squared, vec_normalize, cross_product, rotate_vector, rotation_matrix, rotation_angles, dim_mask,
     normalize_to,
     l1_loss, l2_loss, frequency_loss,
     spatial_gradient, laplace,
@@ -7344,6 +7344,59 @@ If False, wraps the data in a <code><a title="phiml.math.Tensor" href="#phiml.ma
     return matrix @ vector</code></pre>
 </details>
 </dd>
+<dt id="phiml.math.rotation_angles"><code class="name flex">
+<span>def <span class="ident">rotation_angles</span></span>(<span>rot: phiml.math._tensors.Tensor)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Compute the scalar angle in 2D or the Euler angles in 3D from a given rotation matrix.
+This function returns one valid solution but often, there are multiple solutions.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>rot</code></strong></dt>
+<dd>Rotation matrix as created by <code>phi.math.rotation_matrix()</code>.
+Must have exactly one channel and one dual dimension with equally-ordered elements.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<p>Scalar angle in 2D, Euler angles</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def rotation_angles(rot: Tensor):
+    &#34;&#34;&#34;
+    Compute the scalar angle in 2D or the Euler angles in 3D from a given rotation matrix.
+    This function returns one valid solution but often, there are multiple solutions.
+
+    Args:
+        rot: Rotation matrix as created by `phi.math.rotation_matrix()`.
+            Must have exactly one channel and one dual dimension with equally-ordered elements.
+
+    Returns:
+        Scalar angle in 2D, Euler angles
+    &#34;&#34;&#34;
+    assert channel(rot).rank == 1 and dual(rot).rank == 1, f&#34;Rotation matrix must have one channel and one dual dimension but got {rot.shape}&#34;
+    if channel(rot).size == 2:
+        cos = rot[{channel: 0, dual: 0}]
+        sin = rot[{channel: 1, dual: 0}]
+        return math.arctan(sin, divide_by=cos)
+    elif channel(rot).size == 3:
+        # phi = 1, theta = 2, psi = 3
+        theta = -math.arcsin(rot[{channel: 2, dual: 0}])  # ToDo handle [2, 0] == 1 (i.e. cos_theta == 0)
+        cos_theta = math.cos(theta)
+        psi = math.arctan(rot[{channel: 2, dual: 1}] / cos_theta, divide_by=rot[{channel: 2, dual: 2}] / cos_theta)
+        phi = math.arctan(rot[{channel: 1, dual: 0}] / cos_theta, divide_by=rot[{channel: 0, dual: 0}] / cos_theta)
+        regular_sol = stack([phi, theta, psi], channel(rot))
+        # --- pole case cos(theta) == 1 ---
+        phi_pole = 0  # unconstrained
+        bottom_pole = rot[{channel: 2, dual: 0}] &lt; 0
+        theta_pole = math.where(bottom_pole, 1.57079632679, -1.57079632679)
+        psi_pole = math.where(bottom_pole, math.arctan(rot[{channel: 0, dual: 1}], divide_by=rot[{channel: 0, dual: 2}]), math.arctan(-rot[{channel: 0, dual: 1}], divide_by=-rot[{channel: 0, dual: 2}]))
+        pole_sol = stack([phi_pole, theta_pole, psi_pole], channel(rot))
+        return math.where(abs(rot[{channel: 2, dual: 0}]) &gt;= 1, pole_sol, regular_sol)
+    else:
+        raise ValueError(f&#34;&#34;)</code></pre>
+</details>
+</dd>
 <dt id="phiml.math.rotation_matrix"><code class="name flex">
 <span>def <span class="ident">rotation_matrix</span></span>(<span>angle: Union[float, phiml.math._tensors.Tensor], matrix_dim_2d=(vectorᶜ=x,y))</span>
 </code></dt>
@@ -7784,6 +7837,8 @@ If <code>obj</code> is a <code><a title="phiml.math.Shape" href="#phiml.math.Sha
     elif isinstance(obj, (tuple, list)) and all(isinstance(item, (int, float, complex, bool)) for item in obj):
         return channel(&#39;vector&#39;)
     elif isinstance(obj, (Number, bool)):
+        return EMPTY_SHAPE
+    elif obj is None:
         return EMPTY_SHAPE
     elif isinstance(obj, (tuple, list)) and all(isinstance(item, (PhiTreeNode, Shaped)) for item in obj):
         return merge_shapes(*obj, allow_varying_sizes=True)
@@ -15781,6 +15836,7 @@ If a dimension of the tensor is not listed in <code>order</code>, a <code>ValueE
 <li><code><a title="phiml.math.reshaped_numpy" href="#phiml.math.reshaped_numpy">reshaped_numpy</a></code></li>
 <li><code><a title="phiml.math.reshaped_tensor" href="#phiml.math.reshaped_tensor">reshaped_tensor</a></code></li>
 <li><code><a title="phiml.math.rotate_vector" href="#phiml.math.rotate_vector">rotate_vector</a></code></li>
+<li><code><a title="phiml.math.rotation_angles" href="#phiml.math.rotation_angles">rotation_angles</a></code></li>
 <li><code><a title="phiml.math.rotation_matrix" href="#phiml.math.rotation_matrix">rotation_matrix</a></code></li>
 <li><code><a title="phiml.math.round" href="#phiml.math.round">round</a></code></li>
 <li><code><a title="phiml.math.s2b" href="#phiml.math.s2b">s2b</a></code></li>

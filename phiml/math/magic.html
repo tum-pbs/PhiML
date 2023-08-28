@@ -781,8 +781,16 @@ def slicing_dict(obj, item) -&gt; dict:
         `dict` mapping dimension names to slices.
     &#34;&#34;&#34;
     if isinstance(item, dict):
-        assert all(isinstance(key, str) for key in item.keys()), f&#34;All slice dimensions must be given as str but got keys {tuple(item.keys())}&#34;
-        return item
+        def valid_key(key):
+            if callable(key):
+                key = key(obj)
+            if isinstance(key, str):
+                return key
+            elif isinstance(key, Shape):
+                return key.name
+            else:
+                raise ValueError(f&#34;Illegal slicing dim: {key}. Only str and single-dim Shape and filters are allowed. While trying to slice {obj} by {item}&#34;)
+        return {valid_key(k): v for k, v in item.items()}
     if isinstance(item, tuple):
         if item[0] == Ellipsis:
             assert len(item) - 1 == shape(obj).channel_rank
@@ -860,8 +868,16 @@ for cls_name, cls in dict(globals()).items():
         `dict` mapping dimension names to slices.
     &#34;&#34;&#34;
     if isinstance(item, dict):
-        assert all(isinstance(key, str) for key in item.keys()), f&#34;All slice dimensions must be given as str but got keys {tuple(item.keys())}&#34;
-        return item
+        def valid_key(key):
+            if callable(key):
+                key = key(obj)
+            if isinstance(key, str):
+                return key
+            elif isinstance(key, Shape):
+                return key.name
+            else:
+                raise ValueError(f&#34;Illegal slicing dim: {key}. Only str and single-dim Shape and filters are allowed. While trying to slice {obj} by {item}&#34;)
+        return {valid_key(k): v for k, v in item.items()}
     if isinstance(item, tuple):
         if item[0] == Ellipsis:
             assert len(item) - 1 == shape(obj).channel_rank
