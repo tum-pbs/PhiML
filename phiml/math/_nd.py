@@ -191,6 +191,41 @@ def rotation_matrix(angle: Union[float, math.Tensor], matrix_dim_2d=channel(vect
                        [-s2, c2 * s3, c2 * c3]], channel(angle), dual(**channel(angle).untyped_dict))  # Rz * Ry * Rx
 
 
+def rotation_angles(rot: Tensor):
+    """
+    Compute the scalar angle in 2D or the Euler angles in 3D from a given rotation matrix.
+    This function returns one valid solution but often, there are multiple solutions.
+
+    Args:
+        rot: Rotation matrix as created by `phi.math.rotation_matrix()`.
+            Must have exactly one channel and one dual dimension with equally-ordered elements.
+
+    Returns:
+        Scalar angle in 2D, Euler angles
+    """
+    assert channel(rot).rank == 1 and dual(rot).rank == 1, f"Rotation matrix must have one channel and one dual dimension but got {rot.shape}"
+    if channel(rot).size == 2:
+        cos = rot[{channel: 0, dual: 0}]
+        sin = rot[{channel: 1, dual: 0}]
+        return math.arctan(sin, divide_by=cos)
+    elif channel(rot).size == 3:
+        # phi = 1, theta = 2, psi = 3
+        theta = -math.arcsin(rot[{channel: 2, dual: 0}])  # ToDo handle [2, 0] == 1 (i.e. cos_theta == 0)
+        cos_theta = math.cos(theta)
+        psi = math.arctan(rot[{channel: 2, dual: 1}] / cos_theta, divide_by=rot[{channel: 2, dual: 2}] / cos_theta)
+        phi = math.arctan(rot[{channel: 1, dual: 0}] / cos_theta, divide_by=rot[{channel: 0, dual: 0}] / cos_theta)
+        regular_sol = stack([phi, theta, psi], channel(rot))
+        # --- pole case cos(theta) == 1 ---
+        phi_pole = 0  # unconstrained
+        bottom_pole = rot[{channel: 2, dual: 0}] < 0
+        theta_pole = math.where(bottom_pole, 1.57079632679, -1.57079632679)
+        psi_pole = math.where(bottom_pole, math.arctan(rot[{channel: 0, dual: 1}], divide_by=rot[{channel: 0, dual: 2}]), math.arctan(-rot[{channel: 0, dual: 1}], divide_by=-rot[{channel: 0, dual: 2}]))
+        pole_sol = stack([phi_pole, theta_pole, psi_pole], channel(rot))
+        return math.where(abs(rot[{channel: 2, dual: 0}]) >= 1, pole_sol, regular_sol)
+    else:
+        raise ValueError(f"")
+
+
 def dim_mask(all_dims: Union[Shape, tuple, list], dims: DimFilter, mask_dim=channel('vector')) -> Tensor:
     """
     Creates a masked vector with 1 elements for `dims` and 0 for all other dimensions in `all_dims`.

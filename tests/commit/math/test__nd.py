@@ -329,3 +329,19 @@ class TestMathNDNumpy(TestCase):
         grid = math.random_normal(batch(b=2), spatial(x=20, y=20))
         s = math.sample_subgrid(grid, start=vec(x=4, y=.5), size=spatial(x=2, y=3))
         self.assertEqual(batch(grid) & spatial(x=2, y=3), s.shape)
+
+    def test_rotation_matrix(self):
+        def assert_matrices_equal(angle):
+            matrix = math.rotation_matrix(angle)
+            angle_ = math.rotation_angles(matrix)
+            math.assert_close(matrix, math.rotation_matrix(angle_), abs_tolerance=1e-5)
+
+        angle = wrap([0, -math.PI/2, math.PI/2, -math.PI, math.PI, 2*math.PI], batch('angles'))
+        assert_matrices_equal(angle)
+        # --- 3D ---
+        angle = wrap([0, -math.PI/2, math.PI/2, -math.PI, math.PI, 2*math.PI], batch('angles'))
+        assert_matrices_equal(math.vec(x=0, y=0, z=angle))
+        assert_matrices_equal(math.vec(x=0, y=angle, z=0))
+        assert_matrices_equal(math.vec(x=angle, y=0, z=0))
+        assert_matrices_equal(math.vec(x=angle, y=angle, z=0))
+        assert_matrices_equal(math.vec(x=angle, y=angle, z=angle))
