@@ -636,7 +636,9 @@ The methods of <code><a title="phiml.backend.Backend" href="#phiml.backend.Backe
         for backend in BACKENDS:
             if self.name in backend.name:
                 return backend
-        raise RuntimeError(f&#34;Backend &#39;{self}&#39; is not visible.&#34;)
+        if not init_backend(self.name):
+            raise RuntimeError(f&#34;Backend &#39;{self}&#39; is not registered. Registered backends are: {BACKENDS}&#34;)
+        return self.as_registered
 
     def nn_library(self):
         raise NotImplementedError(self)
@@ -2085,7 +2087,9 @@ def as_registered(self) -&gt; &#39;Backend&#39;:
     for backend in BACKENDS:
         if self.name in backend.name:
             return backend
-    raise RuntimeError(f&#34;Backend &#39;{self}&#39; is not visible.&#34;)</code></pre>
+    if not init_backend(self.name):
+        raise RuntimeError(f&#34;Backend &#39;{self}&#39; is not registered. Registered backends are: {BACKENDS}&#34;)
+    return self.as_registered</code></pre>
 </details>
 </dd>
 <dt id="phiml.backend.Backend.complex_type"><code class="name">var <span class="ident">complex_type</span> : phiml.backend._dtype.DType</code></dt>
