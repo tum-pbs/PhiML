@@ -5,7 +5,7 @@ from builtins import ValueError
 from contextlib import contextmanager
 from dataclasses import dataclass
 from types import ModuleType
-from typing import List, Callable, TypeVar, Tuple, Union, Optional
+from typing import List, Callable, TypeVar, Tuple, Union, Optional, Sequence
 
 import numpy
 import numpy as np
@@ -154,7 +154,9 @@ class Backend:
         for backend in BACKENDS:
             if self.name in backend.name:
                 return backend
-        raise RuntimeError(f"Backend '{self}' is not visible.")
+        if not init_backend(self.name):
+            raise RuntimeError(f"Backend '{self}' is not registered. Registered backends are: {BACKENDS}")
+        return self.as_registered
 
     def nn_library(self):
         raise NotImplementedError(self)
@@ -1656,11 +1658,17 @@ def init_installed_backends() -> tuple:
     return tuple([b for b in BACKENDS if b.name != 'Python'])
 
 
-def init_backend(backend: str):
+def init_backend(backend: str) -> Sequence[Backend]:
     """
+    Registers one or multiple supported backends.
+    This is done automatically when a backend-specific tensor is processed.
+
     Args:
         backend: Module name of the backend or backends as comma-separated string.
             Pass `'all-imported'` to initialize all backends that are loaded into `sys.modules´.
+
+    Returns:
+        List of backends that were newly initialized by this call.
     """
     result = []
     if backend == 'all-imported':
