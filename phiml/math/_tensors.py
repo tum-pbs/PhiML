@@ -132,7 +132,9 @@ class Tensor:
         if ufunc.__name__ == 'equal':
             if _EQUALITY_REDUCE[-1] == 'ref':
                 return wrap(inputs[0] is inputs[1])
-            elif _EQUALITY_REDUCE[-1] == 'value':
+            elif _EQUALITY_REDUCE[-1] == 'shape_and_value':
+                if set(inputs[0].shape) != set(inputs[1].shape):
+                    return wrap(False)
                 from ._ops import close
                 return wrap(close(inputs[0], inputs[1], rel_tolerance=0, abs_tolerance=0))
             if inputs[0] is self:
@@ -142,7 +144,9 @@ class Tensor:
         if ufunc.__name__ == 'not_equal':
             if _EQUALITY_REDUCE[-1] == 'ref':
                 return wrap(inputs[0] is not inputs[1])
-            elif _EQUALITY_REDUCE[-1] == 'value':
+            elif _EQUALITY_REDUCE[-1] == 'shape_and_value':
+                if set(inputs[0].shape) != set(inputs[1].shape):
+                    return wrap(True)
                 from ._ops import close
                 return wrap(not close(inputs[0], inputs[1], rel_tolerance=0, abs_tolerance=0))
             if inputs[0] is self:
@@ -643,7 +647,9 @@ class Tensor:
     def __eq__(self, other):
         if _EQUALITY_REDUCE[-1] == 'ref':
             return wrap(self is other)
-        elif _EQUALITY_REDUCE[-1] == 'value':
+        elif _EQUALITY_REDUCE[-1] == 'shape_and_value':
+            if set(self.shape) != set(other.shape):
+                return wrap(False)
             from ._ops import close
             return wrap(close(self, other, rel_tolerance=0, abs_tolerance=0))
         if other is None:
@@ -653,7 +659,9 @@ class Tensor:
     def __ne__(self, other):
         if _EQUALITY_REDUCE[-1] == 'ref':
             return wrap(self is not other)
-        elif _EQUALITY_REDUCE[-1] == 'value':
+        elif _EQUALITY_REDUCE[-1] == 'shape_and_value':
+            if set(self.shape) != set(other.shape):
+                return wrap(True)
             from ._ops import close
             return wrap(not close(self, other, rel_tolerance=0, abs_tolerance=0))
         if other is None:
@@ -900,15 +908,15 @@ def equality_by_ref():
 
 
 @contextmanager
-def equality_by_value():
+def equality_by_shape_and_value():
     """
     Enables Tensor.__bool__
     """
-    _EQUALITY_REDUCE.append('value')
+    _EQUALITY_REDUCE.append('shape_and_value')
     try:
         yield None
     finally:
-        assert _EQUALITY_REDUCE.pop(-1) == 'value'
+        assert _EQUALITY_REDUCE.pop(-1) == 'shape_and_value'
 
 
 class Layout(Tensor):

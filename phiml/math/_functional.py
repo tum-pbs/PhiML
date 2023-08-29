@@ -10,7 +10,7 @@ from . import _ops as math
 from ._magic_ops import stack
 from ._shape import EMPTY_SHAPE, Shape, spatial, instance, batch, channel
 from ._sparse import SparseCoordinateTensor
-from ._tensors import Tensor, disassemble_tree, assemble_tree, disassemble_tensors, assemble_tensors, variable_attributes, wrap, specs_equal, equality_by_value
+from ._tensors import Tensor, disassemble_tree, assemble_tree, disassemble_tensors, assemble_tensors, variable_attributes, wrap, specs_equal, equality_by_shape_and_value
 from ._trace import ShiftLinTracer, matrix_from_function, LinearTraceInProgress
 from ..backend import Backend, NUMPY
 from ..backend._backend import get_spatial_derivative_order, functional_derivative_evaluation, ML_LOGGER
@@ -46,7 +46,7 @@ class SignatureKey:
 
     def __eq__(self, other: 'SignatureKey'):
         assert isinstance(other, SignatureKey)
-        with equality_by_value():
+        with equality_by_shape_and_value():
             cond_equal = self.auxiliary_kwargs == other.auxiliary_kwargs
         if isinstance(cond_equal, Tensor):
             cond_equal = cond_equal.all
@@ -59,7 +59,7 @@ class SignatureKey:
 
     def matches_structure_and_names(self, other: 'SignatureKey'):
         assert isinstance(other, SignatureKey)
-        with equality_by_value():
+        with equality_by_shape_and_value():
             cond_equal = self.auxiliary_kwargs == other.auxiliary_kwargs
         if isinstance(cond_equal, Tensor):
             cond_equal = cond_equal.all
