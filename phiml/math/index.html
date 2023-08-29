@@ -14496,7 +14496,9 @@ When backed by an editable native tensor, e.g. a <code>numpy.ndarray</code>, do 
         if ufunc.__name__ == &#39;equal&#39;:
             if _EQUALITY_REDUCE[-1] == &#39;ref&#39;:
                 return wrap(inputs[0] is inputs[1])
-            elif _EQUALITY_REDUCE[-1] == &#39;value&#39;:
+            elif _EQUALITY_REDUCE[-1] == &#39;shape_and_value&#39;:
+                if set(inputs[0].shape) != set(inputs[1].shape):
+                    return wrap(False)
                 from ._ops import close
                 return wrap(close(inputs[0], inputs[1], rel_tolerance=0, abs_tolerance=0))
             if inputs[0] is self:
@@ -14506,7 +14508,9 @@ When backed by an editable native tensor, e.g. a <code>numpy.ndarray</code>, do 
         if ufunc.__name__ == &#39;not_equal&#39;:
             if _EQUALITY_REDUCE[-1] == &#39;ref&#39;:
                 return wrap(inputs[0] is not inputs[1])
-            elif _EQUALITY_REDUCE[-1] == &#39;value&#39;:
+            elif _EQUALITY_REDUCE[-1] == &#39;shape_and_value&#39;:
+                if set(inputs[0].shape) != set(inputs[1].shape):
+                    return wrap(True)
                 from ._ops import close
                 return wrap(not close(inputs[0], inputs[1], rel_tolerance=0, abs_tolerance=0))
             if inputs[0] is self:
@@ -15007,7 +15011,9 @@ When backed by an editable native tensor, e.g. a <code>numpy.ndarray</code>, do 
     def __eq__(self, other):
         if _EQUALITY_REDUCE[-1] == &#39;ref&#39;:
             return wrap(self is other)
-        elif _EQUALITY_REDUCE[-1] == &#39;value&#39;:
+        elif _EQUALITY_REDUCE[-1] == &#39;shape_and_value&#39;:
+            if set(self.shape) != set(other.shape):
+                return wrap(False)
             from ._ops import close
             return wrap(close(self, other, rel_tolerance=0, abs_tolerance=0))
         if other is None:
@@ -15017,7 +15023,9 @@ When backed by an editable native tensor, e.g. a <code>numpy.ndarray</code>, do 
     def __ne__(self, other):
         if _EQUALITY_REDUCE[-1] == &#39;ref&#39;:
             return wrap(self is not other)
-        elif _EQUALITY_REDUCE[-1] == &#39;value&#39;:
+        elif _EQUALITY_REDUCE[-1] == &#39;shape_and_value&#39;:
+            if set(self.shape) != set(other.shape):
+                return wrap(True)
             from ._ops import close
             return wrap(not close(self, other, rel_tolerance=0, abs_tolerance=0))
         if other is None:
