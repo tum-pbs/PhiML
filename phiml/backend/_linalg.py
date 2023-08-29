@@ -335,6 +335,7 @@ def scipy_iterative_sparse_solve(b: Backend, lin, y, x0, rtol, atol, max_iter, p
     for b in range(batch_size):
         lin_b = lin[min(b, len(lin)-1)] if isinstance(lin, (tuple, list)) or (isinstance(lin, np.ndarray) and len(lin.shape) > 2) else lin
         pre_op = LinearOperator(shape=lin_b.shape, matvec=pre.apply, rmatvec=pre.apply_transposed) if isinstance(pre, Preconditioner) else None
+        lin_b = LinearOperator(shape=y[b].shape + x0[b].shape, matvec=lin_b) if callable(lin_b) else lin_b
         x, ret_val = scipy_function(lin_b, y[b], x0=x0[b], tol=rtol[b], atol=atol[b], maxiter=max_iter[-1, b], M=pre_op, callback=count_callback)
         # ret_val: 0=success, >0=not converged, <0=error
         messages.append(f"code {ret_val} (SciPy {scipy_function.__name__})")
