@@ -1448,8 +1448,8 @@ class TensorStack(Tensor):
         other = self._tensor(other)
         if self.requires_broadcast:
             if self._stack_dim.name in other.shape:
-                other = other._unstack(self._stack_dim.name)
-                tensors = [operator(t1, t2) for t1, t2 in zip(self._tensors, other)]
+                other_slices = other._unstack(self._stack_dim.name)
+                tensors = [operator(t1, t2) for t1, t2 in zip(self._tensors, other_slices)]
             else:
                 tensors = [operator(t, other) for t in self._tensors]
             return TensorStack(tensors, self._stack_dim)
@@ -1457,6 +1457,13 @@ class TensorStack(Tensor):
             new_shape, (native1, native2) = broadcastable_native_tensors(self, other)  # ToDo we don't have to expand all
             result_tensor = native_function(native1, native2)
             return NativeTensor(result_tensor, new_shape, new_shape)
+        elif isinstance(other, TensorStack) and other.requires_broadcast:
+            if other._stack_dim.name in self.shape:
+                self_slices = self._unstack(other._stack_dim.name)
+                tensors = [operator(t1, t2) for t1, t2 in zip(self_slices, other._tensors)]
+            else:
+                tensors = [operator(self, t) for t in other._tensors]
+            return TensorStack(tensors, self._stack_dim)
         else:
             return NotImplemented
 
