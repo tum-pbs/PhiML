@@ -6,7 +6,8 @@ Extrapolations are an important part of sampled fields such as grids.
 See the documentation at https://tum-pbs.github.io/PhiML/Fields.html#extrapolations .
 """
 import warnings
-from typing import Union, Dict, Callable, Tuple, Optional
+from numbers import Number
+from typing import Union, Dict, Callable, Tuple, Optional, Hashable, Sequence
 
 from ..backend._backend import get_spatial_derivative_order
 from ..backend import choose_backend
@@ -48,7 +49,25 @@ class Extrapolation:
         raise NotImplementedError()
 
     def valid_outer_faces(self, dim) -> Tuple[bool, bool]:
-        """ `(lower: bool, upper: bool)` indicating whether the values sampled at the outer-most faces of a staggered grid with this extrapolation are valid, i.e. need to be stored and are not redundant. """
+        """
+        Use `determines_boundary_values()` instead.
+
+         `(lower: bool, upper: bool)` indicating whether the values sampled at the outer-most faces of a staggered grid with this extrapolation are valid, i.e. need to be stored and are not redundant. """
+        return not self.determines_boundary_values((dim, False)), not self.determines_boundary_values((dim, True))
+
+    def determines_boundary_values(self, boundary_key: Union[Tuple[str, bool], str]) -> bool:
+        """
+        Tests whether this extrapolation fully determines the values at the boundary faces of the outermost cells or elements.
+        If so, the values need not be stored along with the inside values.
+
+        Override this function instead of `valid_outer_faces()`.
+
+        Args:
+            boundary_key: Hashable object identifying the boundary, e.g. a `str` or `Tuple`.
+
+        Returns:
+            Whether the value is fully determined by the boundary and need not be stored elsewhere.
+        """
         raise NotImplementedError()
 
     @property
@@ -155,7 +174,7 @@ class Extrapolation:
     def __getitem__(self, item):
         return self
 
-    def _getitem_with_domain(self, item: dict, dim: str, upper_edge: bool, all_dims: tuple):
+    def _getitem_with_domain(self, item: dict, dim: str, upper_edge: bool, all_dims: Sequence[str]):
         return self[item]
 
     def __abs__(self):
@@ -226,8 +245,8 @@ class ConstantExtrapolation(Extrapolation):
     def spatial_gradient(self):
         return ZERO
 
-    def valid_outer_faces(self, dim) -> Tuple[bool, bool]:
-        return False, False
+    def determines_boundary_values(self, boundary_key: Union[Tuple[str, bool], str]) -> bool:
+        return True
 
     @property
     def is_flexible(self) -> bool:
@@ -393,8 +412,8 @@ class _CopyExtrapolation(Extrapolation):
     def __value_attrs__(self):
         return ()
 
-    def valid_outer_faces(self, dim) -> Tuple[bool, bool]:
-        return True, True
+    def determines_boundary_values(self, boundary_key: Union[Tuple[str, bool], str]) -> bool:
+        return False
 
     @property
     def _is_dim_separable(self):
@@ -595,8 +614,12 @@ class _PeriodicExtrapolation(_CopyExtrapolation):
     def spatial_gradient(self):
         return self
 
-    def valid_outer_faces(self, dim) -> Tuple[bool, bool]:
-        return True, False
+    def determines_boundary_values(self, boundary_key: Union[Tuple[str, bool], str]) -> bool:
+        if isinstance(boundary_key, tuple):
+            is_upper = boundary_key[1]
+            return is_upper
+        else:
+            raise AssertionError(f"Periodic extrapolation only supported for grids but got boundary key '{boundary_key}'")
 
     @property
     def is_flexible(self) -> bool:
@@ -898,8 +921,8 @@ class _NoExtrapolation(Extrapolation):  # singleton
     def spatial_gradient(self) -> 'Extrapolation':
         return self
 
-    def valid_outer_faces(self, dim) -> Tuple[bool, bool]:
-        return True, True
+    def determines_boundary_values(self, boundary_key: Union[Tuple[str, bool], str]) -> bool:
+        return False
 
     def __value_attrs__(self):
         return ()
@@ -969,8 +992,8 @@ class Undefined(Extrapolation):
     def spatial_gradient(self) -> 'Extrapolation':
         return self
 
-    def valid_outer_faces(self, dim) -> Tuple[bool, bool]:
-        return self.derived_from.valid_outer_faces(dim)
+    def determines_boundary_values(self, boundary_key: Union[Tuple[str, bool], str]) -> bool:
+        return self.derived_from.determines_boundary_values(boundary_key)
 
     @property
     def is_flexible(self) -> bool:
@@ -1088,98 +1111,85 @@ def as_extrapolation(obj) -> Extrapolation:
     return ConstantExtrapolation(obj)
 
 
-def combine_sides(**extrapolations: Union[Extrapolation, tuple]) -> Extrapolation:
+def combine_sides(boundary_dict: Dict[Hashable, Extrapolation] = None, **extrapolations: Union[Extrapolation, tuple, Number]) -> Extrapolation:
     """
     Specify extrapolations for each side / face of a box.
 
     Args:
+        boundary_dict: Extrapolations by hashable boundary key.
         **extrapolations: map from dim: str -> `Extrapolation` or `tuple` (lower, upper)
 
     Returns:
         `Extrapolation`
     """
-    values = set()
-    proper_dict = {}
+    boundary_dict = dict(boundary_dict) if boundary_dict is not None else {}
     for dim, ext in extrapolations.items():
-        if isinstance(ext, Extrapolation):
-            values.add(ext)
-            proper_dict[dim] = (ext, ext)
-        elif isinstance(ext, tuple):
+        if isinstance(ext, tuple):
             assert len(ext) == 2, "Tuple must contain exactly two elements, (lower, upper)"
             lower = as_extrapolation(ext[0])
             upper = as_extrapolation(ext[1])
-            values.add(lower)
-            values.add(upper)
-            proper_dict[dim] = (lower, upper)
+            boundary_dict[(dim, False)] = lower
+            boundary_dict[(dim, True)] = upper
         else:
-            proper_ext = as_extrapolation(ext)
-            values.add(proper_ext)
-            proper_dict[dim] = (proper_ext, proper_ext)
-    if len(values) == 1:  # All equal -> return any
-        return next(iter(values))
+            boundary_dict[(dim, False)] = boundary_dict[(dim, True)] = as_extrapolation(ext)
+    if len(set(boundary_dict.values())) == 1:  # All equal -> return any
+        return next(iter(boundary_dict.values()))
     else:
-        return _MixedExtrapolation(proper_dict)
+        return _MixedExtrapolation(boundary_dict)
 
 
 class _MixedExtrapolation(Extrapolation):
+    """
+    A mixed extrapolation uses different extrapolations for different sides.
+    Each side is identified by a hashable object, such as a `str` or `tuple´.
+    """
 
-    def __init__(self, extrapolations: Dict[str, Tuple[Extrapolation, Extrapolation]]):
+    def __init__(self, ext_by_boundary: Dict[Hashable, Extrapolation]):
         """
-        A mixed extrapolation uses different extrapolations for different sides.
-
         Args:
-          extrapolations: axis: str -> (lower: Extrapolation, upper: Extrapolation) or Extrapolation
+            ext_by_boundary: key: str -> Extrapolation
         """
         super().__init__(pad_rank=None)
-        self.ext = extrapolations
+        assert all(isinstance(e, Extrapolation) for e in ext_by_boundary.values())
+        assert len(set(ext_by_boundary.values())) >= 2, f"Extrapolation can be simplified: {ext_by_boundary}"
+        self.ext = ext_by_boundary
 
     @property
     def shape(self):
-        return merge_shapes(*sum(self.ext.values(), ()))
+        return merge_shapes(*self.ext.values())
 
     def to_dict(self) -> dict:
         return {
             'type': 'mixed',
-            'dims': {ax: (es[0].to_dict(), es[1].to_dict()) for ax, es in self.ext.items()}
+            'dims': {k: ext.to_dict() for k, ext in self.ext.items()}
         }
 
     def __value_attrs__(self):
         return 'ext',
 
     def __eq__(self, other):
-        if isinstance(other, _MixedExtrapolation):
-            return self.ext == other.ext
-        else:
-            simplified = combine_sides(**self.ext)
-            if not isinstance(simplified, _MixedExtrapolation):
-                return simplified == other
-            else:
-                return False
+        if not isinstance(other, _MixedExtrapolation):
+            return False
+        return self.ext == other.ext
 
     def __hash__(self):
-        simplified = combine_sides(**self.ext)
-        if not isinstance(simplified, _MixedExtrapolation):
-            return hash(simplified)
-        else:
-            return hash(frozenset(self.ext.items()))
+        return hash(frozenset(self.ext.items()))
 
     def __repr__(self):
         return repr(self.ext)
 
     def spatial_gradient(self) -> Extrapolation:
-        return combine_sides(**{ax: (es[0].spatial_gradient(), es[1].spatial_gradient()) for ax, es in self.ext.items()})
+        return combine_sides({k: ext.spatial_gradient() for k, ext in self.ext.items()})
 
-    def valid_outer_faces(self, dim) -> Tuple[bool, bool]:
-        e_lower, e_upper = self.ext[dim]
-        return e_lower.valid_outer_faces(dim)[0], e_upper.valid_outer_faces(dim)[1]
+    def determines_boundary_values(self, boundary_key: Union[Tuple[str, bool], str]) -> bool:
+        return self.ext[boundary_key].determines_boundary_values(boundary_key)
 
     def is_copy_pad(self, dim: str, upper_edge: bool):
-        return self.ext[dim][upper_edge].is_copy_pad(dim, upper_edge)
+        return self.ext[(dim, upper_edge)].is_copy_pad(dim, upper_edge)
 
     @property
     def is_flexible(self) -> bool:
-        result_by_dim = [lo.is_flexible or up.is_flexible for lo, up in self.ext.values()]
-        return any(result_by_dim)
+        return any([ext.is_flexible for ext in self.ext.values()])
 
     def pad(self, value: Tensor, widths: dict, **kwargs) -> Tensor:
         """
@@ -1194,33 +1204,34 @@ class _MixedExtrapolation(Extrapolation):
         Returns:
 
         """
-        extrapolations = set(sum(self.ext.values(), ()))
+        extrapolations = set(self.ext.values())
         extrapolations = tuple(sorted(extrapolations, key=lambda e: e.pad_rank))
+        already_padded = {}
         for ext in extrapolations:
-            ext_widths = {ax: (l if self.ext[ax][0] == ext else 0, u if self.ext[ax][1] == ext else 0)
-                          for ax, (l, u) in widths.items()}
-            value = ext.pad(value, ext_widths, **kwargs)
+            ext_widths = {dim: (l if self.ext[(dim, False)] == ext else 0, u if self.ext[(dim, True)] == ext else 0) for dim, (l, u) in widths.items()}
+            value = ext.pad(value, ext_widths, already_padded=already_padded, **kwargs)
+            already_padded.update(ext_widths)
         return value
 
     def pad_values(self, value: Tensor, width: int, dim: str, upper_edge: bool, **kwargs) -> Tensor:
-        extrap: Extrapolation = self.ext[dim][upper_edge]
+        extrap: Extrapolation = self.ext[(dim, upper_edge)]
         return extrap.pad_values(value, width, dim, upper_edge, **kwargs)
 
-    def sparse_pad_values(self, value: Tensor, connectivity: Tensor, dim: str, upper_edge: bool, **kwargs) -> Tensor:
-        extrap: Extrapolation = self.ext[dim][upper_edge]
-        return extrap.sparse_pad_values(value, connectivity, dim, upper_edge, **kwargs)
+    def sparse_pad_values(self, value: Tensor, connectivity: Tensor, boundary, **kwargs) -> Tensor:
+        return self.ext[boundary].sparse_pad_values(value, connectivity, boundary, **kwargs)
 
     def transform_coordinates(self, coordinates: Tensor, shape: Shape, **kwargs) -> Tensor:
         assert len(self.ext) == len(shape.spatial) == coordinates.vector.size
         result = []
         for dim in shape.spatial.unstack():
             dim_coords = coordinates[[dim.name]]
-            dim_extrapolations = self.ext[dim.name]
-            if dim_extrapolations[0] == dim_extrapolations[1]:
-                result.append(dim_extrapolations[0].transform_coordinates(dim_coords, dim, **kwargs))
+            le = self.ext[(dim.name, False)]
+            ue = self.ext[(dim.name, True)]
+            if le == ue:
+                result.append(le.transform_coordinates(dim_coords, dim, **kwargs))
             else:  # separate boundary for lower and upper face
-                lower = dim_extrapolations[0].transform_coordinates(dim_coords, dim, **kwargs)
-                upper = dim_extrapolations[1].transform_coordinates(dim_coords, dim, **kwargs)
+                lower = le.transform_coordinates(dim_coords, dim, **kwargs)
+                upper = ue.transform_coordinates(dim_coords, dim, **kwargs)
                 result.append(math.where(dim_coords <= 0, lower, upper))
         if 'vector' in result[0].shape:
             return concat(result, channel('vector'))
@@ -1229,11 +1240,12 @@ class _MixedExtrapolation(Extrapolation):
 
     def __getitem__(self, item):
         if isinstance(item, dict):
-            all_dims = tuple(self.ext.keys())
-            return combine_sides(**{dim: (e1._getitem_with_domain(item, dim, False, all_dims), e2._getitem_with_domain(item, dim, True, all_dims)) for dim, (e1, e2) in self.ext.items()})
+            if all(isinstance(k, tuple) for k in self.ext):
+                all_dims = [dim for dim, _ in self.ext.keys()]
+                return combine_sides({k: ext._getitem_with_domain(item, k[0], k[1], all_dims) for k, ext in self.ext.items()})
+            return combine_sides({k: ext[item] for k, ext in self.ext.items()})
         else:
-            dim, face = item
-            return self.ext[dim][face]
+            return self.ext[item]
 
     def __add__(self, other):
         return self._op2(other, lambda e1, e2: e1 + e2)
@@ -1262,15 +1274,15 @@ class _MixedExtrapolation(Extrapolation):
     def _op2(self, other, operator):
         if isinstance(other, _MixedExtrapolation):
             assert self.ext.keys() == other.ext.keys()
-            return combine_sides(**{ax: (operator(lo, other.ext[ax][False]), operator(hi, other.ext[ax][True])) for ax, (lo, hi) in self.ext.items()})
+            return combine_sides({k: operator(ext, other.ext[k]) for k, ext in self.ext.items()})
         else:
-            return combine_sides(**{ax: (operator(lo, other), operator(hi, other)) for ax, (lo, hi) in self.ext.items()})
+            return combine_sides({k: operator(ext, other) for k, ext in self.ext.items()})
 
     def __abs__(self):
-        return combine_sides(**{ax: (abs(lo), abs(up)) for ax, (lo, up) in self.ext.items()})
+        return combine_sides({k: abs(ext) for k, ext in self.ext.items()})
 
     def __neg__(self):
-        return combine_sides(**{ax: (-lo, -up) for ax, (lo, up) in self.ext.items()})
+        return combine_sides({k: -ext for k, ext in self.ext.items()})
 
 
 class _NormalTangentialExtrapolation(Extrapolation):
@@ -1324,7 +1336,7 @@ class _NormalTangentialExtrapolation(Extrapolation):
         result = stack(result, value.shape.only('vector'))
         return result
 
-    def _getitem_with_domain(self, item: dict, dim: str, upper_edge: bool, all_dims: tuple):
+    def _getitem_with_domain(self, item: dict, dim: str, upper_edge: bool, all_dims: Sequence[str]):
         if 'vector' not in item:
             return self
         component = item['vector']
@@ -1409,8 +1421,8 @@ def from_dict(dictionary: dict) -> Extrapolation:
     elif etype == 'constant':
         return ConstantExtrapolation(dictionary['value'])
     elif etype == 'mixed':
-        dims: Dict[str, tuple] = dictionary['dims']
-        extrapolations = {dim: (from_dict(lo_up[0]), from_dict(lo_up[1])) for dim, lo_up in dims.items()}
+        dims: Dict[Hashable, dict] = dictionary['dims']
+        extrapolations = {k: from_dict(ext) for k, ext in dims.items()}
         return _MixedExtrapolation(extrapolations)
     elif etype == 'normal-tangential':
         normal = from_dict(dictionary['normal'])
@@ -1463,7 +1475,7 @@ def map(f: Callable[[Extrapolation], Extrapolation], extrapolation):
         `Extrapolation`
     """
     if isinstance(extrapolation, _MixedExtrapolation):
-        return combine_sides(**{dim: (map(f, lo), map(f, up)) for dim, (lo, up) in extrapolation.ext.items()})
+        return combine_sides({k: map(f, ext) for k, ext in extrapolation.ext.items()})
     elif isinstance(extrapolation, _NormalTangentialExtrapolation):
         return combine_by_direction(map(f, extrapolation.normal), map(f, extrapolation.tangential))
     else:
