@@ -2,7 +2,7 @@ import functools
 import math
 import warnings
 from numbers import Number
-from typing import Tuple, Callable, Any, Union, Optional
+from typing import Tuple, Callable, Any, Union, Optional, Dict, Collection
 
 import numpy as np
 
@@ -406,6 +406,105 @@ def print_(obj: Union[Tensor, PhiTreeNode, Number, tuple, list, None] = None, na
             print_(val, name + n)
     else:
         print(f"{wrap(obj):full}")
+
+
+def slice_off(x, *slices: Dict[str, Union[slice, int, str]]):
+    """
+
+    Args:
+        x: Any instance of `phiml.math.magic.Shapable`
+        *slices:
+
+    Returns:
+
+    """
+    if not slices:
+        return x
+    x_shape = shape(x)
+    dims = set().union(*[s.keys() for s in slices])
+    dims = x_shape.only(dims).names
+    depth = max(len(s) for s in slices)
+    if depth == 1:
+        if len(dims) == 1:
+            d = dims[0]
+            if all(all(_edge_slice(x_shape, dim, s) for dim, s in s_dict.items()) for s_dict in slices):  # only edges
+                edge_slices = [_edge_slice(x_shape, dim, s) for s_dict in slices for dim, s in s_dict.items()]
+                if any(s.start == 0 and s.stop is None for s in edge_slices):  # everything sliced off
+                    return x[{d: slice(0, 0)}]
+                start_slices = [s for s in edge_slices if s.start == 0]
+                end_slices = [s for s in edge_slices if s.stop is None]
+                start = max(s.stop for s in start_slices) if start_slices else 0  # at this point, s.stop must be an int
+                end = min(s.start for s in end_slices) if end_slices else None
+                return x[{d: slice(start, end)}]
+            else:
+                size = x_shape.get_size(d)
+                mask = np.ones(size, dtype=np.bool)
+                for s_dict in slices:
+                    s = next(iter(s_dict.values()))
+                    if isinstance(s, str):
+                        names = x_shape.get_item_names(d)
+                        s = [names.index(n.strip()) for n in s.split(',')]
+                    mask[s] = 0
+                return boolean_mask(x, d, wrap(mask, x_shape[d]))
+    unstack_dim = x_shape.only(_preferred_unstack_dim(x, dims))
+    x_slices = unstack(x, unstack_dim)
+    x_slices_out = []
+    for i, x_slice in enumerate(x_slices):
+        slices_without_unstack_dim = [{k: v for k, v in s_dict.items() if k != unstack_dim.name} for s_dict in slices if _includes_slice(s_dict, unstack_dim, i)]
+        sliced_x_slice = slice_off(x_slice, *slices_without_unstack_dim)
+        x_slices_out.append(sliced_x_slice)
+    assembled = stack(x_slices_out, unstack_dim)
+    slices_for_unstack_dim_only = [s_dict for s_dict in slices if len(s_dict) == 1 and unstack_dim.name in s_dict]
+    result = slice_off(assembled, *slices_for_unstack_dim_only)
+    return result
+
+
+def _edge_slice(x_shape: Shape, dim: str, s):
+    size = x_shape.get_size(dim)
+    if isinstance(s, str):
+        s = [n.strip() for n in s.split(',')]
+    if isinstance(s, slice):
+        reaches_end = s.stop is None or s.stop >= size
+        if not s.start:
+            return slice(0, None if reaches_end else s.stop)
+        elif reaches_end:
+            return slice(s.start, None)
+    elif isinstance(s, int):
+        if s == 0:
+            return slice(0, 1)
+        elif s == -1 or s == size - 1:
+            return slice(size - 1, None)
+    elif isinstance(s, (tuple, list)):
+        names = x_shape.get_item_names(dim)
+        indices = [i if isinstance(i, int) else names.index(i) for i in s]
+        if all(n in indices for n in range(max(indices))):
+            return slice(0, max(indices) + 1)
+        elif all(n in indices for n in range(min(indices), size)):
+            return slice(min(indices), None)
+
+
+def _preferred_unstack_dim(x, dims: Collection[str]) -> str:
+    if shape(x).is_non_uniform:
+        nu = shape(x).non_uniform
+        return nu.shape.without('dims').names[0]
+    else:
+        return min(dims, key=lambda d: x.shape.get_size(d))
+
+
+def _includes_slice(s_dict: dict, dim: Shape, i: int):
+    if dim.name not in s_dict:
+        return True
+    s = s_dict[dim.name]
+    if isinstance(s, str):
+        s = [n.strip() for n in s.split(',')]
+    if isinstance(s, int):
+        return s == i
+    elif isinstance(s, slice):
+        return (s.start or 0) <= i < (s.stop if s.stop is not None else dim.size)
+    elif isinstance(s, (tuple, list)):
+        names = dim.item_names[0]
+        indices = [i if isinstance(i, int) else names.index(i) for i in s]
+        return i in indices
 
 
 def map_(function, *values, range=range, **kwargs) -> Union[Tensor, None]:
@@ -2091,9 +2190,10 @@ def boolean_mask(x: Tensor, dim: DimFilter, mask: Tensor):
     Returns:
         Selected values of `x` as `Tensor` with dimensions from `x` and `mask`.
     """
-    dim, original_dim = mask.shape.only(dim), dim  # ToDo
+    dim, original_dim = shape(mask).only(dim), dim  # ToDo
     assert dim, f"mask dimension '{original_dim}' must be present on the mask {mask.shape}"
     assert dim.rank == 1, f"boolean mask only supports 1D selection"
+    assert isinstance(x, Tensor), f"boolean_mask is only supported for Tensors"
     
     def uniform_boolean_mask(x: Tensor, mask_1d: Tensor):
         if dim in x.shape:

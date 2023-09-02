@@ -834,3 +834,44 @@ class TestOps(TestCase):
                 t = math.linspace((0, 1), (1, 2), spatial(x=4, y=3))
                 math.assert_close(math.linspace(0, 1, spatial(x=4)), t.vector['x'])
                 math.assert_close(math.linspace(1, 2, spatial(y=3)), t.vector['y'])
+
+    def test_slice_off_1d(self):
+        t = wrap([1, 2, 3], spatial(x='x1,x2,x3'))
+        math.assert_close([1, 2, 3], math.slice_off(t))
+        # --- slice off last ---
+        math.assert_close([1, 2], math.slice_off(t, {'x': slice(2, None)}))
+        math.assert_close([1, 2], math.slice_off(t, {'x': slice(2, 3)}))
+        math.assert_close([1, 2], math.slice_off(t, {'x': slice(2, 5)}))
+        math.assert_close([1, 2], math.slice_off(t, {'x': slice(-1, None)}))
+        math.assert_close([1, 2], math.slice_off(t, {'x': 2}))
+        math.assert_close([1, 2], math.slice_off(t, {'x': -1}))
+        math.assert_close([1, 2], math.slice_off(t, {'x': 'x3'}))
+        # --- slice off first ---
+        math.assert_close([2, 3], math.slice_off(t, {'x': 0}))
+        math.assert_close([2, 3], math.slice_off(t, {'x': 'x1'}))
+        math.assert_close([2, 3], math.slice_off(t, {'x': slice(None, 1)}))
+        math.assert_close([2, 3], math.slice_off(t, {'x': slice(0, 1)}))
+        # --- slice off center ---
+        math.assert_close([1, 3], math.slice_off(t, {'x': 1}))
+        math.assert_close([1, 3], math.slice_off(t, {'x': 'x2'}))
+        math.assert_close([1, 3], math.slice_off(t, {'x': slice(1, 2)}))
+        # --- multi-slice ---
+        math.assert_close([2], math.slice_off(t, {'x': slice(None, 1)}, {'x': slice(-1, None)}))
+        math.assert_close([2], math.slice_off(t, {'x': 'x1,x3'}))
+        math.assert_close([2], math.slice_off(t, {'x': 'x1'}, {'x': 'x3'}))
+        math.assert_close([1], math.slice_off(t, {'x': slice(1, 2)}, {'x': slice(2, 3)}))
+
+    def test_slice_off_2d(self):
+        t = wrap([[1, 2, 3], [4, 5, 6]], spatial(y='y1,y2', x='x1,x2,x3'))
+        for slices in [
+            [{'x': 'x3', 'y': 'y2'}],
+            [{'x': 2, 'y': 1}],
+            [{'x': [2], 'y': [1, 2, 3]}],
+            [{'x': slice(2, None), 'y': slice(1, 2)}],
+        ]:
+            math.assert_close([1, 2, 3], math.slice_off(t, *slices).y['y1'])
+            math.assert_close([4, 5], math.slice_off(t, *slices).y['y2'])
+
+    def test_slice_off_non_uniform(self):
+        t = math.stack([vec('x', 1, 2), vec('x', 3, 4), vec('x', 5)], batch('y'))
+        math.assert_close(wrap([2, 3, 5], batch('y')), math.slice_off(t, {'y': 0, 'x': 0}, {'y': 1, 'x': 1}))

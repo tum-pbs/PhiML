@@ -1345,7 +1345,7 @@ class TensorStack(Tensor):
     
     @property
     def stack_dim(self):
-        warnings.warn("TensorStack.stack_dim is deprecated", DeprecationWarning, stacklevel=2)
+        warnings.warn("TensorStack.stack_dim is deprecated. Use Shape.non_uniform instead.", DeprecationWarning, stacklevel=2)
         return self._stack_dim
 
     def _cache(self):
