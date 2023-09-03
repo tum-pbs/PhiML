@@ -79,6 +79,7 @@ from ._ops import (
     native, numpy, reshaped_native, reshaped_tensor, reshaped_numpy, copy, native_call,
     print_ as print,
     map_ as map,
+    slice_off,
     zeros, ones, fftfreq, random_normal, random_uniform, meshgrid, linspace, arange as range, range_tensor,  # creation operators (use default backend)
     zeros_like, ones_like,
     pad,
@@ -804,9 +805,10 @@ All dimensions of <code>mask</code> that are not <code>dim</code> are treated as
     Returns:
         Selected values of `x` as `Tensor` with dimensions from `x` and `mask`.
     &#34;&#34;&#34;
-    dim, original_dim = mask.shape.only(dim), dim  # ToDo
+    dim, original_dim = shape(mask).only(dim), dim  # ToDo
     assert dim, f&#34;mask dimension &#39;{original_dim}&#39; must be present on the mask {mask.shape}&#34;
     assert dim.rank == 1, f&#34;boolean mask only supports 1D selection&#34;
+    assert isinstance(x, Tensor), f&#34;boolean_mask is only supported for Tensors&#34;
     
     def uniform_boolean_mask(x: Tensor, mask_1d: Tensor):
         if dim in x.shape:
@@ -8109,6 +8111,72 @@ The sign of 0 is undefined.</p>
         new_attrs = {k: slice_(v, slices) for k, v in attrs.items()}
         return copy_with(value, **new_attrs)
     raise ValueError(f&#34;value must be a PhiTreeNode but got {type(value)}&#34;)</code></pre>
+</details>
+</dd>
+<dt id="phiml.math.slice_off"><code class="name flex">
+<span>def <span class="ident">slice_off</span></span>(<span>x, *slices: <a title="phiml.math.Dict" href="#phiml.math.Dict">Dict</a>[str, Union[<a title="phiml.math.slice" href="#phiml.math.slice">slice_()</a>, int, str]])</span>
+</code></dt>
+<dd>
+<div class="desc"><h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>x</code></strong></dt>
+<dd>Any instance of <code><a title="phiml.math.magic.Shapable" href="magic.html#phiml.math.magic.Shapable">Shapable</a></code></dd>
+</dl>
+<p>*slices:
+Returns:</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def slice_off(x, *slices: Dict[str, Union[slice, int, str]]):
+    &#34;&#34;&#34;
+
+    Args:
+        x: Any instance of `phiml.math.magic.Shapable`
+        *slices:
+
+    Returns:
+
+    &#34;&#34;&#34;
+    if not slices:
+        return x
+    x_shape = shape(x)
+    dims = set().union(*[s.keys() for s in slices])
+    dims = x_shape.only(dims).names
+    depth = max(len(s) for s in slices)
+    if depth == 1:
+        if len(dims) == 1:
+            d = dims[0]
+            if all(all(_edge_slice(x_shape, dim, s) for dim, s in s_dict.items()) for s_dict in slices):  # only edges
+                edge_slices = [_edge_slice(x_shape, dim, s) for s_dict in slices for dim, s in s_dict.items()]
+                if any(s.start == 0 and s.stop is None for s in edge_slices):  # everything sliced off
+                    return x[{d: slice(0, 0)}]
+                start_slices = [s for s in edge_slices if s.start == 0]
+                end_slices = [s for s in edge_slices if s.stop is None]
+                start = max(s.stop for s in start_slices) if start_slices else 0  # at this point, s.stop must be an int
+                end = min(s.start for s in end_slices) if end_slices else None
+                return x[{d: slice(start, end)}]
+            else:
+                size = x_shape.get_size(d)
+                mask = np.ones(size, dtype=np.bool)
+                for s_dict in slices:
+                    s = next(iter(s_dict.values()))
+                    if isinstance(s, str):
+                        names = x_shape.get_item_names(d)
+                        s = [names.index(n.strip()) for n in s.split(&#39;,&#39;)]
+                    mask[s] = 0
+                return boolean_mask(x, d, wrap(mask, x_shape[d]))
+    unstack_dim = x_shape.only(_preferred_unstack_dim(x, dims))
+    x_slices = unstack(x, unstack_dim)
+    x_slices_out = []
+    for i, x_slice in enumerate(x_slices):
+        slices_without_unstack_dim = [{k: v for k, v in s_dict.items() if k != unstack_dim.name} for s_dict in slices if _includes_slice(s_dict, unstack_dim, i)]
+        sliced_x_slice = slice_off(x_slice, *slices_without_unstack_dim)
+        x_slices_out.append(sliced_x_slice)
+    assembled = stack(x_slices_out, unstack_dim)
+    slices_for_unstack_dim_only = [s_dict for s_dict in slices if len(s_dict) == 1 and unstack_dim.name in s_dict]
+    result = slice_off(assembled, *slices_for_unstack_dim_only)
+    return result</code></pre>
 </details>
 </dd>
 <dt id="phiml.math.soft_plus"><code class="name flex">
@@ -15861,6 +15929,7 @@ If a dimension of the tensor is not listed in <code>order</code>, a <code>ValueE
 <li><code><a title="phiml.math.sin" href="#phiml.math.sin">sin</a></code></li>
 <li><code><a title="phiml.math.sinh" href="#phiml.math.sinh">sinh</a></code></li>
 <li><code><a title="phiml.math.slice" href="#phiml.math.slice">slice</a></code></li>
+<li><code><a title="phiml.math.slice_off" href="#phiml.math.slice_off">slice_off</a></code></li>
 <li><code><a title="phiml.math.soft_plus" href="#phiml.math.soft_plus">soft_plus</a></code></li>
 <li><code><a title="phiml.math.solve_linear" href="#phiml.math.solve_linear">solve_linear</a></code></li>
 <li><code><a title="phiml.math.solve_nonlinear" href="#phiml.math.solve_nonlinear">solve_nonlinear</a></code></li>
