@@ -1818,6 +1818,7 @@ def shape_stack(stack_dim: Shape, *shapes: Shape):
     names = list(stack_dim.names)
     types = list(stack_dim.types)
     item_names = list(stack_dim.item_names)
+    incompatible_item_names = []
     for other in shapes:
         for size, name, type, items in other._dimensions:
             if name not in names:
@@ -1844,8 +1845,11 @@ def shape_stack(stack_dim: Shape, *shapes: Shape):
                     if item_names[index] is None:
                         item_names[index] = items
                     else:
-                        warnings.warn(f"Stacking shapes with incompatible item names will result in item names being lost. Got {item_names[index]} and {items}", RuntimeWarning)
-                        item_names[index] = None
+                        warnings.warn(f"Stacking shapes with incompatible item names will result in item names being lost. For {name} Got {item_names[index]} and {items}", RuntimeWarning)
+                        incompatible_item_names.append(index)
+    if incompatible_item_names:
+        for index in incompatible_item_names:
+            item_names[index] = None
     sizes = []
     for name in names:
         if name == stack_dim.name:
