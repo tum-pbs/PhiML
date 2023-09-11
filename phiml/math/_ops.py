@@ -438,7 +438,7 @@ def slice_off(x, *slices: Dict[str, Union[slice, int, str]]):
                 return x[{d: slice(start, end)}]
             else:
                 size = x_shape.get_size(d)
-                mask = np.ones(size, dtype=np.bool)
+                mask = np.ones(size, dtype=np.bool_)
                 for s_dict in slices:
                     s = next(iter(s_dict.values()))
                     if isinstance(s, str):
