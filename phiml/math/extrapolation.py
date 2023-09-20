@@ -80,7 +80,7 @@ class Extrapolation:
         """
         raise NotImplementedError()
 
-    def pad(self, value: Tensor, widths: dict, **kwargs) -> Tensor:
+    def pad(self, value: Tensor, widths: dict, already_padded: Optional[dict] = None, **kwargs) -> Tensor:
         """
         Pads a tensor using values from `self.pad_values()`.
 
@@ -90,6 +90,9 @@ class Extrapolation:
         Args:
             value: `Tensor` to be padded
             widths: `dict` mapping `dim: str -> (lower: int, upper: int)`
+            already_padded: Used when padding a tensor with multiple extrapolations.
+                Contains all widths that have already been padded prior to this call.
+                This causes the shape of `value` to be different from the original tensor passed to `math.pad()`.
             kwargs: Additional keyword arguments for padding, passed on to `pad_values()`.
 
         Returns:
@@ -98,8 +101,8 @@ class Extrapolation:
         from ._trace import ShiftLinTracer
         if isinstance(value, ShiftLinTracer):
             lower = {dim: -lo for dim, (lo, _) in widths.items()}
-            return value.shift(lower, new_shape=value.shape.after_pad(widths), val_fun=lambda v: ZERO.pad(v, widths, **kwargs), bias_fun=lambda b: self.pad(b, widths, **kwargs))
-        already_padded = {}
+            return value.shift(lower, new_shape=value.shape.after_pad(widths), val_fun=lambda v: ZERO.pad(v, widths, already_padded=already_padded, **kwargs), bias_fun=lambda b: self.pad(b, widths, already_padded=already_padded, **kwargs))
+        already_padded = {} if already_padded is None else dict(already_padded)
         for dim, width in widths.items():
             assert (w > 0 for w in width), "Negative widths not allowed in Extrapolation.pad(). Use math.pad() instead."
             values = []
@@ -112,7 +115,7 @@ class Extrapolation:
             already_padded[dim] = width
         return value
 
-    def pad_values(self, value: Tensor, width: int, dim: str, upper_edge: bool, **kwargs) -> Tensor:
+    def pad_values(self, value: Tensor, width: int, dim: str, upper_edge: bool, already_padded: Optional[dict] = None, **kwargs) -> Tensor:
         """
         Determines the values with which the given tensor would be padded at the specified using this extrapolation.
 
@@ -121,6 +124,9 @@ class Extrapolation:
             width: `int > 0`: Number of cells to pad along `dimension`.
             dim: Dimension name as `str`.
             upper_edge: `True` for upper edge, `False` for lower edge.
+            already_padded: Used when padding a tensor with multiple extrapolations.
+                Contains all widths that have already been padded prior to this call.
+                This causes the shape of `value` to be different from the original tensor passed to `math.pad()`.
 
         Returns:
             `Tensor` that can be concatenated to `value` along `dimension`
@@ -252,17 +258,8 @@ class ConstantExtrapolation(Extrapolation):
     def is_flexible(self) -> bool:
         return False
 
-    def pad(self, value: Tensor, widths: dict, **kwargs):
-        """
-        Pads a tensor using constant values.
-
-        Args:
-          value: `Tensor` to be padded
-          widths: name: str -> (lower: int, upper: int)}
-
-        Returns:
-            Padded `Tensor`
-        """
+    def pad(self, value: Tensor, widths: dict, already_padded: Optional[dict] = None, **kwargs) -> Tensor:
+        """Pads a tensor using constant values."""
         derivative = get_spatial_derivative_order()
         pad_value = self.value if derivative == 0 else math.wrap(0)
         value = value._simplify()
@@ -283,7 +280,7 @@ class ConstantExtrapolation(Extrapolation):
                     result_native = value._native
                 if result_native is not NotImplemented:
                     return NativeTensor(result_native, value._native_shape.after_pad(widths), value._shape.after_pad(widths))
-            return Extrapolation.pad(self, value, widths, **kwargs)
+            return Extrapolation.pad(self, value, widths, already_padded=already_padded, **kwargs)
         elif isinstance(value, TensorStack):
             if not value.requires_broadcast:
                 return self.pad(value._cache(), widths)
@@ -291,9 +288,9 @@ class ConstantExtrapolation(Extrapolation):
             tensors = [self[{value._stack_dim.name: i}].pad(t, inner_widths) for i, t in enumerate(value.dimension(value._stack_dim.name))]
             return TensorStack(tensors, value._stack_dim)
         else:
-            return Extrapolation.pad(self, value, widths, **kwargs)
+            return Extrapolation.pad(self, value, widths, already_padded=already_padded, **kwargs)
 
-    def pad_values(self, value: Tensor, width: int, dim: str, upper_edge: bool, **kwargs) -> Tensor:
+    def pad_values(self, value: Tensor, width: int, dim: str, upper_edge: bool, already_padded: Optional[dict] = None, **kwargs) -> Tensor:
         shape = value.shape.after_gather({dim: slice(0, width)})
         return math.expand(self.value, shape)
 
@@ -423,7 +420,7 @@ class _CopyExtrapolation(Extrapolation):
         """
         return True
 
-    def pad(self, value: Tensor, widths: dict, **kwargs) -> Tensor:
+    def pad(self, value: Tensor, widths: dict, already_padded: Optional[dict] = None, **kwargs) -> Tensor:
         value = value._simplify()
         from ._trace import ShiftLinTracer
         if isinstance(value, NativeTensor):
@@ -529,7 +526,7 @@ class _ZeroGradient(_CopyExtrapolation):
     def is_flexible(self) -> bool:
         return True
 
-    def pad_values(self, value: Tensor, width: int, dim: str, upper_edge: bool, **kwargs) -> Tensor:
+    def pad_values(self, value: Tensor, width: int, dim: str, upper_edge: bool, already_padded: Optional[dict] = None, **kwargs) -> Tensor:
         if upper_edge:
             edge = value[{dim: slice(-1, None)}]
         else:
@@ -628,7 +625,7 @@ class _PeriodicExtrapolation(_CopyExtrapolation):
     def transform_coordinates(self, coordinates: Tensor, shape: Shape, **kwargs) -> Tensor:
         return coordinates % shape.spatial
 
-    def pad_values(self, value: Tensor, width: int, dim: str, upper_edge: bool, **kwargs) -> Tensor:
+    def pad_values(self, value: Tensor, width: int, dim: str, upper_edge: bool, already_padded: Optional[dict] = None, **kwargs) -> Tensor:
         if upper_edge:
             return value[{dim: slice(width)}]
         else:
@@ -662,7 +659,7 @@ class _SymmetricExtrapolation(_CopyExtrapolation):
         coordinates = coordinates % (2 * shape)
         return ((2 * shape - 1) - abs((2 * shape - 1) - 2 * coordinates)) // 2
 
-    def pad_values(self, value: Tensor, width: int, dim: str, upper_edge: bool, **kwargs) -> Tensor:
+    def pad_values(self, value: Tensor, width: int, dim: str, upper_edge: bool, already_padded: Optional[dict] = None, **kwargs) -> Tensor:
         if upper_edge:
             return value[{dim: slice(-1, -width-1, -1)}]
         else:
@@ -778,7 +775,7 @@ class _ReflectExtrapolation(_CopyExtrapolation):
     def is_flexible(self) -> bool:
         return True
 
-    def pad_values(self, value: Tensor, width: int, dim: str, upper_edge: bool, **kwargs) -> Tensor:
+    def pad_values(self, value: Tensor, width: int, dim: str, upper_edge: bool, already_padded: Optional[dict] = None, **kwargs) -> Tensor:
         if upper_edge:
             return value[{dim: slice(-2, -2-width, -1)}]
         else:
@@ -900,8 +897,8 @@ class _SymmetricGradientExtrapolation(Extrapolation):
     def is_flexible(self) -> bool:
         return True
 
-    def pad_values(self, value: Tensor, width: int, dim: str, upper_edge: bool, **kwargs) -> Tensor:
-        anti_s = ANTIREFLECT.pad_values(value, width, dim, upper_edge, **kwargs)
+    def pad_values(self, value: Tensor, width: int, dim: str, upper_edge: bool, already_padded: Optional[dict] = None, **kwargs) -> Tensor:
+        anti_s = ANTIREFLECT.pad_values(value, width, dim, upper_edge, already_padded=already_padded, **kwargs)
         edge = value[{dim: -1}] if upper_edge else value[{dim: 0}]
         return anti_s + 2 * edge
 
@@ -915,7 +912,7 @@ class _NoExtrapolation(Extrapolation):  # singleton
     def to_dict(self) -> dict:
         return {'type': 'none'}
 
-    def pad(self, value: Tensor, widths: dict, **kwargs) -> Tensor:
+    def pad(self, value: Tensor, widths: dict, already_padded: Optional[dict] = None, **kwargs) -> Tensor:
         return value
 
     def spatial_gradient(self) -> 'Extrapolation':
@@ -931,7 +928,7 @@ class _NoExtrapolation(Extrapolation):  # singleton
     def is_flexible(self) -> bool:
         raise AssertionError(f"is_flexible not defined by {self.__class__}")
 
-    def pad_values(self, value: Tensor, width: int, dim: str, upper_edge: bool, **kwargs) -> Tensor:
+    def pad_values(self, value: Tensor, width: int, dim: str, upper_edge: bool, already_padded: Optional[dict] = None, **kwargs) -> Tensor:
         return math.zeros(value.shape._replace_single_size(dim, 0))
 
     def __repr__(self):
@@ -985,9 +982,10 @@ class Undefined(Extrapolation):
     def to_dict(self) -> dict:
         return {'type': 'undefined', 'derived_from': self.derived_from.to_dict()}
 
-    def pad(self, value: Tensor, widths: dict, **kwargs) -> Tensor:
+    def pad(self, value: Tensor, widths: dict, already_padded: Optional[dict] = None, **kwargs) -> Tensor:
         for (lo, up) in widths.items():
             assert lo == 0 and up == 0, "Undefined extrapolation"
+        return value
 
     def spatial_gradient(self) -> 'Extrapolation':
         return self
@@ -999,7 +997,7 @@ class Undefined(Extrapolation):
     def is_flexible(self) -> bool:
         raise AssertionError("Undefined extrapolation")
 
-    def pad_values(self, value: Tensor, width: int, dim: str, upper_edge: bool, **kwargs) -> Tensor:
+    def pad_values(self, value: Tensor, width: int, dim: str, upper_edge: bool, already_padded: Optional[dict] = None, **kwargs) -> Tensor:
         raise AssertionError("Undefined extrapolation")
 
     def __repr__(self):
@@ -1191,31 +1189,20 @@ class _MixedExtrapolation(Extrapolation):
     def is_flexible(self) -> bool:
         return any([ext.is_flexible for ext in self.ext.values()])
 
-    def pad(self, value: Tensor, widths: dict, **kwargs) -> Tensor:
-        """
-        Pads a tensor using mixed values
-
-        Args:
-          value: tensor to be padded
-          widths: name: str -> (lower: int, upper: int)}
-          value: Tensor: 
-          widths: dict: 
-
-        Returns:
-
-        """
+    def pad(self, value: Tensor, widths: dict, already_padded: Optional[dict] = None, **kwargs) -> Tensor:
+        """Pads a tensor using multiple extrapolations."""
         extrapolations = set(self.ext.values())
         extrapolations = tuple(sorted(extrapolations, key=lambda e: e.pad_rank))
-        already_padded = {}
+        already_padded = {} if already_padded is None else dict(already_padded)
         for ext in extrapolations:
             ext_widths = {dim: (l if self.ext[(dim, False)] == ext else 0, u if self.ext[(dim, True)] == ext else 0) for dim, (l, u) in widths.items()}
             value = ext.pad(value, ext_widths, already_padded=already_padded, **kwargs)
             already_padded.update(ext_widths)
         return value
 
-    def pad_values(self, value: Tensor, width: int, dim: str, upper_edge: bool, **kwargs) -> Tensor:
+    def pad_values(self, value: Tensor, width: int, dim: str, upper_edge: bool, already_padded: Optional[dict] = None, **kwargs) -> Tensor:
         extrap: Extrapolation = self.ext[(dim, upper_edge)]
-        return extrap.pad_values(value, width, dim, upper_edge, **kwargs)
+        return extrap.pad_values(value, width, dim, upper_edge, already_padded=already_padded, **kwargs)
 
     def sparse_pad_values(self, value: Tensor, connectivity: Tensor, boundary, **kwargs) -> Tensor:
         return self.ext[boundary].sparse_pad_values(value, connectivity, boundary, **kwargs)
@@ -1322,7 +1309,7 @@ class _NormalTangentialExtrapolation(Extrapolation):
     def is_flexible(self) -> bool:
         return self.normal.is_flexible
 
-    def pad_values(self, value: Tensor, width: int, dim: str, upper_edge: bool, **kwargs) -> Tensor:
+    def pad_values(self, value: Tensor, width: int, dim: str, upper_edge: bool, already_padded: Optional[dict] = None, **kwargs) -> Tensor:
         if 'vector' not in value.shape:
             warnings.warn(f'{self} adding a vector dimension to tensor {value.shape}')
             from . import expand
@@ -1331,7 +1318,7 @@ class _NormalTangentialExtrapolation(Extrapolation):
         result = []
         for component_name, component in zip(value.vector.item_names, value.vector):
             ext = self.normal if component_name == dim else self.tangential
-            result.append(ext.pad_values(component, width, dim, upper_edge, **kwargs))
+            result.append(ext.pad_values(component, width, dim, upper_edge, already_padded=already_padded, **kwargs))
         from ._magic_ops import stack
         result = stack(result, value.shape.only('vector'))
         return result
@@ -1499,4 +1486,3 @@ def remove_constant_offset(extrapolation):
         else:
             return extrapolation
     return map(const_to_zero, extrapolation)
-
