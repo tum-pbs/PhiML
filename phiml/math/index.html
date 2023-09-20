@@ -6122,7 +6122,7 @@ Adding batch dimensions must always work without keyword arguments.</dd>
 </details>
 </dd>
 <dt id="phiml.math.pad"><code class="name flex">
-<span>def <span class="ident">pad</span></span>(<span>value: phiml.math._tensors.Tensor, widths: Union[dict, tuple], mode: Union[ForwardRef('e_.Extrapolation'), phiml.math._tensors.Tensor, numbers.Number, str] = 0, **kwargs) ‑> phiml.math._tensors.Tensor</span>
+<span>def <span class="ident">pad</span></span>(<span>value: phiml.math._tensors.Tensor, widths: Union[dict, tuple], mode: Union[ForwardRef('e_.Extrapolation'), phiml.math._tensors.Tensor, numbers.Number, str, dict] = 0, **kwargs) ‑> phiml.math._tensors.Tensor</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Pads a tensor along the specified dimensions, determining the added values using the given extrapolation.
@@ -6154,7 +6154,7 @@ These are ignored by the standard extrapolations defined in <code><a title="phim
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def pad(value: Tensor, widths: Union[dict, tuple], mode: Union[&#39;e_.Extrapolation&#39;, Tensor, Number, str] = 0, **kwargs) -&gt; Tensor:
+<pre><code class="python">def pad(value: Tensor, widths: Union[dict, tuple], mode: Union[&#39;e_.Extrapolation&#39;, Tensor, Number, str, dict] = 0, **kwargs) -&gt; Tensor:
     &#34;&#34;&#34;
     Pads a tensor along the specified dimensions, determining the added values using the given extrapolation.
     Unlike `Extrapolation.pad()`, this function can handle negative widths which slice off outer values.
