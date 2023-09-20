@@ -112,7 +112,10 @@ class Extrapolation:
             if width[True] > 0:
                 values.append(self.pad_values(value, width[True], dim, True, already_padded=already_padded, **kwargs))
             value = concat(values, dim)
-            already_padded[dim] = width
+            if dim in already_padded:
+                already_padded[dim] = tuple(i+j for i, j in zip(already_padded[dim], width))
+            else:
+                already_padded[dim] = width
         return value
 
     def pad_values(self, value: Tensor, width: int, dim: str, upper_edge: bool, already_padded: Optional[dict] = None, **kwargs) -> Tensor:
@@ -260,10 +263,9 @@ class ConstantExtrapolation(Extrapolation):
 
     def pad(self, value: Tensor, widths: dict, already_padded: Optional[dict] = None, **kwargs) -> Tensor:
         """Pads a tensor using constant values."""
-        derivative = get_spatial_derivative_order()
-        pad_value = self.value if derivative == 0 else math.wrap(0)
         value = value._simplify()
         if isinstance(value, NativeTensor):
+            pad_value = self._get_pad_value(already_padded)
             backend = choose_backend(value._native, pad_value.native())
             for dim in pad_value.shape.non_batch.names:
                 assert dim in value.shape, f"Cannot pad tensor {value.shape} with extrapolation {pad_value.shape} because non-batch dimension '{dim}' is missing."
@@ -292,7 +294,17 @@ class ConstantExtrapolation(Extrapolation):
 
     def pad_values(self, value: Tensor, width: int, dim: str, upper_edge: bool, already_padded: Optional[dict] = None, **kwargs) -> Tensor:
         shape = value.shape.after_gather({dim: slice(0, width)})
-        return math.expand(self.value, shape)
+        pad_value = self._get_pad_value(already_padded)
+        return math.expand(pad_value, shape)
+
+    def _get_pad_value(self, already_padded: Optional[dict]):
+        if get_spatial_derivative_order() == 0:
+            if already_padded:
+                return ZERO.pad(self.value, already_padded)
+            else:
+                return self.value
+        else:
+            return math.wrap(0)
 
     def sparse_pad_values(self, value: Tensor, connectivity: Tensor, dim: str, upper_edge: bool, **kwargs) -> Tensor:
         return math.expand(self.value, dual(connectivity) & non_dual(value))

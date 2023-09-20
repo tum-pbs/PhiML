@@ -235,3 +235,8 @@ class TestExtrapolation(TestCase):
         self.assertEqual(ZERO, as_extrapolation('zero'))
         self.assertEqual(combine_by_direction(ZERO, 1), as_extrapolation({'normal': 0, 'tangential': 1}))
         self.assertEqual(combine_sides(x=1, y=ZERO_GRADIENT), as_extrapolation({'x': wrap(1), 'y': 'zero-gradient'}))
+
+    def test_constant_already_padded(self):
+        t = math.zeros(spatial(x=3, y=2))
+        p = math.pad(t, {'x': (1, 1), 'y': (1, 1)}, {'x': ZERO_GRADIENT, 'y': wrap([0, 1, 0], spatial('x'))})
+        math.assert_close([0, 0, 1, 0, 0], p.y[0])

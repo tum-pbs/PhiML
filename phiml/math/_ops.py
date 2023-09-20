@@ -926,7 +926,7 @@ def concat_tensor(values: Union[tuple, list], dim: str) -> Tensor:
     return result
 
 
-def pad(value: Tensor, widths: Union[dict, tuple], mode: Union['e_.Extrapolation', Tensor, Number, str] = 0, **kwargs) -> Tensor:
+def pad(value: Tensor, widths: Union[dict, tuple], mode: Union['e_.Extrapolation', Tensor, Number, str, dict] = 0, **kwargs) -> Tensor:
     """
     Pads a tensor along the specified dimensions, determining the added values using the given extrapolation.
     Unlike `Extrapolation.pad()`, this function can handle negative widths which slice off outer values.
