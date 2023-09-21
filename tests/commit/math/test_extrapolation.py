@@ -240,3 +240,11 @@ class TestExtrapolation(TestCase):
         t = math.zeros(spatial(x=3, y=2))
         p = math.pad(t, {'x': (1, 1), 'y': (1, 1)}, {'x': ZERO_GRADIENT, 'y': wrap([0, 1, 0], spatial('x'))})
         math.assert_close([0, 0, 1, 0, 0], p.y[0])
+
+    def test_transform_coordinates(self):
+        e = as_extrapolation({'x': (0, ZERO_GRADIENT), 'y': PERIODIC})
+        coord = math.vec(x=[-1, 0, 5, 6, 99], y=[-1, 0, 10, 11, 99])
+        size = spatial(x=5, y=10)
+        t = e.transform_coordinates(coord, size)
+        math.assert_close([0, 0, 4, 4, 4], t['x'])
+        math.assert_close([9, 0, 0, 1, 9], t['y'])

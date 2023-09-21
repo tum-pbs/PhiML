@@ -1220,7 +1220,7 @@ class _MixedExtrapolation(Extrapolation):
         return self.ext[boundary].sparse_pad_values(value, connectivity, boundary, **kwargs)
 
     def transform_coordinates(self, coordinates: Tensor, shape: Shape, **kwargs) -> Tensor:
-        assert len(self.ext) == len(shape.spatial) == coordinates.vector.size
+        assert len(self.ext) / 2 == len(shape.spatial) == coordinates.vector.size
         result = []
         for dim in shape.spatial.unstack():
             dim_coords = coordinates[[dim.name]]
