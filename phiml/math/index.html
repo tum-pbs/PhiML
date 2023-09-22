@@ -7313,7 +7313,7 @@ If False, wraps the data in a <code><a title="phiml.math.Tensor" href="#phiml.ma
 </details>
 </dd>
 <dt id="phiml.math.rotate_vector"><code class="name flex">
-<span>def <span class="ident">rotate_vector</span></span>(<span>vector: phiml.math._tensors.Tensor, angle: Union[float, phiml.math._tensors.Tensor]) ‑> phiml.math._tensors.Tensor</span>
+<span>def <span class="ident">rotate_vector</span></span>(<span>vector: phiml.math._tensors.Tensor, angle: Union[float, phiml.math._tensors.Tensor, None], invert=False) ‑> phiml.math._tensors.Tensor</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Rotates <code>vector</code> around the origin.</p>
@@ -7322,7 +7322,10 @@ If False, wraps the data in a <code><a title="phiml.math.Tensor" href="#phiml.ma
 <dt><strong><code>vector</code></strong></dt>
 <dd>n-dimensional vector with exactly one channel dimension</dd>
 <dt><strong><code>angle</code></strong></dt>
-<dd>Euler angle. The direction is the rotation axis and the length is the amount (in radians).</dd>
+<dd>Euler angle(s) or rotation matrix.
+<code>None</code> is interpreted as no rotation.</dd>
+<dt><strong><code>invert</code></strong></dt>
+<dd>Whether to apply the inverse rotation.</dd>
 </dl>
 <h2 id="returns">Returns</h2>
 <p>Rotated vector as <code><a title="phiml.math.Tensor" href="#phiml.math.Tensor">Tensor</a></code></p></div>
@@ -7330,19 +7333,25 @@ If False, wraps the data in a <code><a title="phiml.math.Tensor" href="#phiml.ma
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def rotate_vector(vector: math.Tensor, angle: Union[float, math.Tensor]) -&gt; Tensor:
+<pre><code class="python">def rotate_vector(vector: math.Tensor, angle: Optional[Union[float, math.Tensor]], invert=False) -&gt; Tensor:
     &#34;&#34;&#34;
     Rotates `vector` around the origin.
 
     Args:
         vector: n-dimensional vector with exactly one channel dimension
-        angle: Euler angle. The direction is the rotation axis and the length is the amount (in radians).
+        angle: Euler angle(s) or rotation matrix.
+            `None` is interpreted as no rotation.
+        invert: Whether to apply the inverse rotation.
 
     Returns:
         Rotated vector as `Tensor`
     &#34;&#34;&#34;
-    assert channel(vector).rank == 1, f&#34;vector must have exactly one channel dimension&#34;
+    assert &#39;vector&#39; in vector.shape, f&#34;vector must have exactly a channel dimension named &#39;vector&#39;&#34;
+    if angle is None:
+        return vector
     matrix = rotation_matrix(angle, matrix_dim_2d=channel(vector))
+    if invert:
+        matrix = rename_dims(matrix, &#39;~vector,vector&#39;, math.concat_shapes(channel(&#39;vector&#39;), dual(&#39;vector&#39;)))
     return matrix @ vector</code></pre>
 </details>
 </dd>
@@ -7403,11 +7412,12 @@ Must have exactly one channel and one dual dimension with equally-ordered elemen
 <span>def <span class="ident">rotation_matrix</span></span>(<span>angle: Union[float, phiml.math._tensors.Tensor], matrix_dim_2d=(vectorᶜ=x,y))</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Create a 2D or 3D rotation matrix.</p>
+<div class="desc"><p>Create a 2D or 3D rotation matrix from the corresponding angle(s).</p>
 <h2 id="args">Args</h2>
 <dl>
 <dt><strong><code>angle</code></strong></dt>
-<dd>Either scalar angle for a 2D rotation or euler angles in 3D.</dd>
+<dd>Either scalar angle for a 2D rotation or euler angles along <code>vector</code> in 3D.
+If a rotation matrix is passed for <code>angle</code>, it is returned without modification.</dd>
 <dt><strong><code>matrix_dim_2d</code></strong></dt>
 <dd>Matrix dimension for 2D rotations. In 3D, the channel dimension of angle is used.</dd>
 </dl>
@@ -7420,17 +7430,20 @@ In 2D, the channel and dual dimensions are derived from <code>matrix_dim_2d</cod
 </summary>
 <pre><code class="python">def rotation_matrix(angle: Union[float, math.Tensor], matrix_dim_2d=channel(vector=&#39;x,y&#39;)):
     &#34;&#34;&#34;
-    Create a 2D or 3D rotation matrix.
+    Create a 2D or 3D rotation matrix from the corresponding angle(s).
 
     Args:
-        angle: Either scalar angle for a 2D rotation or euler angles in 3D.
+        angle: Either scalar angle for a 2D rotation or euler angles along `vector` in 3D.
+            If a rotation matrix is passed for `angle`, it is returned without modification.
         matrix_dim_2d: Matrix dimension for 2D rotations. In 3D, the channel dimension of angle is used.
 
     Returns:
         Matrix with one channel and one dual dimension as well as all non-channel dimensions of `angle`.
         In 2D, the channel and dual dimensions are derived from `matrix_dim_2d` and in 3D, the channel dimension of `angle` is used instead.
     &#34;&#34;&#34;
-    if not channel(angle):  # 1D rotation
+    if isinstance(angle, Tensor) and &#39;~vector&#39; in angle.shape and &#39;vector&#39; in angle.shape.channel and angle.shape.get_size(&#39;~vector&#39;) == angle.shape.get_size(&#39;vector&#39;):
+        return angle  # already a rotation matrix
+    if &#39;vector&#39; not in shape(angle) or shape(angle).get_size(&#39;vector&#39;) == 1:  # 1D rotation
         sin = wrap(math.sin(angle))
         cos = wrap(math.cos(angle))
         return wrap([[cos, -sin], [sin, cos]], matrix_dim_2d, dual(**matrix_dim_2d.untyped_dict))
