@@ -287,9 +287,13 @@ class TestMathNDNumpy(TestCase):
         # --- 2D ---
         vec = math.rotate_vector(math.vec(x=2, y=0), math.PI / 2)
         math.assert_close(math.vec(x=0, y=2), vec, abs_tolerance=1e-5)
+        math.assert_close(math.vec(x=2, y=0), math.rotate_vector(vec, math.PI / 2, invert=True), abs_tolerance=1e-5)
         # --- 3D ---
         vec = math.rotate_vector(math.vec(x=2, y=0, z=0), angle=math.vec(x=0, y=math.PI / 2, z=0))
         math.assert_close(math.vec(x=0, y=0, z=-2), vec, abs_tolerance=1e-5)
+        math.assert_close(math.vec(x=2, y=0, z=0), math.rotate_vector(vec, angle=math.vec(x=0, y=math.PI / 2, z=0), invert=True), abs_tolerance=1e-5)
+        # --- None ---
+        math.assert_close(math.vec(x=2, y=0), math.rotate_vector(math.vec(x=2, y=0), None, invert=True))
 
     def test_dim_mask(self):
         math.assert_close((1, 0, 0), math.dim_mask(spatial('x,y,z'), 'x'))

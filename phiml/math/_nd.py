@@ -150,35 +150,44 @@ def cross_product(vec1: Tensor, vec2: Tensor) -> Tensor:
         raise AssertionError(f'dims = {spatial_rank}. Vector product not available in > 3 dimensions')
 
 
-def rotate_vector(vector: math.Tensor, angle: Union[float, math.Tensor]) -> Tensor:
+def rotate_vector(vector: math.Tensor, angle: Optional[Union[float, math.Tensor]], invert=False) -> Tensor:
     """
     Rotates `vector` around the origin.
 
     Args:
         vector: n-dimensional vector with exactly one channel dimension
-        angle: Euler angle. The direction is the rotation axis and the length is the amount (in radians).
+        angle: Euler angle(s) or rotation matrix.
+            `None` is interpreted as no rotation.
+        invert: Whether to apply the inverse rotation.
 
     Returns:
         Rotated vector as `Tensor`
     """
-    assert channel(vector).rank == 1, f"vector must have exactly one channel dimension"
+    assert 'vector' in vector.shape, f"vector must have exactly a channel dimension named 'vector'"
+    if angle is None:
+        return vector
     matrix = rotation_matrix(angle, matrix_dim_2d=channel(vector))
+    if invert:
+        matrix = rename_dims(matrix, '~vector,vector', math.concat_shapes(channel('vector'), dual('vector')))
     return matrix @ vector
 
 
 def rotation_matrix(angle: Union[float, math.Tensor], matrix_dim_2d=channel(vector='x,y')):
     """
-    Create a 2D or 3D rotation matrix.
+    Create a 2D or 3D rotation matrix from the corresponding angle(s).
 
     Args:
-        angle: Either scalar angle for a 2D rotation or euler angles in 3D.
+        angle: Either scalar angle for a 2D rotation or euler angles along `vector` in 3D.
+            If a rotation matrix is passed for `angle`, it is returned without modification.
         matrix_dim_2d: Matrix dimension for 2D rotations. In 3D, the channel dimension of angle is used.
 
     Returns:
         Matrix with one channel and one dual dimension as well as all non-channel dimensions of `angle`.
         In 2D, the channel and dual dimensions are derived from `matrix_dim_2d` and in 3D, the channel dimension of `angle` is used instead.
     """
-    if not channel(angle):  # 1D rotation
+    if isinstance(angle, Tensor) and '~vector' in angle.shape and 'vector' in angle.shape.channel and angle.shape.get_size('~vector') == angle.shape.get_size('vector'):
+        return angle  # already a rotation matrix
+    if 'vector' not in shape(angle) or shape(angle).get_size('vector') == 1:  # 1D rotation
         sin = wrap(math.sin(angle))
         cos = wrap(math.cos(angle))
         return wrap([[cos, -sin], [sin, cos]], matrix_dim_2d, dual(**matrix_dim_2d.untyped_dict))
