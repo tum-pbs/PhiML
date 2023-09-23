@@ -736,7 +736,7 @@ def fftfreq(resolution: Shape, dx: Union[Tensor, float] = 1, dtype: DType = None
     return to_float(k) if dtype is None else cast(k, dtype)
 
 
-def meshgrid(dims: Union[Callable, Shape] = spatial, stack_dim=channel('vector'), **dimensions: Union[int, Tensor]) -> Tensor:
+def meshgrid(dims: Union[Callable, Shape] = spatial, stack_dim=channel('vector'), **dimensions: Union[int, Tensor, tuple, list, Any]) -> Tensor:
     """
     Generate a mesh-grid `Tensor` from keyword dimensions.
 

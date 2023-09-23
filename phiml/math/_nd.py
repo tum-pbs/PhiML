@@ -169,6 +169,7 @@ def rotate_vector(vector: math.Tensor, angle: Optional[Union[float, math.Tensor]
     matrix = rotation_matrix(angle, matrix_dim_2d=channel(vector))
     if invert:
         matrix = rename_dims(matrix, '~vector,vector', math.concat_shapes(channel('vector'), dual('vector')))
+    assert matrix.vector.dual.size == vector.vector.size, f"Rotation matrix from {angle.shape} is {matrix.vector.dual.size}D but vector {vector.shape} is {vector.vector.size}D."
     return matrix @ vector
 
 
@@ -193,11 +194,11 @@ def rotation_matrix(angle: Union[float, math.Tensor], matrix_dim_2d=channel(vect
         return wrap([[cos, -sin], [sin, cos]], matrix_dim_2d, dual(**matrix_dim_2d.untyped_dict))
     else:
         assert channel(angle).rank == 1 and channel(angle).size == 3, f"angle for 3D rotations needs to be a 3-vector but got {angle}"
-        s1, s2, s3 = math.sin(angle).vector
+        s1, s2, s3 = math.sin(angle).vector  # phi, theta, psi
         c1, c2, c3 = math.cos(angle).vector
         return wrap([[c1 * c2, c1 * s2 * s3 - s1 * c3, c1 * s2 * c3 + s1 * s3],
-                       [s1 * c2, s1 * s2 * s3 + c1 * c3, s1 * s2 * c3 - c1 * s3],
-                       [-s2, c2 * s3, c2 * c3]], channel(angle), dual(**channel(angle).untyped_dict))  # Rz * Ry * Rx
+                     [s1 * c2, s1 * s2 * s3 + c1 * c3, s1 * s2 * c3 - c1 * s3],
+                     [-s2, c2 * s3, c2 * c3]], channel(angle), dual(**channel(angle).untyped_dict))  # Rz * Ry * Rx
 
 
 def rotation_angles(rot: Tensor):
