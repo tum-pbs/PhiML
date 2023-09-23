@@ -5171,7 +5171,7 @@ If dimensions with equal names are present in multiple shapes, their types and s
 </details>
 </dd>
 <dt id="phiml.math.meshgrid"><code class="name flex">
-<span>def <span class="ident">meshgrid</span></span>(<span>dims: Union[Callable, phiml.math._shape.Shape] = &lt;function spatial&gt;, stack_dim=(vectorᶜ=None), **dimensions: Union[int, phiml.math._tensors.Tensor]) ‑> phiml.math._tensors.Tensor</span>
+<span>def <span class="ident">meshgrid</span></span>(<span>dims: Union[Callable, phiml.math._shape.Shape] = &lt;function spatial&gt;, stack_dim=(vectorᶜ=None), **dimensions: Union[int, phiml.math._tensors.Tensor, tuple, list, Any]) ‑> phiml.math._tensors.Tensor</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Generate a mesh-grid <code><a title="phiml.math.Tensor" href="#phiml.math.Tensor">Tensor</a></code> from keyword dimensions.</p>
@@ -5202,7 +5202,7 @@ This is optional for 1D mesh-grids. In that case returns a <code><a title="phiml
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def meshgrid(dims: Union[Callable, Shape] = spatial, stack_dim=channel(&#39;vector&#39;), **dimensions: Union[int, Tensor]) -&gt; Tensor:
+<pre><code class="python">def meshgrid(dims: Union[Callable, Shape] = spatial, stack_dim=channel(&#39;vector&#39;), **dimensions: Union[int, Tensor, tuple, list, Any]) -&gt; Tensor:
     &#34;&#34;&#34;
     Generate a mesh-grid `Tensor` from keyword dimensions.
 
@@ -7352,6 +7352,7 @@ If False, wraps the data in a <code><a title="phiml.math.Tensor" href="#phiml.ma
     matrix = rotation_matrix(angle, matrix_dim_2d=channel(vector))
     if invert:
         matrix = rename_dims(matrix, &#39;~vector,vector&#39;, math.concat_shapes(channel(&#39;vector&#39;), dual(&#39;vector&#39;)))
+    assert matrix.vector.dual.size == vector.vector.size, f&#34;Rotation matrix from {angle.shape} is {matrix.vector.dual.size}D but vector {vector.shape} is {vector.vector.size}D.&#34;
     return matrix @ vector</code></pre>
 </details>
 </dd>
@@ -7449,11 +7450,11 @@ In 2D, the channel and dual dimensions are derived from <code>matrix_dim_2d</cod
         return wrap([[cos, -sin], [sin, cos]], matrix_dim_2d, dual(**matrix_dim_2d.untyped_dict))
     else:
         assert channel(angle).rank == 1 and channel(angle).size == 3, f&#34;angle for 3D rotations needs to be a 3-vector but got {angle}&#34;
-        s1, s2, s3 = math.sin(angle).vector
+        s1, s2, s3 = math.sin(angle).vector  # phi, theta, psi
         c1, c2, c3 = math.cos(angle).vector
         return wrap([[c1 * c2, c1 * s2 * s3 - s1 * c3, c1 * s2 * c3 + s1 * s3],
-                       [s1 * c2, s1 * s2 * s3 + c1 * c3, s1 * s2 * c3 - c1 * s3],
-                       [-s2, c2 * s3, c2 * c3]], channel(angle), dual(**channel(angle).untyped_dict))  # Rz * Ry * Rx</code></pre>
+                     [s1 * c2, s1 * s2 * s3 + c1 * c3, s1 * s2 * c3 - c1 * s3],
+                     [-s2, c2 * s3, c2 * c3]], channel(angle), dual(**channel(angle).untyped_dict))  # Rz * Ry * Rx</code></pre>
 </details>
 </dd>
 <dt id="phiml.math.round"><code class="name flex">
