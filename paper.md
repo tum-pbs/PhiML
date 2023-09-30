@@ -230,51 +230,6 @@ $\Phi_\textrm{ML}$ provides custom CUDA kernels for specific operations that cou
 If available, these will be used automatically in place of the fallback Python implementation.
 
 
-## Code Readability
-In this section, we give our thoughts on what makes code easy to read and easy to debug in the context of scientific computing.
-Generally, researchers and developers spend much more time reading existing code than writing new code.
-The design of $\Phi_\textrm{ML}$ should therefore enable and push users to write clean and readable code.
-We embrace the Zen of Python [@ZenOfPython], which can be viewed with the Python command `import this`, and adhere to the guidelines set out in PEP 8 [@PEP8].
-However, since simulation, data analysis and machine learning code differs substantially from traditional software, we want to discuss code readability in this context based on our own experiences.
-
-
-### Object orientation
-Object-oriented programming is extremely popular in software development with programming languages like C++ [@cpp], Java [@Java2005] or Kotlin [@Kotlin2017].
-Objects group variables together with object-specific functions (*methods*) into named and interpretable constructs.
-Grouping variables allows for functions with fewer, more high-level arguments, and methods can easily be added later on, making code more extendable.
-Despite this, simulation, data analysis and machine learning code often uses no objects beyond tensors, even in the presence of many variables.
-While modules and namespaces are a valid alternative to classes when it comes to grouping functions, using them should not prevent the grouping variables into named structures.
-
-Most popular machine learning frameworks support grouping variables only in so-called *PyTrees*, unnamed structures comprising collections and maps, but have limited support for named structures.
-This forces users to work with unnamed structures that are not explicitly declared in code but created at runtime, reducing readability and inhibiting collaboration.
-
-To avoid this issue, $\Phi_\textrm{ML}$ allows `dataclasses` and user-defined classes to be passed to relevant library functions.
-$\Phi_\textrm{ML}$ defines magic functions for users to specify which attributes of a custom class are relevant for certain operations.
-
-
-### Higher-order functions
-Python supports higher-order functions, i.e. functions, like objects, can be stored in variables and passed as arguments.
-This feature can contribute to more explicit and less cluttered code when used right.
-One such case is the sorting a list by a property of its elements using `sorted(list, key=lambda x: x.property)`.
-Here, the higher-order `lambda` function is declared, passed on, and used within the same line of code.
-
-When passing proper (top-level) functions as arguments, this locality in code space is violated because the passed function, say `get_key(x)`, is declared outside the function containing the call to `sorted`.
-This results in more disjointed and harder-to-read code, as users trying to parse the behavior of `sorted` may not be aware of which `key` implementation is passed at runtime.
-Even modern integrated development environments are generally unable to locate the declaration of functions after they have been passed, leaving users to manually navigate to the corresponding lines.
-This may seem like a minor inconvenience for the `sorted()` example but can result in extremely disjointed code in real code bases when frequently passing objects through multiple levels of inheritance.
-See Fig. \autoref{fig:code-bubbles} for an example of linear vs. disjointed code.
-
-![**Top**: Energy function for repelling bubbles using $\Phi_\textrm{ML}$. **Bottom**: Jax M.D. function dependency graph for the same task.\label{fig:code-bubbles}](Bubble_Code.png)
-
-A recent paradigm shift in Jax and related libraries takes this to the extreme by replacing objects with unnamed collections of functions.
-Take the Jax example function `stax.serial()` which is used to set up machine learning models, or `optimizers.adam()` to construct an Adam optimizer.
-Both return a tuple containing two or three functions, respectively, leaving it up to user code to name the functions that were declared inside of Jax's code base.
-Additionally, this paradigm makes it hard to add functionality later on because of the fixed order and quantity of returned functions.
-
-$\Phi_\textrm{ML}$ tries to avoid unnecessary uses of higher-order functions where possible and employs immutable objects instead.
-However, for function transformations, such as JIT compilation or gradient computation, $\Phi_\textrm{ML}$ does use higher-order-functions and, despite these circumstances being ideally suited to higher-order functions, the associated internal $\Phi_\textrm{ML}$ code is disjointed and difficult to debug.
-
-
 # Acknowledgements
 
 We would like to thank Robin Greif, Kartik Bali, Elias Djossou and Brener Ramos for their contributions, as well as everyone who contributed to the project on GitHub.
