@@ -483,6 +483,26 @@ class Shape:
         """
         return self[[i for i, s in enumerate(self.sizes) if _size_equal(s, 1)]]
 
+    def as_channel(self):
+        """Returns a copy of this `Shape` with all dimensions of type *channel*."""
+        return channel(**self.untyped_dict)
+
+    def as_batch(self):
+        """Returns a copy of this `Shape` with all dimensions of type *batch*."""
+        return batch(**self.untyped_dict)
+
+    def as_spatial(self):
+        """Returns a copy of this `Shape` with all dimensions of type *spatial*."""
+        return spatial(**self.untyped_dict)
+
+    def as_instance(self):
+        """Returns a copy of this `Shape` with all dimensions of type *instance*."""
+        return instance(**self.untyped_dict)
+
+    def as_dual(self):
+        """Returns a copy of this `Shape` with all dimensions of type *dual*."""
+        return dual(**self.untyped_dict)
+
     def unstack(self, dim='dims') -> Tuple['Shape']:
         """
         Slices this `Shape` along a dimension.

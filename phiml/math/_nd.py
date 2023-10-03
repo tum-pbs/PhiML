@@ -191,14 +191,14 @@ def rotation_matrix(angle: Union[float, math.Tensor], matrix_dim_2d=channel(vect
     if 'vector' not in shape(angle) or shape(angle).get_size('vector') == 1:  # 1D rotation
         sin = wrap(math.sin(angle))
         cos = wrap(math.cos(angle))
-        return wrap([[cos, -sin], [sin, cos]], matrix_dim_2d, dual(**matrix_dim_2d.untyped_dict))
+        return wrap([[cos, -sin], [sin, cos]], matrix_dim_2d, matrix_dim_2d.as_dual())
     else:
         assert channel(angle).rank == 1 and channel(angle).size == 3, f"angle for 3D rotations needs to be a 3-vector but got {angle}"
         s1, s2, s3 = math.sin(angle).vector  # phi, theta, psi
         c1, c2, c3 = math.cos(angle).vector
         return wrap([[c1 * c2, c1 * s2 * s3 - s1 * c3, c1 * s2 * c3 + s1 * s3],
                      [s1 * c2, s1 * s2 * s3 + c1 * c3, s1 * s2 * c3 - c1 * s3],
-                     [-s2, c2 * s3, c2 * c3]], channel(angle), dual(**channel(angle).untyped_dict))  # Rz * Ry * Rx
+                     [-s2, c2 * s3, c2 * c3]], channel(angle), channel(angle).as_dual())  # Rz * Ry * Rx
 
 
 def rotation_angles(rot: Tensor):

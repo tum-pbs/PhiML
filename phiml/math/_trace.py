@@ -299,8 +299,8 @@ def tracer_to_coo(tracer: Tensor, sparsify_batch: bool, separate_independent: bo
     ignored_dims = tracer.source.shape.without(tracer.shape.only(tracer.dependent_dims) if sparsify_batch else tracer.pattern_dim_names).without(missing_dims)  # these will be parallelized and not added to the matrix
     out_shape = tracer.shape.without(ignored_dims)
     typed_src_shape = tracer.source.shape.without(ignored_dims)
-    src_shape = dual(**typed_src_shape.untyped_dict)
-    sliced_src_shape = src_shape.without(dual(**missing_dims.untyped_dict))
+    src_shape = typed_src_shape.as_dual()
+    sliced_src_shape = src_shape.without(missing_dims.as_dual())
     batch_val = merge_shapes(*tracer.val.values()).without(out_shape)
     if non_batch(out_shape).is_empty:
         assert len(tracer.val) == 1 and non_batch(tracer.val[EMPTY_SHAPE]) == EMPTY_SHAPE

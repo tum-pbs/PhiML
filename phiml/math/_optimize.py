@@ -579,7 +579,7 @@ def solve_linear(f: Union[Callable[[X], Y], Tensor],
 
         def _matrix_solve_forward(y, solve: Solve, matrix: Tensor, is_backprop=False):
             backend_matrix = native_matrix(matrix, choose_backend_t(*y_tensors, matrix))
-            pattern_dims_in = channel(**dual(matrix).untyped_dict).names
+            pattern_dims_in = dual(matrix).as_channel().names
             pattern_dims_out = non_dual(matrix).names  # batch dims can be sparse or batched matrices
             result = _linear_solve_forward(y, solve, backend_matrix, pattern_dims_in, pattern_dims_out, preconditioner, backend, is_backprop)
             return result  # must return exactly `x` so gradient isn't computed w.r.t. other quantities
@@ -700,7 +700,7 @@ def attach_gradient_solve(forward_solve: Callable, auxiliary_args: str, matrix_a
                 dm_values = dy[col] * x[row]
                 dm = matrix._with_values(dm_values)
             elif isinstance(matrix, NativeTensor):
-                dy_dual = rename_dims(dy, shape(dy), dual(**shape(dy).untyped_dict))
+                dy_dual = rename_dims(dy, shape(dy), shape(dy).as_dual())
                 dm = dy_dual * x  # outer product
                 raise NotImplementedError("Matrix adjoint not yet supported for dense matrices")
             else:

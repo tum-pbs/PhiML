@@ -152,3 +152,11 @@ class TestShape(TestCase):
         self.assertTrue('x,y,batch' in s)
         self.assertTrue(['vector', 'batch'] in s)
         self.assertFalse(['other', 'batch'] in s)
+
+    def test_as_type(self):
+        s = batch(batch=10) & spatial(x=4, y=3) & channel(vector=2)
+        self.assertEqual(dual(batch=10, x=4, y=3, vector=2), s.as_dual())
+        self.assertEqual(channel(batch=10, x=4, y=3, vector=2), s.as_channel())
+        self.assertEqual(spatial(batch=10, x=4, y=3, vector=2), s.as_spatial())
+        self.assertEqual(instance(batch=10, x=4, y=3, vector=2), s.as_instance())
+        self.assertEqual(batch(batch=10, x=4, y=3, vector=2), s.as_batch())

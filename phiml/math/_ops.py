@@ -2748,7 +2748,7 @@ def pairwise_distances(positions: Tensor,
     assert isinstance(positions, Tensor), f"positions must be a Tensor but got {type(positions)}"
     assert default in [0, None], f"default value must be either 0 or None but got '{default}'"
     primal_dims = positions.shape.non_batch.non_channel.non_dual
-    dual_dims = dual(**primal_dims.untyped_dict)
+    dual_dims = primal_dims.as_dual()
     if isinstance(format, Tensor):  # sparse connectivity specified, no neighborhood search required
         assert max_distance is None, "max_distance not allowed when connectivity is specified (passing a Tensor for format)"
         return map_pairs(lambda p1, p2: p2 - p1, positions, format)

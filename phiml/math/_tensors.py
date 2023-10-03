@@ -726,7 +726,7 @@ class Tensor:
 
     def __matmul__(self, other):
         assert isinstance(other, Tensor), f"Matmul '@' requires two Tensor arguments but got {type(other)}"
-        dims = batch(**self.shape.dual.untyped_dict).names
+        dims = self.shape.dual.as_batch().names
         if not dims:  # this is not a matrix
             assert self.shape.primal.only(other.shape).is_empty, f"Cannot compute matmul {self.shape} @ {other.shape}. First argument is not a matrix; it has no dual dimensions."
             return self * other
@@ -2366,7 +2366,7 @@ def format_full(value: Tensor, options: PrintOptions) -> str:  # multi-line cont
                     value = pack_dims(value, corresponding_primal, corresponding_primal[0].dim_type('&'.join(corresponding_primal.names)))
                 value = pack_dims(value, dual, dual('&'.join(value.shape.dual.names)))
             dual_dim = dual(value).name
-            primal = spatial(**dual(value).untyped_dict).name
+            primal = dual(value).as_spatial().name
             if primal not in value.shape:
                 primal = non_batch(value).non_dual.name
             for b in batch(value).meshgrid(names=True):
