@@ -1437,6 +1437,26 @@ def combine_by_direction(normal: Union[Extrapolation, float, Tensor], tangential
     return normal if normal == tangential else _NormalTangentialExtrapolation(normal, tangential)
 
 
+def get_normal(ext: Extrapolation) -&gt; Extrapolation:
+    &#34;&#34;&#34;Returns only the extrapolation for the surface normal component.&#34;&#34;&#34;
+    if isinstance(ext, _NormalTangentialExtrapolation):
+        return ext.normal
+    elif isinstance(ext, _MixedExtrapolation):
+        return combine_sides({k: get_normal(ext) for k, ext in ext.ext.items()})
+    else:
+        return ext
+
+
+def get_tangential(ext: Extrapolation) -&gt; Extrapolation:
+    &#34;&#34;&#34;Returns only the extrapolation for components tangential to the boundary surface.&#34;&#34;&#34;
+    if isinstance(ext, _NormalTangentialExtrapolation):
+        return ext.tangential
+    elif isinstance(ext, _MixedExtrapolation):
+        return combine_sides({k: get_tangential(ext) for k, ext in ext.ext.items()})
+    else:
+        return ext
+
+
 def from_dict(dictionary: dict) -&gt; Extrapolation:
     &#34;&#34;&#34;
     Loads an `Extrapolation` object from a dictionary that was created using `Extrapolation.to_dict()`.
@@ -1767,6 +1787,44 @@ def remove_constant_offset(extrapolation):
         return Undefined(derived_from)
     else:
         raise ValueError(dictionary)</code></pre>
+</details>
+</dd>
+<dt id="phiml.math.extrapolation.get_normal"><code class="name flex">
+<span>def <span class="ident">get_normal</span></span>(<span>ext: <a title="phiml.math.extrapolation.Extrapolation" href="#phiml.math.extrapolation.Extrapolation">Extrapolation</a>) ‑> <a title="phiml.math.extrapolation.Extrapolation" href="#phiml.math.extrapolation.Extrapolation">Extrapolation</a></span>
+</code></dt>
+<dd>
+<div class="desc"><p>Returns only the extrapolation for the surface normal component.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def get_normal(ext: Extrapolation) -&gt; Extrapolation:
+    &#34;&#34;&#34;Returns only the extrapolation for the surface normal component.&#34;&#34;&#34;
+    if isinstance(ext, _NormalTangentialExtrapolation):
+        return ext.normal
+    elif isinstance(ext, _MixedExtrapolation):
+        return combine_sides({k: get_normal(ext) for k, ext in ext.ext.items()})
+    else:
+        return ext</code></pre>
+</details>
+</dd>
+<dt id="phiml.math.extrapolation.get_tangential"><code class="name flex">
+<span>def <span class="ident">get_tangential</span></span>(<span>ext: <a title="phiml.math.extrapolation.Extrapolation" href="#phiml.math.extrapolation.Extrapolation">Extrapolation</a>) ‑> <a title="phiml.math.extrapolation.Extrapolation" href="#phiml.math.extrapolation.Extrapolation">Extrapolation</a></span>
+</code></dt>
+<dd>
+<div class="desc"><p>Returns only the extrapolation for components tangential to the boundary surface.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def get_tangential(ext: Extrapolation) -&gt; Extrapolation:
+    &#34;&#34;&#34;Returns only the extrapolation for components tangential to the boundary surface.&#34;&#34;&#34;
+    if isinstance(ext, _NormalTangentialExtrapolation):
+        return ext.tangential
+    elif isinstance(ext, _MixedExtrapolation):
+        return combine_sides({k: get_tangential(ext) for k, ext in ext.ext.items()})
+    else:
+        return ext</code></pre>
 </details>
 </dd>
 <dt id="phiml.math.extrapolation.map"><code class="name flex">
@@ -2952,6 +3010,8 @@ def shape(self):
 <li><code><a title="phiml.math.extrapolation.combine_by_direction" href="#phiml.math.extrapolation.combine_by_direction">combine_by_direction</a></code></li>
 <li><code><a title="phiml.math.extrapolation.combine_sides" href="#phiml.math.extrapolation.combine_sides">combine_sides</a></code></li>
 <li><code><a title="phiml.math.extrapolation.from_dict" href="#phiml.math.extrapolation.from_dict">from_dict</a></code></li>
+<li><code><a title="phiml.math.extrapolation.get_normal" href="#phiml.math.extrapolation.get_normal">get_normal</a></code></li>
+<li><code><a title="phiml.math.extrapolation.get_tangential" href="#phiml.math.extrapolation.get_tangential">get_tangential</a></code></li>
 <li><code><a title="phiml.math.extrapolation.map" href="#phiml.math.extrapolation.map">map</a></code></li>
 <li><code><a title="phiml.math.extrapolation.order_by_shape" href="#phiml.math.extrapolation.order_by_shape">order_by_shape</a></code></li>
 <li><code><a title="phiml.math.extrapolation.remove_constant_offset" href="#phiml.math.extrapolation.remove_constant_offset">remove_constant_offset</a></code></li>
