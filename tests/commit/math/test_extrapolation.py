@@ -5,7 +5,7 @@ from phiml.backend._backend import init_installed_backends
 from phiml.math import batch, extrapolation, shape, spatial, channel, EMPTY_SHAPE
 from phiml.math._tensors import wrap
 from phiml.math.extrapolation import ConstantExtrapolation, ONE, ZERO, PERIODIC, BOUNDARY, SYMMETRIC, REFLECT, combine_sides, from_dict, combine_by_direction, SYMMETRIC_GRADIENT, as_extrapolation, \
-    ZERO_GRADIENT
+    ZERO_GRADIENT, get_normal, get_tangential
 
 BACKENDS = init_installed_backends()
 
@@ -217,6 +217,20 @@ class TestExtrapolation(TestCase):
         ext = combine_sides(x=(INFLOW_LEFT, BOUNDARY), y=0)
         self.assertEqual(combine_sides(x=(1, BOUNDARY), y=0), ext[{'vector': 'x'}])
         self.assertEqual(combine_sides(x=(0, BOUNDARY), y=0), ext[{'vector': 'y'}])
+
+    def test_get_normal(self):
+        self.assertEqual(ONE, get_normal(ONE))
+        self.assertEqual(PERIODIC, get_normal(PERIODIC))
+        self.assertEqual(ZERO_GRADIENT, get_normal(ZERO_GRADIENT))
+        self.assertEqual(ZERO_GRADIENT, get_normal(as_extrapolation({'normal': ZERO_GRADIENT, 'tangential': 1})))
+        self.assertEqual(as_extrapolation({'x': 2, 'y': 0}), get_normal(as_extrapolation({'x': {'normal': 2, 'tangential': 1}, 'y': 0})))
+
+    def test_get_tangential(self):
+        self.assertEqual(ONE, get_tangential(ONE))
+        self.assertEqual(PERIODIC, get_tangential(PERIODIC))
+        self.assertEqual(ZERO_GRADIENT, get_tangential(ZERO_GRADIENT))
+        self.assertEqual(ONE, get_tangential(as_extrapolation({'normal': ZERO_GRADIENT, 'tangential': 1})))
+        self.assertEqual(as_extrapolation({'x': 1, 'y': 0}), get_tangential(as_extrapolation({'x': {'normal': 2, 'tangential': 1}, 'y': 0})))
 
     def test_shapes(self):
         self.assertEqual(EMPTY_SHAPE, ONE.shape)

@@ -1404,6 +1404,26 @@ def combine_by_direction(normal: Union[Extrapolation, float, Tensor], tangential
     return normal if normal == tangential else _NormalTangentialExtrapolation(normal, tangential)
 
 
+def get_normal(ext: Extrapolation) -> Extrapolation:
+    """Returns only the extrapolation for the surface normal component."""
+    if isinstance(ext, _NormalTangentialExtrapolation):
+        return ext.normal
+    elif isinstance(ext, _MixedExtrapolation):
+        return combine_sides({k: get_normal(ext) for k, ext in ext.ext.items()})
+    else:
+        return ext
+
+
+def get_tangential(ext: Extrapolation) -> Extrapolation:
+    """Returns only the extrapolation for components tangential to the boundary surface."""
+    if isinstance(ext, _NormalTangentialExtrapolation):
+        return ext.tangential
+    elif isinstance(ext, _MixedExtrapolation):
+        return combine_sides({k: get_tangential(ext) for k, ext in ext.ext.items()})
+    else:
+        return ext
+
+
 def from_dict(dictionary: dict) -> Extrapolation:
     """
     Loads an `Extrapolation` object from a dictionary that was created using `Extrapolation.to_dict()`.
