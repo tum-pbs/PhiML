@@ -6274,7 +6274,7 @@ The matrix also contains all batch dimensions of <code>positions</code> and one 
     assert isinstance(positions, Tensor), f&#34;positions must be a Tensor but got {type(positions)}&#34;
     assert default in [0, None], f&#34;default value must be either 0 or None but got &#39;{default}&#39;&#34;
     primal_dims = positions.shape.non_batch.non_channel.non_dual
-    dual_dims = dual(**primal_dims.untyped_dict)
+    dual_dims = primal_dims.as_dual()
     if isinstance(format, Tensor):  # sparse connectivity specified, no neighborhood search required
         assert max_distance is None, &#34;max_distance not allowed when connectivity is specified (passing a Tensor for format)&#34;
         return map_pairs(lambda p1, p2: p2 - p1, positions, format)
@@ -7447,14 +7447,14 @@ In 2D, the channel and dual dimensions are derived from <code>matrix_dim_2d</cod
     if &#39;vector&#39; not in shape(angle) or shape(angle).get_size(&#39;vector&#39;) == 1:  # 1D rotation
         sin = wrap(math.sin(angle))
         cos = wrap(math.cos(angle))
-        return wrap([[cos, -sin], [sin, cos]], matrix_dim_2d, dual(**matrix_dim_2d.untyped_dict))
+        return wrap([[cos, -sin], [sin, cos]], matrix_dim_2d, matrix_dim_2d.as_dual())
     else:
         assert channel(angle).rank == 1 and channel(angle).size == 3, f&#34;angle for 3D rotations needs to be a 3-vector but got {angle}&#34;
         s1, s2, s3 = math.sin(angle).vector  # phi, theta, psi
         c1, c2, c3 = math.cos(angle).vector
         return wrap([[c1 * c2, c1 * s2 * s3 - s1 * c3, c1 * s2 * c3 + s1 * s3],
                      [s1 * c2, s1 * s2 * s3 + c1 * c3, s1 * s2 * c3 - c1 * s3],
-                     [-s2, c2 * s3, c2 * c3]], channel(angle), dual(**channel(angle).untyped_dict))  # Rz * Ry * Rx</code></pre>
+                     [-s2, c2 * s3, c2 * c3]], channel(angle), channel(angle).as_dual())  # Rz * Ry * Rx</code></pre>
 </details>
 </dd>
 <dt id="phiml.math.round"><code class="name flex">
@@ -8384,7 +8384,7 @@ These arguments are treated as auxiliary arguments and can be of any type.</dd>
 
         def _matrix_solve_forward(y, solve: Solve, matrix: Tensor, is_backprop=False):
             backend_matrix = native_matrix(matrix, choose_backend_t(*y_tensors, matrix))
-            pattern_dims_in = channel(**dual(matrix).untyped_dict).names
+            pattern_dims_in = dual(matrix).as_channel().names
             pattern_dims_out = non_dual(matrix).names  # batch dims can be sparse or batched matrices
             result = _linear_solve_forward(y, solve, backend_matrix, pattern_dims_in, pattern_dims_out, preconditioner, backend, is_backprop)
             return result  # must return exactly `x` so gradient isn&#39;t computed w.r.t. other quantities
@@ -11586,6 +11586,26 @@ To create a shape with multiple types, use <code><a title="phiml.math.merge_shap
         &#34;&#34;&#34;
         return self[[i for i, s in enumerate(self.sizes) if _size_equal(s, 1)]]
 
+    def as_channel(self):
+        &#34;&#34;&#34;Returns a copy of this `Shape` with all dimensions of type *channel*.&#34;&#34;&#34;
+        return channel(**self.untyped_dict)
+
+    def as_batch(self):
+        &#34;&#34;&#34;Returns a copy of this `Shape` with all dimensions of type *batch*.&#34;&#34;&#34;
+        return batch(**self.untyped_dict)
+
+    def as_spatial(self):
+        &#34;&#34;&#34;Returns a copy of this `Shape` with all dimensions of type *spatial*.&#34;&#34;&#34;
+        return spatial(**self.untyped_dict)
+
+    def as_instance(self):
+        &#34;&#34;&#34;Returns a copy of this `Shape` with all dimensions of type *instance*.&#34;&#34;&#34;
+        return instance(**self.untyped_dict)
+
+    def as_dual(self):
+        &#34;&#34;&#34;Returns a copy of this `Shape` with all dimensions of type *dual*.&#34;&#34;&#34;
+        return dual(**self.untyped_dict)
+
     def unstack(self, dim=&#39;dims&#39;) -&gt; Tuple[&#39;Shape&#39;]:
         &#34;&#34;&#34;
         Slices this `Shape` along a dimension.
@@ -13116,6 +13136,76 @@ def well_defined(self):
 <pre><code class="python">def are_adjacent(self, dims: Union[str, tuple, list, set, &#39;Shape&#39;]):
     indices = self.indices(dims)
     return (max(indices) - min(indices)) == len(dims) - 1</code></pre>
+</details>
+</dd>
+<dt id="phiml.math.Shape.as_batch"><code class="name flex">
+<span>def <span class="ident">as_batch</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Returns a copy of this <code><a title="phiml.math.Shape" href="#phiml.math.Shape">Shape</a></code> with all dimensions of type <em>batch</em>.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def as_batch(self):
+    &#34;&#34;&#34;Returns a copy of this `Shape` with all dimensions of type *batch*.&#34;&#34;&#34;
+    return batch(**self.untyped_dict)</code></pre>
+</details>
+</dd>
+<dt id="phiml.math.Shape.as_channel"><code class="name flex">
+<span>def <span class="ident">as_channel</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Returns a copy of this <code><a title="phiml.math.Shape" href="#phiml.math.Shape">Shape</a></code> with all dimensions of type <em>channel</em>.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def as_channel(self):
+    &#34;&#34;&#34;Returns a copy of this `Shape` with all dimensions of type *channel*.&#34;&#34;&#34;
+    return channel(**self.untyped_dict)</code></pre>
+</details>
+</dd>
+<dt id="phiml.math.Shape.as_dual"><code class="name flex">
+<span>def <span class="ident">as_dual</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Returns a copy of this <code><a title="phiml.math.Shape" href="#phiml.math.Shape">Shape</a></code> with all dimensions of type <em>dual</em>.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def as_dual(self):
+    &#34;&#34;&#34;Returns a copy of this `Shape` with all dimensions of type *dual*.&#34;&#34;&#34;
+    return dual(**self.untyped_dict)</code></pre>
+</details>
+</dd>
+<dt id="phiml.math.Shape.as_instance"><code class="name flex">
+<span>def <span class="ident">as_instance</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Returns a copy of this <code><a title="phiml.math.Shape" href="#phiml.math.Shape">Shape</a></code> with all dimensions of type <em>instance</em>.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def as_instance(self):
+    &#34;&#34;&#34;Returns a copy of this `Shape` with all dimensions of type *instance*.&#34;&#34;&#34;
+    return instance(**self.untyped_dict)</code></pre>
+</details>
+</dd>
+<dt id="phiml.math.Shape.as_spatial"><code class="name flex">
+<span>def <span class="ident">as_spatial</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Returns a copy of this <code><a title="phiml.math.Shape" href="#phiml.math.Shape">Shape</a></code> with all dimensions of type <em>spatial</em>.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def as_spatial(self):
+    &#34;&#34;&#34;Returns a copy of this `Shape` with all dimensions of type *spatial*.&#34;&#34;&#34;
+    return spatial(**self.untyped_dict)</code></pre>
 </details>
 </dd>
 <dt id="phiml.math.Shape.first_index"><code class="name flex">
@@ -15172,7 +15262,7 @@ When backed by an editable native tensor, e.g. a <code>numpy.ndarray</code>, do 
 
     def __matmul__(self, other):
         assert isinstance(other, Tensor), f&#34;Matmul &#39;@&#39; requires two Tensor arguments but got {type(other)}&#34;
-        dims = batch(**self.shape.dual.untyped_dict).names
+        dims = self.shape.dual.as_batch().names
         if not dims:  # this is not a matrix
             assert self.shape.primal.only(other.shape).is_empty, f&#34;Cannot compute matmul {self.shape} @ {other.shape}. First argument is not a matrix; it has no dual dimensions.&#34;
             return self * other
@@ -16029,6 +16119,11 @@ If a dimension of the tensor is not listed in <code>order</code>, a <code>ValueE
 <li><code><a title="phiml.math.Shape.after_gather" href="#phiml.math.Shape.after_gather">after_gather</a></code></li>
 <li><code><a title="phiml.math.Shape.after_pad" href="#phiml.math.Shape.after_pad">after_pad</a></code></li>
 <li><code><a title="phiml.math.Shape.are_adjacent" href="#phiml.math.Shape.are_adjacent">are_adjacent</a></code></li>
+<li><code><a title="phiml.math.Shape.as_batch" href="#phiml.math.Shape.as_batch">as_batch</a></code></li>
+<li><code><a title="phiml.math.Shape.as_channel" href="#phiml.math.Shape.as_channel">as_channel</a></code></li>
+<li><code><a title="phiml.math.Shape.as_dual" href="#phiml.math.Shape.as_dual">as_dual</a></code></li>
+<li><code><a title="phiml.math.Shape.as_instance" href="#phiml.math.Shape.as_instance">as_instance</a></code></li>
+<li><code><a title="phiml.math.Shape.as_spatial" href="#phiml.math.Shape.as_spatial">as_spatial</a></code></li>
 <li><code><a title="phiml.math.Shape.batch" href="#phiml.math.Shape.batch">batch</a></code></li>
 <li><code><a title="phiml.math.Shape.batch_rank" href="#phiml.math.Shape.batch_rank">batch_rank</a></code></li>
 <li><code><a title="phiml.math.Shape.channel" href="#phiml.math.Shape.channel">channel</a></code></li>
