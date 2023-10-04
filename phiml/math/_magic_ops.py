@@ -151,7 +151,7 @@ def stack(values: Union[tuple, list, dict], dim: Shape, expand_values=False, **k
     values_ = tuple(values.values()) if isinstance(values, dict) else values
     if not expand_values:
         for v in values_[1:]:
-            assert set(non_batch(v).names) == set(non_batch(values_[0]).names), f"Stacked values must have the same non-batch dimensions but got {non_batch(values_[0])} and {non_batch(v)}"
+            assert set(non_batch(v).names) == set(non_batch(values_[0]).names), f"When expand_values=False, stacked values must have the same non-batch dimensions but got {non_batch(values_[0])} and {non_batch(v)}"
     # --- Add missing dimensions ---
     if expand_values:
         all_dims = merge_shapes(*values_, allow_varying_sizes=True)
