@@ -42,7 +42,6 @@ from ._ops import (
     choose_backend_t as choose_backend, all_available, convert, seed, to_device,
     native, numpy, reshaped_native, reshaped_tensor, reshaped_numpy, copy, native_call,
     print_ as print,
-    map_ as map,
     slice_off,
     zeros, ones, fftfreq, random_normal, random_uniform, meshgrid, linspace, arange as range, range_tensor,  # creation operators (use default backend)
     zeros_like, ones_like,
@@ -91,6 +90,7 @@ from ._functional import (
     iterate,
     identity,
     trace_check,
+    map_ as map,
 )
 
 from ._optimize import solve_linear, solve_nonlinear, minimize, Solve, SolveInfo, ConvergenceException, NotConverged, Diverged, SolveTape, factor_ilu

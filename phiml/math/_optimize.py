@@ -15,7 +15,7 @@ from ._sparse import native_matrix, SparseCoordinateTensor, CompressedSparseMatr
 from ._tensors import Tensor, disassemble_tree, assemble_tree, wrap, cached, NativeTensor, layout
 from . import _ops as math
 from ._ops import choose_backend_t, zeros_like, all_available, reshaped_native, reshaped_tensor, to_float, reshaped_numpy
-from ._functional import custom_gradient, LinearFunction, f_name, _TRACING_JIT
+from ._functional import custom_gradient, LinearFunction, f_name, _TRACING_JIT, map_
 
 X = TypeVar('X')
 Y = TypeVar('Y')
@@ -165,7 +165,7 @@ class SolveInfo(Generic[X, Y]):
         self.method = method
         """ `str`, which method and implementation that was used. """
         if all_available(diverged, converged, iterations):
-            msg = math.map_(_default_solve_info_msg, msg, converged.trajectory[-1], diverged.trajectory[-1], iterations.trajectory[-1], solve=solve, method=method, residual=residual)
+            msg = map_(_default_solve_info_msg, msg, converged.trajectory[-1], diverged.trajectory[-1], iterations.trajectory[-1], solve=solve, method=method, residual=residual)
         self.msg = msg
         """ `str`, termination message """
         self.solve_time = solve_time

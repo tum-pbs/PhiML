@@ -2190,10 +2190,10 @@ class BroadcastFormatter:
 
     def format(self, other: str):
         assert isinstance(other, str), "math.f must be used on a string"
-        from ._ops import map_
+        from ._functional import map_
         if self.values is None:
             raise SyntaxError("Use the syntax -f-f\"{tensor}\". Leading '-' is missing.")
-        result = map_(lambda *args: other.format(*args), *self.values)
+        result = map_(other.format, *self.values)
         self.values = None
         return result
 

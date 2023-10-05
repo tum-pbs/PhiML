@@ -507,50 +507,6 @@ def _includes_slice(s_dict: dict, dim: Shape, i: int):
         return i in indices
 
 
-def map_(function, *values, range=range, **kwargs) -> Union[Tensor, None]:
-    """
-    Calls `function` on all elements of `values`.
-
-    Args:
-        function: Function to be called on single elements contained in `value`. Must return a value that can be stored in tensors.
-        *values: `Tensors` containing positional arguments for `function`.
-            Number of tensors must match `function` signature.
-        range: Range function. Can be used to generate tqdm output by passing `trange`.
-        **kwargs: Non-`Tensor` keyword arguments for `function`.
-            Their shapes are not broadcast with the positional arguments.
-
-    Returns:
-        `Tensor` of same shape as `value`.
-    """
-    if not values:
-        return function(**kwargs)
-    values = [v if isinstance(v, Shapable) else wrap(v) for v in values]
-    shape = merge_shapes(*[v.shape for v in values])
-    flat = [pack_dims(expand(v, shape), shape, channel(flat=shape.volume)) for v in values]
-    result = []
-    results = None
-    for _, items in zip(range(flat[0].flat.size_or_1), zip(*flat)):
-        f_output = function(*items, **kwargs)
-        if isinstance(f_output, tuple):
-            if results is None:
-                results = [[] for _ in f_output]
-            for result_i, output_i in zip(results, f_output):
-                result_i.append(output_i)
-        else:
-            result.append(f_output)
-    if results is None:
-        if any(r is None for r in result):
-            assert all(r is None for r in result), f"map function returned None for some elements, {result}"
-            return None
-        return unpack_dim(stack(result, channel('_c')) if isinstance(result, Shapable) else wrap(result, channel('_c')), '_c', shape)
-    else:
-        for i, result_i in enumerate(results):
-            if any(r is None for r in result_i):
-                assert all(r is None for r in result_i), f"map function returned None for some elements at output index {i}, {result_i}"
-                results[i] = None
-        return tuple([unpack_dim(stack(result_i, channel('_c')) if isinstance(result_i, Shapable) else wrap(result_i, channel('_c')), '_c', shape) for result_i in results])
-
-
 def _initialize(uniform_initializer, shapes: Tuple[Shape]) -> Tensor:
     shape = concat_shapes(*shapes)
     assert shape.well_defined, f"When creating a Tensor, shape needs to have definitive sizes but got {shape}"

@@ -2,19 +2,19 @@ import inspect
 import types
 import warnings
 from functools import wraps, partial
-from typing import Tuple, Callable, Dict, Generic, List, TypeVar, Any, Set, Union
+from typing import Tuple, Callable, Dict, Generic, List, TypeVar, Any, Set, Union, Optional
 
 import numpy as np
 
 from . import _ops as math
-from ._magic_ops import stack
-from ._shape import EMPTY_SHAPE, Shape, spatial, instance, batch, channel
+from ._magic_ops import stack, pack_dims, expand, unpack_dim
+from ._shape import EMPTY_SHAPE, Shape, spatial, instance, batch, channel, merge_shapes
 from ._sparse import SparseCoordinateTensor
 from ._tensors import Tensor, disassemble_tree, assemble_tree, disassemble_tensors, assemble_tensors, variable_attributes, wrap, specs_equal, equality_by_shape_and_value
 from ._trace import ShiftLinTracer, matrix_from_function, LinearTraceInProgress
 from ..backend import Backend, NUMPY
 from ..backend._backend import get_spatial_derivative_order, functional_derivative_evaluation, ML_LOGGER
-from .magic import PhiTreeNode
+from .magic import PhiTreeNode, Shapable
 
 X = TypeVar('X')
 Y = TypeVar('Y')
@@ -1101,6 +1101,67 @@ def iterate(f: Callable,
         return (result, wrap(ts[1:] - ts[:-1], iterations.with_size(None))) if measure else result
     else:
         raise ValueError(f"iterations must be an int or Shape but got {type(iterations)}")
+
+
+def map_(function, *args, dims: Shape = None, range=range, unwrap_scalars=True, **kwargs) -> Union[None, Tensor, Tuple[Optional[Tensor]]]:
+    """
+    Calls `function` on slices of the arguments and returns the stacked result.
+
+    Args:
+        function: Function to be called on slices of `args` and `kwargs`.
+            Must return one or multiple values that can be stacked.
+            `None` may be returned but if any return value is `None`, all calls to `function` must return `None` in that position.
+        *args: Positional arguments for `function`.
+            Values that are `phiml.math.magic.Sliceable` will be sliced along `dims`.
+        **kwargs: Keyword arguments for `function`.
+            Values that are `phiml.math.magic.Sliceable` will be sliced along `dims`.
+        dims: Dimensions which should be sliced.
+            `function` is called once for each element in `dims`, i.e. `dims.volume` times.
+            If `dims` is not specified, all dimensions from the `phiml.math.magic.Sliceable` values in `args` and `kwargs` will be mapped.
+        range: Optional range function. Can be used to generate `tqdm` output by passing `trange`.
+        unwrap_scalars: If `True`, passes the contents of scalar `Tensor`s instead of the tensor objects.
+
+    Returns:
+        `Tensor` of same shape as `value`.
+    """
+    try:
+        p_names = function_parameters(function)
+        all_args = {**kwargs, **{p_names[i]: v for i, v in enumerate(args)}}
+        sliceable_args = {k: v for k, v in all_args.items() if isinstance(v, Shapable)}
+        extra_args = {k: v for k, v in all_args.items() if not isinstance(v, Shapable)}
+    except ValueError as err:
+        if kwargs:
+            raise err
+        p_names = None
+        sliceable_args = {i: v for i, v in enumerate(args)}
+        extra_args = {}
+    if dims is None:
+        dims = merge_shapes(*sliceable_args.values())
+    assert dims.volume > 0, f"map dims must have volume > 0 but got {dims}"
+    results = []
+    for _, idx in zip(range(dims.volume), dims.meshgrid()):
+        args = {k: v[idx] for k, v in sliceable_args.items()}
+        if unwrap_scalars:
+            args = {k: v.native() if isinstance(v, Tensor) and v.rank == 0 else v for k, v in args.items()}
+        if p_names is not None:
+            f_output = function(**args, **extra_args)
+        else:
+            f_output = function(*[args[i] for i in range(len(args))])  # positional arguments, parameter names unknown
+        results.append(f_output)
+    if isinstance(results[0], tuple):
+        stacked: List[Optional[Tensor]] = []
+        for i in range(len(results[0])):
+            if any(r[i] is None for r in results):
+                assert all(r[i] is None for r in results), f"map function returned None for some elements, {results}"
+                stacked.append(None)
+            else:
+                stacked.append(math.stack([r[i] for r in results], dims, expand_values=True))
+        return tuple(stacked)
+    else:
+        if any(r is None for r in results):
+            assert all(r is None for r in results), f"map function returned None for some elements, {results}"
+            return None
+        return stack(results, dims, expand_values=True)
 
 
 def identity(x):

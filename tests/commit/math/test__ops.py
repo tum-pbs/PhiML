@@ -789,29 +789,6 @@ class TestOps(TestCase):
                 assert_close(w, wrap([(0.8, -1), (-0.8, 0)], channel(y), channel(x)), abs_tolerance=1e-3)
                 assert_close(b, wrap((1, 0), channel(y)), abs_tolerance=1e-3)
 
-    def test_map(self):
-        def f(x, y):
-            return x + y
-        x = wrap((0, 1), spatial('x'))
-        y = wrap((2, 4), spatial('y'))
-        math.assert_close(wrap([(2, 4), (3, 5)], spatial('x,y')), math.map(f, x, y))
-
-    def test_map_layout(self):
-        l = math.layout('loss', math.EMPTY_SHAPE)
-        a = math.layout([[0, 1], [2, 3]], spatial('x,y'))
-        loss4 = math.map(lambda l, a: l, l, a)
-        for l4 in loss4:
-            self.assertEqual('loss', l4)
-
-    def test_map_multi_output(self):
-        def f(x, y):
-            return x + y, x - y
-        x = wrap((0, 1), spatial('x'))
-        y = wrap((2, 4), spatial('y'))
-        r_x, r_y = math.map(f, x, y)
-        math.assert_close(wrap([(2, 4), (3, 5)], spatial('x,y')), r_x)
-        math.assert_close(wrap([(-2, -4), (-1, -3)], spatial('x,y')), r_y)
-
     def test_to_device(self):
         for backend in BACKENDS:
             with backend:

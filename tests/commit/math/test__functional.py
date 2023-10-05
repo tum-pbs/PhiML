@@ -5,7 +5,7 @@ from unittest import TestCase
 from phiml import math
 from phiml.backend import Backend
 from phiml.backend._backend import init_installed_backends
-from phiml.math import tensor, spatial, batch, channel
+from phiml.math import tensor, spatial, batch, channel, wrap
 
 BACKENDS = init_installed_backends()
 
@@ -224,3 +224,36 @@ class TestFunctional(TestCase):
                 f(x0, aux0)
                 self.assertTrue(math.trace_check(f, x0, aux0)[0])
                 self.assertTrue(math.trace_check(f, x=x0, aux=aux0)[0])
+
+    def test_map(self):
+        F_CALLS = []
+        def f(x, y):
+            F_CALLS.append((x, y))
+            return x + y
+        x = wrap((0, 1), spatial('x'))
+        y = wrap((2, 4), spatial('y'))
+        math.assert_close(wrap([(2, 4), (3, 5)], spatial('x,y')), math.map(f, x, y))
+        self.assertEqual(4, len(F_CALLS), msg=F_CALLS)
+        F_CALLS.clear()
+        math.assert_close(wrap([(2, 4), (3, 5)], spatial('x,y')), math.map(f, x=x, y=y))
+        self.assertEqual(4, len(F_CALLS), msg=F_CALLS)
+        F_CALLS.clear()
+        math.assert_close(wrap([(2, 4), (3, 5)], spatial('x,y')), math.map(f, x, y, dims=x.shape, unwrap_scalars=False))
+        self.assertEqual(2, len(F_CALLS), msg=F_CALLS)
+        F_CALLS.clear()
+
+    def test_map_layout(self):
+        l = math.layout('loss', math.EMPTY_SHAPE)
+        a = math.layout([[0, 1], [2, 3]], spatial('x,y'))
+        loss4 = math.map(lambda l, a: l, l, a)
+        for l4 in loss4:
+            self.assertEqual('loss', l4)
+
+    def test_map_multi_output(self):
+        def f(x, y):
+            return x + y, x - y
+        x = wrap((0, 1), spatial('x'))
+        y = wrap((2, 4), spatial('y'))
+        r_x, r_y = math.map(f, x, y)
+        math.assert_close(wrap([(2, 4), (3, 5)], spatial('x,y')), r_x)
+        math.assert_close(wrap([(-2, -4), (-1, -3)], spatial('x,y')), r_y)
