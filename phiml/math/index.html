@@ -14317,7 +14317,7 @@ This property must be set to a value compatible with the solution <code>x</code>
         self.method = method
         &#34;&#34;&#34; `str`, which method and implementation that was used. &#34;&#34;&#34;
         if all_available(diverged, converged, iterations):
-            msg = math.map_(_default_solve_info_msg, msg, converged.trajectory[-1], diverged.trajectory[-1], iterations.trajectory[-1], solve=solve, method=method, residual=residual)
+            msg = map_(_default_solve_info_msg, msg, converged.trajectory[-1], diverged.trajectory[-1], iterations.trajectory[-1], solve=solve, method=method, residual=residual)
         self.msg = msg
         &#34;&#34;&#34; `str`, termination message &#34;&#34;&#34;
         self.solve_time = solve_time
