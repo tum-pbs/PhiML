@@ -78,7 +78,6 @@ from ._ops import (
     choose_backend_t as choose_backend, all_available, convert, seed, to_device,
     native, numpy, reshaped_native, reshaped_tensor, reshaped_numpy, copy, native_call,
     print_ as print,
-    map_ as map,
     slice_off,
     zeros, ones, fftfreq, random_normal, random_uniform, meshgrid, linspace, arange as range, range_tensor,  # creation operators (use default backend)
     zeros_like, ones_like,
@@ -127,6 +126,7 @@ from ._functional import (
     iterate,
     identity,
     trace_check,
+    map_ as map,
 )
 
 from ._optimize import solve_linear, solve_nonlinear, minimize, Solve, SolveInfo, ConvergenceException, NotConverged, Diverged, SolveTape, factor_ilu
@@ -1281,7 +1281,7 @@ Adding batch dimensions must always work without keyword arguments.</dd>
             assert dim in shape(v), f&#34;dim must be present in the shapes of all values bot got value {type(v).__name__} with shape {shape(v)}&#34;
         for v in values[1:]:
             assert set(non_batch(v).names) == set(non_batch(values[0]).names), f&#34;Concatenated values must have the same non-batch dimensions but got {non_batch(values[0])} and {non_batch(v)}&#34;
-        all_batch_dims = merge_shapes(*[batch(v) for v in values])
+        all_batch_dims = merge_shapes(*[shape(v).batch for v in values])
         values = [expand(v, all_batch_dims) for v in values]
     # --- First try __concat__ ---
     for v in values:
@@ -4544,22 +4544,30 @@ The values will be laid out along <code>dim</code>.</dd>
 </details>
 </dd>
 <dt id="phiml.math.map"><code class="name flex">
-<span>def <span class="ident">map</span></span>(<span>function, *values, range=builtins.range, **kwargs) ‑> Optional[phiml.math._tensors.Tensor]</span>
+<span>def <span class="ident">map</span></span>(<span>function, *args, dims: phiml.math._shape.Shape = None, range=builtins.range, unwrap_scalars=True, **kwargs) ‑> Union[None, phiml.math._tensors.Tensor, Tuple[Optional[phiml.math._tensors.Tensor]]]</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Calls <code>function</code> on all elements of <code>values</code>.</p>
+<div class="desc"><p>Calls <code>function</code> on slices of the arguments and returns the stacked result.</p>
 <h2 id="args">Args</h2>
 <dl>
 <dt><strong><code>function</code></strong></dt>
-<dd>Function to be called on single elements contained in <code>value</code>. Must return a value that can be stored in tensors.</dd>
-<dt><strong><code>*values</code></strong></dt>
-<dd><code>Tensors</code> containing positional arguments for <code>function</code>.
-Number of tensors must match <code>function</code> signature.</dd>
-<dt><strong><code>range</code></strong></dt>
-<dd>Range function. Can be used to generate tqdm output by passing <code>trange</code>.</dd>
+<dd>Function to be called on slices of <code>args</code> and <code>kwargs</code>.
+Must return one or multiple values that can be stacked.
+<code>None</code> may be returned but if any return value is <code>None</code>, all calls to <code>function</code> must return <code>None</code> in that position.</dd>
+<dt><strong><code>*args</code></strong></dt>
+<dd>Positional arguments for <code>function</code>.
+Values that are <code><a title="phiml.math.magic.Sliceable" href="magic.html#phiml.math.magic.Sliceable">Sliceable</a></code> will be sliced along <code>dims</code>.</dd>
 <dt><strong><code>**kwargs</code></strong></dt>
-<dd>Non-<code><a title="phiml.math.Tensor" href="#phiml.math.Tensor">Tensor</a></code> keyword arguments for <code>function</code>.
-Their shapes are not broadcast with the positional arguments.</dd>
+<dd>Keyword arguments for <code>function</code>.
+Values that are <code><a title="phiml.math.magic.Sliceable" href="magic.html#phiml.math.magic.Sliceable">Sliceable</a></code> will be sliced along <code>dims</code>.</dd>
+<dt><strong><code>dims</code></strong></dt>
+<dd>Dimensions which should be sliced.
+<code>function</code> is called once for each element in <code>dims</code>, i.e. <code>dims.volume</code> times.
+If <code>dims</code> is not specified, all dimensions from the <code><a title="phiml.math.magic.Sliceable" href="magic.html#phiml.math.magic.Sliceable">Sliceable</a></code> values in <code>args</code> and <code>kwargs</code> will be mapped.</dd>
+<dt><strong><code>range</code></strong></dt>
+<dd>Optional range function. Can be used to generate <code>tqdm</code> output by passing <code>trange</code>.</dd>
+<dt><strong><code>unwrap_scalars</code></strong></dt>
+<dd>If <code>True</code>, passes the contents of scalar <code><a title="phiml.math.Tensor" href="#phiml.math.Tensor">Tensor</a></code>s instead of the tensor objects.</dd>
 </dl>
 <h2 id="returns">Returns</h2>
 <p><code><a title="phiml.math.Tensor" href="#phiml.math.Tensor">Tensor</a></code> of same shape as <code>value</code>.</p></div>
@@ -4567,48 +4575,55 @@ Their shapes are not broadcast with the positional arguments.</dd>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def map_(function, *values, range=range, **kwargs) -&gt; Union[Tensor, None]:
+<pre><code class="python">def map_(function, *args, dims: Shape = None, range=range, unwrap_scalars=True, **kwargs) -&gt; Union[None, Tensor, Tuple[Optional[Tensor]]]:
     &#34;&#34;&#34;
-    Calls `function` on all elements of `values`.
+    Calls `function` on slices of the arguments and returns the stacked result.
 
     Args:
-        function: Function to be called on single elements contained in `value`. Must return a value that can be stored in tensors.
-        *values: `Tensors` containing positional arguments for `function`.
-            Number of tensors must match `function` signature.
-        range: Range function. Can be used to generate tqdm output by passing `trange`.
-        **kwargs: Non-`Tensor` keyword arguments for `function`.
-            Their shapes are not broadcast with the positional arguments.
+        function: Function to be called on slices of `args` and `kwargs`.
+            Must return one or multiple values that can be stacked.
+            `None` may be returned but if any return value is `None`, all calls to `function` must return `None` in that position.
+        *args: Positional arguments for `function`.
+            Values that are `phiml.math.magic.Sliceable` will be sliced along `dims`.
+        **kwargs: Keyword arguments for `function`.
+            Values that are `phiml.math.magic.Sliceable` will be sliced along `dims`.
+        dims: Dimensions which should be sliced.
+            `function` is called once for each element in `dims`, i.e. `dims.volume` times.
+            If `dims` is not specified, all dimensions from the `phiml.math.magic.Sliceable` values in `args` and `kwargs` will be mapped.
+        range: Optional range function. Can be used to generate `tqdm` output by passing `trange`.
+        unwrap_scalars: If `True`, passes the contents of scalar `Tensor`s instead of the tensor objects.
 
     Returns:
         `Tensor` of same shape as `value`.
     &#34;&#34;&#34;
-    if not values:
-        return function(**kwargs)
-    values = [v if isinstance(v, Shapable) else wrap(v) for v in values]
-    shape = merge_shapes(*[v.shape for v in values])
-    flat = [pack_dims(expand(v, shape), shape, channel(flat=shape.volume)) for v in values]
-    result = []
-    results = None
-    for _, items in zip(range(flat[0].flat.size_or_1), zip(*flat)):
-        f_output = function(*items, **kwargs)
-        if isinstance(f_output, tuple):
-            if results is None:
-                results = [[] for _ in f_output]
-            for result_i, output_i in zip(results, f_output):
-                result_i.append(output_i)
-        else:
-            result.append(f_output)
-    if results is None:
-        if any(r is None for r in result):
-            assert all(r is None for r in result), f&#34;map function returned None for some elements, {result}&#34;
-            return None
-        return unpack_dim(stack(result, channel(&#39;_c&#39;)) if isinstance(result, Shapable) else wrap(result, channel(&#39;_c&#39;)), &#39;_c&#39;, shape)
+    p_names = function_parameters(function)
+    all_args = {**kwargs, **{p_names[i]: v for i, v in enumerate(args)}}
+    sliceable_args = {k: v for k, v in all_args.items() if isinstance(v, Shapable)}
+    extra_args = {k: v for k, v in all_args.items() if not isinstance(v, Shapable)}
+    if dims is None:
+        dims = merge_shapes(*sliceable_args.values())
+    assert dims.volume &gt; 0, f&#34;map dims must have volume &gt; 0 but got {dims}&#34;
+    results = []
+    for _, idx in zip(range(dims.volume), dims.meshgrid()):
+        args = {k: v[idx] for k, v in sliceable_args.items()}
+        if unwrap_scalars:
+            args = {k: v.native() if isinstance(v, Tensor) else v for k, v in args.items()}
+        f_output = function(**args, **extra_args)
+        results.append(f_output)
+    if isinstance(results[0], tuple):
+        stacked: List[Optional[Tensor]] = []
+        for i in range(len(results[0])):
+            if any(r[i] is None for r in results):
+                assert all(r[i] is None for r in results), f&#34;map function returned None for some elements, {results}&#34;
+                stacked.append(None)
+            else:
+                stacked.append(math.stack([r[i] for r in results], dims))
+        return tuple(stacked)
     else:
-        for i, result_i in enumerate(results):
-            if any(r is None for r in result_i):
-                assert all(r is None for r in result_i), f&#34;map function returned None for some elements at output index {i}, {result_i}&#34;
-                results[i] = None
-        return tuple([unpack_dim(stack(result_i, channel(&#39;_c&#39;)) if isinstance(result_i, Shapable) else wrap(result_i, channel(&#39;_c&#39;)), &#39;_c&#39;, shape) for result_i in results])</code></pre>
+        if any(r is None for r in results):
+            assert all(r is None for r in results), f&#34;map function returned None for some elements, {results}&#34;
+            return None
+        return stack(results, dims)</code></pre>
 </details>
 </dd>
 <dt id="phiml.math.map_c2b"><code class="name flex">
@@ -8855,7 +8870,7 @@ Adding batch dimensions must always work without keyword arguments.</dd>
         else:
             values = [expand(v, all_dims.without(shape(v))) for v in values]
     else:
-        all_batch_dims = merge_shapes(*[batch(v) for v in values_], allow_varying_sizes=True)
+        all_batch_dims = merge_shapes(*[shape(v).batch for v in values_], allow_varying_sizes=True)
         if isinstance(values, dict):
             values = {k: expand(v, all_batch_dims.without(shape(v))) for k, v in values.items()}
         else:
