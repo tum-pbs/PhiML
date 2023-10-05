@@ -4614,7 +4614,7 @@ If <code>dims</code> is not specified, all dimensions from the <code><a title="p
     for _, idx in zip(range(dims.volume), dims.meshgrid()):
         args = {k: v[idx] for k, v in sliceable_args.items()}
         if unwrap_scalars:
-            args = {k: v.native() if isinstance(v, Tensor) else v for k, v in args.items()}
+            args = {k: v.native() if isinstance(v, Tensor) and v.rank == 0 else v for k, v in args.items()}
         if p_names is not None:
             f_output = function(**args, **extra_args)
         else:
@@ -4627,13 +4627,13 @@ If <code>dims</code> is not specified, all dimensions from the <code><a title="p
                 assert all(r[i] is None for r in results), f&#34;map function returned None for some elements, {results}&#34;
                 stacked.append(None)
             else:
-                stacked.append(math.stack([r[i] for r in results], dims))
+                stacked.append(math.stack([r[i] for r in results], dims, expand_values=True))
         return tuple(stacked)
     else:
         if any(r is None for r in results):
             assert all(r is None for r in results), f&#34;map function returned None for some elements, {results}&#34;
             return None
-        return stack(results, dims)</code></pre>
+        return stack(results, dims, expand_values=True)</code></pre>
 </details>
 </dd>
 <dt id="phiml.math.map_c2b"><code class="name flex">
