@@ -4596,10 +4596,17 @@ If <code>dims</code> is not specified, all dimensions from the <code><a title="p
     Returns:
         `Tensor` of same shape as `value`.
     &#34;&#34;&#34;
-    p_names = function_parameters(function)
-    all_args = {**kwargs, **{p_names[i]: v for i, v in enumerate(args)}}
-    sliceable_args = {k: v for k, v in all_args.items() if isinstance(v, Shapable)}
-    extra_args = {k: v for k, v in all_args.items() if not isinstance(v, Shapable)}
+    try:
+        p_names = function_parameters(function)
+        all_args = {**kwargs, **{p_names[i]: v for i, v in enumerate(args)}}
+        sliceable_args = {k: v for k, v in all_args.items() if isinstance(v, Shapable)}
+        extra_args = {k: v for k, v in all_args.items() if not isinstance(v, Shapable)}
+    except ValueError as err:
+        if kwargs:
+            raise err
+        p_names = None
+        sliceable_args = {i: v for i, v in enumerate(args)}
+        extra_args = {}
     if dims is None:
         dims = merge_shapes(*sliceable_args.values())
     assert dims.volume &gt; 0, f&#34;map dims must have volume &gt; 0 but got {dims}&#34;
@@ -4608,7 +4615,10 @@ If <code>dims</code> is not specified, all dimensions from the <code><a title="p
         args = {k: v[idx] for k, v in sliceable_args.items()}
         if unwrap_scalars:
             args = {k: v.native() if isinstance(v, Tensor) else v for k, v in args.items()}
-        f_output = function(**args, **extra_args)
+        if p_names is not None:
+            f_output = function(**args, **extra_args)
+        else:
+            f_output = function(*[args[i] for i in range(len(args))])  # positional arguments, parameter names unknown
         results.append(f_output)
     if isinstance(results[0], tuple):
         stacked: List[Optional[Tensor]] = []
