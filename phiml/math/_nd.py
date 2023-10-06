@@ -178,44 +178,57 @@ def rotate_vector(vector: math.Tensor, angle: Optional[Union[float, math.Tensor]
     assert 'vector' in vector.shape, f"vector must have exactly a channel dimension named 'vector'"
     if angle is None:
         return vector
-    matrix = rotation_matrix(angle, matrix_dim_2d=channel(vector))
+    matrix = rotation_matrix(angle, matrix_dim=channel(vector))
     if invert:
         matrix = rename_dims(matrix, '~vector,vector', math.concat_shapes(channel('vector'), dual('vector')))
     assert matrix.vector.dual.size == vector.vector.size, f"Rotation matrix from {angle.shape} is {matrix.vector.dual.size}D but vector {vector.shape} is {vector.vector.size}D."
     return matrix @ vector
 
 
-def rotation_matrix(angle: Union[float, math.Tensor], matrix_dim_2d=channel(vector='x,y')):
+def rotation_matrix(x: Union[float, math.Tensor], matrix_dim=channel('vector')):
     """
     Create a 2D or 3D rotation matrix from the corresponding angle(s).
 
     Args:
-        angle: Either scalar angle for a 2D rotation or euler angles along `vector` in 3D.
+        x:
+            2D: scalar angle
+            3D: Either vector pointing along the rotation axis with rotation angle as length or Euler angles.
+            Euler angles need to be laid out along a `angle` channel dimension with dimension names listing the spatial dimensions.
+            E.g. a 90° rotation about the z-axis is represented by `vec('angles', x=0, y=0, z=PI/2)`.
             If a rotation matrix is passed for `angle`, it is returned without modification.
-        matrix_dim_2d: Matrix dimension for 2D rotations. In 3D, the channel dimension of angle is used.
+        matrix_dim: Matrix dimension for 2D rotations. In 3D, the channel dimension of angle is used.
 
     Returns:
-        Matrix with one channel and one dual dimension as well as all non-channel dimensions of `angle`.
-        In 2D, the channel and dual dimensions are derived from `matrix_dim_2d` and in 3D, the channel dimension of `angle` is used instead.
+        Matrix containing `matrix_dim` in primal and dual form as well as all non-channel dimensions of `x`.
     """
-    if isinstance(angle, Tensor) and '~vector' in angle.shape and 'vector' in angle.shape.channel and angle.shape.get_size('~vector') == angle.shape.get_size('vector'):
-        return angle  # already a rotation matrix
-    if 'vector' not in shape(angle) or shape(angle).get_size('vector') == 1:  # 1D rotation
-        sin = wrap(math.sin(angle))
-        cos = wrap(math.cos(angle))
-        return wrap([[cos, -sin], [sin, cos]], matrix_dim_2d, matrix_dim_2d.as_dual())
-    else:
-        assert channel(angle).rank == 1 and channel(angle).size == 3, f"angle for 3D rotations needs to be a 3-vector but got {angle}"
-        s1, s2, s3 = math.sin(angle).vector  # phi, theta, psi
-        c1, c2, c3 = math.cos(angle).vector
-        return wrap([[c1 * c2, c1 * s2 * s3 - s1 * c3, c1 * s2 * c3 + s1 * s3],
-                     [s1 * c2, s1 * s2 * s3 + c1 * c3, s1 * s2 * c3 - c1 * s3],
-                     [-s2, c2 * s3, c2 * c3]], channel(angle), channel(angle).as_dual())  # Rz * Ry * Rx
+    if isinstance(x, Tensor) and '~vector' in x.shape and 'vector' in x.shape.channel and x.shape.get_size('~vector') == x.shape.get_size('vector'):
+        return x  # already a rotation matrix
+    elif 'angle' in shape(x) and shape(x).get_size('angle') == 3:  # 3D Euler angles
+        assert channel(x).rank == 1 and channel(x).size == 3, f"x for 3D rotations needs to be a 3-vector but got {x}"
+        s1, s2, s3 = math.sin(x).angle  # x, y, z
+        c1, c2, c3 = math.cos(x).angle
+        matrix_dim = matrix_dim.with_size(shape(x).get_item_names('angle'))
+        return wrap([[c3 * c2, c3 * s2 * s1 - s3 * c1, c3 * s2 * c1 + s3 * s1],
+                     [s3 * c2, s3 * s2 * s1 + c3 * c1, s3 * s2 * c1 - c3 * s1],
+                     [-s2, c2 * s1, c2 * c1]], matrix_dim, matrix_dim.as_dual())  # Rz * Ry * Rx  (1. rotate about X by first angle)
+    elif 'vector' in shape(x) and shape(x).get_size('vector') == 3:  # 3D axis + x
+        angle = vec_length(x)
+        s, c = math.sin(angle), math.cos(angle)
+        t = 1 - c
+        k1, k2, k3 = vec_normalize(x, epsilon=1e-12).vector
+        matrix_dim = matrix_dim.with_size(shape(x).get_item_names('vector'))
+        return wrap([[c + k1**2 * t, k1 * k2 * t - k3 * s, k1 * k3 * t + k2 * s],
+                     [k2 * k1 * t + k3 * s, c + k2**2 * t, k2 * k3 * t - k1 * s],
+                     [k3 * k1 * t - k2 * s, k3 * k2 * t + k1 * s, c + k3**2 * t]], matrix_dim, matrix_dim.as_dual())
+    else:  # 2D rotation
+        sin = wrap(math.sin(x))
+        cos = wrap(math.cos(x))
+        return wrap([[cos, -sin], [sin, cos]], matrix_dim, matrix_dim.as_dual())
 
 
 def rotation_angles(rot: Tensor):
     """
-    Compute the scalar angle in 2D or the Euler angles in 3D from a given rotation matrix.
+    Compute the scalar x in 2D or the Euler angles in 3D from a given rotation matrix.
     This function returns one valid solution but often, there are multiple solutions.
 
     Args:
@@ -223,7 +236,7 @@ def rotation_angles(rot: Tensor):
             Must have exactly one channel and one dual dimension with equally-ordered elements.
 
     Returns:
-        Scalar angle in 2D, Euler angles
+        Scalar x in 2D, Euler angles
     """
     assert channel(rot).rank == 1 and dual(rot).rank == 1, f"Rotation matrix must have one channel and one dual dimension but got {rot.shape}"
     if channel(rot).size == 2:
@@ -231,18 +244,17 @@ def rotation_angles(rot: Tensor):
         sin = rot[{channel: 1, dual: 0}]
         return math.arctan(sin, divide_by=cos)
     elif channel(rot).size == 3:
-        # phi = 1, theta = 2, psi = 3
-        theta = -math.arcsin(rot[{channel: 2, dual: 0}])  # ToDo handle [2, 0] == 1 (i.e. cos_theta == 0)
-        cos_theta = math.cos(theta)
-        psi = math.arctan(rot[{channel: 2, dual: 1}] / cos_theta, divide_by=rot[{channel: 2, dual: 2}] / cos_theta)
-        phi = math.arctan(rot[{channel: 1, dual: 0}] / cos_theta, divide_by=rot[{channel: 0, dual: 0}] / cos_theta)
-        regular_sol = stack([phi, theta, psi], channel(rot))
+        a2 = -math.arcsin(rot[{channel: 2, dual: 0}])  # ToDo handle [2, 0] == 1 (i.e. cos_theta == 0)
+        cos2 = math.cos(a2)
+        a1 = math.arctan(rot[{channel: 2, dual: 1}] / cos2, divide_by=rot[{channel: 2, dual: 2}] / cos2)
+        a3 = math.arctan(rot[{channel: 1, dual: 0}] / cos2, divide_by=rot[{channel: 0, dual: 0}] / cos2)
+        regular_sol = stack([a1, a2, a3], channel(angle=channel(rot).item_names[0]))
         # --- pole case cos(theta) == 1 ---
-        phi_pole = 0  # unconstrained
+        a3_pole = 0  # unconstrained
         bottom_pole = rot[{channel: 2, dual: 0}] < 0
-        theta_pole = math.where(bottom_pole, 1.57079632679, -1.57079632679)
-        psi_pole = math.where(bottom_pole, math.arctan(rot[{channel: 0, dual: 1}], divide_by=rot[{channel: 0, dual: 2}]), math.arctan(-rot[{channel: 0, dual: 1}], divide_by=-rot[{channel: 0, dual: 2}]))
-        pole_sol = stack([phi_pole, theta_pole, psi_pole], channel(rot))
+        a2_pole = math.where(bottom_pole, 1.57079632679, -1.57079632679)
+        a1_pole = math.where(bottom_pole, math.arctan(rot[{channel: 0, dual: 1}], divide_by=rot[{channel: 0, dual: 2}]), math.arctan(-rot[{channel: 0, dual: 1}], divide_by=-rot[{channel: 0, dual: 2}]))
+        pole_sol = stack([a1_pole, a2_pole, a3_pole], channel(regular_sol))
         return math.where(abs(rot[{channel: 2, dual: 0}]) >= 1, pole_sol, regular_sol)
     else:
         raise ValueError(f"")

@@ -342,10 +342,17 @@ class TestMathNDNumpy(TestCase):
 
         angle = wrap([0, -math.PI/2, math.PI/2, -math.PI, math.PI, 2*math.PI], batch('angles'))
         assert_matrices_equal(angle)
-        # --- 3D ---
+        # --- 3D axis-angle ---
         angle = wrap([0, -math.PI/2, math.PI/2, -math.PI, math.PI, 2*math.PI], batch('angles'))
         assert_matrices_equal(math.vec(x=0, y=0, z=angle))
         assert_matrices_equal(math.vec(x=0, y=angle, z=0))
         assert_matrices_equal(math.vec(x=angle, y=0, z=0))
         assert_matrices_equal(math.vec(x=angle, y=angle, z=0))
         assert_matrices_equal(math.vec(x=angle, y=angle, z=angle))
+        # --- 3D Euler angle ---
+        angle = wrap([0, -math.PI/2, math.PI/2, -math.PI, math.PI, 2*math.PI], batch('angles'))
+        assert_matrices_equal(math.vec('angle', x=0, y=0, z=angle))
+        assert_matrices_equal(math.vec('angle', x=0, y=angle, z=0))
+        assert_matrices_equal(math.vec('angle', x=angle, y=0, z=0))
+        assert_matrices_equal(math.vec('angle', x=angle, y=angle, z=0))
+        assert_matrices_equal(math.vec('angle', x=angle, y=angle, z=angle))
