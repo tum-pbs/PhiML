@@ -109,9 +109,21 @@ def vec_squared(vec: Tensor, vec_dim: DimFilter = channel):
     return math.sum_(vec ** 2, dim=vec_dim)
 
 
-def vec_normalize(vec: Tensor, vec_dim: DimFilter = channel):
-    """ Normalizes the vectors in `vec`. If `vec_dim` is None, the combined channel dimensions of `vec` are interpreted as a vector. """
-    return vec / vec_length(vec, vec_dim=vec_dim)
+def vec_normalize(vec: Tensor, vec_dim: DimFilter = channel, epsilon=None):
+    """
+    Normalizes the vectors in `vec`. If `vec_dim` is None, the combined channel dimensions of `vec` are interpreted as a vector.
+
+    Args:
+        vec: `Tensor` to normalize.
+        vec_dim: Dimensions to normalize over. By default, all channel dimensions are used to compute the vector length.
+        epsilon: (Optional) Zero-length threshold. Vectors shorter than this length yield the unit vector (1, 0, 0, ...).
+            If not specified, the zero-vector yields `NaN` as it cannot be normalized.
+    """
+    length = vec_length(vec, vec_dim=vec_dim)
+    if epsilon is None:
+        return vec / vec_length(vec, vec_dim=vec_dim)
+    unit_vec = wrap([1] + [0] * (channel(vec).volume - 1), channel(vec))
+    return math.where(abs(length) <= epsilon, unit_vec, vec / length)
 
 
 def cross_product(vec1: Tensor, vec2: Tensor) -> Tensor:
