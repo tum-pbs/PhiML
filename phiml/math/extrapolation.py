@@ -1170,7 +1170,7 @@ class _MixedExtrapolation(Extrapolation):
 
     def to_dict(self) -> dict:
         return {
-            'type': 'mixed',
+            'type': 'mixed_v2',
             'dims': {k: ext.to_dict() for k, ext in self.ext.items()}
         }
 
@@ -1440,6 +1440,10 @@ def from_dict(dictionary: dict) -> Extrapolation:
     elif etype == 'constant':
         return ConstantExtrapolation(dictionary['value'])
     elif etype == 'mixed':
+        dims: Dict[Hashable, tuple] = dictionary['dims']
+        extrapolations = {k: (from_dict(l), from_dict(u)) for k, (l, u) in dims.items()}
+        return combine_sides(**extrapolations)
+    elif etype == 'mixed_v2':
         dims: Dict[Hashable, dict] = dictionary['dims']
         extrapolations = {k: from_dict(ext) for k, ext in dims.items()}
         return _MixedExtrapolation(extrapolations)
