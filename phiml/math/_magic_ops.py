@@ -147,7 +147,8 @@ def stack(values: Union[tuple, list, dict], dim: Shape, expand_values=False, **k
     assert isinstance(dim, Shape)
     if not dim:
         assert len(values) == 1, f"Only one element can be passed as `values` if no dim is passed but got {values}"
-        return next(iter(values.values())) if isinstance(values, dict) else values[0]
+        from ._tensors import wrap
+        return wrap(next(iter(values.values())) if isinstance(values, dict) else values[0])
     values_ = tuple(values.values()) if isinstance(values, dict) else values
     if not expand_values:
         for v in values_[1:]:
