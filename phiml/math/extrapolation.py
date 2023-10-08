@@ -37,7 +37,7 @@ class Extrapolation:
         
         Use `from_dict()` to restore the Extrapolation object.
         """
-        raise NotImplementedError()
+        raise NotImplementedError(self.__class__)
 
     def spatial_gradient(self) -> 'Extrapolation':
         """
@@ -46,7 +46,7 @@ class Extrapolation:
         Returns:
             `Extrapolation` or `NotImplemented`
         """
-        raise NotImplementedError()
+        raise NotImplementedError(self.__class__)
 
     def valid_outer_faces(self, dim) -> Tuple[bool, bool]:
         """
@@ -68,7 +68,7 @@ class Extrapolation:
         Returns:
             Whether the value is fully determined by the boundary and need not be stored elsewhere.
         """
-        raise NotImplementedError()
+        raise NotImplementedError(self.__class__)
 
     @property
     def is_flexible(self) -> bool:
@@ -78,7 +78,7 @@ class Extrapolation:
 
         This property is important for pressure solves to determine whether the total divergence is fixed or can be adjusted during the solve.
         """
-        raise NotImplementedError()
+        raise NotImplementedError(self.__class__)
 
     def pad(self, value: Tensor, widths: dict, already_padded: Optional[dict] = None, **kwargs) -> Tensor:
         """
@@ -460,7 +460,7 @@ class _CopyExtrapolation(Extrapolation):
             raise NotImplementedError(f'{type(value)} not supported')
 
     def _pad_linear_tracer(self, value, widths: dict):
-        raise NotImplementedError()
+        raise NotImplementedError(self.__class__)
 
     def __eq__(self, other):
         return type(other) == type(self)
