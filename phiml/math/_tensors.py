@@ -1941,6 +1941,7 @@ def cached(t: Union[Tensor, 'PhiTreeNode']) -> Union[Tensor, 'PhiTreeNode']:
 def expand_tensor(value: Tensor, dims: Shape):
     if not dims:
         return value
+    dims.assert_all_sizes_defined()
     if isinstance(value, NativeTensor):
         if dims.is_uniform:
             return NativeTensor(value._native, value._native_shape, dims & value._shape)

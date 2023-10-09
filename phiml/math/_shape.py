@@ -483,6 +483,17 @@ class Shape:
         """
         return self[[i for i, s in enumerate(self.sizes) if _size_equal(s, 1)]]
 
+    def assert_all_sizes_defined(self):
+        """
+        Filters this shape, returning only singleton dimensions as a new `Shape` object.
+        Dimensions are singleton if their size is exactly `1`.
+
+        Returns:
+            New `Shape` object
+        """
+        for n, s in zip(self.names, self.sizes):
+            assert s is not None, f"All sizes must be defined but dim '{n}' is undefined in shape {self}"
+
     def as_channel(self):
         """Returns a copy of this `Shape` with all dimensions of type *channel*."""
         return channel(**self.untyped_dict)
