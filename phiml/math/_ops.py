@@ -791,6 +791,7 @@ def linspace(start: Union[float, Tensor, tuple, list], stop: Union[float, Tensor
         native_linspace = choose_backend(start, stop, prefer_default=True).linspace(start, stop, dim.size)
         return NativeTensor(native_linspace, dim)
     else:
+        from ._functional import map_
         return map_(linspace, start, stop, dim=dim)
 
 

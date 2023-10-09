@@ -165,7 +165,7 @@ class SolveInfo(Generic[X, Y]):
         self.method = method
         """ `str`, which method and implementation that was used. """
         if all_available(diverged, converged, iterations):
-            msg = map_(_default_solve_info_msg, msg, converged.trajectory[-1], diverged.trajectory[-1], iterations.trajectory[-1], solve=solve, method=method, residual=residual)
+            msg = map_(_default_solve_info_msg, msg, converged.trajectory[-1], diverged.trajectory[-1], iterations.trajectory[-1], solve=solve, method=method, residual=residual, dims=converged.shape.without('trajectory'))
         self.msg = msg
         """ `str`, termination message """
         self.solve_time = solve_time
@@ -195,7 +195,7 @@ class SolveInfo(Generic[X, Y]):
                     raise NotConverged(self)
 
 
-def _default_solve_info_msg(msg, converged, diverged, iterations, solve: Solve, method, residual):
+def _default_solve_info_msg(msg: str, converged: bool, diverged: bool, iterations: int, solve: Solve, method, residual):
     if msg:
         return msg
     if diverged:

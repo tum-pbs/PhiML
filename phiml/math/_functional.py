@@ -8,7 +8,7 @@ import numpy as np
 
 from . import _ops as math
 from ._magic_ops import stack, pack_dims, expand, unpack_dim
-from ._shape import EMPTY_SHAPE, Shape, spatial, instance, batch, channel, merge_shapes
+from ._shape import EMPTY_SHAPE, Shape, spatial, instance, batch, channel, merge_shapes, DimFilter, shape
 from ._sparse import SparseCoordinateTensor
 from ._tensors import Tensor, disassemble_tree, assemble_tree, disassemble_tensors, assemble_tensors, variable_attributes, wrap, specs_equal, equality_by_shape_and_value
 from ._trace import ShiftLinTracer, matrix_from_function, LinearTraceInProgress
@@ -1022,25 +1022,30 @@ def map_c2b(f: Callable) -> Callable:
     return map_types(f, channel, batch)
 
 
-def broadcast(f):
+def broadcast(function, dims=shape, range=range, unwrap_scalars=True):
     """
     Function decorator for non-vectorized functions.
-    When passing a `Tensor` argument to a broadcast function, the function is called once for each element of the tensor.
-
-    Only positionsl arguments, not keyword arguments are broadcast.
+    When passing `Tensor` arguments to a broadcast function, the function is called once for each slice of the tensor.
+    How tensors are sliced is determined by `dims`.
+    Decorating a function with `broadcast` is equal to passing the function to `phi.math.map()`.
 
     See Also:
         `phiml.math.map`
 
     Args:
-        f: Function.
+        function: Function to broadcast.
+        dims: Dimensions which should be sliced.
+            `function` is called once for each element in `dims`, i.e. `dims.volume` times.
+            If `dims` is not specified, all dimensions from the `phiml.math.magic.Sliceable` values in `args` and `kwargs` will be mapped.
+        range: Optional range function. Can be used to generate `tqdm` output by passing `trange`.
+        unwrap_scalars: If `True`, passes the contents of scalar `Tensor`s instead of the tensor objects.
 
     Returns:
         Broadcast function
     """
-    @wraps(f)
+    @wraps(function)
     def broadcast_(*args, **kwargs):
-        return math.map_(f, *args, **kwargs)
+        return map_(function, *args, dims=dims, range=range, unwrap_scalars=unwrap_scalars, **kwargs)
     return broadcast_
 
 
@@ -1103,7 +1108,7 @@ def iterate(f: Callable,
         raise ValueError(f"iterations must be an int or Shape but got {type(iterations)}")
 
 
-def map_(function, *args, dims: Shape = None, range=range, unwrap_scalars=True, **kwargs) -> Union[None, Tensor, Tuple[Optional[Tensor]]]:
+def map_(function, *args, dims: DimFilter = shape, range=range, unwrap_scalars=True, **kwargs) -> Union[None, Tensor, Tuple[Optional[Tensor]]]:
     """
     Calls `function` on slices of the arguments and returns the stacked result.
 
@@ -1124,29 +1129,22 @@ def map_(function, *args, dims: Shape = None, range=range, unwrap_scalars=True, 
     Returns:
         `Tensor` of same shape as `value`.
     """
-    try:
-        p_names = function_parameters(function)
-        all_args = {**kwargs, **{p_names[i]: v for i, v in enumerate(args)}}
-        sliceable_args = {k: v for k, v in all_args.items() if isinstance(v, Shapable)}
-        extra_args = {k: v for k, v in all_args.items() if not isinstance(v, Shapable)}
-    except ValueError as err:
-        if kwargs:
-            raise err
-        p_names = None
-        sliceable_args = {i: v for i, v in enumerate(args)}
-        extra_args = {}
-    if dims is None:
-        dims = merge_shapes(*sliceable_args.values())
+    sliceable_args = [v for v in args if isinstance(v, Shapable)]
+    sliceable_kwargs = {k: v for k, v in kwargs.items() if isinstance(v, Shapable)}
+    extra_args = [v for v in args if not isinstance(v, Shapable)]
+    extra_kwargs = {k: v for k, v in kwargs.items() if not isinstance(v, Shapable)}
+    dims = merge_shapes(*sliceable_args, *sliceable_kwargs.values()).only(dims)
     assert dims.volume > 0, f"map dims must have volume > 0 but got {dims}"
     results = []
     for _, idx in zip(range(dims.volume), dims.meshgrid()):
-        args = {k: v[idx] for k, v in sliceable_args.items()}
+        idx_args = [v[idx] for v in sliceable_args]
+        idx_kwargs = {k: v[idx] for k, v in sliceable_kwargs.items()}
         if unwrap_scalars:
-            args = {k: v.native() if isinstance(v, Tensor) and v.rank == 0 else v for k, v in args.items()}
-        if p_names is not None:
-            f_output = function(**args, **extra_args)
-        else:
-            f_output = function(*[args[i] for i in range(len(args))])  # positional arguments, parameter names unknown
+            idx_args = [v.native() if isinstance(v, Tensor) and v.rank == 0 else v for v in idx_args]
+            idx_kwargs = {k: v.native() if isinstance(v, Tensor) and v.rank == 0 else v for k, v in idx_kwargs.items()}
+        idx_extra_args = list(extra_args)
+        idx_all_args = [idx_args.pop(0) if isinstance(v, Shapable) else idx_extra_args.pop(0) for v in args]
+        f_output = function(*idx_all_args, **idx_kwargs, **extra_kwargs)
         results.append(f_output)
     if isinstance(results[0], tuple):
         stacked: List[Optional[Tensor]] = []

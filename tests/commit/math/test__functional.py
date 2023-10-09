@@ -257,3 +257,8 @@ class TestFunctional(TestCase):
         r_x, r_y = math.map(f, x, y)
         math.assert_close(wrap([(2, 4), (3, 5)], spatial('x,y')), r_x)
         math.assert_close(wrap([(-2, -4), (-1, -3)], spatial('x,y')), r_y)
+
+    def test_broadcast(self):
+        len_ = math.broadcast(len, channel)
+        strings = math.vec('vector', 'a', 'bc', '')
+        math.assert_close([1, 2, 0], len_(strings))
