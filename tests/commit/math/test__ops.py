@@ -5,7 +5,7 @@ import numpy as np
 from phiml import math
 from phiml.backend import Backend
 from phiml.backend._backend import init_installed_backends
-from phiml.math import extrapolation, spatial, channel, instance, batch, DType, IncompatibleShapes, NAN, vec, non_spatial, wrap, assert_close
+from phiml.math import extrapolation, spatial, channel, instance, batch, DType, IncompatibleShapes, NAN, vec, non_spatial, wrap, assert_close, PI
 
 BACKENDS = init_installed_backends()
 
@@ -563,6 +563,16 @@ class TestOps(TestCase):
                 math.assert_close(1.791759469228055, math.log_gamma(math.tensor(4)))
                 math.assert_close(24., math.factorial(math.tensor(4.)))
                 self.assertEqual(float, math.factorial(math.tensor(4.)).dtype.kind)
+
+    def test_degrees(self):
+        rad = [0, PI/4, PI/2, 3/4*PI, PI, -PI]
+        math.assert_close([0, 45, 90, 135, 180, -180], math.radians_to_degrees(rad))
+        math.assert_close(rad, math.degrees_to_radians(math.radians_to_degrees(rad)))
+
+    def test_angle(self):
+        math.assert_close(math.PI/4, math.angle(1+1j))
+        # math.assert_close(45, math.degrees(math.angle(1+1j)))
+        # math.assert_close(0, math.degrees(math.angle(1)))
 
     def test_any(self):
         for backend in BACKENDS:

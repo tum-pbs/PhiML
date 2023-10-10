@@ -1,7 +1,7 @@
 import numbers
 import warnings
 from contextlib import contextmanager
-from typing import Union
+from typing import Union, TypeVar
 
 from dataclasses import dataclass
 from typing import Tuple, Callable, List
@@ -806,6 +806,9 @@ class Tensor:
     def _simplify(self):
         """ Does not cache this value but if it is already cached, returns the cached version. """
         return self
+
+
+TensorOrTree = TypeVar('TensorOrTree', Tensor, PhiTreeNode, numbers.Number, bool, tuple, list, dict)
 
 
 class TensorDim(BoundDim):

@@ -2,7 +2,7 @@ import functools
 import math
 import warnings
 from numbers import Number
-from typing import Tuple, Callable, Any, Union, Optional, Dict, Collection
+from typing import Tuple, Callable, Any, Union, Optional, Dict, Collection, TypeVar
 
 import numpy as np
 
@@ -14,7 +14,7 @@ from ._shape import (Shape, EMPTY_SHAPE,
 from ._sparse import CompressedSparseMatrix, dot_compressed_dense, dense, SparseCoordinateTensor, dot_coordinate_dense, get_format, to_format, stored_indices, tensor_like, sparse_dims, same_sparsity_pattern, is_sparse, sparse_dot
 from ._tensors import (Tensor, wrap, tensor, broadcastable_native_tensors, NativeTensor, TensorStack,
                        custom_op2, compatible_tensor, variable_attributes, disassemble_tree, assemble_tree,
-                       is_scalar, Layout, expand_tensor)
+                       is_scalar, Layout, expand_tensor, TensorOrTree)
 from ..backend import default_backend, choose_backend, Backend, get_precision, convert as b_convert, BACKENDS, NoBackendFound, ComputeDevice, NUMPY
 from ..backend._dtype import DType, combine_types
 from .magic import PhiTreeNode, Shapable
@@ -1754,7 +1754,7 @@ def _backend_op1(x, unbound_method) -> Union[Tensor, PhiTreeNode]:
         return y
 
 
-def abs_(x) -> Union[Tensor, PhiTreeNode]:
+def abs_(x: TensorOrTree) -> TensorOrTree:
     """
     Computes *||x||<sub>1</sub>*.
     Complex `x` result in matching precision float values.
@@ -1771,7 +1771,7 @@ def abs_(x) -> Union[Tensor, PhiTreeNode]:
     return _backend_op1(x, Backend.abs)
 
 
-def sign(x) -> Union[Tensor, PhiTreeNode]:
+def sign(x: TensorOrTree) -> TensorOrTree:
     """
     The sign of positive numbers is 1 and -1 for negative numbers.
     The sign of 0 is undefined.
@@ -1785,37 +1785,37 @@ def sign(x) -> Union[Tensor, PhiTreeNode]:
     return _backend_op1(x, Backend.sign)
 
 
-def round_(x) -> Union[Tensor, PhiTreeNode]:
+def round_(x: TensorOrTree) -> TensorOrTree:
     """ Rounds the `Tensor` or `phiml.math.magic.PhiTreeNode` `x` to the closest integer. """
     return _backend_op1(x, Backend.round)
 
 
-def ceil(x) -> Union[Tensor, PhiTreeNode]:
+def ceil(x: TensorOrTree) -> TensorOrTree:
     """ Computes *⌈x⌉* of the `Tensor` or `phiml.math.magic.PhiTreeNode` `x`. """
     return _backend_op1(x, Backend.ceil)
 
 
-def floor(x) -> Union[Tensor, PhiTreeNode]:
+def floor(x: TensorOrTree) -> TensorOrTree:
     """ Computes *⌊x⌋* of the `Tensor` or `phiml.math.magic.PhiTreeNode` `x`. """
     return _backend_op1(x, Backend.floor)
 
 
-def sqrt(x) -> Union[Tensor, PhiTreeNode]:
+def sqrt(x: TensorOrTree) -> TensorOrTree:
     """ Computes *sqrt(x)* of the `Tensor` or `phiml.math.magic.PhiTreeNode` `x`. """
     return _backend_op1(x, Backend.sqrt)
 
 
-def exp(x) -> Union[Tensor, PhiTreeNode]:
+def exp(x: TensorOrTree) -> TensorOrTree:
     """ Computes *exp(x)* of the `Tensor` or `phiml.math.magic.PhiTreeNode` `x`. """
     return _backend_op1(x, Backend.exp)
 
 
-def soft_plus(x) -> Union[Tensor, PhiTreeNode]:
+def soft_plus(x: TensorOrTree) -> TensorOrTree:
     """ Computes *softplus(x)* of the `Tensor` or `phiml.math.magic.PhiTreeNode` `x`. """
     return _backend_op1(x, Backend.softplus)
 
 
-def factorial(x) -> Union[Tensor, PhiTreeNode]:
+def factorial(x: TensorOrTree) -> TensorOrTree:
     """
     Computes *factorial(x)* of the `Tensor` or `phiml.math.magic.PhiTreeNode` `x`.
     For floating-point numbers computes the continuous factorial using the gamma function.
@@ -1825,12 +1825,12 @@ def factorial(x) -> Union[Tensor, PhiTreeNode]:
     return _backend_op1(x, Backend.factorial)
 
 
-def log_gamma(x) -> Union[Tensor, PhiTreeNode]:
+def log_gamma(x: TensorOrTree) -> TensorOrTree:
     """ Computes *log(gamma(x))* of the `Tensor` or `phiml.math.magic.PhiTreeNode` `x`. """
     return _backend_op1(x, Backend.log_gamma)
 
 
-def to_float(x) -> Union[Tensor, PhiTreeNode]:
+def to_float(x: TensorOrTree) -> TensorOrTree:
     """
     Converts the given tensor to floating point format with the currently specified precision.
     
@@ -1850,17 +1850,17 @@ def to_float(x) -> Union[Tensor, PhiTreeNode]:
     return _backend_op1(x, Backend.to_float)
 
 
-def to_int32(x) -> Union[Tensor, PhiTreeNode]:
+def to_int32(x: TensorOrTree) -> TensorOrTree:
     """ Converts the `Tensor` or `phiml.math.magic.PhiTreeNode` `x` to 32-bit integer. """
     return _backend_op1(x, Backend.to_int32)
 
 
-def to_int64(x) -> Union[Tensor, PhiTreeNode]:
+def to_int64(x: TensorOrTree) -> TensorOrTree:
     """ Converts the `Tensor` or `phiml.math.magic.PhiTreeNode` `x` to 64-bit integer. """
     return _backend_op1(x, Backend.to_int64)
 
 
-def to_complex(x) -> Union[Tensor, PhiTreeNode]:
+def to_complex(x: TensorOrTree) -> TensorOrTree:
     """
     Converts the given tensor to complex floating point format with the currently specified precision.
 
@@ -1880,22 +1880,22 @@ def to_complex(x) -> Union[Tensor, PhiTreeNode]:
     return _backend_op1(x, Backend.to_complex)
 
 
-def is_finite(x) -> Union[Tensor, PhiTreeNode]:
+def is_finite(x: TensorOrTree) -> TensorOrTree:
     """ Returns a `Tensor` or `phiml.math.magic.PhiTreeNode` matching `x` with values `True` where `x` has a finite value and `False` otherwise. """
     return _backend_op1(x, Backend.isfinite)
 
 
-def is_nan(x) -> Union[Tensor, PhiTreeNode]:
+def is_nan(x: TensorOrTree) -> TensorOrTree:
     """ Returns a `Tensor` or `phiml.math.magic.PhiTreeNode` matching `x` with values `True` where `x` is `NaN` and `False` otherwise. """
     return _backend_op1(x, Backend.isnan)
 
 
-def is_inf(x) -> Union[Tensor, PhiTreeNode]:
+def is_inf(x: TensorOrTree) -> TensorOrTree:
     """ Returns a `Tensor` or `phiml.math.magic.PhiTreeNode` matching `x` with values `True` where `x` is `+inf` or `-inf` and `False` otherwise. """
     return _backend_op1(x, Backend.isnan)
 
 
-def real(x) -> Union[Tensor, PhiTreeNode]:
+def real(x: TensorOrTree) -> TensorOrTree:
     """
     See Also:
         `imag()`, `conjugate()`.
@@ -1909,7 +1909,7 @@ def real(x) -> Union[Tensor, PhiTreeNode]:
     return _backend_op1(x, Backend.real)
 
 
-def imag(x) -> Union[Tensor, PhiTreeNode]:
+def imag(x: TensorOrTree) -> TensorOrTree:
     """
     Returns the imaginary part of `x`.
     If `x` does not store complex numbers, returns a zero tensor with the same shape and dtype as this tensor.
@@ -1926,7 +1926,7 @@ def imag(x) -> Union[Tensor, PhiTreeNode]:
     return _backend_op1(x, Backend.imag)
 
 
-def conjugate(x) -> Union[Tensor, PhiTreeNode]:
+def conjugate(x: TensorOrTree) -> TensorOrTree:
     """
     See Also:
         `imag()`, `real()`.
@@ -1940,41 +1940,46 @@ def conjugate(x) -> Union[Tensor, PhiTreeNode]:
     return _backend_op1(x, Backend.conj)
 
 
-def degrees(deg):
+def degrees_to_radians(deg: TensorOrTree) -> TensorOrTree:
     """ Convert degrees to radians. """
-    return deg * (3.1415 / 180.)
+    return tree_map(lambda x: x * (3.14159265358979323846 / 180), deg)
 
 
-def sin(x) -> Union[Tensor, PhiTreeNode]:
+def radians_to_degrees(rad: TensorOrTree) -> TensorOrTree:
+    """ Convert degrees to radians. """
+    return tree_map(lambda x: x * (180 / 3.14159265358979323846), rad)
+
+
+def sin(x: TensorOrTree) -> TensorOrTree:
     """ Computes *sin(x)* of the `Tensor` or `phiml.math.magic.PhiTreeNode` `x`. """
     return _backend_op1(x, Backend.sin)
 
 
-def arcsin(x) -> Union[Tensor, PhiTreeNode]:
+def arcsin(x: TensorOrTree) -> TensorOrTree:
     """ Computes the inverse of *sin(x)* of the `Tensor` or `phiml.math.magic.PhiTreeNode` `x`.
     For real arguments, the result lies in the range [-π/2, π/2].
     """
     return _backend_op1(x, Backend.arcsin)
 
 
-def cos(x) -> Union[Tensor, PhiTreeNode]:
+def cos(x: TensorOrTree) -> TensorOrTree:
     """ Computes *cos(x)* of the `Tensor` or `phiml.math.magic.PhiTreeNode` `x`. """
     return _backend_op1(x, Backend.cos)
 
 
-def arccos(x) -> Union[Tensor, PhiTreeNode]:
+def arccos(x: TensorOrTree) -> TensorOrTree:
     """ Computes the inverse of *cos(x)* of the `Tensor` or `phiml.math.magic.PhiTreeNode` `x`.
     For real arguments, the result lies in the range [0, π].
     """
     return _backend_op1(x, Backend.cos)
 
 
-def tan(x) -> Union[Tensor, PhiTreeNode]:
+def tan(x: TensorOrTree) -> TensorOrTree:
     """ Computes *tan(x)* of the `Tensor` or `phiml.math.magic.PhiTreeNode` `x`. """
     return _backend_op1(x, Backend.tan)
 
 
-def arctan(x, divide_by=None) -> Union[Tensor, PhiTreeNode]:
+def arctan(x: TensorOrTree, divide_by=None) -> TensorOrTree:
     """
     Computes the inverse of *tan(x)* of the `Tensor` or `phiml.math.magic.PhiTreeNode` `x`.
 
@@ -1990,52 +1995,66 @@ def arctan(x, divide_by=None) -> Union[Tensor, PhiTreeNode]:
         return custom_op2(x, divide_by, arctan, lambda a, b: choose_backend(a, b).arctan2(a, b), 'arctan')
 
 
-def sinh(x) -> Union[Tensor, PhiTreeNode]:
+def angle(x: TensorOrTree) -> TensorOrTree:
+    """
+    Compute the angle of a complex number.
+    This is equal to *atan(Im/Re)* for most values.
+
+    Args:
+        x: `Tensor` or `phiml.math.magic.PhiTreeNode`
+
+    Returns:
+        Angle of complex number in radians.
+    """
+    return arctan(imag(x), divide_by=real(x))
+
+
+def sinh(x: TensorOrTree) -> TensorOrTree:
     """ Computes *sinh(x)* of the `Tensor` or `phiml.math.magic.PhiTreeNode` `x`. """
     return _backend_op1(x, Backend.sinh)
 
 
-def arcsinh(x) -> Union[Tensor, PhiTreeNode]:
+def arcsinh(x: TensorOrTree) -> TensorOrTree:
     """ Computes the inverse of *sinh(x)* of the `Tensor` or `phiml.math.magic.PhiTreeNode` `x`. """
     return _backend_op1(x, Backend.arcsinh)
 
 
-def cosh(x) -> Union[Tensor, PhiTreeNode]:
+def cosh(x: TensorOrTree) -> TensorOrTree:
     """ Computes *cosh(x)* of the `Tensor` or `phiml.math.magic.PhiTreeNode` `x`. """
     return _backend_op1(x, Backend.cosh)
 
 
-def arccosh(x) -> Union[Tensor, PhiTreeNode]:
+def arccosh(x: TensorOrTree) -> TensorOrTree:
     """ Computes the inverse of *cosh(x)* of the `Tensor` or `phiml.math.magic.PhiTreeNode` `x`. """
     return _backend_op1(x, Backend.arccosh)
 
 
-def tanh(x) -> Union[Tensor, PhiTreeNode]:
+def tanh(x: TensorOrTree) -> TensorOrTree:
     """ Computes *tanh(x)* of the `Tensor` or `phiml.math.magic.PhiTreeNode` `x`. """
     return _backend_op1(x, Backend.tanh)
 
 
-def arctanh(x) -> Union[Tensor, PhiTreeNode]:
+def arctanh(x: TensorOrTree) -> TensorOrTree:
     """ Computes the inverse of *tanh(x)* of the `Tensor` or `phiml.math.magic.PhiTreeNode` `x`. """
     return _backend_op1(x, Backend.arctanh)
 
 
-def log(x) -> Union[Tensor, PhiTreeNode]:
+def log(x: TensorOrTree) -> TensorOrTree:
     """ Computes the natural logarithm of the `Tensor` or `phiml.math.magic.PhiTreeNode` `x`. """
     return _backend_op1(x, Backend.log)
 
 
-def log2(x) -> Union[Tensor, PhiTreeNode]:
+def log2(x: TensorOrTree) -> TensorOrTree:
     """ Computes *log(x)* of the `Tensor` or `phiml.math.magic.PhiTreeNode` `x` with base 2. """
     return _backend_op1(x, Backend.log2)
 
 
-def log10(x) -> Union[Tensor, PhiTreeNode]:
+def log10(x: TensorOrTree) -> TensorOrTree:
     """ Computes *log(x)* of the `Tensor` or `phiml.math.magic.PhiTreeNode` `x` with base 10. """
     return _backend_op1(x, Backend.log10)
 
 
-def sigmoid(x) -> Union[Tensor, PhiTreeNode]:
+def sigmoid(x: TensorOrTree) -> TensorOrTree:
     """ Computes the sigmoid function of the `Tensor` or `phiml.math.magic.PhiTreeNode` `x`. """
     return _backend_op1(x, Backend.sigmoid)
 
