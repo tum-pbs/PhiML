@@ -70,7 +70,7 @@ class Extrapolation:
         
         Use `from_dict()` to restore the Extrapolation object.
         &#34;&#34;&#34;
-        raise NotImplementedError()
+        raise NotImplementedError(self.__class__)
 
     def spatial_gradient(self) -&gt; &#39;Extrapolation&#39;:
         &#34;&#34;&#34;
@@ -79,7 +79,7 @@ class Extrapolation:
         Returns:
             `Extrapolation` or `NotImplemented`
         &#34;&#34;&#34;
-        raise NotImplementedError()
+        raise NotImplementedError(self.__class__)
 
     def valid_outer_faces(self, dim) -&gt; Tuple[bool, bool]:
         &#34;&#34;&#34;
@@ -101,7 +101,7 @@ class Extrapolation:
         Returns:
             Whether the value is fully determined by the boundary and need not be stored elsewhere.
         &#34;&#34;&#34;
-        raise NotImplementedError()
+        raise NotImplementedError(self.__class__)
 
     @property
     def is_flexible(self) -&gt; bool:
@@ -111,7 +111,7 @@ class Extrapolation:
 
         This property is important for pressure solves to determine whether the total divergence is fixed or can be adjusted during the solve.
         &#34;&#34;&#34;
-        raise NotImplementedError()
+        raise NotImplementedError(self.__class__)
 
     def pad(self, value: Tensor, widths: dict, already_padded: Optional[dict] = None, **kwargs) -&gt; Tensor:
         &#34;&#34;&#34;
@@ -493,7 +493,7 @@ class _CopyExtrapolation(Extrapolation):
             raise NotImplementedError(f&#39;{type(value)} not supported&#39;)
 
     def _pad_linear_tracer(self, value, widths: dict):
-        raise NotImplementedError()
+        raise NotImplementedError(self.__class__)
 
     def __eq__(self, other):
         return type(other) == type(self)
@@ -1203,7 +1203,7 @@ class _MixedExtrapolation(Extrapolation):
 
     def to_dict(self) -&gt; dict:
         return {
-            &#39;type&#39;: &#39;mixed&#39;,
+            &#39;type&#39;: &#39;mixed_v2&#39;,
             &#39;dims&#39;: {k: ext.to_dict() for k, ext in self.ext.items()}
         }
 
@@ -1473,6 +1473,10 @@ def from_dict(dictionary: dict) -&gt; Extrapolation:
     elif etype == &#39;constant&#39;:
         return ConstantExtrapolation(dictionary[&#39;value&#39;])
     elif etype == &#39;mixed&#39;:
+        dims: Dict[Hashable, tuple] = dictionary[&#39;dims&#39;]
+        extrapolations = {k: (from_dict(l), from_dict(u)) for k, (l, u) in dims.items()}
+        return combine_sides(**extrapolations)
+    elif etype == &#39;mixed_v2&#39;:
         dims: Dict[Hashable, dict] = dictionary[&#39;dims&#39;]
         extrapolations = {k: from_dict(ext) for k, ext in dims.items()}
         return _MixedExtrapolation(extrapolations)
@@ -1773,6 +1777,10 @@ def remove_constant_offset(extrapolation):
     elif etype == &#39;constant&#39;:
         return ConstantExtrapolation(dictionary[&#39;value&#39;])
     elif etype == &#39;mixed&#39;:
+        dims: Dict[Hashable, tuple] = dictionary[&#39;dims&#39;]
+        extrapolations = {k: (from_dict(l), from_dict(u)) for k, (l, u) in dims.items()}
+        return combine_sides(**extrapolations)
+    elif etype == &#39;mixed_v2&#39;:
         dims: Dict[Hashable, dict] = dictionary[&#39;dims&#39;]
         extrapolations = {k: from_dict(ext) for k, ext in dims.items()}
         return _MixedExtrapolation(extrapolations)
@@ -2320,7 +2328,7 @@ The typical order is periodic=1, boundary=2, symmetric=3, reflect=4, constant=5.
         
         Use `from_dict()` to restore the Extrapolation object.
         &#34;&#34;&#34;
-        raise NotImplementedError()
+        raise NotImplementedError(self.__class__)
 
     def spatial_gradient(self) -&gt; &#39;Extrapolation&#39;:
         &#34;&#34;&#34;
@@ -2329,7 +2337,7 @@ The typical order is periodic=1, boundary=2, symmetric=3, reflect=4, constant=5.
         Returns:
             `Extrapolation` or `NotImplemented`
         &#34;&#34;&#34;
-        raise NotImplementedError()
+        raise NotImplementedError(self.__class__)
 
     def valid_outer_faces(self, dim) -&gt; Tuple[bool, bool]:
         &#34;&#34;&#34;
@@ -2351,7 +2359,7 @@ The typical order is periodic=1, boundary=2, symmetric=3, reflect=4, constant=5.
         Returns:
             Whether the value is fully determined by the boundary and need not be stored elsewhere.
         &#34;&#34;&#34;
-        raise NotImplementedError()
+        raise NotImplementedError(self.__class__)
 
     @property
     def is_flexible(self) -&gt; bool:
@@ -2361,7 +2369,7 @@ The typical order is periodic=1, boundary=2, symmetric=3, reflect=4, constant=5.
 
         This property is important for pressure solves to determine whether the total divergence is fixed or can be adjusted during the solve.
         &#34;&#34;&#34;
-        raise NotImplementedError()
+        raise NotImplementedError(self.__class__)
 
     def pad(self, value: Tensor, widths: dict, already_padded: Optional[dict] = None, **kwargs) -&gt; Tensor:
         &#34;&#34;&#34;
@@ -2528,7 +2536,7 @@ def is_flexible(self) -&gt; bool:
 
     This property is important for pressure solves to determine whether the total divergence is fixed or can be adjusted during the solve.
     &#34;&#34;&#34;
-    raise NotImplementedError()</code></pre>
+    raise NotImplementedError(self.__class__)</code></pre>
 </details>
 </dd>
 <dt id="phiml.math.extrapolation.Extrapolation.native_grid_sample_mode"><code class="name">var <span class="ident">native_grid_sample_mode</span> : Optional[str]</code></dt>
@@ -2577,7 +2585,7 @@ If so, the values need not be stored along with the inside values.</p>
     Returns:
         Whether the value is fully determined by the boundary and need not be stored elsewhere.
     &#34;&#34;&#34;
-    raise NotImplementedError()</code></pre>
+    raise NotImplementedError(self.__class__)</code></pre>
 </details>
 </dd>
 <dt id="phiml.math.extrapolation.Extrapolation.is_copy_pad"><code class="name flex">
@@ -2772,7 +2780,7 @@ Both points are assumed to lie within the domain</p>
     Returns:
         `Extrapolation` or `NotImplemented`
     &#34;&#34;&#34;
-    raise NotImplementedError()</code></pre>
+    raise NotImplementedError(self.__class__)</code></pre>
 </details>
 </dd>
 <dt id="phiml.math.extrapolation.Extrapolation.to_dict"><code class="name flex">
@@ -2791,7 +2799,7 @@ Both points are assumed to lie within the domain</p>
     
     Use `from_dict()` to restore the Extrapolation object.
     &#34;&#34;&#34;
-    raise NotImplementedError()</code></pre>
+    raise NotImplementedError(self.__class__)</code></pre>
 </details>
 </dd>
 <dt id="phiml.math.extrapolation.Extrapolation.transform_coordinates"><code class="name flex">

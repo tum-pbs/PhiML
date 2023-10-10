@@ -15840,7 +15840,7 @@ To enable this, pass <code>grad_for_f=True</code> to the <code>solve_linear()</c
 
 
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
-<pre>[&#39;Φ-ML CG-adaptive (torch)  did not converge to rel_tol=1e-05, abs_tol=1e-05 within 1000 iterations. Max residual: 1.0&#39;, &#39;Φ-ML CG-adaptive (torch)  did not converge to rel_tol=1e-05, abs_tol=1e-05 within 1000 iterations. Max residual: 2.0&#39;, &#39;Φ-ML CG-adaptive (torch)  did not converge to rel_tol=1e-05, abs_tol=1e-05 within 1000 iterations. Max residual: 3.0&#39;]
+<pre>&#39;Φ-ML CG-adaptive (torch)  did not converge to rel_tol=1e-05, abs_tol=1e-05 within 1000 iterations. Max residual: 3.0&#39;
 Last estimate: <span class="ansi-blue-intense-fg">(0.000, 0.000, 0.000)</span> along <span class="ansi-green-intense-fg">xˢ</span>
 </pre>
 </div>
@@ -15908,11 +15908,11 @@ Recording the full optimization trajectory requires setting <code>record_traject
 
 
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
-<pre>factor_ilu: auto-selecting iterations=1 (eager mode) for matrix <span class="ansi-blue-intense-fg">(2.000, 0.000)</span>; <span class="ansi-blue-intense-fg">(0.000, 1.000)</span> <span class="ansi-green-intense-fg">(b_vecᶜ=2, ~b_vecᵈ=2)</span> (DEBUG), 2023-10-05 19:03:46,758n
+<pre>factor_ilu: auto-selecting iterations=1 (eager mode) for matrix <span class="ansi-blue-intense-fg">(2.000, 0.000)</span>; <span class="ansi-blue-intense-fg">(0.000, 1.000)</span> <span class="ansi-green-intense-fg">(b_vecᶜ=2, ~b_vecᵈ=2)</span> (DEBUG), 2023-10-10 12:09:59,242n
 
-Running forward pass of custom op forward &#39;_matrix_solve_forward&#39; given args (&#39;y&#39;,) containing 1 native tensors (DEBUG), 2023-10-05 19:03:46,772n
+Running forward pass of custom op forward &#39;_matrix_solve_forward&#39; given args (&#39;y&#39;,) containing 1 native tensors (DEBUG), 2023-10-10 12:09:59,254n
 
-Performing linear solve scipy-CG with tolerance <span class="ansi-yellow-intense-fg">float64</span> <span class="ansi-blue-intense-fg">1e-05</span> (rel), <span class="ansi-yellow-intense-fg">float64</span> <span class="ansi-blue-intense-fg">1e-05</span> (abs), max_iterations=<span class="ansi-blue-intense-fg">1000</span> with backend torch (DEBUG), 2023-10-05 19:03:46,778n
+Performing linear solve scipy-CG with tolerance <span class="ansi-yellow-intense-fg">float64</span> <span class="ansi-blue-intense-fg">1e-05</span> (rel), <span class="ansi-yellow-intense-fg">float64</span> <span class="ansi-blue-intense-fg">1e-05</span> (abs), max_iterations=<span class="ansi-blue-intense-fg">1000</span> with backend torch (DEBUG), 2023-10-10 12:09:59,259n
 
 </pre>
 </div>
@@ -16029,9 +16029,9 @@ This matches the signatures of the native solve functions like <code>torch.linal
 
 
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
-<pre>Running forward pass of custom op forward &#39;_matrix_solve_forward&#39; given args (&#39;y&#39;, &#39;matrix&#39;) containing 2 native tensors (DEBUG), 2023-10-05 19:03:46,808n
+<pre>Running forward pass of custom op forward &#39;_matrix_solve_forward&#39; given args (&#39;y&#39;, &#39;matrix&#39;) containing 2 native tensors (DEBUG), 2023-10-10 12:09:59,289n
 
-Performing linear solve auto with tolerance <span class="ansi-yellow-intense-fg">float64</span> <span class="ansi-blue-intense-fg">1e-05</span> (rel), <span class="ansi-yellow-intense-fg">float64</span> <span class="ansi-blue-intense-fg">1e-05</span> (abs), max_iterations=<span class="ansi-blue-intense-fg">1000</span> with backend torch (DEBUG), 2023-10-05 19:03:46,810n
+Performing linear solve auto with tolerance <span class="ansi-yellow-intense-fg">float64</span> <span class="ansi-blue-intense-fg">1e-05</span> (rel), <span class="ansi-yellow-intense-fg">float64</span> <span class="ansi-blue-intense-fg">1e-05</span> (abs), max_iterations=<span class="ansi-blue-intense-fg">1000</span> with backend torch (DEBUG), 2023-10-10 12:09:59,291n
 
 </pre>
 </div>

@@ -92,8 +92,8 @@ from ._ops import (
     maximum, minimum, clip,
     sqrt, exp, log, log2, log10, sigmoid, soft_plus,
     sin, cos, tan, sinh, cosh, tanh, arcsin, arccos, arctan, arcsinh, arccosh, arctanh, log_gamma, factorial,
-    to_float, to_int32, to_int64, to_complex, imag, real, conjugate,
-    degrees,
+    to_float, to_int32, to_int64, to_complex, imag, real, conjugate, angle,
+    radians_to_degrees, degrees_to_radians,
     boolean_mask,
     is_finite, is_nan, is_inf,
     closest_grid_values, grid_sample, scatter, gather,
@@ -221,7 +221,7 @@ Used with the special <code>-f-</code> syntax.</p>
 <h2 class="section-title" id="header-functions">Functions</h2>
 <dl>
 <dt id="phiml.math.abs"><code class="name flex">
-<span>def <span class="ident">abs</span></span>(<span>x) ‑> Union[phiml.math._tensors.Tensor, <a title="phiml.math.magic.PhiTreeNode" href="magic.html#phiml.math.magic.PhiTreeNode">PhiTreeNode</a>]</span>
+<span>def <span class="ident">abs</span></span>(<span>x: ~TensorOrTree) ‑> ~TensorOrTree</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Computes <em>||x||<sub>1</sub></em>.
@@ -239,7 +239,7 @@ TensorFlow and PyTorch return 0 while Jax returns 1.</p>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def abs_(x) -&gt; Union[Tensor, PhiTreeNode]:
+<pre><code class="python">def abs_(x: TensorOrTree) -&gt; TensorOrTree:
     &#34;&#34;&#34;
     Computes *||x||&lt;sub&gt;1&lt;/sub&gt;*.
     Complex `x` result in matching precision float values.
@@ -441,6 +441,37 @@ Otherwise, an element-wise equality check is performed.</p>
         return t1 is t2</code></pre>
 </details>
 </dd>
+<dt id="phiml.math.angle"><code class="name flex">
+<span>def <span class="ident">angle</span></span>(<span>x: ~TensorOrTree) ‑> ~TensorOrTree</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Compute the angle of a complex number.
+This is equal to <em>atan(Im/Re)</em> for most values.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>x</code></strong></dt>
+<dd><code><a title="phiml.math.Tensor" href="#phiml.math.Tensor">Tensor</a></code> or <code><a title="phiml.math.magic.PhiTreeNode" href="magic.html#phiml.math.magic.PhiTreeNode">PhiTreeNode</a></code></dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<p>Angle of complex number in radians.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def angle(x: TensorOrTree) -&gt; TensorOrTree:
+    &#34;&#34;&#34;
+    Compute the angle of a complex number.
+    This is equal to *atan(Im/Re)* for most values.
+
+    Args:
+        x: `Tensor` or `phiml.math.magic.PhiTreeNode`
+
+    Returns:
+        Angle of complex number in radians.
+    &#34;&#34;&#34;
+    return arctan(imag(x), divide_by=real(x))</code></pre>
+</details>
+</dd>
 <dt id="phiml.math.any"><code class="name flex">
 <span>def <span class="ident">any</span></span>(<span>boolean_tensor: Union[phiml.math._tensors.Tensor, list, tuple], dim: Union[str, tuple, list, set, phiml.math._shape.Shape, Callable] = &lt;function non_batch&gt;) ‑> phiml.math._tensors.Tensor</span>
 </code></dt>
@@ -491,7 +522,7 @@ Otherwise, an element-wise equality check is performed.</p>
 </details>
 </dd>
 <dt id="phiml.math.arccos"><code class="name flex">
-<span>def <span class="ident">arccos</span></span>(<span>x) ‑> Union[phiml.math._tensors.Tensor, <a title="phiml.math.magic.PhiTreeNode" href="magic.html#phiml.math.magic.PhiTreeNode">PhiTreeNode</a>]</span>
+<span>def <span class="ident">arccos</span></span>(<span>x: ~TensorOrTree) ‑> ~TensorOrTree</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Computes the inverse of <em>cos(x)</em> of the <code><a title="phiml.math.Tensor" href="#phiml.math.Tensor">Tensor</a></code> or <code><a title="phiml.math.magic.PhiTreeNode" href="magic.html#phiml.math.magic.PhiTreeNode">PhiTreeNode</a></code> <code>x</code>.
@@ -500,7 +531,7 @@ For real arguments, the result lies in the range [0, π].</p></div>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def arccos(x) -&gt; Union[Tensor, PhiTreeNode]:
+<pre><code class="python">def arccos(x: TensorOrTree) -&gt; TensorOrTree:
     &#34;&#34;&#34; Computes the inverse of *cos(x)* of the `Tensor` or `phiml.math.magic.PhiTreeNode` `x`.
     For real arguments, the result lies in the range [0, π].
     &#34;&#34;&#34;
@@ -508,7 +539,7 @@ For real arguments, the result lies in the range [0, π].</p></div>
 </details>
 </dd>
 <dt id="phiml.math.arccosh"><code class="name flex">
-<span>def <span class="ident">arccosh</span></span>(<span>x) ‑> Union[phiml.math._tensors.Tensor, <a title="phiml.math.magic.PhiTreeNode" href="magic.html#phiml.math.magic.PhiTreeNode">PhiTreeNode</a>]</span>
+<span>def <span class="ident">arccosh</span></span>(<span>x: ~TensorOrTree) ‑> ~TensorOrTree</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Computes the inverse of <em>cosh(x)</em> of the <code><a title="phiml.math.Tensor" href="#phiml.math.Tensor">Tensor</a></code> or <code><a title="phiml.math.magic.PhiTreeNode" href="magic.html#phiml.math.magic.PhiTreeNode">PhiTreeNode</a></code> <code>x</code>.</p></div>
@@ -516,13 +547,13 @@ For real arguments, the result lies in the range [0, π].</p></div>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def arccosh(x) -&gt; Union[Tensor, PhiTreeNode]:
+<pre><code class="python">def arccosh(x: TensorOrTree) -&gt; TensorOrTree:
     &#34;&#34;&#34; Computes the inverse of *cosh(x)* of the `Tensor` or `phiml.math.magic.PhiTreeNode` `x`. &#34;&#34;&#34;
     return _backend_op1(x, Backend.arccosh)</code></pre>
 </details>
 </dd>
 <dt id="phiml.math.arcsin"><code class="name flex">
-<span>def <span class="ident">arcsin</span></span>(<span>x) ‑> Union[phiml.math._tensors.Tensor, <a title="phiml.math.magic.PhiTreeNode" href="magic.html#phiml.math.magic.PhiTreeNode">PhiTreeNode</a>]</span>
+<span>def <span class="ident">arcsin</span></span>(<span>x: ~TensorOrTree) ‑> ~TensorOrTree</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Computes the inverse of <em>sin(x)</em> of the <code><a title="phiml.math.Tensor" href="#phiml.math.Tensor">Tensor</a></code> or <code><a title="phiml.math.magic.PhiTreeNode" href="magic.html#phiml.math.magic.PhiTreeNode">PhiTreeNode</a></code> <code>x</code>.
@@ -531,7 +562,7 @@ For real arguments, the result lies in the range [-π/2, π/2].</p></div>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def arcsin(x) -&gt; Union[Tensor, PhiTreeNode]:
+<pre><code class="python">def arcsin(x: TensorOrTree) -&gt; TensorOrTree:
     &#34;&#34;&#34; Computes the inverse of *sin(x)* of the `Tensor` or `phiml.math.magic.PhiTreeNode` `x`.
     For real arguments, the result lies in the range [-π/2, π/2].
     &#34;&#34;&#34;
@@ -539,7 +570,7 @@ For real arguments, the result lies in the range [-π/2, π/2].</p></div>
 </details>
 </dd>
 <dt id="phiml.math.arcsinh"><code class="name flex">
-<span>def <span class="ident">arcsinh</span></span>(<span>x) ‑> Union[phiml.math._tensors.Tensor, <a title="phiml.math.magic.PhiTreeNode" href="magic.html#phiml.math.magic.PhiTreeNode">PhiTreeNode</a>]</span>
+<span>def <span class="ident">arcsinh</span></span>(<span>x: ~TensorOrTree) ‑> ~TensorOrTree</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Computes the inverse of <em>sinh(x)</em> of the <code><a title="phiml.math.Tensor" href="#phiml.math.Tensor">Tensor</a></code> or <code><a title="phiml.math.magic.PhiTreeNode" href="magic.html#phiml.math.magic.PhiTreeNode">PhiTreeNode</a></code> <code>x</code>.</p></div>
@@ -547,13 +578,13 @@ For real arguments, the result lies in the range [-π/2, π/2].</p></div>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def arcsinh(x) -&gt; Union[Tensor, PhiTreeNode]:
+<pre><code class="python">def arcsinh(x: TensorOrTree) -&gt; TensorOrTree:
     &#34;&#34;&#34; Computes the inverse of *sinh(x)* of the `Tensor` or `phiml.math.magic.PhiTreeNode` `x`. &#34;&#34;&#34;
     return _backend_op1(x, Backend.arcsinh)</code></pre>
 </details>
 </dd>
 <dt id="phiml.math.arctan"><code class="name flex">
-<span>def <span class="ident">arctan</span></span>(<span>x, divide_by=None) ‑> Union[phiml.math._tensors.Tensor, <a title="phiml.math.magic.PhiTreeNode" href="magic.html#phiml.math.magic.PhiTreeNode">PhiTreeNode</a>]</span>
+<span>def <span class="ident">arctan</span></span>(<span>x: ~TensorOrTree, divide_by=None) ‑> ~TensorOrTree</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Computes the inverse of <em>tan(x)</em> of the <code><a title="phiml.math.Tensor" href="#phiml.math.Tensor">Tensor</a></code> or <code><a title="phiml.math.magic.PhiTreeNode" href="magic.html#phiml.math.magic.PhiTreeNode">PhiTreeNode</a></code> <code>x</code>.</p>
@@ -569,7 +600,7 @@ This is equivalent to the common <code>arctan2</code> function.</dd>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def arctan(x, divide_by=None) -&gt; Union[Tensor, PhiTreeNode]:
+<pre><code class="python">def arctan(x: TensorOrTree, divide_by=None) -&gt; TensorOrTree:
     &#34;&#34;&#34;
     Computes the inverse of *tan(x)* of the `Tensor` or `phiml.math.magic.PhiTreeNode` `x`.
 
@@ -586,7 +617,7 @@ This is equivalent to the common <code>arctan2</code> function.</dd>
 </details>
 </dd>
 <dt id="phiml.math.arctanh"><code class="name flex">
-<span>def <span class="ident">arctanh</span></span>(<span>x) ‑> Union[phiml.math._tensors.Tensor, <a title="phiml.math.magic.PhiTreeNode" href="magic.html#phiml.math.magic.PhiTreeNode">PhiTreeNode</a>]</span>
+<span>def <span class="ident">arctanh</span></span>(<span>x: ~TensorOrTree) ‑> ~TensorOrTree</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Computes the inverse of <em>tanh(x)</em> of the <code><a title="phiml.math.Tensor" href="#phiml.math.Tensor">Tensor</a></code> or <code><a title="phiml.math.magic.PhiTreeNode" href="magic.html#phiml.math.magic.PhiTreeNode">PhiTreeNode</a></code> <code>x</code>.</p></div>
@@ -594,7 +625,7 @@ This is equivalent to the common <code>arctan2</code> function.</dd>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def arctanh(x) -&gt; Union[Tensor, PhiTreeNode]:
+<pre><code class="python">def arctanh(x: TensorOrTree) -&gt; TensorOrTree:
     &#34;&#34;&#34; Computes the inverse of *tanh(x)* of the `Tensor` or `phiml.math.magic.PhiTreeNode` `x`. &#34;&#34;&#34;
     return _backend_op1(x, Backend.arctanh)</code></pre>
 </details>
@@ -827,18 +858,27 @@ All dimensions of <code>mask</code> that are not <code>dim</code> are treated as
 </details>
 </dd>
 <dt id="phiml.math.broadcast"><code class="name flex">
-<span>def <span class="ident">broadcast</span></span>(<span>f)</span>
+<span>def <span class="ident">broadcast</span></span>(<span>function, dims=&lt;function shape&gt;, range=builtins.range, unwrap_scalars=True)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Function decorator for non-vectorized functions.
-When passing a <code><a title="phiml.math.Tensor" href="#phiml.math.Tensor">Tensor</a></code> argument to a broadcast function, the function is called once for each element of the tensor.</p>
-<p>Only positionsl arguments, not keyword arguments are broadcast.</p>
+When passing <code><a title="phiml.math.Tensor" href="#phiml.math.Tensor">Tensor</a></code> arguments to a broadcast function, the function is called once for each slice of the tensor.
+How tensors are sliced is determined by <code>dims</code>.
+Decorating a function with <code><a title="phiml.math.broadcast" href="#phiml.math.broadcast">broadcast()</a></code> is equal to passing the function to <code>phi.math.map()</code>.</p>
 <p>See Also:
 <code><a title="phiml.math.map" href="#phiml.math.map">map_()</a></code></p>
 <h2 id="args">Args</h2>
 <dl>
-<dt><strong><code>f</code></strong></dt>
-<dd>Function.</dd>
+<dt><strong><code>function</code></strong></dt>
+<dd>Function to broadcast.</dd>
+<dt><strong><code>dims</code></strong></dt>
+<dd>Dimensions which should be sliced.
+<code>function</code> is called once for each element in <code>dims</code>, i.e. <code>dims.volume</code> times.
+If <code>dims</code> is not specified, all dimensions from the <code><a title="phiml.math.magic.Sliceable" href="magic.html#phiml.math.magic.Sliceable">Sliceable</a></code> values in <code>args</code> and <code>kwargs</code> will be mapped.</dd>
+<dt><strong><code>range</code></strong></dt>
+<dd>Optional range function. Can be used to generate <code>tqdm</code> output by passing <code>trange</code>.</dd>
+<dt><strong><code>unwrap_scalars</code></strong></dt>
+<dd>If <code>True</code>, passes the contents of scalar <code><a title="phiml.math.Tensor" href="#phiml.math.Tensor">Tensor</a></code>s instead of the tensor objects.</dd>
 </dl>
 <h2 id="returns">Returns</h2>
 <p>Broadcast function</p></div>
@@ -846,25 +886,30 @@ When passing a <code><a title="phiml.math.Tensor" href="#phiml.math.Tensor">Tens
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def broadcast(f):
+<pre><code class="python">def broadcast(function, dims=shape, range=range, unwrap_scalars=True):
     &#34;&#34;&#34;
     Function decorator for non-vectorized functions.
-    When passing a `Tensor` argument to a broadcast function, the function is called once for each element of the tensor.
-
-    Only positionsl arguments, not keyword arguments are broadcast.
+    When passing `Tensor` arguments to a broadcast function, the function is called once for each slice of the tensor.
+    How tensors are sliced is determined by `dims`.
+    Decorating a function with `broadcast` is equal to passing the function to `phi.math.map()`.
 
     See Also:
         `phiml.math.map`
 
     Args:
-        f: Function.
+        function: Function to broadcast.
+        dims: Dimensions which should be sliced.
+            `function` is called once for each element in `dims`, i.e. `dims.volume` times.
+            If `dims` is not specified, all dimensions from the `phiml.math.magic.Sliceable` values in `args` and `kwargs` will be mapped.
+        range: Optional range function. Can be used to generate `tqdm` output by passing `trange`.
+        unwrap_scalars: If `True`, passes the contents of scalar `Tensor`s instead of the tensor objects.
 
     Returns:
         Broadcast function
     &#34;&#34;&#34;
-    @wraps(f)
+    @wraps(function)
     def broadcast_(*args, **kwargs):
-        return math.map_(f, *args, **kwargs)
+        return map_(function, *args, dims=dims, range=range, unwrap_scalars=unwrap_scalars, **kwargs)
     return broadcast_</code></pre>
 </details>
 </dd>
@@ -964,7 +1009,7 @@ When passing a <code><a title="phiml.math.Tensor" href="#phiml.math.Tensor">Tens
 </details>
 </dd>
 <dt id="phiml.math.ceil"><code class="name flex">
-<span>def <span class="ident">ceil</span></span>(<span>x) ‑> Union[phiml.math._tensors.Tensor, <a title="phiml.math.magic.PhiTreeNode" href="magic.html#phiml.math.magic.PhiTreeNode">PhiTreeNode</a>]</span>
+<span>def <span class="ident">ceil</span></span>(<span>x: ~TensorOrTree) ‑> ~TensorOrTree</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Computes <em>⌈x⌉</em> of the <code><a title="phiml.math.Tensor" href="#phiml.math.Tensor">Tensor</a></code> or <code><a title="phiml.math.magic.PhiTreeNode" href="magic.html#phiml.math.magic.PhiTreeNode">PhiTreeNode</a></code> <code>x</code>.</p></div>
@@ -972,7 +1017,7 @@ When passing a <code><a title="phiml.math.Tensor" href="#phiml.math.Tensor">Tens
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def ceil(x) -&gt; Union[Tensor, PhiTreeNode]:
+<pre><code class="python">def ceil(x: TensorOrTree) -&gt; TensorOrTree:
     &#34;&#34;&#34; Computes *⌈x⌉* of the `Tensor` or `phiml.math.magic.PhiTreeNode` `x`. &#34;&#34;&#34;
     return _backend_op1(x, Backend.ceil)</code></pre>
 </details>
@@ -1359,7 +1404,7 @@ Adding batch dimensions must always work without keyword arguments.</dd>
 </details>
 </dd>
 <dt id="phiml.math.conjugate"><code class="name flex">
-<span>def <span class="ident">conjugate</span></span>(<span>x) ‑> Union[phiml.math._tensors.Tensor, <a title="phiml.math.magic.PhiTreeNode" href="magic.html#phiml.math.magic.PhiTreeNode">PhiTreeNode</a>]</span>
+<span>def <span class="ident">conjugate</span></span>(<span>x: ~TensorOrTree) ‑> ~TensorOrTree</span>
 </code></dt>
 <dd>
 <div class="desc"><p>See Also:
@@ -1375,7 +1420,7 @@ Adding batch dimensions must always work without keyword arguments.</dd>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def conjugate(x) -&gt; Union[Tensor, PhiTreeNode]:
+<pre><code class="python">def conjugate(x: TensorOrTree) -&gt; TensorOrTree:
     &#34;&#34;&#34;
     See Also:
         `imag()`, `real()`.
@@ -1614,7 +1659,7 @@ Otherwise, the <code><a title="phiml.math.copy" href="#phiml.math.copy">copy()</
 </details>
 </dd>
 <dt id="phiml.math.cos"><code class="name flex">
-<span>def <span class="ident">cos</span></span>(<span>x) ‑> Union[phiml.math._tensors.Tensor, <a title="phiml.math.magic.PhiTreeNode" href="magic.html#phiml.math.magic.PhiTreeNode">PhiTreeNode</a>]</span>
+<span>def <span class="ident">cos</span></span>(<span>x: ~TensorOrTree) ‑> ~TensorOrTree</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Computes <em>cos(x)</em> of the <code><a title="phiml.math.Tensor" href="#phiml.math.Tensor">Tensor</a></code> or <code><a title="phiml.math.magic.PhiTreeNode" href="magic.html#phiml.math.magic.PhiTreeNode">PhiTreeNode</a></code> <code>x</code>.</p></div>
@@ -1622,13 +1667,13 @@ Otherwise, the <code><a title="phiml.math.copy" href="#phiml.math.copy">copy()</
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def cos(x) -&gt; Union[Tensor, PhiTreeNode]:
+<pre><code class="python">def cos(x: TensorOrTree) -&gt; TensorOrTree:
     &#34;&#34;&#34; Computes *cos(x)* of the `Tensor` or `phiml.math.magic.PhiTreeNode` `x`. &#34;&#34;&#34;
     return _backend_op1(x, Backend.cos)</code></pre>
 </details>
 </dd>
 <dt id="phiml.math.cosh"><code class="name flex">
-<span>def <span class="ident">cosh</span></span>(<span>x) ‑> Union[phiml.math._tensors.Tensor, <a title="phiml.math.magic.PhiTreeNode" href="magic.html#phiml.math.magic.PhiTreeNode">PhiTreeNode</a>]</span>
+<span>def <span class="ident">cosh</span></span>(<span>x: ~TensorOrTree) ‑> ~TensorOrTree</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Computes <em>cosh(x)</em> of the <code><a title="phiml.math.Tensor" href="#phiml.math.Tensor">Tensor</a></code> or <code><a title="phiml.math.magic.PhiTreeNode" href="magic.html#phiml.math.magic.PhiTreeNode">PhiTreeNode</a></code> <code>x</code>.</p></div>
@@ -1636,7 +1681,7 @@ Otherwise, the <code><a title="phiml.math.copy" href="#phiml.math.copy">copy()</
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def cosh(x) -&gt; Union[Tensor, PhiTreeNode]:
+<pre><code class="python">def cosh(x: TensorOrTree) -&gt; TensorOrTree:
     &#34;&#34;&#34; Computes *cosh(x)* of the `Tensor` or `phiml.math.magic.PhiTreeNode` `x`. &#34;&#34;&#34;
     return _backend_op1(x, Backend.cosh)</code></pre>
 </details>
@@ -1790,8 +1835,8 @@ and <code>output_dict</code> contains only those parameters for which a gradient
     return CustomGradientFunction(f, gradient, auxiliary_args)</code></pre>
 </details>
 </dd>
-<dt id="phiml.math.degrees"><code class="name flex">
-<span>def <span class="ident">degrees</span></span>(<span>deg)</span>
+<dt id="phiml.math.degrees_to_radians"><code class="name flex">
+<span>def <span class="ident">degrees_to_radians</span></span>(<span>deg: ~TensorOrTree) ‑> ~TensorOrTree</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Convert degrees to radians.</p></div>
@@ -1799,9 +1844,9 @@ and <code>output_dict</code> contains only those parameters for which a gradient
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def degrees(deg):
+<pre><code class="python">def degrees_to_radians(deg: TensorOrTree) -&gt; TensorOrTree:
     &#34;&#34;&#34; Convert degrees to radians. &#34;&#34;&#34;
-    return deg * (3.1415 / 180.)</code></pre>
+    return tree_map(lambda x: x * (3.14159265358979323846 / 180), deg)</code></pre>
 </details>
 </dd>
 <dt id="phiml.math.dense"><code class="name flex">
@@ -2198,7 +2243,7 @@ This may result in a noticeable drop in performance.</p></div>
 </details>
 </dd>
 <dt id="phiml.math.exp"><code class="name flex">
-<span>def <span class="ident">exp</span></span>(<span>x) ‑> Union[phiml.math._tensors.Tensor, <a title="phiml.math.magic.PhiTreeNode" href="magic.html#phiml.math.magic.PhiTreeNode">PhiTreeNode</a>]</span>
+<span>def <span class="ident">exp</span></span>(<span>x: ~TensorOrTree) ‑> ~TensorOrTree</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Computes <em>exp(x)</em> of the <code><a title="phiml.math.Tensor" href="#phiml.math.Tensor">Tensor</a></code> or <code><a title="phiml.math.magic.PhiTreeNode" href="magic.html#phiml.math.magic.PhiTreeNode">PhiTreeNode</a></code> <code>x</code>.</p></div>
@@ -2206,7 +2251,7 @@ This may result in a noticeable drop in performance.</p></div>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def exp(x) -&gt; Union[Tensor, PhiTreeNode]:
+<pre><code class="python">def exp(x: TensorOrTree) -&gt; TensorOrTree:
     &#34;&#34;&#34; Computes *exp(x)* of the `Tensor` or `phiml.math.magic.PhiTreeNode` `x`. &#34;&#34;&#34;
     return _backend_op1(x, Backend.exp)</code></pre>
 </details>
@@ -2409,7 +2454,7 @@ row=2      0.   1.  -2.  along ~col
 </details>
 </dd>
 <dt id="phiml.math.factorial"><code class="name flex">
-<span>def <span class="ident">factorial</span></span>(<span>x) ‑> Union[phiml.math._tensors.Tensor, <a title="phiml.math.magic.PhiTreeNode" href="magic.html#phiml.math.magic.PhiTreeNode">PhiTreeNode</a>]</span>
+<span>def <span class="ident">factorial</span></span>(<span>x: ~TensorOrTree) ‑> ~TensorOrTree</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Computes <em>factorial(x)</em> of the <code><a title="phiml.math.Tensor" href="#phiml.math.Tensor">Tensor</a></code> or <code><a title="phiml.math.magic.PhiTreeNode" href="magic.html#phiml.math.magic.PhiTreeNode">PhiTreeNode</a></code> <code>x</code>.
@@ -2420,7 +2465,7 @@ However, this results in integer overflow for inputs larger than 12 (int32) or 1
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def factorial(x) -&gt; Union[Tensor, PhiTreeNode]:
+<pre><code class="python">def factorial(x: TensorOrTree) -&gt; TensorOrTree:
     &#34;&#34;&#34;
     Computes *factorial(x)* of the `Tensor` or `phiml.math.magic.PhiTreeNode` `x`.
     For floating-point numbers computes the continuous factorial using the gamma function.
@@ -2887,7 +2932,7 @@ Adding batch dimensions must always work without keyword arguments.</dd>
 </details>
 </dd>
 <dt id="phiml.math.floor"><code class="name flex">
-<span>def <span class="ident">floor</span></span>(<span>x) ‑> Union[phiml.math._tensors.Tensor, <a title="phiml.math.magic.PhiTreeNode" href="magic.html#phiml.math.magic.PhiTreeNode">PhiTreeNode</a>]</span>
+<span>def <span class="ident">floor</span></span>(<span>x: ~TensorOrTree) ‑> ~TensorOrTree</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Computes <em>⌊x⌋</em> of the <code><a title="phiml.math.Tensor" href="#phiml.math.Tensor">Tensor</a></code> or <code><a title="phiml.math.magic.PhiTreeNode" href="magic.html#phiml.math.magic.PhiTreeNode">PhiTreeNode</a></code> <code>x</code>.</p></div>
@@ -2895,7 +2940,7 @@ Adding batch dimensions must always work without keyword arguments.</dd>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def floor(x) -&gt; Union[Tensor, PhiTreeNode]:
+<pre><code class="python">def floor(x: TensorOrTree) -&gt; TensorOrTree:
     &#34;&#34;&#34; Computes *⌊x⌋* of the `Tensor` or `phiml.math.magic.PhiTreeNode` `x`. &#34;&#34;&#34;
     return _backend_op1(x, Backend.floor)</code></pre>
 </details>
@@ -3610,7 +3655,7 @@ If <code>None</code>, performs the inverse FFT along all spatial dimensions of <
 </details>
 </dd>
 <dt id="phiml.math.imag"><code class="name flex">
-<span>def <span class="ident">imag</span></span>(<span>x) ‑> Union[phiml.math._tensors.Tensor, <a title="phiml.math.magic.PhiTreeNode" href="magic.html#phiml.math.magic.PhiTreeNode">PhiTreeNode</a>]</span>
+<span>def <span class="ident">imag</span></span>(<span>x: ~TensorOrTree) ‑> ~TensorOrTree</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Returns the imaginary part of <code>x</code>.
@@ -3628,7 +3673,7 @@ If <code>x</code> does not store complex numbers, returns a zero tensor with the
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def imag(x) -&gt; Union[Tensor, PhiTreeNode]:
+<pre><code class="python">def imag(x: TensorOrTree) -&gt; TensorOrTree:
     &#34;&#34;&#34;
     Returns the imaginary part of `x`.
     If `x` does not store complex numbers, returns a zero tensor with the same shape and dtype as this tensor.
@@ -3725,7 +3770,7 @@ Undefined sizes are automatically filled in by <code><a title="phiml.math.tensor
 </details>
 </dd>
 <dt id="phiml.math.is_finite"><code class="name flex">
-<span>def <span class="ident">is_finite</span></span>(<span>x) ‑> Union[phiml.math._tensors.Tensor, <a title="phiml.math.magic.PhiTreeNode" href="magic.html#phiml.math.magic.PhiTreeNode">PhiTreeNode</a>]</span>
+<span>def <span class="ident">is_finite</span></span>(<span>x: ~TensorOrTree) ‑> ~TensorOrTree</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Returns a <code><a title="phiml.math.Tensor" href="#phiml.math.Tensor">Tensor</a></code> or <code><a title="phiml.math.magic.PhiTreeNode" href="magic.html#phiml.math.magic.PhiTreeNode">PhiTreeNode</a></code> matching <code>x</code> with values <code>True</code> where <code>x</code> has a finite value and <code>False</code> otherwise.</p></div>
@@ -3733,13 +3778,13 @@ Undefined sizes are automatically filled in by <code><a title="phiml.math.tensor
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def is_finite(x) -&gt; Union[Tensor, PhiTreeNode]:
+<pre><code class="python">def is_finite(x: TensorOrTree) -&gt; TensorOrTree:
     &#34;&#34;&#34; Returns a `Tensor` or `phiml.math.magic.PhiTreeNode` matching `x` with values `True` where `x` has a finite value and `False` otherwise. &#34;&#34;&#34;
     return _backend_op1(x, Backend.isfinite)</code></pre>
 </details>
 </dd>
 <dt id="phiml.math.is_inf"><code class="name flex">
-<span>def <span class="ident">is_inf</span></span>(<span>x) ‑> Union[phiml.math._tensors.Tensor, <a title="phiml.math.magic.PhiTreeNode" href="magic.html#phiml.math.magic.PhiTreeNode">PhiTreeNode</a>]</span>
+<span>def <span class="ident">is_inf</span></span>(<span>x: ~TensorOrTree) ‑> ~TensorOrTree</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Returns a <code><a title="phiml.math.Tensor" href="#phiml.math.Tensor">Tensor</a></code> or <code><a title="phiml.math.magic.PhiTreeNode" href="magic.html#phiml.math.magic.PhiTreeNode">PhiTreeNode</a></code> matching <code>x</code> with values <code>True</code> where <code>x</code> is <code>+inf</code> or <code>-inf</code> and <code>False</code> otherwise.</p></div>
@@ -3747,13 +3792,13 @@ Undefined sizes are automatically filled in by <code><a title="phiml.math.tensor
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def is_inf(x) -&gt; Union[Tensor, PhiTreeNode]:
+<pre><code class="python">def is_inf(x: TensorOrTree) -&gt; TensorOrTree:
     &#34;&#34;&#34; Returns a `Tensor` or `phiml.math.magic.PhiTreeNode` matching `x` with values `True` where `x` is `+inf` or `-inf` and `False` otherwise. &#34;&#34;&#34;
     return _backend_op1(x, Backend.isnan)</code></pre>
 </details>
 </dd>
 <dt id="phiml.math.is_nan"><code class="name flex">
-<span>def <span class="ident">is_nan</span></span>(<span>x) ‑> Union[phiml.math._tensors.Tensor, <a title="phiml.math.magic.PhiTreeNode" href="magic.html#phiml.math.magic.PhiTreeNode">PhiTreeNode</a>]</span>
+<span>def <span class="ident">is_nan</span></span>(<span>x: ~TensorOrTree) ‑> ~TensorOrTree</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Returns a <code><a title="phiml.math.Tensor" href="#phiml.math.Tensor">Tensor</a></code> or <code><a title="phiml.math.magic.PhiTreeNode" href="magic.html#phiml.math.magic.PhiTreeNode">PhiTreeNode</a></code> matching <code>x</code> with values <code>True</code> where <code>x</code> is <code>NaN</code> and <code>False</code> otherwise.</p></div>
@@ -3761,7 +3806,7 @@ Undefined sizes are automatically filled in by <code><a title="phiml.math.tensor
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def is_nan(x) -&gt; Union[Tensor, PhiTreeNode]:
+<pre><code class="python">def is_nan(x: TensorOrTree) -&gt; TensorOrTree:
     &#34;&#34;&#34; Returns a `Tensor` or `phiml.math.magic.PhiTreeNode` matching `x` with values `True` where `x` is `NaN` and `False` otherwise. &#34;&#34;&#34;
     return _backend_op1(x, Backend.isnan)</code></pre>
 </details>
@@ -4484,11 +4529,12 @@ The values will be laid out along <code>dim</code>.</dd>
         native_linspace = choose_backend(start, stop, prefer_default=True).linspace(start, stop, dim.size)
         return NativeTensor(native_linspace, dim)
     else:
+        from ._functional import map_
         return map_(linspace, start, stop, dim=dim)</code></pre>
 </details>
 </dd>
 <dt id="phiml.math.log"><code class="name flex">
-<span>def <span class="ident">log</span></span>(<span>x) ‑> Union[phiml.math._tensors.Tensor, <a title="phiml.math.magic.PhiTreeNode" href="magic.html#phiml.math.magic.PhiTreeNode">PhiTreeNode</a>]</span>
+<span>def <span class="ident">log</span></span>(<span>x: ~TensorOrTree) ‑> ~TensorOrTree</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Computes the natural logarithm of the <code><a title="phiml.math.Tensor" href="#phiml.math.Tensor">Tensor</a></code> or <code><a title="phiml.math.magic.PhiTreeNode" href="magic.html#phiml.math.magic.PhiTreeNode">PhiTreeNode</a></code> <code>x</code>.</p></div>
@@ -4496,13 +4542,13 @@ The values will be laid out along <code>dim</code>.</dd>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def log(x) -&gt; Union[Tensor, PhiTreeNode]:
+<pre><code class="python">def log(x: TensorOrTree) -&gt; TensorOrTree:
     &#34;&#34;&#34; Computes the natural logarithm of the `Tensor` or `phiml.math.magic.PhiTreeNode` `x`. &#34;&#34;&#34;
     return _backend_op1(x, Backend.log)</code></pre>
 </details>
 </dd>
 <dt id="phiml.math.log10"><code class="name flex">
-<span>def <span class="ident">log10</span></span>(<span>x) ‑> Union[phiml.math._tensors.Tensor, <a title="phiml.math.magic.PhiTreeNode" href="magic.html#phiml.math.magic.PhiTreeNode">PhiTreeNode</a>]</span>
+<span>def <span class="ident">log10</span></span>(<span>x: ~TensorOrTree) ‑> ~TensorOrTree</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Computes <em>log(x)</em> of the <code><a title="phiml.math.Tensor" href="#phiml.math.Tensor">Tensor</a></code> or <code><a title="phiml.math.magic.PhiTreeNode" href="magic.html#phiml.math.magic.PhiTreeNode">PhiTreeNode</a></code> <code>x</code> with base 10.</p></div>
@@ -4510,13 +4556,13 @@ The values will be laid out along <code>dim</code>.</dd>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def log10(x) -&gt; Union[Tensor, PhiTreeNode]:
+<pre><code class="python">def log10(x: TensorOrTree) -&gt; TensorOrTree:
     &#34;&#34;&#34; Computes *log(x)* of the `Tensor` or `phiml.math.magic.PhiTreeNode` `x` with base 10. &#34;&#34;&#34;
     return _backend_op1(x, Backend.log10)</code></pre>
 </details>
 </dd>
 <dt id="phiml.math.log2"><code class="name flex">
-<span>def <span class="ident">log2</span></span>(<span>x) ‑> Union[phiml.math._tensors.Tensor, <a title="phiml.math.magic.PhiTreeNode" href="magic.html#phiml.math.magic.PhiTreeNode">PhiTreeNode</a>]</span>
+<span>def <span class="ident">log2</span></span>(<span>x: ~TensorOrTree) ‑> ~TensorOrTree</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Computes <em>log(x)</em> of the <code><a title="phiml.math.Tensor" href="#phiml.math.Tensor">Tensor</a></code> or <code><a title="phiml.math.magic.PhiTreeNode" href="magic.html#phiml.math.magic.PhiTreeNode">PhiTreeNode</a></code> <code>x</code> with base 2.</p></div>
@@ -4524,13 +4570,13 @@ The values will be laid out along <code>dim</code>.</dd>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def log2(x) -&gt; Union[Tensor, PhiTreeNode]:
+<pre><code class="python">def log2(x: TensorOrTree) -&gt; TensorOrTree:
     &#34;&#34;&#34; Computes *log(x)* of the `Tensor` or `phiml.math.magic.PhiTreeNode` `x` with base 2. &#34;&#34;&#34;
     return _backend_op1(x, Backend.log2)</code></pre>
 </details>
 </dd>
 <dt id="phiml.math.log_gamma"><code class="name flex">
-<span>def <span class="ident">log_gamma</span></span>(<span>x) ‑> Union[phiml.math._tensors.Tensor, <a title="phiml.math.magic.PhiTreeNode" href="magic.html#phiml.math.magic.PhiTreeNode">PhiTreeNode</a>]</span>
+<span>def <span class="ident">log_gamma</span></span>(<span>x: ~TensorOrTree) ‑> ~TensorOrTree</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Computes <em>log(gamma(x))</em> of the <code><a title="phiml.math.Tensor" href="#phiml.math.Tensor">Tensor</a></code> or <code><a title="phiml.math.magic.PhiTreeNode" href="magic.html#phiml.math.magic.PhiTreeNode">PhiTreeNode</a></code> <code>x</code>.</p></div>
@@ -4538,13 +4584,13 @@ The values will be laid out along <code>dim</code>.</dd>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def log_gamma(x) -&gt; Union[Tensor, PhiTreeNode]:
+<pre><code class="python">def log_gamma(x: TensorOrTree) -&gt; TensorOrTree:
     &#34;&#34;&#34; Computes *log(gamma(x))* of the `Tensor` or `phiml.math.magic.PhiTreeNode` `x`. &#34;&#34;&#34;
     return _backend_op1(x, Backend.log_gamma)</code></pre>
 </details>
 </dd>
 <dt id="phiml.math.map"><code class="name flex">
-<span>def <span class="ident">map</span></span>(<span>function, *args, dims: phiml.math._shape.Shape = None, range=builtins.range, unwrap_scalars=True, **kwargs) ‑> Union[None, phiml.math._tensors.Tensor, Tuple[Optional[phiml.math._tensors.Tensor]]]</span>
+<span>def <span class="ident">map</span></span>(<span>function, *args, dims: Union[str, tuple, list, set, phiml.math._shape.Shape, Callable] = &lt;function shape&gt;, range=builtins.range, unwrap_scalars=True, **kwargs) ‑> Union[None, phiml.math._tensors.Tensor, Tuple[Optional[phiml.math._tensors.Tensor]]]</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Calls <code>function</code> on slices of the arguments and returns the stacked result.</p>
@@ -4575,7 +4621,7 @@ If <code>dims</code> is not specified, all dimensions from the <code><a title="p
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def map_(function, *args, dims: Shape = None, range=range, unwrap_scalars=True, **kwargs) -&gt; Union[None, Tensor, Tuple[Optional[Tensor]]]:
+<pre><code class="python">def map_(function, *args, dims: DimFilter = shape, range=range, unwrap_scalars=True, **kwargs) -&gt; Union[None, Tensor, Tuple[Optional[Tensor]]]:
     &#34;&#34;&#34;
     Calls `function` on slices of the arguments and returns the stacked result.
 
@@ -4596,29 +4642,22 @@ If <code>dims</code> is not specified, all dimensions from the <code><a title="p
     Returns:
         `Tensor` of same shape as `value`.
     &#34;&#34;&#34;
-    try:
-        p_names = function_parameters(function)
-        all_args = {**kwargs, **{p_names[i]: v for i, v in enumerate(args)}}
-        sliceable_args = {k: v for k, v in all_args.items() if isinstance(v, Shapable)}
-        extra_args = {k: v for k, v in all_args.items() if not isinstance(v, Shapable)}
-    except ValueError as err:
-        if kwargs:
-            raise err
-        p_names = None
-        sliceable_args = {i: v for i, v in enumerate(args)}
-        extra_args = {}
-    if dims is None:
-        dims = merge_shapes(*sliceable_args.values())
+    sliceable_args = [v for v in args if isinstance(v, Shapable)]
+    sliceable_kwargs = {k: v for k, v in kwargs.items() if isinstance(v, Shapable)}
+    extra_args = [v for v in args if not isinstance(v, Shapable)]
+    extra_kwargs = {k: v for k, v in kwargs.items() if not isinstance(v, Shapable)}
+    dims = merge_shapes(*sliceable_args, *sliceable_kwargs.values()).only(dims)
     assert dims.volume &gt; 0, f&#34;map dims must have volume &gt; 0 but got {dims}&#34;
     results = []
     for _, idx in zip(range(dims.volume), dims.meshgrid()):
-        args = {k: v[idx] for k, v in sliceable_args.items()}
+        idx_args = [v[idx] for v in sliceable_args]
+        idx_kwargs = {k: v[idx] for k, v in sliceable_kwargs.items()}
         if unwrap_scalars:
-            args = {k: v.native() if isinstance(v, Tensor) and v.rank == 0 else v for k, v in args.items()}
-        if p_names is not None:
-            f_output = function(**args, **extra_args)
-        else:
-            f_output = function(*[args[i] for i in range(len(args))])  # positional arguments, parameter names unknown
+            idx_args = [v.native() if isinstance(v, Tensor) and v.rank == 0 else v for v in idx_args]
+            idx_kwargs = {k: v.native() if isinstance(v, Tensor) and v.rank == 0 else v for k, v in idx_kwargs.items()}
+        idx_extra_args = list(extra_args)
+        idx_all_args = [idx_args.pop(0) if isinstance(v, Shapable) else idx_extra_args.pop(0) for v in args]
+        f_output = function(*idx_all_args, **idx_kwargs, **extra_kwargs)
         results.append(f_output)
     if isinstance(results[0], tuple):
         stacked: List[Optional[Tensor]] = []
@@ -6699,6 +6738,20 @@ Must be of type <code>float</code>, <code>tuple</code>, <code>list</code> or <co
     return reshaped_tensor(native_result, [q.shape, *value.shape.without(dims)])</code></pre>
 </details>
 </dd>
+<dt id="phiml.math.radians_to_degrees"><code class="name flex">
+<span>def <span class="ident">radians_to_degrees</span></span>(<span>rad: ~TensorOrTree) ‑> ~TensorOrTree</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Convert degrees to radians.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def radians_to_degrees(rad: TensorOrTree) -&gt; TensorOrTree:
+    &#34;&#34;&#34; Convert degrees to radians. &#34;&#34;&#34;
+    return tree_map(lambda x: x * (180 / 3.14159265358979323846), rad)</code></pre>
+</details>
+</dd>
 <dt id="phiml.math.random_normal"><code class="name flex">
 <span>def <span class="ident">random_normal</span></span>(<span>*shape: phiml.math._shape.Shape, dtype: Union[phiml.backend._dtype.DType, tuple, type] = None) ‑> phiml.math._tensors.Tensor</span>
 </code></dt>
@@ -6893,7 +6946,7 @@ For 1D tensors, this equivalent to <code>arange()</code> with <code>step=1</code
 </details>
 </dd>
 <dt id="phiml.math.real"><code class="name flex">
-<span>def <span class="ident">real</span></span>(<span>x) ‑> Union[phiml.math._tensors.Tensor, <a title="phiml.math.magic.PhiTreeNode" href="magic.html#phiml.math.magic.PhiTreeNode">PhiTreeNode</a>]</span>
+<span>def <span class="ident">real</span></span>(<span>x: ~TensorOrTree) ‑> ~TensorOrTree</span>
 </code></dt>
 <dd>
 <div class="desc"><p>See Also:
@@ -6909,7 +6962,7 @@ For 1D tensors, this equivalent to <code>arange()</code> with <code>step=1</code
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def real(x) -&gt; Union[Tensor, PhiTreeNode]:
+<pre><code class="python">def real(x: TensorOrTree) -&gt; TensorOrTree:
     &#34;&#34;&#34;
     See Also:
         `imag()`, `conjugate()`.
@@ -7374,7 +7427,7 @@ If False, wraps the data in a <code><a title="phiml.math.Tensor" href="#phiml.ma
     assert &#39;vector&#39; in vector.shape, f&#34;vector must have exactly a channel dimension named &#39;vector&#39;&#34;
     if angle is None:
         return vector
-    matrix = rotation_matrix(angle, matrix_dim_2d=channel(vector))
+    matrix = rotation_matrix(angle, matrix_dim=channel(vector))
     if invert:
         matrix = rename_dims(matrix, &#39;~vector,vector&#39;, math.concat_shapes(channel(&#39;vector&#39;), dual(&#39;vector&#39;)))
     assert matrix.vector.dual.size == vector.vector.size, f&#34;Rotation matrix from {angle.shape} is {matrix.vector.dual.size}D but vector {vector.shape} is {vector.vector.size}D.&#34;
@@ -7385,7 +7438,7 @@ If False, wraps the data in a <code><a title="phiml.math.Tensor" href="#phiml.ma
 <span>def <span class="ident">rotation_angles</span></span>(<span>rot: phiml.math._tensors.Tensor)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Compute the scalar angle in 2D or the Euler angles in 3D from a given rotation matrix.
+<div class="desc"><p>Compute the scalar x in 2D or the Euler angles in 3D from a given rotation matrix.
 This function returns one valid solution but often, there are multiple solutions.</p>
 <h2 id="args">Args</h2>
 <dl>
@@ -7394,14 +7447,14 @@ This function returns one valid solution but often, there are multiple solutions
 Must have exactly one channel and one dual dimension with equally-ordered elements.</dd>
 </dl>
 <h2 id="returns">Returns</h2>
-<p>Scalar angle in 2D, Euler angles</p></div>
+<p>Scalar x in 2D, Euler angles</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def rotation_angles(rot: Tensor):
     &#34;&#34;&#34;
-    Compute the scalar angle in 2D or the Euler angles in 3D from a given rotation matrix.
+    Compute the scalar x in 2D or the Euler angles in 3D from a given rotation matrix.
     This function returns one valid solution but often, there are multiple solutions.
 
     Args:
@@ -7409,7 +7462,7 @@ Must have exactly one channel and one dual dimension with equally-ordered elemen
             Must have exactly one channel and one dual dimension with equally-ordered elements.
 
     Returns:
-        Scalar angle in 2D, Euler angles
+        Scalar x in 2D, Euler angles
     &#34;&#34;&#34;
     assert channel(rot).rank == 1 and dual(rot).rank == 1, f&#34;Rotation matrix must have one channel and one dual dimension but got {rot.shape}&#34;
     if channel(rot).size == 2:
@@ -7417,73 +7470,87 @@ Must have exactly one channel and one dual dimension with equally-ordered elemen
         sin = rot[{channel: 1, dual: 0}]
         return math.arctan(sin, divide_by=cos)
     elif channel(rot).size == 3:
-        # phi = 1, theta = 2, psi = 3
-        theta = -math.arcsin(rot[{channel: 2, dual: 0}])  # ToDo handle [2, 0] == 1 (i.e. cos_theta == 0)
-        cos_theta = math.cos(theta)
-        psi = math.arctan(rot[{channel: 2, dual: 1}] / cos_theta, divide_by=rot[{channel: 2, dual: 2}] / cos_theta)
-        phi = math.arctan(rot[{channel: 1, dual: 0}] / cos_theta, divide_by=rot[{channel: 0, dual: 0}] / cos_theta)
-        regular_sol = stack([phi, theta, psi], channel(rot))
+        a2 = -math.arcsin(rot[{channel: 2, dual: 0}])  # ToDo handle [2, 0] == 1 (i.e. cos_theta == 0)
+        cos2 = math.cos(a2)
+        a1 = math.arctan(rot[{channel: 2, dual: 1}] / cos2, divide_by=rot[{channel: 2, dual: 2}] / cos2)
+        a3 = math.arctan(rot[{channel: 1, dual: 0}] / cos2, divide_by=rot[{channel: 0, dual: 0}] / cos2)
+        regular_sol = stack([a1, a2, a3], channel(angle=channel(rot).item_names[0]))
         # --- pole case cos(theta) == 1 ---
-        phi_pole = 0  # unconstrained
+        a3_pole = 0  # unconstrained
         bottom_pole = rot[{channel: 2, dual: 0}] &lt; 0
-        theta_pole = math.where(bottom_pole, 1.57079632679, -1.57079632679)
-        psi_pole = math.where(bottom_pole, math.arctan(rot[{channel: 0, dual: 1}], divide_by=rot[{channel: 0, dual: 2}]), math.arctan(-rot[{channel: 0, dual: 1}], divide_by=-rot[{channel: 0, dual: 2}]))
-        pole_sol = stack([phi_pole, theta_pole, psi_pole], channel(rot))
+        a2_pole = math.where(bottom_pole, 1.57079632679, -1.57079632679)
+        a1_pole = math.where(bottom_pole, math.arctan(rot[{channel: 0, dual: 1}], divide_by=rot[{channel: 0, dual: 2}]), math.arctan(-rot[{channel: 0, dual: 1}], divide_by=-rot[{channel: 0, dual: 2}]))
+        pole_sol = stack([a1_pole, a2_pole, a3_pole], channel(regular_sol))
         return math.where(abs(rot[{channel: 2, dual: 0}]) &gt;= 1, pole_sol, regular_sol)
     else:
         raise ValueError(f&#34;&#34;)</code></pre>
 </details>
 </dd>
 <dt id="phiml.math.rotation_matrix"><code class="name flex">
-<span>def <span class="ident">rotation_matrix</span></span>(<span>angle: Union[float, phiml.math._tensors.Tensor], matrix_dim_2d=(vectorᶜ=x,y))</span>
+<span>def <span class="ident">rotation_matrix</span></span>(<span>x: Union[float, phiml.math._tensors.Tensor], matrix_dim=(vectorᶜ=None))</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Create a 2D or 3D rotation matrix from the corresponding angle(s).</p>
 <h2 id="args">Args</h2>
 <dl>
-<dt><strong><code>angle</code></strong></dt>
-<dd>Either scalar angle for a 2D rotation or euler angles along <code>vector</code> in 3D.
-If a rotation matrix is passed for <code>angle</code>, it is returned without modification.</dd>
-<dt><strong><code>matrix_dim_2d</code></strong></dt>
+<dt>x:</dt>
+<dt>2D: scalar angle</dt>
+<dt>3D: Either vector pointing along the rotation axis with rotation angle as length or Euler angles.</dt>
+<dt>Euler angles need to be laid out along a <code><a title="phiml.math.angle" href="#phiml.math.angle">angle()</a></code> channel dimension with dimension names listing the spatial dimensions.</dt>
+<dt>E.g. a 90° rotation about the z-axis is represented by <code>vec('angles', x=0, y=0, z=PI/2)</code>.</dt>
+<dt>If a rotation matrix is passed for <code><a title="phiml.math.angle" href="#phiml.math.angle">angle()</a></code>, it is returned without modification.</dt>
+<dt><strong><code>matrix_dim</code></strong></dt>
 <dd>Matrix dimension for 2D rotations. In 3D, the channel dimension of angle is used.</dd>
 </dl>
 <h2 id="returns">Returns</h2>
-<p>Matrix with one channel and one dual dimension as well as all non-channel dimensions of <code>angle</code>.
-In 2D, the channel and dual dimensions are derived from <code>matrix_dim_2d</code> and in 3D, the channel dimension of <code>angle</code> is used instead.</p></div>
+<p>Matrix containing <code>matrix_dim</code> in primal and dual form as well as all non-channel dimensions of <code>x</code>.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def rotation_matrix(angle: Union[float, math.Tensor], matrix_dim_2d=channel(vector=&#39;x,y&#39;)):
+<pre><code class="python">def rotation_matrix(x: Union[float, math.Tensor], matrix_dim=channel(&#39;vector&#39;)):
     &#34;&#34;&#34;
     Create a 2D or 3D rotation matrix from the corresponding angle(s).
 
     Args:
-        angle: Either scalar angle for a 2D rotation or euler angles along `vector` in 3D.
+        x:
+            2D: scalar angle
+            3D: Either vector pointing along the rotation axis with rotation angle as length or Euler angles.
+            Euler angles need to be laid out along a `angle` channel dimension with dimension names listing the spatial dimensions.
+            E.g. a 90° rotation about the z-axis is represented by `vec(&#39;angles&#39;, x=0, y=0, z=PI/2)`.
             If a rotation matrix is passed for `angle`, it is returned without modification.
-        matrix_dim_2d: Matrix dimension for 2D rotations. In 3D, the channel dimension of angle is used.
+        matrix_dim: Matrix dimension for 2D rotations. In 3D, the channel dimension of angle is used.
 
     Returns:
-        Matrix with one channel and one dual dimension as well as all non-channel dimensions of `angle`.
-        In 2D, the channel and dual dimensions are derived from `matrix_dim_2d` and in 3D, the channel dimension of `angle` is used instead.
+        Matrix containing `matrix_dim` in primal and dual form as well as all non-channel dimensions of `x`.
     &#34;&#34;&#34;
-    if isinstance(angle, Tensor) and &#39;~vector&#39; in angle.shape and &#39;vector&#39; in angle.shape.channel and angle.shape.get_size(&#39;~vector&#39;) == angle.shape.get_size(&#39;vector&#39;):
-        return angle  # already a rotation matrix
-    if &#39;vector&#39; not in shape(angle) or shape(angle).get_size(&#39;vector&#39;) == 1:  # 1D rotation
-        sin = wrap(math.sin(angle))
-        cos = wrap(math.cos(angle))
-        return wrap([[cos, -sin], [sin, cos]], matrix_dim_2d, matrix_dim_2d.as_dual())
-    else:
-        assert channel(angle).rank == 1 and channel(angle).size == 3, f&#34;angle for 3D rotations needs to be a 3-vector but got {angle}&#34;
-        s1, s2, s3 = math.sin(angle).vector  # phi, theta, psi
-        c1, c2, c3 = math.cos(angle).vector
-        return wrap([[c1 * c2, c1 * s2 * s3 - s1 * c3, c1 * s2 * c3 + s1 * s3],
-                     [s1 * c2, s1 * s2 * s3 + c1 * c3, s1 * s2 * c3 - c1 * s3],
-                     [-s2, c2 * s3, c2 * c3]], channel(angle), channel(angle).as_dual())  # Rz * Ry * Rx</code></pre>
+    if isinstance(x, Tensor) and &#39;~vector&#39; in x.shape and &#39;vector&#39; in x.shape.channel and x.shape.get_size(&#39;~vector&#39;) == x.shape.get_size(&#39;vector&#39;):
+        return x  # already a rotation matrix
+    elif &#39;angle&#39; in shape(x) and shape(x).get_size(&#39;angle&#39;) == 3:  # 3D Euler angles
+        assert channel(x).rank == 1 and channel(x).size == 3, f&#34;x for 3D rotations needs to be a 3-vector but got {x}&#34;
+        s1, s2, s3 = math.sin(x).angle  # x, y, z
+        c1, c2, c3 = math.cos(x).angle
+        matrix_dim = matrix_dim.with_size(shape(x).get_item_names(&#39;angle&#39;))
+        return wrap([[c3 * c2, c3 * s2 * s1 - s3 * c1, c3 * s2 * c1 + s3 * s1],
+                     [s3 * c2, s3 * s2 * s1 + c3 * c1, s3 * s2 * c1 - c3 * s1],
+                     [-s2, c2 * s1, c2 * c1]], matrix_dim, matrix_dim.as_dual())  # Rz * Ry * Rx  (1. rotate about X by first angle)
+    elif &#39;vector&#39; in shape(x) and shape(x).get_size(&#39;vector&#39;) == 3:  # 3D axis + x
+        angle = vec_length(x)
+        s, c = math.sin(angle), math.cos(angle)
+        t = 1 - c
+        k1, k2, k3 = vec_normalize(x, epsilon=1e-12).vector
+        matrix_dim = matrix_dim.with_size(shape(x).get_item_names(&#39;vector&#39;))
+        return wrap([[c + k1**2 * t, k1 * k2 * t - k3 * s, k1 * k3 * t + k2 * s],
+                     [k2 * k1 * t + k3 * s, c + k2**2 * t, k2 * k3 * t - k1 * s],
+                     [k3 * k1 * t - k2 * s, k3 * k2 * t + k1 * s, c + k3**2 * t]], matrix_dim, matrix_dim.as_dual())
+    else:  # 2D rotation
+        sin = wrap(math.sin(x))
+        cos = wrap(math.cos(x))
+        return wrap([[cos, -sin], [sin, cos]], matrix_dim, matrix_dim.as_dual())</code></pre>
 </details>
 </dd>
 <dt id="phiml.math.round"><code class="name flex">
-<span>def <span class="ident">round</span></span>(<span>x) ‑> Union[phiml.math._tensors.Tensor, <a title="phiml.math.magic.PhiTreeNode" href="magic.html#phiml.math.magic.PhiTreeNode">PhiTreeNode</a>]</span>
+<span>def <span class="ident">round</span></span>(<span>x: ~TensorOrTree) ‑> ~TensorOrTree</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Rounds the <code><a title="phiml.math.Tensor" href="#phiml.math.Tensor">Tensor</a></code> or <code><a title="phiml.math.magic.PhiTreeNode" href="magic.html#phiml.math.magic.PhiTreeNode">PhiTreeNode</a></code> <code>x</code> to the closest integer.</p></div>
@@ -7491,7 +7558,7 @@ In 2D, the channel and dual dimensions are derived from <code>matrix_dim_2d</cod
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def round_(x) -&gt; Union[Tensor, PhiTreeNode]:
+<pre><code class="python">def round_(x: TensorOrTree) -&gt; TensorOrTree:
     &#34;&#34;&#34; Rounds the `Tensor` or `phiml.math.magic.PhiTreeNode` `x` to the closest integer. &#34;&#34;&#34;
     return _backend_op1(x, Backend.round)</code></pre>
 </details>
@@ -8004,7 +8071,7 @@ Must be one of the following: <code>Extrapolation</code>, <code><a title="phiml.
 </details>
 </dd>
 <dt id="phiml.math.sigmoid"><code class="name flex">
-<span>def <span class="ident">sigmoid</span></span>(<span>x) ‑> Union[phiml.math._tensors.Tensor, <a title="phiml.math.magic.PhiTreeNode" href="magic.html#phiml.math.magic.PhiTreeNode">PhiTreeNode</a>]</span>
+<span>def <span class="ident">sigmoid</span></span>(<span>x: ~TensorOrTree) ‑> ~TensorOrTree</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Computes the sigmoid function of the <code><a title="phiml.math.Tensor" href="#phiml.math.Tensor">Tensor</a></code> or <code><a title="phiml.math.magic.PhiTreeNode" href="magic.html#phiml.math.magic.PhiTreeNode">PhiTreeNode</a></code> <code>x</code>.</p></div>
@@ -8012,13 +8079,13 @@ Must be one of the following: <code>Extrapolation</code>, <code><a title="phiml.
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def sigmoid(x) -&gt; Union[Tensor, PhiTreeNode]:
+<pre><code class="python">def sigmoid(x: TensorOrTree) -&gt; TensorOrTree:
     &#34;&#34;&#34; Computes the sigmoid function of the `Tensor` or `phiml.math.magic.PhiTreeNode` `x`. &#34;&#34;&#34;
     return _backend_op1(x, Backend.sigmoid)</code></pre>
 </details>
 </dd>
 <dt id="phiml.math.sign"><code class="name flex">
-<span>def <span class="ident">sign</span></span>(<span>x) ‑> Union[phiml.math._tensors.Tensor, <a title="phiml.math.magic.PhiTreeNode" href="magic.html#phiml.math.magic.PhiTreeNode">PhiTreeNode</a>]</span>
+<span>def <span class="ident">sign</span></span>(<span>x: ~TensorOrTree) ‑> ~TensorOrTree</span>
 </code></dt>
 <dd>
 <div class="desc"><p>The sign of positive numbers is 1 and -1 for negative numbers.
@@ -8034,7 +8101,7 @@ The sign of 0 is undefined.</p>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def sign(x) -&gt; Union[Tensor, PhiTreeNode]:
+<pre><code class="python">def sign(x: TensorOrTree) -&gt; TensorOrTree:
     &#34;&#34;&#34;
     The sign of positive numbers is 1 and -1 for negative numbers.
     The sign of 0 is undefined.
@@ -8049,7 +8116,7 @@ The sign of 0 is undefined.</p>
 </details>
 </dd>
 <dt id="phiml.math.sin"><code class="name flex">
-<span>def <span class="ident">sin</span></span>(<span>x) ‑> Union[phiml.math._tensors.Tensor, <a title="phiml.math.magic.PhiTreeNode" href="magic.html#phiml.math.magic.PhiTreeNode">PhiTreeNode</a>]</span>
+<span>def <span class="ident">sin</span></span>(<span>x: ~TensorOrTree) ‑> ~TensorOrTree</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Computes <em>sin(x)</em> of the <code><a title="phiml.math.Tensor" href="#phiml.math.Tensor">Tensor</a></code> or <code><a title="phiml.math.magic.PhiTreeNode" href="magic.html#phiml.math.magic.PhiTreeNode">PhiTreeNode</a></code> <code>x</code>.</p></div>
@@ -8057,13 +8124,13 @@ The sign of 0 is undefined.</p>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def sin(x) -&gt; Union[Tensor, PhiTreeNode]:
+<pre><code class="python">def sin(x: TensorOrTree) -&gt; TensorOrTree:
     &#34;&#34;&#34; Computes *sin(x)* of the `Tensor` or `phiml.math.magic.PhiTreeNode` `x`. &#34;&#34;&#34;
     return _backend_op1(x, Backend.sin)</code></pre>
 </details>
 </dd>
 <dt id="phiml.math.sinh"><code class="name flex">
-<span>def <span class="ident">sinh</span></span>(<span>x) ‑> Union[phiml.math._tensors.Tensor, <a title="phiml.math.magic.PhiTreeNode" href="magic.html#phiml.math.magic.PhiTreeNode">PhiTreeNode</a>]</span>
+<span>def <span class="ident">sinh</span></span>(<span>x: ~TensorOrTree) ‑> ~TensorOrTree</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Computes <em>sinh(x)</em> of the <code><a title="phiml.math.Tensor" href="#phiml.math.Tensor">Tensor</a></code> or <code><a title="phiml.math.magic.PhiTreeNode" href="magic.html#phiml.math.magic.PhiTreeNode">PhiTreeNode</a></code> <code>x</code>.</p></div>
@@ -8071,7 +8138,7 @@ The sign of 0 is undefined.</p>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def sinh(x) -&gt; Union[Tensor, PhiTreeNode]:
+<pre><code class="python">def sinh(x: TensorOrTree) -&gt; TensorOrTree:
     &#34;&#34;&#34; Computes *sinh(x)* of the `Tensor` or `phiml.math.magic.PhiTreeNode` `x`. &#34;&#34;&#34;
     return _backend_op1(x, Backend.sinh)</code></pre>
 </details>
@@ -8219,7 +8286,7 @@ Returns:</p></div>
 </details>
 </dd>
 <dt id="phiml.math.soft_plus"><code class="name flex">
-<span>def <span class="ident">soft_plus</span></span>(<span>x) ‑> Union[phiml.math._tensors.Tensor, <a title="phiml.math.magic.PhiTreeNode" href="magic.html#phiml.math.magic.PhiTreeNode">PhiTreeNode</a>]</span>
+<span>def <span class="ident">soft_plus</span></span>(<span>x: ~TensorOrTree) ‑> ~TensorOrTree</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Computes <em>softplus(x)</em> of the <code><a title="phiml.math.Tensor" href="#phiml.math.Tensor">Tensor</a></code> or <code><a title="phiml.math.magic.PhiTreeNode" href="magic.html#phiml.math.magic.PhiTreeNode">PhiTreeNode</a></code> <code>x</code>.</p></div>
@@ -8227,7 +8294,7 @@ Returns:</p></div>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def soft_plus(x) -&gt; Union[Tensor, PhiTreeNode]:
+<pre><code class="python">def soft_plus(x: TensorOrTree) -&gt; TensorOrTree:
     &#34;&#34;&#34; Computes *softplus(x)* of the `Tensor` or `phiml.math.magic.PhiTreeNode` `x`. &#34;&#34;&#34;
     return _backend_op1(x, Backend.softplus)</code></pre>
 </details>
@@ -8772,7 +8839,7 @@ This value is added to the internal padding. For non-trivial extrapolations, thi
 </details>
 </dd>
 <dt id="phiml.math.sqrt"><code class="name flex">
-<span>def <span class="ident">sqrt</span></span>(<span>x) ‑> Union[phiml.math._tensors.Tensor, <a title="phiml.math.magic.PhiTreeNode" href="magic.html#phiml.math.magic.PhiTreeNode">PhiTreeNode</a>]</span>
+<span>def <span class="ident">sqrt</span></span>(<span>x: ~TensorOrTree) ‑> ~TensorOrTree</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Computes <em>sqrt(x)</em> of the <code><a title="phiml.math.Tensor" href="#phiml.math.Tensor">Tensor</a></code> or <code><a title="phiml.math.magic.PhiTreeNode" href="magic.html#phiml.math.magic.PhiTreeNode">PhiTreeNode</a></code> <code>x</code>.</p></div>
@@ -8780,7 +8847,7 @@ This value is added to the internal padding. For non-trivial extrapolations, thi
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def sqrt(x) -&gt; Union[Tensor, PhiTreeNode]:
+<pre><code class="python">def sqrt(x: TensorOrTree) -&gt; TensorOrTree:
     &#34;&#34;&#34; Computes *sqrt(x)* of the `Tensor` or `phiml.math.magic.PhiTreeNode` `x`. &#34;&#34;&#34;
     return _backend_op1(x, Backend.sqrt)</code></pre>
 </details>
@@ -8867,7 +8934,8 @@ Adding batch dimensions must always work without keyword arguments.</dd>
     assert isinstance(dim, Shape)
     if not dim:
         assert len(values) == 1, f&#34;Only one element can be passed as `values` if no dim is passed but got {values}&#34;
-        return next(iter(values.values())) if isinstance(values, dict) else values[0]
+        from ._tensors import wrap
+        return wrap(next(iter(values.values())) if isinstance(values, dict) else values[0])
     values_ = tuple(values.values()) if isinstance(values, dict) else values
     if not expand_values:
         for v in values_[1:]:
@@ -9232,7 +9300,7 @@ Internally, invalid indices may be stored for performance reasons.</dd>
 </details>
 </dd>
 <dt id="phiml.math.tan"><code class="name flex">
-<span>def <span class="ident">tan</span></span>(<span>x) ‑> Union[phiml.math._tensors.Tensor, <a title="phiml.math.magic.PhiTreeNode" href="magic.html#phiml.math.magic.PhiTreeNode">PhiTreeNode</a>]</span>
+<span>def <span class="ident">tan</span></span>(<span>x: ~TensorOrTree) ‑> ~TensorOrTree</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Computes <em>tan(x)</em> of the <code><a title="phiml.math.Tensor" href="#phiml.math.Tensor">Tensor</a></code> or <code><a title="phiml.math.magic.PhiTreeNode" href="magic.html#phiml.math.magic.PhiTreeNode">PhiTreeNode</a></code> <code>x</code>.</p></div>
@@ -9240,13 +9308,13 @@ Internally, invalid indices may be stored for performance reasons.</dd>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def tan(x) -&gt; Union[Tensor, PhiTreeNode]:
+<pre><code class="python">def tan(x: TensorOrTree) -&gt; TensorOrTree:
     &#34;&#34;&#34; Computes *tan(x)* of the `Tensor` or `phiml.math.magic.PhiTreeNode` `x`. &#34;&#34;&#34;
     return _backend_op1(x, Backend.tan)</code></pre>
 </details>
 </dd>
 <dt id="phiml.math.tanh"><code class="name flex">
-<span>def <span class="ident">tanh</span></span>(<span>x) ‑> Union[phiml.math._tensors.Tensor, <a title="phiml.math.magic.PhiTreeNode" href="magic.html#phiml.math.magic.PhiTreeNode">PhiTreeNode</a>]</span>
+<span>def <span class="ident">tanh</span></span>(<span>x: ~TensorOrTree) ‑> ~TensorOrTree</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Computes <em>tanh(x)</em> of the <code><a title="phiml.math.Tensor" href="#phiml.math.Tensor">Tensor</a></code> or <code><a title="phiml.math.magic.PhiTreeNode" href="magic.html#phiml.math.magic.PhiTreeNode">PhiTreeNode</a></code> <code>x</code>.</p></div>
@@ -9254,7 +9322,7 @@ Internally, invalid indices may be stored for performance reasons.</dd>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def tanh(x) -&gt; Union[Tensor, PhiTreeNode]:
+<pre><code class="python">def tanh(x: TensorOrTree) -&gt; TensorOrTree:
     &#34;&#34;&#34; Computes *tanh(x)* of the `Tensor` or `phiml.math.magic.PhiTreeNode` `x`. &#34;&#34;&#34;
     return _backend_op1(x, Backend.tanh)</code></pre>
 </details>
@@ -9515,7 +9583,7 @@ Note that the order of values may be changed upon creating a sparse tensor.</dd>
 </details>
 </dd>
 <dt id="phiml.math.to_complex"><code class="name flex">
-<span>def <span class="ident">to_complex</span></span>(<span>x) ‑> Union[phiml.math._tensors.Tensor, <a title="phiml.math.magic.PhiTreeNode" href="magic.html#phiml.math.magic.PhiTreeNode">PhiTreeNode</a>]</span>
+<span>def <span class="ident">to_complex</span></span>(<span>x: ~TensorOrTree) ‑> ~TensorOrTree</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Converts the given tensor to complex floating point format with the currently specified precision.</p>
@@ -9534,7 +9602,7 @@ Note that the order of values may be changed upon creating a sparse tensor.</dd>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def to_complex(x) -&gt; Union[Tensor, PhiTreeNode]:
+<pre><code class="python">def to_complex(x: TensorOrTree) -&gt; TensorOrTree:
     &#34;&#34;&#34;
     Converts the given tensor to complex floating point format with the currently specified precision.
 
@@ -9647,7 +9715,7 @@ The result can be written to a JSON file, for example.</p>
 </details>
 </dd>
 <dt id="phiml.math.to_float"><code class="name flex">
-<span>def <span class="ident">to_float</span></span>(<span>x) ‑> Union[phiml.math._tensors.Tensor, <a title="phiml.math.magic.PhiTreeNode" href="magic.html#phiml.math.magic.PhiTreeNode">PhiTreeNode</a>]</span>
+<span>def <span class="ident">to_float</span></span>(<span>x: ~TensorOrTree) ‑> ~TensorOrTree</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Converts the given tensor to floating point format with the currently specified precision.</p>
@@ -9666,7 +9734,7 @@ The result can be written to a JSON file, for example.</p>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def to_float(x) -&gt; Union[Tensor, PhiTreeNode]:
+<pre><code class="python">def to_float(x: TensorOrTree) -&gt; TensorOrTree:
     &#34;&#34;&#34;
     Converts the given tensor to floating point format with the currently specified precision.
     
@@ -9687,7 +9755,7 @@ The result can be written to a JSON file, for example.</p>
 </details>
 </dd>
 <dt id="phiml.math.to_int32"><code class="name flex">
-<span>def <span class="ident">to_int32</span></span>(<span>x) ‑> Union[phiml.math._tensors.Tensor, <a title="phiml.math.magic.PhiTreeNode" href="magic.html#phiml.math.magic.PhiTreeNode">PhiTreeNode</a>]</span>
+<span>def <span class="ident">to_int32</span></span>(<span>x: ~TensorOrTree) ‑> ~TensorOrTree</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Converts the <code><a title="phiml.math.Tensor" href="#phiml.math.Tensor">Tensor</a></code> or <code><a title="phiml.math.magic.PhiTreeNode" href="magic.html#phiml.math.magic.PhiTreeNode">PhiTreeNode</a></code> <code>x</code> to 32-bit integer.</p></div>
@@ -9695,13 +9763,13 @@ The result can be written to a JSON file, for example.</p>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def to_int32(x) -&gt; Union[Tensor, PhiTreeNode]:
+<pre><code class="python">def to_int32(x: TensorOrTree) -&gt; TensorOrTree:
     &#34;&#34;&#34; Converts the `Tensor` or `phiml.math.magic.PhiTreeNode` `x` to 32-bit integer. &#34;&#34;&#34;
     return _backend_op1(x, Backend.to_int32)</code></pre>
 </details>
 </dd>
 <dt id="phiml.math.to_int64"><code class="name flex">
-<span>def <span class="ident">to_int64</span></span>(<span>x) ‑> Union[phiml.math._tensors.Tensor, <a title="phiml.math.magic.PhiTreeNode" href="magic.html#phiml.math.magic.PhiTreeNode">PhiTreeNode</a>]</span>
+<span>def <span class="ident">to_int64</span></span>(<span>x: ~TensorOrTree) ‑> ~TensorOrTree</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Converts the <code><a title="phiml.math.Tensor" href="#phiml.math.Tensor">Tensor</a></code> or <code><a title="phiml.math.magic.PhiTreeNode" href="magic.html#phiml.math.magic.PhiTreeNode">PhiTreeNode</a></code> <code>x</code> to 64-bit integer.</p></div>
@@ -9709,7 +9777,7 @@ The result can be written to a JSON file, for example.</p>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def to_int64(x) -&gt; Union[Tensor, PhiTreeNode]:
+<pre><code class="python">def to_int64(x: TensorOrTree) -&gt; TensorOrTree:
     &#34;&#34;&#34; Converts the `Tensor` or `phiml.math.magic.PhiTreeNode` `x` to 64-bit integer. &#34;&#34;&#34;
     return _backend_op1(x, Backend.to_int64)</code></pre>
 </details>
@@ -10224,17 +10292,39 @@ If specified, no additional positional arguments must be given.</dd>
 </details>
 </dd>
 <dt id="phiml.math.vec_normalize"><code class="name flex">
-<span>def <span class="ident">vec_normalize</span></span>(<span>vec: phiml.math._tensors.Tensor, vec_dim: Union[str, tuple, list, set, phiml.math._shape.Shape, Callable] = &lt;function channel&gt;)</span>
+<span>def <span class="ident">vec_normalize</span></span>(<span>vec: phiml.math._tensors.Tensor, vec_dim: Union[str, tuple, list, set, phiml.math._shape.Shape, Callable] = &lt;function channel&gt;, epsilon=None)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Normalizes the vectors in <code><a title="phiml.math.vec" href="#phiml.math.vec">vec()</a></code>. If <code>vec_dim</code> is None, the combined channel dimensions of <code><a title="phiml.math.vec" href="#phiml.math.vec">vec()</a></code> are interpreted as a vector.</p></div>
+<div class="desc"><p>Normalizes the vectors in <code><a title="phiml.math.vec" href="#phiml.math.vec">vec()</a></code>. If <code>vec_dim</code> is None, the combined channel dimensions of <code><a title="phiml.math.vec" href="#phiml.math.vec">vec()</a></code> are interpreted as a vector.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>vec</code></strong></dt>
+<dd><code><a title="phiml.math.Tensor" href="#phiml.math.Tensor">Tensor</a></code> to normalize.</dd>
+<dt><strong><code>vec_dim</code></strong></dt>
+<dd>Dimensions to normalize over. By default, all channel dimensions are used to compute the vector length.</dd>
+<dt><strong><code>epsilon</code></strong></dt>
+<dd>(Optional) Zero-length threshold. Vectors shorter than this length yield the unit vector (1, 0, 0, &hellip;).
+If not specified, the zero-vector yields <code>NaN</code> as it cannot be normalized.</dd>
+</dl></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def vec_normalize(vec: Tensor, vec_dim: DimFilter = channel):
-    &#34;&#34;&#34; Normalizes the vectors in `vec`. If `vec_dim` is None, the combined channel dimensions of `vec` are interpreted as a vector. &#34;&#34;&#34;
-    return vec / vec_length(vec, vec_dim=vec_dim)</code></pre>
+<pre><code class="python">def vec_normalize(vec: Tensor, vec_dim: DimFilter = channel, epsilon=None):
+    &#34;&#34;&#34;
+    Normalizes the vectors in `vec`. If `vec_dim` is None, the combined channel dimensions of `vec` are interpreted as a vector.
+
+    Args:
+        vec: `Tensor` to normalize.
+        vec_dim: Dimensions to normalize over. By default, all channel dimensions are used to compute the vector length.
+        epsilon: (Optional) Zero-length threshold. Vectors shorter than this length yield the unit vector (1, 0, 0, ...).
+            If not specified, the zero-vector yields `NaN` as it cannot be normalized.
+    &#34;&#34;&#34;
+    length = vec_length(vec, vec_dim=vec_dim)
+    if epsilon is None:
+        return vec / vec_length(vec, vec_dim=vec_dim)
+    unit_vec = wrap([1] + [0] * (channel(vec).volume - 1), channel(vec))
+    return math.where(abs(length) &lt;= epsilon, unit_vec, vec / length)</code></pre>
 </details>
 </dd>
 <dt id="phiml.math.vec_squared"><code class="name flex">
@@ -11610,6 +11700,17 @@ To create a shape with multiple types, use <code><a title="phiml.math.merge_shap
             New `Shape` object
         &#34;&#34;&#34;
         return self[[i for i, s in enumerate(self.sizes) if _size_equal(s, 1)]]
+
+    def assert_all_sizes_defined(self):
+        &#34;&#34;&#34;
+        Filters this shape, returning only singleton dimensions as a new `Shape` object.
+        Dimensions are singleton if their size is exactly `1`.
+
+        Returns:
+            New `Shape` object
+        &#34;&#34;&#34;
+        for n, s in zip(self.names, self.sizes):
+            assert s is not None, f&#34;All sizes must be defined but dim &#39;{n}&#39; is undefined in shape {self}&#34;
 
     def as_channel(self):
         &#34;&#34;&#34;Returns a copy of this `Shape` with all dimensions of type *channel*.&#34;&#34;&#34;
@@ -13233,6 +13334,30 @@ def well_defined(self):
     return spatial(**self.untyped_dict)</code></pre>
 </details>
 </dd>
+<dt id="phiml.math.Shape.assert_all_sizes_defined"><code class="name flex">
+<span>def <span class="ident">assert_all_sizes_defined</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Filters this shape, returning only singleton dimensions as a new <code><a title="phiml.math.Shape" href="#phiml.math.Shape">Shape</a></code> object.
+Dimensions are singleton if their size is exactly <code>1</code>.</p>
+<h2 id="returns">Returns</h2>
+<p>New <code><a title="phiml.math.Shape" href="#phiml.math.Shape">Shape</a></code> object</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def assert_all_sizes_defined(self):
+    &#34;&#34;&#34;
+    Filters this shape, returning only singleton dimensions as a new `Shape` object.
+    Dimensions are singleton if their size is exactly `1`.
+
+    Returns:
+        New `Shape` object
+    &#34;&#34;&#34;
+    for n, s in zip(self.names, self.sizes):
+        assert s is not None, f&#34;All sizes must be defined but dim &#39;{n}&#39; is undefined in shape {self}&#34;</code></pre>
+</details>
+</dd>
 <dt id="phiml.math.Shape.first_index"><code class="name flex">
 <span>def <span class="ident">first_index</span></span>(<span>self, names=False)</span>
 </code></dt>
@@ -14327,7 +14452,7 @@ This property must be set to a value compatible with the solution <code>x</code>
         self.method = method
         &#34;&#34;&#34; `str`, which method and implementation that was used. &#34;&#34;&#34;
         if all_available(diverged, converged, iterations):
-            msg = map_(_default_solve_info_msg, msg, converged.trajectory[-1], diverged.trajectory[-1], iterations.trajectory[-1], solve=solve, method=method, residual=residual)
+            msg = map_(_default_solve_info_msg, msg, converged.trajectory[-1], diverged.trajectory[-1], iterations.trajectory[-1], solve=solve, method=method, residual=residual, dims=converged.shape.without(&#39;trajectory&#39;))
         self.msg = msg
         &#34;&#34;&#34; `str`, termination message &#34;&#34;&#34;
         self.solve_time = solve_time
@@ -15902,6 +16027,7 @@ If a dimension of the tensor is not listed in <code>order</code>, a <code>ValueE
 <li><code><a title="phiml.math.all" href="#phiml.math.all">all</a></code></li>
 <li><code><a title="phiml.math.all_available" href="#phiml.math.all_available">all_available</a></code></li>
 <li><code><a title="phiml.math.always_close" href="#phiml.math.always_close">always_close</a></code></li>
+<li><code><a title="phiml.math.angle" href="#phiml.math.angle">angle</a></code></li>
 <li><code><a title="phiml.math.any" href="#phiml.math.any">any</a></code></li>
 <li><code><a title="phiml.math.arccos" href="#phiml.math.arccos">arccos</a></code></li>
 <li><code><a title="phiml.math.arccosh" href="#phiml.math.arccosh">arccosh</a></code></li>
@@ -15936,7 +16062,7 @@ If a dimension of the tensor is not listed in <code>order</code>, a <code>ValueE
 <li><code><a title="phiml.math.cross_product" href="#phiml.math.cross_product">cross_product</a></code></li>
 <li><code><a title="phiml.math.cumulative_sum" href="#phiml.math.cumulative_sum">cumulative_sum</a></code></li>
 <li><code><a title="phiml.math.custom_gradient" href="#phiml.math.custom_gradient">custom_gradient</a></code></li>
-<li><code><a title="phiml.math.degrees" href="#phiml.math.degrees">degrees</a></code></li>
+<li><code><a title="phiml.math.degrees_to_radians" href="#phiml.math.degrees_to_radians">degrees_to_radians</a></code></li>
 <li><code><a title="phiml.math.dense" href="#phiml.math.dense">dense</a></code></li>
 <li><code><a title="phiml.math.dim_mask" href="#phiml.math.dim_mask">dim_mask</a></code></li>
 <li><code><a title="phiml.math.dot" href="#phiml.math.dot">dot</a></code></li>
@@ -16029,6 +16155,7 @@ If a dimension of the tensor is not listed in <code>order</code>, a <code>ValueE
 <li><code><a title="phiml.math.print_gradient" href="#phiml.math.print_gradient">print_gradient</a></code></li>
 <li><code><a title="phiml.math.prod" href="#phiml.math.prod">prod</a></code></li>
 <li><code><a title="phiml.math.quantile" href="#phiml.math.quantile">quantile</a></code></li>
+<li><code><a title="phiml.math.radians_to_degrees" href="#phiml.math.radians_to_degrees">radians_to_degrees</a></code></li>
 <li><code><a title="phiml.math.random_normal" href="#phiml.math.random_normal">random_normal</a></code></li>
 <li><code><a title="phiml.math.random_uniform" href="#phiml.math.random_uniform">random_uniform</a></code></li>
 <li><code><a title="phiml.math.range" href="#phiml.math.range">range</a></code></li>
@@ -16140,7 +16267,7 @@ If a dimension of the tensor is not listed in <code>order</code>, a <code>ValueE
 </li>
 <li>
 <h4><code><a title="phiml.math.Shape" href="#phiml.math.Shape">Shape</a></code></h4>
-<ul class="two-column">
+<ul class="">
 <li><code><a title="phiml.math.Shape.after_gather" href="#phiml.math.Shape.after_gather">after_gather</a></code></li>
 <li><code><a title="phiml.math.Shape.after_pad" href="#phiml.math.Shape.after_pad">after_pad</a></code></li>
 <li><code><a title="phiml.math.Shape.are_adjacent" href="#phiml.math.Shape.are_adjacent">are_adjacent</a></code></li>
@@ -16149,6 +16276,7 @@ If a dimension of the tensor is not listed in <code>order</code>, a <code>ValueE
 <li><code><a title="phiml.math.Shape.as_dual" href="#phiml.math.Shape.as_dual">as_dual</a></code></li>
 <li><code><a title="phiml.math.Shape.as_instance" href="#phiml.math.Shape.as_instance">as_instance</a></code></li>
 <li><code><a title="phiml.math.Shape.as_spatial" href="#phiml.math.Shape.as_spatial">as_spatial</a></code></li>
+<li><code><a title="phiml.math.Shape.assert_all_sizes_defined" href="#phiml.math.Shape.assert_all_sizes_defined">assert_all_sizes_defined</a></code></li>
 <li><code><a title="phiml.math.Shape.batch" href="#phiml.math.Shape.batch">batch</a></code></li>
 <li><code><a title="phiml.math.Shape.batch_rank" href="#phiml.math.Shape.batch_rank">batch_rank</a></code></li>
 <li><code><a title="phiml.math.Shape.channel" href="#phiml.math.Shape.channel">channel</a></code></li>
