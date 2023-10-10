@@ -5,7 +5,7 @@ from phiml.backend._backend import init_installed_backends
 from phiml.math import batch, extrapolation, shape, spatial, channel, EMPTY_SHAPE
 from phiml.math._tensors import wrap
 from phiml.math.extrapolation import ConstantExtrapolation, ONE, ZERO, PERIODIC, BOUNDARY, SYMMETRIC, REFLECT, combine_sides, from_dict, combine_by_direction, SYMMETRIC_GRADIENT, as_extrapolation, \
-    ZERO_GRADIENT, get_normal, get_tangential
+    ZERO_GRADIENT, get_normal, get_tangential, where
 
 BACKENDS = init_installed_backends()
 
@@ -262,3 +262,10 @@ class TestExtrapolation(TestCase):
         t = e.transform_coordinates(coord, size)
         math.assert_close([0, 0, 4, 4, 4], t['x'])
         math.assert_close([9, 0, 0, 1, 9], t['y'])
+
+    def test_conditional(self):
+        t = wrap([[1, 2, 3]], spatial('y,x'))
+        p = where(t <= 1, 0, ZERO_GRADIENT).pad(t, {'y': (1, 1)})
+        math.assert_close([0, 2, 3], p.y[0], p.y[2])
+        e_1 = extrapolation.map(lambda e: e + ONE, where(t <= 1, 0, 1))
+        self.assertEqual(where(t <= 1, 1, 2), e_1)

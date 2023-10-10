@@ -1086,7 +1086,9 @@ def broadcast_op(operation: Callable,
             return TensorStack(result_unstacked, Shape((size,), (dim,), (dim_type,), (item_names,)))
 
 
-def where(condition: Union[Tensor, float, int], value_true: Union[Tensor, float, int], value_false: Union[Tensor, float, int]):
+def where(condition: Union[Tensor, float, int],
+          value_true: Union[Tensor, float, int, Any] = None,
+          value_false: Union[Tensor, float, int, Any] = None):
     """
     Builds a tensor by choosing either values from `value_true` or `value_false` depending on `condition`.
     If `condition` is not of type boolean, non-zero values are interpreted as True.
@@ -1102,6 +1104,13 @@ def where(condition: Union[Tensor, float, int], value_true: Union[Tensor, float,
     Returns:
         `Tensor` containing dimensions of all inputs.
     """
+    if value_true is None:
+        assert value_false is None, f"where can be used either with value_true and value_false or without both but got only value_false"
+        warnings.warn("Use nonzero() instead of where() to get indices of non-zero elements.", SyntaxWarning, stacklevel=2)
+        return nonzero(condition)
+    from .extrapolation import Extrapolation, where as ext_where
+    if isinstance(value_true, Extrapolation) or isinstance(value_false, Extrapolation):
+        return ext_where(condition, value_true, value_false)
     condition = wrap(condition)
     value_true = wrap(value_true)
     value_false = wrap(value_false)
