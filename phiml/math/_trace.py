@@ -7,7 +7,7 @@ import numpy as np
 from ..backend import choose_backend, NUMPY, Backend
 from ._ops import choose_backend_t
 from ._shape import Shape, parse_dim_order, merge_shapes, spatial, instance, batch, concat_shapes, EMPTY_SHAPE, dual, channel, non_batch
-from ._magic_ops import stack, expand
+from ._magic_ops import stack, expand, rename_dims
 from ._tensors import Tensor, wrap, disassemble_tree, disassemble_tensors, assemble_tree, TensorStack, may_vary_along
 from ._sparse import SparseCoordinateTensor
 from . import _ops as math
@@ -24,7 +24,7 @@ class ShiftLinTracer(Tensor):
     Dimensions not contained in any `val` Tensor are treated as independent (batch dimensions).
     """
 
-    def __init__(self, source: TracerSource, values_by_shift: dict, shape: Shape, bias: Tensor):
+    def __init__(self, source: TracerSource, values_by_shift: dict, shape: Shape, bias: Tensor, renamed: Dict[str, str]):
         """
         Args:
             source: placeholder tensor
@@ -37,12 +37,14 @@ class ShiftLinTracer(Tensor):
                 However, the bias can be subtracted from the solution vector when solving a linear system, allowing this function to be solved with regular linear system solvers.
         """
         assert isinstance(source, TracerSource)
+        assert isinstance(renamed, dict)
         self.source = source
         self.val: Dict[Shape, Tensor] = simplify_add(values_by_shift)
         for shift_ in self.val.keys():
             assert shift_.only(sorted(shift_.names), reorder=True) == shift_
         self.bias = bias
         self._shape = shape
+        self._renamed = renamed  # new_name -> old_name
 
     def __repr__(self):
         return f"Linear tracer {self._shape}"
@@ -77,8 +79,9 @@ class ShiftLinTracer(Tensor):
     def shape(self):
         return self._shape
 
-    def _with_shape_replaced(self, new_shape):
-        raise NotImplementedError()
+    def _with_shape_replaced(self, new_shape: Shape):
+        renamed = {new_dim: self._renamed[old_dim] for old_dim, new_dim in zip(self._shape.names, new_shape.names)}
+        return ShiftLinTracer(self.source, self.val, new_shape, self.bias, renamed)
 
     @property
     def _is_tracer(self) -> bool:
@@ -116,13 +119,13 @@ class ShiftLinTracer(Tensor):
                     shift = shift._replace_single_size(dim, shift.get_size(dim) + delta) if dim in shift else shift._expand(spatial(**{dim: delta}))
             val[shift.only(sorted(shift.names), reorder=True)] = val_fun(values)
         bias = bias_fun(self.bias)
-        return ShiftLinTracer(self.source, val, new_shape, bias)
+        return ShiftLinTracer(self.source, val, new_shape, bias, self._renamed)
 
     def _unstack(self, dimension):
         raise NotImplementedError()
 
     def __neg__(self):
-        return ShiftLinTracer(self.source, {shift: -values for shift, values in self.val.items()}, self._shape, -self.bias)
+        return ShiftLinTracer(self.source, {shift: -values for shift, values in self.val.items()}, self._shape, -self.bias, self._renamed)
 
     def _op1(self, native_function):
         # __neg__ is the only proper linear op1 and is implemented above.
@@ -168,7 +171,7 @@ class ShiftLinTracer(Tensor):
                     else:
                         values[dim_shift] = other_values
             bias = operator(self.bias, other.bias)
-            return ShiftLinTracer(self.source, values, self._shape, bias)
+            return ShiftLinTracer(self.source, values, self._shape, bias, self._renamed)
         else:
             other = self._tensor(other)
             if op_symbol in '*/':
@@ -176,10 +179,10 @@ class ShiftLinTracer(Tensor):
                 for dim_shift, val in self.val.items():
                     values[dim_shift] = operator(val, other)
                 bias = operator(self.bias, other)
-                return ShiftLinTracer(self.source, values, self._shape & other.shape, bias)
+                return ShiftLinTracer(self.source, values, self._shape & other.shape, bias, self._renamed)
             elif op_symbol in '+-':
                 bias = operator(self.bias, other)
-                return ShiftLinTracer(self.source, self.val, self._shape & other.shape, bias)
+                return ShiftLinTracer(self.source, self.val, self._shape & other.shape, bias, self._renamed)
             else:
                 raise ValueError(f"Unsupported operation encountered while tracing linear function: {native_function}")
 
@@ -249,7 +252,7 @@ def matrix_from_function(f: Callable,
     # --- Trace function ---
     with NUMPY:
         src = TracerSource(tensors[0].shape, tensors[0].dtype, tuple(trace_args.keys())[0], 0)
-        tracer = ShiftLinTracer(src, {EMPTY_SHAPE: math.ones()}, tensors[0].shape, math.zeros(tensors[0].shape, dtype=tensors[0].dtype))
+        tracer = ShiftLinTracer(src, {EMPTY_SHAPE: math.ones()}, tensors[0].shape, math.zeros(tensors[0].shape, dtype=tensors[0].dtype), {d: d for d in tensors[0].shape.names})
         x_kwargs = assemble_tree(tree, [tracer])
         result = f(**x_kwargs, **aux_args)
     _, result_tensors = disassemble_tree(result)
@@ -298,6 +301,7 @@ def tracer_to_coo(tracer: Tensor, sparsify_batch: bool, separate_independent: bo
     missing_dims = tracer.source.shape.without(tracer.shape)  # these were sliced off
     ignored_dims = tracer.source.shape.without(tracer.shape.only(tracer.dependent_dims) if sparsify_batch else tracer.pattern_dim_names).without(missing_dims)  # these will be parallelized and not added to the matrix
     out_shape = tracer.shape.without(ignored_dims)
+    out_shape_original = rename_dims(out_shape, out_shape.names, [tracer._renamed[d] for d in out_shape.names])
     typed_src_shape = tracer.source.shape.without(ignored_dims)
     src_shape = typed_src_shape.as_dual()
     sliced_src_shape = src_shape.without(missing_dims.as_dual())
@@ -313,11 +317,11 @@ def tracer_to_coo(tracer: Tensor, sparsify_batch: bool, separate_independent: bo
             native_shift_values = math.reshaped_native(shift_val, [batch_val, *out_shape])
             mask = np.sum(abs(native_shift_values), 0)  # only 0 where no batch entry has a non-zero value
             out_idx = numpy.nonzero(mask)
-            src_idx = [(component + shift_.get_size(dim) if dim in shift_ else component) % typed_src_shape.get_size(dim) for component, dim in zip(out_idx, out_shape)]
+            src_idx = [(component + shift_.get_size(dim) if dim in shift_ else component) % typed_src_shape.get_size(dim) for component, dim in zip(out_idx, out_shape_original)]
             values.append(native_shift_values[(slice(None), *out_idx)])
         else:  # add full stencil tensor
             out_idx = np.unravel_index(np.arange(out_shape.volume), out_shape.sizes) if out_shape else 0
-            src_idx = [(component + shift_.get_size(dim) if dim in shift_ else component) % typed_src_shape.get_size(dim) for component, dim in zip(out_idx, out_shape)]
+            src_idx = [(component + shift_.get_size(dim) if dim in shift_ else component) % typed_src_shape.get_size(dim) for component, dim in zip(out_idx, out_shape_original)]
             values.append(math.reshaped_native(shift_val, [batch_val, out_shape]))
         out_indices.append(out_idx)
         src_idx_all = []

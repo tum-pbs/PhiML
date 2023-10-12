@@ -5,7 +5,7 @@ from unittest import TestCase
 from phiml import math
 from phiml.backend import Backend
 from phiml.backend._backend import init_installed_backends
-from phiml.math import tensor, spatial, batch, channel, wrap
+from phiml.math import tensor, spatial, batch, channel, wrap, dual
 
 BACKENDS = init_installed_backends()
 
@@ -224,6 +224,13 @@ class TestFunctional(TestCase):
                 f(x0, aux0)
                 self.assertTrue(math.trace_check(f, x0, aux0)[0])
                 self.assertTrue(math.trace_check(f, x=x0, aux=aux0)[0])
+
+    def test_matrix_rename_dims(self):
+        def f(x):
+            return math.rename_dims(x, 'x', 'y')
+        mat, _ = math.matrix_from_function(f, math.zeros(spatial(x=3)))
+        self.assertEqual(dual(x=3), dual(mat))
+        self.assertEqual(spatial(y=3), spatial(mat))
 
     def test_map(self):
         F_CALLS = []
