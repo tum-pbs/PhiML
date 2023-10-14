@@ -575,7 +575,7 @@ def finite_fill(values: Tensor, dims: DimFilter = spatial, distance: int = 1, di
 def spatial_gradient(grid: Tensor,
                      dx: Union[float, Tensor] = 1,
                      difference: str = 'central',
-                     padding: Union[Extrapolation, float, Tensor, str] = extrapolation.BOUNDARY,
+                     padding: Union[Extrapolation, float, Tensor, str, None] = extrapolation.BOUNDARY,
                      dims: DimFilter = spatial,
                      stack_dim: Union[Shape, None] = channel('gradient'),
                      pad=0) -> Tensor:
@@ -625,7 +625,7 @@ def spatial_gradient(grid: Tensor,
 
 def laplace(x: Tensor,
             dx: Union[Tensor, float] = 1,
-            padding: Union[Extrapolation, float, Tensor, str] = extrapolation.BOUNDARY,
+            padding: Union[Extrapolation, float, Tensor, str, None] = extrapolation.BOUNDARY,
             dims: DimFilter = spatial,
             weights: Tensor = None):
     """
