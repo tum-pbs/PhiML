@@ -2,7 +2,7 @@ import functools
 import math
 import warnings
 from numbers import Number
-from typing import Tuple, Callable, Any, Union, Optional, Dict, Collection, TypeVar
+from typing import Tuple, Callable, Any, Union, Optional, Dict, Collection, TypeVar, List, Sequence
 
 import numpy as np
 
@@ -17,7 +17,7 @@ from ._tensors import (Tensor, wrap, tensor, broadcastable_native_tensors, Nativ
                        is_scalar, Layout, expand_tensor, TensorOrTree)
 from ..backend import default_backend, choose_backend, Backend, get_precision, convert as b_convert, BACKENDS, NoBackendFound, ComputeDevice, NUMPY
 from ..backend._dtype import DType, combine_types
-from .magic import PhiTreeNode, Shapable
+from .magic import PhiTreeNode, Shapable, Shaped
 
 
 def choose_backend_t(*values, prefer_default=False) -> Backend:
@@ -883,15 +883,19 @@ def concat_tensor(values: Union[tuple, list], dim: str) -> Tensor:
     return result
 
 
-def pad(value: Tensor, widths: Union[dict, tuple], mode: Union['e_.Extrapolation', Tensor, Number, str, dict] = 0, **kwargs) -> Tensor:
+def pad(value: Tensor, widths: Union[dict, tuple, list], mode: Union['e_.Extrapolation', Tensor, Number, str, dict] = 0, **kwargs) -> Tensor:
     """
     Pads a tensor along the specified dimensions, determining the added values using the given extrapolation.
     Unlike `Extrapolation.pad()`, this function can handle negative widths which slice off outer values.
 
     Args:
         value: `Tensor` to be padded
-        widths: `dict` mapping dimension name (`str`) to `(lower, upper)`
-            where `lower` and `upper` are `int` that can be positive (pad), negative (slice) or zero (pass).
+        widths: Number of values to add at the edge of `value`. Negative values can be used to slice off edge values. Must be one of the following:
+
+            * `tuple` containing `(lower: int, upper: int)`. This will pad all non-batch dimensions by `lower` and `upper` at the lower and upper edge, respectively.
+            * `dict` mapping `dim: str -> (lower: int, upper: int)`
+            * Sequence of slicing `dict`s. This will add all values specified by the slicing dicts and is the inverse operation to `slice_off`. Exactly one value in each slicing dict must be a `slice` object.
+
         mode: Padding mode used to determine values added from positive `widths`.
             Must be one of the following: `Extrapolation`, `Tensor` or number for constant extrapolation, name of extrapolation as `str`.
         kwargs: Additional padding arguments.
@@ -907,7 +911,10 @@ def pad(value: Tensor, widths: Union[dict, tuple], mode: Union['e_.Extrapolation
         >>> math.pad(math.ones(spatial(x=10, y=10)), {'x': (1, -1)}, 0)
         (xˢ=10, yˢ=10) 0.900 ± 0.300 (0e+00...1e+00)
     """
+    mode = e_.as_extrapolation(mode)
     if isinstance(widths, (tuple, list)):
+        if len(widths) == 0 or isinstance(widths[0], dict):  # add sliced-off slices
+            return _pad_slices(value, widths, mode, **kwargs)
         if len(widths) == 2 and isinstance(widths[0], int) and isinstance(widths[1], int):  # (lower, upper)
             assert non_batch(value).rank == 1, f"Can only pad 1D tensors (excluding batch dims) when widths=(lower, upper) but got {shape(value)} and widths={widths}"
             widths = {non_batch(value).name: widths}
@@ -915,7 +922,6 @@ def pad(value: Tensor, widths: Union[dict, tuple], mode: Union['e_.Extrapolation
             assert len(widths) == non_batch(value), f"Cannot pad tensor with non-batch dims {non_batch(value)} by widths {widths}. Sizes must match."
             warnings.warn("Padding by sequence of (lower, upper) is not recommended. Please use a dict instead.", SyntaxWarning, stacklevel=2)
             widths = {dim: w for dim, w in zip(non_batch(value).names, widths)}
-    mode = e_.as_extrapolation(mode)
     has_negative_widths = any(w0 < 0 or w1 < 0 for w0, w1 in widths.values())
     has_positive_widths = any(w0 > 0 or w1 > 0 for w0, w1 in widths.values())
     slices = None
@@ -925,6 +931,43 @@ def pad(value: Tensor, widths: Union[dict, tuple], mode: Union['e_.Extrapolation
     result_padded = mode.pad(value, widths, **kwargs) if has_positive_widths else value
     result_sliced = result_padded[slices] if has_negative_widths else result_padded
     return result_sliced
+
+
+def _pad_slices(x: Tensor, pad_slices: Sequence[Dict[str, Any]], mode: 'e_.Extrapolation', **kwargs) -> Tensor:
+    def matches_i(pad_slice: Dict[str, int], sel: Dict[str, int]):
+        for dim, s in pad_slice.items():
+            if dim in sel:
+                if s != sel[dim]:
+                    return False
+        return True
+
+    def to_lower_upper(s: slice, size: int) -> Tuple[int, int]:
+        if not s.start:  # pad left
+            return s.stop, 0
+        else:  # pad right
+            return 0, (-s.start if s.start < 0 else size - s.start)
+
+    sel_dims = set().union(*[{dim for dim, s in s_dict.items() if not isinstance(s, slice)} for s_dict in pad_slices])
+    sel_dims = x.shape.only(sel_dims)
+    pad_slices = [x.shape.resolve_index(ps) for ps in pad_slices]
+    padded_slices = []
+    for i in sel_dims.meshgrid():
+        shape_i = x.shape.after_gather(i)
+        pad_slices_i = [{dim: s for dim, s in ps.items() if dim not in i} for ps in pad_slices if matches_i(ps, i)]
+        widths_i = [{dim: to_lower_upper(s, shape_i.get_size(dim)) for dim, s in ps.items()} for ps in pad_slices_i]
+        sum_widths_i = {dim: np.asarray([0, 0]) for dim in set().union(*widths_i)}
+        for width_i in widths_i:
+            dim, lu = next(iter(width_i.items()))
+            sum_widths_i[dim] += lu
+        padded_slices.append(mode[i].pad(x[i], sum_widths_i, **kwargs))
+    return stack(padded_slices, sel_dims)
+    # for w in widths:
+    #     selection = {dim: i for dim, i in w.items() if not isinstance(i, slice)}
+    #     value_sel = value[selection]
+    #     slice_ = {dim: to_lower_upper(s, value_sel.shape.get_size(dim)) for dim, s in w.items() if isinstance(s, slice)}
+    #     assert len(slice_) == 1, f"Each slicing dict must contain one slice() value when padding by slices but got {w}"
+    #     pad_dim = next(iter(slice_))
+    #     v = mode[selection].pad_values(value_sel, width, pad_dim, **kwargs)
 
 
 def closest_grid_values(grid: Tensor,

@@ -862,3 +862,9 @@ class TestOps(TestCase):
     def test_slice_off_non_uniform(self):
         t = math.stack([vec('x', 1, 2), vec('x', 3, 4), vec('x', 5)], batch('y'))
         math.assert_close(wrap([2, 3, 5], batch('y')), math.slice_off(t, {'y': 0, 'x': 0}, {'y': 1, 'x': 1}))
+
+    def test_pad_slices(self):
+        ones = math.ones(spatial(x=2), channel(c='x,y'))
+        padded = math.pad(ones, [{'c': 'x', 'x': slice(0, 1)}, {'c': 'y', 'x': slice(-1, None)}])
+        math.assert_close([0, 1, 1], padded['x'])
+        math.assert_close([1, 1, 0], padded['y'])
