@@ -160,3 +160,14 @@ class TestShape(TestCase):
         self.assertEqual(spatial(batch=10, x=4, y=3, vector=2), s.as_spatial())
         self.assertEqual(instance(batch=10, x=4, y=3, vector=2), s.as_instance())
         self.assertEqual(batch(batch=10, x=4, y=3, vector=2), s.as_batch())
+
+    def test_resolve_index(self):
+        s = spatial(x=4, y=3) & channel(vector='x,y')
+        self.assertEqual({}, s.resolve_index({}))
+        self.assertEqual({'vector': 0}, s.resolve_index({'vector': 'x'}))
+        self.assertEqual({'vector': 1}, s.resolve_index({'vector': 'y'}))
+        self.assertEqual({'vector': [0, 1]}, s.resolve_index({'vector': 'x,y'}))
+        self.assertEqual({'vector': [0, 1]}, s.resolve_index({'vector': [0, 1]}))
+        self.assertEqual({'vector': 0}, s.resolve_index({'vector': 0}))
+        self.assertEqual({'vector': slice(1)}, s.resolve_index({'vector': slice(1)}))
+        self.assertEqual({'vector': slice(0, 0)}, s.resolve_index({'vector': []}))

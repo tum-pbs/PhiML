@@ -1,7 +1,7 @@
 import re
 import warnings
 from numbers import Number
-from typing import Tuple, Callable, List, Union, Any, Sequence, Optional
+from typing import Tuple, Callable, List, Union, Any, Sequence, Optional, Dict
 
 from .. import math
 
@@ -1095,7 +1095,17 @@ class Shape:
                 item_names[self.index(dim)] = None
         return Shape(tuple(sizes), self.names, self.types, tuple(item_names))
 
-    def prepare_gather(self, dim: str, selection):
+    def prepare_gather(self, dim: str, selection: Union[slice, int, 'Shape', str, tuple, list]):
+        """
+        Parse a slice object for a specific dimension.
+
+        Args:
+            dim: Name of dimension to slice.
+            selection: Slice object.
+
+        Returns:
+
+        """
         if isinstance(selection, Shape):
             selection = selection.name if selection.rank == 1 else selection.names
         if isinstance(selection, str) and ',' in selection:
@@ -1117,6 +1127,18 @@ class Shape:
             if not selection:  # empty
                 selection = slice(0, 0)
         return selection
+
+    def resolve_index(self, index: Dict[str, Union[slice, int, 'Shape', str, tuple, list]]) -> Dict[str, Union[slice, int, tuple, list]]:
+        """
+        Replaces item names by the corresponding indices.
+
+        Args:
+            index: n-dimensional index or slice.
+
+        Returns:
+            Same index but without any reference to item names.
+        """
+        return {dim: self.prepare_gather(dim, s) for dim, s in index.items()}
 
     def after_gather(self, selection: dict) -> 'Shape':
         result = self
