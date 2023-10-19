@@ -3,7 +3,8 @@ from unittest import TestCase
 
 import numpy
 
-from phiml.backend._backend import init_installed_backends
+from phiml import backend
+from phiml.backend._backend import init_installed_backends, get_backend
 from phiml.math import DType
 from phiml.backend import ComputeDevice, convert, Backend, NUMPY, set_global_default_backend, default_backend
 
@@ -231,4 +232,13 @@ class TestBackends(TestCase):
             numpy.testing.assert_equal([4, 3, 2, 1], b.numpy(b.multi_slice(data, (slice(-1, None, -1),))))
             numpy.testing.assert_equal([3, 2], b.numpy(b.multi_slice(data, (slice(-2, 0, -1),))))
             numpy.testing.assert_equal([3, 2], b.numpy(b.multi_slice(data, (slice(-2, -4, -1),))))
+
+    def test_get_backend(self):
+        torch = get_backend('torch')
+        self.assertEqual('torch', torch.name)
+        self.assertEqual(torch, get_backend(torch))
+        with backend.profile():
+            default = backend.default_backend()
+            self.assertEqual('torch', default.name)
+            self.assertEqual('profile[torch]', str(default))
 

@@ -1694,7 +1694,14 @@ def init_backend(backend: str) -> Sequence[Backend]:
 
 
 def get_backend(backend):
-    if not isinstance(backend, str):
+    """
+    Args:
+        backend: `Backend` or `str` or `module`.
+    """
+    from phiml.backend._profile import ProfilingBackend
+    if isinstance(backend, (Backend, ProfilingBackend)):
+        return backend
+    if not isinstance(backend, str):  # module
         backend = backend.__name__
     if not is_initialized(backend):
         return init_backend(backend)[0]
