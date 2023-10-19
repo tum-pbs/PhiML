@@ -137,7 +137,7 @@ class Extrapolation:
         """
         raise NotImplementedError(self.__class__)
 
-    def sparse_pad_values(self, value: Tensor, connectivity: Tensor, dim: str, upper_edge: bool, **kwargs) -> Tensor:
+    def sparse_pad_values(self, value: Tensor, connectivity: Tensor, dim: str, **kwargs) -> Tensor:
         raise NotImplementedError(self.__class__)
 
     def transform_coordinates(self, coordinates: Tensor, shape: Shape, **kwargs) -> Tensor:
@@ -313,7 +313,7 @@ class ConstantExtrapolation(Extrapolation):
         else:
             return math.wrap(0)
 
-    def sparse_pad_values(self, value: Tensor, connectivity: Tensor, dim: str, upper_edge: bool, **kwargs) -> Tensor:
+    def sparse_pad_values(self, value: Tensor, connectivity: Tensor, dim: str, **kwargs) -> Tensor:
         return math.expand(self.value, dual(connectivity) & non_dual(value))
 
     def __eq__(self, other):
@@ -608,13 +608,13 @@ class _ZeroGradient(_CopyExtrapolation):
             # _BoundaryExtrapolation._CACHED_UPPER_MASKS[key] = mask
             return mask
 
-    def sparse_pad_values(self, value: Tensor, connectivity: Tensor, dim: str, upper_edge: bool, **kwargs) -> Tensor:
+    def sparse_pad_values(self, value: Tensor, connectivity: Tensor, dim: str, **kwargs) -> Tensor:
         from ._sparse import stored_indices
         from ._ops import arange
         dual_dim = dual(value).name
-        primal_dim = dual(value).name[1:]
         # --- Gather the edge values ---
         indices = stored_indices(connectivity, invalid='discard')
+        primal_dim = [n for n in indices.index.item_names if not n.startswith('~')][0]
         gathered = value[{dual_dim: indices[primal_dim]}]
         # --- Scatter, but knowing there is only one entry per row & col, we can simply permute ---
         inv_perm = arange(dual(connectivity))[{dual_dim: indices[dual_dim]}]
@@ -661,7 +661,7 @@ class _PeriodicExtrapolation(_CopyExtrapolation):
         dx = end - start
         return (dx + domain_size / 2) % domain_size - domain_size / 2
 
-    def sparse_pad_values(self, value: Tensor, connectivity: Tensor, dim: str, upper_edge: bool, **kwargs) -> Tensor:
+    def sparse_pad_values(self, value: Tensor, connectivity: Tensor, dim: str, **kwargs) -> Tensor:
         raise AssertionError("Periodic extrapolation cannot be used with sparse connectivity. Instead, add periodicity to the connectivity matrix.")
 
 
@@ -730,7 +730,7 @@ class _SymmetricExtrapolation(_CopyExtrapolation):
         mask = ZERO.pad(mask, {dim: (bound_lo, i) if dim == bound_dim else (lo, hi) for dim, (lo, hi) in widths.items()})
         return mask
 
-    def sparse_pad_values(self, value: Tensor, connectivity: Tensor, dim: str, upper_edge: bool, **kwargs) -> Tensor:
+    def sparse_pad_values(self, value: Tensor, connectivity: Tensor, dim: str, **kwargs) -> Tensor:
         raise NotImplementedError
 
 
@@ -773,7 +773,7 @@ class _AntiSymmetricExtrapolation(_SymmetricExtrapolation):
                 result -= boundary  # this does basically nothing if value is the identity
         return result
 
-    def sparse_pad_values(self, value: Tensor, connectivity: Tensor, dim: str, upper_edge: bool, **kwargs) -> Tensor:
+    def sparse_pad_values(self, value: Tensor, connectivity: Tensor, dim: str, **kwargs) -> Tensor:
         raise NotImplementedError
 
 
@@ -842,7 +842,7 @@ class _ReflectExtrapolation(_CopyExtrapolation):
         mask = ZERO.pad(mask, {dim: (bound_lo, i) if dim == bound_dim else (lo, hi) for dim, (lo, hi) in widths.items()})
         return mask
 
-    def sparse_pad_values(self, value: Tensor, connectivity: Tensor, dim: str, upper_edge: bool, **kwargs) -> Tensor:
+    def sparse_pad_values(self, value: Tensor, connectivity: Tensor, dim: str, **kwargs) -> Tensor:
         raise NotImplementedError
 
 
@@ -885,7 +885,7 @@ class _AntiReflectExtrapolation(_ReflectExtrapolation):
                 result -= boundary  # this does basically nothing if value is the identity
         return result
 
-    def sparse_pad_values(self, value: Tensor, connectivity: Tensor, dim: str, upper_edge: bool, **kwargs) -> Tensor:
+    def sparse_pad_values(self, value: Tensor, connectivity: Tensor, dim: str, **kwargs) -> Tensor:
         raise NotImplementedError
 
 
@@ -909,7 +909,7 @@ class _SymmetricGradientExtrapolation(Extrapolation):
         edge = value[{dim: -1}] if upper_edge else value[{dim: 0}]
         return anti_s + 2 * edge
 
-    def sparse_pad_values(self, value: Tensor, connectivity: Tensor, dim: str, upper_edge: bool, **kwargs) -> Tensor:
+    def sparse_pad_values(self, value: Tensor, connectivity: Tensor, dim: str, **kwargs) -> Tensor:
         raise NotImplementedError
 
 
@@ -941,7 +941,7 @@ class _NoExtrapolation(Extrapolation):  # singleton
     def pad_values(self, value: Tensor, width: int, dim: str, upper_edge: bool, already_padded: Optional[dict] = None, **kwargs) -> Tensor:
         return math.zeros(value.shape._replace_single_size(dim, 0))
 
-    def sparse_pad_values(self, value: Tensor, connectivity: Tensor, dim: str, upper_edge: bool, **kwargs) -> Tensor:
+    def sparse_pad_values(self, value: Tensor, connectivity: Tensor, dim: str, **kwargs) -> Tensor:
         raise NotImplementedError
 
     def __eq__(self, other):
@@ -1016,7 +1016,7 @@ class Undefined(Extrapolation):
     def pad_values(self, value: Tensor, width: int, dim: str, upper_edge: bool, already_padded: Optional[dict] = None, **kwargs) -> Tensor:
         raise AssertionError("Undefined extrapolation")
 
-    def sparse_pad_values(self, value: Tensor, connectivity: Tensor, dim: str, upper_edge: bool, **kwargs) -> Tensor:
+    def sparse_pad_values(self, value: Tensor, connectivity: Tensor, dim: str, **kwargs) -> Tensor:
         raise AssertionError("Undefined extrapolation")
 
     def __eq__(self, other):
@@ -1096,7 +1096,7 @@ _PRIMITIVES = {  # used by as_boundary() and from_dict()
 }
 
 
-def as_extrapolation(obj) -> Extrapolation:
+def as_extrapolation(obj, two_sided=True) -> Extrapolation:
     """
     Creates an `Extrapolation` from a descriptor object.
 
@@ -1107,6 +1107,8 @@ def as_extrapolation(obj) -> Extrapolation:
             * Primitive name as `str`: periodic, zero, one, zero-gradient, symmetric, symmetric-gradient, antisymmetric, reflect, antireflect
             * `dict` containing exactly the keys `'normal'` and `'tangential'`
             * `dict` mapping spatial dimension names to extrapolations
+
+        two_sided: If `True`, will add two entries `(name, False), (name, True)` for dimension names in `dict` objects.
 
     Returns:
         `Extrapolation`
@@ -1127,7 +1129,7 @@ def as_extrapolation(obj) -> Extrapolation:
             return combine_by_direction(normal=normal, tangential=tangential)
         else:
             ext = {dim: (as_extrapolation(spec[0]), as_extrapolation(spec[1])) if isinstance(spec, tuple) else as_extrapolation(spec) for dim, spec in obj.items()}
-            return combine_sides(**ext)
+            return combine_sides(**ext) if two_sided else combine_sides(ext)
     return ConstantExtrapolation(obj)
 
 
@@ -1226,8 +1228,8 @@ class _MixedExtrapolation(Extrapolation):
         extrap: Extrapolation = self.ext[(dim, upper_edge)]
         return extrap.pad_values(value, width, dim, upper_edge, already_padded=already_padded, **kwargs)
 
-    def sparse_pad_values(self, value: Tensor, connectivity: Tensor, boundary, **kwargs) -> Tensor:
-        return self.ext[boundary].sparse_pad_values(value, connectivity, boundary, **kwargs)
+    def sparse_pad_values(self, value: Tensor, connectivity: Tensor, dim: str, **kwargs) -> Tensor:
+        return self.ext[dim].sparse_pad_values(value, connectivity, dim, **kwargs)
 
     def transform_coordinates(self, coordinates: Tensor, shape: Shape, **kwargs) -> Tensor:
         assert len(self.ext) / 2 == len(shape.spatial) == coordinates.vector.size
@@ -1324,7 +1326,7 @@ class _NormalTangentialExtrapolation(Extrapolation):
     def determines_boundary_values(self, boundary_key: Union[Tuple[str, bool], str]) -> bool:
         return self.normal.determines_boundary_values(boundary_key)
 
-    def sparse_pad_values(self, value: Tensor, connectivity: Tensor, dim: str, upper_edge: bool, **kwargs) -> Tensor:
+    def sparse_pad_values(self, value: Tensor, connectivity: Tensor, dim: str, **kwargs) -> Tensor:
         raise NotImplementedError
 
     def is_copy_pad(self, dim: str, upper_edge: bool):
@@ -1462,7 +1464,7 @@ class _ConditionalExtrapolation(Extrapolation):
         assert x == y, f"determines_boundary_values not defined for incompatible extrapolations true/false: {self.true_ext} / {self.false_ext}"
         return x
 
-    def sparse_pad_values(self, value: Tensor, connectivity: Tensor, dim: str, upper_edge: bool, **kwargs) -> Tensor:
+    def sparse_pad_values(self, value: Tensor, connectivity: Tensor, dim: str, **kwargs) -> Tensor:
         raise NotImplementedError
 
     @property
