@@ -2592,13 +2592,9 @@ def close(*tensors, rel_tolerance=1e-5, abs_tolerance=0) -> bool:
 def _close(tensor1: Tensor, tensor2: Tensor, rel_tolerance=1e-5, abs_tolerance=0):
     if tensor2 is tensor1:
         return True
-    non_uniform_dim = None
-    if tensor2.shape.is_non_uniform:
-        non_uniform_dim = tensor2.shape.non_uniform[0]
-    if tensor1.shape.is_non_uniform:
-        non_uniform_dim = tensor1.shape.non_uniform[0]
-    if non_uniform_dim:
-        inner_close = [_close(t1, t2) for t1, t2 in zip(unstack(tensor1, non_uniform_dim), unstack(tensor2, non_uniform_dim))]
+    if tensor1.shape.is_non_uniform or tensor2.shape.is_non_uniform:
+        non_uniform_dims = tensor2.shape.shape.without('dims') & tensor1.shape.shape.without('dims')
+        inner_close = [_close(t1, t2) for t1, t2 in zip(unstack(tensor1, non_uniform_dims), unstack(tensor2, non_uniform_dims))]
         return all(inner_close)
     new_shape, (native1, native2) = broadcastable_native_tensors(tensor1, tensor2)
     np1 = choose_backend(native1).numpy(native1)
