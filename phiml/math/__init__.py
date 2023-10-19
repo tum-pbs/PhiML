@@ -95,6 +95,14 @@ from ._functional import (
 
 from ._optimize import solve_linear, solve_nonlinear, minimize, Solve, SolveInfo, ConvergenceException, NotConverged, Diverged, SolveTape, factor_ilu
 
+import sys as _sys
+math = _sys.modules[__name__]
+"""Convenience alias for the module `phiml.math`.
+This way, you can import the module and contained items in one line.
+```
+from phiml.math import math, Tensor, wrap, extrapolation, l2_loss
+```"""
+
 PI = 3.14159265358979323846
 """Value of π to double precision """
 pi = PI  # intentionally undocumented, use PI instead. Exists only as an anlog to numpy.pi
