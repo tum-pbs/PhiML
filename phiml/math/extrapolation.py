@@ -615,6 +615,7 @@ class _ZeroGradient(_CopyExtrapolation):
         # --- Gather the edge values ---
         indices = stored_indices(connectivity, invalid='discard')
         primal_dim = [n for n in indices.index.item_names if not n.startswith('~')][0]
+        assert primal_dim not in value.shape, f"sparse_pad_values only implemented for vectors, not matrices"
         gathered = value[{dual_dim: indices[primal_dim]}]
         # --- Scatter, but knowing there is only one entry per row & col, we can simply permute ---
         inv_perm = arange(dual(connectivity))[{dual_dim: indices[dual_dim]}]
