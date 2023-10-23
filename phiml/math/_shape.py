@@ -76,6 +76,9 @@ class Shape:
                     assert len(item_names) == size, f"Number of item names ({len(item_names)}) does not match size {size}"
                     for item_name in item_names:
                         assert item_name, f"Empty item name"
+            for name, type in zip(names, types):
+                if type == DUAL_DIM:
+                    assert name.startswith('~'), f"Dual dimensions must start with '~' but got '{name}' in {self}"
 
     def _check_is_valid_tensor_shape(self):
         if DEBUG_CHECKS:
@@ -989,7 +992,7 @@ class Shape:
                     types[self.index(old_name)] = new_dim.type
                     item_names[self.index(old_name)] = new_dim.item_names[0]
                 else:
-                    names[self.index(old_name)] = new_dim
+                    names[self.index(old_name)] = _apply_prefix(new_dim, types[self.index(old_name)])
         return Shape(tuple(sizes), tuple(names), tuple(types), tuple(item_names))
 
     def replace(self, dims: Union['Shape', str, tuple, list], new: 'Shape', keep_item_names=True) -> 'Shape':
