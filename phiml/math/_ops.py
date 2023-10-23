@@ -2683,16 +2683,15 @@ def _assert_close(tensor1: Tensor, tensor2: Tensor, rel_tolerance: float, abs_to
         tensor1._assert_close(tensor2, rel_tolerance, abs_tolerance, msg, verbose)
     elif isinstance(tensor2, Layout):
         tensor2._assert_close(tensor1, rel_tolerance, abs_tolerance, msg, verbose)
-    elif isinstance(tensor1, CompressedSparseMatrix):
-        if isinstance(tensor2, CompressedSparseMatrix):
+    elif is_sparse(tensor1):
+        if is_sparse(tensor2) and type(tensor2) == type(tensor1):
             _assert_close(tensor1._values, tensor2._values, rel_tolerance, abs_tolerance, msg, verbose)
             _assert_close(tensor1._indices, tensor2._indices, 0, 0, msg, verbose)
-            _assert_close(tensor1._pointers, tensor2._pointers, 0, 0, msg, verbose)
-        elif tensor1._compressed_dims.only(tensor2.shape):
-            _assert_close(dense(tensor1), tensor2, rel_tolerance, abs_tolerance, msg, verbose)
+            if isinstance(tensor2, CompressedSparseMatrix) and isinstance(tensor1, CompressedSparseMatrix):
+                _assert_close(tensor1._pointers, tensor2._pointers, 0, 0, msg, verbose)
         else:
-            _assert_close(tensor1._values, tensor2._values, rel_tolerance, abs_tolerance, msg, verbose)
-    elif isinstance(tensor2, CompressedSparseMatrix):
+            _assert_close(dense(tensor1), tensor2, rel_tolerance, abs_tolerance, msg, verbose)
+    elif is_sparse(tensor2):
         return _assert_close(tensor2, tensor1, rel_tolerance, abs_tolerance, msg, verbose)
     else:
         def inner_assert_close(tensor1, tensor2):
