@@ -36,7 +36,7 @@ from ._tensors import wrap, tensor, layout, Tensor, Dict, to_dict, from_dict, is
 
 from ._sparse import dense, get_sparsity, get_format, sparse_tensor, stored_indices, stored_values, tensor_like
 
-from .extrapolation import Extrapolation
+from .extrapolation import Extrapolation, as_extrapolation
 
 from ._ops import (
     choose_backend_t as choose_backend, all_available, convert, seed, to_device,
