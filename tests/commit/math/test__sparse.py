@@ -96,3 +96,12 @@ class TestSparse(TestCase):
         other = math.tensor_like(matrix, 1)
         math.assert_close(1, math.stored_values(other))
         math.assert_close(math.stored_indices(matrix), math.stored_indices(other))
+
+    def test_boolean_mask(self):
+        indices = math.vec(x=[0, 1], y=[0, 1])
+        values = wrap([1, 2], instance(indices))
+        t = math.sparse_tensor(indices, values, spatial(x=2, y=2), format='coo')  # (0, 1), (2, 0)
+        mask = wrap([True, True], spatial('x'))
+        math.assert_close(t, math.boolean_mask(t, 'x', mask), t[mask])
+        mask = wrap([False, True], spatial('x'))
+        math.assert_close(t.x[1:], math.boolean_mask(t, 'x', mask))

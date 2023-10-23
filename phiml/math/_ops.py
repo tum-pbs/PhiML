@@ -1220,6 +1220,37 @@ def nonzero(value: Tensor, list_dim: Union[Shape, str] = instance('nonzero'), in
     return broadcast_op(unbatched_nonzero, [value], iter_dims=value.shape.batch.names)
 
 
+def nonzero_slices(x: Tensor):
+    """
+
+    Args:
+        x: Concrete tensor.
+
+    Returns:
+
+    """
+    assert x.available, f"nonzero_slices requires a concrete tensor but got {x}"
+    assert x.rank == 1, f"nonzero_slices requires a 1D tensor but got {x.shape}"
+    if x.shape.volume == 0:
+        return []
+    dim = x.shape.name
+    if x.dtype.kind != bool:
+        x = x != 0
+    slices = []
+    start = None
+    for i, val in enumerate(x):
+        if val:
+            if start is None:
+                start = i
+        else:
+            if start is not None:
+                slices.append({dim: slice(start, i)})
+                start = None
+    if start is not None:
+        slices.append({dim: slice(start, None)})
+    return slices
+
+
 def reduce_(f, value, dims, require_all_dims_present=False, required_kind: type = None):
     if not dims:
         return value
@@ -2196,7 +2227,7 @@ def convolve(value: Tensor,
     return result
 
 
-def boolean_mask(x: Tensor, dim: DimFilter, mask: Tensor):
+def boolean_mask(x, dim: DimFilter, mask: Tensor):
     """
     Discards values `x.dim[i]` where `mask.dim[i]=False`.
     All dimensions of `mask` that are not `dim` are treated as batch dimensions.
@@ -2211,17 +2242,20 @@ def boolean_mask(x: Tensor, dim: DimFilter, mask: Tensor):
     * Jax: Slicing
 
     Args:
-        x: `Tensor` of values.
+        x: `Tensor` or `phiml.math.magic.Sliceable`.
         dim: Dimension of `x` to along which to discard slices.
         mask: Boolean `Tensor` marking which values to keep. Must have the dimension `dim` matching `x´.
 
     Returns:
         Selected values of `x` as `Tensor` with dimensions from `x` and `mask`.
     """
-    dim, original_dim = shape(mask).only(dim), dim  # ToDo
+    dim, original_dim = shape(mask).only(dim), dim
     assert dim, f"mask dimension '{original_dim}' must be present on the mask {mask.shape}"
     assert dim.rank == 1, f"boolean mask only supports 1D selection"
-    assert isinstance(x, Tensor), f"boolean_mask is only supported for Tensors"
+    if not isinstance(x, Tensor) or is_sparse(x):
+        keep_slices = nonzero_slices(mask)
+        x_slices = [x[s] for s in keep_slices]
+        return concat(x_slices, dim.name)
     
     def uniform_boolean_mask(x: Tensor, mask_1d: Tensor):
         if dim in x.shape:
