@@ -955,6 +955,12 @@ def native_matrix(value: Tensor, target_backend: Backend):
 
 
 def sparse_dot(x: Tensor, x_dims: Shape, y: Tensor, y_dims: Shape):
+    if is_sparse(x) and is_sparse(y) and x_dims in x._values.shape.non_instance and y_dims in y._values.shape.non_instance:
+        if same_sparsity_pattern(x, y):
+            from ._ops import dot
+            new_values = dot(x._values, x_dims, y._values, y_dims)
+            return x._with_values(new_values)
+        raise NotImplementedError
     if isinstance(x, CompressedSparseMatrix):
         if isinstance(y, (CompressedSparseMatrix, SparseCoordinateTensor)):
             if x_dims.only(sparse_dims(x)) and y_dims.only(sparse_dims(y)):
