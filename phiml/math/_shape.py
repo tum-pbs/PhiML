@@ -12,7 +12,8 @@ CHANNEL_DIM = 'channel'
 INSTANCE_DIM = 'înstance'
 DUAL_DIM = 'dual'
 
-TYPE_ABBR = {SPATIAL_DIM: "ˢ", CHANNEL_DIM: "ᶜ", INSTANCE_DIM: "ⁱ", BATCH_DIM: "ᵇ", DUAL_DIM: "ᵈ", None: "⁻"}  # ᵃᵇᶜᵈᵉᶠᵍʰⁱʲᵏˡᵐⁿᵒᵖʳˢᵗᵘᵛʷˣʸᶻ
+SUPERSCRIPT = {SPATIAL_DIM: "ˢ", CHANNEL_DIM: "ᶜ", INSTANCE_DIM: "ⁱ", BATCH_DIM: "ᵇ", DUAL_DIM: "ᵈ", None: "⁻"}  # ᵃᵇᶜᵈᵉᶠᵍʰⁱʲᵏˡᵐⁿᵒᵖʳˢᵗᵘᵛʷˣʸᶻ
+CHAR = {SPATIAL_DIM: "s", CHANNEL_DIM: "c", INSTANCE_DIM: "i", BATCH_DIM: "b", DUAL_DIM: "d", None: "-"}  # ᵃᵇᶜᵈᵉᶠᵍʰⁱʲᵏˡᵐⁿᵒᵖʳˢᵗᵘᵛʷˣʸᶻ
 
 DEBUG_CHECKS = []
 
@@ -73,6 +74,8 @@ class Shape:
             for size, item_names in zip(self.sizes, self.item_names):
                 if item_names is not None:
                     assert len(item_names) == size, f"Number of item names ({len(item_names)}) does not match size {size}"
+                    for item_name in item_names:
+                        assert item_name, f"Empty item name"
 
     def _check_is_valid_tensor_shape(self):
         if DEBUG_CHECKS:
@@ -623,7 +626,7 @@ class Shape:
                 return items_str if len(items_str) <= 20 else f"{size}:{items[0]}..{items[-1]}"
             return size
 
-        strings = [f"{name}{TYPE_ABBR.get(dim_type, '?')}={size_repr(size, items)}" for size, name, dim_type, items in self._dimensions]
+        strings = [f"{name}{SUPERSCRIPT.get(dim_type, '?')}={size_repr(size, items)}" for size, name, dim_type, items in self._dimensions]
         return '(' + ', '.join(strings) + ')'
 
     def __eq__(self, other):
@@ -1324,7 +1327,7 @@ def parse_dim_order(order: Union[str, tuple, list, Shape, None], check_rank: int
     raise ValueError(order)
 
 
-def _construct_shape(dim_type: str, prefix: str, *args, **dims):
+def _construct_shape(dim_type: str, *args, **dims):
     sizes = ()
     names = []
     item_names = ()
@@ -1339,6 +1342,8 @@ def _construct_shape(dim_type: str, prefix: str, *args, **dims):
         assert name not in names, f"Duplicate dimension name {name}"
         if isinstance(size, str):
             items = tuple([i.strip() for i in size.split(',')])
+            if not items[-1]:
+                items = items[:-1]
             size = len(items)
         elif isinstance(size, (tuple, list)):
             assert all(isinstance(s, str) for s in size), f"Item names must all be of type 'str' but got '{size}'"
@@ -1363,14 +1368,15 @@ def _construct_shape(dim_type: str, prefix: str, *args, **dims):
         names.append(name)
         sizes += (size,)
         item_names += (items,)
-    names = tuple(_apply_prefix(name, prefix) for name in names)
+    names = tuple(_apply_prefix(name, dim_type) for name in names)
     return math.Shape(sizes, names, (dim_type,) * len(sizes), item_names)
 
 
-def _apply_prefix(name: str, prefix: str):
+def _apply_prefix(name: str, dim_type: str):
     match = re.search("\\w", name)
     assert match, f"Dimension name must contain at least one letter or underscore but got '{name}'"
     proper_name_index = match.start()
+    prefix = '~' if dim_type == DUAL_DIM else ''
     return prefix + name[proper_name_index:]
 
 
@@ -1457,7 +1463,7 @@ def spatial(*args, **dims: Union[int, str, tuple, list, Shape]) -> Shape:
     """
     from .magic import Shaped
     if all(isinstance(arg, str) for arg in args) or dims:
-        return _construct_shape(SPATIAL_DIM, '', *args, **dims)
+        return _construct_shape(SPATIAL_DIM, *args, **dims)
     elif len(args) == 1 and isinstance(args[0], Shape):
         return args[0].spatial
     elif len(args) == 1 and isinstance(args[0], Shaped):
@@ -1499,7 +1505,7 @@ def channel(*args, **dims: Union[int, str, tuple, list, Shape]) -> Shape:
     """
     from .magic import Shaped
     if all(isinstance(arg, str) for arg in args) or dims:
-        return _construct_shape(CHANNEL_DIM, '', *args, **dims)
+        return _construct_shape(CHANNEL_DIM, *args, **dims)
     elif len(args) == 1 and isinstance(args[0], Shape):
         return args[0].channel
     elif len(args) == 1 and isinstance(args[0], Shaped):
@@ -1541,7 +1547,7 @@ def batch(*args, **dims: Union[int, str, tuple, list, Shape]) -> Shape:
     """
     from .magic import Shaped
     if all(isinstance(arg, str) for arg in args) or dims:
-        return _construct_shape(BATCH_DIM, '', *args, **dims)
+        return _construct_shape(BATCH_DIM, *args, **dims)
     elif len(args) == 1 and isinstance(args[0], Shape):
         return args[0].batch
     elif len(args) == 1 and isinstance(args[0], Shaped):
@@ -1583,7 +1589,7 @@ def instance(*args, **dims: Union[int, str, tuple, list, Shape]) -> Shape:
     """
     from .magic import Shaped
     if all(isinstance(arg, str) for arg in args) or dims:
-        return _construct_shape(INSTANCE_DIM, '', *args, **dims)
+        return _construct_shape(INSTANCE_DIM, *args, **dims)
     elif len(args) == 1 and isinstance(args[0], Shape):
         return args[0].instance
     elif len(args) == 1 and isinstance(args[0], Shaped):
@@ -1634,13 +1640,60 @@ def dual(*args, **dims: Union[int, str, tuple, list, Shape]) -> Shape:
     """
     from .magic import Shaped
     if all(isinstance(arg, str) for arg in args) or dims:
-        return _construct_shape(DUAL_DIM, '~', *args, **dims)
+        return _construct_shape(DUAL_DIM, *args, **dims)
     elif len(args) == 1 and isinstance(args[0], Shape):
         return args[0].dual
     elif len(args) == 1 and isinstance(args[0], Shaped):
         return shape(args[0]).dual
     else:
         raise AssertionError(f"dual() must be called either as a selector dual(Shape) or dual(Tensor) or as a constructor dual(*names, **dims). Got *args={args}, **dims={dims}")
+    
+
+def auto(spec: Union[str, Shape], default_type=None) -> Shape:
+    """
+    Create a single-dimension `Shape` from a specification string.
+    
+    Args:
+        spec: String specifying the dimension name and type.
+            The type can be specified by a trailing superscript letter or `:` followed by the regular letter.
+            Examples: `vector:c` or `vectorᶜ` indicate channel dimensions.
+            Leading `~` indicate dual dimensions.
+        default_type: Fallback type if no type is specified.
+            If not provided, an error will be thrown if `spec` does not specify the type.
+
+    Returns:
+        `Shape`
+    """
+    if isinstance(spec, Shape):
+        return spec  # allow multi-dim Shapes as well, as the main application is stacking
+    assert isinstance(spec, str), f"spec must be a Shape or str but got {type(spec)}"
+    assert ',' not in spec, f"auto dim only supported for single dimensions"
+    dim_type = None
+    dim_name = spec
+    for dt, char in SUPERSCRIPT.items():
+        if spec.endswith(char):
+            dim_type = dt
+            dim_name = spec[:-1]
+            break
+    else:
+        for dt, char in CHAR.items():
+            if spec.endswith(':' + char):
+                dim_type = dt
+                dim_name = spec[:-2]
+                break
+    if spec.startswith('~'):
+        assert dim_type == DUAL_DIM or dim_type is None, f"Inconsistent dim types for '{spec}'. '~' indicates dual dimension but declared type is {dim_type}"
+        dim_type = DUAL_DIM
+        dim_name = dim_name[1:]
+    if dim_type is None:
+        assert default_type is not None, f"No dim type specified: '{spec}'"
+        if callable(default_type):
+            return default_type(spec)
+        else:
+            assert isinstance(default_type, str), f"default_type must be a dimension generator or str but got {type(default_type)}"
+            dim_type = default_type
+    return _construct_shape(dim_type, dim_name)
+        
 
 
 DIM_FUNCTIONS = {BATCH_DIM: batch, SPATIAL_DIM: spatial, INSTANCE_DIM: instance, CHANNEL_DIM: channel, DUAL_DIM: dual}

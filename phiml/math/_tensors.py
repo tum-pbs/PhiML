@@ -13,7 +13,7 @@ from ._magic_ops import PhiTreeNodeType, variable_attributes, copy_with, stack, 
 from ._shape import (Shape,
                      CHANNEL_DIM, BATCH_DIM, SPATIAL_DIM, EMPTY_SHAPE,
                      parse_dim_order, shape_stack, merge_shapes, channel, concat_shapes, primal,
-                     TYPE_ABBR, IncompatibleShapes, INSTANCE_DIM, batch, spatial, dual, instance, shape, DimFilter, non_batch, DEBUG_CHECKS)
+                     SUPERSCRIPT, IncompatibleShapes, INSTANCE_DIM, batch, spatial, dual, instance, shape, DimFilter, non_batch, DEBUG_CHECKS)
 from ..backend import NoBackendFound, choose_backend, BACKENDS, get_precision, default_backend, convert as convert_, \
     Backend, ComputeDevice, OBJECTS
 from ..backend._dtype import DType, combine_types
@@ -2447,7 +2447,7 @@ def format_row(self: Tensor, options: PrintOptions) -> str:  # all values in a s
         is_vector = self.shape.name == 'vector' and self.shape.channel_rank == 1
         is_dual_vector = self.shape.name == '~vector'
         if (not is_vector and not is_dual_vector) if options.include_shape is None else options.include_shape:
-            content += f" along {colors.shape(f'{self.shape.name}{TYPE_ABBR[self.shape.type]}')}"
+            content += f" along {colors.shape(f'{self.shape.name}{SUPERSCRIPT[self.shape.type]}')}"
         elif is_dual_vector:
             content = "~" + content
     else:

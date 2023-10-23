@@ -8,7 +8,7 @@ import dataclasses
 from . import channel
 from ..backend import choose_backend, NoBackendFound
 from ..backend._dtype import DType
-from ._shape import Shape, DimFilter, batch, instance, shape, non_batch, merge_shapes, concat_shapes, spatial, parse_dim_order, dual
+from ._shape import Shape, DimFilter, batch, instance, shape, non_batch, merge_shapes, concat_shapes, spatial, parse_dim_order, dual, auto
 from .magic import Sliceable, Shaped, Shapable, PhiTreeNode
 
 
@@ -108,7 +108,7 @@ def _any_uniform_dim(dims: Shape):
     raise ValueError(f"Uniform dimension required but found only non-uniform dimensions {dims}")
 
 
-def stack(values: Union[tuple, list, dict], dim: Shape, expand_values=False, **kwargs):
+def stack(values: Union[tuple, list, dict], dim: Union[Shape, str], expand_values=False, **kwargs):
     """
     Stacks `values` along the new dimension `dim`.
     All values must have the same spatial, instance and channel dimensions. If the dimension sizes vary, the resulting tensor will be non-uniform.
@@ -144,11 +144,12 @@ def stack(values: Union[tuple, list, dict], dim: Shape, expand_values=False, **k
         (x=1.000, y=0.000); (x=2.000, y=3.000) (bᵇ=2, vectorᶜ=x,y)
     """
     assert len(values) > 0, f"stack() got empty sequence {values}"
-    assert isinstance(dim, Shape)
     if not dim:
         assert len(values) == 1, f"Only one element can be passed as `values` if no dim is passed but got {values}"
         from ._tensors import wrap
         return wrap(next(iter(values.values())) if isinstance(values, dict) else values[0])
+    if not isinstance(dim, Shape):
+        dim = auto(dim)
     values_ = tuple(values.values()) if isinstance(values, dict) else values
     if not expand_values:
         for v in values_[1:]:
@@ -268,6 +269,7 @@ def concat(values: Union[tuple, list], dim: Union[str, Shape], expand_values=Fal
     if isinstance(dim, Shape):
         dim = dim.name
     assert isinstance(dim, str), f"dim must be a str or Shape but got '{dim}' of type {type(dim)}"
+    dim = auto(dim, channel).name
     # Add missing dimensions
     if expand_values:
         all_dims = merge_shapes(*values, allow_varying_sizes=True)

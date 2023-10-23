@@ -1,11 +1,11 @@
-from typing import Tuple, Optional, Union
+from typing import Tuple, Optional, Union, List
 
 import numpy as np
 
 from . import _ops as math
 from . import extrapolation as extrapolation
 from ._magic_ops import stack, rename_dims, concat, variable_values
-from ._shape import Shape, channel, batch, spatial, DimFilter, parse_dim_order, shape, instance, dual
+from ._shape import Shape, channel, batch, spatial, DimFilter, parse_dim_order, shape, instance, dual, auto
 from ._tensors import Tensor, wrap, tensor
 from .extrapolation import Extrapolation
 from .magic import PhiTreeNode
@@ -43,7 +43,7 @@ def vec(name: Union[str, Shape] = 'vector', *sequence, tuple_dim=spatial('sequen
         >>> vec(x=0, y=(0, 1))
         (x=0, y=0); (x=0, y=1) (sequenceˢ=2, vectorᶜ=x,y)
     """
-    dim = channel(name) if isinstance(name, str) else name
+    dim = auto(name, channel)
     assert isinstance(dim, Shape), f"name must be a str or Shape but got '{type(name)}'"
     if sequence:
         assert not components, "vec() must be given either positional or keyword arguments but not both"
@@ -451,8 +451,8 @@ def shift(x: Tensor,
           offsets: tuple,
           dims: DimFilter = math.spatial,
           padding: Union[Extrapolation, float, Tensor, str, None] = extrapolation.BOUNDARY,
-          stack_dim: Optional[Shape] = channel('shift'),
-          extend_bounds=0) -> list:
+          stack_dim: Union[Shape, str, None] = channel('shift'),
+          extend_bounds=0) -> List[Tensor]:
     """
     Similar to `numpy.roll()` but with major differences:
 
@@ -469,10 +469,11 @@ def shift(x: Tensor,
         padding: Padding to be performed at the boundary.
             Must be one of the following: `Extrapolation`, `Tensor` or number for constant extrapolation, name of extrapolation as `str`.
         stack_dim: dimensions to be stacked, defaults to 'shift'
+        extend_bounds: Number of cells by which to pad the tensors in addition to the number required to maintain the size of `x`.
+            Can only be used with a valid `padding`.
 
     Returns:
-        list: offset_tensor
-
+        `list` of shifted tensors
     """
     if dims is None:
         raise ValueError("dims=None is not supported anymore.")
@@ -577,7 +578,7 @@ def spatial_gradient(grid: Tensor,
                      difference: str = 'central',
                      padding: Union[Extrapolation, float, Tensor, str, None] = extrapolation.BOUNDARY,
                      dims: DimFilter = spatial,
-                     stack_dim: Union[Shape, None] = channel('gradient'),
+                     stack_dim: Union[Shape, str, None] = channel('gradient'),
                      pad=0) -> Tensor:
     """
     Calculates the spatial_gradient of a scalar channel from finite differences.

@@ -171,3 +171,11 @@ class TestShape(TestCase):
         self.assertEqual({'vector': 0}, s.resolve_index({'vector': 0}))
         self.assertEqual({'vector': slice(1)}, s.resolve_index({'vector': slice(1)}))
         self.assertEqual({'vector': slice(0, 0)}, s.resolve_index({'vector': []}))
+
+    def test_auto(self):
+        v = math.vec('~vector', 1, 2)
+        self.assertEqual(dual(vector='1,2'), v.shape)
+        v = math.vec('vec', 0)
+        self.assertEqual(channel(vec='0'), v.shape)
+        v = math.vec('b:b', 0)
+        self.assertEqual(batch(b='0,'), v.shape)
