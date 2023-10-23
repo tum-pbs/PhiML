@@ -414,8 +414,14 @@ class Tensor:
 
     def __getitem__(self, item) -> 'Tensor':
         if isinstance(item, Tensor):
-            from ._ops import gather
-            return gather(self, item)
+            if item.dtype.kind == bool:
+                from ._ops import boolean_mask
+                return boolean_mask(self, item.shape, item)
+            elif item.dtype.kind == int:
+                from ._ops import gather
+                return gather(self, item)
+            else:
+                raise AssertionError(f"Index tensor must be of dtype int (gather) or bool (boolean_mask) but got {item}")
         item = slicing_dict(self, item)
         selections = {}
         sliced = self
