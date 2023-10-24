@@ -530,8 +530,8 @@ class BoundDim:
                 size_repr = f&#34;{self.size}:{items[0]}..{items[-1]}&#34;
         else:
             size_repr = self.size
-        from ._shape import TYPE_ABBR
-        return f&#34;{type(self.obj).__name__}.{self.name}{TYPE_ABBR.get(self.type.__name__, &#39;?&#39;)}={size_repr}&#34;
+        from ._shape import SUPERSCRIPT
+        return f&#34;{type(self.obj).__name__}.{self.name}{SUPERSCRIPT.get(self.type.__name__, &#39;?&#39;)}={size_repr}&#34;
 
     @property
     def size(self):
@@ -1041,8 +1041,8 @@ This supports the following operations:</p>
                 size_repr = f&#34;{self.size}:{items[0]}..{items[-1]}&#34;
         else:
             size_repr = self.size
-        from ._shape import TYPE_ABBR
-        return f&#34;{type(self.obj).__name__}.{self.name}{TYPE_ABBR.get(self.type.__name__, &#39;?&#39;)}={size_repr}&#34;
+        from ._shape import SUPERSCRIPT
+        return f&#34;{type(self.obj).__name__}.{self.name}{SUPERSCRIPT.get(self.type.__name__, &#39;?&#39;)}={size_repr}&#34;
 
     @property
     def size(self):

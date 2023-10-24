@@ -39,6 +39,7 @@ Extrapolations are an important part of sampled fields such as grids.
 See the documentation at https://tum-pbs.github.io/PhiML/Fields.html#extrapolations .
 &#34;&#34;&#34;
 import warnings
+from abc import ABC
 from numbers import Number
 from typing import Union, Dict, Callable, Tuple, Optional, Hashable, Sequence
 
@@ -46,7 +47,7 @@ from ..backend._backend import get_spatial_derivative_order
 from ..backend import choose_backend
 from ._shape import Shape, channel, spatial, EMPTY_SHAPE, merge_shapes, dual, non_dual, instance
 from ._magic_ops import concat, stack, expand, rename_dims
-from ._tensors import Tensor, NativeTensor, TensorStack, wrap
+from ._tensors import Tensor, NativeTensor, TensorStack, wrap, to_dict as tensor_to_dict, from_dict as tensor_from_dict
 from . import _ops as math  # TODO this executes _ops.py, can we avoid this?
 
 
@@ -169,7 +170,7 @@ class Extrapolation:
         &#34;&#34;&#34;
         raise NotImplementedError(self.__class__)
 
-    def sparse_pad_values(self, value: Tensor, connectivity: Tensor, dim: str, upper_edge: bool, **kwargs) -&gt; Tensor:
+    def sparse_pad_values(self, value: Tensor, connectivity: Tensor, dim: str, **kwargs) -&gt; Tensor:
         raise NotImplementedError(self.__class__)
 
     def transform_coordinates(self, coordinates: Tensor, shape: Shape, **kwargs) -&gt; Tensor:
@@ -218,6 +219,12 @@ class Extrapolation:
 
     def _getitem_with_domain(self, item: dict, dim: str, upper_edge: bool, all_dims: Sequence[str]):
         return self[item]
+
+    def __eq__(self, other):
+        raise NotImplementedError(self.__class__)
+
+    def __ne__(self, other):
+        return not self == other
 
     def __abs__(self):
         raise NotImplementedError(self.__class__)
@@ -339,7 +346,7 @@ class ConstantExtrapolation(Extrapolation):
         else:
             return math.wrap(0)
 
-    def sparse_pad_values(self, value: Tensor, connectivity: Tensor, dim: str, upper_edge: bool, **kwargs) -&gt; Tensor:
+    def sparse_pad_values(self, value: Tensor, connectivity: Tensor, dim: str, **kwargs) -&gt; Tensor:
         return math.expand(self.value, dual(connectivity) &amp; non_dual(value))
 
     def __eq__(self, other):
@@ -431,7 +438,7 @@ class ConstantExtrapolation(Extrapolation):
         return ConstantExtrapolation(-self.value)
 
 
-class _CopyExtrapolation(Extrapolation):
+class _CopyExtrapolation(Extrapolation, ABC):
 
     @property
     def shape(self):
@@ -634,13 +641,14 @@ class _ZeroGradient(_CopyExtrapolation):
             # _BoundaryExtrapolation._CACHED_UPPER_MASKS[key] = mask
             return mask
 
-    def sparse_pad_values(self, value: Tensor, connectivity: Tensor, dim: str, upper_edge: bool, **kwargs) -&gt; Tensor:
+    def sparse_pad_values(self, value: Tensor, connectivity: Tensor, dim: str, **kwargs) -&gt; Tensor:
         from ._sparse import stored_indices
         from ._ops import arange
         dual_dim = dual(value).name
-        primal_dim = dual(value).name[1:]
         # --- Gather the edge values ---
         indices = stored_indices(connectivity, invalid=&#39;discard&#39;)
+        primal_dim = [n for n in indices.index.item_names if not n.startswith(&#39;~&#39;)][0]
+        assert primal_dim not in value.shape, f&#34;sparse_pad_values only implemented for vectors, not matrices&#34;
         gathered = value[{dual_dim: indices[primal_dim]}]
         # --- Scatter, but knowing there is only one entry per row &amp; col, we can simply permute ---
         inv_perm = arange(dual(connectivity))[{dual_dim: indices[dual_dim]}]
@@ -650,6 +658,7 @@ class _ZeroGradient(_CopyExtrapolation):
 
 class _PeriodicExtrapolation(_CopyExtrapolation):
     &#34;&#34;&#34; Periodic extrapolation in n dimensions. &#34;&#34;&#34;
+
     def __repr__(self):
         return &#39;periodic&#39;
 
@@ -685,6 +694,9 @@ class _PeriodicExtrapolation(_CopyExtrapolation):
     def shortest_distance(self, start: Tensor, end: Tensor, domain_size: Tensor):
         dx = end - start
         return (dx + domain_size / 2) % domain_size - domain_size / 2
+
+    def sparse_pad_values(self, value: Tensor, connectivity: Tensor, dim: str, **kwargs) -&gt; Tensor:
+        raise AssertionError(&#34;Periodic extrapolation cannot be used with sparse connectivity. Instead, add periodicity to the connectivity matrix.&#34;)
 
 
 class _SymmetricExtrapolation(_CopyExtrapolation):
@@ -741,30 +753,19 @@ class _SymmetricExtrapolation(_CopyExtrapolation):
         return result
 
     def _lower_mask(self, shape, widths, bound_dim, bound_lo, bound_hi, i):
-        # key = (shape, tuple(widths.keys()), tuple(widths.values()), bound_dim, bound_lo, bound_hi, i)
-        # if key in _BoundaryExtrapolation._CACHED_LOWER_MASKS:
-        #     result = math.tensor(_BoundaryExtrapolation._CACHED_LOWER_MASKS[key])
-        #     _BoundaryExtrapolation._CACHED_LOWER_MASKS[key] = result
-        #     return result
-        # else:
-            mask = ZERO.pad(math.zeros(shape), {bound_dim: (bound_lo - i - 1, 0)})
-            mask = ONE.pad(mask, {bound_dim: (1, 0)})
-            mask = ZERO.pad(mask, {dim: (i, bound_hi) if dim == bound_dim else (lo, hi) for dim, (lo, hi) in widths.items()})
-            # _BoundaryExtrapolation._CACHED_LOWER_MASKS[key] = mask
-            return mask
+        mask = ZERO.pad(math.zeros(shape), {bound_dim: (bound_lo - i - 1, 0)})
+        mask = ONE.pad(mask, {bound_dim: (1, 0)})
+        mask = ZERO.pad(mask, {dim: (i, bound_hi) if dim == bound_dim else (lo, hi) for dim, (lo, hi) in widths.items()})
+        return mask
 
     def _upper_mask(self, shape, widths, bound_dim, bound_lo, bound_hi, i):
-        # key = (shape, tuple(widths.keys()), tuple(widths.values()), bound_dim, bound_lo, bound_hi, i)
-        # if key in _BoundaryExtrapolation._CACHED_UPPER_MASKS:
-        #     result = math.tensor(_BoundaryExtrapolation._CACHED_UPPER_MASKS[key])
-        #     _BoundaryExtrapolation._CACHED_UPPER_MASKS[key] = result
-        #     return result
-        # else:
-            mask = ZERO.pad(math.zeros(shape), {bound_dim: (0, bound_hi - i - 1)})
-            mask = ONE.pad(mask, {bound_dim: (0, 1)})
-            mask = ZERO.pad(mask, {dim: (bound_lo, i) if dim == bound_dim else (lo, hi) for dim, (lo, hi) in widths.items()})
-            # _BoundaryExtrapolation._CACHED_UPPER_MASKS[key] = mask
-            return mask
+        mask = ZERO.pad(math.zeros(shape), {bound_dim: (0, bound_hi - i - 1)})
+        mask = ONE.pad(mask, {bound_dim: (0, 1)})
+        mask = ZERO.pad(mask, {dim: (bound_lo, i) if dim == bound_dim else (lo, hi) for dim, (lo, hi) in widths.items()})
+        return mask
+
+    def sparse_pad_values(self, value: Tensor, connectivity: Tensor, dim: str, **kwargs) -&gt; Tensor:
+        raise NotImplementedError
 
 
 class _AntiSymmetricExtrapolation(_SymmetricExtrapolation):
@@ -805,6 +806,9 @@ class _AntiSymmetricExtrapolation(_SymmetricExtrapolation):
                 boundary = value.shift(lower, new_shape=result.shape, val_fun=lambda v: self.pad(v, widths) * mask, bias_fun=lambda b: ZERO.pad(b, widths))  # ~ half the computation time
                 result -= boundary  # this does basically nothing if value is the identity
         return result
+
+    def sparse_pad_values(self, value: Tensor, connectivity: Tensor, dim: str, **kwargs) -&gt; Tensor:
+        raise NotImplementedError
 
 
 class _ReflectExtrapolation(_CopyExtrapolation):
@@ -861,30 +865,19 @@ class _ReflectExtrapolation(_CopyExtrapolation):
         return result
 
     def _lower_mask(self, shape, widths, bound_dim, bound_lo, bound_hi, i):
-        # key = (shape, tuple(widths.keys()), tuple(widths.values()), bound_dim, bound_lo, bound_hi, i)
-        # if key in _BoundaryExtrapolation._CACHED_LOWER_MASKS:
-        #     result = math.tensor(_BoundaryExtrapolation._CACHED_LOWER_MASKS[key])
-        #     _BoundaryExtrapolation._CACHED_LOWER_MASKS[key] = result
-        #     return result
-        # else:
-            mask = ZERO.pad(math.zeros(shape), {bound_dim: (bound_lo - i - 1, 0)})
-            mask = ONE.pad(mask, {bound_dim: (1, 0)})
-            mask = ZERO.pad(mask, {dim: (i, bound_hi) if dim == bound_dim else (lo, hi) for dim, (lo, hi) in widths.items()})
-            # _BoundaryExtrapolation._CACHED_LOWER_MASKS[key] = mask
-            return mask
+        mask = ZERO.pad(math.zeros(shape), {bound_dim: (bound_lo - i - 1, 0)})
+        mask = ONE.pad(mask, {bound_dim: (1, 0)})
+        mask = ZERO.pad(mask, {dim: (i, bound_hi) if dim == bound_dim else (lo, hi) for dim, (lo, hi) in widths.items()})
+        return mask
 
     def _upper_mask(self, shape, widths, bound_dim, bound_lo, bound_hi, i):
-        # key = (shape, tuple(widths.keys()), tuple(widths.values()), bound_dim, bound_lo, bound_hi, i)
-        # if key in _BoundaryExtrapolation._CACHED_UPPER_MASKS:
-        #     result = math.tensor(_BoundaryExtrapolation._CACHED_UPPER_MASKS[key])
-        #     _BoundaryExtrapolation._CACHED_UPPER_MASKS[key] = result
-        #     return result
-        # else:
-            mask = ZERO.pad(math.zeros(shape), {bound_dim: (0, bound_hi - i - 1)})
-            mask = ONE.pad(mask, {bound_dim: (0, 1)})
-            mask = ZERO.pad(mask, {dim: (bound_lo, i) if dim == bound_dim else (lo, hi) for dim, (lo, hi) in widths.items()})
-            # _BoundaryExtrapolation._CACHED_UPPER_MASKS[key] = mask
-            return mask
+        mask = ZERO.pad(math.zeros(shape), {bound_dim: (0, bound_hi - i - 1)})
+        mask = ONE.pad(mask, {bound_dim: (0, 1)})
+        mask = ZERO.pad(mask, {dim: (bound_lo, i) if dim == bound_dim else (lo, hi) for dim, (lo, hi) in widths.items()})
+        return mask
+
+    def sparse_pad_values(self, value: Tensor, connectivity: Tensor, dim: str, **kwargs) -&gt; Tensor:
+        raise NotImplementedError
 
 
 class _AntiReflectExtrapolation(_ReflectExtrapolation):
@@ -926,6 +919,9 @@ class _AntiReflectExtrapolation(_ReflectExtrapolation):
                 result -= boundary  # this does basically nothing if value is the identity
         return result
 
+    def sparse_pad_values(self, value: Tensor, connectivity: Tensor, dim: str, **kwargs) -&gt; Tensor:
+        raise NotImplementedError
+
 
 class _SymmetricGradientExtrapolation(Extrapolation):
 
@@ -946,6 +942,9 @@ class _SymmetricGradientExtrapolation(Extrapolation):
         anti_s = ANTIREFLECT.pad_values(value, width, dim, upper_edge, already_padded=already_padded, **kwargs)
         edge = value[{dim: -1}] if upper_edge else value[{dim: 0}]
         return anti_s + 2 * edge
+
+    def sparse_pad_values(self, value: Tensor, connectivity: Tensor, dim: str, **kwargs) -&gt; Tensor:
+        raise NotImplementedError
 
 
 class _NoExtrapolation(Extrapolation):  # singleton
@@ -975,6 +974,12 @@ class _NoExtrapolation(Extrapolation):  # singleton
 
     def pad_values(self, value: Tensor, width: int, dim: str, upper_edge: bool, already_padded: Optional[dict] = None, **kwargs) -&gt; Tensor:
         return math.zeros(value.shape._replace_single_size(dim, 0))
+
+    def sparse_pad_values(self, value: Tensor, connectivity: Tensor, dim: str, **kwargs) -&gt; Tensor:
+        raise NotImplementedError
+
+    def __eq__(self, other):
+        return isinstance(other, _NoExtrapolation)
 
     def __repr__(self):
         return &#34;none&#34;
@@ -1044,6 +1049,12 @@ class Undefined(Extrapolation):
 
     def pad_values(self, value: Tensor, width: int, dim: str, upper_edge: bool, already_padded: Optional[dict] = None, **kwargs) -&gt; Tensor:
         raise AssertionError(&#34;Undefined extrapolation&#34;)
+
+    def sparse_pad_values(self, value: Tensor, connectivity: Tensor, dim: str, **kwargs) -&gt; Tensor:
+        raise AssertionError(&#34;Undefined extrapolation&#34;)
+
+    def __eq__(self, other):
+        return isinstance(other, Undefined) and other.derived_from == self.derived_from
 
     def __repr__(self):
         return &#34;undefined&#34;
@@ -1119,7 +1130,7 @@ _PRIMITIVES = {  # used by as_boundary() and from_dict()
 }
 
 
-def as_extrapolation(obj) -&gt; Extrapolation:
+def as_extrapolation(obj, two_sided=True) -&gt; Extrapolation:
     &#34;&#34;&#34;
     Creates an `Extrapolation` from a descriptor object.
 
@@ -1130,6 +1141,8 @@ def as_extrapolation(obj) -&gt; Extrapolation:
             * Primitive name as `str`: periodic, zero, one, zero-gradient, symmetric, symmetric-gradient, antisymmetric, reflect, antireflect
             * `dict` containing exactly the keys `&#39;normal&#39;` and `&#39;tangential&#39;`
             * `dict` mapping spatial dimension names to extrapolations
+
+        two_sided: If `True`, will add two entries `(name, False), (name, True)` for dimension names in `dict` objects.
 
     Returns:
         `Extrapolation`
@@ -1150,7 +1163,7 @@ def as_extrapolation(obj) -&gt; Extrapolation:
             return combine_by_direction(normal=normal, tangential=tangential)
         else:
             ext = {dim: (as_extrapolation(spec[0]), as_extrapolation(spec[1])) if isinstance(spec, tuple) else as_extrapolation(spec) for dim, spec in obj.items()}
-            return combine_sides(**ext)
+            return combine_sides(**ext) if two_sided else combine_sides(ext)
     return ConstantExtrapolation(obj)
 
 
@@ -1249,8 +1262,8 @@ class _MixedExtrapolation(Extrapolation):
         extrap: Extrapolation = self.ext[(dim, upper_edge)]
         return extrap.pad_values(value, width, dim, upper_edge, already_padded=already_padded, **kwargs)
 
-    def sparse_pad_values(self, value: Tensor, connectivity: Tensor, boundary, **kwargs) -&gt; Tensor:
-        return self.ext[boundary].sparse_pad_values(value, connectivity, boundary, **kwargs)
+    def sparse_pad_values(self, value: Tensor, connectivity: Tensor, dim: str, **kwargs) -&gt; Tensor:
+        return self.ext[dim].sparse_pad_values(value, connectivity, dim, **kwargs)
 
     def transform_coordinates(self, coordinates: Tensor, shape: Shape, **kwargs) -&gt; Tensor:
         assert len(self.ext) / 2 == len(shape.spatial) == coordinates.vector.size
@@ -1344,8 +1357,11 @@ class _NormalTangentialExtrapolation(Extrapolation):
     def spatial_gradient(self) -&gt; &#39;Extrapolation&#39;:
         return combine_by_direction(self.normal.spatial_gradient(), self.tangential.spatial_gradient())
 
-    def valid_outer_faces(self, dim) -&gt; Tuple[bool, bool]:
-        return self.normal.valid_outer_faces(dim)
+    def determines_boundary_values(self, boundary_key: Union[Tuple[str, bool], str]) -&gt; bool:
+        return self.normal.determines_boundary_values(boundary_key)
+
+    def sparse_pad_values(self, value: Tensor, connectivity: Tensor, dim: str, **kwargs) -&gt; Tensor:
+        raise NotImplementedError
 
     def is_copy_pad(self, dim: str, upper_edge: bool):
         return False  # normal and tangential might copy from different places, so no.
@@ -1457,6 +1473,126 @@ def get_tangential(ext: Extrapolation) -&gt; Extrapolation:
         return ext
 
 
+class _ConditionalExtrapolation(Extrapolation):
+
+    def __init__(self, mask: Tensor, true_ext: Extrapolation, false_ext: Extrapolation):
+        super().__init__(false_ext.pad_rank)
+        self.mask = mask
+        self.false_ext = false_ext
+        self.true_ext = true_ext
+
+    def to_dict(self) -&gt; dict:
+        return {
+            &#39;type&#39;: &#39;conditional&#39;,
+            &#39;mask&#39;: tensor_to_dict(self.mask),
+            &#39;true&#39;: self.true_ext.to_dict(),
+            &#39;false&#39;: self.false_ext.to_dict(),
+        }
+
+    def spatial_gradient(self) -&gt; &#39;Extrapolation&#39;:
+        return where(self.mask, self.true_ext.spatial_gradient(), self.false_ext.spatial_gradient())
+
+    def determines_boundary_values(self, boundary_key: Union[Tuple[str, bool], str]) -&gt; bool:
+        x = self.true_ext.determines_boundary_values(boundary_key)
+        y = self.false_ext.determines_boundary_values(boundary_key)
+        assert x == y, f&#34;determines_boundary_values not defined for incompatible extrapolations true/false: {self.true_ext} / {self.false_ext}&#34;
+        return x
+
+    def sparse_pad_values(self, value: Tensor, connectivity: Tensor, dim: str, **kwargs) -&gt; Tensor:
+        raise NotImplementedError
+
+    @property
+    def is_flexible(self) -&gt; bool:
+        return self.false_ext.is_flexible or self.true_ext.is_flexible
+
+    def pad_values(self, value: Tensor, width: int, dim: str, upper_edge: bool, already_padded: dict = None, **kwargs) -&gt; Tensor:
+        mask = self.mask
+        if already_padded:
+            mask = ZERO_GRADIENT.pad(mask, already_padded)
+        p_false = self.false_ext.pad_values(value, width, dim, upper_edge, **kwargs)
+        p_true = self.true_ext.pad_values(value, width, dim, upper_edge, **kwargs)
+        return math.where(mask, p_true, p_false)
+
+    def pad(self, value: Tensor, widths: dict, already_padded: Optional[dict] = None, **kwargs) -&gt; Tensor:
+        from phiml.math._trace import ShiftLinTracer
+        if isinstance(value, ShiftLinTracer):
+            mask = self.mask
+            if already_padded:
+                mask = ZERO_GRADIENT.pad(mask, already_padded)
+            p_false = self.false_ext.pad(value, widths, **kwargs)
+            p_true = self.true_ext.pad(value, widths, **kwargs)
+            return p_true * mask + p_false * (1 - mask)
+        return Extrapolation.pad(self, value, widths, already_padded=already_padded, **kwargs)
+
+    def __repr__(self):
+        return f&#34;{self.true_ext} or {self.false_ext}&#34;
+
+    def __eq__(self, other):
+        return isinstance(other, _ConditionalExtrapolation) and math.always_close(self.mask, other.mask) and self.true_ext == other.true_ext and self.false_ext == other.false_ext
+
+    def __abs__(self):
+        return where(self.mask, abs(self.true_ext), abs(self.false_ext))
+
+    def __neg__(self):
+        return where(self.mask, -self.true_ext, -self.false_ext)
+
+    def _op2(self, other, op: Callable):
+        if isinstance(other, _ConditionalExtrapolation) and math.close(other.mask, self.mask):
+            return where(self.mask, op(self.true_ext, other.true_ext), op(self.false_ext, other.false_ext))
+        return where(self.mask, op(self.true_ext, other), op(self.false_ext, other))
+
+    def __add__(self, other):
+        return self._op2(other, lambda x, y: x + y)
+
+    def __radd__(self, other):
+        return self._op2(other, lambda y, x: x + y)
+
+    def __sub__(self, other):
+        return self._op2(other, lambda x, y: x - y)
+
+    def __rsub__(self, other):
+        return self._op2(other, lambda y, x: x - y)
+
+    def __mul__(self, other):
+        return self._op2(other, lambda x, y: x * y)
+
+    def __rmul__(self, other):
+        return self._op2(other, lambda y, x: x * y)
+
+    def __truediv__(self, other):
+        return self._op2(other, lambda x, y: x / y)
+
+    def __rtruediv__(self, other):
+        return self._op2(other, lambda y, x: x / y)
+
+
+def where(mask: Tensor, true_ext, false_ext) -&gt; Extrapolation:
+    &#34;&#34;&#34;
+    Uses `true_ext` where `mask` is true and `false_ext` where mask is false.
+    If the extrapolations are not consistent in which boundary faces are uniquely determined, the result cannot be used for boundary faces.
+
+    You may also call `math.where()` instead of this function.
+
+    Args:
+        mask: `Tensor` with dimensions matching the tensor that is being padded.
+        true_ext: Extrapolation to use where `mask==True`.
+        false_ext: Extrapolation to use where `mask==False`.
+
+    Returns:
+        `Extrapolation`
+    &#34;&#34;&#34;
+    true_ext = as_extrapolation(true_ext)
+    false_ext = as_extrapolation(false_ext)
+    from phiml.math import always_close
+    if always_close(mask, True):
+        return true_ext
+    elif always_close(mask, False):
+        return false_ext
+    if true_ext == false_ext:
+        return true_ext
+    return _ConditionalExtrapolation(mask, true_ext, false_ext)
+
+
 def from_dict(dictionary: dict) -&gt; Extrapolation:
     &#34;&#34;&#34;
     Loads an `Extrapolation` object from a dictionary that was created using `Extrapolation.to_dict()`.
@@ -1484,6 +1620,11 @@ def from_dict(dictionary: dict) -&gt; Extrapolation:
         normal = from_dict(dictionary[&#39;normal&#39;])
         tangential = from_dict(dictionary[&#39;tangential&#39;])
         return _NormalTangentialExtrapolation(normal, tangential)
+    elif etype == &#39;conditional&#39;:
+        mask = tensor_from_dict(dictionary[&#39;mask&#39;])
+        true_ext = from_dict(dictionary[&#39;true&#39;])
+        false_ext = from_dict(dictionary[&#39;false&#39;])
+        return _ConditionalExtrapolation(mask, true_ext, false_ext)
     elif etype == &#39;none&#39;:
         return NONE
     elif etype == &#39;undefined&#39;:
@@ -1534,6 +1675,8 @@ def map(f: Callable[[Extrapolation], Extrapolation], extrapolation):
         return combine_sides({k: map(f, ext) for k, ext in extrapolation.ext.items()})
     elif isinstance(extrapolation, _NormalTangentialExtrapolation):
         return combine_by_direction(map(f, extrapolation.normal), map(f, extrapolation.tangential))
+    elif isinstance(extrapolation, _ConditionalExtrapolation):
+        return where(extrapolation.mask, map(f, extrapolation.true_ext), map(f, extrapolation.false_ext))
     else:
         return f(extrapolation)
 
@@ -1608,7 +1751,7 @@ def remove_constant_offset(extrapolation):
 <h2 class="section-title" id="header-functions">Functions</h2>
 <dl>
 <dt id="phiml.math.extrapolation.as_extrapolation"><code class="name flex">
-<span>def <span class="ident">as_extrapolation</span></span>(<span>obj) ‑> <a title="phiml.math.extrapolation.Extrapolation" href="#phiml.math.extrapolation.Extrapolation">Extrapolation</a></span>
+<span>def <span class="ident">as_extrapolation</span></span>(<span>obj, two_sided=True) ‑> <a title="phiml.math.extrapolation.Extrapolation" href="#phiml.math.extrapolation.Extrapolation">Extrapolation</a></span>
 </code></dt>
 <dd>
 <div class="desc"><p>Creates an <code><a title="phiml.math.extrapolation.Extrapolation" href="#phiml.math.extrapolation.Extrapolation">Extrapolation</a></code> from a descriptor object.</p>
@@ -1624,6 +1767,8 @@ def remove_constant_offset(extrapolation):
 <li><code>dict</code> mapping spatial dimension names to extrapolations</li>
 </ul>
 </dd>
+<dt><strong><code>two_sided</code></strong></dt>
+<dd>If <code>True</code>, will add two entries <code>(name, False), (name, True)</code> for dimension names in <code>dict</code> objects.</dd>
 </dl>
 <h2 id="returns">Returns</h2>
 <p><code><a title="phiml.math.extrapolation.Extrapolation" href="#phiml.math.extrapolation.Extrapolation">Extrapolation</a></code></p></div>
@@ -1631,7 +1776,7 @@ def remove_constant_offset(extrapolation):
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def as_extrapolation(obj) -&gt; Extrapolation:
+<pre><code class="python">def as_extrapolation(obj, two_sided=True) -&gt; Extrapolation:
     &#34;&#34;&#34;
     Creates an `Extrapolation` from a descriptor object.
 
@@ -1642,6 +1787,8 @@ def remove_constant_offset(extrapolation):
             * Primitive name as `str`: periodic, zero, one, zero-gradient, symmetric, symmetric-gradient, antisymmetric, reflect, antireflect
             * `dict` containing exactly the keys `&#39;normal&#39;` and `&#39;tangential&#39;`
             * `dict` mapping spatial dimension names to extrapolations
+
+        two_sided: If `True`, will add two entries `(name, False), (name, True)` for dimension names in `dict` objects.
 
     Returns:
         `Extrapolation`
@@ -1662,7 +1809,7 @@ def remove_constant_offset(extrapolation):
             return combine_by_direction(normal=normal, tangential=tangential)
         else:
             ext = {dim: (as_extrapolation(spec[0]), as_extrapolation(spec[1])) if isinstance(spec, tuple) else as_extrapolation(spec) for dim, spec in obj.items()}
-            return combine_sides(**ext)
+            return combine_sides(**ext) if two_sided else combine_sides(ext)
     return ConstantExtrapolation(obj)</code></pre>
 </details>
 </dd>
@@ -1788,6 +1935,11 @@ def remove_constant_offset(extrapolation):
         normal = from_dict(dictionary[&#39;normal&#39;])
         tangential = from_dict(dictionary[&#39;tangential&#39;])
         return _NormalTangentialExtrapolation(normal, tangential)
+    elif etype == &#39;conditional&#39;:
+        mask = tensor_from_dict(dictionary[&#39;mask&#39;])
+        true_ext = from_dict(dictionary[&#39;true&#39;])
+        false_ext = from_dict(dictionary[&#39;false&#39;])
+        return _ConditionalExtrapolation(mask, true_ext, false_ext)
     elif etype == &#39;none&#39;:
         return NONE
     elif etype == &#39;undefined&#39;:
@@ -1873,6 +2025,8 @@ Non-leaves are those created by <code><a title="phiml.math.extrapolation.combine
         return combine_sides({k: map(f, ext) for k, ext in extrapolation.ext.items()})
     elif isinstance(extrapolation, _NormalTangentialExtrapolation):
         return combine_by_direction(map(f, extrapolation.normal), map(f, extrapolation.tangential))
+    elif isinstance(extrapolation, _ConditionalExtrapolation):
+        return where(extrapolation.mask, map(f, extrapolation.true_ext), map(f, extrapolation.false_ext))
     else:
         return f(extrapolation)</code></pre>
 </details>
@@ -1953,6 +2107,55 @@ This also includes <code>NaN</code> values in constants (unlike <code>ext - ext<
         else:
             return extrapolation
     return map(const_to_zero, extrapolation)</code></pre>
+</details>
+</dd>
+<dt id="phiml.math.extrapolation.where"><code class="name flex">
+<span>def <span class="ident">where</span></span>(<span>mask: phiml.math._tensors.Tensor, true_ext, false_ext) ‑> <a title="phiml.math.extrapolation.Extrapolation" href="#phiml.math.extrapolation.Extrapolation">Extrapolation</a></span>
+</code></dt>
+<dd>
+<div class="desc"><p>Uses <code>true_ext</code> where <code>mask</code> is true and <code>false_ext</code> where mask is false.
+If the extrapolations are not consistent in which boundary faces are uniquely determined, the result cannot be used for boundary faces.</p>
+<p>You may also call <code>math.where()</code> instead of this function.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>mask</code></strong></dt>
+<dd><code>Tensor</code> with dimensions matching the tensor that is being padded.</dd>
+<dt><strong><code>true_ext</code></strong></dt>
+<dd>Extrapolation to use where <code>mask==True</code>.</dd>
+<dt><strong><code>false_ext</code></strong></dt>
+<dd>Extrapolation to use where <code>mask==False</code>.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<p><code><a title="phiml.math.extrapolation.Extrapolation" href="#phiml.math.extrapolation.Extrapolation">Extrapolation</a></code></p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def where(mask: Tensor, true_ext, false_ext) -&gt; Extrapolation:
+    &#34;&#34;&#34;
+    Uses `true_ext` where `mask` is true and `false_ext` where mask is false.
+    If the extrapolations are not consistent in which boundary faces are uniquely determined, the result cannot be used for boundary faces.
+
+    You may also call `math.where()` instead of this function.
+
+    Args:
+        mask: `Tensor` with dimensions matching the tensor that is being padded.
+        true_ext: Extrapolation to use where `mask==True`.
+        false_ext: Extrapolation to use where `mask==False`.
+
+    Returns:
+        `Extrapolation`
+    &#34;&#34;&#34;
+    true_ext = as_extrapolation(true_ext)
+    false_ext = as_extrapolation(false_ext)
+    from phiml.math import always_close
+    if always_close(mask, True):
+        return true_ext
+    elif always_close(mask, False):
+        return false_ext
+    if true_ext == false_ext:
+        return true_ext
+    return _ConditionalExtrapolation(mask, true_ext, false_ext)</code></pre>
 </details>
 </dd>
 </dl>
@@ -2065,7 +2268,7 @@ The typical order is periodic=1, boundary=2, symmetric=3, reflect=4, constant=5.
         else:
             return math.wrap(0)
 
-    def sparse_pad_values(self, value: Tensor, connectivity: Tensor, dim: str, upper_edge: bool, **kwargs) -&gt; Tensor:
+    def sparse_pad_values(self, value: Tensor, connectivity: Tensor, dim: str, **kwargs) -&gt; Tensor:
         return math.expand(self.value, dual(connectivity) &amp; non_dual(value))
 
     def __eq__(self, other):
@@ -2261,7 +2464,7 @@ def shape(self):
 </details>
 </dd>
 <dt id="phiml.math.extrapolation.ConstantExtrapolation.sparse_pad_values"><code class="name flex">
-<span>def <span class="ident">sparse_pad_values</span></span>(<span>self, value: phiml.math._tensors.Tensor, connectivity: phiml.math._tensors.Tensor, dim: str, upper_edge: bool, **kwargs) ‑> phiml.math._tensors.Tensor</span>
+<span>def <span class="ident">sparse_pad_values</span></span>(<span>self, value: phiml.math._tensors.Tensor, connectivity: phiml.math._tensors.Tensor, dim: str, **kwargs) ‑> phiml.math._tensors.Tensor</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -2269,7 +2472,7 @@ def shape(self):
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def sparse_pad_values(self, value: Tensor, connectivity: Tensor, dim: str, upper_edge: bool, **kwargs) -&gt; Tensor:
+<pre><code class="python">def sparse_pad_values(self, value: Tensor, connectivity: Tensor, dim: str, **kwargs) -&gt; Tensor:
     return math.expand(self.value, dual(connectivity) &amp; non_dual(value))</code></pre>
 </details>
 </dd>
@@ -2427,7 +2630,7 @@ The typical order is periodic=1, boundary=2, symmetric=3, reflect=4, constant=5.
         &#34;&#34;&#34;
         raise NotImplementedError(self.__class__)
 
-    def sparse_pad_values(self, value: Tensor, connectivity: Tensor, dim: str, upper_edge: bool, **kwargs) -&gt; Tensor:
+    def sparse_pad_values(self, value: Tensor, connectivity: Tensor, dim: str, **kwargs) -&gt; Tensor:
         raise NotImplementedError(self.__class__)
 
     def transform_coordinates(self, coordinates: Tensor, shape: Shape, **kwargs) -&gt; Tensor:
@@ -2477,6 +2680,12 @@ The typical order is periodic=1, boundary=2, symmetric=3, reflect=4, constant=5.
     def _getitem_with_domain(self, item: dict, dim: str, upper_edge: bool, all_dims: Sequence[str]):
         return self[item]
 
+    def __eq__(self, other):
+        raise NotImplementedError(self.__class__)
+
+    def __ne__(self, other):
+        return not self == other
+
     def __abs__(self):
         raise NotImplementedError(self.__class__)
 
@@ -2511,6 +2720,7 @@ The typical order is periodic=1, boundary=2, symmetric=3, reflect=4, constant=5.
 <ul class="hlist">
 <li><a title="phiml.math.extrapolation.ConstantExtrapolation" href="#phiml.math.extrapolation.ConstantExtrapolation">ConstantExtrapolation</a></li>
 <li><a title="phiml.math.extrapolation.Undefined" href="#phiml.math.extrapolation.Undefined">Undefined</a></li>
+<li>phiml.math.extrapolation._ConditionalExtrapolation</li>
 <li>phiml.math.extrapolation._CopyExtrapolation</li>
 <li>phiml.math.extrapolation._MixedExtrapolation</li>
 <li>phiml.math.extrapolation._NoExtrapolation</li>
@@ -2750,7 +2960,7 @@ Both points are assumed to lie within the domain</p>
 </details>
 </dd>
 <dt id="phiml.math.extrapolation.Extrapolation.sparse_pad_values"><code class="name flex">
-<span>def <span class="ident">sparse_pad_values</span></span>(<span>self, value: phiml.math._tensors.Tensor, connectivity: phiml.math._tensors.Tensor, dim: str, upper_edge: bool, **kwargs) ‑> phiml.math._tensors.Tensor</span>
+<span>def <span class="ident">sparse_pad_values</span></span>(<span>self, value: phiml.math._tensors.Tensor, connectivity: phiml.math._tensors.Tensor, dim: str, **kwargs) ‑> phiml.math._tensors.Tensor</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -2758,7 +2968,7 @@ Both points are assumed to lie within the domain</p>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def sparse_pad_values(self, value: Tensor, connectivity: Tensor, dim: str, upper_edge: bool, **kwargs) -&gt; Tensor:
+<pre><code class="python">def sparse_pad_values(self, value: Tensor, connectivity: Tensor, dim: str, **kwargs) -&gt; Tensor:
     raise NotImplementedError(self.__class__)</code></pre>
 </details>
 </dd>
@@ -2914,6 +3124,12 @@ The typical order is periodic=1, boundary=2, symmetric=3, reflect=4, constant=5.
     def pad_values(self, value: Tensor, width: int, dim: str, upper_edge: bool, already_padded: Optional[dict] = None, **kwargs) -&gt; Tensor:
         raise AssertionError(&#34;Undefined extrapolation&#34;)
 
+    def sparse_pad_values(self, value: Tensor, connectivity: Tensor, dim: str, **kwargs) -&gt; Tensor:
+        raise AssertionError(&#34;Undefined extrapolation&#34;)
+
+    def __eq__(self, other):
+        return isinstance(other, Undefined) and other.derived_from == self.derived_from
+
     def __repr__(self):
         return &#34;undefined&#34;
 
@@ -2963,6 +3179,22 @@ The typical order is periodic=1, boundary=2, symmetric=3, reflect=4, constant=5.
 <pre><code class="python">@property
 def shape(self):
     return EMPTY_SHAPE</code></pre>
+</details>
+</dd>
+</dl>
+<h3>Methods</h3>
+<dl>
+<dt id="phiml.math.extrapolation.Undefined.sparse_pad_values"><code class="name flex">
+<span>def <span class="ident">sparse_pad_values</span></span>(<span>self, value: phiml.math._tensors.Tensor, connectivity: phiml.math._tensors.Tensor, dim: str, **kwargs) ‑> phiml.math._tensors.Tensor</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def sparse_pad_values(self, value: Tensor, connectivity: Tensor, dim: str, **kwargs) -&gt; Tensor:
+    raise AssertionError(&#34;Undefined extrapolation&#34;)</code></pre>
 </details>
 </dd>
 </dl>
@@ -3023,6 +3255,7 @@ def shape(self):
 <li><code><a title="phiml.math.extrapolation.map" href="#phiml.math.extrapolation.map">map</a></code></li>
 <li><code><a title="phiml.math.extrapolation.order_by_shape" href="#phiml.math.extrapolation.order_by_shape">order_by_shape</a></code></li>
 <li><code><a title="phiml.math.extrapolation.remove_constant_offset" href="#phiml.math.extrapolation.remove_constant_offset">remove_constant_offset</a></code></li>
+<li><code><a title="phiml.math.extrapolation.where" href="#phiml.math.extrapolation.where">where</a></code></li>
 </ul>
 </li>
 <li><h3><a href="#header-classes">Classes</a></h3>
@@ -3060,6 +3293,7 @@ def shape(self):
 <h4><code><a title="phiml.math.extrapolation.Undefined" href="#phiml.math.extrapolation.Undefined">Undefined</a></code></h4>
 <ul class="">
 <li><code><a title="phiml.math.extrapolation.Undefined.shape" href="#phiml.math.extrapolation.Undefined.shape">shape</a></code></li>
+<li><code><a title="phiml.math.extrapolation.Undefined.sparse_pad_values" href="#phiml.math.extrapolation.Undefined.sparse_pad_values">sparse_pad_values</a></code></li>
 </ul>
 </li>
 </ul>
