@@ -224,7 +224,7 @@ class Extrapolation:
         raise NotImplementedError(self.__class__)
 
     def __hash__(self):
-        return hash(self.__class__)
+        raise NotImplementedError(self.__class__)  # must be overridden by all subclasses that implement __eq__
 
     def __ne__(self, other):
         return not self == other
@@ -354,6 +354,9 @@ class ConstantExtrapolation(Extrapolation):
 
     def __eq__(self, other):
         return isinstance(other, ConstantExtrapolation) and math.always_close(self.value, other.value)
+
+    def __hash__(self):
+        return hash(self.__class__)
 
     def is_zero(self):
         return self == ZERO
@@ -504,6 +507,9 @@ class _CopyExtrapolation(Extrapolation, ABC):
 
     def __eq__(self, other):
         return type(other) == type(self)
+
+    def __hash__(self):
+        return hash(self.__class__)
 
     def _op(self, other, op):
         if type(other) == type(self):
@@ -977,6 +983,9 @@ class _NoExtrapolation(Extrapolation):  # singleton
 
     def __eq__(self, other):
         return isinstance(other, _NoExtrapolation)
+
+    def __hash__(self):
+        return hash(self.__class__)
 
     def __repr__(self):
         return &#34;none&#34;
@@ -2277,6 +2286,9 @@ The typical order is periodic=1, boundary=2, symmetric=3, reflect=4, constant=5.
     def __eq__(self, other):
         return isinstance(other, ConstantExtrapolation) and math.always_close(self.value, other.value)
 
+    def __hash__(self):
+        return hash(self.__class__)
+
     def is_zero(self):
         return self == ZERO
 
@@ -2684,7 +2696,7 @@ The typical order is periodic=1, boundary=2, symmetric=3, reflect=4, constant=5.
         raise NotImplementedError(self.__class__)
 
     def __hash__(self):
-        return hash(self.__class__)
+        raise NotImplementedError(self.__class__)  # must be overridden by all subclasses that implement __eq__
 
     def __ne__(self, other):
         return not self == other
