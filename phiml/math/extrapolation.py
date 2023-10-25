@@ -190,6 +190,9 @@ class Extrapolation:
     def __eq__(self, other):
         raise NotImplementedError(self.__class__)
 
+    def __hash__(self):
+        raise NotImplementedError(self.__class__)  # must be overridden by all subclasses that implement __eq__
+
     def __ne__(self, other):
         return not self == other
 
@@ -948,6 +951,9 @@ class _NoExtrapolation(Extrapolation):  # singleton
     def __eq__(self, other):
         return isinstance(other, _NoExtrapolation)
 
+    def __hash__(self):
+        return hash(self.__class__)
+
     def __repr__(self):
         return "none"
 
@@ -1022,6 +1028,9 @@ class Undefined(Extrapolation):
 
     def __eq__(self, other):
         return isinstance(other, Undefined) and other.derived_from == self.derived_from
+
+    def __hash__(self):
+        return hash(self.__class__) + hash(self.derived_from)
 
     def __repr__(self):
         return "undefined"
@@ -1496,6 +1505,9 @@ class _ConditionalExtrapolation(Extrapolation):
 
     def __eq__(self, other):
         return isinstance(other, _ConditionalExtrapolation) and math.always_close(self.mask, other.mask) and self.true_ext == other.true_ext and self.false_ext == other.false_ext
+
+    def __hash__(self):
+        return hash(self.true_ext) + hash(self.false_ext)
 
     def __abs__(self):
         return where(self.mask, abs(self.true_ext), abs(self.false_ext))
