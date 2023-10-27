@@ -1,11 +1,12 @@
 import time
 from functools import partial
+from typing import List
 from unittest import TestCase
 
 from phiml import math
 from phiml.backend import Backend
 from phiml.backend._backend import init_installed_backends
-from phiml.math import tensor, spatial, batch, channel, wrap, dual
+from phiml.math import tensor, spatial, batch, channel, wrap, dual, Tensor
 
 BACKENDS = init_installed_backends()
 
@@ -269,3 +270,24 @@ class TestFunctional(TestCase):
         len_ = math.broadcast(len, channel)
         strings = math.vec('vector', 'a', 'bc', '')
         math.assert_close([1, 2, 0], len_(strings))
+
+    def test_when_available(self):
+        for backend in BACKENDS:
+            with backend:
+                TRACER: List[Tensor] = []
+                CONCRETE: List[Tensor] = []
+
+                @math.jit_compile
+                def fun(x):
+                    TRACER.append(x)
+
+                    def print_x(x):
+                        CONCRETE.append(x)
+
+                    math.when_available(print_x, x)
+                    return x
+
+                fun(tensor(0))
+                assert CONCRETE
+                assert CONCRETE[0].available
+                assert TRACER
