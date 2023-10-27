@@ -44,7 +44,7 @@ class DType:
             else:
                 bits = precision * 2
         else:
-            assert isinstance(bits, int)
+            assert isinstance(bits, int), f"bits must be an int but got {type(bits)}"
         self.kind = kind
         """ Python class corresponding to the type of data, ignoring precision. One of (bool, int, float, complex, str) """
         self.bits = bits

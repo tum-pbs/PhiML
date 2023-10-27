@@ -291,3 +291,20 @@ class TestFunctional(TestCase):
                 assert CONCRETE
                 assert CONCRETE[0].available
                 assert TRACER
+
+    def test_perf_counter(self):
+        @math.jit_compile
+        def fun(x):
+            t0 = math.perf_counter(x)
+            print("fun called, time=", t0)
+            for i in range(1000):
+                x *= 0.5
+                x += 1
+            dt = math.perf_counter(x) - t0
+            return x, dt
+
+        for backend in BACKENDS:
+            with backend:
+                result, exec_time = fun(tensor(0))
+                print("time taken", 1000_000 * float(exec_time), "result:", result)
+

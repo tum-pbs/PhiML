@@ -92,6 +92,7 @@ from ._functional import (
     trace_check,
     map_ as map,
     when_available,
+    perf_counter,
 )
 
 from ._optimize import solve_linear, solve_nonlinear, minimize, Solve, SolveInfo, ConvergenceException, NotConverged, Diverged, SolveTape, factor_ilu
