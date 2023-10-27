@@ -137,7 +137,9 @@ class TFBackend(Backend):
                 output_dtypes = tf.nest.map_structure(lambda x: x.dtype, output0)
             else:
                 output_dtypes = tf.nest.map_structure(lambda dtype: to_numpy_dtype(dtype), output_dtypes)
-            return tf.py_function(aux_f, args, output_dtypes)
+            result = tf.py_function(aux_f, args, output_dtypes)
+            self.set_shapes_tree(result, output_shapes)
+            return result
 
     def jit_compile(self, f: Callable) -> Callable:
         compiled = tf.function(f)
@@ -344,6 +346,16 @@ class TFBackend(Backend):
 
     def stop_gradient_tree(self, tree):
         return tf.nest.map_structure(tf.stop_gradient, tree)
+
+    def set_shapes_tree(self, values, shapes):
+        if isinstance(values, (tuple, list)):
+            for e, s in zip(values, shapes):
+                self.set_shapes_tree(e, s)
+        elif self.is_tensor(values, only_native=False):
+            if self.is_tensor(values, only_native=True):
+                values.set_shape(shapes)
+        else:
+            raise NotImplementedError(type(values))
 
     def abs(self, x):
         with tf.device(x.device):
