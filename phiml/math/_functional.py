@@ -1059,7 +1059,7 @@ def map_c2b(f: Callable) -> Callable:
     return map_types(f, channel, batch)
 
 
-def broadcast(function, dims=shape, range=range, unwrap_scalars=True):
+def broadcast(function=None, dims=shape, range=range, unwrap_scalars=True):
     """
     Function decorator for non-vectorized functions.
     When passing `Tensor` arguments to a broadcast function, the function is called once for each slice of the tensor.
@@ -1080,6 +1080,9 @@ def broadcast(function, dims=shape, range=range, unwrap_scalars=True):
     Returns:
         Broadcast function
     """
+    if function is None:
+        kwargs = {k: v for k, v in locals().items() if v is not None}
+        return partial(broadcast, **kwargs)
     @wraps(function)
     def broadcast_(*args, **kwargs):
         return map_(function, *args, dims=dims, range=range, unwrap_scalars=unwrap_scalars, **kwargs)

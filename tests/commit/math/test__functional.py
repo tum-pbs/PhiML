@@ -267,9 +267,9 @@ class TestFunctional(TestCase):
         math.assert_close(wrap([(-2, -4), (-1, -3)], spatial('x,y')), r_y)
 
     def test_broadcast(self):
-        len_ = math.broadcast(len, channel)
-        strings = math.vec('vector', 'a', 'bc', '')
-        math.assert_close([1, 2, 0], len_(strings))
+        for len_ in [math.broadcast(len, channel), math.broadcast(dims=channel)(len)]:
+            strings = math.vec('vector', 'a', 'bc', '')
+            math.assert_close([1, 2, 0], len_(strings))
 
     def test_when_available(self):
         for backend in BACKENDS:
