@@ -58,11 +58,12 @@ def slice_(value, slices: Dict[str, Union[int, slice, str, tuple, list]]):
     raise ValueError(f"value must be a PhiTreeNode but got {type(value)}")
 
 
-def unstack(value, dim: DimFilter):
+def unstack(value, dim: DimFilter) -> tuple:
     """
     Un-stacks a `Sliceable` along one or multiple dimensions.
 
     If multiple dimensions are given, the order of elements will be according to the dimension order in `dim`, i.e. elements along the last dimension will be neighbors in the returned `tuple`.
+    If no dimension is given or none of the given dimensions exists on `value`, returns a list containing only `value`.
 
     See Also:
         `phiml.math.slice`.
@@ -72,7 +73,7 @@ def unstack(value, dim: DimFilter):
         dim: Dimensions as `Shape` or comma-separated `str` or dimension type, i.e. `channel`, `spatial`, `instance`, `batch`.
 
     Returns:
-        `tuple` of `Tensor` objects.
+        `tuple` of objects matching the type of `value`.
 
     Examples:
         >>> unstack(expand(0, spatial(x=5)), 'x')
@@ -80,7 +81,8 @@ def unstack(value, dim: DimFilter):
     """
     assert isinstance(value, Sliceable) and isinstance(value, Shaped), f"Cannot unstack {type(value).__name__}. Must be Sliceable and Shaped, see https://tum-pbs.github.io/PhiML/phiml/math/magic.html"
     dims = shape(value).only(dim)
-    assert dims.rank > 0, "unstack() requires at least one dimension"
+    if dims.rank == 0:
+        return value,
     if dims.rank == 1:
         if hasattr(value, '__unstack__'):
             result = value.__unstack__(dims.names)
@@ -348,7 +350,7 @@ def expand(value, *dims: Shape, **kwargs):
         if set(dims) == set(shape(value).only(dims)):  # sizes and item names might differ, though
             return value
     dims &= combined.shape.without('dims')  # add missing non-uniform dims
-    # --- First try __stack__
+    # --- First try __expand__
     if hasattr(value, '__expand__'):
         result = value.__expand__(dims, **kwargs)
         if result is not NotImplemented:
