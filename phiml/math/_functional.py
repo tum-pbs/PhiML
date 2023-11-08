@@ -168,14 +168,16 @@ class JitFunction:
         def jit_f_native(*natives):
             ML_LOGGER.debug(f"Φ-ML-jit: Tracing '{f_name(self.f)}'")
             _TRACING_JIT.append(self)
-            self._tracing_in_key = in_key
-            in_tensors = assemble_tensors(natives, in_key.specs)
-            kwargs = assemble_tree(in_key.tree, in_tensors)
-            f_output = self.f(**kwargs, **in_key.auxiliary_kwargs)  # Tensor or tuple/list of Tensors
-            tree, out_tensors = disassemble_tree((f_output, self._extract_tensors))
-            result_natives, result_shapes, specs = disassemble_tensors(out_tensors, expand=True)
-            self.recorded_mappings[in_key] = SignatureKey(jit_f_native, tree, result_shapes, specs, in_key.backend, in_key.tracing)
-            assert _TRACING_JIT.pop(-1) is self
+            try:
+                self._tracing_in_key = in_key
+                in_tensors = assemble_tensors(natives, in_key.specs)
+                kwargs = assemble_tree(in_key.tree, in_tensors)
+                f_output = self.f(**kwargs, **in_key.auxiliary_kwargs)  # Tensor or tuple/list of Tensors
+                tree, out_tensors = disassemble_tree((f_output, self._extract_tensors))
+                result_natives, result_shapes, specs = disassemble_tensors(out_tensors, expand=True)
+                self.recorded_mappings[in_key] = SignatureKey(jit_f_native, tree, result_shapes, specs, in_key.backend, in_key.tracing)
+            finally:
+                assert _TRACING_JIT.pop(-1) is self
             self._tracing_in_key = None
             return result_natives
 
@@ -309,8 +311,10 @@ class LinearFunction(Generic[X, Y], Callable[[X], Y]):
             if self.forget_traces:
                 self.matrices_and_biases.clear()
             _TRACING_LINEAR.append(self)
-            matrix, bias = matrix_from_function(self.f, *args, **f_kwargs, auto_compress=True)
-            assert _TRACING_LINEAR.pop(-1) is self
+            try:
+                matrix, bias = matrix_from_function(self.f, *args, **f_kwargs, auto_compress=True)
+            finally:
+                assert _TRACING_LINEAR.pop(-1) is self
             if not key.tracing:
                 self.matrices_and_biases[key] = matrix, bias
                 if len(self.matrices_and_biases) >= 4:

@@ -14,7 +14,7 @@ from ._shape import (Shape, EMPTY_SHAPE,
 from ._sparse import CompressedSparseMatrix, dot_compressed_dense, dense, SparseCoordinateTensor, dot_coordinate_dense, get_format, to_format, stored_indices, tensor_like, sparse_dims, same_sparsity_pattern, is_sparse, sparse_dot
 from ._tensors import (Tensor, wrap, tensor, broadcastable_native_tensors, NativeTensor, TensorStack,
                        custom_op2, compatible_tensor, variable_attributes, disassemble_tree, assemble_tree,
-                       is_scalar, Layout, expand_tensor, TensorOrTree)
+                       is_scalar, Layout, expand_tensor, TensorOrTree, discard_constant_dims)
 from ..backend import default_backend, choose_backend, Backend, get_precision, convert as b_convert, BACKENDS, NoBackendFound, ComputeDevice, NUMPY
 from ..backend._dtype import DType, combine_types
 from .magic import PhiTreeNode, Shapable, Shaped
@@ -867,6 +867,9 @@ def stack_tensors(values: Union[tuple, list], dim: Shape):
 def concat_tensor(values: Union[tuple, list], dim: str) -> Tensor:
     assert len(values) > 0, "concat() got empty sequence"
     assert isinstance(dim, str), f"dim must be a single-dimension Shape but got '{dim}' of type {type(dim)}"
+    if any(v._is_tracer for v in values):
+        from ._trace import concat_tracers
+        return concat_tracers(values, dim)
 
     def inner_concat(*values):
         broadcast_shape: Shape = values[0].shape  # merge_shapes(*[t.shape.with_sizes([None] * t.shape.rank) for t in values])
@@ -1316,7 +1319,7 @@ def _sum(value: Tensor, dims: Shape) -> Tensor:
             return value
         if isinstance(value, CompressedSparseMatrix):
             if value._compressed_dims in dims and value._uncompressed_dims.isdisjoint(dims):  # We can ignore the pointers
-                result_base = zeros(value.shape.without(value._compressed_dims))
+                result_base = value.shape.without(value._compressed_dims)
                 return scatter(result_base, value._indices, value._values, mode='add', outside_handling='undefined')
             elif value.sparse_dims.only(dims):  # reduce some sparse dims
                 return dot(value, dims, ones(dims), dims)  # this is what SciPy does in both axes, actually.
@@ -2306,6 +2309,12 @@ def gather(values: Tensor, indices: Tensor, dims: Union[DimFilter, None] = None)
     dims = parse_dim_order(dims)
     assert dims, f"No indexing dimensions for tensor {values.shape} given indices {indices.shape}"
     assert dims in values.shape, f"Trying to index non-existant dimensions with indices {indices.shape} into values {values.shape}"
+    if values._is_tracer:
+        if not channel(indices):
+            indices = expand(indices, channel(gather=dims))
+        if not channel(indices).item_names[0]:
+            indices = indices._with_shape_replaced(indices.shape.with_dim_size(channel(indices), dims))
+        return values._gather(indices)
     treat_as_batch = non_channel(indices).only(values.shape).without(dims)
     batch_ = (values.shape.batch & indices.shape.batch).without(dims) & treat_as_batch
     channel_ = values.shape.without(dims).without(batch_)
@@ -2425,7 +2434,13 @@ def scatter(base_grid: Union[Tensor, Shape],
             raise NotImplementedError()
     lists = indices.shape.instance & values.shape.instance
 
-    def scatter_forward(base_grid, indices, values):
+    def scatter_forward(base_grid: Tensor, indices: Tensor, values: Tensor):
+        if values._is_tracer:
+            if indices._is_tracer or base_grid._is_tracer:
+                raise NotImplementedError("scattering linear tracer into linear tracer not supported")
+            if not channel(indices):
+                indices = expand(indices, channel(vector=indexed_dims))
+            return values._scatter(base_grid, indices)
         indices = to_int32(round_(indices))
         native_grid = reshaped_native(base_grid, [batches, *indexed_dims, channels])
         native_values = reshaped_native(values, [batches, lists, channels])
@@ -2827,7 +2842,8 @@ def pairwise_distances(positions: Tensor,
         assert dual_dims.rank == 1, f"others_dims sizes must be specified when passing more then one dimension but got {dual_dims}"
         dual_dims = dual_dims.with_size(primal_dims.volume)
     # --- Determine mode ---
-    tmp_pair_count = None
+    # if method == 'sklearn':
+
     pair_count = None
     table_len = None
     mode = 'vectorize' if batch_shape.volume > 1 and batch_shape.is_uniform else 'loop'

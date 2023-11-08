@@ -575,12 +575,12 @@ class _ZeroGradient(_CopyExtrapolation):
             for i in range(bound_lo):  # i=0 means outer
                 # this sets corners to 0
                 lower = {dim: -i if dim == bound_dim else -lo for dim, (lo, _) in widths.items()}
-                mask = self._lower_mask(value.shape.only(result.dependent_dims), widths, bound_dim, bound_lo, bound_hi, i)
+                mask = self._lower_mask(value.shape.only(tuple(lower)), widths, bound_dim, bound_lo, bound_hi, i)
                 boundary = value.shift(lower, new_shape=result.shape, val_fun=lambda v: self.pad(v, widths) * mask, bias_fun=lambda b: ZERO.pad(b, widths))
                 result += boundary
             for i in range(bound_hi):
                 lower = {dim: i - lo - hi if dim == bound_dim else -lo for dim, (lo, hi) in widths.items()}
-                mask = self._upper_mask(value.shape.only(result.dependent_dims), widths, bound_dim, bound_lo, bound_hi, i)
+                mask = self._upper_mask(value.shape.only(tuple(lower)), widths, bound_dim, bound_lo, bound_hi, i)
                 boundary = value.shift(lower, new_shape=result.shape, val_fun=lambda v: self.pad(v, widths) * mask, bias_fun=lambda b: ZERO.pad(b, widths))  # ~ half the computation time
                 result += boundary  # this does basically nothing if value is the identity
         return result
@@ -656,8 +656,8 @@ class _PeriodicExtrapolation(_CopyExtrapolation):
             return value[{dim: slice(-width, None)}]
 
     def _pad_linear_tracer(self, value: 'ShiftLinTracer', widths: dict) -> 'ShiftLinTracer':
-        if value.shape.get_sizes(tuple(widths.keys())) != value.source.shape.get_sizes(tuple(widths.keys())):
-            raise NotImplementedError("Periodicity does not match input: %s but input has %s. This can happen when padding an already padded or sliced tensor." % (value.shape.only(tuple(widths.keys())), value.source.shape.only(tuple(widths.keys()))))
+        if value.shape.get_sizes(tuple(widths.keys())) != value._source.shape.get_sizes(tuple(widths.keys())):
+            raise NotImplementedError("Periodicity does not match input: %s but input has %s. This can happen when padding an already padded or sliced tensor." % (value.shape.only(tuple(widths.keys())), value._source.shape.only(tuple(widths.keys()))))
         lower = {dim: -lo for dim, (lo, _) in widths.items()}
         return value.shift(lower, new_shape=value.shape.after_pad(widths), val_fun=lambda v: self.pad(v, widths), bias_fun=lambda b: ZERO.pad(b, widths))
 

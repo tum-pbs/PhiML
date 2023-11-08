@@ -188,12 +188,12 @@ class Tensor:
     @property
     def dtype(self) -> DType:
         """ Data type of the elements of this `Tensor`. """
-        raise NotImplementedError()
+        raise NotImplementedError(self.__class__)
 
     @property
     def shape(self) -> Shape:
         """ The `Shape` lists the dimensions with their sizes, names and types. """
-        raise NotImplementedError()
+        raise NotImplementedError(self.__class__)
 
     @property
     def default_backend(self) -> Backend:
@@ -201,11 +201,11 @@ class Tensor:
         return choose_backend_t(self)
 
     def _with_shape_replaced(self, new_shape: Shape):
-        raise NotImplementedError()
+        raise NotImplementedError(self.__class__)
 
     def _with_natives_replaced(self, natives: list):
         """ Replaces all n _natives() of this Tensor with the first n elements of the list and removes them from the list. """
-        raise NotImplementedError()
+        raise NotImplementedError(self.__class__)
 
     @property
     def rank(self) -> int:
@@ -590,7 +590,7 @@ class Tensor:
         return self._op2(other, lambda x, y: y + x, lambda x, y: choose_backend(x, y).add(y, x), 'radd', '+')
 
     def __sub__(self, other):
-        return self._op2(other, lambda x, y: x - y, lambda x, y: choose_backend(x, y).sub(x, y), 'sub', '-')
+            return self._op2(other, lambda x, y: x - y, lambda x, y: choose_backend(x, y).sub(x, y), 'sub', '-')
 
     def __rsub__(self, other):
         return self._op2(other, lambda x, y: y - x, lambda x, y: choose_backend(x, y).sub(y, x), 'rsub', '-')
@@ -2547,9 +2547,17 @@ def is_scalar(value) -> bool:
         return len(choose_backend(value).staticshape(value)) == 0
 
 
-def may_vary_along(value, dims: DimFilter):
-    s = value._native_shape if isinstance(value, NativeTensor) else shape(value)
-    return s.only(dims).volume > 1
+def variable_shape(value: Tensor):
+    return value._native_shape if isinstance(value, NativeTensor) else shape(value)
+
+
+def may_vary_along(value: Tensor, dims: DimFilter):
+    return variable_shape(value).only(dims).volume > 1
+
+
+def discard_constant_dims(value: Tensor):
+    non_variable = value.shape.without(variable_shape(value))
+    return value[{dim: 0 for dim in non_variable.names}]
 
 
 def specs_equal(spec1, spec2):

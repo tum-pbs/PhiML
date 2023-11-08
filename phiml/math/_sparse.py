@@ -18,7 +18,7 @@ def sparse_tensor(indices: Tensor,
                   dense_shape: Shape,
                   can_contain_double_entries=True,
                   indices_sorted=False,
-                  format='auto',
+                  format='coo',
                   default: Number or None = 0) -> Tensor:
     """
     Construct a sparse tensor that stores `values` at the corresponding `indices` and is 0 everywhere else.
@@ -98,9 +98,9 @@ class SparseCoordinateTensor(Tensor):
         """
         assert isinstance(indices, Tensor), f"indices must be a Tensor but got {type(indices)}"
         assert isinstance(values, Tensor), f"values must be a Tensor but got {type(values)}"
-        assert instance(indices), "indices must have an instance dimension"
-        assert 'vector' in indices.shape, "indices must have a vector dimension"
-        assert set(indices.vector.item_names) == set(dense_shape.names), "The 'vector' dimension of indices must list the dense dimensions as item names"
+        assert instance(indices), f"indices must have an instance dimension but got {indices.shape}"
+        assert 'vector' in indices.shape, f"indices must have a vector dimension but got {indices.shape}"
+        assert set(indices.vector.item_names) == set(dense_shape.names), f"The 'vector' dimension of indices must list the dense dimensions {dense_shape} as item names but got {indices.vector.item_names}"
         assert indices.dtype.kind == int, f"indices must have dtype=int but got {indices.dtype}"
         self._shape = merge_shapes(dense_shape, batch(indices), non_instance(values))
         self._dense_shape = dense_shape
@@ -272,11 +272,16 @@ class SparseCoordinateTensor(Tensor):
         if isinstance(other, SparseCoordinateTensor):
             if same_sparsity_pattern(self, other):
                 return self._with_values(operator(self._values, other._values))
-            elif op_symbol == '+':
-                raise NotImplementedError("Compressed addition not yet implemented")
             else:
-                # convert to COO, then perform operation
-                raise NotImplementedError
+                assert op_name in ['add', 'radd', 'sub', 'rsub']
+                indices = concat([self._indices, other._indices], instance(self._indices))
+                if op_symbol == '+':
+                    values = concat([self._values, other._values], instance(self._values))
+                elif op_name == 'sub':
+                    values = concat([self._values, -other._values], instance(self._values))
+                else:  # op_name == 'rsub':
+                    values = concat([-self._values, other._values], instance(self._values))
+                return SparseCoordinateTensor(indices, values, self._dense_shape, can_contain_double_entries=True, indices_sorted=False, default=self._default)
         else:  # other is dense
             if self._dense_shape in other.shape:  # all dims dense -> convert to dense
                 return dense(self)._op2(other, operator, native_function, op_name, op_symbol)
@@ -896,6 +901,8 @@ def dense(x: Tensor) -> Tensor:
 
 
 def dot_compressed_dense(compressed: CompressedSparseMatrix, cdims: Shape, dense: Tensor, ddims: Shape):
+    if dense._is_tracer:
+        return dense.matmul(compressed, cdims, ddims)
     from . import reshaped_native, reshaped_tensor
     backend = choose_backend(*compressed._natives() + dense._natives())
     if compressed._uncompressed_dims in cdims:  # proper matrix-vector multiplication
@@ -910,6 +917,8 @@ def dot_compressed_dense(compressed: CompressedSparseMatrix, cdims: Shape, dense
 
 
 def dot_coordinate_dense(sparse: SparseCoordinateTensor, sdims: Shape, dense: Tensor, ddims: Shape):
+    if dense._is_tracer:
+        return dense.matmul(sparse, sdims, ddims)
     from . import reshaped_native, reshaped_tensor
     backend = choose_backend(*sparse._natives() + dense._natives())
     ind_batch, channels, native_indices, native_values, native_shape = sparse._native_coo_components(sdims, matrix=True)
