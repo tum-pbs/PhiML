@@ -286,7 +286,7 @@ class LinearFunction(Generic[X, Y], Callable[[X], Y]):
         self.f_params = function_parameters(f)
         self.auxiliary_args = auxiliary_args
         self.forget_traces = forget_traces
-        self.matrices_and_biases: Dict[SignatureKey, Tuple[SparseCoordinateTensor, Tensor]] = {}
+        self.matrices_and_biases: Dict[SignatureKey, Tuple[SparseCoordinateTensor, Tensor, Tuple]] = {}
         self.nl_jit = JitFunction(f, self.auxiliary_args, forget_traces)  # for backends that do not support sparse matrices
 
     # def _trace(self, in_key: SignatureKey, prefer_numpy: bool) -> 'ShiftLinTracer':
@@ -312,18 +312,18 @@ class LinearFunction(Generic[X, Y], Callable[[X], Y]):
                 self.matrices_and_biases.clear()
             _TRACING_LINEAR.append(self)
             try:
-                matrix, bias = matrix_from_function(self.f, *args, **f_kwargs, auto_compress=True)
+                matrix, bias, raw_out = matrix_from_function(self.f, *args, **f_kwargs, auto_compress=True, _return_raw_output=True)
             finally:
                 assert _TRACING_LINEAR.pop(-1) is self
             if not key.tracing:
-                self.matrices_and_biases[key] = matrix, bias
+                self.matrices_and_biases[key] = matrix, bias, raw_out
                 if len(self.matrices_and_biases) >= 4:
                     warnings.warn(f"""Φ-ML-lin: The compiled linear function '{f_name(self.f)}' was traced {len(self.matrices_and_biases)} times.
 Performing many traces may be slow and cause memory leaks.
 Tensors in auxiliary arguments (all except the first parameter unless specified otherwise) are compared by reference, not by tensor values.
 Auxiliary arguments: {key.auxiliary_kwargs}
 Multiple linear traces can be avoided by jit-compiling the code that calls the linear function or setting forget_traces=True.""", RuntimeWarning, stacklevel=3)
-            return matrix, bias
+            return matrix, bias, raw_out
 
     def __call__(self, *args: X, **kwargs) -> Y:
         try:
@@ -341,8 +341,11 @@ Multiple linear traces can be avoided by jit-compiling the code that calls the l
                 return self.f(*args, **kwargs)
             else:
                 return self.nl_jit(*args, **kwargs)
-        matrix, bias = self._get_or_trace(key, args, kwargs)
-        return matrix @ tensors[0] + bias
+        matrix, bias, (out_tree, out_tensors) = self._get_or_trace(key, args, kwargs)
+        result = matrix @ tensors[0] + bias
+        out_tensors = list(out_tensors)
+        out_tensors[0] = result
+        return assemble_tree(out_tree, out_tensors)
 
     def sparse_matrix(self, *args, **kwargs):
         """
@@ -359,7 +362,7 @@ Multiple linear traces can be avoided by jit-compiling the code that calls the l
             Sparse matrix representation with `values` property and `native()` method.
         """
         key, *_ = key_from_args(args, kwargs, self.f_params, cache=False, aux=self.auxiliary_args)
-        matrix, bias = self._get_or_trace(key, args, kwargs)
+        matrix, bias, *_ = self._get_or_trace(key, args, kwargs)
         assert math.close(bias, 0), "This is an affine function and cannot be represented by a single matrix. Use sparse_matrix_and_bias() instead."
         return matrix
 
@@ -377,7 +380,7 @@ Multiple linear traces can be avoided by jit-compiling the code that calls the l
             bias: `Tensor`
         """
         key, *_ = key_from_args(args, kwargs, self.f_params, cache=False, aux=self.auxiliary_args)
-        return self._get_or_trace(key, args, kwargs)
+        return self._get_or_trace(key, args, kwargs)[:2]
 
     def __repr__(self):
         return f"lin({f_name(self.f)})"
