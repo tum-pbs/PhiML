@@ -1,7 +1,7 @@
 import numbers
 import os
 import sys
-from typing import Union, Optional
+from typing import Union, Optional, Tuple
 
 import numpy as np
 import numpy.random
@@ -352,6 +352,9 @@ class NumPyBackend(Backend):
         result = np.bincount(x, weights=weights, minlength=bins)
         assert result.shape[-1] == bins
         return result
+
+    def unique(self, x: TensorType, return_inverse: bool, return_counts: bool, axis: int) -> Tuple[TensorType, ...]:
+        return np.unique(x, return_inverse=return_inverse, return_counts=return_counts, axis=axis)
 
     def quantile(self, x, quantiles):
         return np.quantile(x, quantiles, axis=-1)

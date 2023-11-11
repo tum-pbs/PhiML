@@ -525,6 +525,9 @@ class JaxBackend(Backend):
         else:
             return jnp.bincount(x, weights=weights, minlength=bins, length=bins)
 
+    def unique(self, x: TensorType, return_inverse: bool, return_counts: bool, axis: int) -> Tuple[TensorType, ...]:
+        return jnp.unique(x, return_inverse=return_inverse, return_counts=return_counts, axis=axis)
+
     def quantile(self, x, quantiles):
         return jnp.quantile(x, quantiles, axis=-1)
 

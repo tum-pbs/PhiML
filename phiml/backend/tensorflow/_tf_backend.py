@@ -575,6 +575,19 @@ class TFBackend(Backend):
         # else:
         return tf.math.bincount(x, weights=weights, minlength=bins, maxlength=bins)
 
+    def unique(self, x: TensorType, return_inverse: bool, return_counts: bool, axis: int) -> Tuple[TensorType, ...]:
+        if self.ndims(x) > 1:
+            if return_counts:
+                raise NotImplementedError("TensorFlow multidimensional unique does not support counts")
+            ux, ui = tf.raw_ops.UniqueV2(x=x, axis=[0])
+            return (ux, ui) if return_inverse else ux
+        if return_counts:
+            ux, ui, uc = tf.unique_with_counts(x)
+            return (ux, ui, uc) if return_inverse else (ux, uc)
+        else:
+            ux, ui = tf.unique(x)
+            return (ux, ui) if return_inverse else ux
+
     def fft(self, x, axes: Union[tuple, list]):
         if not axes:
             return x

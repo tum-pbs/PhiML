@@ -964,6 +964,16 @@ class Backend:
         raise NotImplementedError(self)
 
     def bincount(self, x, weights: Optional[TensorType], bins: int, x_sorted=False):
+        """
+        Args:
+            x: Bin indices, 1D int tensor.
+            weights: Weights corresponding to `x`, 1D tensor. All weights are 1 if `weights=None`.
+            bins: Number of bins.
+            x_sorted: Whether `x` is sorted from lowest to highest bin.
+
+        Returns:
+            bin_counts
+        """
         raise NotImplementedError(self)
 
     def batched_bincount(self, x, weights: Optional[TensorType], bins: int):
@@ -971,6 +981,21 @@ class Backend:
             return self.vectorized_call(self.bincount, x, weights=None, bins=bins)
         else:
             return self.vectorized_call(self.bincount, x, weights, bins=bins)
+
+    def unique(self, x: TensorType, return_inverse: bool, return_counts: bool, axis: int) -> Tuple[TensorType, ...]:
+        """
+        Args:
+            x: n-dimensional int array. Will compare `axis`-slices of `x` for multidimensional `x`.
+            return_inverse: Whether to return the inverse
+            return_counts: Whether to return the counts.
+            axis: Axis along which slices of `x` should be compared.
+
+        Returns:
+            unique_slices: Sorted unique slices of `x`
+            unique_inverse: (optional) index of the unique slice for each slice of `x`
+            unique_counts: Number of occurrences of each unique slices
+        """
+        raise NotImplementedError(self)
 
     def any(self, boolean_tensor, axis=None, keepdims=False):
         raise NotImplementedError(self)

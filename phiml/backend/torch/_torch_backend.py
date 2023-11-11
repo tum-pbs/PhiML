@@ -660,6 +660,9 @@ class TorchBackend(Backend):
     def bincount(self, x, weights: Optional[TensorType], bins: int, x_sorted=False):
         return torch.bincount(x, weights, minlength=bins)
 
+    def unique(self, x: TensorType, return_inverse: bool, return_counts: bool, axis: int) -> Tuple[TensorType, ...]:
+        return torch.unique(x, sorted=False, return_inverse=return_inverse, return_counts=return_counts, dim=axis)
+
     def arctan2(self, y, x):
         y, x = self.auto_cast(y, x)
         return torch.arctan2(y, x)
