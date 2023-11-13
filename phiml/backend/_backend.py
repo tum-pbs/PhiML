@@ -1202,7 +1202,7 @@ class Backend:
         Args:
             indices: (batch, nnz, ndims)
             values: (batch, nnz, channels)
-            shape: Shape of the full matrix, tuple of length ndims
+            shape: Shape of the full matrix, tuple of length ndims (sparse_rows, sparse_cols)
             dense: (batch, dense_rows=sparse_cols, channels, dense_cols)
 
         Returns:
@@ -1216,7 +1216,7 @@ class Backend:
         base_grid = self.zeros((batch_size, shape[0], dense.shape[3] * dense_cols), self.dtype(dense))
         assert dense_cols == 1
         result = self.scatter(base_grid, indices[:, :, 0:1], values * dense_gathered, mode='add')
-        return self.reshape(result, (batch_size, channel_count, dense_rows, dense_cols))
+        return self.reshape(result, (batch_size, channel_count, shape[0], dense_cols))
 
     def coo_to_dense(self, indices, values, shape, contains_duplicates: bool):
         batch_size, nnz, channel_count = self.staticshape(values)
