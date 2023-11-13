@@ -878,7 +878,7 @@ class TensorDim(BoundDim):
         from ._magic_ops import unpack_dim
         return unpack_dim(self.tensor, self.name, split_dimensions)
 
-    def __mul__(self, other):
+    def __matmul__(self, other):
         from ._ops import dot
         if isinstance(other, BoundDim):
             return dot(self.obj, (self.name,), other.obj, (other.name,))
@@ -890,7 +890,7 @@ class TensorDim(BoundDim):
         else:
             return NotImplemented
 
-    __rmul__ = __matmul__ = __rmatmul__ = __mul__
+    __rmul__ = __mul__ = __rmatmul__ = __matmul__
 
     def sum(self):
         from ._ops import sum_

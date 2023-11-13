@@ -11,7 +11,7 @@ from ._magic_ops import expand, pack_dims, unpack_dim, cast, copy_with, value_at
 from ._shape import (Shape, EMPTY_SHAPE,
                      spatial, batch, channel, instance, merge_shapes, parse_dim_order, concat_shapes,
                      IncompatibleShapes, DimFilter, non_batch, dual, non_channel, shape)
-from ._sparse import CompressedSparseMatrix, dot_compressed_dense, dense, SparseCoordinateTensor, dot_coordinate_dense, get_format, to_format, stored_indices, tensor_like, sparse_dims, same_sparsity_pattern, is_sparse, sparse_dot
+from ._sparse import CompressedSparseMatrix, dot_compressed_dense, dense, SparseCoordinateTensor, dot_coordinate_dense, get_format, to_format, stored_indices, tensor_like, sparse_dims, same_sparsity_pattern, is_sparse, sparse_dot, sparse_sum, sparse_gather
 from ._tensors import (Tensor, wrap, tensor, broadcastable_native_tensors, NativeTensor, TensorStack,
                        custom_op2, compatible_tensor, variable_attributes, disassemble_tree, assemble_tree,
                        is_scalar, Layout, expand_tensor, TensorOrTree, discard_constant_dims)
@@ -1314,36 +1314,7 @@ def _sum(value: Tensor, dims: Shape) -> Tensor:
         reduced_inners = [_sum(t, dims.without(value._stack_dim)) for t in value._tensors]
         return functools.reduce(lambda x, y: x + y, reduced_inners) if value._stack_dim in dims else TensorStack(reduced_inners, value._stack_dim)
     elif isinstance(value, (CompressedSparseMatrix, SparseCoordinateTensor)):
-        if value.sparse_dims in dims:  # reduce all sparse dims
-            return _sum(value._values, dims.without(value.sparse_dims) & instance(value._values))
-        value_only_dims = dims.only(value._values.shape).without(value.sparsity_batch)
-        if value_only_dims:
-            value = value._with_values(_sum(value._values, value_only_dims))
-        dims = dims.without(value_only_dims)
-        if not dims:
-            return value
-        if isinstance(value, CompressedSparseMatrix):
-            if value._compressed_dims in dims and value._uncompressed_dims.isdisjoint(dims):  # We can ignore the pointers
-                result_base = value.shape.without(value._compressed_dims)
-                return scatter(result_base, value._indices, value._values, mode='add', outside_handling='undefined')
-            elif value.sparse_dims.only(dims):  # reduce some sparse dims
-                return dot(value, dims, ones(dims), dims)  # this is what SciPy does in both axes, actually.
-            return value
-            # first sum value dims that are not part of indices
-        else:
-            assert isinstance(value, SparseCoordinateTensor)
-            if value._dense_shape in dims:  # sum all sparse dims
-                v_dims = dims.without(value._dense_shape) & instance(value._values)
-                return _sum(value._values, v_dims)
-            else:
-                result_base = zeros(value.shape.without(dims))
-                remaining_sparse_dims = value._dense_shape.without(dims)
-                indices = value._indices.vector[remaining_sparse_dims.names]
-                if remaining_sparse_dims.rank == 1:  # return dense result
-                    result = scatter(result_base, indices, value._values, mode='add', outside_handling='undefined')
-                    return result
-                else:  # return sparse result
-                    raise NotImplementedError
+        return sparse_sum(value, dims)
     else:
         raise ValueError(type(value))
 
@@ -1782,13 +1753,9 @@ def dot(x: Tensor,
     x_dims = x.shape.only(x_dims)
     y_dims = y.shape.only(y_dims)
     if not x_dims:
-        assert y_dims.volume == 1, f"Cannot compute dot product between dimensions {x_dims} on {x.shape} and {y_dims} on {y.shape}"
-        y = y[{d: 0 for d in y_dims.names}]
-        return x * y
+        return x * sum_(y, y_dims)
     if not y_dims:
-        assert x_dims.volume == 1, f"Cannot compute dot product between dimensions {x_dims} on {x.shape} and {y_dims} on {y.shape}"
-        x = x[{d: 0 for d in x_dims.names}]
-        return x * y
+        return sum_(x, x_dims) * y
     if is_sparse(x) or is_sparse(y):
         if x_dims.isdisjoint(sparse_dims(x)) and y_dims.isdisjoint(sparse_dims(y)):
             if is_sparse(x):
@@ -1797,6 +1764,10 @@ def dot(x: Tensor,
                 return y._op2(x, lambda vy, vx: dot(vx, x_dims, vy, y_dims), None, 'dot', '@')
         else:
             return sparse_dot(x, x_dims, y, y_dims)
+    if x._is_tracer:
+        return x._matmul(x_dims, y, y_dims)
+    if y._is_tracer:
+        return y._matmul(y_dims, x, x_dims)
     x_native = x.native(x.shape)
     y_native = y.native(y.shape)
     backend = choose_backend(x_native, y_native)
@@ -2292,7 +2263,7 @@ def gather(values: Tensor, indices: Tensor, dims: Union[DimFilter, None] = None)
     Args:
         values: `Tensor` containing values to gather.
         indices: `int` `Tensor`. Multidimensional position references in `values`.
-            Must contain a single channel dimension for the index vector matching the number of dimensons to index.
+            Must contain a single channel dimension for the index vector matching the number of dimensions to index.
             This channel dimension should list the dimension names to index as item names unless explicitly specified as `dims`.
         dims: (Optional) Dimensions indexed by `indices`.
             Alternatively, the dimensions can be specified as the item names of the channel dimension of `indices`.
@@ -2314,13 +2285,16 @@ def gather(values: Tensor, indices: Tensor, dims: Union[DimFilter, None] = None)
     dims = parse_dim_order(dims)
     assert dims, f"No indexing dimensions for tensor {values.shape} given indices {indices.shape}"
     assert dims in values.shape, f"Trying to index non-existant dimensions with indices {indices.shape} into values {values.shape}"
-    if values._is_tracer:
+    if values._is_tracer or is_sparse(values):
         if not channel(indices):
             indices = expand(indices, channel(gather=dims))
         if not channel(indices).item_names[0]:
             indices = indices._with_shape_replaced(indices.shape.with_dim_size(channel(indices), dims))
-        return values._gather(indices)
-    treat_as_batch = non_channel(indices).only(values.shape).without(dims)
+        if values._is_tracer:
+            return values._gather(indices)
+        else:
+            return sparse_gather(values, indices)
+    treat_as_batch = non_channel(indices).non_instance.only(values.shape).without(dims)
     batch_ = (values.shape.batch & indices.shape.batch).without(dims) & treat_as_batch
     channel_ = values.shape.without(dims).without(batch_)
     index_list_dims = indices.shape.non_channel.without(batch_)
@@ -2408,7 +2382,7 @@ def scatter(base_grid: Union[Tensor, Shape],
         indexed_dims = channel(indices).item_names[0]
         assert indexed_dims in grid_shape, f"Scatter indices {indices.shape} point to missing dimensions in grid {grid_shape}"
         if indexed_dims != grid_shape.only(indexed_dims).names:
-            indices = indices.vector[grid_shape.only(indexed_dims).names]
+            indices = indices[{channel: grid_shape.only(indexed_dims).names}]
         indexed_dims = grid_shape.only(indexed_dims)
     else:
         assert channel(indices).rank == 1 or (grid_shape.spatial_rank + grid_shape.instance_rank == 1 and indices.shape.channel_rank == 0)
@@ -2425,10 +2399,10 @@ def scatter(base_grid: Union[Tensor, Shape],
             base_grid += math.nan
     # --- Handle outside indices ---
     if outside_handling == 'clamp':
-        indices = clip(indices, 0, tensor(indexed_dims, channel('vector')) - 1)
+        indices = clip(indices, 0, tensor(indexed_dims, channel(indices)) - 1)
     elif outside_handling == 'discard':
         indices_linear = pack_dims(indices, instance, instance(_scatter_instance=1))
-        indices_inside = min_((round_(indices_linear) >= 0) & (round_(indices_linear) < tensor(indexed_dims, channel('vector'))), 'vector')
+        indices_inside = min_((round_(indices_linear) >= 0) & (round_(indices_linear) < tensor(indexed_dims, channel(indices_linear))), channel)
         indices_linear = boolean_mask(indices_linear, '_scatter_instance', indices_inside)
         if instance(values).rank > 0:
             values_linear = pack_dims(values, instance, instance(_scatter_instance=1))
@@ -2444,12 +2418,12 @@ def scatter(base_grid: Union[Tensor, Shape],
             if indices._is_tracer or base_grid._is_tracer:
                 raise NotImplementedError("scattering linear tracer into linear tracer not supported")
             if not channel(indices):
-                indices = expand(indices, channel(vector=indexed_dims))
+                indices = expand(indices, channel(scatter_idx=indexed_dims))
             return values._scatter(base_grid, indices)
         indices = to_int32(round_(indices))
         native_grid = reshaped_native(base_grid, [batches, *indexed_dims, channels])
         native_values = reshaped_native(values, [batches, lists, channels])
-        native_indices = reshaped_native(indices, [batches, lists, 'vector'])
+        native_indices = reshaped_native(indices, [batches, lists, channel])
         backend = choose_backend(native_indices, native_values, native_grid)
         if mode in ('add', 'update'):
             native_result = backend.scatter(native_grid, native_indices, native_values, mode=mode)

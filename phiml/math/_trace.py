@@ -3,13 +3,14 @@ from typing import Callable, Dict, Set, Tuple, Union, Any, Optional, Sequence, L
 
 import numpy
 import numpy as np
+from scipy.sparse import csr_matrix
 
 from ..backend import choose_backend, NUMPY, Backend
 from ._ops import choose_backend_t, concat_tensor, scatter, zeros_like
 from ._shape import Shape, parse_dim_order, merge_shapes, spatial, instance, batch, concat_shapes, EMPTY_SHAPE, dual, channel, non_batch, primal, non_channel, DEBUG_CHECKS
-from ._magic_ops import stack, expand, rename_dims, unpack_dim
+from ._magic_ops import stack, expand, rename_dims, unpack_dim, unstack
 from ._tensors import Tensor, wrap, disassemble_tree, disassemble_tensors, assemble_tree, TensorStack, may_vary_along, discard_constant_dims, variable_shape
-from ._sparse import SparseCoordinateTensor, is_sparse, sparse_dims, same_sparsity_pattern, sparse_tensor
+from ._sparse import SparseCoordinateTensor, is_sparse, sparse_dims, same_sparsity_pattern, sparse_tensor, stored_indices, stored_values, add_sparse_batch_dim
 from . import _ops as math
 from ..backend._dtype import combine_types
 
@@ -126,6 +127,8 @@ class ShiftLinTracer(Tensor):
              native_function: Callable,
              op_name: str = 'unknown',
              op_symbol: str = '?') -> Tensor:
+        if is_sparse(other):
+            return NotImplemented
         if isinstance(other, SparseLinTracer):
             return to_sparse_tracer(self, other)._op2(other, operator, native_function, op_name, op_symbol)
         assert op_symbol in '+-*/', f"Unsupported operation encountered while tracing linear function: {native_function}"
@@ -175,9 +178,9 @@ class ShiftLinTracer(Tensor):
     def _spec_dict(self) -> dict:
         raise LinearTraceInProgress(self)
 
-    def _matmul(self, matrix: Tensor, sdims: Shape, ddims: Shape):
+    def _matmul(self, self_dims: Shape, matrix: Tensor, matrix_dims: Shape) -> Tensor:
         if is_sparse(matrix):
-            return to_gather_tracer(self).matmul(matrix, sdims, ddims)
+            return to_gather_tracer(self).matmul(self_dims, matrix, matrix_dims)
         raise NotImplementedError
 
     def _gather(self, indices: Tensor) -> Tensor:
@@ -224,12 +227,14 @@ class GatherLinTracer(Tensor):
     def __repr__(self):
         return f"{self.__class__.__name__} {self._shape}"
 
-    def _matmul(self, matrix: Tensor, mdims: Shape, ddims: Shape):
-        shape = matrix.shape.without(mdims) & self._shape.without(ddims)
-        matrix *= self._matrix
-        matrix = rename_dims(matrix, mdims, rename_dims(ddims, [*self._renamed.keys()], [*self._renamed.values()]).as_dual())
-        renamed = {n: o for n, o in self._renamed.items() if n not in ddims}
-        return SparseLinTracer(self._source, matrix, self._bias, shape, self._selection, renamed)
+    def _matmul(self, self_dims: Shape, matrix: Tensor, matrix_dims: Shape) -> Tensor:
+        shape = matrix.shape.without(matrix_dims) & self._shape.without(self_dims)
+        if self_dims not in self._diag.shape:  # self is constant along self_dims
+            matrix = math.sum_(matrix, matrix_dims)
+        diag = matrix * self._diag
+        diag = rename_dims(diag, matrix_dims, rename_dims(self_dims, [*self._renamed.keys()], [*self._renamed.values()]).as_dual())
+        renamed = {n: o for n, o in self._renamed.items() if n not in self_dims}
+        return GatherLinTracer(self._source, diag, self._bias, shape, self._selection, renamed)
 
     def _gather(self, indices: Tensor):
         """
@@ -267,7 +272,7 @@ class GatherLinTracer(Tensor):
              native_function: Callable,
              op_name: str = 'unknown',
              op_symbol: str = '?') -> Tensor:
-        assert op_symbol in '+-*/', f"Unsupported operation encountered while tracing linear function: {native_function}"
+        assert op_symbol in '+-*/', f"Unsupported operation '{op_symbol}' encountered while tracing linear function: {native_function}"
         if isinstance(other, ShiftLinTracer):
             other = other._to_gather_tracer()
         if isinstance(other, GatherLinTracer):
@@ -333,6 +338,10 @@ class SparseLinTracer(Tensor):
     def __init__(self, source: TracerSource, matrix: SparseCoordinateTensor, bias: Tensor, shape: Shape):
         assert isinstance(matrix, Tensor)
         assert bias.shape in shape
+        assert matrix.shape.only(shape) == shape.only(matrix.shape, reorder=True)
+        for dim in source.shape:
+            if '~' + dim.name + '_src' in matrix.shape:
+                assert (dim in matrix.shape) == (dim in shape), f"Inconsistent traced output dim {dim} for tracer {shape} with matrix {matrix.shape}"
         self._source = source
         self._matrix = matrix  # full matrix or diagonal elements only
         self._bias = bias  # should always match self.shape
@@ -342,30 +351,54 @@ class SparseLinTracer(Tensor):
         return f"{self.__class__.__name__} {self._shape}"
 
     def _get_matrix(self, sparsify_batch: bool):
-        return self._matrix  # batch dims are currently always included in the matrix
+        in_dims = [d for d in self._matrix.shape if d.name.endswith('_src')]
+        renamed = [d.name[:-4] for d in self._matrix.shape if d.name.endswith('_src')]
+        return rename_dims(self._matrix, in_dims, renamed)
 
-    def _matmul(self, matrix: Tensor, mdims: Shape, ddims: Shape):
-        raise NotImplementedError
+    def _matmul(self, self_dims: Shape, matrix: Tensor, matrix_dims: Shape) -> Tensor:
+        reduced_dims = dependent_out_dims(self).only(self_dims)  # these dimensions
+        shape = self._shape.without(self_dims) & matrix.shape.without(matrix_dims)
+        if reduced_dims:
+            raise NotImplementedError
+        from ._ops import dot
+        missing_self_dims = self_dims.without(self._matrix.shape)
+        if missing_self_dims:
+            new_source_dims = concat_shapes([dual(**{n + '_src': v for n, v in d.untyped_dict.items()}) for d in missing_self_dims])
+            batched = add_sparse_batch_dim(self._matrix, new_source_dims, missing_self_dims)  # to preserve the source dim
+        else:
+            batched = self._matrix
+        new_sparse = dot(batched, self_dims, matrix, matrix_dims)
+        # reduced_sparse = math.sum_(new_sparse, new_dims)
+        bias = dot(self._bias, self_dims, matrix, matrix_dims)
+        return SparseLinTracer(self._source, new_sparse, bias, shape)
+        # for dim in new_dims:
+        #     matrix_slices = unstack(matrix, matrix_dims)
+        #     new_tracers = [self._matrix * s for s in matrix_slices]  # duplicate tracer entries for each slice
+        #     new_tracer = stack(new_tracers, self_dims)
+        #     new_tracer = math.sum_(new_tracer, self_dims)
 
     def _gather(self, indices: Tensor):
         """
         Args:
             indices: has 1 channel and 1 non-channel/non-instance
         """
-        raise NotImplementedError
+        matrix = self._matrix[indices]
+        bias = self._bias[indices]
+        shape = self._shape.without(channel(indices).item_names[0]) & non_channel(indices)
+        return SparseLinTracer(self._source, matrix, bias, shape)
 
     def _scatter(self, base: Tensor, indices: Tensor) -> Tensor:
         full_shape = base.shape
         add_bias = discard_constant_dims(base)
         min_shape = base.shape.only(channel(indices).item_names[0])
         row_dims = self._matrix.sparse_dims.only(self._shape)
-        col_dims = self._matrix.sparse_dims.only(self._source.shape.as_dual())
-        rows = rename_dims(indices[self._matrix._indices[row_dims.names]], channel, 'vector')
-        cols = self._matrix._indices[list(col_dims.names)]
-        transformed_indices = concat_tensor([rows, cols], 'vector')
+        col_dims = self._matrix.sparse_dims.only([n for n in self._matrix.sparse_dims.names if n.endswith('_src')])
+        rows = rename_dims(indices[self._matrix._indices[row_dims.name_list]], channel, 'sparse_idx')
+        cols = self._matrix._indices[col_dims.name_list]
+        transformed_indices = concat_tensor([rows, cols], 'sparse_idx')
         dense_shape = self._matrix.sparse_dims.without(row_dims) & min_shape
         matrix = SparseCoordinateTensor(transformed_indices, self._matrix._values, dense_shape, can_contain_double_entries=True, indices_sorted=False, default=self._matrix._default)
-        bias = scatter(min_shape, indices, self._bias) + add_bias
+        bias = scatter(min_shape, indices, self._bias, outside_handling='undefined') + add_bias
         return SparseLinTracer(self._source, matrix, bias, full_shape)
 
     def __neg__(self):
@@ -391,10 +424,10 @@ class SparseLinTracer(Tensor):
         if isinstance(other, SparseLinTracer):
             assert op_symbol in '+-', f"Non-linear operation '{op_symbol}' cannot be converted to matrix"
             bias = operator(self._bias, other._bias)
-            matrix = operator(self._matrix, other._matrix)
+            matrix = operator(self._matrix, other._matrix)  # ToDo if other has no dependence on vector, it would also be in the output
             return SparseLinTracer(self._source, matrix, bias, self._shape)
         else:
-            other = self._tensor(other)
+            # other = self._tensor(other)
             if op_symbol in '*/':
                 matrix = operator(self._matrix, other)
                 bias = operator(self._bias, other)
@@ -436,10 +469,30 @@ class SparseLinTracer(Tensor):
 def concat_tracers(tracers: Sequence[Tensor], dim: str):
     full_size = sum([t_.shape.get_size(dim) for t_ in tracers])
     shape = merge_shapes([t.shape.with_dim_size(dim, full_size) for t in tracers])
-    tracer_count = len([t for t in tracers if t._is_tracer])
     if any(isinstance(t, SparseLinTracer) for t in tracers):
-        # tracers = [to_sparse_tracer(t, any_tracer) if t._is_tracer else t for t in tracers]
-        raise NotImplementedError
+        any_tracer = [t for t in tracers if isinstance(t, SparseLinTracer)][0]
+        tracers = [to_sparse_tracer(t, any_tracer) if t._is_tracer else t for t in tracers]
+        biases = []
+        indices = []
+        values = []
+        offset = 0
+        for t in tracers:
+            if t._is_tracer:
+                offset_vec = [offset if d == dim else 0 for d in channel(t._matrix._indices).item_names[0]]
+                indices.append(stored_indices(t._matrix, invalid='keep') + offset_vec)
+                values.append(stored_values(t._matrix, invalid='keep'))
+                biases.append(expand(t._bias, t.shape[dim]))
+            else:  # constant
+                # mapped_shape = rename_dims(t.shape, tuple(any_tracer._renamed), [any_tracer._source.shape[o] for o in any_tracer._renamed.values()])
+                biases.append(expand(discard_constant_dims(t), t.shape[dim]))
+            offset += t.shape[dim]
+        full_bias = math.concat(biases, dim, expand_values=True)
+        indices = concat_tensor(indices, 'entries')
+        values = concat_tensor(values, 'entries')
+        can_contain_double_entries = any([t._matrix._can_contain_double_entries for t in tracers if t._is_tracer])
+        dense_shape = any_tracer._matrix._dense_shape.with_dim_size(dim, full_size)
+        matrix = sparse_tensor(indices, values, dense_shape, can_contain_double_entries, indices_sorted=False, default=any_tracer._matrix._default)
+        return SparseLinTracer(any_tracer._source, matrix, full_bias, shape)
     elif any(isinstance(t, GatherLinTracer) for t in tracers):
         tracers = [to_gather_tracer(t) if t._is_tracer else t for t in tracers]
         any_tracer = [t for t in tracers if t._is_tracer][0]
@@ -570,7 +623,7 @@ def tracer_to_coo(tracer: Tensor, sparsify_batch: bool, separate_independent: bo
         matrices, biases = zip(*[tracer_to_coo(t, sparsify_batch, separate_independent) for t in tracer._tensors])
         bias = stack(biases, tracer._stack_dim)
         if not separate_independent:
-            indices = [math.concat_tensor([m._indices, expand(i, instance(m._indices), channel(vector=tracer._stack_dim.name))], 'vector') for i, m in enumerate(matrices)]
+            indices = [math.concat_tensor([m._indices, expand(i, instance(m._indices), channel(sparse_idx=tracer._stack_dim.name))], 'sparse_idx') for i, m in enumerate(matrices)]
             indices = math.concat_tensor(indices, 'entries')
             values = math.concat_tensor([m._values for m in matrices], 'entries')
             # matrix = stack(matrices, tracer._stack_dim)
@@ -616,7 +669,7 @@ def tracer_to_coo(tracer: Tensor, sparsify_batch: bool, separate_independent: bo
                 src_idx_all.append(src_idx[out_shape.index(out_dim)])
         src_indices.append(src_idx_all)
     indices_np = np.concatenate([np.concatenate(src_indices, axis=1), np.concatenate(out_indices, axis=1)]).T
-    indices = wrap(indices_np, instance('entries'), channel(vector=(sliced_src_shape if separate_independent else src_shape).names + out_shape.names))
+    indices = wrap(indices_np, instance('entries'), channel(sparse_idx=(sliced_src_shape if separate_independent else src_shape).names + out_shape.names))
     backend = choose_backend(*values)
     values = math.reshaped_tensor(backend.concat(values, axis=-1), [batch_val, instance('entries')], convert=False)
     dense_shape = concat_shapes((sliced_src_shape if separate_independent else src_shape) & out_shape)
@@ -712,10 +765,11 @@ def to_sparse_tracer(tracer: Tensor, ref: Optional[Tensor]) -> SparseLinTracer:
         in_dims = dependent_src_dims(tracer).as_dual()
         out_dims = dependent_out_dims(tracer)
         cols = rename_dims(tracer._selection, non_channel, instance)
-    cols = rename_dims(cols, channel, channel(vector=in_dims))
+    in_dims = rename_dims(in_dims, in_dims, [n + "_src" for n in in_dims.names])
+    cols = rename_dims(cols, channel, channel(sparse_idx=in_dims))
     gather_dims = cols.shape.non_channel
-    rows = math.meshgrid(gather_dims, stack_dim=channel(vector=out_dims))
-    indices = concat_tensor([rows, cols], 'vector')
+    rows = math.meshgrid(gather_dims, stack_dim=channel(sparse_idx=out_dims))
+    indices = concat_tensor([rows, cols], 'sparse_idx')
     dense_shape = in_dims & out_dims
     matrix = sparse_tensor(indices, rename_dims(tracer._diag, indices.shape.non_channel.non_batch, instance), dense_shape, can_contain_double_entries=False, indices_sorted=False, format='coo', default=0)
     # ToDo check renaming

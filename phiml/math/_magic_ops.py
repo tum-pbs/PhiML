@@ -410,7 +410,8 @@ def rename_dims(value,
     if isinstance(names, str):
         names = parse_dim_order(names)
     elif callable(names):
-        names: Shape = names(*dims).with_sizes(shape(value))
+        names = names(**existing_dims.untyped_dict)
+        dims = existing_dims
     assert len(dims) == len(names), f"names and dims must be of equal length but got #dims={len(dims)} and #names={len(names)}"
     existing_dims = shape(value).only(dims, reorder=True)
     if not existing_dims:
@@ -428,7 +429,7 @@ def rename_dims(value,
         return copy_with(value, **new_attributes)
     # --- Fallback: unstack and stack ---
     if shape(value).only(existing_dims).volume > 8:
-        warnings.warn(f"rename_dims() default implementation is slow on large dimensions ({shape(value).only(dims)}). Please implement __replace_dims__() for {type(value).__name__} as defined in phiml.math.magic", RuntimeWarning, stacklevel=2)
+        warnings.warn(f"rename_dims() default implementation is slow on large dimensions ({existing_dims}). Please implement __replace_dims__() for {type(value).__name__} as defined in phiml.math.magic", RuntimeWarning, stacklevel=2)
     for old_name, new_dim in zip(existing_dims.names, existing_names):
         value = stack(unstack(value, old_name), new_dim, **kwargs)
     return value

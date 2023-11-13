@@ -757,8 +757,12 @@ class Shape:
         if not isinstance(dims, (tuple, list, set)):
             raise ValueError(dims)
         if reorder:
+            dims = [d.name if isinstance(d, Shape) else d for d in dims]
+            assert all(isinstance(d, str) for d in dims)
             return self[[self.names.index(d) for d in dims if d in self.names]]
         else:
+            dims = [d.name if isinstance(d, Shape) else d for d in dims]
+            assert all(isinstance(d, str) for d in dims)
             return self[[i for i in range(self.rank) if self.names[i] in dims]]
 
     @property
