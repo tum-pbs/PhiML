@@ -1100,6 +1100,11 @@ def broadcast_op(operation: Callable,
             iter_dims.update(tensor.shape.shape.without('dims').names)
             if isinstance(tensor, TensorStack) and tensor.requires_broadcast:
                 iter_dims.add(tensor._stack_dim.name)
+            # --- remove iter_dims for which the sizes vary among tensors ---
+            for dim in tuple(iter_dims):
+                sizes = [t.shape.get_size(dim) if dim in t.shape else None for t in tensors]
+                if not all(s == sizes[0] for s in sizes[1:]):
+                    iter_dims.remove(dim)
     if len(iter_dims) == 0:
         return operation(*tensors)
     else:
