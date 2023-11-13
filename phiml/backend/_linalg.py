@@ -365,6 +365,9 @@ class NoPreconditioner(Preconditioner):
     def apply_inv_u(self, vec):
         return vec
 
+    def __repr__(self):
+        return "none"
+
 
 @dataclass
 class IncompleteLU(Preconditioner):
