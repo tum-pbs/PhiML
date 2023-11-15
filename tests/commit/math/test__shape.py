@@ -179,3 +179,18 @@ class TestShape(TestCase):
         self.assertEqual(channel(vec='0'), v.shape)
         v = math.vec('b:b', 0)
         self.assertEqual(batch(b='0,'), v.shape)
+
+    def test_higher_dual(self):
+        s = spatial(x=4, y=3) & channel(vector='x,y') & dual(vector=2)
+        d = s._more_dual()
+        self.assertEqual(d, dual(d))
+        self.assertEqual(d, d.dual)
+        self.assertEqual({'~x', '~y', '~vector', '~~vector'}, set(d.names))
+        p = d._less_dual()
+        self.assertEqual(dual(vector=2), dual(p))
+        self.assertEqual({'x', 'y', 'vector', '~vector'}, set(p.names))
+        pp = s._less_dual()
+        self.assertEqual(spatial(x=4, y=3), pp.spatial)
+        self.assertEqual(math.EMPTY_SHAPE, pp.dual)
+
+

@@ -71,11 +71,12 @@ class Shape:
             for name, size in zip(names, sizes):
                 if isinstance(size, Tensor):
                     assert size.rank > 0
-            for size, item_names in zip(self.sizes, self.item_names):
+            for name, size, item_names in zip(self.names, self.sizes, self.item_names):
                 if item_names is not None:
                     assert len(item_names) == size, f"Number of item names ({len(item_names)}) does not match size {size}"
                     for item_name in item_names:
                         assert item_name, f"Empty item name"
+                    assert len(set(item_names)) == len(item_names), f"Duplicate item names in shape {self} at dim '{name}': {item_names}"
             for name, type in zip(names, types):
                 if type == DUAL_DIM:
                     assert name.startswith('~'), f"Dual dimensions must start with '~' but got '{name}' in {self}"
@@ -103,6 +104,10 @@ class Shape:
         sizes = tuple(dict_['sizes']) if 'sizes' in dict_ else (None,) * len(names)
         item_names = tuple([None if n is None else tuple(n) for n in dict_['item_names']])
         return Shape(sizes, names, tuple(dict_['types']), item_names)
+
+    @property
+    def name_list(self):
+        return list(self.names)
 
     @property
     def _named_sizes(self):
@@ -519,6 +524,14 @@ class Shape:
     def as_dual(self):
         """Returns a copy of this `Shape` with all dimensions of type *dual*."""
         return dual(**self.untyped_dict)
+
+    def _more_dual(self):
+        return Shape(self.sizes, tuple('~' + n for n in self.names), (DUAL_DIM,) * len(self.names), self.item_names)
+
+    def _less_dual(self, default_type='unknown_primal'):
+        names = tuple(n[1:] if n.startswith('~') else n for n in self.names)
+        types = [t if t != DUAL_DIM else (DUAL_DIM if n.startswith('~~') else default_type) for n, t in zip(self.names, self.types)]
+        return Shape(self.sizes, names, tuple(types), self.item_names)
 
     def unstack(self, dim='dims') -> Tuple['Shape']:
         """
