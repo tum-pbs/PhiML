@@ -407,13 +407,13 @@ def rename_dims(value,
         return value
     assert isinstance(value, Shapable) and isinstance(value, Shaped), f"value must be a Shape or Shapable but got {type(value).__name__}"
     dims = shape(value).only(dims).names if callable(dims) else parse_dim_order(dims)
+    existing_dims = shape(value).only(dims, reorder=True)
     if isinstance(names, str):
         names = parse_dim_order(names)
     elif callable(names):
         names = names(**existing_dims.untyped_dict)
         dims = existing_dims
     assert len(dims) == len(names), f"names and dims must be of equal length but got #dims={len(dims)} and #names={len(names)}"
-    existing_dims = shape(value).only(dims, reorder=True)
     if not existing_dims:
         return value
     existing_names = [n for i, n in enumerate(names) if dims[i] in existing_dims]
