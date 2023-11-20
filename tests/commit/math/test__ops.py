@@ -868,3 +868,7 @@ class TestOps(TestCase):
         padded = math.pad(ones, [{'c': 'x', 'x': slice(0, 1)}, {'c': 'y', 'x': slice(-1, None)}])
         math.assert_close([0, 1, 1], padded['x'])
         math.assert_close([1, 1, 0], padded['y'])
+
+    def test_meshgrid(self):
+        m = math.meshgrid(x=wrap(2))
+        math.assert_close([[0], [1]], m)

@@ -729,8 +729,8 @@ def meshgrid(dims: Union[Callable, Shape] = spatial, stack_dim=channel('vector')
         dim_values = []
         dim_sizes = []
         for dim, spec in dimensions.items():
-            if isinstance(spec, int):
-                dim_values.append(tuple(range(spec)))
+            if isinstance(spec, int) or (isinstance(spec, Tensor) and spec.rank == 0 and spec.dtype.kind == int):
+                dim_values.append(tuple(range(int(spec))))
                 dim_sizes.append(spec)
             elif isinstance(spec, Tensor):
                 assert spec.rank == 1, f"Only 1D sequences allowed, got {spec} for dimension '{dim}'."
