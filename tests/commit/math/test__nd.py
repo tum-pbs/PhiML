@@ -356,3 +356,12 @@ class TestMathNDNumpy(TestCase):
         assert_matrices_equal(math.vec('angle', x=angle, y=0, z=0))
         assert_matrices_equal(math.vec('angle', x=angle, y=angle, z=0))
         assert_matrices_equal(math.vec('angle', x=angle, y=angle, z=angle))
+
+    def test_neighbor_reduce(self):
+        grid1 = wrap([0, 2, 4, 0], spatial('x'))
+        math.assert_close([2, 6, 4], math.neighbor_sum(grid1))
+        math.assert_close([1, 3, 2], math.neighbor_mean(grid1))
+        math.assert_close([2, 4, 4], math.neighbor_max(grid1))
+        math.assert_close([0, 2, 0], math.neighbor_min(grid1))
+        grid2 = wrap([[0, 1], [2, 3]], spatial('y,x'))
+        math.assert_close([[6]], math.neighbor_sum(grid2))

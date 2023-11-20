@@ -1,4 +1,4 @@
-from typing import Tuple, Optional, Union, List
+from typing import Tuple, Optional, Union, List, Callable
 
 import numpy as np
 
@@ -498,6 +498,52 @@ def shift(x: Tensor,
             components[dimension] = x[slices]
         offset_tensors.append(stack(components, stack_dim) if stack_dim is not None else next(iter(components.values())))
     return offset_tensors
+
+
+def neighbor_reduce(reduce_fun: Callable, grid: Tensor, dims: DimFilter = spatial, padding: Union[Extrapolation, float, Tensor, str, None] = None) -> Tensor:
+    """
+    Computes the mean of two neighboring values along each dimension in `dim`.
+    The result tensor has one entry less than `grid` in each averaged dimension unless `padding` is specified..
+
+    With two `dims`, computes the mean of 4 values, in 3D, the mean of 8 values.
+
+    Args:
+        reduce_fun: Reduction function, such as `sum`, `mean`, `max`, `min`, `prod`.
+        grid: Values to average.
+        dims: Dimensions along which neighbors should be averaged.
+        padding: Padding at the upper edges of `grid` along `dims'. If not `None`, the result tensor will have the same shape as `grid`.
+
+    Returns:
+        `Tensor`
+    """
+    result = grid
+    dims = grid.shape.only(dims)
+    for dim in dims:
+        l, r = shift(result, (0, 1), dim, padding, None)
+        lr = stack([l, r], batch('_reduce'))
+        result = reduce_fun(lr, '_reduce')
+    return result
+
+
+def neighbor_mean(grid: Tensor, dims: DimFilter = spatial, padding: Union[Extrapolation, float, Tensor, str, None] = None) -> Tensor:
+    """`neighbor_reduce` with `reduce_fun` set to `phiml.math.mean`."""
+    return neighbor_reduce(math.mean, grid, dims, padding)
+
+
+def neighbor_sum(grid: Tensor, dims: DimFilter = spatial, padding: Union[Extrapolation, float, Tensor, str, None] = None) -> Tensor:
+    """`neighbor_reduce` with `reduce_fun` set to `phiml.math.sum`."""
+    return neighbor_reduce(math.sum_, grid, dims, padding)
+
+
+def neighbor_max(grid: Tensor, dims: DimFilter = spatial, padding: Union[Extrapolation, float, Tensor, str, None] = None) -> Tensor:
+    """`neighbor_reduce` with `reduce_fun` set to `phiml.math.max`."""
+    return neighbor_reduce(math.max_, grid, dims, padding)
+
+
+def neighbor_min(grid: Tensor, dims: DimFilter = spatial, padding: Union[Extrapolation, float, Tensor, str, None] = None) -> Tensor:
+    """`neighbor_reduce` with `reduce_fun` set to `phiml.math.min`."""
+    return neighbor_reduce(math.min_, grid, dims, padding)
+
 
 
 def masked_fill(values: Tensor, valid: Tensor, distance: int = 1) -> Tuple[Tensor, Tensor]:
