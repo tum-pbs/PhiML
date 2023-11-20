@@ -502,15 +502,15 @@ def shift(x: Tensor,
 
 def neighbor_reduce(reduce_fun: Callable, grid: Tensor, dims: DimFilter = spatial, padding: Union[Extrapolation, float, Tensor, str, None] = None) -> Tensor:
     """
-    Computes the mean of two neighboring values along each dimension in `dim`.
-    The result tensor has one entry less than `grid` in each averaged dimension unless `padding` is specified..
+    Computes the sum/mean/min/max/prod/etc. of two neighboring values along each dimension in `dim`.
+    The result tensor has one entry less than `grid` in each averaged dimension unless `padding` is specified.
 
     With two `dims`, computes the mean of 4 values, in 3D, the mean of 8 values.
 
     Args:
         reduce_fun: Reduction function, such as `sum`, `mean`, `max`, `min`, `prod`.
-        grid: Values to average.
-        dims: Dimensions along which neighbors should be averaged.
+        grid: Values to reduce.
+        dims: Dimensions along which neighbors should be reduced.
         padding: Padding at the upper edges of `grid` along `dims'. If not `None`, the result tensor will have the same shape as `grid`.
 
     Returns:
@@ -543,6 +543,41 @@ def neighbor_max(grid: Tensor, dims: DimFilter = spatial, padding: Union[Extrapo
 def neighbor_min(grid: Tensor, dims: DimFilter = spatial, padding: Union[Extrapolation, float, Tensor, str, None] = None) -> Tensor:
     """`neighbor_reduce` with `reduce_fun` set to `phiml.math.min`."""
     return neighbor_reduce(math.min_, grid, dims, padding)
+
+
+def at_neighbor_where(reduce_fun: Callable, grid: Tensor, dims: DimFilter = spatial, *other_tensors: Tensor, padding: Union[Extrapolation, float, Tensor, str, None] = None) -> Tensor:
+    """
+    Computes the mean of two neighboring values along each dimension in `dim`.
+    The result tensor has one entry less than `grid` in each averaged dimension unless `padding` is specified..
+
+    With two `dims`, computes the mean of 4 values, in 3D, the mean of 8 values.
+
+    Args:
+        reduce_fun: Reduction function, such as `at_max`, `at_min`.
+        grid: Values to average.
+        dims: Dimensions along which neighbors should be averaged.
+        padding: Padding at the upper edges of `grid` along `dims'. If not `None`, the result tensor will have the same shape as `grid`.
+
+    Returns:
+        `Tensor`
+    """
+    result = grid
+    dims = grid.shape.only(dims)
+    for dim in dims:
+        lr = stack(shift(result, (0, 1), dim, padding, None), batch('_reduce'))
+        other_tensors = [stack(shift(t, (0, 1), dim, padding, None), batch('_reduce')) for t in other_tensors]
+        result, *other_tensors = reduce_fun(lr, '_reduce', lr, *other_tensors)
+    return other_tensors[0] if len(other_tensors) == 1 else other_tensors
+
+
+def at_max_neighbor(grid: Tensor, dims: DimFilter = spatial, *other_tensors: Tensor, padding: Union[Extrapolation, float, Tensor, str, None] = None) -> Tensor:
+    """`at_neighbor_where` with `reduce_fun` set to `phiml.math.at_max`."""
+    return at_neighbor_where(math.at_max, grid, dims, *other_tensors, padding=padding)
+
+
+def at_min_neighbor(grid: Tensor, dims: DimFilter = spatial, *other_tensors: Tensor, padding: Union[Extrapolation, float, Tensor, str, None] = None) -> Tensor:
+    """`at_neighbor_where` with `reduce_fun` set to `phiml.math.at_min`."""
+    return at_neighbor_where(math.at_min, grid, dims, *other_tensors, padding=padding)
 
 
 

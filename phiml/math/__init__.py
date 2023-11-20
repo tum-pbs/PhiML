@@ -76,7 +76,7 @@ from ._nd import (
     normalize_to,
     l1_loss, l2_loss, frequency_loss,
     spatial_gradient, laplace,
-    neighbor_reduce, neighbor_mean, neighbor_sum, neighbor_max, neighbor_min,
+    neighbor_reduce, neighbor_mean, neighbor_sum, neighbor_max, neighbor_min, at_min_neighbor, at_max_neighbor,
     fourier_laplace, fourier_poisson, abs_square,
     downsample2x, upsample2x, sample_subgrid,
     masked_fill, finite_fill
