@@ -1027,7 +1027,7 @@ def _closest_grid_values(grid: Tensor,
     return result
 
 
-def grid_sample(grid: Tensor, coordinates: Tensor, extrap: 'e_.Extrapolation', **kwargs):
+def grid_sample(grid: Tensor, coordinates: Tensor, extrap: Union['e_.Extrapolation', float, str], **kwargs):
     """
     Samples values of `grid` at the locations referenced by `coordinates`.
     Values lying in between sample points are determined via linear interpolation.
@@ -1046,6 +1046,7 @@ def grid_sample(grid: Tensor, coordinates: Tensor, extrap: 'e_.Extrapolation', *
     Returns:
         `Tensor` with channel dimensions of `grid`, spatial and instance dimensions of `coordinates` and combined batch dimensions.
     """
+    extrap = e_.as_extrapolation(extrap) if extrap is not None else None
     result = broadcast_op(functools.partial(_grid_sample, extrap=extrap, pad_kwargs=kwargs), [grid, coordinates])
     return result
 
