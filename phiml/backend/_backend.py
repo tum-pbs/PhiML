@@ -700,6 +700,12 @@ class Backend:
     def clip(self, x, minimum, maximum):
         raise NotImplementedError(self)
 
+    def argmax(self, x, axis: int, keepdims=False):
+        raise NotImplementedError(self)
+
+    def argmin(self, x, axis: int, keepdims=False):
+        raise NotImplementedError(self)
+
     def sqrt(self, x):
         raise NotImplementedError(self)
 

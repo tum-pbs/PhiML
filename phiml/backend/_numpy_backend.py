@@ -32,6 +32,8 @@ class NumPyBackend(Backend):
 
     seed = np.random.seed
     clip = staticmethod(np.clip)
+    argmax = staticmethod(np.argmax)
+    argmin = staticmethod(np.argmin)
     minimum = np.minimum
     maximum = np.maximum
     ones_like = staticmethod(np.ones_like)

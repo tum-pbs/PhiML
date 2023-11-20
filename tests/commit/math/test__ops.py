@@ -152,6 +152,28 @@ class TestOps(TestCase):
                 a = math.tensor([True, False, True, False], spatial('x'))
                 assert_close(2, math.sum(a))
 
+    def test_at_max(self):
+        for backend in BACKENDS:
+            with backend:
+                # --- 1D ---
+                x = math.range(spatial(x=11))
+                math.assert_close(-math.max(x, 'x'), math.at_max(x, 'x', -x))
+                # --- 2D ---
+                x = math.meshgrid(x=3, y=3)
+                math.assert_close(-math.max(x, 'x'), math.at_max(x, 'x', -x))
+                math.assert_close(-math.max(x, 'vector'), math.at_max(x, 'vector', -x))
+
+    def test_at_min(self):
+        for backend in BACKENDS:
+            with backend:
+                # --- 1D ---
+                x = math.range(spatial(x=11))
+                math.assert_close(-math.min(x, 'x'), math.at_min(x, 'x', -x))
+                # --- 2D ---
+                x = math.meshgrid(x=3, y=3)
+                math.assert_close(-math.min(x, 'x'), math.at_min(x, 'x', -x))
+                math.assert_close(-math.min(x, 'vector'), math.at_min(x, 'vector', -x))
+
     def test_unstack(self):
         a = math.random_uniform(batch(b=10), spatial(x=4, y=3), channel(vector=2))
         u = math.unstack(a, 'vector')

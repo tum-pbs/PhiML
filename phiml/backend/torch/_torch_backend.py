@@ -540,6 +540,12 @@ class TorchBackend(Backend):
         else:
             return self.maximum(minimum, self.minimum(x, maximum))
 
+    def argmax(self, x, axis: int, keepdims=False):
+        return x.argmax(dim=axis, keepdim=keepdims)
+
+    def argmin(self, x, axis: int, keepdims=False):
+        return x.argmin(dim=axis, keepdim=keepdims)
+
     def conv(self, value, kernel, zero_padding=True):
         value = self.as_tensor(value)
         kernel = self.as_tensor(kernel)

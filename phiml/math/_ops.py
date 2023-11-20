@@ -7,7 +7,7 @@ from typing import Tuple, Callable, Any, Union, Optional, Dict, Collection, Type
 import numpy as np
 
 from . import extrapolation as e_
-from ._magic_ops import expand, pack_dims, unpack_dim, cast, copy_with, value_attributes, bool_to_int, tree_map, concat, stack, unstack
+from ._magic_ops import expand, pack_dims, unpack_dim, cast, copy_with, value_attributes, bool_to_int, tree_map, concat, stack, unstack, rename_dims
 from ._shape import (Shape, EMPTY_SHAPE,
                      spatial, batch, channel, instance, merge_shapes, parse_dim_order, concat_shapes,
                      IncompatibleShapes, DimFilter, non_batch, dual, non_channel, shape)
@@ -1661,6 +1661,48 @@ def finite_mean(value, dim: DimFilter = non_batch, default: Union[complex, float
     count = sum_(finite, dim)
     mean_nan = summed / count
     return where(is_finite(mean_nan), mean_nan, default)
+
+
+def lookup_where(name: str, native_index_fn: Callable, value: Tensor, dim: DimFilter, other_tensors: Tuple[Tensor]):
+    assert other_tensors, f"Pass at least one additional tensor from which values will be returned"
+    dims = value.shape.only(dim)
+    keep = value.shape.without(dims)
+    assert dim, f"No dimensions {dim} present on value {value.shape}"
+    v_native = reshaped_native(value, [keep, dims])
+    idx_native = native_index_fn(v_native)
+    idx = reshaped_tensor(idx_native, [keep.as_batch(), channel(_index=dims)])
+    result = tuple([rename_dims(rename_dims(t, keep, batch)[idx], keep.names, keep) for t in other_tensors])
+    return result[0] if len(other_tensors) == 1 else result
+
+
+def at_max(value: Tensor, dim: DimFilter = non_batch, *other_tensors: Tensor):
+    """
+    Looks up the values of `other_tensors` at the positions where the maximum values in `value` are located along `dim`.
+
+    Args:
+        value: `Tensor` containing at least one dimension of `dim`.
+        dim: Dimensions along which to compute the maximum of `value`.
+        *other_tensors: Tensors from which to lookup and return values. Must also contain `dim`.
+
+    Returns:
+        The values of `other_tensors` at the positions where the maximum values in `value` are located along `dim`.
+    """
+    return lookup_where("max", lambda v: choose_backend(v).argmax(v, 1, keepdims=True), value, dim, other_tensors)
+
+
+def at_min(value: Tensor, dim: DimFilter = non_batch, *other_tensors: Tensor):
+    """
+    Looks up the values of `other_tensors` at the positions where the minimum values in `value` are located along `dim`.
+
+    Args:
+        value: `Tensor` containing at least one dimension of `dim`.
+        dim: Dimensions along which to compute the minimum of `value`.
+        *other_tensors: Tensors from which to lookup and return values. Must also contain `dim`.
+
+    Returns:
+        The values of `other_tensors` at the positions where the minimum values in `value` are located along `dim`.
+    """
+    return lookup_where("min", lambda v: choose_backend(v).argmin(v, 1, keepdims=True), value, dim, other_tensors)
 
 
 def quantile(value: Tensor,

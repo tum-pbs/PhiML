@@ -408,6 +408,20 @@ class TFBackend(Backend):
             x, minimum, maximum = self.auto_cast(x, minimum, maximum)
             return tf.clip_by_value(x, minimum, maximum)
 
+    def argmax(self, x, axis: int, keepdims=False):
+        with self._device_for(x):
+            result = tf.argmax(x, axis)
+            if keepdims:
+                result = self.expand_dims(result, axis)
+            return result
+
+    def argmin(self, x, axis: int, keepdims=False):
+        with self._device_for(x):
+            result = tf.argmin(x, axis)
+            if keepdims:
+                result = self.expand_dims(result, axis)
+            return result
+
     def sqrt(self, x):
         with tf.device(x.device):
             return tf.sqrt(x)

@@ -173,6 +173,8 @@ class JaxBackend(Backend):
     maximum = staticmethod(jnp.maximum)
     minimum = staticmethod(jnp.minimum)
     clip = staticmethod(jnp.clip)
+    argmax = staticmethod(np.argmax)
+    argmin = staticmethod(np.argmin)
     shape = staticmethod(jnp.shape)
     staticshape = staticmethod(jnp.shape)
     imag = staticmethod(jnp.imag)
