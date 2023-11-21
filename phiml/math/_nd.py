@@ -1,4 +1,4 @@
-from typing import Tuple, Optional, Union, List, Callable
+from typing import Tuple, Optional, Union, List, Callable, Sequence, Dict
 
 import numpy as np
 
@@ -448,32 +448,37 @@ def abs_square(complex_values: Union[Tensor, complex]) -> Tensor:
 
 
 def shift(x: Tensor,
-          offsets: tuple,
+          offsets: Sequence[int],
           dims: DimFilter = math.spatial,
           padding: Union[Extrapolation, float, Tensor, str, None] = extrapolation.BOUNDARY,
           stack_dim: Union[Shape, str, None] = channel('shift'),
           extend_bounds=0) -> List[Tensor]:
     """
-    Similar to `numpy.roll()` but with major differences:
+    Shift the tensor `x` by a fixed offset, using `padding` for edge values.
+
+    This is similar to `numpy.roll()` but with major differences:
 
     * Values shifted in from the boundary are defined by `padding`.
     * Positive offsets represent negative shifts.
     * Support for multi-dimensional shifts
 
-    Shift the tensor `x` by a fixed offset and abiding by extrapolation
+    See Also:
+        `index_shift`, `neighbor_reduce`.
 
     Args:
-        x: Input data
-        offsets: Shift size
-        dims: Dimensions along which to shift, defaults to None
-        padding: Padding to be performed at the boundary.
+        x: Input grid-like `Tensor`.
+        offsets: `tuple` listing shifts to compute, each must be an `int`. One `Tensor` will be returned for each entry.
+        dims: Dimensions along which to shift, defaults to all *spatial* dims of `x`.
+        padding: Padding to be performed at the boundary so that the shifted versions have the same size as `x`.
             Must be one of the following: `Extrapolation`, `Tensor` or number for constant extrapolation, name of extrapolation as `str`.
-        stack_dim: dimensions to be stacked, defaults to 'shift'
+            Can be set to `None` to disable padding. Then the result tensors will be smaller than `x`.
+        stack_dim: Dimension along which the components corresponding to each dim in `dims` should be stacked.
+            This can be set to `None` only if `dims` is a single dimension.
         extend_bounds: Number of cells by which to pad the tensors in addition to the number required to maintain the size of `x`.
             Can only be used with a valid `padding`.
 
     Returns:
-        `list` of shifted tensors
+        `list` of shifted tensors. The number of return tensors is equal to the number of `offsets`.
     """
     if dims is None:
         raise ValueError("dims=None is not supported anymore.")
@@ -498,6 +503,52 @@ def shift(x: Tensor,
             components[dimension] = x[slices]
         offset_tensors.append(stack(components, stack_dim) if stack_dim is not None else next(iter(components.values())))
     return offset_tensors
+
+
+def index_shift(x: Tensor, offsets: Sequence[Union[int, Tensor]], padding: Union[Extrapolation, float, Tensor, str, None] = None) -> List[Tensor]:
+    """
+    Returns shifted versions of `x` according to `offsets` where each offset is an `int` vector indexing some dimensions of `x`.
+
+    See Also:
+        `shift`, `neighbor_reduce`.
+
+    Args:
+        x: Input grid-like `Tensor`.
+        offsets: Sequence of offset vectors. Each offset is an `int` vector indexing some dimensions of `x`.
+            Offsets can have different subsets of the dimensions of `x`. Missing dimensions count as 0.
+            The value `0` can also be passed as a zero-shift.
+        padding: Padding to be performed at the boundary so that the shifted versions have the same size as `x`.
+            Must be one of the following: `Extrapolation`, `Tensor` or number for constant extrapolation, name of extrapolation as `str`.
+            Can be set to `None` to disable padding. Then the result tensors will be smaller than `x`.
+
+    Returns:
+        `list` of shifted tensors. The number of return tensors is equal to the number of `offsets`.
+    """
+    _, widths_list, min_by_dim, max_by_dim = join_index_offsets(offsets, negate=True)
+    if padding is not None:
+        pad_lower = {d: max(0, -m) for d, m in min_by_dim.items()}
+        pad_upper = {d: max(0, m) for d, m in max_by_dim.items()}
+        widths = {d: (pad_lower[d], pad_upper[d]) for d in pad_lower.keys()}
+        x = math.pad(x, widths, mode=padding)
+    return [math.pad(x, w, extrapolation.NONE) for w in widths_list]
+
+
+def join_index_offsets(offsets: Sequence[Union[int, Tensor]], negate=False):
+    assert offsets, f"At least one offset mut be provided."
+    assert all((isinstance(o, int) and o == 0) or (channel(o) and channel(o).item_names[0]) for o in offsets)
+    dims = tuple(set().union(*[channel(o).item_names[0] for o in offsets if channel(o)]))
+    offsets = [vec(**{d: o[d] if not isinstance(o, int) and d in channel(o).item_names[0] else 0 for d in dims}) for o in offsets]
+    min_by_dim = {d: min([o[d] for o in offsets]) for d in dims}
+    max_by_dim = {d: max([o[d] for o in offsets]) for d in dims}
+    neg = -1 if negate else 1
+    result = [{d: (int(o[d] - min_by_dim[d]) * neg, int(max_by_dim[d] - o[d]) * neg) for d in dims} for o in offsets]
+    print(result)
+    return offsets, result, min_by_dim, max_by_dim
+
+
+def index_shift_widths(offsets: Sequence[Union[int, Tensor]]) -> List[Dict[str, Tuple[int, int]]]:
+    _, widths_list, _, _ = join_index_offsets(offsets, negate=False)
+    return widths_list
 
 
 def neighbor_reduce(reduce_fun: Callable, grid: Tensor, dims: DimFilter = spatial, padding: Union[Extrapolation, float, Tensor, str, None] = None) -> Tensor:

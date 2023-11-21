@@ -377,3 +377,32 @@ class TestMathNDNumpy(TestCase):
         x_min, neg_x_min = math.at_max_neighbor(x, 'x', x, -x)
         math.assert_close([1, 2, 3], x_min)
         math.assert_close([-1, -2, -3], neg_x_min)
+
+    def test_index_shift(self):
+        center, right = math.index_shift(math.meshgrid(x=3), (0, vec(x=1)), None)
+        math.assert_close([0, 1], center['x'])
+        math.assert_close([1, 2], right['x'])
+        center, right = math.index_shift(math.meshgrid(x=3), (0, vec(x=1)), 'periodic')
+        math.assert_close([0, 1, 2], center['x'])
+        math.assert_close([1, 2, 0], right['x'])
+        center, right = math.index_shift(math.meshgrid(x=3), (0, vec(x=2)), None)
+        math.assert_close([0], center['x'])
+        math.assert_close([2], right['x'])
+        center, right, left = math.index_shift(math.meshgrid(x=3), (0, vec(x=1), vec(x=-1)), None)
+        math.assert_close([1], center['x'])
+        math.assert_close([2], right['x'])
+        math.assert_close([0], left['x'])
+        center, right, left = math.index_shift(math.meshgrid(x=3), (0, vec(x=1), vec(x=-1)), 'periodic')
+        math.assert_close([0, 1, 2], center['x'])
+        math.assert_close([1, 2, 0], right['x'])
+        math.assert_close([2, 0, 1], left['x'])
+        # --- 2D ---
+        right, bottom = math.index_shift(math.meshgrid(x=3, y=3), (vec(x=1), vec(y=-1)), None)
+        math.assert_close([[1, 1], [2, 2]], right['x'])
+        math.assert_close([[1, 2], [1, 2]], right['y'])
+        math.assert_close([[0, 0], [1, 1]], bottom['x'])
+        math.assert_close([[0, 1], [0, 1]], bottom['y'])
+
+    def test_index_shift_widths(self):
+        from phiml.math._nd import index_shift_widths
+        self.assertEqual([{'x': (0, 1)}, {'x': (1, 0)}], index_shift_widths([0, vec(x=1)]))
