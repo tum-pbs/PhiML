@@ -1306,7 +1306,7 @@ class IncompatibleShapes(Exception):
         self.shapes = shapes
 
 
-def parse_dim_names(obj: Union[str, tuple, list, Shape], count: int) -> tuple:
+def parse_dim_names(obj: Union[str, Sequence[str], Shape], count: int) -> tuple:
     if isinstance(obj, str):
         parts = obj.split(',')
         result = []
@@ -1323,7 +1323,7 @@ def parse_dim_names(obj: Union[str, tuple, list, Shape], count: int) -> tuple:
     elif isinstance(obj, Shape):
         assert len(obj) == count, f"Number of specified names in {obj} does not match number of dimensions ({count})"
         return obj.names
-    elif isinstance(obj, (tuple, list)):
+    elif isinstance(obj, Sequence):
         assert len(obj) == count, f"Number of specified names in {obj} does not match number of dimensions ({count})"
         return tuple(obj)
     raise ValueError(obj)

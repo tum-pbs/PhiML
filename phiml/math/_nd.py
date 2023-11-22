@@ -4,7 +4,7 @@ import numpy as np
 
 from . import _ops as math
 from . import extrapolation as extrapolation
-from ._magic_ops import stack, rename_dims, concat, variable_values
+from ._magic_ops import stack, rename_dims, concat, variable_values, tree_map
 from ._shape import Shape, channel, batch, spatial, DimFilter, parse_dim_order, shape, instance, dual, auto
 from ._tensors import Tensor, wrap, tensor
 from .extrapolation import Extrapolation
@@ -542,7 +542,6 @@ def join_index_offsets(offsets: Sequence[Union[int, Tensor]], negate=False):
     max_by_dim = {d: max([o[d] for o in offsets]) for d in dims}
     neg = -1 if negate else 1
     result = [{d: (int(o[d] - min_by_dim[d]) * neg, int(max_by_dim[d] - o[d]) * neg) for d in dims} for o in offsets]
-    print(result)
     return offsets, result, min_by_dim, max_by_dim
 
 
@@ -596,7 +595,7 @@ def neighbor_min(grid: Tensor, dims: DimFilter = spatial, padding: Union[Extrapo
     return neighbor_reduce(math.min_, grid, dims, padding)
 
 
-def at_neighbor_where(reduce_fun: Callable, grid: Tensor, dims: DimFilter = spatial, *other_tensors: Tensor, padding: Union[Extrapolation, float, Tensor, str, None] = None) -> Tensor:
+def at_neighbor_where(reduce_fun: Callable, values, key_grid: Tensor, dims: DimFilter = spatial, padding: Union[Extrapolation, float, Tensor, str, None] = None) -> Tensor:
     """
     Computes the mean of two neighboring values along each dimension in `dim`.
     The result tensor has one entry less than `grid` in each averaged dimension unless `padding` is specified..
@@ -605,30 +604,31 @@ def at_neighbor_where(reduce_fun: Callable, grid: Tensor, dims: DimFilter = spat
 
     Args:
         reduce_fun: Reduction function, such as `at_max`, `at_min`.
-        grid: Values to average.
+        values: Values to look up and return.
+        key_grid: Values to compare.
         dims: Dimensions along which neighbors should be averaged.
         padding: Padding at the upper edges of `grid` along `dims'. If not `None`, the result tensor will have the same shape as `grid`.
 
     Returns:
         `Tensor`
     """
-    result = grid
-    dims = grid.shape.only(dims)
+    result = key_grid
+    dims = key_grid.shape.only(dims)
     for dim in dims:
         lr = stack(shift(result, (0, 1), dim, padding, None), batch('_reduce'))
-        other_tensors = [stack(shift(t, (0, 1), dim, padding, None), batch('_reduce')) for t in other_tensors]
-        result, *other_tensors = reduce_fun(lr, '_reduce', lr, *other_tensors)
-    return other_tensors[0] if len(other_tensors) == 1 else other_tensors
+        values = tree_map(lambda t: stack(shift(t, (0, 1), dim, padding, None), batch('_reduce')), values)
+        result, values = reduce_fun([lr, values], lr, '_reduce')
+    return values
 
 
-def at_max_neighbor(grid: Tensor, dims: DimFilter = spatial, *other_tensors: Tensor, padding: Union[Extrapolation, float, Tensor, str, None] = None) -> Tensor:
+def at_max_neighbor(values, key_grid: Tensor, dims: DimFilter = spatial, padding: Union[Extrapolation, float, Tensor, str, None] = None) -> Tensor:
     """`at_neighbor_where` with `reduce_fun` set to `phiml.math.at_max`."""
-    return at_neighbor_where(math.at_max, grid, dims, *other_tensors, padding=padding)
+    return at_neighbor_where(math.at_max, values, key_grid, dims, padding=padding)
 
 
-def at_min_neighbor(grid: Tensor, dims: DimFilter = spatial, *other_tensors: Tensor, padding: Union[Extrapolation, float, Tensor, str, None] = None) -> Tensor:
+def at_min_neighbor(values, key_grid: Tensor, dims: DimFilter = spatial, padding: Union[Extrapolation, float, Tensor, str, None] = None) -> Tensor:
     """`at_neighbor_where` with `reduce_fun` set to `phiml.math.at_min`."""
-    return at_neighbor_where(math.at_min, grid, dims, *other_tensors, padding=padding)
+    return at_neighbor_where(math.at_min, values, key_grid, dims, padding=padding)
 
 
 

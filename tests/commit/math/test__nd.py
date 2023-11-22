@@ -368,13 +368,13 @@ class TestMathNDNumpy(TestCase):
 
     def test_at_min_neighbor(self):
         x = math.range(spatial(x=4))
-        x_min, neg_x_min = math.at_min_neighbor(x, 'x', x, -x)
+        x_min, neg_x_min = math.at_min_neighbor((x, -x), x, 'x')
         math.assert_close([0, 1, 2], x_min)
         math.assert_close([0, -1, -2], neg_x_min)
 
     def test_at_max_neighbor(self):
         x = math.range(spatial(x=4))
-        x_min, neg_x_min = math.at_max_neighbor(x, 'x', x, -x)
+        x_min, neg_x_min = math.at_max_neighbor((x, -x), x, 'x')
         math.assert_close([1, 2, 3], x_min)
         math.assert_close([-1, -2, -3], neg_x_min)
 

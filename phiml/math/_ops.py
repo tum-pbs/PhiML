@@ -1663,46 +1663,50 @@ def finite_mean(value, dim: DimFilter = non_batch, default: Union[complex, float
     return where(is_finite(mean_nan), mean_nan, default)
 
 
-def lookup_where(name: str, native_index_fn: Callable, value: Tensor, dim: DimFilter, other_tensors: Tuple[Tensor]):
-    assert other_tensors, f"Pass at least one additional tensor from which values will be returned"
-    dims = value.shape.only(dim)
-    keep = value.shape.without(dims)
-    assert dim, f"No dimensions {dim} present on value {value.shape}"
-    v_native = reshaped_native(value, [keep, dims])
+def lookup_where(name: str, native_index_fn: Callable, value: Union[Tensor, PhiTreeNode], key: Tensor, dim: DimFilter):
+    dims = key.shape.only(dim)
+    keep = key.shape.without(dims)
+    assert dim, f"No dimensions {dim} present on key {key.shape}"
+    v_native = reshaped_native(key, [keep, dims])
     idx_native = native_index_fn(v_native)
     idx = reshaped_tensor(idx_native, [keep.as_batch(), channel(_index=dims)])
-    result = tuple([rename_dims(rename_dims(t, keep, batch)[idx], keep.names, keep) for t in other_tensors])
-    return result[0] if len(other_tensors) == 1 else result
+    return tree_map(lambda t: rename_dims(rename_dims(t, keep, batch)[idx], keep.names, keep), value)
 
 
-def at_max(value: Tensor, dim: DimFilter = non_batch, *other_tensors: Tensor):
+def at_max(value, key: Tensor, dim: DimFilter = non_batch):
     """
-    Looks up the values of `other_tensors` at the positions where the maximum values in `value` are located along `dim`.
+    Looks up the values of `value` at the positions where the maximum values in `key` are located along `dim`.
+
+    See Also:
+        `at_min`, `phiml.math.max`.
 
     Args:
-        value: `Tensor` containing at least one dimension of `dim`.
-        dim: Dimensions along which to compute the maximum of `value`.
-        *other_tensors: Tensors from which to lookup and return values. Must also contain `dim`.
+        value: Tensors or trees from which to lookup and return values. These tensors are indexed at the maximum index in `key´.
+        key: `Tensor` containing at least one dimension of `dim`. The maximum index of `key` is determined.
+        dim: Dimensions along which to compute the maximum of `key`.
 
     Returns:
         The values of `other_tensors` at the positions where the maximum values in `value` are located along `dim`.
     """
-    return lookup_where("max", lambda v: choose_backend(v).argmax(v, 1, keepdims=True), value, dim, other_tensors)
+    return lookup_where("max", lambda v: choose_backend(v).argmax(v, 1, keepdims=True), value, key, dim)
 
 
-def at_min(value: Tensor, dim: DimFilter = non_batch, *other_tensors: Tensor):
+def at_min(value, key: Tensor, dim: DimFilter = non_batch):
     """
-    Looks up the values of `other_tensors` at the positions where the minimum values in `value` are located along `dim`.
+    Looks up the values of `value` at the positions where the minimum values in `key` are located along `dim`.
+
+    See Also:
+        `at_max`, `phiml.math.min`.
 
     Args:
-        value: `Tensor` containing at least one dimension of `dim`.
-        dim: Dimensions along which to compute the minimum of `value`.
-        *other_tensors: Tensors from which to lookup and return values. Must also contain `dim`.
+        value: Tensors or trees from which to lookup and return values. These tensors are indexed at the minimum index in `key´.
+        key: `Tensor` containing at least one dimension of `dim`. The minimum index of `key` is determined.
+        dim: Dimensions along which to compute the minimum of `key`.
 
     Returns:
         The values of `other_tensors` at the positions where the minimum values in `value` are located along `dim`.
     """
-    return lookup_where("min", lambda v: choose_backend(v).argmin(v, 1, keepdims=True), value, dim, other_tensors)
+    return lookup_where("min", lambda v: choose_backend(v).argmin(v, 1, keepdims=True), value, key, dim)
 
 
 def quantile(value: Tensor,
