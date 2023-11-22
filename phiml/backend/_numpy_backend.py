@@ -172,6 +172,7 @@ class NumPyBackend(Backend):
         if mode not in ('constant', 'symmetric', 'periodic', 'reflect', 'boundary'):
             return NotImplemented
         if mode == 'constant':
+            value, constant_values = self.auto_cast(value, constant_values)
             return np.pad(value, pad_width, 'constant', constant_values=constant_values)
         else:
             if mode in ('periodic', 'boundary'):
