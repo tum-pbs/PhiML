@@ -109,7 +109,7 @@ def vec_squared(vec: Tensor, vec_dim: DimFilter = channel):
     return math.sum_(vec ** 2, dim=vec_dim)
 
 
-def vec_normalize(vec: Tensor, vec_dim: DimFilter = channel, epsilon=None):
+def vec_normalize(vec: Tensor, vec_dim: DimFilter = channel, epsilon=None, allow_infinite=False):
     """
     Normalizes the vectors in `vec`. If `vec_dim` is None, the combined channel dimensions of `vec` are interpreted as a vector.
 
@@ -118,7 +118,12 @@ def vec_normalize(vec: Tensor, vec_dim: DimFilter = channel, epsilon=None):
         vec_dim: Dimensions to normalize over. By default, all channel dimensions are used to compute the vector length.
         epsilon: (Optional) Zero-length threshold. Vectors shorter than this length yield the unit vector (1, 0, 0, ...).
             If not specified, the zero-vector yields `NaN` as it cannot be normalized.
+        allow_infinite: Allow infinite components in vectors. These vectors will then only points towards the infinite components.
     """
+    if allow_infinite:  # replace inf by 1, finite by 0
+        is_infinite = ~math.is_finite(vec)
+        inf_mask = is_infinite & ~math.is_nan(vec)
+        vec = math.where(math.any_(is_infinite, channel), inf_mask, vec)
     length = vec_length(vec, vec_dim=vec_dim)
     if epsilon is None:
         return vec / vec_length(vec, vec_dim=vec_dim)
