@@ -1670,7 +1670,12 @@ def lookup_where(name: str, native_index_fn: Callable, value: Union[Tensor, PhiT
     v_native = reshaped_native(key, [keep, dims])
     idx_native = native_index_fn(v_native)
     idx = reshaped_tensor(idx_native, [keep.as_batch(), channel(_index=dims)])
-    return tree_map(lambda t: rename_dims(rename_dims(t, keep, batch)[idx], keep.names, keep), value)
+    def lookup(t: Tensor):
+        keep_t = t.shape.without(dims)
+        sel = rename_dims(t, keep_t, batch)[idx]
+        return rename_dims(rename_dims(sel, keep_t.names, keep_t), keep.names, keep)
+    result = tree_map(lookup, value)
+    return result
 
 
 def at_max(value, key: Tensor, dim: DimFilter = non_batch):
