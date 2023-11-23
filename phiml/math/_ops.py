@@ -2299,7 +2299,7 @@ def boolean_mask(x, dim: DimFilter, mask: Tensor):
     return broadcast_op(uniform_boolean_mask, [x, mask], iter_dims=mask.shape.without(dim))
 
 
-def gather(values: Tensor, indices: Tensor, dims: Union[DimFilter, None] = None):
+def gather(values, indices: Tensor, dims: Union[DimFilter, None] = None):
     """
     Gathers the entries of `values` at positions described by `indices`.
     All non-channel dimensions of `indices` that are part of `values` but not indexed are treated as batch dimensions.
@@ -2308,7 +2308,7 @@ def gather(values: Tensor, indices: Tensor, dims: Union[DimFilter, None] = None)
         `scatter()`.
 
     Args:
-        values: `Tensor` containing values to gather.
+        values: `Tensor` or `phiml.math.matic.PhiTreeNode` containing values to gather.
         indices: `int` `Tensor`. Multidimensional position references in `values`.
             Must contain a single channel dimension for the index vector matching the number of dimensions to index.
             This channel dimension should list the dimension names to index as item names unless explicitly specified as `dims`.
@@ -2319,6 +2319,8 @@ def gather(values: Tensor, indices: Tensor, dims: Union[DimFilter, None] = None)
     Returns:
         `Tensor` with combined batch dimensions, channel dimensions of `values` and spatial/instance dimensions of `indices`.
     """
+    if not isinstance(values, Tensor):
+        return tree_map(lambda v: gather(v, indices, dims), values)
     assert channel(indices).rank < 2, f"indices can at most have one channel dimension but got {indices.shape}"
     if dims is None:
         if channel(indices) and channel(indices).item_names[0]:

@@ -439,6 +439,16 @@ class TestOps(TestCase):
                 selected = math.boolean_mask(x, 'selection', mask)
                 self.assertEqual(set(spatial(x=2) & batch(selection=3)), set(selected.shape), msg=backend.name)
 
+    def test_gather_1d(self):
+        for backend in BACKENDS:
+            with backend:
+                t = math.tensor([1, 2, 3, 4], spatial('x'))
+                indices = math.wrap([0, 3, 0], instance('points'))
+                math.assert_close([1, 4, 1], t[indices], math.gather(t, indices))
+                math.assert_close([1, 4, 1], math.gather((-t, t), indices)[1])
+                math.assert_close([-1, -4, -1], math.gather((-t, t), indices)[0])
+                self.assertIsInstance(math.gather((-t, t), indices), tuple)
+
     def test_scatter_1d(self):
         for backend in BACKENDS:
             with backend:
