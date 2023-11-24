@@ -393,6 +393,8 @@ class NumPyBackend(Backend):
             return np.fft.ifftn(k, axes=axes).astype(k.dtype)
 
     def dtype(self, array) -> DType:
+        if isinstance(array, bool):
+            return DType(bool)
         if isinstance(array, int):
             return DType(int, 32)
         if isinstance(array, float):
