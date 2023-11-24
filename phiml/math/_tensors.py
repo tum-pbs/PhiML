@@ -714,7 +714,7 @@ class Tensor:
         return self._op1(lambda t: -t)
 
     def __invert__(self):
-        return self._op1(lambda t: ~t)
+        return self._op1(lambda t: choose_backend(t).invert(t))
 
     def __reversed__(self):
         assert self.shape.channel.rank == 1

@@ -1613,6 +1613,11 @@ class Backend:
         a, b = self.auto_cast(a, b)
         return a >> b
 
+    def invert(self, x):
+        if isinstance(x, bool):
+            return not x
+        return ~x
+
 
 BACKENDS: List[Backend] = []
 """ Global list of all registered backends. Register a `Backend` by adding it to the list. """
