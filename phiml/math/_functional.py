@@ -971,6 +971,7 @@ def trace_check(f, *args, **kwargs) -> Tuple[bool, str]:
         result: `True` if there is an existing trace that can be used, `False` if `f` would have to be re-traced.
         message: A `str` that, if `result == False`, gives hints as to why `f` needs to be re-traced given `args` and `kwargs`.
     """
+    assert args or kwargs, f"Please pass the hypothetical function arguments to trace_check()"
     if isinstance(f, (JitFunction, GradientFunction, HessianFunction, CustomGradientFunction)):
         keys = f.traces.keys()
     elif isinstance(f, LinearFunction):
