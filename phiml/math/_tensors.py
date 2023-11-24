@@ -710,10 +710,10 @@ class Tensor:
     def __deepcopy__(self, memodict={}):
         return self._op1(lambda t: choose_backend(t).copy(t, only_mutable=False))
 
-    def __neg__(self):
+    def __neg__(self) -> 'Tensor':
         return self._op1(lambda t: -t)
 
-    def __invert__(self):
+    def __invert__(self) -> 'Tensor':
         return self._op1(lambda t: choose_backend(t).invert(t))
 
     def __reversed__(self):
@@ -765,7 +765,7 @@ class Tensor:
         else:
             return compatible_tensor(other, compat_shape=self.shape, compat_natives=self._natives(), convert=False)
 
-    def _op1(self, native_function):
+    def _op1(self, native_function) -> 'Tensor':
         """
         Transform the values of this tensor given a function that can be applied to any native tensor.
 
