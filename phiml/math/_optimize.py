@@ -93,7 +93,10 @@ class Solve(Generic[X, Y]):
         return self.x0 == other.x0
 
     def __variable_attrs__(self):
-        return 'x0', 'preprocess_y_args'
+        return 'x0', 'rel_tol', 'abs_tol', 'max_iterations'
+
+    def __value_attrs__(self):
+        return self.__variable_attrs__()
 
     def with_defaults(self, mode: str):
         assert mode in ('solve', 'optimization')
