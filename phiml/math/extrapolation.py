@@ -320,7 +320,7 @@ class ConstantExtrapolation(Extrapolation):
         return math.expand(self.value, dual(connectivity) & non_dual(value))
 
     def __eq__(self, other):
-        return isinstance(other, ConstantExtrapolation) and math.always_close(self.value, other.value)
+        return isinstance(other, ConstantExtrapolation) and math.always_close(self.value, other.value, equal_nan=True)
 
     def __hash__(self):
         return hash(self.__class__)

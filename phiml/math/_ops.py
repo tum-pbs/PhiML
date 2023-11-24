@@ -2621,7 +2621,7 @@ def dtype(x) -> DType:
         return choose_backend(x).dtype(x)
 
 
-def always_close(t1: Union[Number, Tensor, bool], t2: Union[Number, Tensor, bool], rel_tolerance=1e-5, abs_tolerance=0) -> bool:
+def always_close(t1: Union[Number, Tensor, bool], t2: Union[Number, Tensor, bool], rel_tolerance=1e-5, abs_tolerance=0, equal_nan=False) -> bool:
     """
     Checks whether two tensors are guaranteed to be `close` in all values.
     Unlike `close()`, this function can be used with JIT compilation.
@@ -2634,6 +2634,7 @@ def always_close(t1: Union[Number, Tensor, bool], t2: Union[Number, Tensor, bool
         t2: Second tensor or number to compare.
         rel_tolerance: Relative tolerance, only used if neither tensor is traced.
         abs_tolerance: Absolute tolerance, only used if neither tensor is traced.
+        equal_nan: If `True`, tensors are considered close if they are NaN in the same places.
 
     Returns:
         `bool`
@@ -2643,14 +2644,14 @@ def always_close(t1: Union[Number, Tensor, bool], t2: Union[Number, Tensor, bool
     if t1.available != t2.available:
         return False
     if t1.available and t2.available:
-        return close(t1, t2, rel_tolerance=rel_tolerance, abs_tolerance=abs_tolerance)
+        return close(t1, t2, rel_tolerance=rel_tolerance, abs_tolerance=abs_tolerance, equal_nan=equal_nan)
     elif isinstance(t1, NativeTensor) and isinstance(t2, NativeTensor):
         return t1._native is t2._native
     else:
         return t1 is t2
 
 
-def close(*tensors, rel_tolerance=1e-5, abs_tolerance=0) -> bool:
+def close(*tensors, rel_tolerance=1e-5, abs_tolerance=0, equal_nan=False) -> bool:
     """
     Checks whether all tensors have equal values within the specified tolerance.
     
@@ -2661,18 +2662,19 @@ def close(*tensors, rel_tolerance=1e-5, abs_tolerance=0) -> bool:
         *tensors: `Tensor` or tensor-like (constant) each
         rel_tolerance: Relative tolerance
         abs_tolerance: Absolute tolerance
+        equal_nan: If `True`, tensors are considered close if they are NaN in the same places.
 
     Returns:
         Whether all given tensors are equal to the first tensor within the specified tolerance.
     """
     tensors = [wrap(t) for t in tensors]
     for other in tensors[1:]:
-        if not _close(tensors[0], other, rel_tolerance=rel_tolerance, abs_tolerance=abs_tolerance):
+        if not _close(tensors[0], other, rel_tolerance=rel_tolerance, abs_tolerance=abs_tolerance, equal_nan=equal_nan):
             return False
     return True
 
 
-def _close(tensor1: Tensor, tensor2: Tensor, rel_tolerance=1e-5, abs_tolerance=0):
+def _close(tensor1: Tensor, tensor2: Tensor, rel_tolerance=1e-5, abs_tolerance=0, equal_nan=False):
     if tensor2 is tensor1:
         return True
     if tensor1.shape.is_non_uniform or tensor2.shape.is_non_uniform:
@@ -2682,7 +2684,7 @@ def _close(tensor1: Tensor, tensor2: Tensor, rel_tolerance=1e-5, abs_tolerance=0
     new_shape, (native1, native2) = broadcastable_native_tensors(tensor1, tensor2)
     np1 = choose_backend(native1).numpy(native1)
     np2 = choose_backend(native2).numpy(native2)
-    return np.allclose(np1, np2, rel_tolerance, abs_tolerance)
+    return np.allclose(np1, np2, rel_tolerance, abs_tolerance, equal_nan=equal_nan)
 
 
 def assert_close(*values,
