@@ -603,12 +603,17 @@ class TorchBackend(Backend):
     def batched_gather_nd(self, values, indices):
         values = self.as_tensor(values)
         indices = self.as_tensor(indices).long()
-        batch_size = combined_dim(values.shape[0], indices.shape[0])
-        result = []
-        for b in range(batch_size):
-            b_indices = self.unstack(indices[min(b, indices.shape[0] - 1)], -1)
-            result.append(values[(min(b, values.shape[0] - 1),) + b_indices])
-        return self.stack(result, axis=0)
+        v_batch_size, *v_spatial, channels = self.staticshape(values)
+        i_batch_size, *i_spatial, d = self.staticshape(indices)
+        batch_size = combined_dim(v_batch_size, i_batch_size)
+        # --- ravel indices and gather in 1d ---
+        values_packed = self.reshape(values, (batch_size, -1, channels))
+        lin_indices = self.ravel_multi_index(indices, v_spatial)[:, :, None]
+        indices_packed = self.reshape(lin_indices, (batch_size, -1, 1))
+        tiled_indices = self.tile(indices_packed, (1, 1, channels))
+        result = torch.gather(values_packed, dim=1, index=tiled_indices)
+        result = self.reshape(result, (batch_size, *i_spatial, channels))
+        return result
 
     def unstack(self, tensor, axis=0, keepdims=False):
         unstacked = torch.unbind(tensor, dim=axis)

@@ -876,9 +876,25 @@ class Backend:
         raise NotImplementedError(self)
 
     def batched_gather_1d(self, values, indices):
+        """
+        Args:
+            values: (batch, spatial)
+            indices: (batch, indices)
+
+        Returns:
+            (batch, indices)
+        """
         return self.batched_gather_nd(values[:, :, None], indices[:, :, None])[..., 0]
 
     def gather_nd(self, values, indices):
+        """
+        Args:
+            values: (spatial, channels)
+            indices: (indices, multi_index)
+
+        Returns:
+            (indices, channels)
+        """
         return self.batched_gather_nd(values[None, :, :], indices[None, :, :])[0, :, :]
 
     def gather_1d(self, values, indices):
