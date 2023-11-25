@@ -543,8 +543,8 @@ def join_index_offsets(offsets: Sequence[Union[int, Tensor]], negate=False):
     assert all((isinstance(o, int) and o == 0) or (channel(o) and channel(o).item_names[0]) for o in offsets)
     dims = tuple(set().union(*[channel(o).item_names[0] for o in offsets if channel(o)]))
     offsets = [vec(**{d: o[d] if not isinstance(o, int) and d in channel(o).item_names[0] else 0 for d in dims}) for o in offsets]
-    min_by_dim = {d: min([o[d] for o in offsets]) for d in dims}
-    max_by_dim = {d: max([o[d] for o in offsets]) for d in dims}
+    min_by_dim = {d: min([int(o[d]) for o in offsets]) for d in dims}
+    max_by_dim = {d: max([int(o[d]) for o in offsets]) for d in dims}
     neg = -1 if negate else 1
     result = [{d: (int(o[d] - min_by_dim[d]) * neg, int(max_by_dim[d] - o[d]) * neg) for d in dims} for o in offsets]
     return offsets, result, min_by_dim, max_by_dim
