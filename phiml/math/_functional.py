@@ -1113,6 +1113,7 @@ def iterate(f: Callable,
             If `int`, returns the final output of `f`.
             If `Shape`, returns the trajectory (`x0` and all outputs of `f`), stacking the values along this dimension.
         x0: Initial positional arguments for `f`.
+            Values that are initially `None` are not stacked with the other values if `iterations` is a `Shape`.
         range: Range function. Can be used to generate tqdm output by passing `trange`.
         measure: Function without arguments to call at the start and end (and in between if `isinstance(iterations, Shape)`) calls to `f`.
             The measure of each call to `f` is `measure()` after minus `measure()` before the call.
@@ -1148,7 +1149,7 @@ def iterate(f: Callable,
             xs.append(x)
             if measure:
                 ts.append(measure())
-        xs = [stack(item, iterations.with_size(None)) for item in zip(*xs)]
+        xs = [stack(item[1:] if item[0] is None else item, iterations.with_size(None)) for item in zip(*xs)]
         result = xs[0] if len(x0) == 1 else xs
         ts = np.asarray(ts)
         return (result, wrap(ts[1:] - ts[:-1], iterations.with_size(None))) if measure else result
