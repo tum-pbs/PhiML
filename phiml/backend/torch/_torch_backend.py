@@ -237,6 +237,11 @@ class TorchBackend(Backend):
 
     def equal(self, x, y):
         x, y = self.auto_cast(x, y)
+        # --- convert bool to Tensor because PyTorch doesn't support bool comparison in JIT mode ---
+        if isinstance(x, bool):
+            x = self.as_tensor(x)
+        if isinstance(y, bool):
+            y = self.as_tensor(y)
         return x == y
 
     def random_uniform(self, shape, low, high, dtype: Union[DType, None]):

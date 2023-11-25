@@ -1923,7 +1923,7 @@ def assemble_tree(obj: PhiTreeNodeType, values: List[Tensor]) -> PhiTreeNodeType
         return obj
 
 
-def cached(t: Union[Tensor, 'PhiTreeNode']) -> Union[Tensor, 'PhiTreeNode']:
+def cached(t: TensorOrTree) -> TensorOrTree:
     assert isinstance(t, (Tensor, PhiTreeNode)), f"All arguments must be Tensors but got {type(t)}"
     if isinstance(t, NativeTensor):
         return t._cached()
