@@ -220,6 +220,8 @@ The methods of <code>Backend</code> form a comprehensive list of available opera
     maximum = staticmethod(jnp.maximum)
     minimum = staticmethod(jnp.minimum)
     clip = staticmethod(jnp.clip)
+    argmax = staticmethod(np.argmax)
+    argmin = staticmethod(np.argmin)
     shape = staticmethod(jnp.shape)
     staticshape = staticmethod(jnp.shape)
     imag = staticmethod(jnp.imag)
@@ -508,14 +510,12 @@ The methods of <code>Backend</code> form a comprehensive list of available opera
     def batched_gather_nd(self, values, indices):
         values = self.as_tensor(values)
         indices = self.as_tensor(indices)
+        # batch_size = combined_dim(values.shape[0], indices.shape[0])
         assert indices.shape[-1] == self.ndims(values) - 2
-        batch_size = combined_dim(values.shape[0], indices.shape[0])
-        results = []
-        for b in range(batch_size):
-            b_values = values[min(b, values.shape[0] - 1)]
-            b_indices = self.unstack(indices[min(b, indices.shape[0] - 1)], -1)
-            results.append(b_values[b_indices])
-        return jnp.stack(results)
+        def unbatched_gather_nd(b_values, b_indices):
+            b_indices = self.unstack(b_indices, -1)
+            return b_values[b_indices]
+        return self.vectorized_call(unbatched_gather_nd, values, indices)
 
     def repeat(self, x, repeats, axis: int, new_length=None):
         return jnp.repeat(x, self.as_tensor(repeats), axis, total_repeat_length=new_length)
@@ -572,6 +572,9 @@ The methods of <code>Backend</code> form a comprehensive list of available opera
         else:
             return jnp.bincount(x, weights=weights, minlength=bins, length=bins)
 
+    def unique(self, x: TensorType, return_inverse: bool, return_counts: bool, axis: int) -&gt; Tuple[TensorType, ...]:
+        return jnp.unique(x, return_inverse=return_inverse, return_counts=return_counts, axis=axis)
+
     def quantile(self, x, quantiles):
         return jnp.quantile(x, quantiles, axis=-1)
 
@@ -606,6 +609,8 @@ The methods of <code>Backend</code> form a comprehensive list of available opera
             return jnp.fft.ifftn(k, axes=axes).astype(k.dtype)
 
     def dtype(self, array) -&gt; DType:
+        if isinstance(array, bool):
+            return DType(bool)
         if isinstance(array, int):
             return DType(int, 32)
         if isinstance(array, float):
@@ -708,6 +713,364 @@ def absolute(x: ArrayLike, /) -&gt; Array:
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">fn = lambda x, /: lax_fn(*promote_args_inexact(numpy_fn.__name__, x))</code></pre>
+</details>
+</dd>
+<dt id="phiml.backend.jax.JaxBackend.argmax"><code class="name flex">
+<span>def <span class="ident">argmax</span></span>(<span>a, axis=None, out=None, *, keepdims=&lt;no value&gt;)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Returns the indices of the maximum values along an axis.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>a</code></strong> :&ensp;<code>array_like</code></dt>
+<dd>Input array.</dd>
+<dt><strong><code>axis</code></strong> :&ensp;<code>int</code>, optional</dt>
+<dd>By default, the index is into the flattened array, otherwise
+along the specified axis.</dd>
+<dt><strong><code>out</code></strong> :&ensp;<code>array</code>, optional</dt>
+<dd>If provided, the result will be inserted into this array. It should
+be of the appropriate shape and dtype.</dd>
+<dt><strong><code>keepdims</code></strong> :&ensp;<code>bool</code>, optional</dt>
+<dd>
+<p>If this is set to True, the axes which are reduced are left
+in the result as dimensions with size one. With this option,
+the result will broadcast correctly against the array.</p>
+<div class="admonition versionadded">
+<p class="admonition-title">Added in version:&ensp;1.22.0</p>
+</div>
+</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><strong><code>index_array</code></strong> :&ensp;<code>ndarray</code> of <code>ints</code></dt>
+<dd>Array of indices into the array. It has the same shape as <code>a.shape</code>
+with the dimension along <code>axis</code> removed. If <code>keepdims</code> is set to True,
+then the size of <code>axis</code> will be 1 with the resulting array having same
+shape as <code>a.shape</code>.</dd>
+</dl>
+<h2 id="see-also">See Also</h2>
+<p><code>ndarray.argmax</code>, <code>argmin</code>
+<code>amax : The maximum value along a given axis.</code>
+<code>unravel_index : Convert a flat index into an index tuple.</code>
+<code>take_along_axis : Apply ``np.expand_dims(index_array</code>, <code>axis)`` from argmax to an array as if by calling max.</code></p>
+<h2 id="notes">Notes</h2>
+<p>In case of multiple occurrences of the maximum values, the indices
+corresponding to the first occurrence are returned.</p>
+<h2 id="examples">Examples</h2>
+<pre><code class="language-python-repl">&gt;&gt;&gt; a = np.arange(6).reshape(2,3) + 10
+&gt;&gt;&gt; a
+array([[10, 11, 12],
+       [13, 14, 15]])
+&gt;&gt;&gt; np.argmax(a)
+5
+&gt;&gt;&gt; np.argmax(a, axis=0)
+array([1, 1, 1])
+&gt;&gt;&gt; np.argmax(a, axis=1)
+array([2, 2])
+</code></pre>
+<p>Indexes of the maximal elements of a N-dimensional array:</p>
+<pre><code class="language-python-repl">&gt;&gt;&gt; ind = np.unravel_index(np.argmax(a, axis=None), a.shape)
+&gt;&gt;&gt; ind
+(1, 2)
+&gt;&gt;&gt; a[ind]
+15
+</code></pre>
+<pre><code class="language-python-repl">&gt;&gt;&gt; b = np.arange(6)
+&gt;&gt;&gt; b[1] = 5
+&gt;&gt;&gt; b
+array([0, 5, 2, 3, 4, 5])
+&gt;&gt;&gt; np.argmax(b)  # Only the first occurrence is returned.
+1
+</code></pre>
+<pre><code class="language-python-repl">&gt;&gt;&gt; x = np.array([[4,2,3], [1,0,3]])
+&gt;&gt;&gt; index_array = np.argmax(x, axis=-1)
+&gt;&gt;&gt; # Same as np.amax(x, axis=-1, keepdims=True)
+&gt;&gt;&gt; np.take_along_axis(x, np.expand_dims(index_array, axis=-1), axis=-1)
+array([[4],
+       [3]])
+&gt;&gt;&gt; # Same as np.amax(x, axis=-1)
+&gt;&gt;&gt; np.take_along_axis(x, np.expand_dims(index_array, axis=-1), axis=-1).squeeze(axis=-1)
+array([4, 3])
+</code></pre>
+<p>Setting <code>keepdims</code> to <code>True</code>,</p>
+<pre><code class="language-python-repl">&gt;&gt;&gt; x = np.arange(24).reshape((2, 3, 4))
+&gt;&gt;&gt; res = np.argmax(x, axis=1, keepdims=True)
+&gt;&gt;&gt; res.shape
+(2, 1, 4)
+</code></pre></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@array_function_dispatch(_argmax_dispatcher)
+def argmax(a, axis=None, out=None, *, keepdims=np._NoValue):
+    &#34;&#34;&#34;
+    Returns the indices of the maximum values along an axis.
+
+    Parameters
+    ----------
+    a : array_like
+        Input array.
+    axis : int, optional
+        By default, the index is into the flattened array, otherwise
+        along the specified axis.
+    out : array, optional
+        If provided, the result will be inserted into this array. It should
+        be of the appropriate shape and dtype.
+    keepdims : bool, optional
+        If this is set to True, the axes which are reduced are left
+        in the result as dimensions with size one. With this option,
+        the result will broadcast correctly against the array.
+
+        .. versionadded:: 1.22.0
+
+    Returns
+    -------
+    index_array : ndarray of ints
+        Array of indices into the array. It has the same shape as `a.shape`
+        with the dimension along `axis` removed. If `keepdims` is set to True,
+        then the size of `axis` will be 1 with the resulting array having same
+        shape as `a.shape`.
+
+    See Also
+    --------
+    ndarray.argmax, argmin
+    amax : The maximum value along a given axis.
+    unravel_index : Convert a flat index into an index tuple.
+    take_along_axis : Apply ``np.expand_dims(index_array, axis)``
+                      from argmax to an array as if by calling max.
+
+    Notes
+    -----
+    In case of multiple occurrences of the maximum values, the indices
+    corresponding to the first occurrence are returned.
+
+    Examples
+    --------
+    &gt;&gt;&gt; a = np.arange(6).reshape(2,3) + 10
+    &gt;&gt;&gt; a
+    array([[10, 11, 12],
+           [13, 14, 15]])
+    &gt;&gt;&gt; np.argmax(a)
+    5
+    &gt;&gt;&gt; np.argmax(a, axis=0)
+    array([1, 1, 1])
+    &gt;&gt;&gt; np.argmax(a, axis=1)
+    array([2, 2])
+
+    Indexes of the maximal elements of a N-dimensional array:
+
+    &gt;&gt;&gt; ind = np.unravel_index(np.argmax(a, axis=None), a.shape)
+    &gt;&gt;&gt; ind
+    (1, 2)
+    &gt;&gt;&gt; a[ind]
+    15
+
+    &gt;&gt;&gt; b = np.arange(6)
+    &gt;&gt;&gt; b[1] = 5
+    &gt;&gt;&gt; b
+    array([0, 5, 2, 3, 4, 5])
+    &gt;&gt;&gt; np.argmax(b)  # Only the first occurrence is returned.
+    1
+
+    &gt;&gt;&gt; x = np.array([[4,2,3], [1,0,3]])
+    &gt;&gt;&gt; index_array = np.argmax(x, axis=-1)
+    &gt;&gt;&gt; # Same as np.amax(x, axis=-1, keepdims=True)
+    &gt;&gt;&gt; np.take_along_axis(x, np.expand_dims(index_array, axis=-1), axis=-1)
+    array([[4],
+           [3]])
+    &gt;&gt;&gt; # Same as np.amax(x, axis=-1)
+    &gt;&gt;&gt; np.take_along_axis(x, np.expand_dims(index_array, axis=-1), axis=-1).squeeze(axis=-1)
+    array([4, 3])
+
+    Setting `keepdims` to `True`,
+
+    &gt;&gt;&gt; x = np.arange(24).reshape((2, 3, 4))
+    &gt;&gt;&gt; res = np.argmax(x, axis=1, keepdims=True)
+    &gt;&gt;&gt; res.shape
+    (2, 1, 4)
+    &#34;&#34;&#34;
+    kwds = {&#39;keepdims&#39;: keepdims} if keepdims is not np._NoValue else {}
+    return _wrapfunc(a, &#39;argmax&#39;, axis=axis, out=out, **kwds)</code></pre>
+</details>
+</dd>
+<dt id="phiml.backend.jax.JaxBackend.argmin"><code class="name flex">
+<span>def <span class="ident">argmin</span></span>(<span>a, axis=None, out=None, *, keepdims=&lt;no value&gt;)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Returns the indices of the minimum values along an axis.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>a</code></strong> :&ensp;<code>array_like</code></dt>
+<dd>Input array.</dd>
+<dt><strong><code>axis</code></strong> :&ensp;<code>int</code>, optional</dt>
+<dd>By default, the index is into the flattened array, otherwise
+along the specified axis.</dd>
+<dt><strong><code>out</code></strong> :&ensp;<code>array</code>, optional</dt>
+<dd>If provided, the result will be inserted into this array. It should
+be of the appropriate shape and dtype.</dd>
+<dt><strong><code>keepdims</code></strong> :&ensp;<code>bool</code>, optional</dt>
+<dd>
+<p>If this is set to True, the axes which are reduced are left
+in the result as dimensions with size one. With this option,
+the result will broadcast correctly against the array.</p>
+<div class="admonition versionadded">
+<p class="admonition-title">Added in version:&ensp;1.22.0</p>
+</div>
+</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><strong><code>index_array</code></strong> :&ensp;<code>ndarray</code> of <code>ints</code></dt>
+<dd>Array of indices into the array. It has the same shape as <code>a.shape</code>
+with the dimension along <code>axis</code> removed. If <code>keepdims</code> is set to True,
+then the size of <code>axis</code> will be 1 with the resulting array having same
+shape as <code>a.shape</code>.</dd>
+</dl>
+<h2 id="see-also">See Also</h2>
+<p><code>ndarray.argmin</code>, <code>argmax</code>
+<code>amin : The minimum value along a given axis.</code>
+<code>unravel_index : Convert a flat index into an index tuple.</code>
+<code>take_along_axis : Apply ``np.expand_dims(index_array</code>, <code>axis)`` from argmin to an array as if by calling min.</code></p>
+<h2 id="notes">Notes</h2>
+<p>In case of multiple occurrences of the minimum values, the indices
+corresponding to the first occurrence are returned.</p>
+<h2 id="examples">Examples</h2>
+<pre><code class="language-python-repl">&gt;&gt;&gt; a = np.arange(6).reshape(2,3) + 10
+&gt;&gt;&gt; a
+array([[10, 11, 12],
+       [13, 14, 15]])
+&gt;&gt;&gt; np.argmin(a)
+0
+&gt;&gt;&gt; np.argmin(a, axis=0)
+array([0, 0, 0])
+&gt;&gt;&gt; np.argmin(a, axis=1)
+array([0, 0])
+</code></pre>
+<p>Indices of the minimum elements of a N-dimensional array:</p>
+<pre><code class="language-python-repl">&gt;&gt;&gt; ind = np.unravel_index(np.argmin(a, axis=None), a.shape)
+&gt;&gt;&gt; ind
+(0, 0)
+&gt;&gt;&gt; a[ind]
+10
+</code></pre>
+<pre><code class="language-python-repl">&gt;&gt;&gt; b = np.arange(6) + 10
+&gt;&gt;&gt; b[4] = 10
+&gt;&gt;&gt; b
+array([10, 11, 12, 13, 10, 15])
+&gt;&gt;&gt; np.argmin(b)  # Only the first occurrence is returned.
+0
+</code></pre>
+<pre><code class="language-python-repl">&gt;&gt;&gt; x = np.array([[4,2,3], [1,0,3]])
+&gt;&gt;&gt; index_array = np.argmin(x, axis=-1)
+&gt;&gt;&gt; # Same as np.amin(x, axis=-1, keepdims=True)
+&gt;&gt;&gt; np.take_along_axis(x, np.expand_dims(index_array, axis=-1), axis=-1)
+array([[2],
+       [0]])
+&gt;&gt;&gt; # Same as np.amax(x, axis=-1)
+&gt;&gt;&gt; np.take_along_axis(x, np.expand_dims(index_array, axis=-1), axis=-1).squeeze(axis=-1)
+array([2, 0])
+</code></pre>
+<p>Setting <code>keepdims</code> to <code>True</code>,</p>
+<pre><code class="language-python-repl">&gt;&gt;&gt; x = np.arange(24).reshape((2, 3, 4))
+&gt;&gt;&gt; res = np.argmin(x, axis=1, keepdims=True)
+&gt;&gt;&gt; res.shape
+(2, 1, 4)
+</code></pre></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@array_function_dispatch(_argmin_dispatcher)
+def argmin(a, axis=None, out=None, *, keepdims=np._NoValue):
+    &#34;&#34;&#34;
+    Returns the indices of the minimum values along an axis.
+
+    Parameters
+    ----------
+    a : array_like
+        Input array.
+    axis : int, optional
+        By default, the index is into the flattened array, otherwise
+        along the specified axis.
+    out : array, optional
+        If provided, the result will be inserted into this array. It should
+        be of the appropriate shape and dtype.
+    keepdims : bool, optional
+        If this is set to True, the axes which are reduced are left
+        in the result as dimensions with size one. With this option,
+        the result will broadcast correctly against the array.
+
+        .. versionadded:: 1.22.0
+
+    Returns
+    -------
+    index_array : ndarray of ints
+        Array of indices into the array. It has the same shape as `a.shape`
+        with the dimension along `axis` removed. If `keepdims` is set to True,
+        then the size of `axis` will be 1 with the resulting array having same
+        shape as `a.shape`.
+
+    See Also
+    --------
+    ndarray.argmin, argmax
+    amin : The minimum value along a given axis.
+    unravel_index : Convert a flat index into an index tuple.
+    take_along_axis : Apply ``np.expand_dims(index_array, axis)``
+                      from argmin to an array as if by calling min.
+
+    Notes
+    -----
+    In case of multiple occurrences of the minimum values, the indices
+    corresponding to the first occurrence are returned.
+
+    Examples
+    --------
+    &gt;&gt;&gt; a = np.arange(6).reshape(2,3) + 10
+    &gt;&gt;&gt; a
+    array([[10, 11, 12],
+           [13, 14, 15]])
+    &gt;&gt;&gt; np.argmin(a)
+    0
+    &gt;&gt;&gt; np.argmin(a, axis=0)
+    array([0, 0, 0])
+    &gt;&gt;&gt; np.argmin(a, axis=1)
+    array([0, 0])
+
+    Indices of the minimum elements of a N-dimensional array:
+
+    &gt;&gt;&gt; ind = np.unravel_index(np.argmin(a, axis=None), a.shape)
+    &gt;&gt;&gt; ind
+    (0, 0)
+    &gt;&gt;&gt; a[ind]
+    10
+
+    &gt;&gt;&gt; b = np.arange(6) + 10
+    &gt;&gt;&gt; b[4] = 10
+    &gt;&gt;&gt; b
+    array([10, 11, 12, 13, 10, 15])
+    &gt;&gt;&gt; np.argmin(b)  # Only the first occurrence is returned.
+    0
+
+    &gt;&gt;&gt; x = np.array([[4,2,3], [1,0,3]])
+    &gt;&gt;&gt; index_array = np.argmin(x, axis=-1)
+    &gt;&gt;&gt; # Same as np.amin(x, axis=-1, keepdims=True)
+    &gt;&gt;&gt; np.take_along_axis(x, np.expand_dims(index_array, axis=-1), axis=-1)
+    array([[2],
+           [0]])
+    &gt;&gt;&gt; # Same as np.amax(x, axis=-1)
+    &gt;&gt;&gt; np.take_along_axis(x, np.expand_dims(index_array, axis=-1), axis=-1).squeeze(axis=-1)
+    array([2, 0])
+
+    Setting `keepdims` to `True`,
+
+    &gt;&gt;&gt; x = np.arange(24).reshape((2, 3, 4))
+    &gt;&gt;&gt; res = np.argmin(x, axis=1, keepdims=True)
+    &gt;&gt;&gt; res.shape
+    (2, 1, 4)
+    &#34;&#34;&#34;
+    kwds = {&#39;keepdims&#39;: keepdims} if keepdims is not np._NoValue else {}
+    return _wrapfunc(a, &#39;argmin&#39;, axis=axis, out=out, **kwds)</code></pre>
 </details>
 </dd>
 <dt id="phiml.backend.jax.JaxBackend.ceil"><code class="name flex">
@@ -1849,21 +2212,31 @@ The first dimension of <code>values</code> and <code>indices</code> is the batch
 <pre><code class="python">def batched_gather_nd(self, values, indices):
     values = self.as_tensor(values)
     indices = self.as_tensor(indices)
+    # batch_size = combined_dim(values.shape[0], indices.shape[0])
     assert indices.shape[-1] == self.ndims(values) - 2
-    batch_size = combined_dim(values.shape[0], indices.shape[0])
-    results = []
-    for b in range(batch_size):
-        b_values = values[min(b, values.shape[0] - 1)]
-        b_indices = self.unstack(indices[min(b, indices.shape[0] - 1)], -1)
-        results.append(b_values[b_indices])
-    return jnp.stack(results)</code></pre>
+    def unbatched_gather_nd(b_values, b_indices):
+        b_indices = self.unstack(b_indices, -1)
+        return b_values[b_indices]
+    return self.vectorized_call(unbatched_gather_nd, values, indices)</code></pre>
 </details>
 </dd>
 <dt id="phiml.backend.jax.JaxBackend.bincount"><code class="name flex">
 <span>def <span class="ident">bincount</span></span>(<span>self, x, weights: Optional[~TensorType], bins: int, x_sorted=False)</span>
 </code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>x</code></strong></dt>
+<dd>Bin indices, 1D int tensor.</dd>
+<dt><strong><code>weights</code></strong></dt>
+<dd>Weights corresponding to <code>x</code>, 1D tensor. All weights are 1 if <code>weights=None</code>.</dd>
+<dt><strong><code>bins</code></strong></dt>
+<dd>Number of bins.</dd>
+<dt><strong><code>x_sorted</code></strong></dt>
+<dd>Whether <code>x</code> is sorted from lowest to highest bin.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<p>bin_counts</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -2052,6 +2425,8 @@ Higher dimensions may not be supported.</p>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def dtype(self, array) -&gt; DType:
+    if isinstance(array, bool):
+        return DType(bool)
     if isinstance(array, int):
         return DType(int, 32)
     if isinstance(array, float):
@@ -3125,6 +3500,38 @@ unit_diagonal:</p>
     return dlpack.to_dlpack(tensor)</code></pre>
 </details>
 </dd>
+<dt id="phiml.backend.jax.JaxBackend.unique"><code class="name flex">
+<span>def <span class="ident">unique</span></span>(<span>self, x: ~TensorType, return_inverse: bool, return_counts: bool, axis: int) ‑> Tuple[~TensorType, ...]</span>
+</code></dt>
+<dd>
+<div class="desc"><h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>x</code></strong></dt>
+<dd>n-dimensional int array. Will compare <code>axis</code>-slices of <code>x</code> for multidimensional <code>x</code>.</dd>
+<dt><strong><code>return_inverse</code></strong></dt>
+<dd>Whether to return the inverse</dd>
+<dt><strong><code>return_counts</code></strong></dt>
+<dd>Whether to return the counts.</dd>
+<dt><strong><code>axis</code></strong></dt>
+<dd>Axis along which slices of <code>x</code> should be compared.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>unique_slices</code></dt>
+<dd>Sorted unique slices of <code>x</code></dd>
+<dt><code>unique_inverse</code></dt>
+<dd>(optional) index of the unique slice for each slice of <code>x</code></dd>
+<dt><code>unique_counts</code></dt>
+<dd>Number of occurrences of each unique slices</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def unique(self, x: TensorType, return_inverse: bool, return_counts: bool, axis: int) -&gt; Tuple[TensorType, ...]:
+    return jnp.unique(x, return_inverse=return_inverse, return_counts=return_counts, axis=axis)</code></pre>
+</details>
+</dd>
 <dt id="phiml.backend.jax.JaxBackend.unravel_index"><code class="name flex">
 <span>def <span class="ident">unravel_index</span></span>(<span>self, flat_index, shape)</span>
 </code></dt>
@@ -3296,6 +3703,8 @@ If the loop is broken, the values returned by the last loop are expected to be c
 <li><code><a title="phiml.backend.jax.JaxBackend.arctan" href="#phiml.backend.jax.JaxBackend.arctan">arctan</a></code></li>
 <li><code><a title="phiml.backend.jax.JaxBackend.arctan2" href="#phiml.backend.jax.JaxBackend.arctan2">arctan2</a></code></li>
 <li><code><a title="phiml.backend.jax.JaxBackend.arctanh" href="#phiml.backend.jax.JaxBackend.arctanh">arctanh</a></code></li>
+<li><code><a title="phiml.backend.jax.JaxBackend.argmax" href="#phiml.backend.jax.JaxBackend.argmax">argmax</a></code></li>
+<li><code><a title="phiml.backend.jax.JaxBackend.argmin" href="#phiml.backend.jax.JaxBackend.argmin">argmin</a></code></li>
 <li><code><a title="phiml.backend.jax.JaxBackend.argsort" href="#phiml.backend.jax.JaxBackend.argsort">argsort</a></code></li>
 <li><code><a title="phiml.backend.jax.JaxBackend.as_tensor" href="#phiml.backend.jax.JaxBackend.as_tensor">as_tensor</a></code></li>
 <li><code><a title="phiml.backend.jax.JaxBackend.batched_gather_nd" href="#phiml.backend.jax.JaxBackend.batched_gather_nd">batched_gather_nd</a></code></li>
@@ -3394,6 +3803,7 @@ If the loop is broken, the values returned by the last loop are expected to be c
 <li><code><a title="phiml.backend.jax.JaxBackend.tile" href="#phiml.backend.jax.JaxBackend.tile">tile</a></code></li>
 <li><code><a title="phiml.backend.jax.JaxBackend.to_dlpack" href="#phiml.backend.jax.JaxBackend.to_dlpack">to_dlpack</a></code></li>
 <li><code><a title="phiml.backend.jax.JaxBackend.transpose" href="#phiml.backend.jax.JaxBackend.transpose">transpose</a></code></li>
+<li><code><a title="phiml.backend.jax.JaxBackend.unique" href="#phiml.backend.jax.JaxBackend.unique">unique</a></code></li>
 <li><code><a title="phiml.backend.jax.JaxBackend.unravel_index" href="#phiml.backend.jax.JaxBackend.unravel_index">unravel_index</a></code></li>
 <li><code><a title="phiml.backend.jax.JaxBackend.vectorized_call" href="#phiml.backend.jax.JaxBackend.vectorized_call">vectorized_call</a></code></li>
 <li><code><a title="phiml.backend.jax.JaxBackend.where" href="#phiml.backend.jax.JaxBackend.where">where</a></code></li>

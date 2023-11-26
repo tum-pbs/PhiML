@@ -65,6 +65,10 @@ class Extrapolation:
         &#34;&#34;&#34;
         self.pad_rank = pad_rank
 
+    @property
+    def shape(self):
+        raise NotImplementedError()
+
     def to_dict(self) -&gt; dict:
         &#34;&#34;&#34;
         Serialize this extrapolation to a dictionary that is serializable (JSON-writable).
@@ -353,7 +357,7 @@ class ConstantExtrapolation(Extrapolation):
         return math.expand(self.value, dual(connectivity) &amp; non_dual(value))
 
     def __eq__(self, other):
-        return isinstance(other, ConstantExtrapolation) and math.always_close(self.value, other.value)
+        return isinstance(other, ConstantExtrapolation) and math.always_close(self.value, other.value, equal_nan=True)
 
     def __hash__(self):
         return hash(self.__class__)
@@ -608,12 +612,12 @@ class _ZeroGradient(_CopyExtrapolation):
             for i in range(bound_lo):  # i=0 means outer
                 # this sets corners to 0
                 lower = {dim: -i if dim == bound_dim else -lo for dim, (lo, _) in widths.items()}
-                mask = self._lower_mask(value.shape.only(result.dependent_dims), widths, bound_dim, bound_lo, bound_hi, i)
+                mask = self._lower_mask(value.shape.only(tuple(lower)), widths, bound_dim, bound_lo, bound_hi, i)
                 boundary = value.shift(lower, new_shape=result.shape, val_fun=lambda v: self.pad(v, widths) * mask, bias_fun=lambda b: ZERO.pad(b, widths))
                 result += boundary
             for i in range(bound_hi):
                 lower = {dim: i - lo - hi if dim == bound_dim else -lo for dim, (lo, hi) in widths.items()}
-                mask = self._upper_mask(value.shape.only(result.dependent_dims), widths, bound_dim, bound_lo, bound_hi, i)
+                mask = self._upper_mask(value.shape.only(tuple(lower)), widths, bound_dim, bound_lo, bound_hi, i)
                 boundary = value.shift(lower, new_shape=result.shape, val_fun=lambda v: self.pad(v, widths) * mask, bias_fun=lambda b: ZERO.pad(b, widths))  # ~ half the computation time
                 result += boundary  # this does basically nothing if value is the identity
         return result
@@ -689,8 +693,8 @@ class _PeriodicExtrapolation(_CopyExtrapolation):
             return value[{dim: slice(-width, None)}]
 
     def _pad_linear_tracer(self, value: &#39;ShiftLinTracer&#39;, widths: dict) -&gt; &#39;ShiftLinTracer&#39;:
-        if value.shape.get_sizes(tuple(widths.keys())) != value.source.shape.get_sizes(tuple(widths.keys())):
-            raise NotImplementedError(&#34;Periodicity does not match input: %s but input has %s. This can happen when padding an already padded or sliced tensor.&#34; % (value.shape.only(tuple(widths.keys())), value.source.shape.only(tuple(widths.keys()))))
+        if value.shape.get_sizes(tuple(widths.keys())) != value._source.shape.get_sizes(tuple(widths.keys())):
+            raise NotImplementedError(&#34;Periodicity does not match input: %s but input has %s. This can happen when padding an already padded or sliced tensor.&#34; % (value.shape.only(tuple(widths.keys())), value._source.shape.only(tuple(widths.keys()))))
         lower = {dim: -lo for dim, (lo, _) in widths.items()}
         return value.shift(lower, new_shape=value.shape.after_pad(widths), val_fun=lambda v: self.pad(v, widths), bias_fun=lambda b: ZERO.pad(b, widths))
 
@@ -926,7 +930,15 @@ class _AntiReflectExtrapolation(_ReflectExtrapolation):
         raise NotImplementedError
 
 
-class _SymmetricGradientExtrapolation(Extrapolation):
+class _SymmetricGradientExtrapolation(Extrapolation):  # ToDo this class is missing a lot of methods
+
+    def __init__(self):
+        super().__init__(pad_rank=3)
+        warnings.warn(&#39;symmetric-gradient extrapolation is experimental. Use with caution.&#39;, DeprecationWarning)
+
+    @property
+    def shape(self):
+        return EMPTY_SHAPE
 
     def to_dict(self) -&gt; dict:
         return {&#39;type&#39;: &#39;symmetric-gradient&#39;}
@@ -1117,7 +1129,7 @@ REFLECT = _ReflectExtrapolation(4)
 &#34;&#34;&#34; Like SYMMETRIC but the edge values are not copied and only occur once per seam. &#34;&#34;&#34;
 ANTIREFLECT = _AntiReflectExtrapolation(4)
 &#34;&#34;&#34; Like REFLECT but extends a grid with the negative value of the corresponding counterpart instead. &#34;&#34;&#34;
-SYMMETRIC_GRADIENT = _SymmetricGradientExtrapolation(3)
+SYMMETRIC_GRADIENT = _SymmetricGradientExtrapolation()
 &#34;&#34;&#34; Extrapolates in a continuous manner. The normal component of the spatial gradient is symmetric at the boundaries. The outer-most valid difference is duplicated. &#34;&#34;&#34;
 
 NONE = _NoExtrapolation(-1)
@@ -1497,6 +1509,10 @@ class _ConditionalExtrapolation(Extrapolation):
             &#39;true&#39;: self.true_ext.to_dict(),
             &#39;false&#39;: self.false_ext.to_dict(),
         }
+
+    @property
+    def shape(self):
+        return self.mask.shape &amp; self.true_ext.shape &amp; self.false_ext.shape
 
     def spatial_gradient(self) -&gt; &#39;Extrapolation&#39;:
         return where(self.mask, self.true_ext.spatial_gradient(), self.false_ext.spatial_gradient())
@@ -2284,7 +2300,7 @@ The typical order is periodic=1, boundary=2, symmetric=3, reflect=4, constant=5.
         return math.expand(self.value, dual(connectivity) &amp; non_dual(value))
 
     def __eq__(self, other):
-        return isinstance(other, ConstantExtrapolation) and math.always_close(self.value, other.value)
+        return isinstance(other, ConstantExtrapolation) and math.always_close(self.value, other.value, equal_nan=True)
 
     def __hash__(self):
         return hash(self.__class__)
@@ -2537,6 +2553,10 @@ The typical order is periodic=1, boundary=2, symmetric=3, reflect=4, constant=5.
         &#34;&#34;&#34;
         self.pad_rank = pad_rank
 
+    @property
+    def shape(self):
+        raise NotImplementedError()
+
     def to_dict(self) -&gt; dict:
         &#34;&#34;&#34;
         Serialize this extrapolation to a dictionary that is serializable (JSON-writable).
@@ -2774,6 +2794,18 @@ def is_flexible(self) -&gt; bool:
 <pre><code class="python">@property
 def native_grid_sample_mode(self) -&gt; Union[str, None]:
     return None</code></pre>
+</details>
+</dd>
+<dt id="phiml.math.extrapolation.Extrapolation.shape"><code class="name">var <span class="ident">shape</span></code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def shape(self):
+    raise NotImplementedError()</code></pre>
 </details>
 </dd>
 </dl>
@@ -3299,6 +3331,7 @@ def shape(self):
 <li><code><a title="phiml.math.extrapolation.Extrapolation.native_grid_sample_mode" href="#phiml.math.extrapolation.Extrapolation.native_grid_sample_mode">native_grid_sample_mode</a></code></li>
 <li><code><a title="phiml.math.extrapolation.Extrapolation.pad" href="#phiml.math.extrapolation.Extrapolation.pad">pad</a></code></li>
 <li><code><a title="phiml.math.extrapolation.Extrapolation.pad_values" href="#phiml.math.extrapolation.Extrapolation.pad_values">pad_values</a></code></li>
+<li><code><a title="phiml.math.extrapolation.Extrapolation.shape" href="#phiml.math.extrapolation.Extrapolation.shape">shape</a></code></li>
 <li><code><a title="phiml.math.extrapolation.Extrapolation.shortest_distance" href="#phiml.math.extrapolation.Extrapolation.shortest_distance">shortest_distance</a></code></li>
 <li><code><a title="phiml.math.extrapolation.Extrapolation.sparse_pad_values" href="#phiml.math.extrapolation.Extrapolation.sparse_pad_values">sparse_pad_values</a></code></li>
 <li><code><a title="phiml.math.extrapolation.Extrapolation.spatial_gradient" href="#phiml.math.extrapolation.Extrapolation.spatial_gradient">spatial_gradient</a></code></li>

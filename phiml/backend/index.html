@@ -1182,6 +1182,12 @@ The methods of <code><a title="phiml.backend.Backend" href="#phiml.backend.Backe
     def clip(self, x, minimum, maximum):
         raise NotImplementedError(self)
 
+    def argmax(self, x, axis: int, keepdims=False):
+        raise NotImplementedError(self)
+
+    def argmin(self, x, axis: int, keepdims=False):
+        raise NotImplementedError(self)
+
     def sqrt(self, x):
         raise NotImplementedError(self)
 
@@ -1352,9 +1358,25 @@ The methods of <code><a title="phiml.backend.Backend" href="#phiml.backend.Backe
         raise NotImplementedError(self)
 
     def batched_gather_1d(self, values, indices):
+        &#34;&#34;&#34;
+        Args:
+            values: (batch, spatial)
+            indices: (batch, indices)
+
+        Returns:
+            (batch, indices)
+        &#34;&#34;&#34;
         return self.batched_gather_nd(values[:, :, None], indices[:, :, None])[..., 0]
 
     def gather_nd(self, values, indices):
+        &#34;&#34;&#34;
+        Args:
+            values: (spatial, channels)
+            indices: (indices, multi_index)
+
+        Returns:
+            (indices, channels)
+        &#34;&#34;&#34;
         return self.batched_gather_nd(values[None, :, :], indices[None, :, :])[0, :, :]
 
     def gather_1d(self, values, indices):
@@ -1446,6 +1468,16 @@ The methods of <code><a title="phiml.backend.Backend" href="#phiml.backend.Backe
         raise NotImplementedError(self)
 
     def bincount(self, x, weights: Optional[TensorType], bins: int, x_sorted=False):
+        &#34;&#34;&#34;
+        Args:
+            x: Bin indices, 1D int tensor.
+            weights: Weights corresponding to `x`, 1D tensor. All weights are 1 if `weights=None`.
+            bins: Number of bins.
+            x_sorted: Whether `x` is sorted from lowest to highest bin.
+
+        Returns:
+            bin_counts
+        &#34;&#34;&#34;
         raise NotImplementedError(self)
 
     def batched_bincount(self, x, weights: Optional[TensorType], bins: int):
@@ -1453,6 +1485,21 @@ The methods of <code><a title="phiml.backend.Backend" href="#phiml.backend.Backe
             return self.vectorized_call(self.bincount, x, weights=None, bins=bins)
         else:
             return self.vectorized_call(self.bincount, x, weights, bins=bins)
+
+    def unique(self, x: TensorType, return_inverse: bool, return_counts: bool, axis: int) -&gt; Tuple[TensorType, ...]:
+        &#34;&#34;&#34;
+        Args:
+            x: n-dimensional int array. Will compare `axis`-slices of `x` for multidimensional `x`.
+            return_inverse: Whether to return the inverse
+            return_counts: Whether to return the counts.
+            axis: Axis along which slices of `x` should be compared.
+
+        Returns:
+            unique_slices: Sorted unique slices of `x`
+            unique_inverse: (optional) index of the unique slice for each slice of `x`
+            unique_counts: Number of occurrences of each unique slices
+        &#34;&#34;&#34;
+        raise NotImplementedError(self)
 
     def any(self, boolean_tensor, axis=None, keepdims=False):
         raise NotImplementedError(self)
@@ -1659,7 +1706,7 @@ The methods of <code><a title="phiml.backend.Backend" href="#phiml.backend.Backe
         Args:
             indices: (batch, nnz, ndims)
             values: (batch, nnz, channels)
-            shape: Shape of the full matrix, tuple of length ndims
+            shape: Shape of the full matrix, tuple of length ndims (sparse_rows, sparse_cols)
             dense: (batch, dense_rows=sparse_cols, channels, dense_cols)
 
         Returns:
@@ -1673,7 +1720,7 @@ The methods of <code><a title="phiml.backend.Backend" href="#phiml.backend.Backe
         base_grid = self.zeros((batch_size, shape[0], dense.shape[3] * dense_cols), self.dtype(dense))
         assert dense_cols == 1
         result = self.scatter(base_grid, indices[:, :, 0:1], values * dense_gathered, mode=&#39;add&#39;)
-        return self.reshape(result, (batch_size, channel_count, dense_rows, dense_cols))
+        return self.reshape(result, (batch_size, channel_count, shape[0], dense_cols))
 
     def coo_to_dense(self, indices, values, shape, contains_duplicates: bool):
         batch_size, nnz, channel_count = self.staticshape(values)
@@ -2062,7 +2109,12 @@ The methods of <code><a title="phiml.backend.Backend" href="#phiml.backend.Backe
 
     def shift_bits_right(self, a, b):
         a, b = self.auto_cast(a, b)
-        return a &gt;&gt; b</code></pre>
+        return a &gt;&gt; b
+
+    def invert(self, x):
+        if isinstance(x, bool):
+            return not x
+        return ~x</code></pre>
 </details>
 <h3>Subclasses</h3>
 <ul class="hlist">
@@ -2329,6 +2381,32 @@ def precision(self) -&gt; int:
     raise NotImplementedError(self)</code></pre>
 </details>
 </dd>
+<dt id="phiml.backend.Backend.argmax"><code class="name flex">
+<span>def <span class="ident">argmax</span></span>(<span>self, x, axis: int, keepdims=False)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def argmax(self, x, axis: int, keepdims=False):
+    raise NotImplementedError(self)</code></pre>
+</details>
+</dd>
+<dt id="phiml.backend.Backend.argmin"><code class="name flex">
+<span>def <span class="ident">argmin</span></span>(<span>self, x, axis: int, keepdims=False)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def argmin(self, x, axis: int, keepdims=False):
+    raise NotImplementedError(self)</code></pre>
+</details>
+</dd>
 <dt id="phiml.backend.Backend.argsort"><code class="name flex">
 <span>def <span class="ident">argsort</span></span>(<span>self, x, axis=-1)</span>
 </code></dt>
@@ -2462,12 +2540,28 @@ Backends can override this method to prevent unnecessary casting.</p>
 <span>def <span class="ident">batched_gather_1d</span></span>(<span>self, values, indices)</span>
 </code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>values</code></strong></dt>
+<dd>(batch, spatial)</dd>
+<dt><strong><code>indices</code></strong></dt>
+<dd>(batch, indices)</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<p>(batch, indices)</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def batched_gather_1d(self, values, indices):
+    &#34;&#34;&#34;
+    Args:
+        values: (batch, spatial)
+        indices: (batch, indices)
+
+    Returns:
+        (batch, indices)
+    &#34;&#34;&#34;
     return self.batched_gather_nd(values[:, :, None], indices[:, :, None])[..., 0]</code></pre>
 </details>
 </dd>
@@ -2524,12 +2618,34 @@ The first dimension of <code>values</code> and <code>indices</code> is the batch
 <span>def <span class="ident">bincount</span></span>(<span>self, x, weights: Optional[~TensorType], bins: int, x_sorted=False)</span>
 </code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>x</code></strong></dt>
+<dd>Bin indices, 1D int tensor.</dd>
+<dt><strong><code>weights</code></strong></dt>
+<dd>Weights corresponding to <code>x</code>, 1D tensor. All weights are 1 if <code>weights=None</code>.</dd>
+<dt><strong><code>bins</code></strong></dt>
+<dd>Number of bins.</dd>
+<dt><strong><code>x_sorted</code></strong></dt>
+<dd>Whether <code>x</code> is sorted from lowest to highest bin.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<p>bin_counts</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def bincount(self, x, weights: Optional[TensorType], bins: int, x_sorted=False):
+    &#34;&#34;&#34;
+    Args:
+        x: Bin indices, 1D int tensor.
+        weights: Weights corresponding to `x`, 1D tensor. All weights are 1 if `weights=None`.
+        bins: Number of bins.
+        x_sorted: Whether `x` is sorted from lowest to highest bin.
+
+    Returns:
+        bin_counts
+    &#34;&#34;&#34;
     raise NotImplementedError(self)</code></pre>
 </details>
 </dd>
@@ -3368,12 +3484,28 @@ Higher dimensions may not be supported.</p>
 <span>def <span class="ident">gather_nd</span></span>(<span>self, values, indices)</span>
 </code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>values</code></strong></dt>
+<dd>(spatial, channels)</dd>
+<dt><strong><code>indices</code></strong></dt>
+<dd>(indices, multi_index)</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<p>(indices, channels)</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def gather_nd(self, values, indices):
+    &#34;&#34;&#34;
+    Args:
+        values: (spatial, channels)
+        indices: (indices, multi_index)
+
+    Returns:
+        (indices, channels)
+    &#34;&#34;&#34;
     return self.batched_gather_nd(values[None, :, :], indices[None, :, :])[0, :, :]</code></pre>
 </details>
 </dd>
@@ -3670,6 +3802,21 @@ The result is always a <code>tuple</code> holding at most these three items.</p>
         Tensor with `len(indices)` elements along `axis`. (batch, ..., indices, ...)
     &#34;&#34;&#34;
     raise NotImplementedError(self)</code></pre>
+</details>
+</dd>
+<dt id="phiml.backend.Backend.invert"><code class="name flex">
+<span>def <span class="ident">invert</span></span>(<span>self, x)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def invert(self, x):
+    if isinstance(x, bool):
+        return not x
+    return ~x</code></pre>
 </details>
 </dd>
 <dt id="phiml.backend.Backend.is_available"><code class="name flex">
@@ -4361,7 +4508,7 @@ This is the fallback if CSR multiplication is not supported.</p>
 <dt><strong><code>values</code></strong></dt>
 <dd>(batch, nnz, channels)</dd>
 <dt><strong><code>shape</code></strong></dt>
-<dd>Shape of the full matrix, tuple of length ndims</dd>
+<dd>Shape of the full matrix, tuple of length ndims (sparse_rows, sparse_cols)</dd>
 <dt><strong><code>dense</code></strong></dt>
 <dd>(batch, dense_rows=sparse_cols, channels, dense_cols)</dd>
 </dl>
@@ -4380,7 +4527,7 @@ This is the fallback if CSR multiplication is not supported.</p>
     Args:
         indices: (batch, nnz, ndims)
         values: (batch, nnz, channels)
-        shape: Shape of the full matrix, tuple of length ndims
+        shape: Shape of the full matrix, tuple of length ndims (sparse_rows, sparse_cols)
         dense: (batch, dense_rows=sparse_cols, channels, dense_cols)
 
     Returns:
@@ -4394,7 +4541,7 @@ This is the fallback if CSR multiplication is not supported.</p>
     base_grid = self.zeros((batch_size, shape[0], dense.shape[3] * dense_cols), self.dtype(dense))
     assert dense_cols == 1
     result = self.scatter(base_grid, indices[:, :, 0:1], values * dense_gathered, mode=&#39;add&#39;)
-    return self.reshape(result, (batch_size, channel_count, dense_rows, dense_cols))</code></pre>
+    return self.reshape(result, (batch_size, channel_count, shape[0], dense_cols))</code></pre>
 </details>
 </dd>
 <dt id="phiml.backend.Backend.mul_csr_dense"><code class="name flex">
@@ -5879,6 +6026,50 @@ If <code>multiples</code> has more dimensions than <code>value</code>, these dim
     raise NotImplementedError()</code></pre>
 </details>
 </dd>
+<dt id="phiml.backend.Backend.unique"><code class="name flex">
+<span>def <span class="ident">unique</span></span>(<span>self, x: ~TensorType, return_inverse: bool, return_counts: bool, axis: int) ‑> Tuple[~TensorType, ...]</span>
+</code></dt>
+<dd>
+<div class="desc"><h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>x</code></strong></dt>
+<dd>n-dimensional int array. Will compare <code>axis</code>-slices of <code>x</code> for multidimensional <code>x</code>.</dd>
+<dt><strong><code>return_inverse</code></strong></dt>
+<dd>Whether to return the inverse</dd>
+<dt><strong><code>return_counts</code></strong></dt>
+<dd>Whether to return the counts.</dd>
+<dt><strong><code>axis</code></strong></dt>
+<dd>Axis along which slices of <code>x</code> should be compared.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>unique_slices</code></dt>
+<dd>Sorted unique slices of <code>x</code></dd>
+<dt><code>unique_inverse</code></dt>
+<dd>(optional) index of the unique slice for each slice of <code>x</code></dd>
+<dt><code>unique_counts</code></dt>
+<dd>Number of occurrences of each unique slices</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def unique(self, x: TensorType, return_inverse: bool, return_counts: bool, axis: int) -&gt; Tuple[TensorType, ...]:
+    &#34;&#34;&#34;
+    Args:
+        x: n-dimensional int array. Will compare `axis`-slices of `x` for multidimensional `x`.
+        return_inverse: Whether to return the inverse
+        return_counts: Whether to return the counts.
+        axis: Axis along which slices of `x` should be compared.
+
+    Returns:
+        unique_slices: Sorted unique slices of `x`
+        unique_inverse: (optional) index of the unique slice for each slice of `x`
+        unique_counts: Number of occurrences of each unique slices
+    &#34;&#34;&#34;
+    raise NotImplementedError(self)</code></pre>
+</details>
+</dd>
 <dt id="phiml.backend.Backend.unravel_index"><code class="name flex">
 <span>def <span class="ident">unravel_index</span></span>(<span>self, flat_index, shape)</span>
 </code></dt>
@@ -6616,6 +6807,8 @@ def retime(self):
 <li><code><a title="phiml.backend.Backend.arctan" href="#phiml.backend.Backend.arctan">arctan</a></code></li>
 <li><code><a title="phiml.backend.Backend.arctan2" href="#phiml.backend.Backend.arctan2">arctan2</a></code></li>
 <li><code><a title="phiml.backend.Backend.arctanh" href="#phiml.backend.Backend.arctanh">arctanh</a></code></li>
+<li><code><a title="phiml.backend.Backend.argmax" href="#phiml.backend.Backend.argmax">argmax</a></code></li>
+<li><code><a title="phiml.backend.Backend.argmin" href="#phiml.backend.Backend.argmin">argmin</a></code></li>
 <li><code><a title="phiml.backend.Backend.argsort" href="#phiml.backend.Backend.argsort">argsort</a></code></li>
 <li><code><a title="phiml.backend.Backend.as_registered" href="#phiml.backend.Backend.as_registered">as_registered</a></code></li>
 <li><code><a title="phiml.backend.Backend.as_tensor" href="#phiml.backend.Backend.as_tensor">as_tensor</a></code></li>
@@ -6684,6 +6877,7 @@ def retime(self):
 <li><code><a title="phiml.backend.Backend.ifft" href="#phiml.backend.Backend.ifft">ifft</a></code></li>
 <li><code><a title="phiml.backend.Backend.imag" href="#phiml.backend.Backend.imag">imag</a></code></li>
 <li><code><a title="phiml.backend.Backend.indexed_segment_sum" href="#phiml.backend.Backend.indexed_segment_sum">indexed_segment_sum</a></code></li>
+<li><code><a title="phiml.backend.Backend.invert" href="#phiml.backend.Backend.invert">invert</a></code></li>
 <li><code><a title="phiml.backend.Backend.is_available" href="#phiml.backend.Backend.is_available">is_available</a></code></li>
 <li><code><a title="phiml.backend.Backend.is_module" href="#phiml.backend.Backend.is_module">is_module</a></code></li>
 <li><code><a title="phiml.backend.Backend.is_sparse" href="#phiml.backend.Backend.is_sparse">is_sparse</a></code></li>
@@ -6786,6 +6980,7 @@ def retime(self):
 <li><code><a title="phiml.backend.Backend.to_int32" href="#phiml.backend.Backend.to_int32">to_int32</a></code></li>
 <li><code><a title="phiml.backend.Backend.to_int64" href="#phiml.backend.Backend.to_int64">to_int64</a></code></li>
 <li><code><a title="phiml.backend.Backend.transpose" href="#phiml.backend.Backend.transpose">transpose</a></code></li>
+<li><code><a title="phiml.backend.Backend.unique" href="#phiml.backend.Backend.unique">unique</a></code></li>
 <li><code><a title="phiml.backend.Backend.unravel_index" href="#phiml.backend.Backend.unravel_index">unravel_index</a></code></li>
 <li><code><a title="phiml.backend.Backend.unstack" href="#phiml.backend.Backend.unstack">unstack</a></code></li>
 <li><code><a title="phiml.backend.Backend.variable" href="#phiml.backend.Backend.variable">variable</a></code></li>
