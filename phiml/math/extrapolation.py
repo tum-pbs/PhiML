@@ -32,6 +32,10 @@ class Extrapolation:
         """
         self.pad_rank = pad_rank
 
+    @property
+    def shape(self):
+        raise NotImplementedError()
+
     def to_dict(self) -> dict:
         """
         Serialize this extrapolation to a dictionary that is serializable (JSON-writable).
@@ -893,7 +897,15 @@ class _AntiReflectExtrapolation(_ReflectExtrapolation):
         raise NotImplementedError
 
 
-class _SymmetricGradientExtrapolation(Extrapolation):
+class _SymmetricGradientExtrapolation(Extrapolation):  # ToDo this class is missing a lot of methods
+
+    def __init__(self):
+        super().__init__(pad_rank=3)
+        warnings.warn('symmetric-gradient extrapolation is experimental. Use with caution.', DeprecationWarning)
+
+    @property
+    def shape(self):
+        return EMPTY_SHAPE
 
     def to_dict(self) -> dict:
         return {'type': 'symmetric-gradient'}
@@ -1084,7 +1096,7 @@ REFLECT = _ReflectExtrapolation(4)
 """ Like SYMMETRIC but the edge values are not copied and only occur once per seam. """
 ANTIREFLECT = _AntiReflectExtrapolation(4)
 """ Like REFLECT but extends a grid with the negative value of the corresponding counterpart instead. """
-SYMMETRIC_GRADIENT = _SymmetricGradientExtrapolation(3)
+SYMMETRIC_GRADIENT = _SymmetricGradientExtrapolation()
 """ Extrapolates in a continuous manner. The normal component of the spatial gradient is symmetric at the boundaries. The outer-most valid difference is duplicated. """
 
 NONE = _NoExtrapolation(-1)
@@ -1464,6 +1476,10 @@ class _ConditionalExtrapolation(Extrapolation):
             'true': self.true_ext.to_dict(),
             'false': self.false_ext.to_dict(),
         }
+
+    @property
+    def shape(self):
+        return self.mask.shape & self.true_ext.shape & self.false_ext.shape
 
     def spatial_gradient(self) -> 'Extrapolation':
         return where(self.mask, self.true_ext.spatial_gradient(), self.false_ext.spatial_gradient())
