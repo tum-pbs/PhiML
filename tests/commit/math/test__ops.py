@@ -51,6 +51,7 @@ class TestOps(TestCase):
                     x = math.tensor(0)
                     y = math.tensor(0)
                     self.assertEqual(1, jit(x, y).native(), msg=b.name)
+        self.assertFalse(math.always_close(vec(x=0), vec(x=0, y=1)))
 
     def test_assert_close_non_uniform(self):
         t = math.stack([math.zeros(spatial(x=4)), math.zeros(spatial(x=3))], channel('stack'))
