@@ -1410,12 +1410,6 @@ class Backend:
             return self.conjugate_gradient_adaptive(lin, y, x0, rtol, atol, max_iter, pre)
         elif method.startswith('scipy-'):
             from ._linalg import scipy_spsolve
-            if not callable(lin):
-                lin = self.numpy(lin)
-            y = self.numpy(y)
-            x0 = self.numpy(x0)
-            rtol = self.numpy(rtol) if self.is_tensor(rtol, only_native=True) else rtol
-            atol = self.numpy(atol) if self.is_tensor(atol, only_native=True) else atol
             result = scipy_spsolve(self, method[len('scipy-'):], lin, y, x0, rtol, atol, max_iter, pre)
             return SolveResult(result.method, self.as_tensor(result.x), self.as_tensor(result.residual), result.iterations, result.function_evaluations, result.converged, result.diverged, result.message)
         elif method == 'CG':

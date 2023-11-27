@@ -10,6 +10,7 @@ from scipy.sparse import issparse, coo_matrix
 from scipy.sparse.linalg import spsolve, LinearOperator
 
 from ._backend import Backend, SolveResult, List, DType, spatial_derivative_evaluation, combined_dim, choose_backend, TensorType, Preconditioner, ML_LOGGER, convert
+from ._numpy_backend import NUMPY
 
 
 def pre_str(pre: Optional[Preconditioner]):
@@ -267,29 +268,46 @@ def bicg_stab_first_order(b: Backend, lin, y, x0, rtol, atol, max_iter, pre: Opt
 
 def scipy_spsolve(b: Backend, method: Union[str, Callable], lin, y, x0, rtol, atol, max_iter, pre: Optional[Preconditioner]) -> SolveResult:
     assert max_iter.shape[0] == 1, f"Trajectory recording not supported for scipy_spsolve"
-    if method == 'direct':
-        if pre:
-            warnings.warn(f"Preconditioner {pre} was computed but is not used by SciPy direct solve.", RuntimeWarning)
-        return scipy_direct_linear_solve(b, lin, y)
+    if method == 'direct' and pre:
+        warnings.warn(f"Preconditioner {pre} was computed but is not used by SciPy direct solve.", RuntimeWarning)
+    scipy_solvers = {
+        'CG': scipy.sparse.linalg.cg,
+        'GMres': scipy.sparse.linalg.gmres,
+        'biCG': scipy.sparse.linalg.bicg,
+        'biCG-stab': scipy.sparse.linalg.bicgstab,
+        'CGS': scipy.sparse.linalg.cgs,
+        'lGMres': scipy.sparse.linalg.lgmres,
+        'QMR': scipy.sparse.linalg.qmr,
+        'GCrotMK': scipy.sparse.linalg.gcrotmk,
+        # 'minres': scipy.sparse.linalg.minres,  # this does not work like the others
+    }
+    function = scipy_solvers[method] if isinstance(method, str) and method != 'direct' else method
+    method_name = 'scipy.sparse.linalg.spsolve' if method == 'direct' else f'scipy.sparse.linalg.{function.__name__}'
+    batch_size = b.staticshape(y)[0]
+    if not callable(lin):
+        assemble_lin, lin_tensors = b.disassemble(lin)
+        def scipy_solve(np_y, np_x0, np_rtol, np_atol, *np_lin_tensors):
+            np_lin = assemble_lin(NUMPY, *np_lin_tensors)
+            if method == 'direct':
+                npr = scipy_direct_linear_solve(NUMPY, np_lin, np_y)
+            else:
+                npr = scipy_iterative_sparse_solve(NUMPY, np_lin, np_y, np_x0, np_rtol, np_atol, max_iter, pre, function)
+            return npr.x, npr.residual, npr.iterations, npr.function_evaluations, npr.converged, npr.diverged
     else:
-        if isinstance(method, str):
-            function = {
-                'CG': scipy.sparse.linalg.cg,
-                'GMres': scipy.sparse.linalg.gmres,
-                'biCG': scipy.sparse.linalg.bicg,
-                'biCG-stab': scipy.sparse.linalg.bicgstab,
-                'CGS': scipy.sparse.linalg.cgs,
-                'lGMres': scipy.sparse.linalg.lgmres,
-                'QMR': scipy.sparse.linalg.qmr,
-                'GCrotMK': scipy.sparse.linalg.gcrotmk,
-                # 'minres': scipy.sparse.linalg.minres,  # this does not work like the others
-            }[method]
-        else:
-            function = method
-        return scipy_iterative_sparse_solve(b, lin, y, x0, rtol, atol, max_iter, pre, function)
+        assert method != 'direct', "scipy direct matrix solve cannot be used in matrix-free mode"
+        lin_tensors = []
+        def scipy_solve(np_y, np_x0, np_rtol, np_atol):
+            npr = scipy_iterative_sparse_solve(NUMPY, lin, np_y, np_x0, np_rtol, np_atol, max_iter, pre, function)
+            return npr.x, npr.residual, npr.iterations, npr.function_evaluations, npr.converged, npr.diverged
+    fp = b.float_type
+    i = DType(int, 32)
+    bo = DType(bool)
+    x, residual, iterations, function_evaluations, converged, diverged = b.numpy_call(scipy_solve, (x0.shape, x0.shape, x0.shape[:1], x0.shape[:1], x0.shape[:1], x0.shape[:1]), (fp, fp, i, i, bo, bo), y, x0, rtol, atol, *lin_tensors)
+    return SolveResult(method_name[0], x, residual, iterations, function_evaluations, converged, diverged, [""] * batch_size)
 
 
-def scipy_direct_linear_solve(b: Backend, lin, y):
+
+def scipy_direct_linear_solve(b: Backend, lin, y) -> SolveResult:
     batch_size = b.staticshape(y)[0]
     xs = []
     converged = []
