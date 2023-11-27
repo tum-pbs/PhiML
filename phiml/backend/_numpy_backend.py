@@ -135,6 +135,18 @@ class NumPyBackend(Backend):
         else:
             return np.array(tensor)
 
+    def numpy_call(self, f, output_shapes, output_dtypes, *args, **aux_args):
+        output = f(*args, **aux_args)
+        if isinstance(output_dtypes, DType):
+            assert output.shape == output_shapes
+            assert self.dtype(output) == output_dtypes
+        else:
+            assert len(output) == len(output_dtypes) == len(output_shapes)
+            for i, (o, d, s) in enumerate(zip(output, output_dtypes, output_shapes)):
+                assert o.shape == s, f"numpy_call: out[{i}] has shape {o.shape} but was promised to be {s}"
+                assert self.dtype(o) == d, f"numpy_call: out[{i}] has dtype {o.dtype} but was promised to be {d}"
+        return output
+
     def copy(self, tensor, only_mutable=False):
         return np.copy(tensor)
 

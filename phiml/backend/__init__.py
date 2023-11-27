@@ -21,8 +21,8 @@ except ImportError:
     warnings.warn("NumPy is not installed.", ImportWarning)
 
 if _NP_AVAILABLE:
-    from ._numpy_backend import NumPyBackend as _NumPyBackend
-    NUMPY = _NumPyBackend()
+    from ._numpy_backend import NUMPY as _NUMPY
+    NUMPY = _NUMPY
     """Default backend for NumPy arrays and SciPy objects."""
     BACKENDS.append(NUMPY)
     _DEFAULT.append(NUMPY)
