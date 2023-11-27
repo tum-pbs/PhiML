@@ -1,7 +1,7 @@
 import numbers
 import warnings
 from functools import wraps
-from typing import List, Callable, Optional, Set, Tuple, Any, Union
+from typing import List, Callable, Optional, Set, Tuple, Any, Union, Sequence
 
 import numpy as np
 import torch
@@ -103,26 +103,27 @@ class TorchBackend(Backend):
             tensor = tensor.detach()
         if hasattr(tensor, 'resolve_conj'):
             tensor = tensor.resolve_conj()
-        if tensor.is_sparse:
+        if self.is_sparse(tensor):
+            assemble, parts = self.disassemble(tensor, coalesce=coalesce)
+            return assemble(NUMPY, *[self.numpy(t) for t in parts])
+        else:
+            return tensor.cpu().numpy()
+
+    def disassemble(self, x, coalesce=False) -> Tuple[Callable, Sequence[TensorType]]:
+        if x.is_sparse:
             if coalesce:
-                tensor = tensor.coalesce()
+                tensor = x.coalesce()
                 indices = tensor.indices()
                 values = tensor.values()
             else:
-                indices = tensor._indices()
-                values = tensor._values()
-            indices = self.numpy(indices)
-            values = self.numpy(values)
-            from scipy.sparse import coo_matrix
-            return coo_matrix((values, indices), shape=self.staticshape(tensor))
-        elif tensor.is_sparse_csr:
-            values = self.numpy(tensor.values())
-            indices = self.numpy(tensor.col_indices())
-            pointers = self.numpy(tensor.crow_indices())
-            from scipy.sparse import csr_matrix
-            return csr_matrix((values, indices, pointers), shape=self.staticshape(tensor))
+                indices = x._indices()
+                values = x._values()
+            return lambda b, i, v: b.sparse_coo_tensor(i, v, x.shape), (indices, values)
+        elif x.is_sparse_csr:
+            shape = self.staticshape(x)
+            return lambda b, v, i, p: b.csr_matrix(i, p, v, shape), (x.values(), x.col_indices(), x.crow_indices())
         else:
-            return tensor.cpu().numpy()
+            return lambda b, t: t, (x,)
 
     def to_dlpack(self, tensor):
         from torch.utils import dlpack

@@ -1,6 +1,6 @@
 import numbers
 from functools import wraps, partial
-from typing import List, Callable, Tuple, Union, Optional
+from typing import List, Callable, Tuple, Union, Optional, Sequence
 
 import keras
 import numpy as np
@@ -82,14 +82,22 @@ class TFBackend(Backend):
 
     def numpy(self, tensor):
         if self.is_sparse(tensor):
-            indices = np.array(tensor.indices)
-            values = np.array(tensor.values)
-            indices = indices[..., 0], indices[..., 1]
-            from scipy.sparse import coo_matrix
-            return coo_matrix((values, indices), shape=self.staticshape(tensor))
+            assemble, parts = self.disassemble(tensor)
+            return assemble(NUMPY, *[self.numpy(t) for t in parts])
         if tf.is_tensor(tensor):
             return tensor.numpy()
         return NUMPY.numpy(tensor)
+
+    def disassemble(self, x) -> Tuple[Callable, Sequence[TensorType]]:
+        if self.is_sparse(x):
+            return lambda b, i, v: b.sparse_coo_tensor(i, v, x.shape), (x.indices, x.values)
+        else:
+            return lambda b, t: t, (x,)
+
+    def device_of(self, tensor: TensorType):
+        if self.is_sparse(tensor):
+            return self.device_of(tensor.values)
+        return tf.device(tensor.device)
 
     def to_dlpack(self, tensor):
         from tensorflow import experimental
@@ -102,7 +110,7 @@ class TFBackend(Backend):
 
     def copy(self, tensor, only_mutable=False):
         if not only_mutable or tf.executing_eagerly():
-            with tf.device(tensor.device):
+            with self.device_of(tensor):
                 return tf.identity(tensor)
         else:
             return tensor
@@ -118,7 +126,7 @@ class TFBackend(Backend):
             return result
 
     def vectorized_call(self, f, *args, output_dtypes=None, **aux_args):
-        with tf.device(args[0].device):
+        with self.device_of(args[0]):
             batch_size = self.determine_size(args, 0)
             args = [self.tile_to(t, 0, batch_size) for t in args]
             if output_dtypes is None:
@@ -130,8 +138,9 @@ class TFBackend(Backend):
 
     def numpy_call(self, f, output_shapes, output_dtypes, *args, **aux_args):
         def aux_f(*args):
+            args = [self.numpy(a) for a in args]
             return f(*args, **aux_args)
-        with tf.device(args[0].device):
+        with self.device_of(args[0]):
             if output_dtypes is None:
                 output0 = f(*[t[0] for t in args], **aux_args)  # Call f to determine its output signature.
                 output_dtypes = tf.nest.map_structure(lambda x: x.dtype, output0)
@@ -155,7 +164,7 @@ class TFBackend(Backend):
         return tf_function
 
     def transpose(self, tensor, axes):
-        with tf.device(tensor.device):
+        with self.device_of(tensor):
             return tf.transpose(tensor, perm=axes)
 
     def equal(self, x, y):
@@ -188,14 +197,14 @@ class TFBackend(Backend):
             return tf.range(start, limit, delta, to_numpy_dtype(dtype))
 
     def tile(self, value, multiples):
-        with tf.device(value.device):
+        with self.device_of(value):
             if isinstance(multiples, (tuple, list)) and self.ndims(value) < len(multiples):
                 value = self.expand_dims(value, axis=0, number=len(multiples) - self.ndims(value))
             return tf.tile(value, multiples)
 
     def repeat(self, x, repeats, axis: int, new_length=None):
         x = self.as_tensor(x)
-        with tf.device(x.device):
+        with self.device_of(x):
             return tf.repeat(x, repeats, axis)
 
     def stack(self, values, axis=0):
@@ -211,18 +220,18 @@ class TFBackend(Backend):
         if mode == 'boundary' and np.all(np.array(pad_width) <= 1):
             mode = 'symmetric'
         if mode in ('constant', 'symmetric', 'reflect'):
-            with tf.device(value.device):
+            with self.device_of(value):
                 constant_values = tf.cast(constant_values, value.dtype)
                 return tf.pad(value, pad_width, mode.upper(), constant_values=constant_values)
         else:
             return NotImplemented
 
     def reshape(self, value, shape):
-        with tf.device(value.device):
+        with self.device_of(value):
             return tf.reshape(value, shape)
 
     def sum(self, value, axis=None, keepdims=False):
-        with tf.device(value.device):
+        with self.device_of(value):
             if self.dtype(value).kind == bool:
                 value = self.to_int32(value)
             if axis is not None:
@@ -238,7 +247,7 @@ class TFBackend(Backend):
             return tf.reduce_sum(value, axis=axis, keepdims=keepdims)
 
     def prod(self, value, axis=None):
-        with tf.device(value.device):
+        with self.device_of(value):
             if axis is not None:
                 if not isinstance(axis, int):
                     axis = list(axis)
@@ -253,14 +262,14 @@ class TFBackend(Backend):
             return tf.where(condition, x, y)
 
     def nonzero(self, values, length=None, fill_value=-1):
-        with tf.device(values.device):
+        with self.device_of(values):
             result = tf.where(tf.not_equal(values, 0))
             if length is not None:
                 result = self.pad_to(result, 0, length, fill_value)
             return result
 
     def mean(self, value, axis=None, keepdims=False):
-        with tf.device(value.device):
+        with self.device_of(value):
             if self.dtype(value).kind not in (float, complex):
                 value = self.to_float(value)
             if axis is not None:
@@ -323,7 +332,7 @@ class TFBackend(Backend):
             return tf.einsum(equation, *tensors)
 
     def cumsum(self, x, axis: int):
-        with tf.device(x.device):
+        with self.device_of(x):
             return tf.cumsum(x, axis=axis, exclusive=False)
 
     def while_loop(self, loop: Callable, values: tuple, max_iter: Union[int, Tuple[int, ...], List[int]]):
@@ -358,27 +367,27 @@ class TFBackend(Backend):
             raise NotImplementedError(type(values))
 
     def abs(self, x):
-        with tf.device(x.device):
+        with self.device_of(x):
             return tf.abs(x)
 
     def sign(self, x):
-        with tf.device(x.device):
+        with self.device_of(x):
             return tf.sign(x)
 
     def round(self, x):
-        with tf.device(x.device):
+        with self.device_of(x):
             return tf.round(x)
 
     def ceil(self, x):
-        with tf.device(x.device):
+        with self.device_of(x):
             return tf.math.ceil(x)
 
     def floor(self, x):
-        with tf.device(x.device):
+        with self.device_of(x):
             return tf.floor(x)
 
     def max(self, x, axis=None, keepdims=False):
-        with tf.device(x.device):
+        with self.device_of(x):
             if isinstance(x, (tuple, list)):
                 x = tf.stack(x)
             if x.dtype == tf.bool:
@@ -386,7 +395,7 @@ class TFBackend(Backend):
             return tf.reduce_max(x, axis=axis, keepdims=keepdims)
 
     def min(self, x, axis=None, keepdims=False):
-        with tf.device(x.device):
+        with self.device_of(x):
             if isinstance(x, (tuple, list)):
                 x = tf.stack(x)
             if x.dtype == tf.bool:
@@ -423,19 +432,19 @@ class TFBackend(Backend):
             return result
 
     def sqrt(self, x):
-        with tf.device(x.device):
+        with self.device_of(x):
             return tf.sqrt(x)
 
     def exp(self, x):
-        with tf.device(x.device):
+        with self.device_of(x):
             return tf.exp(x)
 
     def softplus(self, x):
-        with tf.device(x.device):
+        with self.device_of(x):
             return tf.math.softplus(x)
 
     def log_gamma(self, x):
-        with tf.device(x.device):
+        with self.device_of(x):
             return tf.math.lgamma(self.to_float(x))
 
     def conv(self, value, kernel, zero_padding=True):
@@ -462,7 +471,7 @@ class TFBackend(Backend):
 
     def expand_dims(self, a, axis=0, number=1):
         a = self.as_tensor(a)
-        with tf.device(a.device):
+        with self.device_of(a):
             if number == 0:
                 return a
             for _i in range(number):
@@ -473,7 +482,7 @@ class TFBackend(Backend):
         if isinstance(tensor, np.ndarray):
             return tensor.shape
         else:
-            with tf.device(tensor.device):
+            with self.device_of(tensor):
                 return tf.shape(tensor)
 
     def staticshape(self, tensor):
@@ -502,14 +511,14 @@ class TFBackend(Backend):
             return tf.gather_nd(values, indices, batch_dims=1)
 
     def unstack(self, tensor, axis=0, keepdims=False):
-        with tf.device(tensor.device):
+        with self.device_of(tensor):
             unstacked = tf.unstack(tensor, axis=axis)
             if keepdims:
                 unstacked = [self.expand_dims(c, axis=axis) for c in unstacked]
             return unstacked
 
     def std(self, x, axis=None, keepdims=False):
-        with tf.device(x.device):
+        with self.device_of(x):
             if self.dtype(x).kind not in (float, complex):
                 x = self.to_float(x)
             _mean, var = tf.nn.moments(x, axis, keepdims=keepdims)
@@ -522,36 +531,36 @@ class TFBackend(Backend):
     def isfinite(self, x):
         if self.dtype(x).kind in (bool, int):
             return self.ones(self.shape(x), dtype=DType(bool))
-        with tf.device(x.device):
+        with self.device_of(x):
             return tf.math.is_finite(x)
 
     def isnan(self, x):
         if self.dtype(x).kind in (bool, int):
             return self.zeros(self.shape(x), dtype=DType(bool))
-        with tf.device(x.device):
+        with self.device_of(x):
             return tf.math.is_nan(x)
 
     def isinf(self, x):
         if self.dtype(x).kind in (bool, int):
             return self.zeros(self.shape(x), dtype=DType(bool))
-        with tf.device(x.device):
+        with self.device_of(x):
             return tf.math.is_inf(x)
 
     def any(self, boolean_tensor, axis=None, keepdims=False):
-        with tf.device(boolean_tensor.device):
+        with self.device_of(boolean_tensor):
             if self.dtype(boolean_tensor).kind != bool:
                 boolean_tensor = tf.not_equal(boolean_tensor, 0)
             return tf.reduce_any(boolean_tensor, axis=axis, keepdims=keepdims)
 
     def all(self, boolean_tensor, axis=None, keepdims=False):
-        with tf.device(boolean_tensor.device):
+        with self.device_of(boolean_tensor):
             if self.dtype(boolean_tensor).kind != bool:
                 boolean_tensor = tf.not_equal(boolean_tensor, 0)
             return tf.reduce_all(boolean_tensor, axis=axis, keepdims=keepdims)
 
     def quantile(self, x, quantiles):
         import tensorflow_probability as tfp
-        with tf.device(x.device):
+        with self.device_of(x):
             x = self.to_float(x)
             result = tfp.stats.percentile(x, quantiles * 100, axis=-1, interpolation='linear')
             return result
@@ -608,7 +617,7 @@ class TFBackend(Backend):
         x = self.to_complex(x)
         perm = (*[i for i in range(self.ndims(x)) if i not in axes], *axes)
         iperm = np.argsort(perm)
-        with tf.device(x.device):
+        with self.device_of(x):
             if len(axes) == 1:
                 return tf.transpose(tf.signal.fft(tf.transpose(x, perm)), iperm)
             elif len(axes) == 2:
@@ -626,7 +635,7 @@ class TFBackend(Backend):
         k = self.to_complex(k)
         perm = (*[i for i in range(self.ndims(k)) if i not in axes], *axes)
         iperm = np.argsort(perm)
-        with tf.device(k.device):
+        with self.device_of(k):
             if len(axes) == 1:
                 return tf.transpose(tf.signal.ifft(tf.transpose(k, perm)), iperm)
             elif len(axes) == 2:
@@ -639,15 +648,15 @@ class TFBackend(Backend):
                 return k
 
     def imag(self, x):
-        with tf.device(x.device):
+        with self.device_of(x):
             return tf.math.imag(x)
 
     def real(self, x):
-        with tf.device(x.device):
+        with self.device_of(x):
             return tf.math.real(x)
 
     def conj(self, x):
-        with tf.device(x.device):
+        with self.device_of(x):
             return tf.math.conj(x)
 
     def cast(self, x, dtype: DType):
@@ -656,7 +665,7 @@ class TFBackend(Backend):
         if self.dtype(x) == dtype:
             return x
         else:
-            with tf.device(x.device):
+            with self.device_of(x):
                 return tf.cast(x, to_numpy_dtype(dtype))
 
     def unravel_index(self, flat_index, shape):
@@ -664,72 +673,72 @@ class TFBackend(Backend):
         return tf.transpose(idx_first, perm=tuple(range(1, self.ndims(flat_index)+1)) + (0,))
 
     def sin(self, x):
-        with tf.device(x.device):
+        with self.device_of(x):
             return tf.math.sin(x)
 
     def arcsin(self, x):
-        with tf.device(x.device):
+        with self.device_of(x):
             return tf.math.asin(x)
 
     def cos(self, x):
-        with tf.device(x.device):
+        with self.device_of(x):
             return tf.math.cos(x)
 
     def arccos(self, x):
-        with tf.device(x.device):
+        with self.device_of(x):
             return tf.math.acos(x)
 
     def tan(self, x):
-        with tf.device(x.device):
+        with self.device_of(x):
             return tf.math.tan(x)
 
     def arctan(self, x):
-        with tf.device(x.device):
+        with self.device_of(x):
             return tf.math.atan(x)
 
     def arctan2(self, y, x):
         y, x = self.auto_cast(y, x)
-        with tf.device(x.device):
+        with self.device_of(x):
             return tf.math.atan2(y, x)
 
     def sinh(self, x):
-        with tf.device(x.device):
+        with self.device_of(x):
             return tf.math.sinh(x)
 
     def arcsinh(self, x):
-        with tf.device(x.device):
+        with self.device_of(x):
             return tf.math.asinh(x)
 
     def cosh(self, x):
-        with tf.device(x.device):
+        with self.device_of(x):
             return tf.math.cosh(x)
 
     def arccosh(self, x):
-        with tf.device(x.device):
+        with self.device_of(x):
             return tf.math.acosh(x)
 
     def tanh(self, x):
-        with tf.device(x.device):
+        with self.device_of(x):
             return tf.math.tanh(x)
 
     def arctanh(self, x):
-        with tf.device(x.device):
+        with self.device_of(x):
             return tf.math.atanh(x)
 
     def log(self, x):
-        with tf.device(x.device):
+        with self.device_of(x):
             return tf.math.log(x)
 
     def sigmoid(self, x):
-        with tf.device(x.device):
+        with self.device_of(x):
             return tf.math.sigmoid(x)
 
     def log2(self, x):
-        with tf.device(x.device):
+        with self.device_of(x):
             return tf.math.log(x) / 0.6931471805599453094  # log(x) / log(2)
 
     def log10(self, x):
-        with tf.device(x.device):
+        with self.device_of(x):
             return tf.math.log(x) / 2.3025850929940456840  # log(x) / log(10)
 
     def dtype(self, array) -> DType:

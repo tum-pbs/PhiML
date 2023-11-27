@@ -1,13 +1,13 @@
 import numbers
 import os
 import sys
-from typing import Union, Optional, Tuple
+from typing import Union, Optional, Tuple, Callable, Sequence
 
 import numpy as np
 import numpy.random
 import scipy.signal
 import scipy.sparse
-from scipy.sparse import issparse
+from scipy.sparse import issparse, csr_matrix, coo_matrix, csc_matrix
 from scipy.sparse.linalg import spsolve_triangular
 
 from . import Backend, ComputeDevice
@@ -113,6 +113,18 @@ class NumPyBackend(Backend):
 
     def is_sparse(self, x) -> bool:
         return issparse(x)
+
+    def disassemble(self, x) -> Tuple[Callable, Sequence[TensorType]]:
+        if issparse(x):
+            if isinstance(x, coo_matrix):
+                return lambda b, i, v: b.sparse_coo_tensor(i, v, x.shape), (np.stack([x.row, x.col], -1), x.data)
+            if isinstance(x, csr_matrix):
+                return lambda b, v, i, p: b.csr_matrix(i, p, v, x.shape), (x.data, x.indices, x.indptr)
+            elif isinstance(x, csc_matrix):
+                return lambda b, v, i, p: b.csc_matrix(p, i, v, x.shape), (x.data, x.indices, x.indptr)
+            raise NotImplementedError
+        else:
+            return lambda b, t: t, (x,)
 
     def is_available(self, tensor):
         return True
@@ -411,12 +423,12 @@ class NumPyBackend(Backend):
     def sparse_coo_tensor(self, indices, values, shape):
         indices = self.unstack(indices, -1)
         if len(shape) == 2:
-            return scipy.sparse.coo_matrix((values, indices), shape=shape)
+            return coo_matrix((values, indices), shape=shape)
         else:
             raise NotImplementedError(f"len(indices) = {len(indices)} not supported. Only (2) allowed.")
 
     def csr_matrix(self, column_indices, row_pointers, values, shape: tuple):
-        return scipy.sparse.csr_matrix((values, column_indices, row_pointers), shape=shape)
+        return csr_matrix((values, column_indices, row_pointers), shape=shape)
 
     def mul_csr_dense(self, column_indices, row_pointers, values, shape: tuple, dense):
         batch_size, nnz, channel_count = values.shape
@@ -424,13 +436,13 @@ class NumPyBackend(Backend):
         for b in range(batch_size):
             b_result = []
             for c in range(channel_count):
-                mat = scipy.sparse.csr_matrix((values[b, :, c], column_indices[b], row_pointers[b]), shape=shape)
+                mat = csr_matrix((values[b, :, c], column_indices[b], row_pointers[b]), shape=shape)
                 b_result.append(mat * dense[b, :, c, :])
             result.append(np.stack(b_result))
         return np.stack(result)
 
     def csc_matrix(self, column_pointers, row_indices, values, shape: tuple):
-        return scipy.sparse.csc_matrix((values, row_indices, column_pointers), shape=shape)
+        return csc_matrix((values, row_indices, column_pointers), shape=shape)
 
     def stop_gradient(self, value):
         return value
@@ -490,3 +502,6 @@ class NumPyBackend(Backend):
 
     def solve_triangular_sparse(self, matrix, rhs, lower: bool, unit_diagonal: bool):  # needs to be overridden to indicate this is natively implemented
         return spsolve_triangular(matrix, rhs.T, lower=lower, unit_diagonal=unit_diagonal).T
+
+
+NUMPY = NumPyBackend()

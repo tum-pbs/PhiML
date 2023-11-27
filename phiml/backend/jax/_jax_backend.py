@@ -2,7 +2,7 @@ import dataclasses
 import numbers
 import warnings
 from functools import wraps, partial
-from typing import List, Callable, Tuple, Union, Optional
+from typing import List, Callable, Tuple, Union, Optional, Sequence
 
 import jax
 import jax.numpy as jnp
@@ -11,6 +11,8 @@ import numpy as np
 from jax import random
 from jax.core import Tracer
 from packaging import version
+
+from .._numpy_backend import NUMPY
 
 if version.parse(jax.__version__) >= version.parse('0.2.20'):
     from jax.experimental.sparse import BCOO, COO, CSR, CSC
@@ -103,21 +105,27 @@ class JaxBackend(Backend):
         return not isinstance(tensor, Tracer)
 
     def numpy(self, tensor):
-        if isinstance(tensor, COO):
-            raise NotImplementedError
-        elif isinstance(tensor, BCOO):
-            indices = np.array(tensor.indices)
-            values = np.array(tensor.data)
-            indices = indices[..., 0], indices[..., 1]
-            assert values.ndim == 1, f"Cannot convert batched COO to NumPy"
-            from scipy.sparse import coo_matrix
-            return coo_matrix((values, indices), shape=self.staticshape(tensor))
-        elif isinstance(tensor, CSR):
-            raise NotImplementedError
-        elif isinstance(tensor, CSC):
+        if self.is_sparse(tensor):
+            assemble, parts = self.disassemble(tensor)
+            return assemble(NUMPY, *[self.numpy(t) for t in parts])
+        return np.array(tensor)
+
+    def disassemble(self, x) -> Tuple[Callable, Sequence[TensorType]]:
+        if self.is_sparse(x):
+            if isinstance(x, COO):
+                raise NotImplementedError
+                # return lambda b, i, v: b.sparse_coo_tensor(i, v, x.shape), (np.stack([x.row, x.col], -1), x.data)
+            if isinstance(x, BCOO):
+                return lambda b, i, v: b.sparse_coo_tensor(i, v, x.shape), (x.indices, x.data)
+            if isinstance(x, CSR):
+                raise NotImplementedError
+                # return lambda b, v, i, p: b.csr_matrix(i, p, v, x.shape), (x.data, x.indices, x.indptr)
+            elif isinstance(x, CSC):
+                raise NotImplementedError
+                # return lambda b, v, i, p: b.csc_matrix(p, i, v, x.shape), (x.data, x.indices, x.indptr)
             raise NotImplementedError
         else:
-            return np.array(tensor)
+            return lambda b, t: t, (x,)
 
     def to_dlpack(self, tensor):
         from jax import dlpack

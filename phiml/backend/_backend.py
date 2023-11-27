@@ -314,6 +314,19 @@ class Backend:
         """
         raise NotImplementedError(self)
 
+    def disassemble(self, x) -> Tuple[Callable, Sequence[TensorType]]:
+        """
+        Disassemble a (sparse) tensor into its individual constituents, such as values and indices.
+
+        Args:
+            x: Tensor
+
+        Returns:
+            assemble: Function `assemble(backend, *constituents)` that reassembles `x` from the constituents.
+            constituents: Tensors contained in `x`.
+        """
+        raise NotImplementedError(self)
+
     def as_tensor(self, x, convert_external=True):
         """
         Converts a tensor-like object to the native tensor representation of this backend.
@@ -427,7 +440,7 @@ class Backend:
         Returns:
             Returned arrays of `f` converted to tensors.
         """
-        return f(*args, **aux_args)
+        raise NotImplementedError(self.__class__)
 
     def determine_size(self, tensors, axis):
         sizes = [self.staticshape(t)[axis] for t in tensors]
@@ -446,7 +459,7 @@ class Backend:
         return self.tile(x, multiples)
 
     def jit_compile(self, f: Callable) -> Callable:
-        return NotImplemented
+        raise NotImplementedError(self.__class__)
 
     def jacobian(self, f: Callable, wrt: Union[tuple, list], get_output: bool, is_f_scalar: bool):
         """
