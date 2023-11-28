@@ -103,6 +103,8 @@ class TorchBackend(Backend):
 
     def is_available(self, tensor) -> bool:
         # return True
+        if CURRENT_JIT_CALLS:
+            return False
         return torch._C._get_tracing_state() is None  # TODO can we find out whether this tensor specifically is being traced?
 
     def numpy(self, tensor, coalesce=False):
