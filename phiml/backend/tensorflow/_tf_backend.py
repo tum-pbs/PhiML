@@ -61,6 +61,9 @@ class TFBackend(Backend):
     def is_sparse(self, x) -> bool:
         return isinstance(x, tf.SparseTensor)
 
+    def get_sparse_format(self, x) -> str:
+        return 'coo' if isinstance(x, tf.SparseTensor) else 'dense'
+
     def as_tensor(self, x, convert_external=True):
         with tf.device(self._default_device.ref):
             if self.is_tensor(x, only_native=convert_external):

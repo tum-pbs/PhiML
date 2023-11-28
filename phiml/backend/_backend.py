@@ -314,6 +314,10 @@ class Backend:
         """
         raise NotImplementedError(self)
 
+    def get_sparse_format(self, x) -> str:
+        """Returns lower-case format string, such as 'coo', 'csr', 'csc' """
+        raise NotImplementedError(self)
+
     def disassemble(self, x) -> Tuple[Callable, Sequence[TensorType]]:
         """
         Disassemble a (sparse) tensor into its individual constituents, such as values and indices.

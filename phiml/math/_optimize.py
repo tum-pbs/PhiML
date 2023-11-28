@@ -620,7 +620,7 @@ def solve_linear(f: Union[Callable[[X], Y], Tensor],
         return _function_solve(y, solve, f_args, f_kwargs=f_kwargs)
 
 
-def _linear_solve_forward(y,
+def _linear_solve_forward(y: Tensor,
                           solve: Solve,
                           native_lin_op: Union[Callable, Any],  # native function or native matrix
                           pattern_dims_in: Tuple[str, ...],
@@ -648,8 +648,15 @@ def _linear_solve_forward(y,
         max_iter = np.expand_dims(np.arange(int(solve.max_iterations)+1), -1)
     else:
         max_iter = reshaped_numpy(solve.max_iterations, [shape(solve.max_iterations).without(batch_dims), batch_dims])
+    method = solve.method
+    if is_sparse(native_lin_op) and y.default_backend.name == 'torch' and preconditioner and not y.available:
+        warnings.warn(f"Preconditioners are not supported for sparse {method} in {y.default_backend} JIT mode. Disabling preconditioner. Use Jax or TensorFlow to enable preconditioners in JIT mode.", RuntimeWarning)
+        preconditioner = None
+    if is_sparse(native_lin_op) and not y.available and not method.startswith('scipy-') and isinstance(preconditioner, IncompleteLU):
+        warnings.warn(f"Preconditioners are not supported for sparse {method} in {y.default_backend} JIT mode. Using preconditioned scipy-{method} solve instead. If you want to use {y.default_backend}, please disable the preconditioner.", RuntimeWarning)
+        method = 'scipy-' + method
     t = time.perf_counter()
-    ret = backend.linear_solve(solve.method, native_lin_op, y_native, x0_native, rtol, atol, max_iter, preconditioner)
+    ret = backend.linear_solve(method, native_lin_op, y_native, x0_native, rtol, atol, max_iter, preconditioner)
     t = time.perf_counter() - t
     trj_dims = [batch(trajectory=len(max_iter))] if trj else []
     assert isinstance(ret, SolveResult)
@@ -747,10 +754,11 @@ def compute_preconditioner(method: str, matrix: Tensor, safe=False, target_backe
             iterations = int(math.ceil(math.sqrt(d * n ** (1 / d))))  # in 1D take sqrt(n), in 2D take sqrt(2*n**1/2)
             ML_LOGGER.debug(f"factor_ilu: auto-selecting iterations={iterations} ({'variable matrix' if _TRACING_JIT else 'eager mode'}) for matrix {matrix}")
         lower, upper = factor_ilu(matrix, iterations, safe=safe)
-        native_lower = native_matrix(lower, target_backend)
-        native_upper = native_matrix(upper, target_backend)
-        native_lower = convert(native_lower, target_backend)
-        native_upper = convert(native_upper, target_backend)
+        b = target_backend if lower.available else lower.default_backend
+        native_lower = native_matrix(lower, b)
+        native_upper = native_matrix(upper, b)
+        native_lower = convert(native_lower, b)
+        native_upper = convert(native_upper, b)
         return IncompleteLU(native_lower, True, native_upper, False, rank_deficiency=0, source=f"iter={iterations}")  # ToDo rank deficiency
     elif method == 'cluster':
         return explicit_coarse(matrix, target_backend)

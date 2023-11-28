@@ -101,6 +101,15 @@ class JaxBackend(Backend):
     def is_sparse(self, x) -> bool:
         return isinstance(x, (COO, BCOO, CSR, CSC))
 
+    def get_sparse_format(self, x) -> str:
+        format_names = {
+            COO: 'coo',
+            BCOO: 'coo',
+            CSR: 'csr',
+            CSC: 'csc',
+        }
+        return format_names.get(type(x), 'dense')
+
     def is_available(self, tensor):
         return not isinstance(tensor, Tracer)
 

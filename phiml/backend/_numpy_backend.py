@@ -114,6 +114,14 @@ class NumPyBackend(Backend):
     def is_sparse(self, x) -> bool:
         return issparse(x)
 
+    def get_sparse_format(self, x) -> str:
+        format_names = {
+            coo_matrix: 'coo',
+            csr_matrix: 'csr',
+            csc_matrix: 'csc',
+        }
+        return format_names.get(type(x), 'dense')
+
     def disassemble(self, x) -> Tuple[Callable, Sequence[TensorType]]:
         if issparse(x):
             if isinstance(x, coo_matrix):
@@ -490,8 +498,8 @@ class NumPyBackend(Backend):
 
     def linear_solve(self, method: str, lin, y, x0, rtol, atol, max_iter, pre) -> SolveResult:
         if method in ['direct', 'CG-native', 'GMres', 'biCG', 'biCG-stab', 'CGS', 'lGMres', 'minres', 'QMR', 'GCrotMK'] and max_iter.shape[0] == 1:
-            from ._linalg import scipy_spsolve
-            return scipy_spsolve(self, method, lin, y, x0, rtol, atol, max_iter, pre)
+            from ._linalg import scipy_sparse_solve
+            return scipy_sparse_solve(self, method, lin, y, x0, rtol, atol, max_iter, pre)
         return Backend.linear_solve(self, method, lin, y, x0, rtol, atol, max_iter, pre)
 
     def matrix_solve_least_squares(self, matrix: TensorType, rhs: TensorType) -> TensorType:

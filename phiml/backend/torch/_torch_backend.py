@@ -48,7 +48,14 @@ class TorchBackend(Backend):
         return False
 
     def is_sparse(self, x) -> bool:
-        return x.is_sparse
+        return x.is_sparse or x.is_sparse_csr
+
+    def get_sparse_format(self, x) -> str:
+        if x.is_sparse:
+            return 'coo'
+        elif x.is_sparse_csr:
+            return 'csr'
+        return 'dense'
 
     def as_tensor(self, x, convert_external=True):
         if isinstance(x, torch.nn.Module):
