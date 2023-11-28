@@ -649,10 +649,10 @@ def _linear_solve_forward(y: Tensor,
     else:
         max_iter = reshaped_numpy(solve.max_iterations, [shape(solve.max_iterations).without(batch_dims), batch_dims])
     method = solve.method
-    if is_sparse(native_lin_op) and y.default_backend.name == 'torch' and preconditioner and not y.available:
+    if not callable(native_lin_op) and is_sparse(native_lin_op) and y.default_backend.name == 'torch' and preconditioner and not y.available:
         warnings.warn(f"Preconditioners are not supported for sparse {method} in {y.default_backend} JIT mode. Disabling preconditioner. Use Jax or TensorFlow to enable preconditioners in JIT mode.", RuntimeWarning)
         preconditioner = None
-    if is_sparse(native_lin_op) and not y.available and not method.startswith('scipy-') and isinstance(preconditioner, IncompleteLU):
+    if not callable(native_lin_op) and is_sparse(native_lin_op) and not y.available and not method.startswith('scipy-') and isinstance(preconditioner, IncompleteLU):
         warnings.warn(f"Preconditioners are not supported for sparse {method} in {y.default_backend} JIT mode. Using preconditioned scipy-{method} solve instead. If you want to use {y.default_backend}, please disable the preconditioner.", RuntimeWarning)
         method = 'scipy-' + method
     t = time.perf_counter()

@@ -9,7 +9,8 @@ import scipy
 from scipy.sparse import issparse, coo_matrix
 from scipy.sparse.linalg import spsolve, LinearOperator
 
-from ._backend import Backend, SolveResult, List, DType, spatial_derivative_evaluation, combined_dim, choose_backend, TensorType, Preconditioner, ML_LOGGER, convert
+from ._backend import Backend, SolveResult, List, DType, spatial_derivative_evaluation, combined_dim, choose_backend, TensorType, Preconditioner, ML_LOGGER, convert, disassemble_dataclass
+from ._dtype import to_numpy_dtype, combine_types
 from ._numpy_backend import NUMPY
 
 
@@ -266,7 +267,7 @@ def bicg_stab_first_order(b: Backend, lin, y, x0, rtol, atol, max_iter, pre: Opt
     return SolveResult(f"Φ-ML biCG-stab {pre_str(pre)}", x, residual, iterations, function_evaluations, converged, diverged, [""] * batch_size)
 
 
-def scipy_spsolve(b: Backend, method: Union[str, Callable], lin, y, x0, rtol, atol, max_iter, pre: Optional[Preconditioner]) -> SolveResult:
+def scipy_sparse_solve(b: Backend, method: Union[str, Callable], lin, y, x0, rtol, atol, max_iter, pre: Optional[Preconditioner]) -> SolveResult:
     assert max_iter.shape[0] == 1, f"Trajectory recording not supported for scipy_spsolve"
     if method == 'direct' and pre:
         warnings.warn(f"Preconditioner {pre} was computed but is not used by SciPy direct solve.", RuntimeWarning)
@@ -286,25 +287,28 @@ def scipy_spsolve(b: Backend, method: Union[str, Callable], lin, y, x0, rtol, at
     batch_size = b.staticshape(y)[0]
     if not callable(lin):
         assemble_lin, lin_tensors = b.disassemble(lin)
-        def scipy_solve(np_y, np_x0, np_rtol, np_atol, *np_lin_tensors):
-            np_lin = assemble_lin(NUMPY, *np_lin_tensors)
+        assemble_pre, pre_tensors = disassemble_dataclass(pre)
+        def scipy_solve(np_y, np_x0, np_rtol, np_atol, *np_tensors):
+            np_lin = assemble_lin(NUMPY, *np_tensors[:len(lin_tensors)])
+            np_pre = assemble_pre(NUMPY, *np_tensors[len(lin_tensors):])
             if method == 'direct':
                 npr = scipy_direct_linear_solve(NUMPY, np_lin, np_y)
             else:
-                npr = scipy_iterative_sparse_solve(NUMPY, np_lin, np_y, np_x0, np_rtol, np_atol, max_iter, pre, function)
+                npr = scipy_iterative_sparse_solve(NUMPY, np_lin, np_y, np_x0, np_rtol, np_atol, max_iter, np_pre, function)
             return npr.x, npr.residual, npr.iterations, npr.function_evaluations, npr.converged, npr.diverged
     else:
         assert method != 'direct', "scipy direct matrix solve cannot be used in matrix-free mode"
         lin_tensors = []
-        def scipy_solve(np_y, np_x0, np_rtol, np_atol):
-            npr = scipy_iterative_sparse_solve(NUMPY, lin, np_y, np_x0, np_rtol, np_atol, max_iter, pre, function)
+        assemble_pre, pre_tensors = disassemble_dataclass(pre)
+        def scipy_solve(np_y, np_x0, np_rtol, np_atol, *np_pre_tensors):
+            np_pre = assemble_pre(NUMPY, *np_pre_tensors)
+            npr = scipy_iterative_sparse_solve(NUMPY, lin, np_y, np_x0, np_rtol, np_atol, max_iter, np_pre, function)
             return npr.x, npr.residual, npr.iterations, npr.function_evaluations, npr.converged, npr.diverged
     fp = b.float_type
     i = DType(int, 32)
     bo = DType(bool)
-    x, residual, iterations, function_evaluations, converged, diverged = b.numpy_call(scipy_solve, (x0.shape, x0.shape, x0.shape[:1], x0.shape[:1], x0.shape[:1], x0.shape[:1]), (fp, fp, i, i, bo, bo), y, x0, rtol, atol, *lin_tensors)
+    x, residual, iterations, function_evaluations, converged, diverged = b.numpy_call(scipy_solve, (x0.shape, x0.shape, x0.shape[:1], x0.shape[:1], x0.shape[:1], x0.shape[:1]), (fp, fp, i, i, bo, bo), y, x0, rtol, atol, *lin_tensors, *pre_tensors)
     return SolveResult(method_name[0], x, residual, iterations, function_evaluations, converged, diverged, [""] * batch_size)
-
 
 
 def scipy_direct_linear_solve(b: Backend, lin, y) -> SolveResult:
@@ -328,7 +332,7 @@ def scipy_direct_linear_solve(b: Backend, lin, y) -> SolveResult:
     converged = np.stack(converged)
     residual = np.stack(residuals)
     diverged = ~converged
-    iterations = [-1] * batch_size  # spsolve does not perform iterations
+    iterations = np.asarray([-1] * batch_size, np.int32)  # spsolve does not perform iterations
     return SolveResult('scipy.sparse.linalg.spsolve', x, residual, iterations, iterations, converged, diverged, [""] * batch_size)
 
 
@@ -338,6 +342,7 @@ def scipy_iterative_sparse_solve(b: Backend, lin, y, x0, rtol, atol, max_iter, p
     bs_y = b.staticshape(y)[0]
     bs_x0 = b.staticshape(x0)[0]
     batch_size = combined_dim(bs_y, bs_x0)
+    dtype = combine_types(b.dtype(y), b.dtype(x0))
     # if callable(A):
     #     A = LinearOperator(dtype=y.dtype, shape=(self.staticshape(y)[-1], self.staticshape(x0)[-1]), matvec=A)
 
@@ -361,9 +366,9 @@ def scipy_iterative_sparse_solve(b: Backend, lin, y, x0, rtol, atol, max_iter, p
         converged.append(ret_val == 0)
         diverged.append(ret_val < 0 or np.any(~np.isfinite(x)))
         residual.append(lin_b @ x - y[b])
-    x = np.stack(xs)
-    residual = np.stack(residual)
-    iterations = np.stack(iterations)
+    x = np.stack(xs).astype(to_numpy_dtype(dtype))
+    residual = np.stack(residual).astype(to_numpy_dtype(dtype))
+    iterations = np.asarray(iterations, np.int32)
     converged = np.stack(converged)
     diverged = np.stack(diverged)
     return SolveResult(f'scipy.sparse.linalg.{scipy_function.__name__}', x, residual, iterations, iterations + 1, converged, diverged, messages)
@@ -397,12 +402,6 @@ class IncompleteLU(Preconditioner):
     rank_deficiency: int
     source: str
 
-    def __post_init__(self):  # ToDo this is temporary until backend.solve_triangular supports sparse matrices
-        # assert choose_backend(self.lower).ndims(self.lower) == 3
-        # assert choose_backend(self.upper).ndims(self.lower) == 3
-        self._np_lower = choose_backend(self.lower).numpy(self.lower)
-        self._np_upper = choose_backend(self.upper).numpy(self.upper)
-
     def apply_inv_l(self, vec):
         b = choose_backend(self.lower, self.upper, vec)
         return b.solve_triangular(self.lower, vec, lower=True, unit_diagonal=self.lower_unit_diagonal)
@@ -413,27 +412,16 @@ class IncompleteLU(Preconditioner):
 
     def apply(self, vec):
         b = choose_backend(vec)
-        np_vec = vec if isinstance(vec, numpy.ndarray) else b.numpy(vec)
-        from scipy.sparse.linalg import spsolve_triangular
-        np_intermediate = spsolve_triangular(self._np_lower, np_vec.T, lower=True, unit_diagonal=self.lower_unit_diagonal)
-        np_result = spsolve_triangular(self._np_upper, np_intermediate, lower=False, unit_diagonal=self.upper_unit_diagonal).T
-        return np_result if isinstance(vec, numpy.ndarray) else b.as_tensor(np_result)
-        # intermediate = b.solve_triangular(self.lower, vec, lower=True, unit_diagonal=self.lower_unit_diagonal)
-        # # ToDo if set last rank_deficiency entries to 0, then solve smaller system
-        # result = b.solve_triangular(self.upper, intermediate, lower=False, unit_diagonal=self.upper_unit_diagonal)
-        # # return result.T
-        # return result
+        intermediate = b.solve_triangular(self.lower, vec, lower=True, unit_diagonal=self.lower_unit_diagonal)
+        # ToDo if set last rank_deficiency entries to 0, then solve smaller system
+        result = b.solve_triangular(self.upper, intermediate, lower=False, unit_diagonal=self.upper_unit_diagonal)
+        return result
 
     def apply_transposed(self, vec):
         b = choose_backend(self.lower, self.upper, vec)
-        np_vec = vec if isinstance(vec, numpy.ndarray) else b.numpy(vec)
-        from scipy.sparse.linalg import spsolve_triangular, spsolve
-        np_intermediate = spsolve_triangular(self._np_upper.T, np_vec.T, lower=True, unit_diagonal=self.upper_unit_diagonal)
-        np_result = spsolve_triangular(self._np_lower.T, np_intermediate, lower=False, unit_diagonal=self.lower_unit_diagonal).T
-        return np_result if isinstance(vec, numpy.ndarray) else b.as_tensor(np_result)
-        # intermediate = b.solve_triangular(self.upper.T, vec.T, lower=True, unit_diagonal=self.upper_unit_diagonal)
-        # result = b.solve_triangular(self.lower.T, intermediate, lower=False, unit_diagonal=self.lower_unit_diagonal).T
-        # return result
+        intermediate = b.solve_triangular(self.upper.T, vec.T, lower=True, unit_diagonal=self.upper_unit_diagonal)
+        result = b.solve_triangular(self.lower.T, intermediate, lower=False, unit_diagonal=self.lower_unit_diagonal).T
+        return result
 
     def __repr__(self):
         return f"ilu ({self.source})"

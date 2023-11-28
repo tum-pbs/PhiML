@@ -122,10 +122,10 @@ class TorchBackend(Backend):
         if x.is_sparse:
             if coalesce:
                 tensor = x.coalesce()
-                indices = tensor.indices()
+                indices = tensor.indices().T
                 values = tensor.values()
             else:
-                indices = x._indices()
+                indices = x._indices().T
                 values = x._values()
             return lambda b, i, v: b.sparse_coo_tensor(i, v, x.shape), (indices, values)
         elif x.is_sparse_csr:

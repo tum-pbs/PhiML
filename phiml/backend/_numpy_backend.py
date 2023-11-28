@@ -513,12 +513,11 @@ class NumPyBackend(Backend):
         return np.stack(solution), np.stack(residuals), np.stack(rank), np.stack(singular_values)
 
     def solve_triangular_dense(self, matrix, rhs, lower: bool, unit_diagonal: bool):
-        batch_size, rows, cols = matrix.shape
-        result = []
-        for b in range(batch_size):
-            x = scipy.linalg.solve_triangular(matrix[b, :, :], rhs[b, :], lower=lower, unit_diagonal=unit_diagonal)
-            result.append(x)
-        return np.stack(result)
+        if matrix.ndim == 2:
+            return scipy.linalg.solve_triangular(matrix, rhs, lower=lower, unit_diagonal=unit_diagonal).astype(matrix.dtype)
+        else:
+            batch_size = matrix.shape[0]
+            return np.stack([self.solve_triangular(matrix[b], rhs[b], lower, unit_diagonal) for b in range(batch_size)])
 
     def solve_triangular_sparse(self, matrix, rhs, lower: bool, unit_diagonal: bool):  # needs to be overridden to indicate this is natively implemented
         return spsolve_triangular(matrix, rhs.T, lower=lower, unit_diagonal=unit_diagonal).T

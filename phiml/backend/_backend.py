@@ -1,9 +1,11 @@
+import dataclasses
 import logging
 import sys
 import warnings
 from builtins import ValueError
 from contextlib import contextmanager
 from dataclasses import dataclass
+from numbers import Number
 from types import ModuleType
 from typing import List, Callable, TypeVar, Tuple, Union, Optional, Sequence
 
@@ -1426,8 +1428,8 @@ class Backend:
         if method == 'auto':
             return self.conjugate_gradient_adaptive(lin, y, x0, rtol, atol, max_iter, pre)
         elif method.startswith('scipy-'):
-            from ._linalg import scipy_spsolve
-            result = scipy_spsolve(self, method[len('scipy-'):], lin, y, x0, rtol, atol, max_iter, pre)
+            from ._linalg import scipy_sparse_solve
+            result = scipy_sparse_solve(self, method[len('scipy-'):], lin, y, x0, rtol, atol, max_iter, pre)
             return SolveResult(result.method, self.as_tensor(result.x), self.as_tensor(result.residual), result.iterations, result.function_evaluations, result.converged, result.diverged, result.message)
         elif method == 'CG':
             return self.conjugate_gradient(lin, y, x0, rtol, atol, max_iter, pre)
@@ -1506,6 +1508,7 @@ class Backend:
         raise NotImplementedError(self)
 
     def solve_triangular_sparse(self, matrix, rhs, lower: bool, unit_diagonal: bool):
+        raise NotImplementedError(f"sparse triangular solves are not supported by {self.name}. Try using a SciPy solver instead, such as 'scipy-CG' or 'scipy-biCG-stab'.")
         np_matrix = self.numpy(matrix)
         np_rhs = self.numpy(rhs)
         from scipy.sparse.linalg import spsolve_triangular
@@ -2009,3 +2012,27 @@ _LOG_CONSOLE_HANDLER = logging.StreamHandler(sys.stdout)
 _LOG_CONSOLE_HANDLER.setFormatter(logging.Formatter("%(message)s (%(levelname)s), %(asctime)sn\n"))
 _LOG_CONSOLE_HANDLER.setLevel(logging.NOTSET)
 ML_LOGGER.addHandler(_LOG_CONSOLE_HANDLER)
+
+
+def disassemble_dataclass(data):
+    if data is None:
+        return lambda *_: None, ()
+    fields = dataclasses.fields(data)
+    tensor_fields = [f.name for f in fields if not isinstance(getattr(data, f.name), (str, Number))]
+    values = [getattr(data, n) for n in tensor_fields]
+    assemblers = []
+    tensors = []
+    indices = []
+    for v in values:
+        assemble, tensor_list = choose_backend(v).disassemble(v)
+        assemblers.append(assemble)
+        indices.append(len(tensors))
+        tensors.extend(tensor_list)
+    def assemble(b: Backend, *args):
+        re_values = {}
+        for i, (start, end) in enumerate(zip(indices, indices[1:] + [len(tensors)])):
+            value = assemblers[i](b, *args[start:end])
+            re_values[tensor_fields[i]] = value
+        all_values = {f.name: re_values[f.name] if f.name in tensor_fields else getattr(data, f.name) for f in fields}
+        return type(data)(**all_values)
+    return assemble, tensors
