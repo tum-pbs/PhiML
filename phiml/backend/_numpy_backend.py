@@ -514,7 +514,7 @@ class NumPyBackend(Backend):
 
     def solve_triangular_dense(self, matrix, rhs, lower: bool, unit_diagonal: bool):
         if matrix.ndim == 2:
-            return scipy.linalg.solve_triangular(matrix, rhs, lower=lower, unit_diagonal=unit_diagonal).astype(matrix.dtype)
+            return scipy.linalg.solve_triangular(matrix, rhs, lower=lower, unit_diagonal=unit_diagonal)
         else:
             batch_size = matrix.shape[0]
             return np.stack([self.solve_triangular(matrix[b], rhs[b], lower, unit_diagonal) for b in range(batch_size)])
