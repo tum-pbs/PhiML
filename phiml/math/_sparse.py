@@ -997,7 +997,7 @@ def dot_coordinate_dense(sparse: SparseCoordinateTensor, sdims: Shape, dense: Te
     rhs_channels = shape(dense).without(ddims).without(channels)
     dense_native = reshaped_native(dense, [ind_batch, ddims, channels, rhs_channels])
     result_native = backend.mul_coo_dense(native_indices, native_values, native_shape, dense_native)
-    result = reshaped_tensor(result_native, [ind_batch, channels, sparse._dense_shape.without(sdims), rhs_channels])
+    result = reshaped_tensor(result_native, [ind_batch, sparse._dense_shape.without(sdims), channels, rhs_channels])
     return result
 
 

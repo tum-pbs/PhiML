@@ -1247,17 +1247,17 @@ class Backend:
             dense: (batch, dense_rows=sparse_cols, channels, dense_cols)
 
         Returns:
-            (batch, channels, dense_rows=sparse_cols, dense_cols)
+            (batch, dense_rows=sparse_cols, channels, dense_cols)
         """
         values, dense = self.auto_cast(values, dense)
         batch_size, nnz, channel_count = self.staticshape(values)
         _, dense_rows, _, dense_cols = self.staticshape(dense)
-        dense_formatted = self.reshape(dense, (batch_size, dense_rows, dense_cols * channel_count))
+        dense_formatted = self.reshape(dense, (batch_size, dense_rows, channel_count * dense_cols))
         dense_gathered = self.batched_gather_nd(dense_formatted, indices[:, :, 1:2])
-        base_grid = self.zeros((batch_size, shape[0], dense.shape[3] * dense_cols), self.dtype(dense))
+        base_grid = self.zeros((batch_size, shape[0], channel_count), self.dtype(dense))
         assert dense_cols == 1
         result = self.scatter(base_grid, indices[:, :, 0:1], values * dense_gathered, mode='add')
-        return self.reshape(result, (batch_size, channel_count, shape[0], dense_cols))
+        return self.reshape(result, (batch_size, shape[0], channel_count, dense_cols))
 
     def coo_to_dense(self, indices, values, shape, contains_duplicates: bool):
         batch_size, nnz, channel_count = self.staticshape(values)
