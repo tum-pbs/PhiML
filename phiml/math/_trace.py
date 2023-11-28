@@ -183,11 +183,17 @@ class ShiftLinTracer(Tensor):
             return to_gather_tracer(self).matmul(self_dims, matrix, matrix_dims)
         raise NotImplementedError
 
+    def _upgrade_gather(self):
+        if len(self.val) > 1 or next(iter(self.val)):
+            return to_sparse_tracer(self, None)
+        else:
+            return to_gather_tracer(self)
+
     def _gather(self, indices: Tensor) -> Tensor:
-        return to_gather_tracer(self)._gather(indices)
+        return self._upgrade_gather()._gather(indices)
 
     def _scatter(self, base: Tensor, indices: Tensor) -> Tensor:
-        return to_gather_tracer(self)._scatter(base, indices)
+        return self._upgrade_gather()._scatter(base, indices)
 
 
 def simplify_add(val: dict) -> Dict[Shape, Tensor]:
@@ -425,7 +431,8 @@ class SparseLinTracer(Tensor):
             assert op_symbol in '+-', f"Non-linear operation '{op_symbol}' cannot be converted to matrix"
             bias = operator(self._bias, other._bias)
             matrix = operator(self._matrix, other._matrix)  # ToDo if other has no dependence on vector, it would also be in the output
-            return SparseLinTracer(self._source, matrix, bias, self._shape)
+            shape = self._shape & other._shape
+            return SparseLinTracer(self._source, matrix, bias, shape)
         else:
             # other = self._tensor(other)
             if op_symbol in '*/':
@@ -750,7 +757,9 @@ def to_sparse_tracer(tracer: Tensor, ref: Optional[Tensor]) -> SparseLinTracer:
     if isinstance(tracer, SparseLinTracer):
         return tracer
     if isinstance(tracer, ShiftLinTracer):
-        tracer = to_gather_tracer(tracer)
+        matrix, bias = tracer_to_coo(tracer, sparsify_batch=False, separate_independent=False)
+        matrix = rename_dims(matrix, dual, [n + '_src' for n in dual(matrix).as_batch().names])
+        return SparseLinTracer(tracer._source, matrix, bias, tracer.shape)
     assert isinstance(tracer, GatherLinTracer)
     if tracer._selection is None:
         if ref is not None:

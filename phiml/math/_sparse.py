@@ -973,7 +973,7 @@ def dot_compressed_dense(compressed: CompressedSparseMatrix, cdims: Shape, dense
         rhs_channels = shape(dense).without(ddims).without(channels)
         dense_native = reshaped_native(dense, [ind_batch, ddims, channels, rhs_channels])
         result_native = backend.mul_csr_dense(native_indices, native_pointers, native_values, native_shape, dense_native)
-        result = reshaped_tensor(result_native, [ind_batch, channels, compressed._compressed_dims, rhs_channels])
+        result = reshaped_tensor(result_native, [ind_batch, compressed._compressed_dims, channels, rhs_channels])
         return result
     else:  # transposed matrix vector multiplication. This is inefficient
         raise NotImplementedError("Transposed sparse matrix multiplication not yet implemented")
@@ -1220,8 +1220,9 @@ def sparse_gather(matrix: Tensor, indices: Tensor):
         row_indices = matrix._indices[row_dims.name_list]
         col_indices = matrix._indices[col_dims.name_list]
         # --- Construct SciPy matrix for efficient slicing ---
-        np_rows = b.ravel_multi_index(row_indices.numpy('sp_entries,sparse_idx'), row_dims.sizes)
-        np_cols = b.ravel_multi_index(col_indices.numpy('sp_entries,sparse_idx'), row_dims.sizes)
+        from phiml.math import reshaped_numpy
+        np_rows = b.ravel_multi_index(reshaped_numpy(row_indices, [instance, channel]), row_dims.sizes)
+        np_cols = b.ravel_multi_index(reshaped_numpy(col_indices, [instance, channel]), col_dims.sizes)
         scipy_mat = csr_matrix((placeholders, (np_rows, np_cols)), shape=(row_dims.volume, col_dims.volume))
         if channel(indices).size > 1 or row_dims.rank > 1:
             raise NotImplementedError  # ravel indices
@@ -1229,7 +1230,7 @@ def sparse_gather(matrix: Tensor, indices: Tensor):
             lin_indices = unstack(indices, channel)[0].numpy()
         row_counts = scipy_mat.getnnz(axis=1)  # how many elements per matrix row
         lookup = scipy_mat[lin_indices, :].data - 1
-        lookup = expand(wrap(lookup, instance('sp_entries')), channel(sparse_idx='sp_entries'))
+        lookup = expand(wrap(lookup, instance('sp_entries')), channel(sparse_idx=instance(col_indices).name))
         # --- Perform resulting gather on tensors ---
         gathered_cols = col_indices[lookup]
         row_count_out = row_counts[lin_indices]  # row count for each i in indices

@@ -457,8 +457,8 @@ class NumPyBackend(Backend):
             b_result = []
             for c in range(channel_count):
                 mat = csr_matrix((values[b, :, c], column_indices[b], row_pointers[b]), shape=shape)
-                b_result.append(mat * dense[b, :, c, :])
-            result.append(np.stack(b_result))
+                b_result.append((mat * dense[b, :, c, :]))
+            result.append(np.stack(b_result, 1))
         return np.stack(result)
 
     def csc_matrix(self, column_pointers, row_indices, values, shape: tuple):

@@ -1251,11 +1251,14 @@ class Backend:
         """
         values, dense = self.auto_cast(values, dense)
         batch_size, nnz, channel_count = self.staticshape(values)
-        _, dense_rows, _, dense_cols = self.staticshape(dense)
+        batch_size_d, dense_rows, channel_count_d, dense_cols = self.staticshape(dense)
+        assert batch_size_d == batch_size
+        assert dense_rows == shape[1]
+        assert channel_count == channel_count_d
+        assert dense_cols == 1  # not implemented yet
         dense_formatted = self.reshape(dense, (batch_size, dense_rows, channel_count * dense_cols))
         dense_gathered = self.batched_gather_nd(dense_formatted, indices[:, :, 1:2])
         base_grid = self.zeros((batch_size, shape[0], channel_count), self.dtype(dense))
-        assert dense_cols == 1
         result = self.scatter(base_grid, indices[:, :, 0:1], values * dense_gathered, mode='add')
         return self.reshape(result, (batch_size, shape[0], channel_count, dense_cols))
 
@@ -1312,7 +1315,7 @@ class Backend:
             dense: (batch, dense_rows=sparse_cols, channels, dense_cols)
 
         Returns:
-            (batch, channels, dense_rows=sparse_cols, dense_cols)
+            (batch, dense_rows=sparse_cols, channels, dense_cols)
         """
         # if not self.supports(Backend.indexed_segment_sum):
         native_coo_indices = self.csr_to_coo(column_indices, row_pointers)

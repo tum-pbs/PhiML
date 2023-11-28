@@ -811,7 +811,7 @@ class TorchBackend(Backend):
             for c in range(channels):
                 matrix = torch.sparse_csr_tensor(row_pointers[b], column_indices[b], values[b, :, c], shape, device=values.device)
                 b_result.append(torch.sparse.mm(matrix, self.as_tensor(dense[b, :, c, :])))
-            result.append(torch.stack(b_result))
+            result.append(torch.stack(b_result, 1))
         return torch.stack(result)
         # if channel_count == 1:
         #     matrix = torch.sparse_csr_tensor(row_pointers, column_indices, values[:, :, 0], (batch_size, *shape), device=values.device)

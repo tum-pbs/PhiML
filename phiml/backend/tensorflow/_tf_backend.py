@@ -770,7 +770,7 @@ class TFBackend(Backend):
                     b_result.append(tf.sparse.sparse_dense_matmul(matrix, dense[b, :, c, :]))
                 except NotFoundError:  # These data types are probably not supported by TensorFlow
                     return Backend.mul_coo_dense(self, indices, values, shape, dense)
-            result.append(tf.stack(b_result))
+            result.append(tf.stack(b_result, 1))
         return tf.stack(result)
 
     def not_equal(self, x, y):
