@@ -2339,7 +2339,8 @@ def gather(values, indices: Tensor, dims: Union[DimFilter, None] = None):
         indices = to_int32(indices)
     dims = parse_dim_order(dims)
     assert dims, f"No indexing dimensions for tensor {values.shape} given indices {indices.shape}"
-    assert dims in values.shape, f"Trying to index non-existant dimensions with indices {indices.shape} into values {values.shape}"
+    if dims not in values.shape:
+        return expand(values, non_channel(indices))
     if values._is_tracer or is_sparse(values):
         if not channel(indices):
             indices = expand(indices, channel(gather=dims))
