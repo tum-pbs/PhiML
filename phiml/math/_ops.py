@@ -102,10 +102,10 @@ def _to_device(value: Tensor or Any, device: ComputeDevice or str, convert_to_ba
         return device.backend.allocate_on_device(value, device)
 
 
-def all_available(*values: Tensor) -> bool:
+def all_available(*values) -> bool:
     """
-    Tests if the values of all given tensors are known and can be read at this point.
-    Tracing placeholders are considered not available, even when they hold example values.
+    Tests if all tensors contained in the given `values` are currently known and can be read.
+    Placeholder tensors used to trace functions for just-in-time compilation or matrix construction are considered not available, even when they hold example values like with PyTorch's JIT.
 
     Tensors are not available during `jit_compile()`, `jit_compile_linear()` or while using TensorFlow's legacy graph mode.
     
@@ -118,12 +118,13 @@ def all_available(*values: Tensor) -> bool:
     * Jax: `isinstance(x, jax.core.Tracer)`
 
     Args:
-      values: Tensors to check.
+        values: Tensors to check.
 
     Returns:
         `True` if no value is a placeholder or being traced, `False` otherwise.
     """
-    return all([v.available for v in values])
+    _, tensors = disassemble_tree(values)
+    return all([t.available for t in tensors])
 
 
 def seed(seed: int):
