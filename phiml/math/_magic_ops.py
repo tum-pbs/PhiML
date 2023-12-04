@@ -91,7 +91,8 @@ def unstack(value, dim: DimFilter) -> tuple:
                 assert isinstance(result, tuple), f"__unstack__ must return a tuple but got {type(result)}"
                 assert all([isinstance(item, Sliceable) for item in result]), f"__unstack__ must return a tuple of Sliceable objects but not all items were sliceable in {result}"
                 return result
-        return tuple([slice_(value, {dims.name: i}) for i in range(dims.size)])
+        dim_description = dims.item_names[0] if dims.item_names[0] is not None else range(dims.size)
+        return tuple([slice_(value, {dims.name: i}) for i in dim_description])
     else:  # multiple dimensions
         if hasattr(value, '__pack_dims__'):
             packed_dim = batch('_unstack')

@@ -510,6 +510,7 @@ def solve_linear(f: Union[Callable[[X], Y], Tensor],
                  solve: Solve[X, Y],
                  *f_args,
                  grad_for_f=False,
+                 fix_rank_deficiency=False,
                  f_kwargs: dict = None,
                  **f_kwargs_) -> X:
     """
@@ -626,7 +627,7 @@ def solve_linear(f: Union[Callable[[X], Y], Tensor],
             backend_matrix = native_matrix(matrix, choose_backend_t(*y_tensors, matrix))
             pattern_dims_in = dual(matrix).as_channel().names
             pattern_dims_out = non_dual(matrix).names  # batch dims can be sparse or batched matrices
-            result = _linear_solve_forward(y, solve, backend_matrix, pattern_dims_in, pattern_dims_out, preconditioner, backend, is_backprop)
+            result = _linear_solve_forward(y, solve, backend_matrix, pattern_dims_in, pattern_dims_out, preconditioner, backend, is_backprop, fix_rank_deficiency)
             return result  # must return exactly `x` so gradient isn't computed w.r.t. other quantities
 
         _matrix_solve = attach_gradient_solve(_matrix_solve_forward, auxiliary_args=f'is_backprop,solve{",matrix" if matrix.default_backend == NUMPY else ""}', matrix_adjoint=grad_for_f)
@@ -669,7 +670,8 @@ def _linear_solve_forward(y: Tensor,
                           pattern_dims_out: Tuple[str, ...],
                           preconditioner: Optional[Callable],
                           backend: Backend,
-                          is_backprop: bool) -> Any:
+                          is_backprop: bool,
+                          fix_rank_deficiency=False,) -> Any:
     solve = solve.with_defaults('solve')
     ML_LOGGER.debug(f"Performing linear solve {solve} with backend {backend}")
     if solve.preprocess_y is not None:
@@ -698,7 +700,7 @@ def _linear_solve_forward(y: Tensor,
         warnings.warn(f"Preconditioners are not supported for sparse {method} in {y.default_backend} JIT mode. Using preconditioned scipy-{method} solve instead. If you want to use {y.default_backend}, please disable the preconditioner.", RuntimeWarning)
         method = 'scipy-' + method
     t = time.perf_counter()
-    ret = backend.linear_solve(method, native_lin_op, y_native, x0_native, rtol, atol, max_iter, preconditioner)
+    ret = backend.linear_solve(method, native_lin_op, y_native, x0_native, rtol, atol, max_iter, preconditioner, fix_rank_deficiency)
     t = time.perf_counter() - t
     trj_dims = [batch(trajectory=len(max_iter))] if trj else []
     assert isinstance(ret, SolveResult)
