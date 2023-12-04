@@ -125,7 +125,7 @@ def cg_adaptive(b, lin, y, x0, rtol, atol, max_iter, pre: Optional[Preconditione
     return SolveResult(f"Φ-ML CG-adaptive ({b.name}) {pre_str(pre)}", x, residual, iterations, function_evaluations, converged, diverged, [""] * batch_size)
 
 
-def bicg(b: Backend, lin, y, x0, rtol, atol, max_iter, pre: Optional[Preconditioner], poly_order: int) -> Union[SolveResult, List[SolveResult]]:
+def bicg(b: Backend, lin, y, x0, rtol, atol, max_iter, pre: Optional[Preconditioner], poly_order: int, fix_rank_deficiency=False) -> Union[SolveResult, List[SolveResult]]:
     """ Adapted from [BiCGstab for linear equations involving unsymmetric matrices with complex spectrum](https://dspace.library.uu.nl/bitstream/handle/1874/16827/sleijpen_93_bicgstab.pdf) """
     # Based on "BiCG-stab(L) for linear equations involving asymmetric matrices with complex spectrum" by Gerard L.G. Sleijpen
     if poly_order == 0:
@@ -138,7 +138,7 @@ def bicg(b: Backend, lin, y, x0, rtol, atol, max_iter, pre: Optional[Preconditio
     y = b.to_float(y)
     x = b.copy(b.to_float(x0), only_mutable=True)
     batch_size = b.staticshape(y)[0]
-    r0_tild = residual = y - b.linear(lin, x)
+    r0_tild = residual = y - b.linear(lin, x, fix_rank_deficiency)
     iterations = b.zeros([batch_size], DType(int, 32))
     function_evaluations = b.ones([batch_size], DType(int, 32))
     residual_squared = b.sum(residual ** 2, -1, keepdims=True)
@@ -173,14 +173,16 @@ def bicg(b: Backend, lin, y, x0, rtol, atol, max_iter, pre: Optional[Preconditio
                 u_hat[i] = r0_hat[i] - u_hat[i]
             put = pre.apply(u_hat[j])
             with spatial_derivative_evaluation(1):
-                u_hat[j + 1] = b.linear(lin, put); function_evaluations += continue_1
+                u_hat[j + 1] = b.linear(lin, put, fix_rank_deficiency)
+                function_evaluations += continue_1
             gamma_coeff = b.sum(u_hat[j + 1] * r0_tild, axis=-1, keepdims=True)
             alpha = rho_0 / gamma_coeff  # ToDo produces NaN if pre is perfect
             for i in range(0, j + 1):
                 r0_hat[i] = r0_hat[i] - alpha * u_hat[i + 1]
             prt = pre.apply(r0_hat[j])
             with spatial_derivative_evaluation(1):
-                r0_hat[j + 1] = b.linear(lin, prt); function_evaluations += continue_1
+                r0_hat[j + 1] = b.linear(lin, prt, fix_rank_deficiency)
+                function_evaluations += continue_1
             x = x + alpha * u_hat[0]
         for j in range(1, poly_order + 1):
             for i in range(1, j):

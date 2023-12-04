@@ -849,13 +849,16 @@ def laplace(x: Tensor,
         dx = rename_dims(dx, 'vector', batch('_laplace'))
     if isinstance(x, Extrapolation):
         return x.spatial_gradient()
+    x = math.rename_dims(x, dual('vector'), channel('vector'))
     left, center, right = shift(wrap(x), (-1, 0, 1), dims, padding, stack_dim=batch('_laplace'))
     result = (left + right - 2 * center) / (dx ** 2)
+    result = math.rename_dims(result, channel('vector'), dual('vector'))
     if weights is not None:
         dim_names = x.shape.only(dims).names
-        assert channel(weights).rank == 1 and channel(weights).item_names is not None, f"weights must have one channel dimension listing the laplace dims but got {shape(weights)}"
-        assert set(channel(weights).item_names[0]) >= set(dim_names), f"the channel dim of weights must contain all laplace dims {dim_names} but only has {channel(weights).item_names}"
-        result *= rename_dims(weights, channel, batch('_laplace'))
+        if channel(weights):
+            assert set(channel(weights).item_names[0]) >= set(dim_names), f"the channel dim of weights must contain all laplace dims {dim_names} but only has {channel(weights).item_names}"
+            weights = rename_dims(weights, channel, batch('_laplace'))
+        result *= weights
     result = math.sum_(result, '_laplace')
     return result
 
