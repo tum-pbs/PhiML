@@ -50,8 +50,8 @@ except ImportError:
     warnings.warn(&#34;NumPy is not installed.&#34;, ImportWarning)
 
 if _NP_AVAILABLE:
-    from ._numpy_backend import NumPyBackend as _NumPyBackend
-    NUMPY = _NumPyBackend()
+    from ._numpy_backend import NUMPY as _NUMPY
+    NUMPY = _NUMPY
     &#34;&#34;&#34;Default backend for NumPy arrays and SciPy objects.&#34;&#34;&#34;
     BACKENDS.append(NUMPY)
     _DEFAULT.append(NUMPY)
@@ -796,6 +796,23 @@ The methods of <code><a title="phiml.backend.Backend" href="#phiml.backend.Backe
         &#34;&#34;&#34;
         raise NotImplementedError(self)
 
+    def get_sparse_format(self, x) -&gt; str:
+        &#34;&#34;&#34;Returns lower-case format string, such as &#39;coo&#39;, &#39;csr&#39;, &#39;csc&#39; &#34;&#34;&#34;
+        raise NotImplementedError(self)
+
+    def disassemble(self, x) -&gt; Tuple[Callable, Sequence[TensorType]]:
+        &#34;&#34;&#34;
+        Disassemble a (sparse) tensor into its individual constituents, such as values and indices.
+
+        Args:
+            x: Tensor
+
+        Returns:
+            assemble: Function `assemble(backend, *constituents)` that reassembles `x` from the constituents.
+            constituents: Tensors contained in `x`.
+        &#34;&#34;&#34;
+        raise NotImplementedError(self)
+
     def as_tensor(self, x, convert_external=True):
         &#34;&#34;&#34;
         Converts a tensor-like object to the native tensor representation of this backend.
@@ -909,7 +926,7 @@ The methods of <code><a title="phiml.backend.Backend" href="#phiml.backend.Backe
         Returns:
             Returned arrays of `f` converted to tensors.
         &#34;&#34;&#34;
-        return f(*args, **aux_args)
+        raise NotImplementedError(self.__class__)
 
     def determine_size(self, tensors, axis):
         sizes = [self.staticshape(t)[axis] for t in tensors]
@@ -928,7 +945,7 @@ The methods of <code><a title="phiml.backend.Backend" href="#phiml.backend.Backe
         return self.tile(x, multiples)
 
     def jit_compile(self, f: Callable) -&gt; Callable:
-        return NotImplemented
+        raise NotImplementedError(self.__class__)
 
     def jacobian(self, f: Callable, wrt: Union[tuple, list], get_output: bool, is_f_scalar: bool):
         &#34;&#34;&#34;
@@ -1710,17 +1727,20 @@ The methods of <code><a title="phiml.backend.Backend" href="#phiml.backend.Backe
             dense: (batch, dense_rows=sparse_cols, channels, dense_cols)
 
         Returns:
-            (batch, channels, dense_rows=sparse_cols, dense_cols)
+            (batch, dense_rows=sparse_cols, channels, dense_cols)
         &#34;&#34;&#34;
         values, dense = self.auto_cast(values, dense)
         batch_size, nnz, channel_count = self.staticshape(values)
-        _, dense_rows, _, dense_cols = self.staticshape(dense)
-        dense_formatted = self.reshape(dense, (batch_size, dense_rows, dense_cols * channel_count))
+        batch_size_d, dense_rows, channel_count_d, dense_cols = self.staticshape(dense)
+        assert batch_size_d == batch_size
+        assert dense_rows == shape[1]
+        assert channel_count == channel_count_d
+        assert dense_cols == 1  # not implemented yet
+        dense_formatted = self.reshape(dense, (batch_size, dense_rows, channel_count * dense_cols))
         dense_gathered = self.batched_gather_nd(dense_formatted, indices[:, :, 1:2])
-        base_grid = self.zeros((batch_size, shape[0], dense.shape[3] * dense_cols), self.dtype(dense))
-        assert dense_cols == 1
+        base_grid = self.zeros((batch_size, shape[0], channel_count), self.dtype(dense))
         result = self.scatter(base_grid, indices[:, :, 0:1], values * dense_gathered, mode=&#39;add&#39;)
-        return self.reshape(result, (batch_size, channel_count, shape[0], dense_cols))
+        return self.reshape(result, (batch_size, shape[0], channel_count, dense_cols))
 
     def coo_to_dense(self, indices, values, shape, contains_duplicates: bool):
         batch_size, nnz, channel_count = self.staticshape(values)
@@ -1775,7 +1795,7 @@ The methods of <code><a title="phiml.backend.Backend" href="#phiml.backend.Backe
             dense: (batch, dense_rows=sparse_cols, channels, dense_cols)
 
         Returns:
-            (batch, channels, dense_rows=sparse_cols, dense_cols)
+            (batch, dense_rows=sparse_cols, channels, dense_cols)
         &#34;&#34;&#34;
         # if not self.supports(Backend.indexed_segment_sum):
         native_coo_indices = self.csr_to_coo(column_indices, row_pointers)
@@ -1891,14 +1911,8 @@ The methods of <code><a title="phiml.backend.Backend" href="#phiml.backend.Backe
         if method == &#39;auto&#39;:
             return self.conjugate_gradient_adaptive(lin, y, x0, rtol, atol, max_iter, pre)
         elif method.startswith(&#39;scipy-&#39;):
-            from ._linalg import scipy_spsolve
-            if not callable(lin):
-                lin = self.numpy(lin)
-            y = self.numpy(y)
-            x0 = self.numpy(x0)
-            rtol = self.numpy(rtol) if self.is_tensor(rtol, only_native=True) else rtol
-            atol = self.numpy(atol) if self.is_tensor(atol, only_native=True) else atol
-            result = scipy_spsolve(self, method[len(&#39;scipy-&#39;):], lin, y, x0, rtol, atol, max_iter, pre)
+            from ._linalg import scipy_sparse_solve
+            result = scipy_sparse_solve(self, method[len(&#39;scipy-&#39;):], lin, y, x0, rtol, atol, max_iter, pre)
             return SolveResult(result.method, self.as_tensor(result.x), self.as_tensor(result.residual), result.iterations, result.function_evaluations, result.converged, result.diverged, result.message)
         elif method == &#39;CG&#39;:
             return self.conjugate_gradient(lin, y, x0, rtol, atol, max_iter, pre)
@@ -1977,6 +1991,7 @@ The methods of <code><a title="phiml.backend.Backend" href="#phiml.backend.Backe
         raise NotImplementedError(self)
 
     def solve_triangular_sparse(self, matrix, rhs, lower: bool, unit_diagonal: bool):
+        raise NotImplementedError(f&#34;sparse triangular solves are not supported by {self.name}. Try using a SciPy solver instead, such as &#39;scipy-CG&#39; or &#39;scipy-biCG-stab&#39;.&#34;)
         np_matrix = self.numpy(matrix)
         np_rhs = self.numpy(rhs)
         from scipy.sparse.linalg import spsolve_triangular
@@ -3208,6 +3223,41 @@ Higher dimensions may not be supported.</p>
     return size</code></pre>
 </details>
 </dd>
+<dt id="phiml.backend.Backend.disassemble"><code class="name flex">
+<span>def <span class="ident">disassemble</span></span>(<span>self, x) ‑> Tuple[Callable, Sequence[~TensorType]]</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Disassemble a (sparse) tensor into its individual constituents, such as values and indices.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>x</code></strong></dt>
+<dd>Tensor</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>assemble</code></dt>
+<dd>Function <code>assemble(backend, *constituents)</code> that reassembles <code>x</code> from the constituents.</dd>
+<dt><code>constituents</code></dt>
+<dd>Tensors contained in <code>x</code>.</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def disassemble(self, x) -&gt; Tuple[Callable, Sequence[TensorType]]:
+    &#34;&#34;&#34;
+    Disassemble a (sparse) tensor into its individual constituents, such as values and indices.
+
+    Args:
+        x: Tensor
+
+    Returns:
+        assemble: Function `assemble(backend, *constituents)` that reassembles `x` from the constituents.
+        constituents: Tensors contained in `x`.
+    &#34;&#34;&#34;
+    raise NotImplementedError(self)</code></pre>
+</details>
+</dd>
 <dt id="phiml.backend.Backend.div"><code class="name flex">
 <span>def <span class="ident">div</span></span>(<span>self, numerator, denominator)</span>
 </code></dt>
@@ -3582,6 +3632,20 @@ Higher dimensions may not be supported.</p>
     Returns:
         diagonal: (batch, max(rows,cols), channels)
     &#34;&#34;&#34;
+    raise NotImplementedError(self)</code></pre>
+</details>
+</dd>
+<dt id="phiml.backend.Backend.get_sparse_format"><code class="name flex">
+<span>def <span class="ident">get_sparse_format</span></span>(<span>self, x) ‑> str</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Returns lower-case format string, such as 'coo', 'csr', 'csc'</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def get_sparse_format(self, x) -&gt; str:
+    &#34;&#34;&#34;Returns lower-case format string, such as &#39;coo&#39;, &#39;csr&#39;, &#39;csc&#39; &#34;&#34;&#34;
     raise NotImplementedError(self)</code></pre>
 </details>
 </dd>
@@ -4040,7 +4104,7 @@ The gradients retain the dimensions of <code>reduced_loss</code> in order as out
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def jit_compile(self, f: Callable) -&gt; Callable:
-    return NotImplemented</code></pre>
+    raise NotImplementedError(self.__class__)</code></pre>
 </details>
 </dd>
 <dt id="phiml.backend.Backend.jit_compile_grad"><code class="name flex">
@@ -4172,14 +4236,8 @@ This method need not provide a gradient for the operation.</p>
     if method == &#39;auto&#39;:
         return self.conjugate_gradient_adaptive(lin, y, x0, rtol, atol, max_iter, pre)
     elif method.startswith(&#39;scipy-&#39;):
-        from ._linalg import scipy_spsolve
-        if not callable(lin):
-            lin = self.numpy(lin)
-        y = self.numpy(y)
-        x0 = self.numpy(x0)
-        rtol = self.numpy(rtol) if self.is_tensor(rtol, only_native=True) else rtol
-        atol = self.numpy(atol) if self.is_tensor(atol, only_native=True) else atol
-        result = scipy_spsolve(self, method[len(&#39;scipy-&#39;):], lin, y, x0, rtol, atol, max_iter, pre)
+        from ._linalg import scipy_sparse_solve
+        result = scipy_sparse_solve(self, method[len(&#39;scipy-&#39;):], lin, y, x0, rtol, atol, max_iter, pre)
         return SolveResult(result.method, self.as_tensor(result.x), self.as_tensor(result.residual), result.iterations, result.function_evaluations, result.converged, result.diverged, result.message)
     elif method == &#39;CG&#39;:
         return self.conjugate_gradient(lin, y, x0, rtol, atol, max_iter, pre)
@@ -4513,7 +4571,7 @@ This is the fallback if CSR multiplication is not supported.</p>
 <dd>(batch, dense_rows=sparse_cols, channels, dense_cols)</dd>
 </dl>
 <h2 id="returns">Returns</h2>
-<p>(batch, channels, dense_rows=sparse_cols, dense_cols)</p></div>
+<p>(batch, dense_rows=sparse_cols, channels, dense_cols)</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -4531,17 +4589,20 @@ This is the fallback if CSR multiplication is not supported.</p>
         dense: (batch, dense_rows=sparse_cols, channels, dense_cols)
 
     Returns:
-        (batch, channels, dense_rows=sparse_cols, dense_cols)
+        (batch, dense_rows=sparse_cols, channels, dense_cols)
     &#34;&#34;&#34;
     values, dense = self.auto_cast(values, dense)
     batch_size, nnz, channel_count = self.staticshape(values)
-    _, dense_rows, _, dense_cols = self.staticshape(dense)
-    dense_formatted = self.reshape(dense, (batch_size, dense_rows, dense_cols * channel_count))
+    batch_size_d, dense_rows, channel_count_d, dense_cols = self.staticshape(dense)
+    assert batch_size_d == batch_size
+    assert dense_rows == shape[1]
+    assert channel_count == channel_count_d
+    assert dense_cols == 1  # not implemented yet
+    dense_formatted = self.reshape(dense, (batch_size, dense_rows, channel_count * dense_cols))
     dense_gathered = self.batched_gather_nd(dense_formatted, indices[:, :, 1:2])
-    base_grid = self.zeros((batch_size, shape[0], dense.shape[3] * dense_cols), self.dtype(dense))
-    assert dense_cols == 1
+    base_grid = self.zeros((batch_size, shape[0], channel_count), self.dtype(dense))
     result = self.scatter(base_grid, indices[:, :, 0:1], values * dense_gathered, mode=&#39;add&#39;)
-    return self.reshape(result, (batch_size, channel_count, shape[0], dense_cols))</code></pre>
+    return self.reshape(result, (batch_size, shape[0], channel_count, dense_cols))</code></pre>
 </details>
 </dd>
 <dt id="phiml.backend.Backend.mul_csr_dense"><code class="name flex">
@@ -4566,7 +4627,7 @@ This is the fallback if CSR multiplication is not supported.</p>
 <dd>(batch, dense_rows=sparse_cols, channels, dense_cols)</dd>
 </dl>
 <h2 id="returns">Returns</h2>
-<p>(batch, channels, dense_rows=sparse_cols, dense_cols)</p></div>
+<p>(batch, dense_rows=sparse_cols, channels, dense_cols)</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -4588,7 +4649,7 @@ This is the fallback if CSR multiplication is not supported.</p>
         dense: (batch, dense_rows=sparse_cols, channels, dense_cols)
 
     Returns:
-        (batch, channels, dense_rows=sparse_cols, dense_cols)
+        (batch, dense_rows=sparse_cols, channels, dense_cols)
     &#34;&#34;&#34;
     # if not self.supports(Backend.indexed_segment_sum):
     native_coo_indices = self.csr_to_coo(column_indices, row_pointers)
@@ -4785,7 +4846,7 @@ Use <code>is_available(tensor)</code> to check if the value can be represented a
     Returns:
         Returned arrays of `f` converted to tensors.
     &#34;&#34;&#34;
-    return f(*args, **aux_args)</code></pre>
+    raise NotImplementedError(self.__class__)</code></pre>
 </details>
 </dd>
 <dt id="phiml.backend.Backend.ones"><code class="name flex">
@@ -5547,6 +5608,7 @@ unit_diagonal:</p>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def solve_triangular_sparse(self, matrix, rhs, lower: bool, unit_diagonal: bool):
+    raise NotImplementedError(f&#34;sparse triangular solves are not supported by {self.name}. Try using a SciPy solver instead, such as &#39;scipy-CG&#39; or &#39;scipy-biCG-stab&#39;.&#34;)
     np_matrix = self.numpy(matrix)
     np_rhs = self.numpy(rhs)
     from scipy.sparse.linalg import spsolve_triangular
@@ -6846,6 +6908,7 @@ def retime(self):
 <li><code><a title="phiml.backend.Backend.cumsum" href="#phiml.backend.Backend.cumsum">cumsum</a></code></li>
 <li><code><a title="phiml.backend.Backend.custom_gradient" href="#phiml.backend.Backend.custom_gradient">custom_gradient</a></code></li>
 <li><code><a title="phiml.backend.Backend.determine_size" href="#phiml.backend.Backend.determine_size">determine_size</a></code></li>
+<li><code><a title="phiml.backend.Backend.disassemble" href="#phiml.backend.Backend.disassemble">disassemble</a></code></li>
 <li><code><a title="phiml.backend.Backend.div" href="#phiml.backend.Backend.div">div</a></code></li>
 <li><code><a title="phiml.backend.Backend.divide_no_nan" href="#phiml.backend.Backend.divide_no_nan">divide_no_nan</a></code></li>
 <li><code><a title="phiml.backend.Backend.dtype" href="#phiml.backend.Backend.dtype">dtype</a></code></li>
@@ -6869,6 +6932,7 @@ def retime(self):
 <li><code><a title="phiml.backend.Backend.get_device" href="#phiml.backend.Backend.get_device">get_device</a></code></li>
 <li><code><a title="phiml.backend.Backend.get_device_by_ref" href="#phiml.backend.Backend.get_device_by_ref">get_device_by_ref</a></code></li>
 <li><code><a title="phiml.backend.Backend.get_diagonal" href="#phiml.backend.Backend.get_diagonal">get_diagonal</a></code></li>
+<li><code><a title="phiml.backend.Backend.get_sparse_format" href="#phiml.backend.Backend.get_sparse_format">get_sparse_format</a></code></li>
 <li><code><a title="phiml.backend.Backend.greater_or_equal" href="#phiml.backend.Backend.greater_or_equal">greater_or_equal</a></code></li>
 <li><code><a title="phiml.backend.Backend.greater_than" href="#phiml.backend.Backend.greater_than">greater_than</a></code></li>
 <li><code><a title="phiml.backend.Backend.grid_sample" href="#phiml.backend.Backend.grid_sample">grid_sample</a></code></li>

@@ -511,11 +511,11 @@ TensorFlow and PyTorch return 0 while Jax returns 1.</p>
 </details>
 </dd>
 <dt id="phiml.math.all_available"><code class="name flex">
-<span>def <span class="ident">all_available</span></span>(<span>*values: phiml.math._tensors.Tensor) ‑> bool</span>
+<span>def <span class="ident">all_available</span></span>(<span>*values) ‑> bool</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Tests if the values of all given tensors are known and can be read at this point.
-Tracing placeholders are considered not available, even when they hold example values.</p>
+<div class="desc"><p>Tests if all tensors contained in the given <code>values</code> are currently known and can be read.
+Placeholder tensors used to trace functions for just-in-time compilation or matrix construction are considered not available, even when they hold example values like with PyTorch's JIT.</p>
 <p>Tensors are not available during <code><a title="phiml.math.jit_compile" href="#phiml.math.jit_compile">jit_compile()</a></code>, <code><a title="phiml.math.jit_compile_linear" href="#phiml.math.jit_compile_linear">jit_compile_linear()</a></code> or while using TensorFlow's legacy graph mode.</p>
 <p>Tensors are typically available when the backend operates in eager mode and is not currently tracing a function.</p>
 <p>This can be used instead of the native checks</p>
@@ -535,10 +535,10 @@ Tracing placeholders are considered not available, even when they hold example v
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def all_available(*values: Tensor) -&gt; bool:
+<pre><code class="python">def all_available(*values) -&gt; bool:
     &#34;&#34;&#34;
-    Tests if the values of all given tensors are known and can be read at this point.
-    Tracing placeholders are considered not available, even when they hold example values.
+    Tests if all tensors contained in the given `values` are currently known and can be read.
+    Placeholder tensors used to trace functions for just-in-time compilation or matrix construction are considered not available, even when they hold example values like with PyTorch&#39;s JIT.
 
     Tensors are not available during `jit_compile()`, `jit_compile_linear()` or while using TensorFlow&#39;s legacy graph mode.
     
@@ -551,12 +551,13 @@ Tracing placeholders are considered not available, even when they hold example v
     * Jax: `isinstance(x, jax.core.Tracer)`
 
     Args:
-      values: Tensors to check.
+        values: Tensors to check.
 
     Returns:
         `True` if no value is a placeholder or being traced, `False` otherwise.
     &#34;&#34;&#34;
-    return all([v.available for v in values])</code></pre>
+    _, tensors = disassemble_tree(values)
+    return all([t.available for t in tensors])</code></pre>
 </details>
 </dd>
 <dt id="phiml.math.always_close"><code class="name flex">
@@ -3591,7 +3592,8 @@ If <code>None</code> and no index item names are specified, will default to all 
         indices = to_int32(indices)
     dims = parse_dim_order(dims)
     assert dims, f&#34;No indexing dimensions for tensor {values.shape} given indices {indices.shape}&#34;
-    assert dims in values.shape, f&#34;Trying to index non-existant dimensions with indices {indices.shape} into values {values.shape}&#34;
+    if dims not in values.shape:
+        return expand(values, non_channel(indices))
     if values._is_tracer or is_sparse(values):
         if not channel(indices):
             indices = expand(indices, channel(gather=dims))
@@ -3658,8 +3660,12 @@ If <code>None</code> and no index item names are specified, will default to all 
         if all(f == formats[0] for f in formats):
             return formats[0]
         return &#39;mixed&#39;
-    else:
-        return &#39;dense&#39;</code></pre>
+    elif isinstance(x, Tensor):
+        return &#39;dense&#39;
+    b = choose_backend(x)
+    if not b.is_sparse(x):
+        return &#39;dense&#39;
+    return b.get_sparse_format(x)</code></pre>
 </details>
 </dd>
 <dt id="phiml.math.get_precision"><code class="name flex">
@@ -8946,11 +8952,12 @@ The following method identifiers are supported by all backends:</p>
 <li><code>'biCG-stab'</code> or <code>'biCG-stab(1)'</code>: Biconjugate gradient stabilized, first order</li>
 <li><code>'biCG-stab(2)'</code>, <code>'biCG-stab(4)'</code>, &hellip;: Biconjugate gradient stabilized, second or higher order</li>
 <li><code>'scipy-direct'</code>: SciPy direct solve always run oh the CPU using <code>scipy.sparse.linalg.spsolve</code>.</li>
-<li><code>'scipy-CG'</code>, <code>'scipy-GMres'</code>, <code>'scipy-biCG'</code>, <code>'scipy-biCG-stab'</code>, <code>'scipy-CGS'</code>, <code>'scipy-QMR'</code>, <code>'scipy-GCrotMK'</code>: SciPy iterative solvers always run oh the CPU.</li>
+<li><code>'scipy-CG'</code>, <code>'scipy-GMres'</code>, <code>'scipy-biCG'</code>, <code>'scipy-biCG-stab'</code>, <code>'scipy-CGS'</code>, <code>'scipy-QMR'</code>, <code>'scipy-GCrotMK'</code>: SciPy iterative solvers always run oh the CPU, both in eager execution and JIT mode.</li>
 </ul>
-<p><strong>Caution</strong>: SciPy solvers cannot be jit-compiled and should only be used for debugging purposes.</p>
 <p>For maximum performance, compile <code><a title="phiml.math.f" href="#phiml.math.f">f</a></code> using <code><a title="phiml.math.jit_compile_linear" href="#phiml.math.jit_compile_linear">jit_compile_linear()</a></code> beforehand.
 Then, an optimized representation of <code><a title="phiml.math.f" href="#phiml.math.f">f</a></code> (such as a sparse matrix) will be used to solve the linear system.</p>
+<p><strong>Caution:</strong> The matrix construction may potentially be performed each time <code><a title="phiml.math.solve_linear" href="#phiml.math.solve_linear">solve_linear()</a></code> is called if auxiliary arguments change.
+To prevent this, jit-compile the function that makes the call to <code><a title="phiml.math.solve_linear" href="#phiml.math.solve_linear">solve_linear()</a></code>.</p>
 <p>To obtain additional information about the performed solve, perform the solve within a <code><a title="phiml.math.SolveTape" href="#phiml.math.SolveTape">SolveTape</a></code> context.
 The used implementation can be obtained as <code><a title="phiml.math.SolveInfo.method" href="#phiml.math.SolveInfo.method">SolveInfo.method</a></code>.</p>
 <p>The gradient of this operation will perform another linear solve with the parameters specified by <code><a title="phiml.math.Solve.gradient_solve" href="#phiml.math.Solve.gradient_solve">Solve.gradient_solve</a></code>.</p>
@@ -9014,12 +9021,13 @@ These arguments are treated as auxiliary arguments and can be of any type.</dd>
     * `&#39;biCG-stab&#39;` or `&#39;biCG-stab(1)&#39;`: Biconjugate gradient stabilized, first order
     * `&#39;biCG-stab(2)&#39;`, `&#39;biCG-stab(4)&#39;`, ...: Biconjugate gradient stabilized, second or higher order
     * `&#39;scipy-direct&#39;`: SciPy direct solve always run oh the CPU using `scipy.sparse.linalg.spsolve`.
-    * `&#39;scipy-CG&#39;`, `&#39;scipy-GMres&#39;`, `&#39;scipy-biCG&#39;`, `&#39;scipy-biCG-stab&#39;`, `&#39;scipy-CGS&#39;`, `&#39;scipy-QMR&#39;`, `&#39;scipy-GCrotMK&#39;`: SciPy iterative solvers always run oh the CPU.
-
-    **Caution**: SciPy solvers cannot be jit-compiled and should only be used for debugging purposes.
+    * `&#39;scipy-CG&#39;`, `&#39;scipy-GMres&#39;`, `&#39;scipy-biCG&#39;`, `&#39;scipy-biCG-stab&#39;`, `&#39;scipy-CGS&#39;`, `&#39;scipy-QMR&#39;`, `&#39;scipy-GCrotMK&#39;`: SciPy iterative solvers always run oh the CPU, both in eager execution and JIT mode.
 
     For maximum performance, compile `f` using `jit_compile_linear()` beforehand.
     Then, an optimized representation of `f` (such as a sparse matrix) will be used to solve the linear system.
+
+    **Caution:** The matrix construction may potentially be performed each time `solve_linear` is called if auxiliary arguments change.
+    To prevent this, jit-compile the function that makes the call to `solve_linear`.
 
     To obtain additional information about the performed solve, perform the solve within a `SolveTape` context.
     The used implementation can be obtained as `SolveInfo.method`.

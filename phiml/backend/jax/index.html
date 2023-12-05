@@ -146,25 +146,40 @@ The methods of <code>Backend</code> form a comprehensive list of available opera
     def is_sparse(self, x) -&gt; bool:
         return isinstance(x, (COO, BCOO, CSR, CSC))
 
+    def get_sparse_format(self, x) -&gt; str:
+        format_names = {
+            COO: &#39;coo&#39;,
+            BCOO: &#39;coo&#39;,
+            CSR: &#39;csr&#39;,
+            CSC: &#39;csc&#39;,
+        }
+        return format_names.get(type(x), &#39;dense&#39;)
+
     def is_available(self, tensor):
         return not isinstance(tensor, Tracer)
 
     def numpy(self, tensor):
-        if isinstance(tensor, COO):
-            raise NotImplementedError
-        elif isinstance(tensor, BCOO):
-            indices = np.array(tensor.indices)
-            values = np.array(tensor.data)
-            indices = indices[..., 0], indices[..., 1]
-            assert values.ndim == 1, f&#34;Cannot convert batched COO to NumPy&#34;
-            from scipy.sparse import coo_matrix
-            return coo_matrix((values, indices), shape=self.staticshape(tensor))
-        elif isinstance(tensor, CSR):
-            raise NotImplementedError
-        elif isinstance(tensor, CSC):
+        if self.is_sparse(tensor):
+            assemble, parts = self.disassemble(tensor)
+            return assemble(NUMPY, *[self.numpy(t) for t in parts])
+        return np.array(tensor)
+
+    def disassemble(self, x) -&gt; Tuple[Callable, Sequence[TensorType]]:
+        if self.is_sparse(x):
+            if isinstance(x, COO):
+                raise NotImplementedError
+                # return lambda b, i, v: b.sparse_coo_tensor(i, v, x.shape), (np.stack([x.row, x.col], -1), x.data)
+            if isinstance(x, BCOO):
+                return lambda b, i, v: b.sparse_coo_tensor(i, v, x.shape), (x.indices, x.data)
+            if isinstance(x, CSR):
+                raise NotImplementedError
+                # return lambda b, v, i, p: b.csr_matrix(i, p, v, x.shape), (x.data, x.indices, x.indptr)
+            elif isinstance(x, CSC):
+                raise NotImplementedError
+                # return lambda b, v, i, p: b.csc_matrix(p, i, v, x.shape), (x.data, x.indices, x.indptr)
             raise NotImplementedError
         else:
-            return np.array(tensor)
+            return lambda b, t: t, (x,)
 
     def to_dlpack(self, tensor):
         from jax import dlpack
@@ -2401,6 +2416,45 @@ Higher dimensions may not be supported.</p>
     return jax_fun</code></pre>
 </details>
 </dd>
+<dt id="phiml.backend.jax.JaxBackend.disassemble"><code class="name flex">
+<span>def <span class="ident">disassemble</span></span>(<span>self, x) ‑> Tuple[Callable, Sequence[~TensorType]]</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Disassemble a (sparse) tensor into its individual constituents, such as values and indices.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>x</code></strong></dt>
+<dd>Tensor</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>assemble</code></dt>
+<dd>Function <code>assemble(backend, *constituents)</code> that reassembles <code>x</code> from the constituents.</dd>
+<dt><code>constituents</code></dt>
+<dd>Tensors contained in <code>x</code>.</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def disassemble(self, x) -&gt; Tuple[Callable, Sequence[TensorType]]:
+    if self.is_sparse(x):
+        if isinstance(x, COO):
+            raise NotImplementedError
+            # return lambda b, i, v: b.sparse_coo_tensor(i, v, x.shape), (np.stack([x.row, x.col], -1), x.data)
+        if isinstance(x, BCOO):
+            return lambda b, i, v: b.sparse_coo_tensor(i, v, x.shape), (x.indices, x.data)
+        if isinstance(x, CSR):
+            raise NotImplementedError
+            # return lambda b, v, i, p: b.csr_matrix(i, p, v, x.shape), (x.data, x.indices, x.indptr)
+        elif isinstance(x, CSC):
+            raise NotImplementedError
+            # return lambda b, v, i, p: b.csc_matrix(p, i, v, x.shape), (x.data, x.indices, x.indptr)
+        raise NotImplementedError
+    else:
+        return lambda b, t: t, (x,)</code></pre>
+</details>
+</dd>
 <dt id="phiml.backend.jax.JaxBackend.divide_no_nan"><code class="name flex">
 <span>def <span class="ident">divide_no_nan</span></span>(<span>self, x, y)</span>
 </code></dt>
@@ -2558,6 +2612,25 @@ Higher dimensions may not be supported.</p>
 <pre><code class="python">def get_diagonal(self, matrices, offset=0):
     result = jnp.diagonal(matrices, offset=offset, axis1=1, axis2=2)
     return jnp.transpose(result, [0, 2, 1])</code></pre>
+</details>
+</dd>
+<dt id="phiml.backend.jax.JaxBackend.get_sparse_format"><code class="name flex">
+<span>def <span class="ident">get_sparse_format</span></span>(<span>self, x) ‑> str</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Returns lower-case format string, such as 'coo', 'csr', 'csc'</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def get_sparse_format(self, x) -&gt; str:
+    format_names = {
+        COO: &#39;coo&#39;,
+        BCOO: &#39;coo&#39;,
+        CSR: &#39;csr&#39;,
+        CSC: &#39;csc&#39;,
+    }
+    return format_names.get(type(x), &#39;dense&#39;)</code></pre>
 </details>
 </dd>
 <dt id="phiml.backend.jax.JaxBackend.histogram1d"><code class="name flex">
@@ -3003,21 +3076,10 @@ Use <code>is_available(tensor)</code> to check if the value can be represented a
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def numpy(self, tensor):
-    if isinstance(tensor, COO):
-        raise NotImplementedError
-    elif isinstance(tensor, BCOO):
-        indices = np.array(tensor.indices)
-        values = np.array(tensor.data)
-        indices = indices[..., 0], indices[..., 1]
-        assert values.ndim == 1, f&#34;Cannot convert batched COO to NumPy&#34;
-        from scipy.sparse import coo_matrix
-        return coo_matrix((values, indices), shape=self.staticshape(tensor))
-    elif isinstance(tensor, CSR):
-        raise NotImplementedError
-    elif isinstance(tensor, CSC):
-        raise NotImplementedError
-    else:
-        return np.array(tensor)</code></pre>
+    if self.is_sparse(tensor):
+        assemble, parts = self.disassemble(tensor)
+        return assemble(NUMPY, *[self.numpy(t) for t in parts])
+    return np.array(tensor)</code></pre>
 </details>
 </dd>
 <dt id="phiml.backend.jax.JaxBackend.numpy_call"><code class="name flex">
@@ -3722,6 +3784,7 @@ If the loop is broken, the values returned by the last loop are expected to be c
 <li><code><a title="phiml.backend.jax.JaxBackend.cosh" href="#phiml.backend.jax.JaxBackend.cosh">cosh</a></code></li>
 <li><code><a title="phiml.backend.jax.JaxBackend.cumsum" href="#phiml.backend.jax.JaxBackend.cumsum">cumsum</a></code></li>
 <li><code><a title="phiml.backend.jax.JaxBackend.custom_gradient" href="#phiml.backend.jax.JaxBackend.custom_gradient">custom_gradient</a></code></li>
+<li><code><a title="phiml.backend.jax.JaxBackend.disassemble" href="#phiml.backend.jax.JaxBackend.disassemble">disassemble</a></code></li>
 <li><code><a title="phiml.backend.jax.JaxBackend.divide_no_nan" href="#phiml.backend.jax.JaxBackend.divide_no_nan">divide_no_nan</a></code></li>
 <li><code><a title="phiml.backend.jax.JaxBackend.dtype" href="#phiml.backend.jax.JaxBackend.dtype">dtype</a></code></li>
 <li><code><a title="phiml.backend.jax.JaxBackend.einsum" href="#phiml.backend.jax.JaxBackend.einsum">einsum</a></code></li>
@@ -3735,6 +3798,7 @@ If the loop is broken, the values returned by the last loop are expected to be c
 <li><code><a title="phiml.backend.jax.JaxBackend.gather" href="#phiml.backend.jax.JaxBackend.gather">gather</a></code></li>
 <li><code><a title="phiml.backend.jax.JaxBackend.get_device" href="#phiml.backend.jax.JaxBackend.get_device">get_device</a></code></li>
 <li><code><a title="phiml.backend.jax.JaxBackend.get_diagonal" href="#phiml.backend.jax.JaxBackend.get_diagonal">get_diagonal</a></code></li>
+<li><code><a title="phiml.backend.jax.JaxBackend.get_sparse_format" href="#phiml.backend.jax.JaxBackend.get_sparse_format">get_sparse_format</a></code></li>
 <li><code><a title="phiml.backend.jax.JaxBackend.histogram1d" href="#phiml.backend.jax.JaxBackend.histogram1d">histogram1d</a></code></li>
 <li><code><a title="phiml.backend.jax.JaxBackend.ifft" href="#phiml.backend.jax.JaxBackend.ifft">ifft</a></code></li>
 <li><code><a title="phiml.backend.jax.JaxBackend.imag" href="#phiml.backend.jax.JaxBackend.imag">imag</a></code></li>
