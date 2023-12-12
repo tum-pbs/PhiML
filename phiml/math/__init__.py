@@ -10,7 +10,7 @@ The provided operations are not implemented directly.
 Instead, they delegate the actual computation to either NumPy, TensorFlow or PyTorch, depending on the configuration.
 This allows the user to write simulation code once and have it run with various computation backends.
 
-See the documentation at https://tum-pbs.github.io/PhiML/Math.html
+See the documentation at https://tum-pbs.github.io/PhiML/
 """
 
 from ..backend._dtype import DType
