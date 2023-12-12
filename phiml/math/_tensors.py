@@ -34,7 +34,7 @@ class Tensor:
     To check whether a value is a tensor, use `isinstance(value, Tensor)`.
 
     To construct a Tensor, use `phiml.math.tensor()`, `phiml.math.wrap()` or one of the basic tensor creation functions,
-    see https://tum-pbs.github.io/PhiML/Math.html#tensor-creation .
+    see https://tum-pbs.github.io/PhiML/Tensors.html .
 
     Tensors are not editable.
     When backed by an editable native tensor, e.g. a `numpy.ndarray`, do not edit the underlying data structure.
@@ -825,7 +825,7 @@ class TensorDim(BoundDim):
 
     Indexing a `TensorDim` as `tdim[start:stop:step]` returns a sliced `Tensor`.
 
-    See the documentation at https://tum-pbs.github.io/PhiML/Math.html#indexing-slicing-unstacking .
+    See the documentation at https://tum-pbs.github.io/PhiML/Introduction.html#Slicing .
     """
 
     def __init__(self, tensor: Tensor, name: str):

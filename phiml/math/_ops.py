@@ -1952,7 +1952,7 @@ def to_float(x: TensorOrTree) -> TensorOrTree:
     
     The precision can be set globally using `math.set_global_precision()` and locally using `with math.precision()`.
     
-    See the `phiml.math` module documentation at https://tum-pbs.github.io/PhiML/Math.html
+    See the documentation at https://tum-pbs.github.io/PhiML/Data_Types.html
 
     See Also:
         `cast()`.
@@ -1982,7 +1982,7 @@ def to_complex(x: TensorOrTree) -> TensorOrTree:
 
     The precision can be set globally using `math.set_global_precision()` and locally using `with math.precision()`.
 
-    See the `phiml.math` module documentation at https://tum-pbs.github.io/PhiML/Math.html
+    See the documentation at https://tum-pbs.github.io/PhiML/Data_Types.html
 
     See Also:
         `cast()`.

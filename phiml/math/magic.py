@@ -766,12 +766,12 @@ def slicing_dict(obj, item) -> dict:
             return {name: selection for name, selection in zip(channel(obj).names, item[1:])}
         elif len(item) == shape(obj).channel_rank:
             if len(item) > 1:
-                warnings.warn("NumPy-style slicing for more than one channel dimension is highly discouraged. Use a dict or the special slicing syntax value.dim[slice] instead. See https://tum-pbs.github.io/PhiML/Math.html", SyntaxWarning, stacklevel=3)
+                warnings.warn("NumPy-style slicing for more than one channel dimension is highly discouraged. Use a dict or the special slicing syntax value.dim[slice] instead. See https://tum-pbs.github.io/PhiML/Introduction.html#Slicing", SyntaxWarning, stacklevel=3)
             return {name: selection for name, selection in zip(channel(obj).names, item)}
         elif shape(obj).channel_rank == 1 and all(isinstance(e, str) for e in item):
             return {channel(obj).name: item}
         else:
-            raise AssertionError(f"Cannot slice {obj}[{item}]. Use a dict or the special slicing syntax value.dim[slice] instead. See https://tum-pbs.github.io/PhiML/Math.html")
+            raise AssertionError(f"Cannot slice {obj}[{item}]. Use a dict or the special slicing syntax value.dim[slice] instead. See https://tum-pbs.github.io/PhiML/Introduction.html#Slicing")
     else:
         if shape(obj).channel_rank == 1:
             return {channel(obj).name: item}
