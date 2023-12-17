@@ -963,7 +963,7 @@ def _pad_slices(x: Tensor, pad_slices: Sequence[Dict[str, Any]], mode: 'e_.Extra
         for width_i in widths_i:
             dim, lu = next(iter(width_i.items()))
             sum_widths_i[dim] += lu
-        padded_slices.append(mode[i].pad(x[i], sum_widths_i, **kwargs))
+        padded_slices.append(mode[i].pad(x[i], {k: tuple(v) for k, v in sum_widths_i.items()}, **kwargs))
     return stack(padded_slices, sel_dims)
     # for w in widths:
     #     selection = {dim: i for dim, i in w.items() if not isinstance(i, slice)}
