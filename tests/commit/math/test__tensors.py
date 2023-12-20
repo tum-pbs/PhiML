@@ -116,6 +116,11 @@ class TestTensors(TestCase):
         self.assertEqual((10, 4, 3), v.vector[0].shape.sizes)
         self.assertEqual((10, 2, 2), v.y[0:2].x[0].shape.sizes)
 
+    def test_slice_int32(self):
+        t = math.range(batch(batch=10))
+        math.assert_close([1, 2, 3], t[{'batch': slice(np.asarray(1, np.int32), np.asarray(4, np.int16), np.asarray(1, np.int64))}])
+        math.assert_close([1, 2, 3], t[{'batch': slice(wrap(1), wrap(4), wrap(1))}])
+
     def test_stacked_shapes(self):
         t0 = math.ones(batch(batch=10) & spatial(x=4, y=3) & channel(vector=2))
         for dim in t0.shape.names:
