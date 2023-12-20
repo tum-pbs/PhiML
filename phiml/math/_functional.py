@@ -1107,6 +1107,9 @@ def iterate(f: Callable,
     """
     Repeatedly call `function`, passing the previous output as the next input.
 
+    If the function outputs more values than the number of arguments in `x0`, only the first `len(x0)` ones are passed to `f`.
+    However, all outputs will be returned by `iterate`.
+
     Args:
         f: Function to call. Must be callable as `f(x0, **f_kwargs)` and `f(f(x0, **f_kwargs), **f_kwargs)`.
         iterations: Number of iterations as `int` or single-dimension `Shape`.
@@ -1132,25 +1135,27 @@ def iterate(f: Callable,
     if isinstance(iterations, int):
         start_time = measure() if measure else None
         for _ in range(iterations):
-            x = f(*x, **f_kwargs)
-            if not isinstance(x, tuple):
-                x = (x,)
-            assert len(x) == len(x0), f"Function to iterate must return {len(x0)} outputs to match input but got {x}"
-        result = x[0] if len(x0) == 1 else x
+            x = f(*x[:len(x0)], **f_kwargs)
+            x = x if isinstance(x, tuple) else (x,)
+            if len(x) < len(x0):
+                raise AssertionError(f"Function to iterate must return at least {len(x0)} outputs to match input but got {x}")
+        result = x[0] if len(x) == 1 else x
         return (result, measure() - start_time) if measure else result
     elif isinstance(iterations, Shape):
         xs = [x0]
         ts = [measure()] if measure else None
         for _ in range(iterations.size):
-            x = f(*x, **f_kwargs)
-            if not isinstance(x, tuple):
-                x = (x,)
-            assert len(x) == len(x0), f"Function to iterate must return {len(x0)} outputs to match input but got {x}"
+            x = f(*x[:len(x0)], **f_kwargs)
+            x = x if isinstance(x, tuple) else (x,)
+            if len(x) < len(x0):
+                raise AssertionError(f"Function to iterate must return at least {len(x0)} outputs to match input but got {x}")
+            elif len(x) > len(x0):
+                xs[0] = xs[0] + (None,) * (len(x) - len(x0))
             xs.append(x)
             if measure:
                 ts.append(measure())
         xs = [stack(item[1:] if item[0] is None else item, iterations.with_size(None)) for item in zip(*xs)]
-        result = xs[0] if len(x0) == 1 else xs
+        result = xs[0] if len(xs) == 1 else xs
         ts = np.asarray(ts)
         return (result, wrap(ts[1:] - ts[:-1], iterations.with_size(None))) if measure else result
     else:
