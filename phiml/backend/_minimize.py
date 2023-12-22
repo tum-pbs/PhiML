@@ -112,7 +112,7 @@ def scipy_minimize(self, method: str, f, x0, atol, max_iter, trj: bool):
         return SolveResult(method_description, x, residual, iterations, function_evaluations, converged, diverged, messages)
 
 
-def gradient_descent(self: Backend, f, x0, atol, max_iter, trj: bool, step_size='adaptive', max_substeps=8):
+def gradient_descent(self: Backend, f, x0, atol, max_iter, trj: bool, step_size='adaptive', max_substeps=10):
     assert self.supports(Backend.jacobian)
     assert len(self.staticshape(x0)) == 2  # (batch, parameters)
     batch_size = self.staticshape(x0)[0]
@@ -138,32 +138,53 @@ def gradient_descent(self: Backend, f, x0, atol, max_iter, trj: bool, step_size=
         continue_1 = self.to_int32(continue_)
         iterations += continue_1
         if adaptive_step_size:
+            best_step_size = tested_step_size = step_size
+            best_dx = - grad * self.expand_dims(best_step_size * self.to_float(continue_1), -1)
+            best_x = x + best_dx
+            best_loss, best_grad = fg(best_x); function_evaluations += continue_1
             for i in range(max_substeps):
-                dx = - grad * self.expand_dims(step_size * self.to_float(continue_1), -1)
-                next_x = x + dx
-                predicted_loss_decrease = - self.sum(grad * dx, -1)  # >= 0
-                next_loss, next_grad = fg(next_x); function_evaluations += continue_1
-                ML_LOGGER.debug(f"Gradient: {self.numpy(next_grad)} with step_size={self.numpy(step_size)}")
-                actual_loss_decrease = loss - next_loss  # we want > 0
+                # if loss is increasing, reduce step size by parabola factor
+                # if loss is decreasing, use next_grad · dx to tell us whether we can decrease the step size or not
+                lin_loss_decrease = - self.sum(grad * best_dx, -1)  # >= 0, by much the loss would decrease if the function was linear
+                ML_LOGGER.debug(f"Gradient: {self.numpy(best_grad)} with step_size={self.numpy(best_step_size)}")
+                actual_loss_decrease = loss - best_loss  # we want > 0
                 # we want actual_loss_decrease to be at least half of predicted_loss_decrease
-                act_pred = self.divide_no_nan(actual_loss_decrease, predicted_loss_decrease)
+                act_pred = self.divide_no_nan(actual_loss_decrease, lin_loss_decrease)  # we want this to be 1/2
                 ML_LOGGER.debug(f"Actual/Predicted: {self.numpy(act_pred)}")
-                step_size_fac = self.clip(self.log(1 + 1.71828182845 * self.exp((act_pred - 0.5) * 2.)), 0.1, 10)
-                converged = converged | ((self.sum(dx ** 2, axis=-1) < atol ** 2) & (step_size_fac <= 1))
-                step_size *= step_size_fac
-                ML_LOGGER.debug(f"step_size *= {self.numpy(step_size_fac)} = {self.numpy(step_size)}")
-                diverged |= self.any(~self.isfinite(next_grad), axis=(1,))
-                step_size_ok = ((act_pred > 0.4) & (act_pred < 0.9)) | converged | diverged
-                if self.all(step_size_ok):
+                parabola_fac = self.exp((act_pred - 0.5) * 3.)
+                parabola_fac = self.maximum(parabola_fac, 0.1)  # no more than 1 order of magnitude adjustment
+                gradient_direction_dot = self.sum(best_grad * best_dx, -1) / self.sqrt(self.sum(best_dx * best_dx, -1))  # gradient direction at next position
+                gradient_fac = self.where(gradient_direction_dot < 0, 2, 0.5)
+                step_size_fac = self.where(best_loss > loss, parabola_fac, gradient_fac)
+                # --- evaluate new step size ---
+                next_step_size = tested_step_size * step_size_fac
+                ML_LOGGER.debug(f"step_size *= {self.numpy(step_size_fac)} = {self.numpy(next_step_size)}")
+                next_dx = - grad * self.expand_dims(next_step_size * self.to_float(continue_1), -1)
+                next_x = x + next_dx
+                next_loss, next_grad = fg(next_x); function_evaluations += continue_1
+                # print(f"\t\tstep_size: {self.numpy(next_step_size)} \t(*{self.numpy(step_size_fac)}) -> loss {self.numpy(next_loss / loss)}")
+                # --- use next guess if better ---
+                is_worse = next_loss >= best_loss
+                best_step_size = self.where(is_worse, best_step_size, next_step_size)
+                best_dx = self.where(is_worse, best_dx, next_dx)
+                best_x = self.where(is_worse, best_x, next_x)
+                best_loss = self.where(is_worse, best_loss, next_loss)
+                best_grad = self.where(is_worse, best_grad, next_grad)
+                converged = converged | ((self.sum(next_dx ** 2, axis=-1) < atol ** 2) & is_worse)
+                diverged |= self.any(~self.isfinite(best_grad), axis=(1,))
+                tested_step_size = next_step_size
+                done = (best_loss < loss) | converged | diverged
+                if self.all(done):
                     ML_LOGGER.info(f"GD iter {self.numpy(iterations).max()}: Finished step_size adjustment after {i + 1} tries. step_size={self.numpy(step_size)}\n")
                     break
                 else:
-                    ML_LOGGER.info(f"GD iter {self.numpy(iterations).max()} substep {i + 1}: step sizes not yet ready: {(~self.numpy(step_size_ok)).astype(int)}")
+                    ML_LOGGER.info(f"GD iter {self.numpy(iterations).max()} substep {i + 1}: step sizes not yet ready: {(~self.numpy(done)).astype(int)}")
             # else:
             #     converged = converged | (abs(actual_loss_decrease) < predicted_loss_decrease)
             #     ML_LOGGER.debug("Backend._minimize_gradient_descent(): No step size found!\n")
-            diverged = diverged | (next_loss > loss)
-            x, loss, grad = next_x, next_loss, next_grad
+            diverged = diverged | (~converged & (best_loss > loss))
+            x, loss, grad, step_size = best_x, best_loss, best_grad, best_step_size
+            # print("x:", self.numpy(best_x))
             ML_LOGGER.info(f"GD iter {self.numpy(iterations).max()} new estimate x={x}")
         else:
             x -= grad * self.expand_dims(step_size * self.to_float(continue_1), -1)
