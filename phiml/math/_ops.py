@@ -208,6 +208,7 @@ def reshaped_native(value: Tensor,
             * `str`: the name of one dimension that is present on `value`.
             * `Shape`: Dimensions to be packed. If `force_expand`, missing dimensions are first added, otherwise they are ignored.
             * Filter function: Packs all dimensions of this type that are present on `value`.
+            * Ellipsis `...`: Packs all remaining dimensions into this slot. Can only be passed once.
 
         force_expand: `bool` or sequence of dimensions.
             If `True`, repeats the tensor along missing dimensions.
@@ -222,6 +223,9 @@ def reshaped_native(value: Tensor,
     assert value.shape.is_uniform, f"Only uniform (homogenous) tensors can be converted to native but got shape {value.shape}"
     assert isinstance(groups, (tuple, list)), f"groups must be a tuple or list but got {type(value)}"
     order = []
+    if Ellipsis in groups:
+        ellipsis_dims = value.shape.without([g for g in groups if g is not Ellipsis])
+        groups = [ellipsis_dims if g is Ellipsis else g for g in groups]
     groups = [group(value) if callable(group) else group for group in groups]
     for i, group in enumerate(groups):
         if isinstance(group, Shape):

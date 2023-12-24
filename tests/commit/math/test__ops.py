@@ -736,6 +736,11 @@ class TestOps(TestCase):
         nat = math.reshaped_native(a, [spatial, non_spatial], force_expand=False)
         self.assertEqual((12, 2), nat.shape)
 
+    def test_reshaped_native_ellipsis(self):
+        a = math.random_uniform(channel(vector=2) & spatial(x=4, y=3))
+        nat = math.reshaped_native(a, [batch, ..., 'vector'], force_expand=False)
+        self.assertEqual((1, 12, 2), nat.shape)
+
     def test_native(self):
         nat = np.zeros(4)
         self.assertIs(math.native(nat), nat)
