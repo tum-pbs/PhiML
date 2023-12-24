@@ -125,6 +125,13 @@ class TestOps(TestCase):
         t = math.tensor([-math.INF, math.INF, math.NAN])
         assert_close(math.finite_mean(t), math.NAN)
 
+    def test_argmax_argmin(self):
+        for b in BACKENDS:
+            with b:
+                t = math.tensor([0, 2, 1, -1])
+                math.assert_close(1, math.argmax(t, 'vector'))
+                math.assert_close(3, math.argmin(t, 'vector'))
+
     def test_sum_collapsed(self):
         ones = math.ones(spatial(x=40000, y=30000))
         assert_close(40000 * 30000, math.sum(ones))
