@@ -50,7 +50,7 @@ from ._ops import (
     safe_div,
     where, nonzero,
     sum_ as sum, finite_sum, mean, finite_mean, std, prod, max_ as max, finite_max, min_ as min, finite_min, any_ as any, all_ as all, quantile, median,  # reduce
-    at_max, at_min,
+    at_max, at_min, argmax, argmin,
     dot,
     abs_ as abs, sign,
     round_ as round, ceil, floor,

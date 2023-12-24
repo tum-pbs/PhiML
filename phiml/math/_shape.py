@@ -941,6 +941,8 @@ class Shape:
             return obj, prev_item_names if keep_item_names and (prev_size is None or _size_equal(obj, prev_size)) else None
         elif isinstance(obj, math.Tensor) or obj is None:
             return obj, None
+        elif isinstance(obj, Shape):
+            return obj.rank, obj.names
         else:
             raise ValueError(f"sizes can only contain int, str or Tensor but got {type(obj)}")
 

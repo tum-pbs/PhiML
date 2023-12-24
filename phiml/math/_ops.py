@@ -1716,6 +1716,54 @@ def at_min(value, key: Tensor, dim: DimFilter = non_batch):
     return lookup_where(lambda v: choose_backend(v).argmin(v, 1, keepdims=True), value, key, dim)
 
 
+def argmax(x: Tensor, dim: DimFilter, index_dim=channel('index')):
+    """
+    Finds the maximum value along one or multiple dimensions and returns the corresponding index.
+
+    See Also:
+        `argmin`, `at_max`.
+
+    Args:
+        x: `Tensor`
+        dim: Dimensions along which the maximum should be determined. These are reduced in the operation.
+        index_dim: Dimension listing the index components for multidimensional argmax.
+
+    Returns:
+        Index tensor `idx`, such that `x[idx] = max(x)`.
+    """
+    dims = x.shape.only(dim)
+    keep = x.shape.without(dims)
+    assert dim, f"No dimensions {dim} present on key {x.shape}"
+    v_native = reshaped_native(x, [keep, dims])
+    idx_native = x.default_backend.argmax(v_native, 1, keepdims=True)
+    multi_idx_native = choose_backend(idx_native).unravel_index(idx_native[:, 0], dims.sizes)
+    return reshaped_tensor(multi_idx_native, [keep, index_dim.with_size(dims)])
+
+
+def argmin(x: Tensor, dim: DimFilter, index_dim=channel('index')):
+    """
+    Finds the minimum value along one or multiple dimensions and returns the corresponding index.
+
+    See Also:
+        `argmax`, `at_min`.
+
+    Args:
+        x: `Tensor`
+        dim: Dimensions along which the minimum should be determined. These are reduced in the operation.
+        index_dim: Dimension listing the index components for multidimensional argmin.
+
+    Returns:
+        Index tensor `idx`, such that `x[idx] = min(x)`.
+    """
+    dims = x.shape.only(dim)
+    keep = x.shape.without(dims)
+    assert dim, f"No dimensions {dim} present on key {x.shape}"
+    v_native = reshaped_native(x, [keep, dims])
+    idx_native = x.default_backend.argmin(v_native, 1, keepdims=True)
+    multi_idx_native = choose_backend(idx_native).unravel_index(idx_native[:, 0], dims.sizes)
+    return reshaped_tensor(multi_idx_native, [keep, index_dim.with_size(dims)])
+
+
 def quantile(value: Tensor,
              quantiles: Union[float, tuple, list, Tensor],
              dim: DimFilter = non_batch):
@@ -2870,18 +2918,22 @@ def pairwise_distances(positions: Tensor,
     assert default in [0, None], f"default value must be either 0 or None but got '{default}'"
     primal_dims = positions.shape.non_batch.non_channel.non_dual
     dual_dims = primal_dims.as_dual()
-    if isinstance(format, Tensor):  # sparse connectivity specified, no neighborhood search required
-        assert max_distance is None, "max_distance not allowed when connectivity is specified (passing a Tensor for format)"
-        return map_pairs(lambda p1, p2: p2 - p1, positions, format)
     # --- Dense ---
-    elif format == 'dense':
+    if (isinstance(format, str) and format == 'dense') or (isinstance(format, Tensor) and get_format(format) == 'dense'):
+        if isinstance(format, Tensor):
+            dual_dims = dual(format)
         dx = unpack_dim(pack_dims(positions, non_batch(positions).non_channel.non_dual, instance('_tmp')), '_tmp', dual_dims) - positions
         if max_distance is not None:
             neighbors = sum_(dx ** 2, channel) <= max_distance ** 2
             default = float('nan') if default is None else default
             dx = where(neighbors, dx, default)
         return dx
-    # --- Sparse neighbor search from here on ---
+    # --- sparse with known connectivity ---
+    if isinstance(format, Tensor):  # sparse connectivity specified, no neighborhood search required
+        assert max_distance is None, "max_distance not allowed when connectivity is specified (passing a Tensor for format)"
+        assert is_sparse(format)
+        return map_pairs(lambda p1, p2: p2 - p1, positions, format)
+    # --- Sparse neighbor search ---
     assert max_distance is not None, "max_distance must be specified when computing distance in sparse format"
     max_distance = wrap(max_distance)
     index_dtype = DType(int, 32)
