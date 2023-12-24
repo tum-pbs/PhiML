@@ -208,7 +208,7 @@ class TorchBackend(Backend):
         class NumPyFunction(torch.autograd.Function):
             @staticmethod
             def forward(ctx, *args):
-                args = [a.detach().cpu().numpy() for a in args]
+                args = [a.detach().cpu().numpy() if isinstance(a, torch.Tensor) else a for a in args]
                 result = f(*args, **aux_args)
                 return map_structure(lambda t: self.as_tensor(t), result)
             @staticmethod

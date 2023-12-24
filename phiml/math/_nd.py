@@ -2,13 +2,16 @@ from typing import Tuple, Optional, Union, List, Callable, Sequence, Dict
 
 import numpy as np
 
-from . import _ops as math
+from . import _ops as math, reshaped_numpy, reshaped_native, reshaped_tensor
 from . import extrapolation as extrapolation
 from ._magic_ops import stack, rename_dims, concat, variable_values, tree_map
-from ._shape import Shape, channel, batch, spatial, DimFilter, parse_dim_order, shape, instance, dual, auto
+from ._ops import choose_backend_t
+from ._shape import Shape, channel, batch, spatial, DimFilter, parse_dim_order, shape, instance, dual, auto, non_batch
 from ._tensors import Tensor, wrap, tensor
 from .extrapolation import Extrapolation
 from .magic import PhiTreeNode
+from ..backend import choose_backend
+from ..backend._dtype import DType
 
 
 def vec(name: Union[str, Shape] = 'vector', *sequence, tuple_dim=spatial('sequence'), list_dim=instance('sequence'), **components) -> Tensor:
@@ -939,3 +942,44 @@ def sample_subgrid(grid: Tensor, start: Tensor, size: Shape) -> Tensor:
             lower, upper = shift(grid, (0, 1), [dim], padding=None, stack_dim=None)
             grid = upper * upper_weight[i] + lower * lower_weight[i]
     return grid
+
+
+def find_closest(vectors: Tensor, query: Tensor, method='kd', index_dim=channel('index')):
+    """
+    Finds the closest vector to `query` from `vectors`.
+    This is implemented using a k-d tree built from `vectors`.
+
+
+    Args:
+        vectors: Points to find.
+        query: Target locations.
+        method: One of the following:
+
+            * `'dense'`: compute the pair-wise distances between all vectors and query points, then return the index of the smallest distance for each query point.
+            * `'kd'` (default): Build a k-d tree from `vectors` and use it to query all points in `query`. The tree will be cached if this call is jit-compiled and `vectors` is constant.
+        index_dim: Dimension along which components should be listed.
+
+    Returns:
+        Index tensor `idx` so that the closest points to `query` are `vectors[idx]`.
+    """
+    assert not dual(vectors), f"vectors cannot have dual dims"
+    if method == 'dense':
+        dist = vec_squared(query - vectors)
+        idx = math.argmin(dist, non_batch(vectors).non_channel)
+        return rename_dims(idx, '_index', index_dim.with_size(non_batch(vectors).non_channel.names))
+    # --- k-d tree ---
+    from scipy.spatial import KDTree
+    native_query = reshaped_native(query, [batch(vectors), query.shape.without(batch(vectors)).non_channel, channel(query)])
+    if vectors.available:
+        kd_trees = [KDTree(reshaped_numpy(vectors[b], [vectors.shape.non_channel.non_batch, channel])) for b in batch(vectors).meshgrid()]
+        def perform_query(np_query):
+            return np.stack([kd_tree.query(np_query[i])[1] for i, kd_tree in enumerate(kd_trees)])
+        native_idx = query.default_backend.numpy_call(perform_query, (batch(vectors).volume, query.shape.without(batch(vectors)).non_channel.volume), DType(int, 64), native_query)
+    else:
+        b = choose_backend_t(vectors, query)
+        native_vectors = reshaped_native(vectors, [batch, ..., channel])
+        def perform_query(np_vectors, np_query):
+            return np.stack([KDTree(np_vectors[i]).query(np_query[i])[1] for i in range(batch(vectors).volume)])
+        native_idx = b.numpy_call(perform_query, (batch(vectors).volume, query.shape.without(batch(vectors)).non_channel.volume), DType(int, 64), native_vectors, native_query)
+    native_multi_idx = choose_backend(native_idx).unravel_index(native_idx, vectors.shape.non_batch.non_channel.sizes)
+    return reshaped_tensor(native_multi_idx, [batch(vectors), query.shape.without(batch(vectors)).non_channel, index_dim.with_size(non_batch(vectors).non_channel.names)])

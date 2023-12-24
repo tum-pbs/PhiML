@@ -79,7 +79,8 @@ from ._nd import (
     neighbor_reduce, neighbor_mean, neighbor_sum, neighbor_max, neighbor_min, at_min_neighbor, at_max_neighbor,
     fourier_laplace, fourier_poisson, abs_square,
     downsample2x, upsample2x, sample_subgrid,
-    masked_fill, finite_fill
+    masked_fill, finite_fill,
+    find_closest,
 )
 
 from ._trace import matrix_from_function
