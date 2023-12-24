@@ -406,3 +406,32 @@ class TestMathNDNumpy(TestCase):
     def test_index_shift_widths(self):
         from phiml.math._nd import index_shift_widths
         self.assertEqual([{'x': (0, 1)}, {'x': (1, 0)}], index_shift_widths([0, vec(x=1)]))
+
+    def test_find_closest(self):
+        for method in ['kd', 'dense']:
+            vectors = wrap([(0, 0), (1, 0), (0, 1), (1, 1)], instance('vectors'), channel(vector='x,y'))
+            lookup = vec(x=[.4, .6, .6], y=[.4, .4, .6])
+            idx = math.find_closest(vectors, lookup, method=method)
+            math.assert_close([(0,), (1,), (3,)], idx)
+            math.assert_close([(0, 0), (1, 0), (1, 1)], vectors[idx])
+            # --- multiple list dims ---
+            vectors = wrap([[(0, 0), (1, 0)], [(0, 1), (1, 1)]], instance('vectors1,vectors2'), channel(vector='x,y'))
+            lookup = vec(x=[.4, .6, .6], y=[.4, .4, .6])
+            idx = math.find_closest(vectors, lookup, method=method)
+            math.assert_close([(0, 0), (0, 1), (1, 1)], idx)
+            math.assert_close([(0, 0), (1, 0), (1, 1)], vectors[idx])
+
+    def test_find_closest_jit(self):
+        find_closest = math.jit_compile(math.find_closest)
+        for method in ['kd', 'dense']:
+            vectors = wrap([(0, 0), (1, 0), (0, 1), (1, 1)], instance('vectors'), channel(vector='x,y'))
+            lookup = vec(x=[.4, .6, .6], y=[.4, .4, .6])
+            idx = find_closest(vectors, lookup, method=method)
+            math.assert_close([(0,), (1,), (3,)], idx)
+            math.assert_close([(0, 0), (1, 0), (1, 1)], vectors[idx])
+            # --- multiple list dims ---
+            vectors = wrap([[(0, 0), (1, 0)], [(0, 1), (1, 1)]], instance('vectors1,vectors2'), channel(vector='x,y'))
+            lookup = vec(x=[.4, .6, .6], y=[.4, .4, .6])
+            idx = find_closest(vectors, lookup, method=method)
+            math.assert_close([(0, 0), (0, 1), (1, 1)], idx)
+            math.assert_close([(0, 0), (1, 0), (1, 1)], vectors[idx])
