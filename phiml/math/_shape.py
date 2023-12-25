@@ -730,16 +730,21 @@ class Shape:
         Returns:
           Shape without specified dimensions
         """
-        if callable(dims):
+        if dims is None:  # subtract none
+            return self
+        elif callable(dims):
             dims = dims(self)
         if isinstance(dims, str):
-            dims = parse_dim_order(dims)
-        if isinstance(dims, (tuple, list, set)):
-            return self[[i for i in range(self.rank) if self.names[i] not in dims]]
+            return self[[i for i in range(self.rank) if self.names[i] not in parse_dim_order(dims)]]
         elif isinstance(dims, Shape):
             return self[[i for i in range(self.rank) if self.names[i] not in dims.names]]
-        elif dims is None:  # subtract none
-            return self
+        if isinstance(dims, (tuple, list, set)) and all([isinstance(d, str) for d in dims]):
+            return self[[i for i in range(self.rank) if self.names[i] not in dims]]
+        elif isinstance(dims, (tuple, list, set)):
+            result = self
+            for wo in dims:
+                result = result.without(wo)
+            return result
         else:
             raise ValueError(dims)
 
@@ -767,16 +772,26 @@ class Shape:
             dims = parse_dim_order(dims)
         if isinstance(dims, Shape):
             dims = dims.names
-        if not isinstance(dims, (tuple, list, set)):
-            raise ValueError(dims)
-        if reorder:
-            dims = [d.name if isinstance(d, Shape) else d for d in dims]
-            assert all(isinstance(d, str) for d in dims)
-            return self[[self.names.index(d) for d in dims if d in self.names]]
-        else:
-            dims = [d.name if isinstance(d, Shape) else d for d in dims]
-            assert all(isinstance(d, str) for d in dims)
-            return self[[i for i in range(self.rank) if self.names[i] in dims]]
+        if isinstance(dims, (tuple, list, set)):
+            dim_names = []
+            for d in dims:
+                if callable(d):
+                    d = d(self)
+                if isinstance(d, str):
+                    dim_names.append(d)
+                elif isinstance(d, Shape):
+                    dim_names.extend(d.names)
+                else:
+                    raise ValueError(f"Format not understood for Shape.only(): {dims}")
+            if reorder:
+                dim_names = [d.name if isinstance(d, Shape) else d for d in dim_names]
+                assert all(isinstance(d, str) for d in dim_names)
+                return self[[self.names.index(d) for d in dim_names if d in self.names]]
+            else:
+                dim_names = [d.name if isinstance(d, Shape) else d for d in dim_names]
+                assert all(isinstance(d, str) for d in dim_names)
+                return self[[i for i in range(self.rank) if self.names[i] in dim_names]]
+        raise ValueError(dims)
 
     @property
     def rank(self) -> int:
