@@ -193,4 +193,11 @@ class TestShape(TestCase):
         self.assertEqual(spatial(x=4, y=3), pp.spatial)
         self.assertEqual(math.EMPTY_SHAPE, pp.dual)
 
+    def test_only(self):
+        s = batch(b=10) & channel(vector='x,y')
+        self.assertEqual(batch(b=10), s.only([batch, spatial]))
+        self.assertEqual(s[(1, 0)], s.only([channel, batch], reorder=True))
 
+    def test_without(self):
+        s = batch(b=10) & channel(vector='x,y')
+        self.assertEqual(channel(vector='x,y'), s.without([batch, spatial]))
