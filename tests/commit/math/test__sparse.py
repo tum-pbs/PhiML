@@ -105,3 +105,11 @@ class TestSparse(TestCase):
         math.assert_close(t, math.boolean_mask(t, 'x', mask), t[mask])
         mask = wrap([False, True], spatial('x'))
         math.assert_close(t.x[1:], math.boolean_mask(t, 'x', mask))
+
+    def test_dense_to_sparse(self):
+        for target_format in ['dense', 'coo', 'csr', 'csc']:
+            value = tensor([[0, 1], [3, 0]], channel('c'), dual('d'))
+            sp = math.to_format(value, target_format)
+            math.assert_close(value, sp)
+            self.assertEqual(target_format, math.get_format(sp))
+
