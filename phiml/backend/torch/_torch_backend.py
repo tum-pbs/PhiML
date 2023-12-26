@@ -7,6 +7,7 @@ import numpy as np
 import torch
 import torch.fft
 import torch.nn.functional as torchf
+from numpy.core.numeric import indices
 from packaging import version
 
 from .._dtype import DType
@@ -649,25 +650,43 @@ class TorchBackend(Backend):
         # return torch.masked_select(x_, mask_)
 
     def scatter(self, base_grid, indices, values, mode: str):
+        assert mode in ('add', 'update', 'max', 'min')
         base_grid, values = self.auto_cast(base_grid, values)
         indices = self.as_tensor(indices)
         batch_size = combined_dim(combined_dim(indices.shape[0], values.shape[0]), base_grid.shape[0])
-        scatter = torch.scatter_add if mode == 'add' else torch.scatter
-        if indices.shape[0] < batch_size:
-            indices = indices.repeat([batch_size] + [1] * (len(indices.shape)-1))
-        if values.shape[0] < batch_size or values.shape[1] == 1:
-            values = values.repeat([batch_size // values.shape[0], indices.shape[1] // indices.shape[1]] + [1] * (len(values.shape)-2))
-        if len(base_grid.shape) > 3:
-            resolution = base_grid.shape[1:-1]
-            ravel = [1]
-            for i in range(1, len(resolution)):
-                ravel.insert(0, ravel[0] * resolution[-i])
-            ravel = self.to_int64(self.as_tensor(ravel, True))
-            indices = torch.sum(indices * ravel, dim=-1, keepdim=True)
-        base_grid_flat = torch.reshape(base_grid, [base_grid.shape[0], -1, base_grid.shape[-1]])
-        indices = indices.long().repeat([1, 1, values.shape[-1]])
-        result = scatter(base_grid_flat, dim=1, index=indices, src=values)
-        return torch.reshape(result, base_grid.shape)
+        if mode in ('add', 'update'):
+            scatter = torch.scatter_add if mode == 'add' else torch.scatter
+            if indices.shape[0] < batch_size:
+                indices = indices.repeat([batch_size] + [1] * (len(indices.shape)-1))
+            if values.shape[0] < batch_size or values.shape[1] == 1:
+                values = values.repeat([batch_size // values.shape[0], indices.shape[1] // indices.shape[1]] + [1] * (len(values.shape)-2))
+            if len(base_grid.shape) > 3:
+                resolution = base_grid.shape[1:-1]
+                ravel = [1]
+                for i in range(1, len(resolution)):
+                    ravel.insert(0, ravel[0] * resolution[-i])
+                ravel = self.to_int64(self.as_tensor(ravel, True))
+                indices = torch.sum(indices * ravel, dim=-1, keepdim=True)
+            base_grid_flat = torch.reshape(base_grid, [base_grid.shape[0], -1, base_grid.shape[-1]])
+            indices = indices.long().repeat([1, 1, values.shape[-1]])
+            result = scatter(base_grid_flat, dim=1, index=indices, src=values)
+            return torch.reshape(result, base_grid.shape)
+        elif mode in ('max', 'min'):
+            full_shape = self.staticshape(base_grid)
+            if len(full_shape) > 3:  # need to compress n-D to 1D
+                base_grid = self.reshape(base_grid, (full_shape[0], -1, full_shape[-1]))
+                indices = self.ravel_multi_index(indices, full_shape[1:-1])
+            else:
+                indices = indices.squeeze(-1)
+            if indices.shape[0] > 1:  # need to iterate over batches
+                result = []
+                for b in range(len(batch_size)):
+                    result_b = torch.index_reduce(base_grid[b], 0, indices[b], values[b], 'a'+mode)
+                    result.append(result_b)
+                result = self.stack(result)
+            else:
+                result = torch.index_reduce(base_grid, 1, indices[0], values, 'a'+mode)
+            return self.reshape(result, full_shape)
 
     def histogram1d(self, values, weights, bin_edges):
         values = self.as_tensor(values)

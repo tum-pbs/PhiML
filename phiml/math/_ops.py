@@ -2453,7 +2453,7 @@ def scatter(base_grid: Union[Tensor, Shape],
             This dimension is optional if the spatial rank is 1.
             Must also contain all `scatter_dims`.
         values: `Tensor` of values to scatter at `indices`.
-        mode: Scatter mode as `str`. One of ('add', 'mean', 'update')
+        mode: Scatter mode as `str`. One of ('add', 'mean', 'update', 'max', 'min')
         outside_handling: Defines how indices lying outside the bounds of `base_grid` are handled.
 
             * `'discard'`: outside indices are ignored.
@@ -2464,7 +2464,7 @@ def scatter(base_grid: Union[Tensor, Shape],
     Returns:
         Copy of `base_grid` with updated values at `indices`.
     """
-    assert mode in ('update', 'add', 'mean')
+    assert mode in ('update', 'add', 'mean', 'max', 'min'), f"Invalid scatter mode: '{mode}'"
     assert outside_handling in ('discard', 'clamp', 'undefined')
     assert isinstance(indices_gradient, bool)
     if isinstance(indices, dict):  # update a slice
@@ -2504,8 +2504,14 @@ def scatter(base_grid: Union[Tensor, Shape],
     if isinstance(base_grid, Shape):
         with choose_backend_t(indices, values):
             base_grid = zeros(base_grid & batches & values.shape.channel, dtype=values.dtype)
-        if mode != 'add':
-            base_grid += math.nan
+        if mode in ['update', 'mean']:
+            base_grid += float('nan')
+        elif mode == 'max':
+            base_grid -= float('inf')
+        elif mode == 'min':
+            base_grid += float('inf')
+        else:
+            assert mode == 'add'  # initialize with zeros
     # --- Handle outside indices ---
     if outside_handling == 'clamp':
         indices = clip(indices, 0, tensor(indexed_dims, channel(indices)) - 1)
@@ -2534,7 +2540,7 @@ def scatter(base_grid: Union[Tensor, Shape],
         native_values = reshaped_native(values, [batches, lists, channels])
         native_indices = reshaped_native(indices, [batches, lists, channel])
         backend = choose_backend(native_indices, native_values, native_grid)
-        if mode in ('add', 'update'):
+        if mode != 'mean':
             native_result = backend.scatter(native_grid, native_indices, native_values, mode=mode)
         else:  # mean
             zero_grid = backend.zeros_like(native_grid)

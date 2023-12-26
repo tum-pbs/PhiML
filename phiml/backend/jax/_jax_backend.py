@@ -515,20 +515,21 @@ class JaxBackend(Backend):
         return jnp.all(boolean_tensor, axis=axis, keepdims=keepdims)
 
     def scatter(self, base_grid, indices, values, mode: str):
+        assert mode in ('add', 'update', 'max', 'min')
         base_grid, values = self.auto_cast(base_grid, values)
         batch_size = combined_dim(combined_dim(indices.shape[0], values.shape[0]), base_grid.shape[0])
         spatial_dims = tuple(range(base_grid.ndim - 2))
         dnums = jax.lax.ScatterDimensionNumbers(update_window_dims=(1,),  # channel dim of updates (batch dim removed)
                                                 inserted_window_dims=spatial_dims,  # no idea what this does but spatial_dims seems to work
                                                 scatter_dims_to_operand_dims=spatial_dims)  # spatial dims of base_grid (batch dim removed)
-        scatter = jax.lax.scatter_add if mode == 'add' else jax.lax.scatter
-        result = []
-        for b in range(batch_size):
-            b_grid = base_grid[b, ...]
-            b_indices = indices[min(b, indices.shape[0] - 1), ...]
-            b_values = values[min(b, values.shape[0] - 1), ...]
-            result.append(scatter(b_grid, b_indices, b_values, dnums))
-        return jnp.stack(result)
+        scatter = {'add': jax.lax.scatter_add, 'update': jax.lax.scatter, 'max': jax.lax.scatter_max, 'min': jax.lax.scatter_min}[mode]
+        def scatter_single(base_grid, indices, values):
+            return scatter(base_grid, indices, values, dnums)
+        if self.staticshape(indices)[0] == 1:
+            indices = self.tile(indices, [batch_size, 1, 1])
+        if self.staticshape(values)[0] == 1:
+            values = self.tile(values, [batch_size, 1, 1])
+        return self.vectorized_call(scatter_single, base_grid, indices, values)
 
     def histogram1d(self, values, weights, bin_edges):
         def unbatched_hist(values, weights, bin_edges):
