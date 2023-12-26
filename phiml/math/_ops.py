@@ -2,7 +2,7 @@ import functools
 import math
 import warnings
 from numbers import Number
-from typing import Tuple, Callable, Any, Union, Optional, Dict, Collection, TypeVar, List, Sequence
+from typing import Tuple, Callable, Any, Union, Optional, Dict, Collection, Sequence
 
 import numpy as np
 
@@ -11,13 +11,13 @@ from ._magic_ops import expand, pack_dims, unpack_dim, cast, copy_with, value_at
 from ._shape import (Shape, EMPTY_SHAPE,
                      spatial, batch, channel, instance, merge_shapes, parse_dim_order, concat_shapes,
                      IncompatibleShapes, DimFilter, non_batch, dual, non_channel, shape)
-from ._sparse import CompressedSparseMatrix, dot_compressed_dense, dense, SparseCoordinateTensor, dot_coordinate_dense, get_format, to_format, stored_indices, tensor_like, sparse_dims, same_sparsity_pattern, is_sparse, sparse_dot, sparse_sum, sparse_gather
+from ._sparse import CompressedSparseMatrix, dense, SparseCoordinateTensor, get_format, to_format, stored_indices, tensor_like, sparse_dims, same_sparsity_pattern, is_sparse, sparse_dot, sparse_sum, sparse_gather, sparse_max, sparse_min
 from ._tensors import (Tensor, wrap, tensor, broadcastable_native_tensors, NativeTensor, TensorStack,
                        custom_op2, compatible_tensor, variable_attributes, disassemble_tree, assemble_tree,
-                       is_scalar, Layout, expand_tensor, TensorOrTree, discard_constant_dims)
+                       is_scalar, Layout, expand_tensor, TensorOrTree)
 from ..backend import default_backend, choose_backend, Backend, get_precision, convert as b_convert, BACKENDS, NoBackendFound, ComputeDevice, NUMPY
 from ..backend._dtype import DType, combine_types
-from .magic import PhiTreeNode, Shapable, Shaped
+from .magic import PhiTreeNode
 
 
 def choose_backend_t(*values, prefer_default=False) -> Backend:
@@ -1736,6 +1736,18 @@ def argmax(x: Tensor, dim: DimFilter, index_dim=channel('index')):
     dims = x.shape.only(dim)
     keep = x.shape.without(dims)
     assert dim, f"No dimensions {dim} present on key {x.shape}"
+    if isinstance(x, (SparseCoordinateTensor, CompressedSparseMatrix)):
+        if dims in sparse_dims(x):
+            max_val = max_(x, dim)
+            is_max = x == max_val
+            is_max_idx = nonzero(is_max, list_dim=instance('true_values'))
+            scatter_val = is_max_idx[dims.only(sparse_dims(x)).name_list]
+            scatter_idx = is_max_idx[sparse_dims(x).without(dims).name_list]
+            result_shape = max_val.shape & channel(scatter_val)
+            result = scatter(result_shape, scatter_idx, scatter_val, mode='update', default=-1)
+            return rename_dims(result, channel(scatter_val), index_dim)
+        else:
+            raise NotImplementedError
     v_native = reshaped_native(x, [keep, dims])
     idx_native = x.default_backend.argmax(v_native, 1, keepdims=True)
     multi_idx_native = choose_backend(idx_native).unravel_index(idx_native[:, 0], dims.sizes)
