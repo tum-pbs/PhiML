@@ -113,3 +113,14 @@ class TestSparse(TestCase):
             math.assert_close(value, sp)
             self.assertEqual(target_format, math.get_format(sp))
 
+    def test_reduce(self):
+        for format in ['coo', 'csr', 'csc']:
+            matrix = wrap([[0, 1], [-1, 2]], channel('c'), dual('d'))
+            matrix = math.to_format(matrix, format)
+            # --- partial reduction ---
+            math.assert_close([-1, 3], math.sum(matrix, channel))
+            math.assert_close([1, 1], math.sum(matrix, dual))
+            math.assert_close([-1, 1], math.min(matrix, channel))
+            math.assert_close([1, -1], math.min(matrix, dual))  # the 0 is not part of the matrix anymore
+            math.assert_close([-1, 2], math.max(matrix, channel))
+            math.assert_close([1, 2], math.max(matrix, dual))

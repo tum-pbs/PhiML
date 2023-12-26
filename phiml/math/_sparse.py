@@ -1,4 +1,5 @@
 import warnings
+from functools import partial
 from numbers import Number
 from typing import List, Callable, Tuple, Union
 
@@ -1160,44 +1161,54 @@ def with_sparsified_dim(indices: Tensor, values: Tensor, dims: Shape):
     return indices, values
 
 
-def sparse_sum(value: Tensor, dims: Shape):
-    from ._ops import _sum, scatter, dot, ones, zeros
+def sparse_reduce(value: Tensor, dims: Shape, mode: str):
+    from ._ops import _sum, _max, _min, scatter, dot, ones, zeros
+    reduce = {'add': _sum, 'max': _max, 'min': _min}[mode]
     if value.sparse_dims in dims:  # reduce all sparse dims
-        return _sum(value._values, dims.without(value.sparse_dims) & instance(value._values))
+        return reduce(value._values, dims.without(value.sparse_dims) & instance(value._values))
     value_only_dims = dims.only(value._values.shape).without(value.sparse_dims)
     if value_only_dims:
-        value = value._with_values(_sum(value._values, value_only_dims))
+        value = value._with_values(reduce(value._values, value_only_dims))
     dims = dims.without(value_only_dims)
     if not dims:
         return value
     if isinstance(value, CompressedSparseMatrix):
         if value._compressed_dims in dims and value._uncompressed_dims.isdisjoint(dims):  # We can ignore the pointers
             result_base = value.shape.without(value._compressed_dims)
-            return scatter(result_base, value._indices, value._values, mode='add', outside_handling='undefined')
+            indices = expand(value._indices, channel(index=value._uncompressed_dims))
+            return scatter(result_base, indices, value._values, mode=mode, outside_handling='undefined')
         elif value.sparse_dims.only(dims):  # reduce some sparse dims
-            return dot(value, dims, ones(dims), dims)  # this is what SciPy does in both axes, actually.
-        return value
-        # first sum value dims that are not part of indices
+            if mode == 'add':
+                return dot(value, dims, ones(dims), dims)  # this is what SciPy does in both axes, actually.
+            else:
+                value = value.decompress()
+                return sparse_reduce(value, dims, mode)
+        else:
+            return value  # we have already reduced the value dimensions above
     elif isinstance(value, SparseCoordinateTensor):
         if value._dense_shape in dims:  # sum all sparse dims
             v_dims = dims.without(value._dense_shape) & instance(value._values)
-            return _sum(value._values, v_dims)
+            return reduce(value._values, v_dims)
         else:
-            result_base = zeros(value.shape.without(dims))
             remaining_sparse_dims = value._dense_shape.without(dims)
             indices = value._indices.sparse_idx[remaining_sparse_dims.names]
             if remaining_sparse_dims.rank == 1:  # return dense result
-                result = scatter(result_base, indices, value._values, mode='add', outside_handling='undefined')
+                result = scatter(value.shape.without(dims), indices, value._values, mode=mode, outside_handling='undefined')
                 return result
             elif dims.as_instance() in value._values.shape:  # We sum the output batch but keep the input.
-                # indices = rename_dims(indices, dims, dims.as_dual())
-                # values = rename_dims(value._values, dims, dims.as_dual())
                 dense_shape = value._dense_shape.without(dims)
                 return SparseCoordinateTensor(indices, value._values, dense_shape, value._can_contain_double_entries, value._indices_sorted, value._default)
             else:  # return sparse result
-                _can_contain_double_entries = True
-                raise NotImplementedError
+                keep_sparse = sparse_dims(value).without(dims)
+                value = pack_dims(value, keep_sparse, channel('_not_summed'))
+                summed = sparse_reduce(value, dims, mode)
+                return unpack_dim(summed, '_not_summed', keep_sparse)
     raise ValueError(value)
+
+
+sparse_sum = partial(sparse_reduce, mode='add')
+sparse_max = partial(sparse_reduce, mode='max')
+sparse_min = partial(sparse_reduce, mode='min')
 
 
 def sum_equal_entries(matrix: Tensor, flatten_entries=True):

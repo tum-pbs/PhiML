@@ -1457,6 +1457,8 @@ def _any(value: Tensor, dims: Shape) -> Tensor:
     elif isinstance(value, TensorStack):
         reduced_inners = [_any(t, dims.without(value._stack_dim)) for t in value._tensors]
         return functools.reduce(lambda x, y: x | y, reduced_inners) if value._stack_dim in dims else TensorStack(reduced_inners, value._stack_dim)
+    elif isinstance(value, (CompressedSparseMatrix, SparseCoordinateTensor)):
+        return sparse_sum(to_int32(value), dims) > 0
     else:
         raise ValueError(type(value))
 
@@ -1525,9 +1527,7 @@ def _max(value: Tensor, dims: Shape) -> Tensor:
         reduced_inners = [_max(t, dims.without(value._stack_dim)) for t in value._tensors]
         return functools.reduce(lambda x, y: maximum(x, y), reduced_inners) if value._stack_dim in dims else TensorStack(reduced_inners, value._stack_dim)
     elif isinstance(value, (SparseCoordinateTensor, CompressedSparseMatrix)):
-        if sparse_dims(value) in dims:
-            values_max = _max(value._values, dims.without(sparse_dims(value)) & instance(value._values))
-            return maximum(values_max, value._default) if value._default is not None else values_max
+        return sparse_max(value, dims)
     raise ValueError(type(value))
 
 
@@ -1560,9 +1560,7 @@ def _min(value: Tensor, dims: Shape) -> Tensor:
         reduced_inners = [_min(t, dims.without(value._stack_dim)) for t in value._tensors]
         return functools.reduce(lambda x, y: minimum(x, y), reduced_inners) if value._stack_dim in dims else TensorStack(reduced_inners, value._stack_dim)
     elif isinstance(value, (SparseCoordinateTensor, CompressedSparseMatrix)):
-        if sparse_dims(value) in dims:
-            values_min = _min(value._values, dims.without(sparse_dims(value)) & instance(value._values))
-            return minimum(values_min, value._default) if value._default is not None else values_min
+        return sparse_min(value, dims)
     raise ValueError(type(value))
 
 
