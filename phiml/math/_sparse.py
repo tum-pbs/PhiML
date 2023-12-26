@@ -1229,14 +1229,14 @@ def sparse_gather(matrix: Tensor, indices: Tensor):
         row_indices = matrix._indices[row_dims.name_list]
         col_indices = matrix._indices[col_dims.name_list]
         # --- Construct SciPy matrix for efficient slicing ---
-        from phiml.math import reshaped_numpy
+        from ._ops import reshaped_numpy, reshaped_tensor
         np_rows = b.ravel_multi_index(reshaped_numpy(row_indices, [instance, channel]), row_dims.sizes)
         np_cols = b.ravel_multi_index(reshaped_numpy(col_indices, [instance, channel]), col_dims.sizes)
         scipy_mat = csr_matrix((placeholders, (np_rows, np_cols)), shape=(row_dims.volume, col_dims.volume))
         if channel(indices).size > 1 or row_dims.rank > 1:
             raise NotImplementedError  # ravel indices
         else:
-            lin_indices = unstack(indices, channel)[0].numpy()
+            lin_indices = reshaped_numpy(unstack(indices, channel)[0], [shape])
         row_counts = scipy_mat.getnnz(axis=1)  # how many elements per matrix row
         lookup = scipy_mat[lin_indices, :].data - 1
         lookup = expand(wrap(lookup, instance('sp_entries')), channel(sparse_idx=instance(col_indices).name))
@@ -1244,7 +1244,8 @@ def sparse_gather(matrix: Tensor, indices: Tensor):
         gathered_cols = col_indices[lookup]
         row_count_out = row_counts[lin_indices]  # row count for each i in indices
         rows = b.repeat(b.range(len(lin_indices)), row_count_out, 0)
-        rows = expand(wrap(rows, instance('sp_entries')), channel(sparse_idx=non_channel(indices).name))
+        rows = b.unravel_index(rows, non_channel(indices).non_batch.sizes)
+        rows = wrap(rows, instance('sp_entries'), channel(sparse_idx=non_channel(indices).names))
         gathered_indices = concat([rows, gathered_cols], 'sparse_idx')
         gathered_values = matrix._values[lookup]
         dense_shape = matrix._dense_shape.without(channel(indices).item_names[0]) & non_channel(indices)
