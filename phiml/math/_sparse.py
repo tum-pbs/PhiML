@@ -760,6 +760,19 @@ def get_format(x: Tensor) -> str:
 
 
 def is_sparse(x: Tensor):
+    """
+    Checks whether a tensor is represented in COO, CSR or CSC format.
+    If the tensor is neither sparse nor dense, this function raises an error.
+
+    Args:
+        x: `Tensor` to test.
+
+    Returns:
+        `True` if `x` is sparse, `False` if `x` is dense.
+
+    Raises:
+        `AssertionError` if `x` is neither sparse nor fully dense.
+    """
     f = get_format(x)
     if f == 'dense':
         return False
