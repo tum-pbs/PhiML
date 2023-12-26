@@ -769,6 +769,16 @@ def is_sparse(x: Tensor):
 
 
 def to_format(x: Tensor, format: str):
+    """
+    Converts a `Tensor` to the specified sparse format or to a dense tensor.
+
+    Args:
+        x: Sparse or dense `Tensor`
+        format: Target format. One of `'dense'`, `'coo'`, `'csr'`, or `'csc'`.
+
+    Returns:
+        `Tensor` of the specified format.
+    """
     assert format in ('coo', 'csr', 'csc', 'dense'), f"Invalid format: '{format}'. Must be one of 'coo', 'csr', 'csc', 'dense'"
     if get_format(x) == format:
         return x
@@ -785,12 +795,11 @@ def to_format(x: Tensor, format: str):
         else:
             return to_format(x.decompress(), format)
     else:  # dense to sparse
-        raise NotImplementedError('dense to sparse not yet supported')
-        # from ._ops import nonzero
-        # indices = nonzero(x)
-        # values = x[indices]
-        # coo = SparseCoordinateTensor(indices, values, dense_shape, can_contain_double_entries=False, indices_sorted=False)
-        # return to_format(coo, format)
+        from ._ops import nonzero
+        indices = nonzero(rename_dims(x, channel, instance))
+        values = x[indices]
+        coo = SparseCoordinateTensor(indices, values, x.shape, can_contain_double_entries=False, indices_sorted=False, default=0)
+        return to_format(coo, format)
 
 
 def sparse_dims(x: Tensor) -> Shape:

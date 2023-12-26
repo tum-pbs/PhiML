@@ -34,7 +34,7 @@ from ._magic_ops import (
 
 from ._tensors import wrap, tensor, layout, Tensor, Dict, to_dict, from_dict, is_scalar, BROADCAST_FORMATTER as f
 
-from ._sparse import dense, get_sparsity, get_format, sparse_tensor, stored_indices, stored_values, tensor_like
+from ._sparse import dense, get_sparsity, get_format, to_format, sparse_tensor, stored_indices, stored_values, tensor_like
 
 from .extrapolation import Extrapolation, as_extrapolation
 
