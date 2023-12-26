@@ -347,7 +347,7 @@ class NumPyBackend(Backend):
         return np.all(boolean_tensor, axis=axis, keepdims=keepdims)
 
     def scatter(self, base_grid, indices, values, mode: str):
-        assert mode in ('add', 'update')
+        assert mode in ('add', 'update', 'max', 'min')
         assert isinstance(base_grid, np.ndarray)
         assert isinstance(indices, (np.ndarray, tuple))
         assert isinstance(values, np.ndarray)
@@ -364,15 +364,15 @@ class NumPyBackend(Backend):
         if mode == 'add':
             for b in range(batch_size):
                 np.add.at(result, (b, *[i[min(b, i.shape[0]-1)] for i in indices]), values[min(b, values.shape[0]-1)])
-        else:  # update
+        elif mode == 'update':
             for b in range(batch_size):
                 result[(b, *[i[min(b, i.shape[0]-1)] for i in indices])] = values[min(b, values.shape[0]-1)]
-        # elif duplicates_handling == 'mean':
-        #     count = np.zeros(shape, np.int32)
-        #     np.add.at(array, tuple(indices), values)
-        #     np.add.at(count, tuple(indices), 1)
-        #     count = np.maximum(1, count)
-        #     return array / count
+        elif mode == 'max':
+            for b in range(batch_size):
+                np.maximum.at(result, (b, *[i[min(b, i.shape[0]-1)] for i in indices]), values[min(b, values.shape[0]-1)])
+        elif mode == 'min':
+            for b in range(batch_size):
+                np.minimum.at(result, (b, *[i[min(b, i.shape[0]-1)] for i in indices]), values[min(b, values.shape[0]-1)])
         return result
 
     def histogram1d(self, values, weights, bin_edges):

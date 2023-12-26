@@ -947,13 +947,13 @@ class Backend:
 
     def scatter(self, base_grid, indices, values, mode: str):
         """
-        Depending on `mode`, performs scatter_update or scatter_add.
+        Batched n-dimensional scatter.
 
         Args:
             base_grid: Tensor into which scatter values are inserted at indices. Tensor of shape (batch_size, spatial..., channels)
             indices: Tensor of shape (batch_size or 1, update_count, index_vector)
             values: Values to scatter at indices. Tensor of shape (batch_size or 1, update_count or 1, channels or 1)
-            mode: One of ('update', 'add')
+            mode: One of ('update', 'add', 'max', 'min')
 
         Returns:
             Copy of base_grid with values at `indices` updated by `values`.

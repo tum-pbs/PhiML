@@ -539,6 +539,16 @@ class TestOps(TestCase):
         updated = math.scatter(base, indices, values, outside_handling='discard')
         assert_close(updated, math.tensor([[0, 1, 0], [0, 0, 0]], spatial('y,x')))
 
+    def test_scatter_min_max_1d(self):
+        for backend in BACKENDS:
+            with backend:
+                indices = math.tensor(vec(x=[1, 2, 1]))
+                values = wrap([1, 2, 3], instance(indices))
+                result = math.scatter(spatial(x=3), indices, values, mode='max')
+                math.assert_close([float('-inf'), 3, 2], result)
+                result = math.scatter(spatial(x=3), indices, values, mode='min')
+                math.assert_close([float('inf'), 1, 2], result)
+
     def test_histogram_1d(self):
         for backend in BACKENDS:
             with backend:
