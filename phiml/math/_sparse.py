@@ -1244,6 +1244,12 @@ def sum_equal_entries(matrix: Tensor, flatten_entries=True):
 
 
 def sparse_gather(matrix: Tensor, indices: Tensor):
+    if isinstance(matrix, CompressedSparseMatrix):
+        indexed = channel(indices).item_names[0]
+        if matrix._uncompressed_dims.only(indexed):
+            matrix = matrix.decompress()
+        else:  # gathering variable-length slices of the values tensor
+            matrix = matrix.decompress()  # maybe there is a more efficient way of doing this, but we'd have to rebuild the pointers anyway
     if isinstance(matrix, SparseCoordinateTensor):
         b = matrix._indices.default_backend
         matrix = sum_equal_entries(matrix, flatten_entries=True)
@@ -1266,11 +1272,14 @@ def sparse_gather(matrix: Tensor, indices: Tensor):
         lookup = expand(wrap(lookup, instance('sp_entries')), channel(sparse_idx=instance(col_indices).name))
         # --- Perform resulting gather on tensors ---
         gathered_cols = col_indices[lookup]
-        row_count_out = row_counts[lin_indices]  # row count for each i in indices
-        rows = b.repeat(b.range(len(lin_indices)), row_count_out, 0)
-        rows = b.unravel_index(rows, non_channel(indices).non_batch.sizes)
-        rows = wrap(rows, instance('sp_entries'), channel(sparse_idx=non_channel(indices).names))
-        gathered_indices = concat([rows, gathered_cols], 'sparse_idx')
+        if non_channel(indices).non_batch:
+            row_count_out = row_counts[lin_indices]  # row count for each i in indices
+            rows = b.repeat(b.range(len(lin_indices)), row_count_out, 0)
+            rows = b.unravel_index(rows, non_channel(indices).non_batch.sizes)
+            rows = wrap(rows, instance('sp_entries'), channel(sparse_idx=non_channel(indices).names))
+            gathered_indices = concat([rows, gathered_cols], 'sparse_idx')
+        else:
+            gathered_indices = gathered_cols
         gathered_values = matrix._values[lookup]
         dense_shape = matrix._dense_shape.without(channel(indices).item_names[0]) & non_channel(indices)
         return SparseCoordinateTensor(gathered_indices, gathered_values, dense_shape, can_contain_double_entries=False, indices_sorted=False, default=matrix._default)
