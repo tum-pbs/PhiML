@@ -1223,7 +1223,8 @@ def nonzero(value: Tensor, list_dim: Union[Shape, str] = instance('nonzero'), in
         if isinstance(value, SparseCoordinateTensor):
             nonzero_values = nonzero(value._values)
             nonzero_indices = value._indices[nonzero_values]
-            return nonzero_indices
+            index_dim_ = index_dim.with_size(channel(value._indices).item_names[0])
+            return rename_dims(rename_dims(nonzero_indices, instance, list_dim), channel, index_dim_)
         else:
             dims = value.shape.non_channel
             native = reshaped_native(value, [*dims])
