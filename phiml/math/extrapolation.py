@@ -616,17 +616,19 @@ class _ZeroGradient(_CopyExtrapolation):
             return mask
 
     def sparse_pad_values(self, value: Tensor, connectivity: Tensor, dim: str, **kwargs) -> Tensor:
-        from ._sparse import stored_indices
-        from ._ops import arange
+        from ._sparse import stored_indices, is_sparse
+        from ._ops import arange, nonzero, scatter
         dual_dim = dual(value).name
         # --- Gather the edge values ---
-        indices = stored_indices(connectivity, invalid='discard')
-        primal_dim = [n for n in indices.index.item_names if not n.startswith('~')][0]
+        if is_sparse(connectivity):
+            indices = stored_indices(connectivity, invalid='discard')
+        else:
+            indices = nonzero(connectivity)
+        primal_dim = [n for n in channel(indices).item_names[0] if not n.startswith('~')][0]
         assert primal_dim not in value.shape, f"sparse_pad_values only implemented for vectors, not matrices"
         gathered = value[{dual_dim: indices[primal_dim]}]
         # --- Scatter, but knowing there is only one entry per row & col, we can simply permute ---
-        inv_perm = arange(dual(connectivity))[{dual_dim: indices[dual_dim]}]
-        inv_perm = rename_dims(inv_perm, instance, dual(connectivity))
+        inv_perm = scatter(dual(connectivity), indices[[dual_dim]], arange(instance(indices)), default=0)
         return gathered[{instance(gathered).name: inv_perm}]
 
 
