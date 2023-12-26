@@ -1264,7 +1264,7 @@ class Backend:
 
     def coo_to_dense(self, indices, values, shape, contains_duplicates: bool):
         batch_size, nnz, channel_count = self.staticshape(values)
-        base = self.zeros((batch_size, *shape, channel_count))
+        base = self.zeros((batch_size, *shape, channel_count), dtype=self.dtype(values))
         result = self.scatter(base, indices, values, mode='add' if contains_duplicates else 'update')
         return result
 
