@@ -2437,7 +2437,8 @@ def scatter(base_grid: Union[Tensor, Shape],
             values: Union[Tensor, float],
             mode: str = 'update',
             outside_handling: str = 'discard',
-            indices_gradient=False):
+            indices_gradient=False,
+            default=None):
     """
     Scatters `values` into `base_grid` at `indices`.
     instance dimensions of `indices` and/or `values` are reduced during scattering.
@@ -2471,6 +2472,9 @@ def scatter(base_grid: Union[Tensor, Shape],
             * `'clamp'`: outside indices are projected onto the closest point inside the grid.
             * `'undefined'`: All points are expected to lie inside the grid. Otherwise an error may be thrown or an undefined tensor may be returned.
         indices_gradient: Whether to allow the gradient of this operation to be backpropagated through `indices`.
+        default: Default value to use for bins into which no value is scattered.
+            By default, `NaN` is used for the modes `update` and `mean`, `0` for `sum`, `inf` for min and `-inf` for max.
+            This will upgrade the data type to `float` if necessary.
 
     Returns:
         Copy of `base_grid` with updated values at `indices`.
@@ -2515,7 +2519,9 @@ def scatter(base_grid: Union[Tensor, Shape],
     if isinstance(base_grid, Shape):
         with choose_backend_t(indices, values):
             base_grid = zeros(base_grid & batches & values.shape.channel, dtype=values.dtype)
-        if mode in ['update', 'mean']:
+        if default is not None:
+            base_grid += default
+        elif mode in ['update', 'mean']:
             base_grid += float('nan')
         elif mode == 'max':
             base_grid -= float('inf')
