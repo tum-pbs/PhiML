@@ -536,7 +536,6 @@ class Tensor:
             from ._magic_ops import pack_dims
             value = cached(self)
             assert isinstance(value, TensorStack)
-            assert value._stack_dim.name in dims
             inner_packed = [pack_dims(t, dims, packed_dim) for t in value._tensors]
             return concat_tensor(inner_packed, packed_dim.name)
 
