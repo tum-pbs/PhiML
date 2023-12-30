@@ -47,6 +47,18 @@ class TestOptimize(TestCase):
                     assert trajectories[0].residual.trajectory.size == trajectories[0].x[0].trajectory.size
                     assert trajectories[0].residual.trajectory.size > 1
 
+    def test_minimize_non_uniform(self):
+        def loss(x):
+            return math.l2_loss(x - 1)
+
+        for backend in BACKENDS:
+            if backend.supports(Backend.jacobian):
+                with backend:
+                    x0 = math.stack([math.vec(x=0), math.vec(x=1, y=2)], math.instance('vectors'))
+                    x = math.minimize(loss, Solve('GD', x0=x0))
+                    math.assert_close(1, x)
+                    self.assertEqual(x.shape, x0.shape)
+
     def test_solve_linear_matrix(self):
         for backend in BACKENDS:
             with backend:
