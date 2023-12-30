@@ -84,8 +84,8 @@ class Solve(Generic[X, Y]):
         if not isinstance(other, Solve):
             return False
         if self.method != other.method \
-                or (self.abs_tol != other.abs_tol).any \
-                or (self.rel_tol != other.rel_tol).any \
+                or not math.equal(self.abs_tol, other.abs_tol) \
+                or not math.equal(self.rel_tol, other.rel_tol) \
                 or (self.max_iterations != other.max_iterations).any \
                 or self.preprocess_y is not other.preprocess_y \
                 or self.suppress != other.suppress:
