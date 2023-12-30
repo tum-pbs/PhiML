@@ -136,7 +136,7 @@ class Backend:
         return impl_fun is not backend_fun
 
     def prefers_channels_last(self) -> bool:
-        raise NotImplementedError()
+        raise NotImplementedError(self.__class__)
 
     def requires_fixed_shapes_when_tracing(self) -> bool:
         return False
@@ -255,7 +255,7 @@ class Backend:
 
     def get_device(self, tensor: TensorType) -> ComputeDevice:
         """ Returns the device `tensor` is located on. """
-        raise NotImplementedError()
+        raise NotImplementedError(self.__class__)
 
     def get_device_by_ref(self, ref):
         for device in self._devices:
@@ -271,10 +271,10 @@ class Backend:
             tensor: Existing tensor native to this backend.
             device: Target device, associated with this backend.
         """
-        raise NotImplementedError()
+        raise NotImplementedError(self.__class__)
 
     def seed(self, seed: int):
-        raise NotImplementedError()
+        raise NotImplementedError(self.__class__)
 
     def is_module(self, obj) -> bool:
         """
@@ -287,7 +287,7 @@ class Backend:
         Args:
             obj: Object to test.
         """
-        raise NotImplementedError()
+        raise NotImplementedError(self.__class__)
 
     def is_tensor(self, x, only_native=False):
         """
@@ -307,18 +307,18 @@ class Backend:
           bool: whether `x` is considered a tensor by this backend
 
         """
-        raise NotImplementedError()
+        raise NotImplementedError(self.__class__)
 
     def is_sparse(self, x) -> bool:
         """
         Args:
             x: Tensor native to this `Backend`.
         """
-        raise NotImplementedError(self)
+        raise NotImplementedError(self.__class__)
 
     def get_sparse_format(self, x) -> str:
         """Returns lower-case format string, such as 'coo', 'csr', 'csc' """
-        raise NotImplementedError(self)
+        raise NotImplementedError(self.__class__)
 
     def disassemble(self, x) -> Tuple[Callable, Sequence[TensorType]]:
         """
@@ -331,7 +331,7 @@ class Backend:
             assemble: Function `assemble(backend, *constituents)` that reassembles `x` from the constituents.
             constituents: Tensors contained in `x`.
         """
-        raise NotImplementedError(self)
+        raise NotImplementedError(self.__class__)
 
     def as_tensor(self, x, convert_external=True):
         """
@@ -349,7 +349,7 @@ class Backend:
           tensor representation of `x`
 
         """
-        raise NotImplementedError()
+        raise NotImplementedError(self.__class__)
 
     def is_available(self, tensor) -> bool:
         """
@@ -365,7 +365,7 @@ class Backend:
           bool
 
         """
-        raise NotImplementedError()
+        raise NotImplementedError(self.__class__)
 
     def numpy(self, tensor) -> numpy.ndarray:
         """
@@ -382,16 +382,16 @@ class Backend:
           NumPy representation of the values stored in the tensor
 
         """
-        raise NotImplementedError()
+        raise NotImplementedError(self.__class__)
 
     def to_dlpack(self, tensor):
-        raise NotImplementedError()
+        raise NotImplementedError(self.__class__)
 
     def from_dlpack(self, capsule):
-        raise NotImplementedError()
+        raise NotImplementedError(self.__class__)
 
     def copy(self, tensor, only_mutable=False):
-        raise NotImplementedError()
+        raise NotImplementedError(self.__class__)
 
     def copy_leaves(self, tree, only_mutable=False):
         if isinstance(tree, tuple):
@@ -514,14 +514,14 @@ class Backend:
         return NotImplemented
 
     def jit_compile_grad(self, f: Callable, wrt: Union[tuple, list], get_output: bool, is_f_scalar: bool):
-        raise NotImplementedError()
+        raise NotImplementedError(self.__class__)
 
     def jit_compile_hessian(self, f: Callable, wrt: Union[tuple, list], get_output: bool, get_gradient: bool):
-        raise NotImplementedError()
+        raise NotImplementedError(self.__class__)
 
     def transpose(self, tensor, axes):
         """ Transposes the dimensions of `tensor` given the new axes order. The tensor will be cast to the default precision in the process. """
-        raise NotImplementedError()
+        raise NotImplementedError(self.__class__)
 
     def random_uniform(self, shape, low, high, dtype: Union[DType, None]):
         """ Float tensor of selected precision containing random values in the range [0, 1) """

@@ -2746,20 +2746,52 @@ def close(*tensors, rel_tolerance=1e-5, abs_tolerance=0, equal_nan=False) -> boo
         `always_close()`.
 
     Args:
-        *tensors: At least two  `Tensor` or tensor-like objects.
+        *tensors: At least two  `Tensor` or tensor-like objects or `None`.
             The shapes of all tensors must be compatible but not all tensors must have all dimensions.
+            If any argument is `None`, returns `True` only if all are `None`.
         rel_tolerance: Relative tolerance
         abs_tolerance: Absolute tolerance
         equal_nan: If `True`, tensors are considered close if they are NaN in the same places.
 
     Returns:
-        Whether all given tensors are equal to the first tensor within the specified tolerance.
+        `bool`, whether all given tensors are equal to the first tensor within the specified tolerance.
     """
+    if tensors[0] is None:
+        return all(o is None for o in tensors)
+    if any(o is None for o in tensors):
+        return False
     tensors = [wrap(t) for t in tensors]
     for other in tensors[1:]:
         if not _close(tensors[0], other, rel_tolerance=rel_tolerance, abs_tolerance=abs_tolerance, equal_nan=equal_nan):
             return False
     return True
+
+
+def equal(*objects, equal_nan=False) -> bool:
+    """
+    Checks whether all objects are equal.
+
+    See Also:
+        `close()`, `always_close()`.
+
+    Args:
+        *objects: Objects to compare. Can be tensors or other objects or `None`
+        equal_nan: If all objects are tensor-like, whether to count `NaN` values as equal.
+
+    Returns:
+        `bool`, whether all given objects are equal to the first one.
+    """
+    if objects[0] is None:
+        return all(o is None for o in objects)
+    if any(o is None for o in objects):
+        return False
+    try:
+        tensors = [wrap(o) for o in objects]
+        if any(t.dtype.kind == object for t in tensors):
+            raise ValueError
+    except ValueError:  # not all are tensor-like
+        return all(o == objects[0] for o in objects)
+    return close(*tensors, rel_tolerance=0, abs_tolerance=0, equal_nan=equal_nan)
 
 
 def _close(tensor1: Tensor, tensor2: Tensor, rel_tolerance=1e-5, abs_tolerance=0, equal_nan=False):

@@ -33,6 +33,15 @@ class TestOps(TestCase):
             assert_not_close(math.zeros(a), math.ones(a) * 1e-100, rel_tolerance=0, abs_tolerance=0)
             assert_close(math.zeros(a), math.ones(a) * 1e-100, rel_tolerance=0, abs_tolerance=1e-15)
 
+    def test_equal(self):
+        self.assertTrue(math.equal(1, 1))
+        self.assertTrue(math.equal(1., wrap(1)))
+        self.assertTrue(math.equal(None, None))
+        self.assertTrue(math.equal('a', 'a'))
+        self.assertFalse(math.equal('a', 'b'))
+        with math.precision(64):
+            self.assertFalse(math.equal(1., 1.000000001))
+
     def test_always_close(self):
         @math.jit_compile
         def jit(x, y):

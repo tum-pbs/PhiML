@@ -65,7 +65,7 @@ from ._ops import (
     histogram,
     fft, ifft, convolve, cumulative_sum,
     dtype, cast,
-    close, always_close, assert_close,
+    close, always_close, assert_close, equal,
     stop_gradient,
     pairwise_distances, map_pairs,
 )
