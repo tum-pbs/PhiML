@@ -10,7 +10,7 @@ from ..backend import get_precision, NUMPY, Backend
 from ..backend._backend import SolveResult, ML_LOGGER, default_backend, convert, Preconditioner, choose_backend
 from ..backend._linalg import IncompleteLU, incomplete_lu_dense, incomplete_lu_coo, coarse_explicit_preconditioner_coo
 from ._shape import EMPTY_SHAPE, Shape, merge_shapes, batch, non_batch, shape, dual, channel, non_dual, instance, spatial
-from ._magic_ops import stack, copy_with, rename_dims, unpack_dim
+from ._magic_ops import stack, copy_with, rename_dims, unpack_dim, unstack, expand
 from ._sparse import native_matrix, SparseCoordinateTensor, CompressedSparseMatrix, stored_values, is_sparse
 from ._tensors import Tensor, disassemble_tree, assemble_tree, wrap, cached, NativeTensor, layout
 from . import _ops as math
@@ -369,20 +369,36 @@ def minimize(f: Callable[[X], Y], solve: Solve[X, Y]) -> X:
     backend = choose_backend_t(*x0_tensors, prefer_default=True)
     batch_dims = merge_shapes(*[t.shape for t in x0_tensors]).batch
     x0_natives = []
+    x0_native_shapes = []
     for t in x0_tensors:
-        t._expand()
-        assert t.shape.is_uniform
-        x0_natives.append(reshaped_native(t, [batch_dims, t.shape.non_batch]))
+        t = cached(t)
+        if t.shape.is_uniform:
+            x0_natives.append(reshaped_native(t, [batch_dims, t.shape.non_batch]))
+            x0_native_shapes.append(t.shape.non_batch)
+        else:
+            for ut in unstack(t, t.shape.shape.without('dims')):
+                x0_natives.append(reshaped_native(ut, [batch_dims, ut.shape.non_batch]))
+                x0_native_shapes.append(ut.shape.non_batch)
     x0_flat = backend.concat(x0_natives, -1)
 
     def unflatten_assemble(x_flat, additional_dims: Shape = EMPTY_SHAPE, convert=True):
+        partial_tensors = []
         i = 0
-        x_tensors = []
-        for x0_native, x0_tensor in zip(x0_natives, x0_tensors):
-            vol = backend.shape(x0_native)[-1]
+        for x0_native, t_shape in zip(x0_natives, x0_native_shapes):
+            vol = backend.staticshape(x0_native)[-1]
             flat_native = x_flat[..., i:i + vol]
-            x_tensors.append(reshaped_tensor(flat_native, [*additional_dims, batch_dims, x0_tensor.shape.non_batch], convert=convert))
+            partial_tensor = reshaped_tensor(flat_native, [*additional_dims, batch_dims, t_shape], convert=convert)
+            partial_tensors.append(partial_tensor)
             i += vol
+        # --- assemble non-uniform tensors ---
+        x_tensors = []
+        for t in x0_tensors:
+            if t.shape.is_uniform:
+                x_tensors.append(partial_tensors.pop(0))
+            else:
+                stack_dims = t.shape.shape.without('dims')
+                x_tensors.append(stack(partial_tensors[:stack_dims.volume], stack_dims))
+                partial_tensors = partial_tensors[stack_dims.volume:]
         x = assemble_tree(x0_nest, x_tensors)
         return x
 
@@ -394,17 +410,22 @@ def minimize(f: Callable[[X], Y], solve: Solve[X, Y]) -> X:
             y = f(x)
         _, y_tensors = disassemble_tree(y)
         assert not non_batch(y_tensors[0]), f"Failed to minimize '{f.__name__}' because it returned a non-scalar output {shape(y_tensors[0])}. Reduce all non-batch dimensions, e.g. using math.l2_loss()"
-        try:
-            loss_native = reshaped_native(y_tensors[0], [batch_dims], force_expand=False)
-        except AssertionError:
-            raise AssertionError(f"Failed to minimize '{f.__name__}' because its output loss {shape(y_tensors[0])} has more batch dimensions than the initial guess {batch_dims}.")
+        if y_tensors[0].shape.without(batch_dims):  # output added more batch dims. We should expand the initial guess
+            raise NewBatchDims(y_tensors[0].shape, y_tensors[0].shape.without(batch_dims))
+        loss_native = reshaped_native(y_tensors[0], [batch_dims], force_expand=False)
         return y_tensors[0].sum, (loss_native,)
 
     atol = backend.to_float(reshaped_native(solve.abs_tol, [batch_dims]))
     maxi = reshaped_numpy(solve.max_iterations, [batch_dims])
     trj = _SOLVE_TAPES and any(t.should_record_trajectory_for(solve) for t in _SOLVE_TAPES)
     t = time.perf_counter()
-    ret = backend.minimize(solve.method, native_function, x0_flat, atol, maxi, trj)
+    try:
+        ret = backend.minimize(solve.method, native_function, x0_flat, atol, maxi, trj)
+    except NewBatchDims as new_dims:  # try again with expanded initial guess
+        warnings.warn(f"Function returned objective value with dims {new_dims.output_shape} but initial guess was missing {new_dims.missing}. Trying again with expanded initial guess.", RuntimeWarning, stacklevel=2)
+        x0 = expand(solve.x0, new_dims.missing)
+        solve = copy_with(solve, x0=x0)
+        return minimize(f, solve)
     t = time.perf_counter() - t
     if not trj:
         assert isinstance(ret, SolveResult)
@@ -429,6 +450,13 @@ def minimize(f: Callable[[X], Y], solve: Solve[X, Y]) -> X:
         tape._add(solve, trj, result)
     result.convergence_check(False)  # raises ConvergenceException
     return x
+
+
+class NewBatchDims(Exception):
+    def __init__(self, output_shape: Shape, missing: Shape):
+        super().__init__(output_shape, missing)
+        self.output_shape = output_shape
+        self.missing = missing
 
 
 def solve_nonlinear(f: Callable, y, solve: Solve) -> Tensor:
