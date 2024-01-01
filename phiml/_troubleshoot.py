@@ -1,3 +1,4 @@
+import gc
 from contextlib import contextmanager
 from os.path import dirname
 
@@ -185,3 +186,69 @@ def count_tensors_in_memory(min_print_size: int = None):
         except Exception:
             pass
     print(f"There are {total} Φ-ML Tensors with a total size of {bytes / 1024 / 1024:.1f} MB")
+
+
+def cache_all_tensors(print=print):
+    import gc
+    gc.collect()
+    from .math._tensors import NativeTensor, TensorStack
+    for obj in gc.get_objects():
+        if isinstance(obj, NativeTensor):
+            if obj._shape != obj._native_shape:
+                if print is not None:
+                    print(f"Expanding tensor with shape {obj._shape} from {obj._native_shape} {type(obj._native).__name__} {obj._native}")
+                try:
+                    obj._cache()
+                except BaseException as exc:
+                    print(f"ERROR    Expansion failed. {exc}")
+                    path = find_variable_reference(obj)
+                    print(f"Reference path to tensor: {path}")
+                    if hasattr(obj, '_init_stack'):
+                        print("Tensor creation stack trace:")
+                        for frame in obj._init_stack:
+                            filename, line_number, function_name, line = frame
+                            print(f"{filename}:{line_number} ({function_name})    {line}")
+                    else:
+                        print("Enable debug checks to obtain the stack trace for the Tensor's creation.")
+        elif isinstance(obj, TensorStack):
+            if obj._cached is None and not obj.requires_broadcast:
+                if print is not None:
+                    print(f"Caching tensor stack with shape {obj._shape} from along {obj._stack_dim}")
+                obj._cache()
+
+
+def find_variable_reference(obj):
+    gc.collect()
+    existing_ids = set(id(o) for o in gc.get_objects())
+    indexed = set()
+    return _find_variable_reference(obj, existing_ids, indexed)[0]
+
+
+def _find_variable_reference(obj, existing_ids: set, indexed: set):
+    referrers = gc.get_referrers(obj)
+    for ref in reversed(referrers):
+        if id(ref) in existing_ids and id(ref) not in indexed:
+            indexed.add(id(ref))
+            if isinstance(ref, dict) and '__package__' in ref and '__name__' in ref:
+                return f"{ref['__name__']}", ref
+            else:
+                path, parent = _find_variable_reference(ref, existing_ids, indexed)
+                if parent is not None:
+                    if isinstance(parent, dict):
+                        keys = [k for k, v in parent.items() if v is ref]
+                        name = keys[0] if keys else f"<unknown>"
+                        name = f".{name}" if '__name__' in parent and '__doc__' in parent else f"[{name}]"
+                    elif isinstance(parent, (tuple, list)):
+                        name = f"[{[i for i, v in enumerate(parent) if v is ref][0]}]"
+                    else:
+                        for a in dir(parent):
+                            try:
+                                if getattr(parent, a) is ref:
+                                    name = f".{a}"
+                                    break
+                            except Exception:
+                                pass  # failed to get value of property
+                        else:
+                            name = ".<unknown>"
+                    return path + name, ref
+    return None, None
