@@ -37,6 +37,7 @@ class ShiftLinTracer(Tensor):
                 When non-zero, this tracer technically represents an affine function, not a linear one.
                 However, the bias can be subtracted from the solution vector when solving a linear system, allowing this function to be solved with regular linear system solvers.
         """
+        super().__init__()
         assert isinstance(source, TracerSource)
         assert isinstance(renamed, dict)
         self._source = source
@@ -213,6 +214,7 @@ class GatherLinTracer(Tensor):
     """
 
     def __init__(self, source: TracerSource, diag, bias: Tensor, shape: Shape, selection: Optional[Tensor], renamed: Dict[str, str]):
+        super().__init__()
         assert isinstance(diag, Tensor)
         assert bias.shape in shape
         assert selection is None or selection.dtype.kind == int
@@ -342,6 +344,7 @@ class GatherLinTracer(Tensor):
 class SparseLinTracer(Tensor):
 
     def __init__(self, source: TracerSource, matrix: SparseCoordinateTensor, bias: Tensor, shape: Shape):
+        super().__init__()
         assert isinstance(matrix, Tensor)
         assert bias.shape in shape
         assert matrix.shape.only(shape) == shape.only(matrix.shape, reorder=True)

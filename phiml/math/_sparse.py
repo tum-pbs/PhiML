@@ -105,6 +105,7 @@ class SparseCoordinateTensor(Tensor):
         """
         Construct a sparse tensor with any number of sparse, dense and batch dimensions.
         """
+        super().__init__()
         assert isinstance(indices, Tensor), f"indices must be a Tensor but got {type(indices)}"
         assert isinstance(values, Tensor), f"values must be a Tensor but got {type(values)}"
         assert instance(indices), f"indices must have an instance dimension but got {indices.shape}"
@@ -434,6 +435,7 @@ class CompressedSparseMatrix(Tensor):
                 The `values` corresponding to phantom entries must all be 0.
                 The size of the slice is given by `compressed_dims.volume`.
         """
+        super().__init__()
         assert instance(indices), "indices must have an instance dimension"
         assert instance(pointers), "pointers must have an instance dimension"
         assert instance(values) == instance(indices), "Instance dimensions of values and indices must match exactly"
