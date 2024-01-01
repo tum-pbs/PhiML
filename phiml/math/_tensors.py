@@ -1,4 +1,5 @@
 import numbers
+import traceback
 import warnings
 from contextlib import contextmanager
 from typing import Union, TypeVar
@@ -39,6 +40,10 @@ class Tensor:
     Tensors are not editable.
     When backed by an editable native tensor, e.g. a `numpy.ndarray`, do not edit the underlying data structure.
     """
+
+    def __init__(self):
+        if DEBUG_CHECKS:
+            self._init_stack = traceback.extract_stack()
 
     def native(self, order: Union[str, tuple, list, Shape] = None, singleton_for_const=False):
         """
@@ -935,6 +940,7 @@ class Layout(Tensor):
     """
 
     def __init__(self, obj, shape: Shape):
+        super().__init__()
         self._obj = obj
         self._shape = shape
 
@@ -1162,6 +1168,7 @@ class NativeTensor(Tensor):
     """
 
     def __init__(self, native_tensor, native_shape: Shape, expanded_shape: Shape = None):
+        super().__init__()
         expanded_shape = native_shape if expanded_shape is None else expanded_shape
         if DEBUG_CHECKS:
             expanded_shape._check_is_valid_tensor_shape()
