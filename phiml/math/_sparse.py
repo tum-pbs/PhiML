@@ -1031,27 +1031,32 @@ def native_matrix(value: Tensor, target_backend: Backend):
     if not value.available and target_backend != value.default_backend:
         raise RuntimeError(f"Cannot compute native_matrix with target_backend={target_backend} because the {value.default_backend}-value is not available")
     b = target_backend
-    if isinstance(value, SparseCoordinateTensor):
-        ind_batch, channels, indices, values, shape = value._native_coo_components(dual, matrix=True)
-        if ind_batch.volume > 1 or channels.volume > 1:
-            return b.sparse_coo_tensor_batched(indices, values, shape)
-        else:
-            return b.sparse_coo_tensor(indices[0], values[0, :, 0], shape)
-    elif isinstance(value, CompressedSparseMatrix):
+    if isinstance(value, CompressedSparseMatrix):
         assert not non_instance(value._values), f"native_matrix does not support vector-valued matrices. Vector dims: {non_batch(value).without(sparse_dims(value))}"
         ind_batch, channels, indices, pointers, values, shape = value._native_csr_components()
         if dual(value._uncompressed_dims):  # CSR
             assert not dual(value._compressed_dims), "Dual dimensions on both compressed and uncompressed dimensions"
             if ind_batch.volume > 1 or channels.volume > 1:
-                return b.csr_matrix_batched(indices, pointers, values, shape)
+                if b.supports(Backend.csr_matrix_batched):
+                    return b.csr_matrix_batched(indices, pointers, values, shape)
             else:
-                return b.csr_matrix(indices[0], pointers[0], values[0, :, 0], shape)
+                if b.supports(Backend.csr_matrix):
+                    return b.csr_matrix(indices[0], pointers[0], values[0, :, 0], shape)
         else:  # CSC
             assert not dual(value._uncompressed_dims)
             if ind_batch.volume > 1 or channels.volume > 1:
-                return b.csc_matrix_batched(pointers, indices, values, shape)
+                if b.supports(Backend.csc_matrix_batched):
+                    return b.csc_matrix_batched(pointers, indices, values, shape)
             else:
-                return b.csc_matrix(pointers[0], indices[0], values[0, :, 0], shape)
+                if b.supports(Backend.csc_matrix):
+                    return b.csc_matrix(pointers[0], indices[0], values[0, :, 0], shape)
+        value = value.decompress()  # backend does not support CSR/CSC, use COO instead
+    if isinstance(value, SparseCoordinateTensor):  # COO
+        ind_batch, channels, indices, values, shape = value._native_coo_components(dual, matrix=True)
+        if ind_batch.volume > 1 or channels.volume > 1:
+            return b.sparse_coo_tensor_batched(indices, values, shape)
+        else:
+            return b.sparse_coo_tensor(indices[0], values[0, :, 0], shape)
     else:
         if batch(value):
             raise NotImplementedError
