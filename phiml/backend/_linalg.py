@@ -153,11 +153,11 @@ def bicg(b: Backend, lin, y, x0, rtol, atol, max_iter, pre: Optional[Preconditio
     u_hat = [b.zeros(x0.shape)] * (poly_order + 1)
 
     def loop_body(continue_, x, residual, iterations, function_evaluations, _converged, _diverged, rho_0, rho_1, omega, alpha, u, u_hat, r0_hat):
-        tau = [[b.zeros((batch_size,))] * (poly_order + 1)] * (poly_order + 1)
-        sigma = [b.zeros((batch_size,))] * (poly_order + 1)
-        gamma = [b.zeros((batch_size,))] * (poly_order + 1)
-        gamma_p = [b.zeros((batch_size,))] * (poly_order + 1)
-        gamma_pp = [b.zeros((batch_size,))] * (poly_order + 1)
+        tau = [[b.zeros((batch_size, 1))] * (poly_order + 1)] * (poly_order + 1)
+        sigma = [b.zeros((batch_size, 1))] * (poly_order + 1)
+        gamma = [b.zeros((batch_size, 1))] * (poly_order + 1)
+        gamma_p = [b.zeros((batch_size, 1))] * (poly_order + 1)
+        gamma_pp = [b.zeros((batch_size, 1))] * (poly_order + 1)
         continue_1 = b.to_int32(continue_)
         iterations += continue_1
         u_hat[0] = u
