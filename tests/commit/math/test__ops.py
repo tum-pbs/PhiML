@@ -810,6 +810,10 @@ class TestOps(TestCase):
                 self.assertEqual(a.dtype, DType(complex, 64), msg=backend.name)
                 assert_close(a.imag, 0, msg=backend.name)
 
+    def test_random_uniform_batched_limit(self):
+        t = math.random_uniform(instance(i=10), low=wrap([0, -1], batch(b=2)))
+        self.assertEqual(2, t.rank)
+
     def test_cast(self):
         for backend in BACKENDS:
             with backend:

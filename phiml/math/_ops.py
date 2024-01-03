@@ -10,7 +10,7 @@ from . import extrapolation as e_
 from ._magic_ops import expand, pack_dims, unpack_dim, cast, copy_with, value_attributes, bool_to_int, tree_map, concat, stack, unstack, rename_dims
 from ._shape import (Shape, EMPTY_SHAPE,
                      spatial, batch, channel, instance, merge_shapes, parse_dim_order, concat_shapes,
-                     IncompatibleShapes, DimFilter, non_batch, dual, non_channel, shape)
+                     IncompatibleShapes, DimFilter, non_batch, dual, non_channel, shape, shape as get_shape)
 from ._sparse import CompressedSparseMatrix, dense, SparseCoordinateTensor, get_format, to_format, stored_indices, tensor_like, sparse_dims, same_sparsity_pattern, is_sparse, sparse_dot, sparse_sum, sparse_gather, sparse_max, sparse_min
 from ._tensors import (Tensor, wrap, tensor, broadcastable_native_tensors, NativeTensor, TensorStack,
                        custom_op2, compatible_tensor, variable_attributes, disassemble_tree, assemble_tree,
@@ -621,11 +621,16 @@ def random_uniform(*shape: Shape,
     Returns:
         `Tensor`
     """
-    def uniform_random_uniform(shape):
-        native = choose_backend(low, high, *shape.sizes, prefer_default=True).random_uniform(shape.sizes, low, high, DType.as_dtype(dtype))
-        return NativeTensor(native, shape)
-
-    return _initialize(uniform_random_uniform, shape)
+    if get_shape(low).volume == 1 and get_shape(high).volume == 1:
+        def uniform_random_uniform(shape):
+            native = choose_backend(low, high, *shape.sizes, prefer_default=True).random_uniform(shape.sizes, low, high, DType.as_dtype(dtype))
+            return NativeTensor(native, shape)
+        return _initialize(uniform_random_uniform, shape)
+    else:
+        def uniform_random_uniform(shape):
+            native = choose_backend(*shape.sizes, prefer_default=True).random_uniform(shape.sizes, 0, 1, DType.as_dtype(dtype))
+            return NativeTensor(native, shape)
+        return _initialize(uniform_random_uniform, shape) * (high - low) + low
 
 
 def transpose(x: Tensor, axes):
@@ -1103,7 +1108,7 @@ def broadcast_op(operation: Callable,
     if iter_dims is None:
         iter_dims = set()
         for tensor in tensors:
-            iter_dims.update(tensor.shape.shape.without('dims').names)
+            iter_dims.update(shape(tensor).shape.without('dims').names)
             if isinstance(tensor, TensorStack) and tensor.requires_broadcast:
                 iter_dims.add(tensor._stack_dim.name)
             # --- remove iter_dims for which the sizes vary among tensors ---
