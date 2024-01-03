@@ -156,7 +156,7 @@ def cross_product(vec1: Tensor, vec2: Tensor) -> Tensor:
             return v1_x * v2_y - v1_y * v2_x
         else:
             v2_x, v2_y = vec2.vector
-            return vec1 * math.stack_tensors([-v2_y, v2_x], channel('vector'))
+            return vec1 * math.stack_tensors([-v2_y, v2_x], channel(vec2))
     elif spatial_rank == 3:  # Curl in 3D
         assert vec1.vector.exists and vec2.vector.exists, f"Both vectors must have a 'vector' dimension but got shapes {vec1.shape}, {vec2.shape}"
         v1_x, v1_y, v1_z = vec1.vector
