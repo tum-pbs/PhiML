@@ -1994,6 +1994,11 @@ def exp(x: TensorOrTree) -> TensorOrTree:
     return _backend_op1(x, Backend.exp)
 
 
+def erf(x: TensorOrTree) -> TensorOrTree:
+    """ Computes the error function *erf(x)* of the `Tensor` or `phiml.math.magic.PhiTreeNode` `x`. """
+    return _backend_op1(x, Backend.erf)
+
+
 def soft_plus(x: TensorOrTree) -> TensorOrTree:
     """ Computes *softplus(x)* of the `Tensor` or `phiml.math.magic.PhiTreeNode` `x`. """
     return _backend_op1(x, Backend.softplus)

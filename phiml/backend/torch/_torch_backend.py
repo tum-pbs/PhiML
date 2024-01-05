@@ -162,6 +162,7 @@ class TorchBackend(Backend):
 
     sqrt = torch.sqrt
     exp = torch.exp
+    erf = torch.erf
     sin = torch.sin
     arcsin = torch.arcsin
     cos = torch.cos

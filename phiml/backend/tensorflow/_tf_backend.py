@@ -442,6 +442,10 @@ class TFBackend(Backend):
         with self.device_of(x):
             return tf.exp(x)
 
+    def erf(self, x):
+        with self.device_of(x):
+            return tf.math.erf(x)
+
     def softplus(self, x):
         with self.device_of(x):
             return tf.math.softplus(x)

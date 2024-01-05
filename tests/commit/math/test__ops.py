@@ -581,6 +581,13 @@ class TestOps(TestCase):
                 assert_close(math.cos(math.tensor(math.PI)), -1, abs_tolerance=1e-6, msg=backend.name)
                 assert_close(math.cos(math.tensor(math.PI * 3 / 2)), 0, abs_tolerance=1e-6, msg=backend.name)
 
+    def test_erf(self):
+        for backend in BACKENDS:
+            with backend:
+                assert_close(0, math.erf(math.zeros(spatial(x=4))), abs_tolerance=1e-6, msg=backend.name)
+                assert_close(1, math.erf(math.zeros(spatial(x=4)) + 1e5), abs_tolerance=1e-6, msg=backend.name)
+                assert_close(-1, math.erf(math.zeros(spatial(x=4)) - 1e5), abs_tolerance=1e-6, msg=backend.name)
+
     def test_trigonometric_hyperbolic(self):
         for f in [math.sin, math.cos, math.tan, math.sinh, math.cosh, math.tanh,
                   math.arcsin, math.arccos, math.arctan, math.arcsinh, math.arccosh, math.arctanh]:
