@@ -731,6 +731,9 @@ class Backend:
     def exp(self, x):
         raise NotImplementedError(self)
 
+    def erf(self, x):
+        raise NotImplementedError(self)
+
     def softplus(self, x):
         raise NotImplementedError(self)
 

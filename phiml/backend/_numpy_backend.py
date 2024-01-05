@@ -45,6 +45,7 @@ class NumPyBackend(Backend):
     transpose = staticmethod(np.transpose)
     sqrt = np.sqrt
     exp = np.exp
+    erf = scipy.special.erf
     sin = np.sin
     arcsin = np.arcsin
     cos = np.cos

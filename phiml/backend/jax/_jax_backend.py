@@ -155,6 +155,7 @@ class JaxBackend(Backend):
 
     sqrt = staticmethod(jnp.sqrt)
     exp = staticmethod(jnp.exp)
+    erf = staticmethod(scipy.special.erf)
     softplus = staticmethod(jax.nn.softplus)
     sin = staticmethod(jnp.sin)
     arcsin = staticmethod(jnp.arcsin)
