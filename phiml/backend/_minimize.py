@@ -166,10 +166,10 @@ def gradient_descent(self: Backend, f, x0, atol, max_iter, trj: bool, step_size=
                 # --- use next guess if better ---
                 is_worse = next_loss >= best_loss
                 best_step_size = self.where(is_worse, best_step_size, next_step_size)
-                best_dx = self.where(is_worse, best_dx, next_dx)
-                best_x = self.where(is_worse, best_x, next_x)
+                best_dx = self.where(is_worse[:, None], best_dx, next_dx)
+                best_x = self.where(is_worse[:, None], best_x, next_x)
                 best_loss = self.where(is_worse, best_loss, next_loss)
-                best_grad = self.where(is_worse, best_grad, next_grad)
+                best_grad = self.where(is_worse[:, None], best_grad, next_grad)
                 converged = converged | ((self.sum(next_dx ** 2, axis=-1) < atol ** 2) & is_worse)
                 diverged |= self.any(~self.isfinite(best_grad), axis=(1,))
                 tested_step_size = next_step_size
