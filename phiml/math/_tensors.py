@@ -493,6 +493,9 @@ class Tensor:
 
     @staticmethod
     def __stack__(values: tuple, dim: Shape, **_kwargs) -> 'Tensor':
+        if any(isinstance(v, Layout) for v in values):
+            layout_ = [v for v in values if isinstance(v, Layout)][0]
+            return layout_.__stack__(values, dim, **_kwargs)
         from ._ops import stack_tensors
         return stack_tensors(values, dim)
 
