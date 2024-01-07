@@ -22,6 +22,7 @@ class TestNothing(TestCase):
         self.assertFalse(TENSORFLOW.is_tensor(np.zeros(4), only_native=True))
         # Others
         self.assertFalse(TENSORFLOW.is_tensor('string'))
+        self.assertTrue(TENSORFLOW.is_tensor(np.bool_(True)))
 
     def test_late_register(self):
         self.assertEqual(TENSORFLOW.as_registered, TENSORFLOW)

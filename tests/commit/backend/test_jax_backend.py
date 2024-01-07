@@ -22,3 +22,4 @@ class TestNothing(TestCase):
         self.assertFalse(JAX.is_tensor(np.zeros(4), only_native=True))
         # Others
         self.assertFalse(JAX.is_tensor('string'))
+        self.assertTrue(JAX.is_tensor(np.bool_(True)))
