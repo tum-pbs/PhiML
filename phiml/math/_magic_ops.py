@@ -23,7 +23,7 @@ def slice_(value, slices: Dict[str, Union[int, slice, str, tuple, list]]):
         `unstack`.
 
     Args:
-        value: `Tensor` or `phiml.math.magic.PhiTreeNode`
+        value: `Tensor` or `phiml.math.magic.PhiTreeNode` or `Number` or `None`.
         slices: `dict` mapping dimension names to slices. A slice can be one of the following:
 
             * An index (`int`)
@@ -39,7 +39,7 @@ def slice_(value, slices: Dict[str, Union[int, slice, str, tuple, list]]):
         >>> math.slice([vec(x=0, y=1), vec(x=2, y=3)], {'vector': 'y'})
         [1, 3]
     """
-    if isinstance(value, (bool, Number)):
+    if isinstance(value, (bool, Number, str)) or value is None:
         return value
     if isinstance(value, tuple):
         return tuple([slice_(v, slices) for v in value])
