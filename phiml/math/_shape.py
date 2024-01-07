@@ -73,6 +73,10 @@ class Shape:
                     assert size.rank > 0
             for name, size, item_names in zip(self.names, self.sizes, self.item_names):
                 if item_names is not None:
+                    try:
+                        int(size)
+                    except Exception:
+                        raise AssertionError(f"When item names are present, the size must be an integer type")
                     assert len(item_names) == size, f"Number of item names ({len(item_names)}) does not match size {size}"
                     for item_name in item_names:
                         assert item_name, f"Empty item name"
@@ -2002,14 +2006,14 @@ def shape_stack(stack_dim: Shape, *shapes: Shape, stack_dim_first=False):
             else:
                 size = stack_dim.get_size(name)
         else:
-            dim_sizes = [(shape.get_size(name) if name in shape else 1) for shape in shapes]
-            if all([math.close(s, dim_sizes[0]) for s in dim_sizes[1:]]):
-                size = dim_sizes[0]
+            dim_sizes = [(s.get_size(name) if name in s else None) for s in shapes]
+            valid_dim_sizes = [s.get_size(name) for s in shapes if name in s]
+            if all([math.close(s, valid_dim_sizes[0]) for s in valid_dim_sizes[1:]]):
+                size = valid_dim_sizes[0]
             else:
                 from ._magic_ops import stack
-                from ._tensors import wrap
-                dim_sizes = [wrap(d) for d in dim_sizes]
-                size = stack(dim_sizes, stack_dim)
+                dim_sizes_or_1 = [1 if s is None else s for s in dim_sizes]
+                size = stack(dim_sizes_or_1, stack_dim)
         sizes.append(size)
     return Shape(tuple(sizes), tuple(names), tuple(types), tuple(item_names))
 
