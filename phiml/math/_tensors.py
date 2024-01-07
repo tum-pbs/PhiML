@@ -2593,6 +2593,12 @@ def may_vary_along(value: Tensor, dims: DimFilter):
     return variable_shape(value).only(dims).volume > 1
 
 
+def object_dims(value):
+    if isinstance(value, Layout):
+        return value._stack_dim
+    return EMPTY_SHAPE
+
+
 def discard_constant_dims(value: Tensor):
     non_variable = value.shape.without(variable_shape(value))
     return value[{dim: 0 for dim in non_variable.names}]

@@ -11,7 +11,7 @@ from . import _ops as math, all_available
 from ._magic_ops import stack, slice_
 from ._shape import EMPTY_SHAPE, Shape, spatial, instance, batch, channel, merge_shapes, DimFilter, shape
 from ._sparse import SparseCoordinateTensor
-from ._tensors import Tensor, disassemble_tree, assemble_tree, disassemble_tensors, assemble_tensors, variable_attributes, wrap, specs_equal, equality_by_shape_and_value
+from ._tensors import Tensor, disassemble_tree, assemble_tree, disassemble_tensors, assemble_tensors, variable_attributes, wrap, specs_equal, equality_by_shape_and_value, object_dims
 from ._trace import ShiftLinTracer, matrix_from_function, LinearTraceInProgress
 from .magic import PhiTreeNode, Shapable
 from ..backend import Backend
@@ -1177,6 +1177,7 @@ def map_(function, *args, dims: DimFilter = shape, range=range, unwrap_scalars=T
         dims: Dimensions which should be sliced.
             `function` is called once for each element in `dims`, i.e. `dims.volume` times.
             If `dims` is not specified, all dimensions from the `phiml.math.magic.Sliceable` values in `args` and `kwargs` will be mapped.
+            Pass `object` to map only objects, not tensors of primitives (`dtype.kind == object`). This will select only `layout`-type dimensions.
         range: Optional range function. Can be used to generate `tqdm` output by passing `trange`.
         unwrap_scalars: If `True`, passes the contents of scalar `Tensor`s instead of the tensor objects.
 
@@ -1187,11 +1188,14 @@ def map_(function, *args, dims: DimFilter = shape, range=range, unwrap_scalars=T
     sliceable_kwargs = {k: v for k, v in kwargs.items() if isinstance(v, Shapable)}
     extra_args = [v for v in args if not isinstance(v, Shapable)]
     extra_kwargs = {k: v for k, v in kwargs.items() if not isinstance(v, Shapable)}
-    dims = merge_shapes(*sliceable_args, *sliceable_kwargs.values(), allow_varying_sizes=True).only(dims)
-    assert dims.well_defined, f"All arguments must have consistent sizes for all mapped dimensions. Trying to map along {dims} but some have varying sizes (marked as None)."
-    assert dims.volume > 0, f"map dims must have volume > 0 but got {dims}"
+    if dims is object:
+        dims_ = merge_shapes(*[object_dims(a) for a in sliceable_args], *sliceable_kwargs.values(), allow_varying_sizes=True)
+    else:
+        dims_ = merge_shapes(*[shape(a) for a in sliceable_args], *sliceable_kwargs.values(), allow_varying_sizes=True).only(dims)
+    assert dims_.well_defined, f"All arguments must have consistent sizes for all mapped dimensions. Trying to map along {dims} but some have varying sizes (marked as None)."
+    assert dims_.volume > 0, f"map dims must have volume > 0 but got {dims_}"
     results = []
-    for _, idx in zip(range(dims.volume), dims.meshgrid()):
+    for _, idx in zip(range(dims_.volume), dims_.meshgrid()):
         idx_args = [slice_(v, idx) for v in sliceable_args]
         idx_kwargs = {k: slice_(v, idx) for k, v in sliceable_kwargs.items()}
         if unwrap_scalars:
@@ -1208,13 +1212,13 @@ def map_(function, *args, dims: DimFilter = shape, range=range, unwrap_scalars=T
                 assert all(r[i] is None for r in results), f"map function returned None for some elements, {results}"
                 stacked.append(None)
             else:
-                stacked.append(math.stack([r[i] for r in results], dims, expand_values=True))
+                stacked.append(math.stack([r[i] for r in results], dims_, expand_values=True))
         return tuple(stacked)
     else:
         if any(r is None for r in results):
             assert all(r is None for r in results), f"map function returned None for some elements, {results}"
             return None
-        return stack(results, dims, expand_values=True)
+        return stack(results, dims_, expand_values=True)
 
 
 def identity(x):
