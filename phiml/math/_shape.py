@@ -1953,8 +1953,10 @@ def concat_shapes(*shapes: Union[Shape, Any]) -> Shape:
     return Shape(sizes, names, types, item_names)
 
 
-def shape_stack(stack_dim: Shape, *shapes: Shape):
+def shape_stack(stack_dim: Shape, *shapes: Shape, stack_dim_first=False):
     """ Returns the shape of a tensor created by stacking tensors with `shapes`. """
+    if stack_dim.rank > 1:
+        assert stack_dim.volume == len(shapes), f"stack_dim {stack_dim} does not match number of shapes: {len(shapes)}"
     names = list(stack_dim.names)
     types = list(stack_dim.types)
     item_names = list(stack_dim.item_names)
@@ -1976,6 +1978,8 @@ def shape_stack(stack_dim: Shape, *shapes: Shape):
                     index = min([len(names), *[i for i in range(len(names)) if types[i] == INSTANCE_DIM]])
                 else:
                     raise ValueError(type)
+                if stack_dim_first:
+                    index = max(index, stack_dim.rank)
                 names.insert(index, name)
                 types.insert(index, type)
                 item_names.insert(index, items)
@@ -1992,8 +1996,11 @@ def shape_stack(stack_dim: Shape, *shapes: Shape):
             item_names[index] = None
     sizes = []
     for name in names:
-        if name == stack_dim.name:
-            size = len(shapes)
+        if name in stack_dim.names:
+            if stack_dim.rank == 1:
+                size = len(shapes)
+            else:
+                size = stack_dim.get_size(name)
         else:
             dim_sizes = [(shape.get_size(name) if name in shape else 1) for shape in shapes]
             if all([math.close(s, dim_sizes[0]) for s in dim_sizes[1:]]):

@@ -1281,11 +1281,19 @@ def reduce_(f, value, dims, require_all_dims_present=False, required_kind: type 
             dims = value.shape.only(dims)
             assert '0' in dims, "When passing a sequence of tensors to be reduced, the sequence dimension '0' must be reduced."
         elif isinstance(value, Layout):
-            if not value.shape.without(dims):  # reduce all
-                dims = batch('_flat_layout')
+            if value.shape.without(value._stack_dim).only(dims):  # reduce some inner
+                def inner_reduce(v):
+                    if required_kind is not None:
+                        if isinstance(v, Tensor):
+                            v = cast(v, required_kind)
+                        else:
+                            v = required_kind(v)
+                    return f(wrap(v), shape(v).only(dims))
+
+                value = tree_map(inner_reduce, value)
+            if value._stack_dim.without(dims).is_empty:  # reduce all outer
                 values = value._as_list()
-                if required_kind is not None:
-                    values = [required_kind(v) for v in values]
+                dims = batch('_flat_layout')
                 value = wrap(values, dims)
         else:
             value = wrap(value)
@@ -1453,7 +1461,7 @@ def any_(boolean_tensor: Union[Tensor, list, tuple], dim: DimFilter = non_batch)
     Returns:
         `Tensor` without the reduced dimensions.
     """
-    return reduce_(_any, boolean_tensor, dim)
+    return reduce_(_any, boolean_tensor, dim, required_kind=bool)
 
 
 def _any(value: Tensor, dims: Shape) -> Tensor:
@@ -1487,7 +1495,7 @@ def all_(boolean_tensor: Union[Tensor, list, tuple, Number, bool], dim: DimFilte
     Returns:
         `Tensor` without the reduced dimensions.
     """
-    return reduce_(_all, boolean_tensor, dim)
+    return reduce_(_all, boolean_tensor, dim, required_kind=bool)
 
 
 def _all(value: Tensor, dims: Shape) -> Tensor:
