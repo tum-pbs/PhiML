@@ -1418,7 +1418,7 @@ def _apply_prefix(name: str, dim_type: str):
     return prefix + name[proper_name_index:]
 
 
-def shape(obj) -> Shape:
+def shape(obj, allow_unshaped=False) -> Shape:
     """
     If `obj` is a `Tensor` or `phiml.math.magic.Shaped`, returns its shape.
     If `obj` is a `Shape`, returns `obj`.
@@ -1427,6 +1427,7 @@ def shape(obj) -> Shape:
 
     Args:
         obj: `Tensor` or `Shape` or `Shaped`
+        allow_unshaped: If `True`, returns an empty shape for unsupported objects, else raises a `ValueError`.
 
     Returns:
         `Shape`
@@ -1465,6 +1466,8 @@ def shape(obj) -> Shape:
             else:
                 raise ValueError(f"Cannot auto-complete shape of {backend} tensor with shape {shape_tuple}. Only 0D and 1D tensors have a Φ-ML shape by default.")
         except NoBackendFound:
+            if allow_unshaped:
+                return EMPTY_SHAPE
             raise ValueError(f'shape() requires Shaped or Shape argument but got {type(obj)}')
 
 
