@@ -832,7 +832,7 @@ def arange(dim: Shape, start_or_stop: Union[int, None] = None, stop: Union[int, 
     else:
         start = start_or_stop
     native = choose_backend(start, stop, prefer_default=True).range(start, stop, step, DType(int, 32))
-    return NativeTensor(native, dim.with_sizes([stop - start]))
+    return NativeTensor(native, dim.with_sizes(len(native)))
 
 
 def range_tensor(*shape: Shape):
