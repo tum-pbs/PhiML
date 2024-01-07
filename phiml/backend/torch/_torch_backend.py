@@ -40,7 +40,7 @@ class TorchBackend(Backend):
             return True
         if only_native:
             return False
-        if isinstance(x, numbers.Number):
+        if isinstance(x, (numbers.Number, np.bool_)):
             return True
         if isinstance(x, (tuple, list)) and all(isinstance(c, numbers.Number) for c in x):
             return True
