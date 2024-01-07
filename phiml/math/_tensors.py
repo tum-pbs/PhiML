@@ -10,7 +10,7 @@ from typing import Tuple, Callable, List
 import numpy
 import numpy as np
 
-from ._magic_ops import PhiTreeNodeType, variable_attributes, copy_with, stack, pack_dims, expand
+from ._magic_ops import PhiTreeNodeType, variable_attributes, copy_with, stack, pack_dims, expand, slice_, flatten
 from ._shape import (Shape,
                      CHANNEL_DIM, BATCH_DIM, SPATIAL_DIM, EMPTY_SHAPE,
                      parse_dim_order, shape_stack, merge_shapes, channel, concat_shapes, primal,
@@ -18,7 +18,7 @@ from ._shape import (Shape,
 from ..backend import NoBackendFound, choose_backend, BACKENDS, get_precision, default_backend, convert as convert_, \
     Backend, ComputeDevice, OBJECTS
 from ..backend._dtype import DType, combine_types
-from .magic import BoundDim, PhiTreeNode, slicing_dict
+from .magic import BoundDim, PhiTreeNode, slicing_dict, Shaped
 from .magic import Shapable
 
 
@@ -942,10 +942,28 @@ class Layout(Tensor):
     The PyTree may be deeper but only the outer `shape.rank` levels are represented as a tensor.
     """
 
-    def __init__(self, obj, shape: Shape):
+    def __init__(self, obj, stack_dim: Shape):
         super().__init__()
         self._obj = obj
-        self._shape = shape
+        obj_shapes = Layout._recursive_get_shapes(obj, stack_dim)
+        self._shape = shape_stack(stack_dim, *obj_shapes, stack_dim_first=True)
+        self._stack_dim = stack_dim
+        if DEBUG_CHECKS:
+            if self._stack_dim:
+                assert stack_dim == self._shape[:stack_dim.rank]
+            elif isinstance(obj, Shapable) and obj is not None:
+                warnings.warn(f"Empty stack_dim for Layout with value {obj}")
+
+    @staticmethod
+    def _recursive_get_shapes(obj, s: Shape) -> Tuple[Shape]:
+        if not s:
+            return shape(obj, allow_unshaped=True),
+        elif isinstance(obj, (tuple, list)):
+            return sum([Layout._recursive_get_shapes(o, s.after_gather({s.names[0]: i})) for i, o in enumerate(obj)], ())
+        elif isinstance(obj, dict):
+            return sum([Layout._recursive_get_shapes(v, s.after_gather({s.names[0]: i})) for i, (k, v) in enumerate(obj.items())], ())
+        obj_shape = shape(obj, allow_unshaped=True)
+        return (obj_shape,) * s.volume
 
     @property
     def shape(self) -> Shape:
@@ -968,7 +986,7 @@ class Layout(Tensor):
 
     def native(self, order: Union[str, tuple, list, Shape] = None, singleton_for_const=False):
         order = parse_dim_order(order)
-        assert order is None or order == self._shape.names, "Layout.native() does not allow for changing the dimension order"
+        assert order is None or order == self._stack_dim.names, "Layout.native() does not allow for changing the dimension order"
         return self._obj
 
     def numpy(self, order: Union[str, tuple, list, Shape] = None) -> np.ndarray:
@@ -976,10 +994,20 @@ class Layout(Tensor):
         return numpy.asarray(native)
 
     def _getitem(self, selection: dict) -> 'Tensor':
-        selection_list = [selection.get(dim, None) for dim in self._shape.names]
-        native = self._getitem_recursive(self._obj, tuple(selection_list))
-        new_shape = self._shape.after_gather(selection)
-        return Layout(native, new_shape)
+        selection_list = [selection.get(dim, None) for dim in self._stack_dim.names]
+        native = self._getitem_recursive(self._obj, tuple(selection_list), selection)
+        return Layout.wrap(native, self._stack_dim.after_gather(selection))
+
+    @staticmethod
+    def wrap(native, stack_dim: Shape):
+        if isinstance(native, Tensor):
+            return native
+        if isinstance(native, Shapable) and native is not None and not isinstance(native, (tuple, list, dict)):
+            # maybe allow class to configure whether to be unpacked
+            return native
+        if isinstance(native, (bool, numbers.Number)):
+            return wrap(native)
+        return Layout(native, stack_dim)
 
     def __repr__(self):
         return repr(self._obj)
@@ -990,33 +1018,33 @@ class Layout(Tensor):
         return repr(self._obj)
 
     def _unstack(self, dimension: str):
-        if dimension == self._shape.names[0]:
+        if dimension == self._stack_dim.names[0]:
             native = tuple(self._obj.values()) if isinstance(self._obj, dict) else self._obj
-            inner_shape = self._shape[1:]
-            return tuple([Layout(n, inner_shape) for n in native])
+            inner_stack_dim = self._stack_dim[1:]
+            return tuple([Layout.wrap(n, inner_stack_dim) for n in native])
         else:
             raise NotImplementedError()
 
     @staticmethod
-    def _getitem_recursive(native, selection: tuple):
+    def _getitem_recursive(native, selection: tuple, sel_dict: dict):
         if not selection:
             return native
         native = tuple(native.values()) if isinstance(native, dict) else native
         if len(selection) == 1:
-            return native if selection[0] is None else native[selection[0]]
+            return slice_(native if selection[0] is None else native[selection[0]], sel_dict)
         else:
             if selection[0] is None:
-                return type(native)([Layout._getitem_recursive(n, selection[1:]) for n in native])
+                return type(native)([Layout._getitem_recursive(n, selection[1:], sel_dict) for n in native])
             if isinstance(selection[0], int):
-                return Layout._getitem_recursive(native[selection[0]], selection[1:])
+                return Layout._getitem_recursive(native[selection[0]], selection[1:], sel_dict)
             elif isinstance(selection[0], slice):
                 subset = native[selection[0]]
-                return type(subset)([Layout._getitem_recursive(n, selection[1:]) for n in subset])
+                return type(subset)([Layout._getitem_recursive(n, selection[1:], sel_dict) for n in subset])
             else:
                 raise ValueError(f"Illegal selection: {selection}")
 
     def _as_list(self):
-        return self._as_list_recursive(self._obj, self._shape.rank, [])
+        return self._as_list_recursive(self._obj, self._stack_dim.rank, [])
 
     @staticmethod
     def _as_list_recursive(native, dims: int, result: list):
@@ -1037,52 +1065,50 @@ class Layout(Tensor):
         return bool(self._obj)
 
     def __stack__(self, values: tuple, dim: Shape, **kwargs) -> 'Layout':
-        obj = [v.native(self._shape) for v in values]
-        new_shape = concat_shapes(dim, self._shape)
-        return Layout(obj, new_shape)
+        obj = [v.native(self._stack_dim) for v in values]
+        new_stack_dim = concat_shapes(dim, self._stack_dim)
+        return Layout(obj, new_stack_dim)
 
     @staticmethod
     def __concat__(values: tuple, dim: str, **kwargs) -> 'Shapable':
         return NotImplemented
 
     def __flatten__(self, flat_dim: Shape, flatten_batch: bool):
-        if not flatten_batch and self._shape.batch:
-            raise NotImplementedError
-        return layout(self._as_list(), flat_dim)
+        return NotImplemented
 
     def __expand__(self, dims: Shape, **kwargs) -> 'Tensor':
-        new_dims = dims.without(self._shape)
-        if not new_dims:
+        new_stack_dims = dims.without(self._stack_dim)
+        if not new_stack_dims:
             return self
         obj = self._obj
-        for dim in reversed(new_dims):
+        for dim in reversed(new_stack_dims):
             assert isinstance(dim.size, int), "Can only expand layouts by integer-sized dimensions"
             obj = [obj] * dim.size
-        return Layout(obj, concat_shapes(new_dims, self._shape))
+        return Layout(obj, concat_shapes(new_stack_dims, self._stack_dim))
 
     def __replace_dims__(self, dims: Tuple[str, ...], new_dims: Shape, **kwargs) -> 'Tensor':
-        new_shape = self._shape.replace(dims, new_dims)
-        return Layout(self._obj, new_shape)
+        new_stack_dim = self._stack_dim.replace(dims, new_dims)
+        return Layout(self._obj, new_stack_dim)
 
     def __pack_dims__(self, dims: Tuple[str, ...], packed_dim: Shape, pos: Union[int, None], **kwargs) -> 'Layout':
-        if dims == self.shape.names:
+        if dims == self._stack_dim.names:
             native = self._as_list()
             return Layout(native, packed_dim.with_size(len(native)))
         else:
             obj = []
             for i in self._shape.only(dims, reorder=True).meshgrid():
                 obj.append(self[i].native())
-            return Layout(obj, concat_shapes(packed_dim.with_size(self.shape.only(dims).volume), self._shape.without(dims)))
+            return Layout(obj, concat_shapes(packed_dim.with_size(self.shape.only(dims).volume), self._stack_dim.without(dims)))
 
     def __unpack_dim__(self, dim: str, unpacked_dims: Shape, **kwargs) -> 'Layout':
         return NotImplemented
 
     def __cast__(self, dtype: DType):
-        obj = self._recursive_cast(self._obj, self._shape, dtype)
-        return Layout(obj, self._shape)
+        obj = self._recursive_cast(self._obj, self._stack_dim, dtype)
+        return Layout(obj, self._stack_dim)
 
     def __copy__(self):
-        return Layout(self._obj, self._shape)
+        return Layout(self._obj, self._stack_dim)
 
     def __iter__(self):
         if self.rank == 1:
@@ -1101,19 +1127,19 @@ class Layout(Tensor):
         if _EQUALITY_REDUCE[-1]:
             return Tensor.__ne__(self, other)
         return self._op2(other, lambda x, y: x != y, lambda x, y: x != y, 'ne', '!=')
-    
+
     def _assert_close(self, other: Tensor, rel_tolerance: float, abs_tolerance: float, msg: str, verbose: bool):
         from ._ops import assert_close
         inner_test = lambda x, y: assert_close(x, y, rel_tolerance=rel_tolerance, abs_tolerance=abs_tolerance, msg=msg, verbose=verbose)
         return self._op2(other, inner_test, inner_test, 'assert_close', '≈')
 
     def _op2(self, other, operator: Callable, native_function: Callable, op_name: str = 'unknown', op_symbol: str = '?') -> Tensor:
-        obj = self._recursive_op2(self._obj, self._shape, other, operator, native_function, op_name)
-        new_shape = concat_shapes(self._shape, other.shape.without(self._shape)) if isinstance(other, Tensor) else self._shape
-        return Layout(obj, new_shape)
+        obj = self._recursive_op2(self._obj, self._stack_dim, other, operator, native_function, op_name)
+        new_stack = concat_shapes(self._stack_dim, other._stack_dim.without(self._stack_dim)) if isinstance(other, Layout) else self._stack_dim
+        return Layout(obj, new_stack)
 
     @staticmethod
-    def _recursive_op2(obj, shape: Shape, other, operator, native_function, op_name):
+    def _recursive_op2(obj, shape: Shape, other: Tensor, operator, native_function, op_name):
         if shape:
             dim = shape.names[0]
             if isinstance(other, Tensor) and dim in other.shape:
@@ -1134,17 +1160,18 @@ class Layout(Tensor):
                 return native_function(obj, other)
 
     def _op1(self, native_function):
-        return Layout(self._recursive_op1(self._obj, self._shape, native_function), self._shape)
+        return Layout(self._recursive_op1(self._obj, self._stack_dim, native_function), self._stack_dim)
 
     @staticmethod
     def _recursive_op1(obj, shape: Shape, native_function):
-        raise NotImplementedError
-        # if shape:
-        #     if isinstance(obj, (tuple, list)):
-        #         return type(obj)([Layout._recursive_op1(i, shape[1:], native_function) for i in obj])
-        #     else:
-        # else:
-        #     return native_function(obj)
+        if shape:
+            if isinstance(obj, (tuple, list)):
+                return type(obj)([Layout._recursive_op1(i, shape[1:], native_function) for i in obj])
+            elif isinstance(obj, dict):
+                return {k: Layout._recursive_op1(v, shape[1:], native_function) for k, v in obj.items()}
+            raise ValueError(obj)
+        else:
+            return native_function(obj)
 
     @staticmethod
     def _recursive_cast(obj, shape: Shape, dtype: DType):
@@ -1157,8 +1184,10 @@ class Layout(Tensor):
                 assert obj.shape == shape
                 from ._ops import cast
                 return cast(obj, dtype)
-            else:
-                raise ValueError(obj)
+            raise ValueError(obj)
+        elif isinstance(obj, Tensor):
+            from ._magic_ops import cast
+            return cast(obj, dtype)
         else:
             return dtype.kind(obj)
 

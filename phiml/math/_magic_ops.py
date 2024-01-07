@@ -759,7 +759,9 @@ def bool_to_int(x: MagicType, bits=32):
 
 
 def tree_map(f, tree, **f_kwargs):
-    from ._tensors import Tensor
+    from ._tensors import Tensor, Layout
+    if isinstance(tree, Layout):
+        return tree._op1(lambda x: f(x, **f_kwargs))
     if isinstance(tree, Tensor):
         return f(tree, **f_kwargs)
     if isinstance(tree, list):
