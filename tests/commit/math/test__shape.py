@@ -29,11 +29,13 @@ class TestShape(TestCase):
         self.assertEqual(('stack', 'time', 'x', 'y'), stacked.names)
         self.assertEqual(3, stacked.get_size('stack'))
         self.assertEqual(1, stacked.get_size('time'))
-        math.assert_close([3, 3, 1], stacked.get_size('x'))
+        math.assert_close(3, stacked.get_size('x'))
         math.assert_close([3, 4, 1], stacked.get_size('y'))
         print(stacked.shape)
         self.assertEqual(('stack', 'dims'), stacked.shape.names)
         self.assertEqual(12, stacked.shape.volume)
+        stacked = shape_stack(batch('stack'), channel(vector='x,y') & spatial(x=3, y=3), spatial(x=3, y=4), math.EMPTY_SHAPE)
+        self.assertEqual(('x', 'y'), stacked['vector'].item_names[0])
 
     def test_subshapes(self):
         s = batch(batch=10) & spatial(x=4, y=3) & channel(vector=2) & instance(points=1)
