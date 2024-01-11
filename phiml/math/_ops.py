@@ -1886,49 +1886,53 @@ def dot(x: Tensor,
         return x * sum_(y, y_dims)
     if not y_dims:
         return sum_(x, x_dims) * y
-    if is_sparse(x) or is_sparse(y):
-        if x_dims.isdisjoint(sparse_dims(x)) and y_dims.isdisjoint(sparse_dims(y)):
-            if is_sparse(x):
-                return x._op2(y, lambda vx, vy: dot(vx, x_dims, vy, y_dims), None, 'dot', '@')
-            else:
-                return y._op2(x, lambda vy, vx: dot(vx, x_dims, vy, y_dims), None, 'dot', '@')
-        else:
-            return sparse_dot(x, x_dims, y, y_dims)
-    if x._is_tracer:
-        return x._matmul(x_dims, y, y_dims)
-    if y._is_tracer:
-        return y._matmul(y_dims, x, x_dims)
-    x_native = x.native(x.shape)
-    y_native = y.native(y.shape)
-    backend = choose_backend(x_native, y_native)
-    remaining_shape_x = x.shape.without(x_dims)
-    remaining_shape_y = y.shape.without(y_dims)
-    assert x_dims.volume == y_dims.volume, f"Failed to reduce {x_dims} against {y_dims} in dot product of {x.shape} and {y.shape}. Sizes do not match."
-    if remaining_shape_y.isdisjoint(remaining_shape_x):  # no shared batch dimensions -> tensordot
-        result_native = backend.tensordot(x_native, x.shape.indices(x_dims), y_native, y.shape.indices(y_dims))
-        result_shape = concat_shapes(remaining_shape_x, remaining_shape_y)
-    else:  # shared batch dimensions -> einsum
-        result_shape = merge_shapes(x.shape.without(x_dims), y.shape.without(y_dims))
-        REDUCE_LETTERS = list('ijklmn')
-        KEEP_LETTERS = list('abcdefgh')
-        x_letters = [(REDUCE_LETTERS if dim in x_dims else KEEP_LETTERS).pop(0) for dim in x.shape.names]
-        letter_map = {dim: letter for dim, letter in zip(x.shape.names, x_letters)}
-        REDUCE_LETTERS = list('ijklmn')
-        y_letters = []
-        for dim in y.shape.names:
-            if dim in y_dims:
-                y_letters.append(REDUCE_LETTERS.pop(0))
-            else:
-                if dim in x.shape and dim not in x_dims:
-                    y_letters.append(letter_map[dim])
+
+    def tensor_dot(x, y):
+        if is_sparse(x) or is_sparse(y):
+            if x_dims.isdisjoint(sparse_dims(x)) and y_dims.isdisjoint(sparse_dims(y)):
+                if is_sparse(x):
+                    return x._op2(y, lambda vx, vy: dot(vx, x_dims, vy, y_dims), None, 'dot', '@')
                 else:
-                    next_letter = KEEP_LETTERS.pop(0)
-                    letter_map[dim] = next_letter
-                    y_letters.append(next_letter)
-        keep_letters = [letter_map[dim] for dim in result_shape.names]
-        subscripts = f'{"".join(x_letters)},{"".join(y_letters)}->{"".join(keep_letters)}'
-        result_native = backend.einsum(subscripts, x_native, y_native)
-    return NativeTensor(result_native, result_shape)
+                    return y._op2(x, lambda vy, vx: dot(vx, x_dims, vy, y_dims), None, 'dot', '@')
+            else:
+                return sparse_dot(x, x_dims, y, y_dims)
+        if x._is_tracer:
+            return x._matmul(x_dims, y, y_dims)
+        if y._is_tracer:
+            return y._matmul(y_dims, x, x_dims)
+        x_native = x.native(x.shape)
+        y_native = y.native(y.shape)
+        backend = choose_backend(x_native, y_native)
+        remaining_shape_x = x.shape.without(x_dims)
+        remaining_shape_y = y.shape.without(y_dims)
+        assert x_dims.volume == y_dims.volume, f"Failed to reduce {x_dims} against {y_dims} in dot product of {x.shape} and {y.shape}. Sizes do not match."
+        if remaining_shape_y.isdisjoint(remaining_shape_x):  # no shared batch dimensions -> tensordot
+            result_native = backend.tensordot(x_native, x.shape.indices(x_dims), y_native, y.shape.indices(y_dims))
+            result_shape = concat_shapes(remaining_shape_x, remaining_shape_y)
+        else:  # shared batch dimensions -> einsum
+            result_shape = merge_shapes(x.shape.without(x_dims), y.shape.without(y_dims))
+            REDUCE_LETTERS = list('ijklmn')
+            KEEP_LETTERS = list('abcdefgh')
+            x_letters = [(REDUCE_LETTERS if dim in x_dims else KEEP_LETTERS).pop(0) for dim in x.shape.names]
+            letter_map = {dim: letter for dim, letter in zip(x.shape.names, x_letters)}
+            REDUCE_LETTERS = list('ijklmn')
+            y_letters = []
+            for dim in y.shape.names:
+                if dim in y_dims:
+                    y_letters.append(REDUCE_LETTERS.pop(0))
+                else:
+                    if dim in x.shape and dim not in x_dims:
+                        y_letters.append(letter_map[dim])
+                    else:
+                        next_letter = KEEP_LETTERS.pop(0)
+                        letter_map[dim] = next_letter
+                        y_letters.append(next_letter)
+            keep_letters = [letter_map[dim] for dim in result_shape.names]
+            subscripts = f'{"".join(x_letters)},{"".join(y_letters)}->{"".join(keep_letters)}'
+            result_native = backend.einsum(subscripts, x_native, y_native)
+        return NativeTensor(result_native, result_shape)
+
+    return broadcast_op(tensor_dot, [x, y])
 
 
 def _backend_op1(x, unbound_method) -> Union[Tensor, PhiTreeNode]:
