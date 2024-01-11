@@ -2168,7 +2168,7 @@ def arccos(x: TensorOrTree) -> TensorOrTree:
     """ Computes the inverse of *cos(x)* of the `Tensor` or `phiml.math.magic.PhiTreeNode` `x`.
     For real arguments, the result lies in the range [0, π].
     """
-    return _backend_op1(x, Backend.cos)
+    return _backend_op1(x, Backend.arccos)
 
 
 def tan(x: TensorOrTree) -> TensorOrTree:
