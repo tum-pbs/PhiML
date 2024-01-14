@@ -106,7 +106,7 @@ def key_from_args(args: tuple, kwargs: Dict[str, Any], parameters: Tuple[str, ..
             if param in kwargs:
                 aux_kwargs[param] = kwargs[param]
                 del kwargs[param]
-    tree, tensors = disassemble_tree(kwargs)
+    tree, tensors = disassemble_tree(kwargs, cache=cache)
     tracing = not math.all_available(*tensors)
     backend = math.choose_backend_t(*tensors)
     natives, shapes, specs = disassemble_tensors(tensors, expand=cache)
@@ -173,7 +173,7 @@ class JitFunction:
                 in_tensors = assemble_tensors(natives, in_key.specs)
                 kwargs = assemble_tree(in_key.tree, in_tensors)
                 f_output = self.f(**kwargs, **in_key.auxiliary_kwargs)  # Tensor or tuple/list of Tensors
-                tree, out_tensors = disassemble_tree((f_output, self._extract_tensors))
+                tree, out_tensors = disassemble_tree((f_output, self._extract_tensors), cache=True)
                 result_natives, result_shapes, specs = disassemble_tensors(out_tensors, expand=True)
                 self.recorded_mappings[in_key] = SignatureKey(jit_f_native, tree, result_shapes, specs, in_key.backend, in_key.tracing)
             finally:
@@ -288,21 +288,6 @@ class LinearFunction(Generic[X, Y], Callable[[X], Y]):
         self.forget_traces = forget_traces
         self.matrices_and_biases: Dict[SignatureKey, Tuple[SparseCoordinateTensor, Tensor, Tuple]] = {}
         self.nl_jit = JitFunction(f, self.auxiliary_args, forget_traces)  # for backends that do not support sparse matrices
-
-    # def _trace(self, in_key: SignatureKey, prefer_numpy: bool) -> 'ShiftLinTracer':
-    #     assert in_key.shapes[0].is_uniform, f"math.jit_compile_linear() only supports uniform tensors for function input and output but input shape was {in_key.shapes[0]}"
-    #     with NUMPY if prefer_numpy else in_key.backend:
-    #         x = math.ones(in_key.shapes[0])
-    #         tracer = ShiftLinTracer(x, {EMPTY_SHAPE: math.ones()}, x.shape, math.zeros(x.shape))
-    #     _TRACING_JIT.append(self)
-    #     x_kwargs = assemble_tree(in_key.tree, [tracer])
-    #     result = self.f(**x_kwargs, **in_key.auxiliary_kwargs)
-    #     _, result_tensors = disassemble_tree(result)
-    #     assert len(result_tensors) == 1, f"Linear function must return a single Tensor or tensor-like but got {result}"
-    #     result_tensor = result_tensors[0]
-    #     assert isinstance(result_tensor, ShiftLinTracer), f"Tracing linear function '{f_name(self.f)}' failed. Make sure only linear operations are used."
-    #     assert _TRACING_JIT.pop(-1) is self
-    #     return result_tensor
 
     def _get_or_trace(self, key: SignatureKey, args: tuple, f_kwargs: dict):
         if not key.tracing and key in self.matrices_and_biases:
@@ -502,7 +487,7 @@ class GradientFunction:
                 loss_shape = in_key.backend.staticshape(loss_native)
                 assert len(
                     loss_shape) == 0, f"Only scalar losses are allowed when returning a native tensor but {f_name(self.f)} returned {type(loss_native).__name__} of shape {loss_shape}. For higher-dimensional values, use Φ-ML tensors instead."
-            nest, out_tensors = disassemble_tree(result)
+            nest, out_tensors = disassemble_tree(result, cache=True)
             result_natives, result_shapes, specs = disassemble_tensors(out_tensors, expand=True)
             self.recorded_mappings[in_key] = SignatureKey(f_native, nest, result_shapes, specs, in_key.backend, in_key.tracing)
             return loss_native, result_natives
@@ -521,7 +506,7 @@ class GradientFunction:
             else:
                 raise AssertionError(f"jacobian() not supported by {key.backend}.")
         wrt_tensors = self._track_wrt(kwargs)
-        wrt_natives = self._track_wrt_natives(wrt_tensors, disassemble_tree(kwargs)[1])
+        wrt_natives = self._track_wrt_natives(wrt_tensors, disassemble_tree(kwargs, cache=True)[1])
         if key not in self.traces:
             self.traces[key] = self._trace_grad(key, wrt_natives)
         native_result = self.traces[key](*natives)
@@ -547,7 +532,7 @@ class GradientFunction:
     def _track_wrt(self, kwargs: dict):
         wrt_tensors = []
         for name, arg in kwargs.items():
-            _, tensors = disassemble_tree(arg)
+            _, tensors = disassemble_tree(arg, cache=True)
             wrt_tensors.extend([name] * len(tensors))
         return [t_i for t_i, name in enumerate(wrt_tensors) if name in self._wrt_tuple]
 
@@ -666,7 +651,7 @@ class HessianFunction:
 #             kwargs = assemble_tree(in_key.tree, in_tensors)
 #             with functional_derivative_evaluation(order=2):
 #                 result = self.f(**kwargs)
-#             nest, out_tensors = disassemble_tree(result)
+#             nest, out_tensors = disassemble_tree(result, cache=True)
 #             result_natives, result_shapes, specs = disassemble_tensors(out_tensors, expand=True)
 #             self.recorded_mappings[in_key] = SignatureKey(f_native, nest, result_shapes, specs, in_key.backend, in_key.tracing)
 #             return result_natives
@@ -805,7 +790,7 @@ class CustomGradientFunction:
             kwargs = assemble_tree(in_key.tree, in_tensors)
             ML_LOGGER.debug(f"Running forward pass of custom op {forward_native.__name__} given args {tuple(kwargs.keys())} containing {len(natives)} native tensors")
             result = self.f(**kwargs, **in_key.auxiliary_kwargs)  # Tensor or tuple/list of Tensors
-            nest, out_tensors = disassemble_tree(result)
+            nest, out_tensors = disassemble_tree(result, cache=True)
             result_natives, result_shapes, specs = disassemble_tensors(out_tensors, expand=True)
             self.recorded_mappings[in_key] = SignatureKey(forward_native, nest, result_shapes, specs, in_key.backend, in_key.tracing)
             return result_natives
@@ -1020,7 +1005,7 @@ def map_types(f: Callable, dims: Union[Shape, tuple, list, str, Callable], dim_t
     """
 
     def forward_retype(obj, input_types: Shape):
-        tree, tensors = disassemble_tree(obj)
+        tree, tensors = disassemble_tree(obj, cache=False)
         retyped = []
         for t in tensors:
             for dim in t.shape.only(dims):
@@ -1030,7 +1015,7 @@ def map_types(f: Callable, dims: Union[Shape, tuple, list, str, Callable], dim_t
         return assemble_tree(tree, retyped), input_types
 
     def reverse_retype(obj, input_types: Shape):
-        tree, tensors = disassemble_tree(obj)
+        tree, tensors = disassemble_tree(obj, cache=False)
         retyped = []
         for t in tensors:
             for dim in t.shape.only(input_types.names):
