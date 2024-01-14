@@ -899,7 +899,7 @@ class _AntiReflectExtrapolation(_ReflectExtrapolation):
         raise NotImplementedError
 
 
-class _SymmetricGradientExtrapolation(Extrapolation):  # ToDo this class is missing a lot of methods
+class _SymmetricGradientExtrapolation(Extrapolation):
 
     def __init__(self):
         super().__init__(pad_rank=3)
@@ -928,6 +928,45 @@ class _SymmetricGradientExtrapolation(Extrapolation):  # ToDo this class is miss
         return anti_s + 2 * edge
 
     def sparse_pad_values(self, value: Tensor, connectivity: Tensor, dim: str, **kwargs) -> Tensor:
+        raise NotImplementedError
+
+    def determines_boundary_values(self, boundary_key: Union[Tuple[str, bool], str]) -> bool:
+        raise NotImplementedError
+
+    def __eq__(self, other):
+        return isinstance(other, _SymmetricGradientExtrapolation)
+
+    def __hash__(self):
+        return 209385671
+
+    def __abs__(self):
+        raise NotImplementedError
+
+    def __neg__(self):
+        raise NotImplementedError
+
+    def __add__(self, other):
+        raise NotImplementedError
+
+    def __radd__(self, other):
+        raise NotImplementedError
+
+    def __sub__(self, other):
+        raise NotImplementedError
+
+    def __rsub__(self, other):
+        raise NotImplementedError
+
+    def __mul__(self, other):
+        raise NotImplementedError
+
+    def __rmul__(self, other):
+        raise NotImplementedError
+
+    def __truediv__(self, other):
+        raise NotImplementedError
+
+    def __rtruediv__(self, other):
         raise NotImplementedError
 
 
