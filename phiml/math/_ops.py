@@ -123,7 +123,7 @@ def all_available(*values) -> bool:
     Returns:
         `True` if no value is a placeholder or being traced, `False` otherwise.
     """
-    _, tensors = disassemble_tree(values)
+    _, tensors = disassemble_tree(values, cache=False)
     return all([t.available for t in tensors])
 
 
@@ -545,7 +545,7 @@ def zeros(*shape: Shape, dtype: Union[DType, tuple, type] = None) -> Tensor:
 
 def zeros_like(obj: Union[Tensor, PhiTreeNode]) -> Union[Tensor, PhiTreeNode]:
     """ Create a `Tensor` containing only `0.0` / `0` / `False` with the same shape and dtype as `obj`. """
-    nest, values = disassemble_tree(obj)
+    nest, values = disassemble_tree(obj, cache=False)
     zeros_ = []
     for val in values:
         val = wrap(val)
@@ -2876,9 +2876,9 @@ def assert_close(*values,
         for other in values[1:]:
             _assert_close(values[0], other, rel_tolerance, abs_tolerance, msg, verbose)
     elif all(isinstance(v, PhiTreeNode) for v in values):
-        tree0, tensors0 = disassemble_tree(values[0])
+        tree0, tensors0 = disassemble_tree(values[0], cache=False)
         for value in values[1:]:
-            tree, tensors_ = disassemble_tree(value)
+            tree, tensors_ = disassemble_tree(value, cache=False)
             assert tree0 == tree, f"Tree structures do not match: {tree0} and {tree}"
             for t0, t in zip(tensors0, tensors_):
                 _assert_close(t0, t, rel_tolerance, abs_tolerance, msg, verbose)
@@ -2974,7 +2974,7 @@ def stop_gradient(x):
     if isinstance(x, Tensor):
         return x._op1(lambda native: choose_backend(native).stop_gradient(native))
     elif isinstance(x, PhiTreeNode):
-        nest, values = disassemble_tree(x)
+        nest, values = disassemble_tree(x, cache=False)
         new_values = [stop_gradient(v) for v in values]
         return assemble_tree(nest, new_values)
     else:

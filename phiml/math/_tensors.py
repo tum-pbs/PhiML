@@ -1862,7 +1862,7 @@ MISSING_TENSOR = 'missing'
 NATIVE_TENSOR = 'native'
 
 
-def disassemble_tree(obj: PhiTreeNodeType) -> Tuple[PhiTreeNodeType, List[Tensor]]:
+def disassemble_tree(obj: PhiTreeNodeType, cache: bool) -> Tuple[PhiTreeNodeType, List[Tensor]]:
     """
     Splits a nested structure of Tensors into the structure without the tensors and an ordered list of tensors.
     Native tensors will be wrapped in phiml.math.Tensors with default dimension names and dimension types `None`.
@@ -1873,6 +1873,7 @@ def disassemble_tree(obj: PhiTreeNodeType) -> Tuple[PhiTreeNodeType, List[Tensor
     Args:
         obj: Nested structure of `Tensor` objects.
             Nested structures include: `tuple`, `list`, `dict`, `phiml.math.magic.PhiTreeNode`.
+        cache: Whether to return cached versions of the tensors. This may reduce the number of native tensors required.
 
     Returns:
         empty structure: Same structure as `obj` but with the tensors replaced by `None`.
@@ -1881,12 +1882,12 @@ def disassemble_tree(obj: PhiTreeNodeType) -> Tuple[PhiTreeNodeType, List[Tensor
     if obj is None:
         return MISSING_TENSOR, []
     elif isinstance(obj, Tensor):
-        return None, [obj]
+        return None, [cached(obj) if cache else obj]
     elif isinstance(obj, (tuple, list)):
         keys = []
         values = []
         for item in obj:
-            key, value = disassemble_tree(item)
+            key, value = disassemble_tree(item, cache)
             keys.append(key)
             values.extend(value)
         return (tuple(keys) if isinstance(obj, tuple) else keys), values
@@ -1894,7 +1895,7 @@ def disassemble_tree(obj: PhiTreeNodeType) -> Tuple[PhiTreeNodeType, List[Tensor
         keys = {}
         values = []
         for name, item in obj.items():
-            key, value = disassemble_tree(item)
+            key, value = disassemble_tree(item, cache)
             keys[name] = key
             values.extend(value)
         return keys, values
@@ -1903,7 +1904,7 @@ def disassemble_tree(obj: PhiTreeNodeType) -> Tuple[PhiTreeNodeType, List[Tensor
         keys = {}
         values = []
         for attr in attributes:
-            key, value = disassemble_tree(getattr(obj, attr))
+            key, value = disassemble_tree(getattr(obj, attr), cache)
             keys[attr] = key
             values.extend(value)
         return copy_with(obj, **keys), values
@@ -1967,9 +1968,8 @@ def cached(t: TensorOrTree) -> TensorOrTree:
     elif isinstance(t, Layout):
         return t
     elif isinstance(t, PhiTreeNode):
-        tree, tensors = disassemble_tree(t)
-        tensors_ = [cached(t_) for t_ in tensors]
-        return assemble_tree(tree, tensors_)
+        tree, tensors = disassemble_tree(t, cache=True)
+        return assemble_tree(tree, tensors)
     else:
         raise AssertionError(f"Cannot cache {type(t)} {t}")
 

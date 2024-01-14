@@ -593,7 +593,7 @@ def matrix_from_function(f: Callable,
     all_args = {**kwargs, **{f_params[i]: v for i, v in enumerate(args)}}
     aux_args = {k: v for k, v in all_args.items() if k in aux}
     trace_args = {k: v for k, v in all_args.items() if k not in aux}
-    tree, tensors = disassemble_tree(trace_args)
+    tree, tensors = disassemble_tree(trace_args, cache=False)
     target_backend = choose_backend_t(*tensors)
     # --- Trace function ---
     with NUMPY:
@@ -601,7 +601,7 @@ def matrix_from_function(f: Callable,
         tracer = ShiftLinTracer(src, {EMPTY_SHAPE: math.ones()}, tensors[0].shape, bias=math.zeros(dtype=tensors[0].dtype), renamed={d: d for d in tensors[0].shape.names})
         x_kwargs = assemble_tree(tree, [tracer])
         result = f(**x_kwargs, **aux_args)
-    out_tree, result_tensors = disassemble_tree(result)
+    out_tree, result_tensors = disassemble_tree(result, cache=False)
     assert len(result_tensors) == 1, f"Linear function output must be or contain a single Tensor but got {result}"
     tracer = result_tensors[0]._simplify()
     assert tracer._is_tracer, f"Tracing linear function '{f_name(f)}' failed. Make sure only linear operations are used. Output: {tracer.shape}"
