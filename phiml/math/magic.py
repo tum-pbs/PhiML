@@ -464,7 +464,7 @@ class BoundDim:
         if name.startswith('_') or ',' in name or ' ' in name:
             raise AttributeError(f"'{type(self)}' object has no attribute '{name}'")
         if name == 'shape':
-            raise AttributeError(f"{type(obj)} has no shape")
+            raise AttributeError(f"Object of type {type(obj)} has no shape")
         assert isinstance(obj, Sliceable) and isinstance(obj, Shaped), f"Cannot create BoundDim for {type(obj).__name__}. Objects must be Sliceable and Shaped, see https://tum-pbs.github.io/PhiML/phiml/math/magic.html"
         self.obj = obj
         self.name = name
