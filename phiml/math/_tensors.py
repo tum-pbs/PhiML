@@ -2,7 +2,7 @@ import numbers
 import traceback
 import warnings
 from contextlib import contextmanager
-from typing import Union, TypeVar
+from typing import Union, TypeVar, Sequence
 
 from dataclasses import dataclass
 from typing import Tuple, Callable, List
@@ -811,11 +811,6 @@ class Tensor:
     def _from_spec_and_natives(cls, spec: dict, natives: list):
         raise NotImplementedError(cls)
 
-    def _expand(self):
-        """ Expands all compressed tensors to their defined size as if they were being used in `Tensor.native()`. """
-        warnings.warn("Tensor._expand() is deprecated, use cached(Tensor) instead.", DeprecationWarning)
-        raise NotImplementedError(self.__class__)
-
     def _simplify(self):
         """ Does not cache this value but if it is already cached, returns the cached version. """
         return self
@@ -1351,9 +1346,6 @@ class NativeTensor(Tensor):
     def _from_spec_and_natives(cls, spec: dict, natives: list):
         return NativeTensor(natives.pop(0), spec['native_shape'], spec['shape'])
 
-    def _expand(self):
-        self._cache()
-
 
 class TensorStack(Tensor):
     """
@@ -1537,12 +1529,6 @@ class TensorStack(Tensor):
         else:
             tensors = [t._with_natives_replaced(natives) for t in self._tensors]
             return TensorStack(tensors, self._stack_dim)
-
-    def _expand(self):
-        if self.requires_broadcast:
-            for t in self._tensors:
-                t._expand()
-        self._cache()
 
     @property
     def is_cached(self):
@@ -1845,7 +1831,7 @@ def custom_op2(x: Union[Tensor, float], y: Union[Tensor, float], l_operator, l_n
     return result
 
 
-def disassemble_tensors(tensors: Union[Tuple[Tensor, ...], List[Tensor]], expand: bool) -> Tuple[tuple, Tuple[Shape], tuple]:
+def disassemble_tensors(tensors: Sequence[Tensor], expand: bool) -> Tuple[tuple, Tuple[Shape], tuple]:
     """
     Args:
         tensors: Tuple or list of Tensors.
@@ -1856,9 +1842,7 @@ def disassemble_tensors(tensors: Union[Tuple[Tensor, ...], List[Tensor]], expand
         specs: Identification primitives from which the tensor can be reconstructed given the natives.
             One per tensor.
     """
-    for t in tensors:
-        if isinstance(t, TensorStack) or expand:
-            t._expand()
+    tensors = [cached(t) if isinstance(t, TensorStack) or expand else t for t in tensors]
     natives = sum([t._natives() for t in tensors], ())
     shapes = tuple([t.shape for t in tensors])
     specs = tuple([t._spec_dict() for t in tensors])
@@ -1962,6 +1946,7 @@ def assemble_tree(obj: PhiTreeNodeType, values: List[Tensor]) -> PhiTreeNodeType
 
 
 def cached(t: TensorOrTree) -> TensorOrTree:
+    from ._sparse import SparseCoordinateTensor, CompressedSparseMatrix
     assert isinstance(t, (Tensor, PhiTreeNode)), f"All arguments must be Tensors but got {type(t)}"
     if isinstance(t, NativeTensor):
         return t._cached()
@@ -1975,6 +1960,10 @@ def cached(t: TensorOrTree) -> TensorOrTree:
             natives = [t.native(order=t.shape.names) for t in inners]
             native = choose_backend(*natives).stack(natives, axis=t.shape.index(t._stack_dim.name))
             return NativeTensor(native, t.shape)
+    elif isinstance(t, SparseCoordinateTensor):
+        return SparseCoordinateTensor(cached(t._indices), cached(t._values), t._dense_shape, t._can_contain_double_entries, t._indices_sorted, t._default)
+    elif isinstance(t, CompressedSparseMatrix):
+        return CompressedSparseMatrix(cached(t._indices), cached(t._pointers), cached(t._values), t._uncompressed_dims, t._compressed_dims, t._default, t._uncompressed_offset, t._uncompressed_indices, t._uncompressed_indices_perm)
     elif isinstance(t, Layout):
         return t
     elif isinstance(t, PhiTreeNode):

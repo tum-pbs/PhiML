@@ -14,7 +14,7 @@ from ._shape import (Shape, EMPTY_SHAPE,
 from ._sparse import CompressedSparseMatrix, dense, SparseCoordinateTensor, get_format, to_format, stored_indices, tensor_like, sparse_dims, same_sparsity_pattern, is_sparse, sparse_dot, sparse_sum, sparse_gather, sparse_max, sparse_min
 from ._tensors import (Tensor, wrap, tensor, broadcastable_native_tensors, NativeTensor, TensorStack,
                        custom_op2, compatible_tensor, variable_attributes, disassemble_tree, assemble_tree,
-                       is_scalar, Layout, expand_tensor, TensorOrTree)
+                       is_scalar, Layout, expand_tensor, TensorOrTree, cached)
 from ..backend import default_backend, choose_backend, Backend, get_precision, convert as b_convert, BACKENDS, NoBackendFound, ComputeDevice, NUMPY
 from ..backend._dtype import DType, combine_types
 from .magic import PhiTreeNode
@@ -2941,8 +2941,7 @@ def _native_wrapper(tensor_function: Callable, create_native_function: Callable,
     def wrapper(*values: Tensor):
         INPUT_TENSORS.clear()
         INPUT_TENSORS.extend(values)
-        for v in values:
-            v._expand()
+        values = [cached(v) for v in values]
         natives = sum([v._natives() for v in values], ())
         results_native = list(traced(*natives))
         results = [t._with_natives_replaced(results_native) for t in OUTPUT_TENSORS]
