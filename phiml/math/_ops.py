@@ -633,7 +633,7 @@ def random_uniform(*shape: Shape,
         return _initialize(uniform_random_uniform, shape) * (high - low) + low
 
 
-def transpose(x: Tensor, axes):
+def transpose(x, axes):
     """
     Swap the dimension order of `x`.
     This operation is superfluous since tensors will be reshaped under the hood or when getting the native/numpy representations.
@@ -646,14 +646,16 @@ def transpose(x: Tensor, axes):
     * Jax: [`jax.numpy.transpose`](https://jax.readthedocs.io/en/latest/_autosummary/jax.numpy.transpose.html)
 
     Args:
-        x: `Tensor` or native tensor.
+        x: `Tensor` or native tensor or `phiml.math.magic.Shapable`.
         axes: `tuple` or `list`
 
     Returns:
         `Tensor` or native tensor, depending on `x`.
     """
     if isinstance(x, Tensor):
-        return expand(x, x.shape[axes])
+        new_shape = x.shape[axes]
+        packed = pack_dims(x, new_shape, instance('_t_flat'))
+        return unpack_dim(packed, '_t_flat', new_shape)
     else:
         return choose_backend(x).transpose(x, axes)
 
