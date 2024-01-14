@@ -558,6 +558,23 @@ class TestOps(TestCase):
                 result = math.scatter(spatial(x=3), indices, values, mode='min')
                 math.assert_close([float('inf'), 1, 2], result)
 
+    def test_scatter_prod_1d(self):
+        indices = math.tensor(vec(x=[1, 2, 1]))
+        values = wrap([2, 3, 5], instance(indices))
+        result = math.scatter(spatial(x=3), indices, values, mode=math.prod)
+        math.assert_close([1, 10, 3], result)
+        base = wrap([2, 3, 4], spatial('x'))
+        result = math.scatter(base, indices, values, mode=math.prod)
+        math.assert_close([2, 30, 12], result)
+
+    def test_scatter_any_all_1d(self):
+        indices = math.tensor(vec(x=[1, 2, 1]))
+        values = wrap([1, 0, 0], instance(indices))
+        result = math.scatter(spatial(x=3), indices, values, mode=math.any)
+        math.assert_close([False, True, False], result)
+        result = math.scatter(spatial(x=3), indices, values, mode=math.all)
+        math.assert_close([True, False, False], result)
+
     def test_histogram_1d(self):
         for backend in BACKENDS:
             with backend:
