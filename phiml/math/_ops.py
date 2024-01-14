@@ -2457,7 +2457,7 @@ def gather(values, indices: Tensor, dims: Union[DimFilter, None] = None):
 def scatter(base_grid: Union[Tensor, Shape],
             indices: Union[Tensor, dict],
             values: Union[Tensor, float],
-            mode: str = 'update',
+            mode: Union[str, Callable] = 'update',
             outside_handling: str = 'discard',
             indices_gradient=False,
             default=None):
@@ -2487,7 +2487,9 @@ def scatter(base_grid: Union[Tensor, Shape],
             This dimension is optional if the spatial rank is 1.
             Must also contain all `scatter_dims`.
         values: `Tensor` of values to scatter at `indices`.
-        mode: Scatter mode as `str`. One of ('add', 'mean', 'update', 'max', 'min')
+        mode: Scatter mode as `str` or function.
+            Supported modes are 'add', 'mean', 'update', 'max', 'min', 'prod', 'any', 'all'.
+            The corresponding functions are the built-in `sum`, `max´, `min`, as well as the reduce functions in `phiml.math`.
         outside_handling: Defines how indices lying outside the bounds of `base_grid` are handled.
 
             * `'discard'`: outside indices are ignored.
@@ -2501,6 +2503,23 @@ def scatter(base_grid: Union[Tensor, Shape],
     Returns:
         Copy of `base_grid` with updated values at `indices`.
     """
+    if callable(mode):
+        mode = {sum: 'add', max: 'max', min: 'min', sum_: 'add', max_: 'max', min_: 'min', mean: 'mean', prod: 'prod', any_: 'any', all_: 'all'}[mode]
+    if mode == 'prod':
+        log_base_grid = log(base_grid) if isinstance(base_grid, Tensor) else base_grid
+        log_default = None if default is None else log(default)
+        log_result = scatter(log_base_grid, indices, log(values), 'add', outside_handling, indices_gradient, log_default)
+        return exp(log_result)
+    elif mode == 'any':
+        b_base_grid = cast(base_grid, bool) if isinstance(base_grid, Tensor) else base_grid
+        b_values = cast(values, bool)
+        i_result = scatter(b_base_grid, indices, b_values, 'add', outside_handling, indices_gradient, False)
+        return cast(i_result, bool)
+    elif mode == 'all':
+        not_base_grid = ~cast(base_grid, bool) if isinstance(base_grid, Tensor) else base_grid
+        not_values = ~cast(values, bool)
+        i_result = scatter(not_base_grid, indices, not_values, 'add', outside_handling, indices_gradient, False)
+        return ~cast(i_result, bool)
     assert mode in ('update', 'add', 'mean', 'max', 'min'), f"Invalid scatter mode: '{mode}'"
     assert outside_handling in ('discard', 'clamp', 'undefined')
     assert isinstance(indices_gradient, bool)
