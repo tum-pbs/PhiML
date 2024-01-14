@@ -183,6 +183,10 @@ class SparseCoordinateTensor(Tensor):
             indices = spec['indices']['type']._from_spec_and_natives(spec['indices'], natives)
         return SparseCoordinateTensor(indices, values, spec['dense_shape'], spec['can_contain_double_entries'], spec['indices_sorted'], spec['default'])
 
+    def _expand(self):
+        self._values._expand()
+        self._indices._expand()
+
     def _native_coo_components(self, col_dims: DimFilter, matrix=False):
         col_dims = self._shape.only(col_dims)
         row_dims = self._dense_shape.without(col_dims)
@@ -516,6 +520,11 @@ class CompressedSparseMatrix(Tensor):
         else:
             pointers = spec['pointers']['type']._from_spec_and_natives(spec['pointers'], natives)
         return CompressedSparseMatrix(indices, pointers, values, spec['uncompressed_dims'], spec['compressed_dims'], spec['default'], spec['uncompressed_offset'], spec['uncompressed_indices'], spec['uncompressed_indices_perm'])
+
+    def _expand(self):
+        self._values._expand()
+        self._indices._expand()
+        self._pointers._expand()
 
     def _getitem(self, selection: dict) -> 'Tensor':
         batch_selection = {dim: selection[dim] for dim in self._shape.only(tuple(selection)).names}
