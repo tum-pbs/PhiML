@@ -125,11 +125,15 @@ This way, an easy-to-use PyTorch network can interact with a Jax simulation for 
 
 
 ### Named dimensions
-In $\Phi_\textrm{ML}$, dimensions are not referenced by their index but by name instead, similar to pandas [@Pandas2010].
+In $\Phi_\textrm{ML}$, dimensions are not referenced by their index but by name instead.
 We make dimension names mandatory for all dimensions, forcing users to explicitly document the meaning of each dimension upon creation.
 The name information gets preserved by tensor manipulations and can be inspected at any later point, e.g. by printing it or using a debugger.
-While similar concepts exist for all backend libraries, these features are limited and, consequently, have not been widely adopted.
-$\Phi_\textrm{ML}$ introduces the slicing syntax `tensor.dim_name[start:stop:step]`, replacing the less readable slices `tensor[..., start:stop:step, :]`, and supports dimension names in all functions as first-class citizens.
+Named dimensions are also present in other numerics libraries, such as pandas [@Pandas2010], xarray [@xarray2017], einops [@Einops2018],
+and are available for PyTorch as an add-on [@NamedTensor].
+However, these libraries make dimension names optional and, consequently, cannot support them to the same extent that $\Phi_\textrm{ML}$ can,
+preventing mainstream adoption.
+In $\Phi_\textrm{ML}$, dimension names are one part of a carefully-designed set of tools, making them more intuitive and useful than in previous libraries.
+For instance, $\Phi_\textrm{ML}$ introduces the convenience slicing syntax `tensor.dim_name[start:stop:step]`, replacing the less readable slices `tensor[..., start:stop:step, :]`, and supports dimension names in all functions as first-class citizens.
 While naming dimensions adds a small amount of additional code, this is easily outweighed by the gains in readability and ease of debugging.
 Furthermore, dimension names enable automatic reshaping, which eliminates the need for reshaping operations in user code, often significantly reducing the amount of required boilerplate code.
 
