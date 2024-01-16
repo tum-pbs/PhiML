@@ -200,6 +200,7 @@ The methods of <code>Backend</code> form a comprehensive list of available opera
 
     sqrt = staticmethod(jnp.sqrt)
     exp = staticmethod(jnp.exp)
+    erf = staticmethod(scipy.special.erf)
     softplus = staticmethod(jax.nn.softplus)
     sin = staticmethod(jnp.sin)
     arcsin = staticmethod(jnp.arcsin)
@@ -560,20 +561,21 @@ The methods of <code>Backend</code> form a comprehensive list of available opera
         return jnp.all(boolean_tensor, axis=axis, keepdims=keepdims)
 
     def scatter(self, base_grid, indices, values, mode: str):
+        assert mode in (&#39;add&#39;, &#39;update&#39;, &#39;max&#39;, &#39;min&#39;)
         base_grid, values = self.auto_cast(base_grid, values)
         batch_size = combined_dim(combined_dim(indices.shape[0], values.shape[0]), base_grid.shape[0])
         spatial_dims = tuple(range(base_grid.ndim - 2))
         dnums = jax.lax.ScatterDimensionNumbers(update_window_dims=(1,),  # channel dim of updates (batch dim removed)
                                                 inserted_window_dims=spatial_dims,  # no idea what this does but spatial_dims seems to work
                                                 scatter_dims_to_operand_dims=spatial_dims)  # spatial dims of base_grid (batch dim removed)
-        scatter = jax.lax.scatter_add if mode == &#39;add&#39; else jax.lax.scatter
-        result = []
-        for b in range(batch_size):
-            b_grid = base_grid[b, ...]
-            b_indices = indices[min(b, indices.shape[0] - 1), ...]
-            b_values = values[min(b, values.shape[0] - 1), ...]
-            result.append(scatter(b_grid, b_indices, b_values, dnums))
-        return jnp.stack(result)
+        scatter = {&#39;add&#39;: jax.lax.scatter_add, &#39;update&#39;: jax.lax.scatter, &#39;max&#39;: jax.lax.scatter_max, &#39;min&#39;: jax.lax.scatter_min}[mode]
+        def scatter_single(base_grid, indices, values):
+            return scatter(base_grid, indices, values, dnums)
+        if self.staticshape(indices)[0] == 1:
+            indices = self.tile(indices, [batch_size, 1, 1])
+        if self.staticshape(values)[0] == 1:
+            values = self.tile(values, [batch_size, 1, 1])
+        return self.vectorized_call(scatter_single, base_grid, indices, values)
 
     def histogram1d(self, values, weights, bin_edges):
         def unbatched_hist(values, weights, bin_edges):
@@ -1348,6 +1350,44 @@ def einsum(
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">fn = lambda x1, x2, /: lax_fn(*promote_args(numpy_fn.__name__, x1, x2))</code></pre>
+</details>
+</dd>
+<dt id="phiml.backend.jax.JaxBackend.erf"><code class="name flex">
+<span>def <span class="ident">erf</span></span>(<span>x: Union[jax.Array, numpy.ndarray, numpy.bool_, numpy.number, bool, int, float, complex]) ‑> jax.Array</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Returns the error function of complex argument.</p>
+<p>LAX-backend implementation of :func:<code>scipy.special.erf</code>.</p>
+<p>Note that the JAX version does not support complex inputs.</p>
+<p><em>Original docstring below.</em></p>
+<p>It is defined as <code>2/sqrt(pi)*integral(exp(-t**2), t=0..z)</code>.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>x</code></strong> :&ensp;<code>ndarray</code></dt>
+<dd>Input array.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><strong><code>res</code></strong> :&ensp;<code>scalar</code> or <code>ndarray</code></dt>
+<dd>The values of the error function at the given points <code>x</code>.</dd>
+</dl>
+<h2 id="references">References</h2>
+<p>.. [1] <a href="https://en.wikipedia.org/wiki/Error_function">https://en.wikipedia.org/wiki/Error_function</a>
+.. [2] Milton Abramowitz and Irene A. Stegun, eds.
+Handbook of Mathematical Functions with Formulas,
+Graphs, and Mathematical Tables. New York: Dover,
+1972. <a href="http://www.math.sfu.ca/~cbm/aands/page_297.htm">http://www.math.sfu.ca/~cbm/aands/page_297.htm</a>
+.. [3] Steven G. Johnson, Faddeeva W function implementation.
+<a href="http://ab-initio.mit.edu/Faddeeva">http://ab-initio.mit.edu/Faddeeva</a></p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@_wraps(osp_special.erf, module=&#39;scipy.special&#39;, skip_params=[&#34;out&#34;],
+        lax_description=&#34;Note that the JAX version does not support complex inputs.&#34;)
+def erf(x: ArrayLike) -&gt; Array:
+  x, = promote_args_inexact(&#34;erf&#34;, x)
+  return lax.erf(x)</code></pre>
 </details>
 </dd>
 <dt id="phiml.backend.jax.JaxBackend.exp"><code class="name flex">
@@ -3390,7 +3430,7 @@ Use <code>is_available(tensor)</code> to check if the value can be represented a
 <span>def <span class="ident">scatter</span></span>(<span>self, base_grid, indices, values, mode: str)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Depending on <code>mode</code>, performs scatter_update or scatter_add.</p>
+<div class="desc"><p>Batched n-dimensional scatter.</p>
 <h2 id="args">Args</h2>
 <dl>
 <dt><strong><code>base_grid</code></strong></dt>
@@ -3400,7 +3440,7 @@ Use <code>is_available(tensor)</code> to check if the value can be represented a
 <dt><strong><code>values</code></strong></dt>
 <dd>Values to scatter at indices. Tensor of shape (batch_size or 1, update_count or 1, channels or 1)</dd>
 <dt><strong><code>mode</code></strong></dt>
-<dd>One of ('update', 'add')</dd>
+<dd>One of ('update', 'add', 'max', 'min')</dd>
 </dl>
 <h2 id="returns">Returns</h2>
 <p>Copy of base_grid with values at <code>indices</code> updated by <code>values</code>.</p></div>
@@ -3409,20 +3449,21 @@ Use <code>is_available(tensor)</code> to check if the value can be represented a
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def scatter(self, base_grid, indices, values, mode: str):
+    assert mode in (&#39;add&#39;, &#39;update&#39;, &#39;max&#39;, &#39;min&#39;)
     base_grid, values = self.auto_cast(base_grid, values)
     batch_size = combined_dim(combined_dim(indices.shape[0], values.shape[0]), base_grid.shape[0])
     spatial_dims = tuple(range(base_grid.ndim - 2))
     dnums = jax.lax.ScatterDimensionNumbers(update_window_dims=(1,),  # channel dim of updates (batch dim removed)
                                             inserted_window_dims=spatial_dims,  # no idea what this does but spatial_dims seems to work
                                             scatter_dims_to_operand_dims=spatial_dims)  # spatial dims of base_grid (batch dim removed)
-    scatter = jax.lax.scatter_add if mode == &#39;add&#39; else jax.lax.scatter
-    result = []
-    for b in range(batch_size):
-        b_grid = base_grid[b, ...]
-        b_indices = indices[min(b, indices.shape[0] - 1), ...]
-        b_values = values[min(b, values.shape[0] - 1), ...]
-        result.append(scatter(b_grid, b_indices, b_values, dnums))
-    return jnp.stack(result)</code></pre>
+    scatter = {&#39;add&#39;: jax.lax.scatter_add, &#39;update&#39;: jax.lax.scatter, &#39;max&#39;: jax.lax.scatter_max, &#39;min&#39;: jax.lax.scatter_min}[mode]
+    def scatter_single(base_grid, indices, values):
+        return scatter(base_grid, indices, values, dnums)
+    if self.staticshape(indices)[0] == 1:
+        indices = self.tile(indices, [batch_size, 1, 1])
+    if self.staticshape(values)[0] == 1:
+        values = self.tile(values, [batch_size, 1, 1])
+    return self.vectorized_call(scatter_single, base_grid, indices, values)</code></pre>
 </details>
 </dd>
 <dt id="phiml.backend.jax.JaxBackend.searchsorted"><code class="name flex">
@@ -3789,6 +3830,7 @@ If the loop is broken, the values returned by the last loop are expected to be c
 <li><code><a title="phiml.backend.jax.JaxBackend.dtype" href="#phiml.backend.jax.JaxBackend.dtype">dtype</a></code></li>
 <li><code><a title="phiml.backend.jax.JaxBackend.einsum" href="#phiml.backend.jax.JaxBackend.einsum">einsum</a></code></li>
 <li><code><a title="phiml.backend.jax.JaxBackend.equal" href="#phiml.backend.jax.JaxBackend.equal">equal</a></code></li>
+<li><code><a title="phiml.backend.jax.JaxBackend.erf" href="#phiml.backend.jax.JaxBackend.erf">erf</a></code></li>
 <li><code><a title="phiml.backend.jax.JaxBackend.exp" href="#phiml.backend.jax.JaxBackend.exp">exp</a></code></li>
 <li><code><a title="phiml.backend.jax.JaxBackend.expand_dims" href="#phiml.backend.jax.JaxBackend.expand_dims">expand_dims</a></code></li>
 <li><code><a title="phiml.backend.jax.JaxBackend.fft" href="#phiml.backend.jax.JaxBackend.fft">fft</a></code></li>

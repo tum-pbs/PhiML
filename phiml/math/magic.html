@@ -505,7 +505,7 @@ class BoundDim:
         if name.startswith(&#39;_&#39;) or &#39;,&#39; in name or &#39; &#39; in name:
             raise AttributeError(f&#34;&#39;{type(self)}&#39; object has no attribute &#39;{name}&#39;&#34;)
         if name == &#39;shape&#39;:
-            raise AttributeError(f&#34;{type(obj)} has no shape&#34;)
+            raise AttributeError(f&#34;Object of type {type(obj)} has no shape&#34;)
         assert isinstance(obj, Sliceable) and isinstance(obj, Shaped), f&#34;Cannot create BoundDim for {type(obj).__name__}. Objects must be Sliceable and Shaped, see https://tum-pbs.github.io/PhiML/phiml/math/magic.html&#34;
         self.obj = obj
         self.name = name
@@ -807,12 +807,12 @@ def slicing_dict(obj, item) -&gt; dict:
             return {name: selection for name, selection in zip(channel(obj).names, item[1:])}
         elif len(item) == shape(obj).channel_rank:
             if len(item) &gt; 1:
-                warnings.warn(&#34;NumPy-style slicing for more than one channel dimension is highly discouraged. Use a dict or the special slicing syntax value.dim[slice] instead. See https://tum-pbs.github.io/PhiML/Math.html&#34;, SyntaxWarning, stacklevel=3)
+                warnings.warn(&#34;NumPy-style slicing for more than one channel dimension is highly discouraged. Use a dict or the special slicing syntax value.dim[slice] instead. See https://tum-pbs.github.io/PhiML/Introduction.html#Slicing&#34;, SyntaxWarning, stacklevel=3)
             return {name: selection for name, selection in zip(channel(obj).names, item)}
         elif shape(obj).channel_rank == 1 and all(isinstance(e, str) for e in item):
             return {channel(obj).name: item}
         else:
-            raise AssertionError(f&#34;Cannot slice {obj}[{item}]. Use a dict or the special slicing syntax value.dim[slice] instead. See https://tum-pbs.github.io/PhiML/Math.html&#34;)
+            raise AssertionError(f&#34;Cannot slice {obj}[{item}]. Use a dict or the special slicing syntax value.dim[slice] instead. See https://tum-pbs.github.io/PhiML/Introduction.html#Slicing&#34;)
     else:
         if shape(obj).channel_rank == 1:
             return {channel(obj).name: item}
@@ -894,12 +894,12 @@ for cls_name, cls in dict(globals()).items():
             return {name: selection for name, selection in zip(channel(obj).names, item[1:])}
         elif len(item) == shape(obj).channel_rank:
             if len(item) &gt; 1:
-                warnings.warn(&#34;NumPy-style slicing for more than one channel dimension is highly discouraged. Use a dict or the special slicing syntax value.dim[slice] instead. See https://tum-pbs.github.io/PhiML/Math.html&#34;, SyntaxWarning, stacklevel=3)
+                warnings.warn(&#34;NumPy-style slicing for more than one channel dimension is highly discouraged. Use a dict or the special slicing syntax value.dim[slice] instead. See https://tum-pbs.github.io/PhiML/Introduction.html#Slicing&#34;, SyntaxWarning, stacklevel=3)
             return {name: selection for name, selection in zip(channel(obj).names, item)}
         elif shape(obj).channel_rank == 1 and all(isinstance(e, str) for e in item):
             return {channel(obj).name: item}
         else:
-            raise AssertionError(f&#34;Cannot slice {obj}[{item}]. Use a dict or the special slicing syntax value.dim[slice] instead. See https://tum-pbs.github.io/PhiML/Math.html&#34;)
+            raise AssertionError(f&#34;Cannot slice {obj}[{item}]. Use a dict or the special slicing syntax value.dim[slice] instead. See https://tum-pbs.github.io/PhiML/Introduction.html#Slicing&#34;)
     else:
         if shape(obj).channel_rank == 1:
             return {channel(obj).name: item}
@@ -1016,7 +1016,7 @@ This supports the following operations:</p>
         if name.startswith(&#39;_&#39;) or &#39;,&#39; in name or &#39; &#39; in name:
             raise AttributeError(f&#34;&#39;{type(self)}&#39; object has no attribute &#39;{name}&#39;&#34;)
         if name == &#39;shape&#39;:
-            raise AttributeError(f&#34;{type(obj)} has no shape&#34;)
+            raise AttributeError(f&#34;Object of type {type(obj)} has no shape&#34;)
         assert isinstance(obj, Sliceable) and isinstance(obj, Shaped), f&#34;Cannot create BoundDim for {type(obj).__name__}. Objects must be Sliceable and Shaped, see https://tum-pbs.github.io/PhiML/phiml/math/magic.html&#34;
         self.obj = obj
         self.name = name

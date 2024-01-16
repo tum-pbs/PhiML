@@ -616,7 +616,7 @@ The methods of <code><a title="phiml.backend.Backend" href="#phiml.backend.Backe
         return impl_fun is not backend_fun
 
     def prefers_channels_last(self) -&gt; bool:
-        raise NotImplementedError()
+        raise NotImplementedError(self.__class__)
 
     def requires_fixed_shapes_when_tracing(self) -&gt; bool:
         return False
@@ -735,7 +735,7 @@ The methods of <code><a title="phiml.backend.Backend" href="#phiml.backend.Backe
 
     def get_device(self, tensor: TensorType) -&gt; ComputeDevice:
         &#34;&#34;&#34; Returns the device `tensor` is located on. &#34;&#34;&#34;
-        raise NotImplementedError()
+        raise NotImplementedError(self.__class__)
 
     def get_device_by_ref(self, ref):
         for device in self._devices:
@@ -751,10 +751,10 @@ The methods of <code><a title="phiml.backend.Backend" href="#phiml.backend.Backe
             tensor: Existing tensor native to this backend.
             device: Target device, associated with this backend.
         &#34;&#34;&#34;
-        raise NotImplementedError()
+        raise NotImplementedError(self.__class__)
 
     def seed(self, seed: int):
-        raise NotImplementedError()
+        raise NotImplementedError(self.__class__)
 
     def is_module(self, obj) -&gt; bool:
         &#34;&#34;&#34;
@@ -767,7 +767,7 @@ The methods of <code><a title="phiml.backend.Backend" href="#phiml.backend.Backe
         Args:
             obj: Object to test.
         &#34;&#34;&#34;
-        raise NotImplementedError()
+        raise NotImplementedError(self.__class__)
 
     def is_tensor(self, x, only_native=False):
         &#34;&#34;&#34;
@@ -787,18 +787,18 @@ The methods of <code><a title="phiml.backend.Backend" href="#phiml.backend.Backe
           bool: whether `x` is considered a tensor by this backend
 
         &#34;&#34;&#34;
-        raise NotImplementedError()
+        raise NotImplementedError(self.__class__)
 
     def is_sparse(self, x) -&gt; bool:
         &#34;&#34;&#34;
         Args:
             x: Tensor native to this `Backend`.
         &#34;&#34;&#34;
-        raise NotImplementedError(self)
+        raise NotImplementedError(self.__class__)
 
     def get_sparse_format(self, x) -&gt; str:
         &#34;&#34;&#34;Returns lower-case format string, such as &#39;coo&#39;, &#39;csr&#39;, &#39;csc&#39; &#34;&#34;&#34;
-        raise NotImplementedError(self)
+        raise NotImplementedError(self.__class__)
 
     def disassemble(self, x) -&gt; Tuple[Callable, Sequence[TensorType]]:
         &#34;&#34;&#34;
@@ -811,7 +811,7 @@ The methods of <code><a title="phiml.backend.Backend" href="#phiml.backend.Backe
             assemble: Function `assemble(backend, *constituents)` that reassembles `x` from the constituents.
             constituents: Tensors contained in `x`.
         &#34;&#34;&#34;
-        raise NotImplementedError(self)
+        raise NotImplementedError(self.__class__)
 
     def as_tensor(self, x, convert_external=True):
         &#34;&#34;&#34;
@@ -829,7 +829,7 @@ The methods of <code><a title="phiml.backend.Backend" href="#phiml.backend.Backe
           tensor representation of `x`
 
         &#34;&#34;&#34;
-        raise NotImplementedError()
+        raise NotImplementedError(self.__class__)
 
     def is_available(self, tensor) -&gt; bool:
         &#34;&#34;&#34;
@@ -845,7 +845,7 @@ The methods of <code><a title="phiml.backend.Backend" href="#phiml.backend.Backe
           bool
 
         &#34;&#34;&#34;
-        raise NotImplementedError()
+        raise NotImplementedError(self.__class__)
 
     def numpy(self, tensor) -&gt; numpy.ndarray:
         &#34;&#34;&#34;
@@ -862,16 +862,16 @@ The methods of <code><a title="phiml.backend.Backend" href="#phiml.backend.Backe
           NumPy representation of the values stored in the tensor
 
         &#34;&#34;&#34;
-        raise NotImplementedError()
+        raise NotImplementedError(self.__class__)
 
     def to_dlpack(self, tensor):
-        raise NotImplementedError()
+        raise NotImplementedError(self.__class__)
 
     def from_dlpack(self, capsule):
-        raise NotImplementedError()
+        raise NotImplementedError(self.__class__)
 
     def copy(self, tensor, only_mutable=False):
-        raise NotImplementedError()
+        raise NotImplementedError(self.__class__)
 
     def copy_leaves(self, tree, only_mutable=False):
         if isinstance(tree, tuple):
@@ -994,14 +994,14 @@ The methods of <code><a title="phiml.backend.Backend" href="#phiml.backend.Backe
         return NotImplemented
 
     def jit_compile_grad(self, f: Callable, wrt: Union[tuple, list], get_output: bool, is_f_scalar: bool):
-        raise NotImplementedError()
+        raise NotImplementedError(self.__class__)
 
     def jit_compile_hessian(self, f: Callable, wrt: Union[tuple, list], get_output: bool, get_gradient: bool):
-        raise NotImplementedError()
+        raise NotImplementedError(self.__class__)
 
     def transpose(self, tensor, axes):
         &#34;&#34;&#34; Transposes the dimensions of `tensor` given the new axes order. The tensor will be cast to the default precision in the process. &#34;&#34;&#34;
-        raise NotImplementedError()
+        raise NotImplementedError(self.__class__)
 
     def random_uniform(self, shape, low, high, dtype: Union[DType, None]):
         &#34;&#34;&#34; Float tensor of selected precision containing random values in the range [0, 1) &#34;&#34;&#34;
@@ -1209,6 +1209,9 @@ The methods of <code><a title="phiml.backend.Backend" href="#phiml.backend.Backe
         raise NotImplementedError(self)
 
     def exp(self, x):
+        raise NotImplementedError(self)
+
+    def erf(self, x):
         raise NotImplementedError(self)
 
     def softplus(self, x):
@@ -1427,13 +1430,13 @@ The methods of <code><a title="phiml.backend.Backend" href="#phiml.backend.Backe
 
     def scatter(self, base_grid, indices, values, mode: str):
         &#34;&#34;&#34;
-        Depending on `mode`, performs scatter_update or scatter_add.
+        Batched n-dimensional scatter.
 
         Args:
             base_grid: Tensor into which scatter values are inserted at indices. Tensor of shape (batch_size, spatial..., channels)
             indices: Tensor of shape (batch_size or 1, update_count, index_vector)
             values: Values to scatter at indices. Tensor of shape (batch_size or 1, update_count or 1, channels or 1)
-            mode: One of (&#39;update&#39;, &#39;add&#39;)
+            mode: One of (&#39;update&#39;, &#39;add&#39;, &#39;max&#39;, &#39;min&#39;)
 
         Returns:
             Copy of base_grid with values at `indices` updated by `values`.
@@ -1744,7 +1747,7 @@ The methods of <code><a title="phiml.backend.Backend" href="#phiml.backend.Backe
 
     def coo_to_dense(self, indices, values, shape, contains_duplicates: bool):
         batch_size, nnz, channel_count = self.staticshape(values)
-        base = self.zeros((batch_size, *shape, channel_count))
+        base = self.zeros((batch_size, *shape, channel_count), dtype=self.dtype(values))
         result = self.scatter(base, indices, values, mode=&#39;add&#39; if contains_duplicates else &#39;update&#39;)
         return result
 
@@ -2275,7 +2278,7 @@ def precision(self) -&gt; int:
         tensor: Existing tensor native to this backend.
         device: Target device, associated with this backend.
     &#34;&#34;&#34;
-    raise NotImplementedError()</code></pre>
+    raise NotImplementedError(self.__class__)</code></pre>
 </details>
 </dd>
 <dt id="phiml.backend.Backend.and_"><code class="name flex">
@@ -2472,7 +2475,7 @@ If x is a Python number (numbers.Number instance), <code>convert_numbers</code> 
       tensor representation of `x`
 
     &#34;&#34;&#34;
-    raise NotImplementedError()</code></pre>
+    raise NotImplementedError(self.__class__)</code></pre>
 </details>
 </dd>
 <dt id="phiml.backend.Backend.auto_cast"><code class="name flex">
@@ -2892,7 +2895,7 @@ Higher dimensions may not be supported.</p>
 </summary>
 <pre><code class="python">def coo_to_dense(self, indices, values, shape, contains_duplicates: bool):
     batch_size, nnz, channel_count = self.staticshape(values)
-    base = self.zeros((batch_size, *shape, channel_count))
+    base = self.zeros((batch_size, *shape, channel_count), dtype=self.dtype(values))
     result = self.scatter(base, indices, values, mode=&#39;add&#39; if contains_duplicates else &#39;update&#39;)
     return result</code></pre>
 </details>
@@ -2907,7 +2910,7 @@ Higher dimensions may not be supported.</p>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def copy(self, tensor, only_mutable=False):
-    raise NotImplementedError()</code></pre>
+    raise NotImplementedError(self.__class__)</code></pre>
 </details>
 </dd>
 <dt id="phiml.backend.Backend.copy_leaves"><code class="name flex">
@@ -3255,7 +3258,7 @@ Higher dimensions may not be supported.</p>
         assemble: Function `assemble(backend, *constituents)` that reassembles `x` from the constituents.
         constituents: Tensors contained in `x`.
     &#34;&#34;&#34;
-    raise NotImplementedError(self)</code></pre>
+    raise NotImplementedError(self.__class__)</code></pre>
 </details>
 </dd>
 <dt id="phiml.backend.Backend.div"><code class="name flex">
@@ -3323,6 +3326,19 @@ Higher dimensions may not be supported.</p>
 </summary>
 <pre><code class="python">def equal(self, x, y):
     &#34;&#34;&#34; Element-wise equality check &#34;&#34;&#34;
+    raise NotImplementedError(self)</code></pre>
+</details>
+</dd>
+<dt id="phiml.backend.Backend.erf"><code class="name flex">
+<span>def <span class="ident">erf</span></span>(<span>self, x)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def erf(self, x):
     raise NotImplementedError(self)</code></pre>
 </details>
 </dd>
@@ -3466,7 +3482,7 @@ Higher dimensions may not be supported.</p>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def from_dlpack(self, capsule):
-    raise NotImplementedError()</code></pre>
+    raise NotImplementedError(self.__class__)</code></pre>
 </details>
 </dd>
 <dt id="phiml.backend.Backend.gather"><code class="name flex">
@@ -3583,7 +3599,7 @@ Higher dimensions may not be supported.</p>
 </summary>
 <pre><code class="python">def get_device(self, tensor: TensorType) -&gt; ComputeDevice:
     &#34;&#34;&#34; Returns the device `tensor` is located on. &#34;&#34;&#34;
-    raise NotImplementedError()</code></pre>
+    raise NotImplementedError(self.__class__)</code></pre>
 </details>
 </dd>
 <dt id="phiml.backend.Backend.get_device_by_ref"><code class="name flex">
@@ -3646,7 +3662,7 @@ Higher dimensions may not be supported.</p>
 </summary>
 <pre><code class="python">def get_sparse_format(self, x) -&gt; str:
     &#34;&#34;&#34;Returns lower-case format string, such as &#39;coo&#39;, &#39;csr&#39;, &#39;csc&#39; &#34;&#34;&#34;
-    raise NotImplementedError(self)</code></pre>
+    raise NotImplementedError(self.__class__)</code></pre>
 </details>
 </dd>
 <dt id="phiml.backend.Backend.greater_or_equal"><code class="name flex">
@@ -3915,7 +3931,7 @@ If true, <code>numpy(tensor)</code> must return a valid NumPy representation of 
       bool
 
     &#34;&#34;&#34;
-    raise NotImplementedError()</code></pre>
+    raise NotImplementedError(self.__class__)</code></pre>
 </details>
 </dd>
 <dt id="phiml.backend.Backend.is_module"><code class="name flex">
@@ -3946,7 +3962,7 @@ If <code>True</code>, this backend will be chosen for operations involving <code
     Args:
         obj: Object to test.
     &#34;&#34;&#34;
-    raise NotImplementedError()</code></pre>
+    raise NotImplementedError(self.__class__)</code></pre>
 </details>
 </dd>
 <dt id="phiml.backend.Backend.is_sparse"><code class="name flex">
@@ -3967,7 +3983,7 @@ If <code>True</code>, this backend will be chosen for operations involving <code
     Args:
         x: Tensor native to this `Backend`.
     &#34;&#34;&#34;
-    raise NotImplementedError(self)</code></pre>
+    raise NotImplementedError(self.__class__)</code></pre>
 </details>
 </dd>
 <dt id="phiml.backend.Backend.is_tensor"><code class="name flex">
@@ -4013,7 +4029,7 @@ An object is considered a tensor (nativer or otherwise) by a backend if it is no
       bool: whether `x` is considered a tensor by this backend
 
     &#34;&#34;&#34;
-    raise NotImplementedError()</code></pre>
+    raise NotImplementedError(self.__class__)</code></pre>
 </details>
 </dd>
 <dt id="phiml.backend.Backend.isfinite"><code class="name flex">
@@ -4117,7 +4133,7 @@ The gradients retain the dimensions of <code>reduced_loss</code> in order as out
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def jit_compile_grad(self, f: Callable, wrt: Union[tuple, list], get_output: bool, is_f_scalar: bool):
-    raise NotImplementedError()</code></pre>
+    raise NotImplementedError(self.__class__)</code></pre>
 </details>
 </dd>
 <dt id="phiml.backend.Backend.jit_compile_hessian"><code class="name flex">
@@ -4130,7 +4146,7 @@ The gradients retain the dimensions of <code>reduced_loss</code> in order as out
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def jit_compile_hessian(self, f: Callable, wrt: Union[tuple, list], get_output: bool, get_gradient: bool):
-    raise NotImplementedError()</code></pre>
+    raise NotImplementedError(self.__class__)</code></pre>
 </details>
 </dd>
 <dt id="phiml.backend.Backend.linear"><code class="name flex">
@@ -4805,7 +4821,7 @@ Use <code>is_available(tensor)</code> to check if the value can be represented a
       NumPy representation of the values stored in the tensor
 
     &#34;&#34;&#34;
-    raise NotImplementedError()</code></pre>
+    raise NotImplementedError(self.__class__)</code></pre>
 </details>
 </dd>
 <dt id="phiml.backend.Backend.numpy_call"><code class="name flex">
@@ -4980,7 +4996,7 @@ Use <code>is_available(tensor)</code> to check if the value can be represented a
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def prefers_channels_last(self) -&gt; bool:
-    raise NotImplementedError()</code></pre>
+    raise NotImplementedError(self.__class__)</code></pre>
 </details>
 </dd>
 <dt id="phiml.backend.Backend.prod"><code class="name flex">
@@ -5207,7 +5223,7 @@ Use <code>is_available(tensor)</code> to check if the value can be represented a
 <span>def <span class="ident">scatter</span></span>(<span>self, base_grid, indices, values, mode: str)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Depending on <code>mode</code>, performs scatter_update or scatter_add.</p>
+<div class="desc"><p>Batched n-dimensional scatter.</p>
 <h2 id="args">Args</h2>
 <dl>
 <dt><strong><code>base_grid</code></strong></dt>
@@ -5217,7 +5233,7 @@ Use <code>is_available(tensor)</code> to check if the value can be represented a
 <dt><strong><code>values</code></strong></dt>
 <dd>Values to scatter at indices. Tensor of shape (batch_size or 1, update_count or 1, channels or 1)</dd>
 <dt><strong><code>mode</code></strong></dt>
-<dd>One of ('update', 'add')</dd>
+<dd>One of ('update', 'add', 'max', 'min')</dd>
 </dl>
 <h2 id="returns">Returns</h2>
 <p>Copy of base_grid with values at <code>indices</code> updated by <code>values</code>.</p></div>
@@ -5227,13 +5243,13 @@ Use <code>is_available(tensor)</code> to check if the value can be represented a
 </summary>
 <pre><code class="python">def scatter(self, base_grid, indices, values, mode: str):
     &#34;&#34;&#34;
-    Depending on `mode`, performs scatter_update or scatter_add.
+    Batched n-dimensional scatter.
 
     Args:
         base_grid: Tensor into which scatter values are inserted at indices. Tensor of shape (batch_size, spatial..., channels)
         indices: Tensor of shape (batch_size or 1, update_count, index_vector)
         values: Values to scatter at indices. Tensor of shape (batch_size or 1, update_count or 1, channels or 1)
-        mode: One of (&#39;update&#39;, &#39;add&#39;)
+        mode: One of (&#39;update&#39;, &#39;add&#39;, &#39;max&#39;, &#39;min&#39;)
 
     Returns:
         Copy of base_grid with values at `indices` updated by `values`.
@@ -5357,7 +5373,7 @@ Use <code>is_available(tensor)</code> to check if the value can be represented a
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def seed(self, seed: int):
-    raise NotImplementedError()</code></pre>
+    raise NotImplementedError(self.__class__)</code></pre>
 </details>
 </dd>
 <dt id="phiml.backend.Backend.set_default_device"><code class="name flex">
@@ -6005,7 +6021,7 @@ If <code>multiples</code> has more dimensions than <code>value</code>, these dim
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def to_dlpack(self, tensor):
-    raise NotImplementedError()</code></pre>
+    raise NotImplementedError(self.__class__)</code></pre>
 </details>
 </dd>
 <dt id="phiml.backend.Backend.to_float"><code class="name flex">
@@ -6085,7 +6101,7 @@ If <code>multiples</code> has more dimensions than <code>value</code>, these dim
 </summary>
 <pre><code class="python">def transpose(self, tensor, axes):
     &#34;&#34;&#34; Transposes the dimensions of `tensor` given the new axes order. The tensor will be cast to the default precision in the process. &#34;&#34;&#34;
-    raise NotImplementedError()</code></pre>
+    raise NotImplementedError(self.__class__)</code></pre>
 </details>
 </dd>
 <dt id="phiml.backend.Backend.unique"><code class="name flex">
@@ -6914,6 +6930,7 @@ def retime(self):
 <li><code><a title="phiml.backend.Backend.dtype" href="#phiml.backend.Backend.dtype">dtype</a></code></li>
 <li><code><a title="phiml.backend.Backend.einsum" href="#phiml.backend.Backend.einsum">einsum</a></code></li>
 <li><code><a title="phiml.backend.Backend.equal" href="#phiml.backend.Backend.equal">equal</a></code></li>
+<li><code><a title="phiml.backend.Backend.erf" href="#phiml.backend.Backend.erf">erf</a></code></li>
 <li><code><a title="phiml.backend.Backend.exp" href="#phiml.backend.Backend.exp">exp</a></code></li>
 <li><code><a title="phiml.backend.Backend.expand_dims" href="#phiml.backend.Backend.expand_dims">expand_dims</a></code></li>
 <li><code><a title="phiml.backend.Backend.factorial" href="#phiml.backend.Backend.factorial">factorial</a></code></li>
