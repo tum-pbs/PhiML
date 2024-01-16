@@ -15192,55 +15192,17 @@ Note that we have to set the backend to either Jax, PyTorch or TensorFlow since 
 </pre>
 </div>
 </div>
-<div class="jp-OutputArea-child">
+<div class="jp-OutputArea-child jp-OutputArea-executeResult">
     
-    <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[2]:</div>
 
 
-<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="application/vnd.jupyter.stderr">
-<pre>
-<span class="ansi-red-fg">---------------------------------------------------------------------------</span>
-<span class="ansi-red-fg">RuntimeError</span>                              Traceback (most recent call last)
-Cell <span class="ansi-green-fg">In[2], line 7</span>
-<span class="ansi-green-intense-fg ansi-bold">      4</span>     <span class="ansi-bold" style="color: rgb(0,135,0)">return</span> x <span style="color: rgb(98,98,98)">*</span><span style="color: rgb(98,98,98)">*</span> <span style="color: rgb(98,98,98)">2</span> <span style="color: rgb(98,98,98)">*</span> y
-<span class="ansi-green-intense-fg ansi-bold">      6</span> dx_function <span style="color: rgb(98,98,98)">=</span> math<span style="color: rgb(98,98,98)">.</span>gradient(loss_function, wrt<span style="color: rgb(98,98,98)">=</span><span style="color: rgb(175,0,0)">&#39;</span><span style="color: rgb(175,0,0)">x</span><span style="color: rgb(175,0,0)">&#39;</span>)
-<span class="ansi-green-fg">----&gt; 7</span> <span class="ansi-yellow-bg">dx_function</span><span class="ansi-yellow-bg">(</span><span class="ansi-yellow-bg">x</span><span class="ansi-yellow-bg" style="color: rgb(98,98,98)">=</span><span class="ansi-yellow-bg" style="color: rgb(98,98,98)">1.</span><span class="ansi-yellow-bg">,</span><span class="ansi-yellow-bg"> </span><span class="ansi-yellow-bg">y</span><span class="ansi-yellow-bg" style="color: rgb(98,98,98)">=</span><span class="ansi-yellow-bg" style="color: rgb(98,98,98)">1.</span><span class="ansi-yellow-bg">)</span>
 
-File <span class="ansi-green-fg">/opt/hostedtoolcache/Python/3.8.18/x64/lib/python3.8/site-packages/phiml/math/_functional.py:512</span>, in <span class="ansi-cyan-fg">GradientFunction.__call__</span><span class="ansi-blue-fg">(self, *args, **kwargs)</span>
-<span class="ansi-green-intense-fg ansi-bold">    510</span> <span class="ansi-bold" style="color: rgb(0,135,0)">if</span> key <span class="ansi-bold" style="color: rgb(175,0,255)">not</span> <span class="ansi-bold" style="color: rgb(175,0,255)">in</span> <span style="color: rgb(0,135,0)">self</span><span style="color: rgb(98,98,98)">.</span>traces:
-<span class="ansi-green-intense-fg ansi-bold">    511</span>     <span style="color: rgb(0,135,0)">self</span><span style="color: rgb(98,98,98)">.</span>traces[key] <span style="color: rgb(98,98,98)">=</span> <span style="color: rgb(0,135,0)">self</span><span style="color: rgb(98,98,98)">.</span>_trace_grad(key, wrt_natives)
-<span class="ansi-green-fg">--&gt; 512</span> native_result <span style="color: rgb(98,98,98)">=</span> <span class="ansi-yellow-bg" style="color: rgb(0,135,0)">self</span><span class="ansi-yellow-bg" style="color: rgb(98,98,98)">.</span><span class="ansi-yellow-bg">traces</span><span class="ansi-yellow-bg">[</span><span class="ansi-yellow-bg">key</span><span class="ansi-yellow-bg">]</span><span class="ansi-yellow-bg">(</span><span class="ansi-yellow-bg" style="color: rgb(98,98,98)">*</span><span class="ansi-yellow-bg">natives</span><span class="ansi-yellow-bg">)</span>
-<span class="ansi-green-intense-fg ansi-bold">    513</span> output_key <span style="color: rgb(98,98,98)">=</span> match_output_signature(key, <span style="color: rgb(0,135,0)">self</span><span style="color: rgb(98,98,98)">.</span>recorded_mappings, <span style="color: rgb(0,135,0)">self</span>)
-<span class="ansi-green-intense-fg ansi-bold">    514</span> jac_shape <span style="color: rgb(98,98,98)">=</span> output_key<span style="color: rgb(98,98,98)">.</span>shapes[<span style="color: rgb(98,98,98)">0</span>]<span style="color: rgb(98,98,98)">.</span>non_batch  <span style="color: rgb(95,135,135)"># ToDo prepend this to all wrt shapes</span>
 
-File <span class="ansi-green-fg">/opt/hostedtoolcache/Python/3.8.18/x64/lib/python3.8/site-packages/phiml/backend/torch/_torch_backend.py:916</span>, in <span class="ansi-cyan-fg">TorchBackend.jacobian.&lt;locals&gt;.eval_grad</span><span class="ansi-blue-fg">(*args)</span>
-<span class="ansi-green-intense-fg ansi-bold">    913</span> <span style="color: rgb(175,0,255)">@wraps</span>(f)
-<span class="ansi-green-intense-fg ansi-bold">    914</span> <span class="ansi-bold" style="color: rgb(0,135,0)">def</span> <span style="color: rgb(0,0,255)">eval_grad</span>(<span style="color: rgb(98,98,98)">*</span>args):
-<span class="ansi-green-intense-fg ansi-bold">    915</span>     args, wrt_args <span style="color: rgb(98,98,98)">=</span> <span style="color: rgb(0,135,0)">self</span><span style="color: rgb(98,98,98)">.</span>_prepare_graph_inputs(args, wrt)
-<span class="ansi-green-fg">--&gt; 916</span>     loss, output <span style="color: rgb(98,98,98)">=</span> <span class="ansi-yellow-bg">f</span><span class="ansi-yellow-bg">(</span><span class="ansi-yellow-bg" style="color: rgb(98,98,98)">*</span><span class="ansi-yellow-bg">args</span><span class="ansi-yellow-bg">)</span>
-<span class="ansi-green-intense-fg ansi-bold">    917</span>     <span class="ansi-bold" style="color: rgb(0,135,0)">if</span> np<span style="color: rgb(98,98,98)">.</span>prod(<span style="color: rgb(0,135,0)">self</span><span style="color: rgb(98,98,98)">.</span>staticshape(loss)) <span style="color: rgb(98,98,98)">==</span> <span style="color: rgb(98,98,98)">1</span>:
-<span class="ansi-green-intense-fg ansi-bold">    918</span>         <span class="ansi-bold" style="color: rgb(0,135,0)">assert</span> loss<span style="color: rgb(98,98,98)">.</span>requires_grad, <span style="color: rgb(175,0,0)">f</span><span style="color: rgb(175,0,0)">&#34;</span><span style="color: rgb(175,0,0)">Failed to compute gradient because function output does not depend on any input. Inputs: </span><span class="ansi-bold" style="color: rgb(175,95,135)">{</span>args<span class="ansi-bold" style="color: rgb(175,95,135)">}</span><span style="color: rgb(175,0,0)">&#34;</span>
-
-File <span class="ansi-green-fg">/opt/hostedtoolcache/Python/3.8.18/x64/lib/python3.8/site-packages/phiml/math/_functional.py:480</span>, in <span class="ansi-cyan-fg">GradientFunction._trace_grad.&lt;locals&gt;.f_native</span><span class="ansi-blue-fg">(*natives)</span>
-<span class="ansi-green-intense-fg ansi-bold">    478</span> kwargs <span style="color: rgb(98,98,98)">=</span> assemble_tree(in_key<span style="color: rgb(98,98,98)">.</span>tree, in_tensors)
-<span class="ansi-green-intense-fg ansi-bold">    479</span> <span class="ansi-bold" style="color: rgb(0,135,0)">with</span> functional_derivative_evaluation(order<span style="color: rgb(98,98,98)">=</span><span style="color: rgb(98,98,98)">1</span>):
-<span class="ansi-green-fg">--&gt; 480</span>     result <span style="color: rgb(98,98,98)">=</span> <span class="ansi-yellow-bg" style="color: rgb(0,135,0)">self</span><span class="ansi-yellow-bg" style="color: rgb(98,98,98)">.</span><span class="ansi-yellow-bg">f</span><span class="ansi-yellow-bg">(</span><span class="ansi-yellow-bg" style="color: rgb(98,98,98)">*</span><span class="ansi-yellow-bg" style="color: rgb(98,98,98)">*</span><span class="ansi-yellow-bg">kwargs</span><span class="ansi-yellow-bg">)</span>  <span style="color: rgb(95,135,135)"># Tensor or tuple/list of Tensors</span>
-<span class="ansi-green-intense-fg ansi-bold">    481</span> loss <span style="color: rgb(98,98,98)">=</span> result[<span style="color: rgb(98,98,98)">0</span>] <span class="ansi-bold" style="color: rgb(0,135,0)">if</span> <span style="color: rgb(0,135,0)">isinstance</span>(result, (<span style="color: rgb(0,135,0)">tuple</span>, <span style="color: rgb(0,135,0)">list</span>)) <span class="ansi-bold" style="color: rgb(0,135,0)">else</span> result
-<span class="ansi-green-intense-fg ansi-bold">    482</span> <span class="ansi-bold" style="color: rgb(0,135,0)">if</span> <span style="color: rgb(0,135,0)">isinstance</span>(loss, Tensor):
-
-Cell <span class="ansi-green-fg">In[2], line 4</span>, in <span class="ansi-cyan-fg">loss_function</span><span class="ansi-blue-fg">(x, y)</span>
-<span class="ansi-green-intense-fg ansi-bold">      3</span> <span class="ansi-bold" style="color: rgb(0,135,0)">def</span> <span style="color: rgb(0,0,255)">loss_function</span>(x, y):
-<span class="ansi-green-fg">----&gt; 4</span>     <span class="ansi-bold" style="color: rgb(0,135,0)">return</span> <span class="ansi-yellow-bg">x</span><span class="ansi-yellow-bg"> </span><span class="ansi-yellow-bg" style="color: rgb(98,98,98)">*</span><span class="ansi-yellow-bg" style="color: rgb(98,98,98)">*</span><span class="ansi-yellow-bg"> </span><span class="ansi-yellow-bg" style="color: rgb(98,98,98)">2</span><span class="ansi-yellow-bg"> </span><span class="ansi-yellow-bg" style="color: rgb(98,98,98)">*</span><span class="ansi-yellow-bg"> </span><span class="ansi-yellow-bg">y</span>
-
-File <span class="ansi-green-fg">/opt/hostedtoolcache/Python/3.8.18/x64/lib/python3.8/site-packages/torch/_tensor.py:1030</span>, in <span class="ansi-cyan-fg">Tensor.__array__</span><span class="ansi-blue-fg">(self, dtype)</span>
-<span class="ansi-green-intense-fg ansi-bold">   1028</span>     <span class="ansi-bold" style="color: rgb(0,135,0)">return</span> handle_torch_function(Tensor<span style="color: rgb(98,98,98)">.</span>__array__, (<span style="color: rgb(0,135,0)">self</span>,), <span style="color: rgb(0,135,0)">self</span>, dtype<span style="color: rgb(98,98,98)">=</span>dtype)
-<span class="ansi-green-intense-fg ansi-bold">   1029</span> <span class="ansi-bold" style="color: rgb(0,135,0)">if</span> dtype <span class="ansi-bold" style="color: rgb(175,0,255)">is</span> <span class="ansi-bold" style="color: rgb(0,135,0)">None</span>:
-<span class="ansi-green-fg">-&gt; 1030</span>     <span class="ansi-bold" style="color: rgb(0,135,0)">return</span> <span class="ansi-yellow-bg" style="color: rgb(0,135,0)">self</span><span class="ansi-yellow-bg" style="color: rgb(98,98,98)">.</span><span class="ansi-yellow-bg">numpy</span><span class="ansi-yellow-bg">(</span><span class="ansi-yellow-bg">)</span>
-<span class="ansi-green-intense-fg ansi-bold">   1031</span> <span class="ansi-bold" style="color: rgb(0,135,0)">else</span>:
-<span class="ansi-green-intense-fg ansi-bold">   1032</span>     <span class="ansi-bold" style="color: rgb(0,135,0)">return</span> <span style="color: rgb(0,135,0)">self</span><span style="color: rgb(98,98,98)">.</span>numpy()<span style="color: rgb(98,98,98)">.</span>astype(dtype, copy<span style="color: rgb(98,98,98)">=</span><span class="ansi-bold" style="color: rgb(0,135,0)">False</span>)
-
-<span class="ansi-red-fg">RuntimeError</span>: Can&#39;t call numpy() on Tensor that requires grad. Use tensor.detach().numpy() instead.</pre>
+<div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
+<pre>(tensor(1., grad_fn=&lt;MulBackward0&gt;), tensor(2.))</pre>
 </div>
+
 </div>
 
 </div>
@@ -15284,54 +15246,17 @@ In the above case, the loss value is <code>1</code> and the gradient is <code>2<
 
 
 <div class="jp-OutputArea jp-Cell-outputArea">
-<div class="jp-OutputArea-child">
+<div class="jp-OutputArea-child jp-OutputArea-executeResult">
     
-    <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[3]:</div>
 
 
-<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="application/vnd.jupyter.stderr">
-<pre>
-<span class="ansi-red-fg">---------------------------------------------------------------------------</span>
-<span class="ansi-red-fg">RuntimeError</span>                              Traceback (most recent call last)
-Cell <span class="ansi-green-fg">In[3], line 2</span>
-<span class="ansi-green-intense-fg ansi-bold">      1</span> dx_function <span style="color: rgb(98,98,98)">=</span> math<span style="color: rgb(98,98,98)">.</span>gradient(loss_function, wrt<span style="color: rgb(98,98,98)">=</span><span style="color: rgb(175,0,0)">&#39;</span><span style="color: rgb(175,0,0)">x</span><span style="color: rgb(175,0,0)">&#39;</span>, get_output<span style="color: rgb(98,98,98)">=</span><span class="ansi-bold" style="color: rgb(0,135,0)">False</span>)
-<span class="ansi-green-fg">----&gt; 2</span> <span class="ansi-yellow-bg">dx_function</span><span class="ansi-yellow-bg">(</span><span class="ansi-yellow-bg">x</span><span class="ansi-yellow-bg" style="color: rgb(98,98,98)">=</span><span class="ansi-yellow-bg" style="color: rgb(98,98,98)">1.</span><span class="ansi-yellow-bg">,</span><span class="ansi-yellow-bg"> </span><span class="ansi-yellow-bg">y</span><span class="ansi-yellow-bg" style="color: rgb(98,98,98)">=</span><span class="ansi-yellow-bg" style="color: rgb(98,98,98)">1.</span><span class="ansi-yellow-bg">)</span>
 
-File <span class="ansi-green-fg">/opt/hostedtoolcache/Python/3.8.18/x64/lib/python3.8/site-packages/phiml/math/_functional.py:512</span>, in <span class="ansi-cyan-fg">GradientFunction.__call__</span><span class="ansi-blue-fg">(self, *args, **kwargs)</span>
-<span class="ansi-green-intense-fg ansi-bold">    510</span> <span class="ansi-bold" style="color: rgb(0,135,0)">if</span> key <span class="ansi-bold" style="color: rgb(175,0,255)">not</span> <span class="ansi-bold" style="color: rgb(175,0,255)">in</span> <span style="color: rgb(0,135,0)">self</span><span style="color: rgb(98,98,98)">.</span>traces:
-<span class="ansi-green-intense-fg ansi-bold">    511</span>     <span style="color: rgb(0,135,0)">self</span><span style="color: rgb(98,98,98)">.</span>traces[key] <span style="color: rgb(98,98,98)">=</span> <span style="color: rgb(0,135,0)">self</span><span style="color: rgb(98,98,98)">.</span>_trace_grad(key, wrt_natives)
-<span class="ansi-green-fg">--&gt; 512</span> native_result <span style="color: rgb(98,98,98)">=</span> <span class="ansi-yellow-bg" style="color: rgb(0,135,0)">self</span><span class="ansi-yellow-bg" style="color: rgb(98,98,98)">.</span><span class="ansi-yellow-bg">traces</span><span class="ansi-yellow-bg">[</span><span class="ansi-yellow-bg">key</span><span class="ansi-yellow-bg">]</span><span class="ansi-yellow-bg">(</span><span class="ansi-yellow-bg" style="color: rgb(98,98,98)">*</span><span class="ansi-yellow-bg">natives</span><span class="ansi-yellow-bg">)</span>
-<span class="ansi-green-intense-fg ansi-bold">    513</span> output_key <span style="color: rgb(98,98,98)">=</span> match_output_signature(key, <span style="color: rgb(0,135,0)">self</span><span style="color: rgb(98,98,98)">.</span>recorded_mappings, <span style="color: rgb(0,135,0)">self</span>)
-<span class="ansi-green-intense-fg ansi-bold">    514</span> jac_shape <span style="color: rgb(98,98,98)">=</span> output_key<span style="color: rgb(98,98,98)">.</span>shapes[<span style="color: rgb(98,98,98)">0</span>]<span style="color: rgb(98,98,98)">.</span>non_batch  <span style="color: rgb(95,135,135)"># ToDo prepend this to all wrt shapes</span>
 
-File <span class="ansi-green-fg">/opt/hostedtoolcache/Python/3.8.18/x64/lib/python3.8/site-packages/phiml/backend/torch/_torch_backend.py:916</span>, in <span class="ansi-cyan-fg">TorchBackend.jacobian.&lt;locals&gt;.eval_grad</span><span class="ansi-blue-fg">(*args)</span>
-<span class="ansi-green-intense-fg ansi-bold">    913</span> <span style="color: rgb(175,0,255)">@wraps</span>(f)
-<span class="ansi-green-intense-fg ansi-bold">    914</span> <span class="ansi-bold" style="color: rgb(0,135,0)">def</span> <span style="color: rgb(0,0,255)">eval_grad</span>(<span style="color: rgb(98,98,98)">*</span>args):
-<span class="ansi-green-intense-fg ansi-bold">    915</span>     args, wrt_args <span style="color: rgb(98,98,98)">=</span> <span style="color: rgb(0,135,0)">self</span><span style="color: rgb(98,98,98)">.</span>_prepare_graph_inputs(args, wrt)
-<span class="ansi-green-fg">--&gt; 916</span>     loss, output <span style="color: rgb(98,98,98)">=</span> <span class="ansi-yellow-bg">f</span><span class="ansi-yellow-bg">(</span><span class="ansi-yellow-bg" style="color: rgb(98,98,98)">*</span><span class="ansi-yellow-bg">args</span><span class="ansi-yellow-bg">)</span>
-<span class="ansi-green-intense-fg ansi-bold">    917</span>     <span class="ansi-bold" style="color: rgb(0,135,0)">if</span> np<span style="color: rgb(98,98,98)">.</span>prod(<span style="color: rgb(0,135,0)">self</span><span style="color: rgb(98,98,98)">.</span>staticshape(loss)) <span style="color: rgb(98,98,98)">==</span> <span style="color: rgb(98,98,98)">1</span>:
-<span class="ansi-green-intense-fg ansi-bold">    918</span>         <span class="ansi-bold" style="color: rgb(0,135,0)">assert</span> loss<span style="color: rgb(98,98,98)">.</span>requires_grad, <span style="color: rgb(175,0,0)">f</span><span style="color: rgb(175,0,0)">&#34;</span><span style="color: rgb(175,0,0)">Failed to compute gradient because function output does not depend on any input. Inputs: </span><span class="ansi-bold" style="color: rgb(175,95,135)">{</span>args<span class="ansi-bold" style="color: rgb(175,95,135)">}</span><span style="color: rgb(175,0,0)">&#34;</span>
-
-File <span class="ansi-green-fg">/opt/hostedtoolcache/Python/3.8.18/x64/lib/python3.8/site-packages/phiml/math/_functional.py:480</span>, in <span class="ansi-cyan-fg">GradientFunction._trace_grad.&lt;locals&gt;.f_native</span><span class="ansi-blue-fg">(*natives)</span>
-<span class="ansi-green-intense-fg ansi-bold">    478</span> kwargs <span style="color: rgb(98,98,98)">=</span> assemble_tree(in_key<span style="color: rgb(98,98,98)">.</span>tree, in_tensors)
-<span class="ansi-green-intense-fg ansi-bold">    479</span> <span class="ansi-bold" style="color: rgb(0,135,0)">with</span> functional_derivative_evaluation(order<span style="color: rgb(98,98,98)">=</span><span style="color: rgb(98,98,98)">1</span>):
-<span class="ansi-green-fg">--&gt; 480</span>     result <span style="color: rgb(98,98,98)">=</span> <span class="ansi-yellow-bg" style="color: rgb(0,135,0)">self</span><span class="ansi-yellow-bg" style="color: rgb(98,98,98)">.</span><span class="ansi-yellow-bg">f</span><span class="ansi-yellow-bg">(</span><span class="ansi-yellow-bg" style="color: rgb(98,98,98)">*</span><span class="ansi-yellow-bg" style="color: rgb(98,98,98)">*</span><span class="ansi-yellow-bg">kwargs</span><span class="ansi-yellow-bg">)</span>  <span style="color: rgb(95,135,135)"># Tensor or tuple/list of Tensors</span>
-<span class="ansi-green-intense-fg ansi-bold">    481</span> loss <span style="color: rgb(98,98,98)">=</span> result[<span style="color: rgb(98,98,98)">0</span>] <span class="ansi-bold" style="color: rgb(0,135,0)">if</span> <span style="color: rgb(0,135,0)">isinstance</span>(result, (<span style="color: rgb(0,135,0)">tuple</span>, <span style="color: rgb(0,135,0)">list</span>)) <span class="ansi-bold" style="color: rgb(0,135,0)">else</span> result
-<span class="ansi-green-intense-fg ansi-bold">    482</span> <span class="ansi-bold" style="color: rgb(0,135,0)">if</span> <span style="color: rgb(0,135,0)">isinstance</span>(loss, Tensor):
-
-Cell <span class="ansi-green-fg">In[2], line 4</span>, in <span class="ansi-cyan-fg">loss_function</span><span class="ansi-blue-fg">(x, y)</span>
-<span class="ansi-green-intense-fg ansi-bold">      3</span> <span class="ansi-bold" style="color: rgb(0,135,0)">def</span> <span style="color: rgb(0,0,255)">loss_function</span>(x, y):
-<span class="ansi-green-fg">----&gt; 4</span>     <span class="ansi-bold" style="color: rgb(0,135,0)">return</span> <span class="ansi-yellow-bg">x</span><span class="ansi-yellow-bg"> </span><span class="ansi-yellow-bg" style="color: rgb(98,98,98)">*</span><span class="ansi-yellow-bg" style="color: rgb(98,98,98)">*</span><span class="ansi-yellow-bg"> </span><span class="ansi-yellow-bg" style="color: rgb(98,98,98)">2</span><span class="ansi-yellow-bg"> </span><span class="ansi-yellow-bg" style="color: rgb(98,98,98)">*</span><span class="ansi-yellow-bg"> </span><span class="ansi-yellow-bg">y</span>
-
-File <span class="ansi-green-fg">/opt/hostedtoolcache/Python/3.8.18/x64/lib/python3.8/site-packages/torch/_tensor.py:1030</span>, in <span class="ansi-cyan-fg">Tensor.__array__</span><span class="ansi-blue-fg">(self, dtype)</span>
-<span class="ansi-green-intense-fg ansi-bold">   1028</span>     <span class="ansi-bold" style="color: rgb(0,135,0)">return</span> handle_torch_function(Tensor<span style="color: rgb(98,98,98)">.</span>__array__, (<span style="color: rgb(0,135,0)">self</span>,), <span style="color: rgb(0,135,0)">self</span>, dtype<span style="color: rgb(98,98,98)">=</span>dtype)
-<span class="ansi-green-intense-fg ansi-bold">   1029</span> <span class="ansi-bold" style="color: rgb(0,135,0)">if</span> dtype <span class="ansi-bold" style="color: rgb(175,0,255)">is</span> <span class="ansi-bold" style="color: rgb(0,135,0)">None</span>:
-<span class="ansi-green-fg">-&gt; 1030</span>     <span class="ansi-bold" style="color: rgb(0,135,0)">return</span> <span class="ansi-yellow-bg" style="color: rgb(0,135,0)">self</span><span class="ansi-yellow-bg" style="color: rgb(98,98,98)">.</span><span class="ansi-yellow-bg">numpy</span><span class="ansi-yellow-bg">(</span><span class="ansi-yellow-bg">)</span>
-<span class="ansi-green-intense-fg ansi-bold">   1031</span> <span class="ansi-bold" style="color: rgb(0,135,0)">else</span>:
-<span class="ansi-green-intense-fg ansi-bold">   1032</span>     <span class="ansi-bold" style="color: rgb(0,135,0)">return</span> <span style="color: rgb(0,135,0)">self</span><span style="color: rgb(98,98,98)">.</span>numpy()<span style="color: rgb(98,98,98)">.</span>astype(dtype, copy<span style="color: rgb(98,98,98)">=</span><span class="ansi-bold" style="color: rgb(0,135,0)">False</span>)
-
-<span class="ansi-red-fg">RuntimeError</span>: Can&#39;t call numpy() on Tensor that requires grad. Use tensor.detach().numpy() instead.</pre>
+<div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
+<pre>tensor(2.)</pre>
 </div>
+
 </div>
 
 </div>
@@ -15602,59 +15527,17 @@ Both of these operations reduce all dimensions except for batch dimensions.</p>
 
 
 <div class="jp-OutputArea jp-Cell-outputArea">
-<div class="jp-OutputArea-child">
+<div class="jp-OutputArea-child jp-OutputArea-executeResult">
     
-    <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[8]:</div>
 
 
-<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="application/vnd.jupyter.stderr">
-<pre>
-<span class="ansi-red-fg">---------------------------------------------------------------------------</span>
-<span class="ansi-red-fg">RuntimeError</span>                              Traceback (most recent call last)
-Cell <span class="ansi-green-fg">In[8], line 17</span>
-<span class="ansi-green-intense-fg ansi-bold">     14</span>     <span class="ansi-bold" style="color: rgb(0,135,0)">def</span> <span style="color: rgb(0,0,255)">__value_attrs__</span>(<span style="color: rgb(0,135,0)">self</span>):
-<span class="ansi-green-intense-fg ansi-bold">     15</span>         <span class="ansi-bold" style="color: rgb(0,135,0)">return</span> <span style="color: rgb(175,0,0)">&#39;</span><span style="color: rgb(175,0,0)">x1</span><span style="color: rgb(175,0,0)">&#39;</span>, <span style="color: rgb(175,0,0)">&#39;</span><span style="color: rgb(175,0,0)">x2</span><span style="color: rgb(175,0,0)">&#39;</span>
-<span class="ansi-green-fg">---&gt; 17</span> <span class="ansi-yellow-bg">dx_function</span><span class="ansi-yellow-bg">(</span><span class="ansi-yellow-bg">x</span><span class="ansi-yellow-bg" style="color: rgb(98,98,98)">=</span><span class="ansi-yellow-bg">Vec</span><span class="ansi-yellow-bg">(</span><span class="ansi-yellow-bg" style="color: rgb(98,98,98)">1</span><span class="ansi-yellow-bg">,</span><span class="ansi-yellow-bg"> </span><span class="ansi-yellow-bg" style="color: rgb(98,98,98)">2</span><span class="ansi-yellow-bg">)</span><span class="ansi-yellow-bg">,</span><span class="ansi-yellow-bg"> </span><span class="ansi-yellow-bg">y</span><span class="ansi-yellow-bg" style="color: rgb(98,98,98)">=</span><span class="ansi-yellow-bg" style="color: rgb(98,98,98)">1.</span><span class="ansi-yellow-bg">)</span>
 
-File <span class="ansi-green-fg">/opt/hostedtoolcache/Python/3.8.18/x64/lib/python3.8/site-packages/phiml/math/_functional.py:512</span>, in <span class="ansi-cyan-fg">GradientFunction.__call__</span><span class="ansi-blue-fg">(self, *args, **kwargs)</span>
-<span class="ansi-green-intense-fg ansi-bold">    510</span> <span class="ansi-bold" style="color: rgb(0,135,0)">if</span> key <span class="ansi-bold" style="color: rgb(175,0,255)">not</span> <span class="ansi-bold" style="color: rgb(175,0,255)">in</span> <span style="color: rgb(0,135,0)">self</span><span style="color: rgb(98,98,98)">.</span>traces:
-<span class="ansi-green-intense-fg ansi-bold">    511</span>     <span style="color: rgb(0,135,0)">self</span><span style="color: rgb(98,98,98)">.</span>traces[key] <span style="color: rgb(98,98,98)">=</span> <span style="color: rgb(0,135,0)">self</span><span style="color: rgb(98,98,98)">.</span>_trace_grad(key, wrt_natives)
-<span class="ansi-green-fg">--&gt; 512</span> native_result <span style="color: rgb(98,98,98)">=</span> <span class="ansi-yellow-bg" style="color: rgb(0,135,0)">self</span><span class="ansi-yellow-bg" style="color: rgb(98,98,98)">.</span><span class="ansi-yellow-bg">traces</span><span class="ansi-yellow-bg">[</span><span class="ansi-yellow-bg">key</span><span class="ansi-yellow-bg">]</span><span class="ansi-yellow-bg">(</span><span class="ansi-yellow-bg" style="color: rgb(98,98,98)">*</span><span class="ansi-yellow-bg">natives</span><span class="ansi-yellow-bg">)</span>
-<span class="ansi-green-intense-fg ansi-bold">    513</span> output_key <span style="color: rgb(98,98,98)">=</span> match_output_signature(key, <span style="color: rgb(0,135,0)">self</span><span style="color: rgb(98,98,98)">.</span>recorded_mappings, <span style="color: rgb(0,135,0)">self</span>)
-<span class="ansi-green-intense-fg ansi-bold">    514</span> jac_shape <span style="color: rgb(98,98,98)">=</span> output_key<span style="color: rgb(98,98,98)">.</span>shapes[<span style="color: rgb(98,98,98)">0</span>]<span style="color: rgb(98,98,98)">.</span>non_batch  <span style="color: rgb(95,135,135)"># ToDo prepend this to all wrt shapes</span>
 
-File <span class="ansi-green-fg">/opt/hostedtoolcache/Python/3.8.18/x64/lib/python3.8/site-packages/phiml/backend/torch/_torch_backend.py:916</span>, in <span class="ansi-cyan-fg">TorchBackend.jacobian.&lt;locals&gt;.eval_grad</span><span class="ansi-blue-fg">(*args)</span>
-<span class="ansi-green-intense-fg ansi-bold">    913</span> <span style="color: rgb(175,0,255)">@wraps</span>(f)
-<span class="ansi-green-intense-fg ansi-bold">    914</span> <span class="ansi-bold" style="color: rgb(0,135,0)">def</span> <span style="color: rgb(0,0,255)">eval_grad</span>(<span style="color: rgb(98,98,98)">*</span>args):
-<span class="ansi-green-intense-fg ansi-bold">    915</span>     args, wrt_args <span style="color: rgb(98,98,98)">=</span> <span style="color: rgb(0,135,0)">self</span><span style="color: rgb(98,98,98)">.</span>_prepare_graph_inputs(args, wrt)
-<span class="ansi-green-fg">--&gt; 916</span>     loss, output <span style="color: rgb(98,98,98)">=</span> <span class="ansi-yellow-bg">f</span><span class="ansi-yellow-bg">(</span><span class="ansi-yellow-bg" style="color: rgb(98,98,98)">*</span><span class="ansi-yellow-bg">args</span><span class="ansi-yellow-bg">)</span>
-<span class="ansi-green-intense-fg ansi-bold">    917</span>     <span class="ansi-bold" style="color: rgb(0,135,0)">if</span> np<span style="color: rgb(98,98,98)">.</span>prod(<span style="color: rgb(0,135,0)">self</span><span style="color: rgb(98,98,98)">.</span>staticshape(loss)) <span style="color: rgb(98,98,98)">==</span> <span style="color: rgb(98,98,98)">1</span>:
-<span class="ansi-green-intense-fg ansi-bold">    918</span>         <span class="ansi-bold" style="color: rgb(0,135,0)">assert</span> loss<span style="color: rgb(98,98,98)">.</span>requires_grad, <span style="color: rgb(175,0,0)">f</span><span style="color: rgb(175,0,0)">&#34;</span><span style="color: rgb(175,0,0)">Failed to compute gradient because function output does not depend on any input. Inputs: </span><span class="ansi-bold" style="color: rgb(175,95,135)">{</span>args<span class="ansi-bold" style="color: rgb(175,95,135)">}</span><span style="color: rgb(175,0,0)">&#34;</span>
-
-File <span class="ansi-green-fg">/opt/hostedtoolcache/Python/3.8.18/x64/lib/python3.8/site-packages/phiml/math/_functional.py:480</span>, in <span class="ansi-cyan-fg">GradientFunction._trace_grad.&lt;locals&gt;.f_native</span><span class="ansi-blue-fg">(*natives)</span>
-<span class="ansi-green-intense-fg ansi-bold">    478</span> kwargs <span style="color: rgb(98,98,98)">=</span> assemble_tree(in_key<span style="color: rgb(98,98,98)">.</span>tree, in_tensors)
-<span class="ansi-green-intense-fg ansi-bold">    479</span> <span class="ansi-bold" style="color: rgb(0,135,0)">with</span> functional_derivative_evaluation(order<span style="color: rgb(98,98,98)">=</span><span style="color: rgb(98,98,98)">1</span>):
-<span class="ansi-green-fg">--&gt; 480</span>     result <span style="color: rgb(98,98,98)">=</span> <span class="ansi-yellow-bg" style="color: rgb(0,135,0)">self</span><span class="ansi-yellow-bg" style="color: rgb(98,98,98)">.</span><span class="ansi-yellow-bg">f</span><span class="ansi-yellow-bg">(</span><span class="ansi-yellow-bg" style="color: rgb(98,98,98)">*</span><span class="ansi-yellow-bg" style="color: rgb(98,98,98)">*</span><span class="ansi-yellow-bg">kwargs</span><span class="ansi-yellow-bg">)</span>  <span style="color: rgb(95,135,135)"># Tensor or tuple/list of Tensors</span>
-<span class="ansi-green-intense-fg ansi-bold">    481</span> loss <span style="color: rgb(98,98,98)">=</span> result[<span style="color: rgb(98,98,98)">0</span>] <span class="ansi-bold" style="color: rgb(0,135,0)">if</span> <span style="color: rgb(0,135,0)">isinstance</span>(result, (<span style="color: rgb(0,135,0)">tuple</span>, <span style="color: rgb(0,135,0)">list</span>)) <span class="ansi-bold" style="color: rgb(0,135,0)">else</span> result
-<span class="ansi-green-intense-fg ansi-bold">    482</span> <span class="ansi-bold" style="color: rgb(0,135,0)">if</span> <span style="color: rgb(0,135,0)">isinstance</span>(loss, Tensor):
-
-Cell <span class="ansi-green-fg">In[6], line 2</span>, in <span class="ansi-cyan-fg">loss_function</span><span class="ansi-blue-fg">(x, y)</span>
-<span class="ansi-green-intense-fg ansi-bold">      1</span> <span class="ansi-bold" style="color: rgb(0,135,0)">def</span> <span style="color: rgb(0,0,255)">loss_function</span>(x, y):
-<span class="ansi-green-fg">----&gt; 2</span>     <span class="ansi-bold" style="color: rgb(0,135,0)">return</span> math<span style="color: rgb(98,98,98)">.</span>l2_loss(<span class="ansi-yellow-bg">x</span><span class="ansi-yellow-bg"> </span><span class="ansi-yellow-bg" style="color: rgb(98,98,98)">*</span><span class="ansi-yellow-bg" style="color: rgb(98,98,98)">*</span><span class="ansi-yellow-bg"> </span><span class="ansi-yellow-bg" style="color: rgb(98,98,98)">2</span><span class="ansi-yellow-bg"> </span><span class="ansi-yellow-bg" style="color: rgb(98,98,98)">*</span><span class="ansi-yellow-bg"> </span><span class="ansi-yellow-bg">y</span>)
-
-Cell <span class="ansi-green-fg">In[8], line 9</span>, in <span class="ansi-cyan-fg">Vec.__mul__</span><span class="ansi-blue-fg">(self, other)</span>
-<span class="ansi-green-intense-fg ansi-bold">      8</span> <span class="ansi-bold" style="color: rgb(0,135,0)">def</span> <span style="color: rgb(0,0,255)">__mul__</span>(<span style="color: rgb(0,135,0)">self</span>, other):
-<span class="ansi-green-fg">----&gt; 9</span>     <span class="ansi-bold" style="color: rgb(0,135,0)">return</span> Vec(<span class="ansi-yellow-bg" style="color: rgb(0,135,0)">self</span><span class="ansi-yellow-bg" style="color: rgb(98,98,98)">.</span><span class="ansi-yellow-bg">x1</span><span class="ansi-yellow-bg"> </span><span class="ansi-yellow-bg" style="color: rgb(98,98,98)">*</span><span class="ansi-yellow-bg"> </span><span class="ansi-yellow-bg">other</span>, <span style="color: rgb(0,135,0)">self</span><span style="color: rgb(98,98,98)">.</span>x2 <span style="color: rgb(98,98,98)">*</span> other)
-
-File <span class="ansi-green-fg">/opt/hostedtoolcache/Python/3.8.18/x64/lib/python3.8/site-packages/torch/_tensor.py:1030</span>, in <span class="ansi-cyan-fg">Tensor.__array__</span><span class="ansi-blue-fg">(self, dtype)</span>
-<span class="ansi-green-intense-fg ansi-bold">   1028</span>     <span class="ansi-bold" style="color: rgb(0,135,0)">return</span> handle_torch_function(Tensor<span style="color: rgb(98,98,98)">.</span>__array__, (<span style="color: rgb(0,135,0)">self</span>,), <span style="color: rgb(0,135,0)">self</span>, dtype<span style="color: rgb(98,98,98)">=</span>dtype)
-<span class="ansi-green-intense-fg ansi-bold">   1029</span> <span class="ansi-bold" style="color: rgb(0,135,0)">if</span> dtype <span class="ansi-bold" style="color: rgb(175,0,255)">is</span> <span class="ansi-bold" style="color: rgb(0,135,0)">None</span>:
-<span class="ansi-green-fg">-&gt; 1030</span>     <span class="ansi-bold" style="color: rgb(0,135,0)">return</span> <span class="ansi-yellow-bg" style="color: rgb(0,135,0)">self</span><span class="ansi-yellow-bg" style="color: rgb(98,98,98)">.</span><span class="ansi-yellow-bg">numpy</span><span class="ansi-yellow-bg">(</span><span class="ansi-yellow-bg">)</span>
-<span class="ansi-green-intense-fg ansi-bold">   1031</span> <span class="ansi-bold" style="color: rgb(0,135,0)">else</span>:
-<span class="ansi-green-intense-fg ansi-bold">   1032</span>     <span class="ansi-bold" style="color: rgb(0,135,0)">return</span> <span style="color: rgb(0,135,0)">self</span><span style="color: rgb(98,98,98)">.</span>numpy()<span style="color: rgb(98,98,98)">.</span>astype(dtype, copy<span style="color: rgb(98,98,98)">=</span><span class="ansi-bold" style="color: rgb(0,135,0)">False</span>)
-
-<span class="ansi-red-fg">RuntimeError</span>: Can&#39;t call numpy() on Tensor that requires grad. Use tensor.detach().numpy() instead.</pre>
+<div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
+<pre>Vec(x1=tensor(2.), x2=tensor(16.))</pre>
 </div>
+
 </div>
 
 </div>

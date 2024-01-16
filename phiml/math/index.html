@@ -3835,12 +3835,17 @@ If <code>None</code> and no index item names are specified, will default to all 
             warnings.warn(f&#34;Indexing without item names is not recommended. Got indices {indices.shape}&#34;, SyntaxWarning, stacklevel=2)
             assert values.shape.instance.is_empty or values.shape.spatial.is_empty, f&#34;Specify gather dimensions for values with both instance and spatial dimensions. Got {values.shape}&#34;
             dims = values.shape.instance if values.shape.spatial.is_empty else values.shape.spatial
-    if indices.dtype.kind == bool:
-        indices = to_int32(indices)
+            assert dims, f&#34;Specify gather dimensions for values with neither instance nor spatial dimensions. Got {values.shape}&#34;
     dims = parse_dim_order(dims)
     assert dims, f&#34;No indexing dimensions for tensor {values.shape} given indices {indices.shape}&#34;
     if dims not in values.shape:
         return expand(values, non_channel(indices))
+    if len(dims) &gt; 1:
+        assert channel(indices).rank &gt; 0, f&#34;indices must have a channel dimension listing the indexed dims {dims} but got {indices.shape}. You can create it via vec({&#39;, &#39;.join([d+&#39;=...&#39; for d in dims])}) or channel(index=&#39;{&#39;,&#39;.join(dims)}&#39;). If you have raveled indices, use unpack_dim(indices, channel, values.shape[&#39;{&#39;,&#39;.join(dims)}&#39;]).&#34;
+        assert channel(indices).rank == 1, f&#34;indices must have a single channel dimension listing the indexed dims {dims} but got {indices.shape}.&#34;
+    assert channel(indices).volume == len(dims), f&#34;channel dim of indices must have size equal to the number of indexed dims {dims} but got {channel(indices)} which has {channel(indices).volume} entries&#34;
+    if indices.dtype.kind == bool:
+        indices = to_int32(indices)
     if values._is_tracer or is_sparse(values):
         if not channel(indices):
             indices = expand(indices, channel(gather=dims))
@@ -8766,8 +8771,8 @@ This will upgrade the data type to <code>float</code> if necessary.</dd>
             indices = indices[{channel: grid_shape.only(indexed_dims).names}]
         indexed_dims = grid_shape.only(indexed_dims)
     else:
-        assert channel(indices).rank == 1 or (grid_shape.spatial_rank + grid_shape.instance_rank == 1 and indices.shape.channel_rank == 0)
         indexed_dims = grid_shape.spatial or grid_shape.instance
+        assert channel(indices).rank == 1 or (grid_shape.spatial_rank + grid_shape.instance_rank == 1 and indices.shape.channel_rank == 0), f&#34;indices must have a channel dimension listing the indexed dims {indexed_dims} but got {indices.shape}. You can create it via vec({&#39;, &#39;.join([d+&#39;=...&#39; for d in indexed_dims.names])}) or channel(index=&#39;{&#39;,&#39;.join(indexed_dims.names)}&#39;). If you have raveled indices, use unpack_dim(indices, channel, base_grid.shape[&#39;{&#39;,&#39;.join(indexed_dims.names)}&#39;]).&#34;
         assert channel(indices).volume == indexed_dims.rank
     values = wrap(values)
     batches = values.shape.non_channel.non_instance &amp; indices.shape.non_channel.non_instance
