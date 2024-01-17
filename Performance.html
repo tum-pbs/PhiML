@@ -15225,8 +15225,8 @@ The below function defines the physics step using the Φ-ML API.</p>
 
 
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
-<pre>Φ-ML + torch JIT compilation: <span class="ansi-yellow-intense-fg">float64</span> <span class="ansi-blue-intense-fg">0.23167253</span>
-Φ-ML + torch execution average: 0.03405194729566574 +- 0.002462926786392927
+<pre>Φ-ML + torch JIT compilation: <span class="ansi-yellow-intense-fg">float64</span> <span class="ansi-blue-intense-fg">0.23832773</span>
+Φ-ML + torch execution average: 0.03484537824988365 +- 0.0037187121342867613
 </pre>
 </div>
 </div>
@@ -15246,8 +15246,8 @@ The below function defines the physics step using the Φ-ML API.</p>
 
 
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
-<pre>Φ-ML + jax JIT compilation: <span class="ansi-yellow-intense-fg">float64</span> <span class="ansi-blue-intense-fg">0.16405213</span>
-Φ-ML + jax execution average: 0.011983958072960377 +- 0.0010290098143741488
+<pre>Φ-ML + jax JIT compilation: <span class="ansi-yellow-intense-fg">float64</span> <span class="ansi-blue-intense-fg">0.16523762</span>
+Φ-ML + jax execution average: 0.012173673138022423 +- 0.0010388502851128578
 </pre>
 </div>
 </div>
@@ -15257,7 +15257,7 @@ The below function defines the physics step using the Φ-ML API.</p>
 
 
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="application/vnd.jupyter.stderr">
-<pre>2024-01-17 14:59:10.764719: W tensorflow/compiler/tf2tensorrt/utils/py_utils.cc:38] TF-TRT Warning: Could not find TensorRT
+<pre>2024-01-17 15:19:16.280421: W tensorflow/compiler/tf2tensorrt/utils/py_utils.cc:38] TF-TRT Warning: Could not find TensorRT
 </pre>
 </div>
 </div>
@@ -15267,8 +15267,8 @@ The below function defines the physics step using the Φ-ML API.</p>
 
 
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
-<pre>Φ-ML + tensorflow JIT compilation: <span class="ansi-yellow-intense-fg">float64</span> <span class="ansi-blue-intense-fg">12.030569</span>
-Φ-ML + tensorflow execution average: 0.05315462127327919 +- 0.0017635662807151675
+<pre>Φ-ML + tensorflow JIT compilation: <span class="ansi-yellow-intense-fg">float64</span> <span class="ansi-blue-intense-fg">12.391813</span>
+Φ-ML + tensorflow execution average: 0.05348193645477295 +- 0.002349388087168336
 </pre>
 </div>
 </div>
@@ -15374,8 +15374,8 @@ We provide reference GPU numbers below.</p>
 
 
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
-<pre>jax JIT compilation: 0.14241718900001388
-jax execution average: 0.01060294302020181
+<pre>jax JIT compilation: 0.14476006199998892
+jax execution average: 0.010155968363636301
 </pre>
 </div>
 </div>
@@ -15392,7 +15392,8 @@ jax execution average: 0.01060294302020181
 <div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[4]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython2"><pre><span></span><span class="kn">import</span> <span class="nn">torch</span>
+<div class=" highlight hl-ipython2"><pre><span></span><span class="kn">import</span> <span class="nn">time</span>
+<span class="kn">import</span> <span class="nn">torch</span>
 
 
 <span class="k">def</span> <span class="nf">safe_div</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
@@ -15435,7 +15436,7 @@ jax execution average: 0.01060294302020181
 <span class="n">v_trj</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span><span class="n">v_trj</span><span class="p">)</span>
 <span class="n">dt_torch</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span><span class="n">dt_torch</span><span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;torch JIT compilation: </span><span class="si">{</span><span class="n">dt_torch</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;torch execution average: </span><span class="si">{</span><span class="n">torch</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span><span class="n">dt</span><span class="p">[</span><span class="mi">2</span><span class="p">:]))</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;torch execution average: </span><span class="si">{</span><span class="n">torch</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span><span class="n">dt_torch</span><span class="p">[</span><span class="mi">2</span><span class="p">:]))</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 </pre></div>
 
      </div>
@@ -15455,11 +15456,11 @@ jax execution average: 0.01060294302020181
 
 
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="application/vnd.jupyter.stderr">
-<pre>/tmp/ipykernel_2545/708199494.py:11: TracerWarning: torch.tensor results are registered as constants in the trace. You can safely ignore this warning if you use this function to create tensors out of constant variables that would be the same every time you call this function. In any other case, this might cause the trace to be incorrect.
+<pre>/tmp/ipykernel_2494/3571425526.py:12: TracerWarning: torch.tensor results are registered as constants in the trace. You can safely ignore this warning if you use this function to create tensors out of constant variables that would be the same every time you call this function. In any other case, this might cause the trace to be incorrect.
   dist = torch.sqrt(torch.maximum(torch.sum(deltas ** 2, -1), torch.tensor(1e-4)))  # eps=1e-4 to avoid NaN during backprop of sqrt
-/tmp/ipykernel_2545/708199494.py:19: TracerWarning: torch.tensor results are registered as constants in the trace. You can safely ignore this warning if you use this function to create tensors out of constant variables that would be the same every time you call this function. In any other case, this might cause the trace to be incorrect.
+/tmp/ipykernel_2494/3571425526.py:20: TracerWarning: torch.tensor results are registered as constants in the trace. You can safely ignore this warning if you use this function to create tensors out of constant variables that would be the same every time you call this function. In any other case, this might cause the trace to be incorrect.
   x_inc_contrib = torch.sum(torch.where(has_impact.unsqueeze(-1), torch.minimum(impact_time.unsqueeze(-1) - dt, torch.tensor(0.0)) * impulse, torch.tensor(0.0)), -2)
-/tmp/ipykernel_2545/708199494.py:21: TracerWarning: torch.tensor results are registered as constants in the trace. You can safely ignore this warning if you use this function to create tensors out of constant variables that would be the same every time you call this function. In any other case, this might cause the trace to be incorrect.
+/tmp/ipykernel_2494/3571425526.py:22: TracerWarning: torch.tensor results are registered as constants in the trace. You can safely ignore this warning if you use this function to create tensors out of constant variables that would be the same every time you call this function. In any other case, this might cause the trace to be incorrect.
   v += torch.sum(torch.where(has_impact.unsqueeze(-1), impulse, torch.tensor(0.0)), -2)
 </pre>
 </div>
@@ -15470,7 +15471,8 @@ jax execution average: 0.01060294302020181
 
 
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
-<pre>torch JIT compilation: 0.0366964153945446
+<pre>torch JIT compilation: 0.03643426671624184
+torch execution average: 0.03373907878994942
 </pre>
 </div>
 </div>
@@ -15480,27 +15482,9 @@ jax execution average: 0.01060294302020181
 
 
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="application/vnd.jupyter.stderr">
-<pre>
-<span class="ansi-red-fg">---------------------------------------------------------------------------</span>
-<span class="ansi-red-fg">AssertionError</span>                            Traceback (most recent call last)
-Cell <span class="ansi-green-fg">In[4], line 44</span>
-<span class="ansi-green-intense-fg ansi-bold">     42</span> dt_torch <span style="color: rgb(98,98,98)">=</span> torch<span style="color: rgb(98,98,98)">.</span>tensor(dt_torch)
-<span class="ansi-green-intense-fg ansi-bold">     43</span> <span style="color: rgb(0,135,0)">print</span>(<span style="color: rgb(175,0,0)">f</span><span style="color: rgb(175,0,0)">&#34;</span><span style="color: rgb(175,0,0)">torch JIT compilation: </span><span class="ansi-bold" style="color: rgb(175,95,135)">{</span>dt_torch[<span style="color: rgb(98,98,98)">0</span>]<span class="ansi-bold" style="color: rgb(175,95,135)">}</span><span style="color: rgb(175,0,0)">&#34;</span>)
-<span class="ansi-green-fg">---&gt; 44</span> <span style="color: rgb(0,135,0)">print</span>(<span style="color: rgb(175,0,0)">f</span><span style="color: rgb(175,0,0)">&#34;</span><span style="color: rgb(175,0,0)">torch execution average: </span><span class="ansi-bold" style="color: rgb(175,95,135)">{</span>torch<span style="color: rgb(98,98,98)">.</span>mean(torch<span style="color: rgb(98,98,98)">.</span>tensor(dt[<span style="color: rgb(98,98,98)">2</span>:]))<span class="ansi-bold" style="color: rgb(175,95,135)">}</span><span style="color: rgb(175,0,0)">&#34;</span>)
-
-File <span class="ansi-green-fg">/opt/hostedtoolcache/Python/3.8.18/x64/lib/python3.8/site-packages/phiml/math/_tensors.py:430</span>, in <span class="ansi-cyan-fg">Tensor.__getitem__</span><span class="ansi-blue-fg">(self, item)</span>
-<span class="ansi-green-intense-fg ansi-bold">    428</span>     <span class="ansi-bold" style="color: rgb(0,135,0)">else</span>:
-<span class="ansi-green-intense-fg ansi-bold">    429</span>         <span class="ansi-bold" style="color: rgb(0,135,0)">raise</span> <span class="ansi-bold" style="color: rgb(215,95,95)">AssertionError</span>(<span style="color: rgb(175,0,0)">f</span><span style="color: rgb(175,0,0)">&#34;</span><span style="color: rgb(175,0,0)">Index tensor must be of dtype int (gather) or bool (boolean_mask) but got </span><span class="ansi-bold" style="color: rgb(175,95,135)">{</span>item<span class="ansi-bold" style="color: rgb(175,95,135)">}</span><span style="color: rgb(175,0,0)">&#34;</span>)
-<span class="ansi-green-fg">--&gt; 430</span> item <span style="color: rgb(98,98,98)">=</span> <span class="ansi-yellow-bg">slicing_dict</span><span class="ansi-yellow-bg">(</span><span class="ansi-yellow-bg" style="color: rgb(0,135,0)">self</span><span class="ansi-yellow-bg">,</span><span class="ansi-yellow-bg"> </span><span class="ansi-yellow-bg">item</span><span class="ansi-yellow-bg">)</span>
-<span class="ansi-green-intense-fg ansi-bold">    431</span> selections <span style="color: rgb(98,98,98)">=</span> {}
-<span class="ansi-green-intense-fg ansi-bold">    432</span> sliced <span style="color: rgb(98,98,98)">=</span> <span style="color: rgb(0,135,0)">self</span>
-
-File <span class="ansi-green-fg">/opt/hostedtoolcache/Python/3.8.18/x64/lib/python3.8/site-packages/phiml/math/magic.py:783</span>, in <span class="ansi-cyan-fg">slicing_dict</span><span class="ansi-blue-fg">(obj, item)</span>
-<span class="ansi-green-intense-fg ansi-bold">    781</span> <span class="ansi-bold" style="color: rgb(0,135,0)">from</span> <span class="ansi-bold" style="color: rgb(0,0,255)">.</span><span class="ansi-bold" style="color: rgb(0,0,255)">_tensors</span> <span class="ansi-bold" style="color: rgb(0,135,0)">import</span> Tensor
-<span class="ansi-green-intense-fg ansi-bold">    782</span> class_name <span style="color: rgb(98,98,98)">=</span> <span style="color: rgb(175,0,0)">&#34;</span><span style="color: rgb(175,0,0)">Tensor</span><span style="color: rgb(175,0,0)">&#34;</span> <span class="ansi-bold" style="color: rgb(0,135,0)">if</span> <span style="color: rgb(0,135,0)">isinstance</span>(obj, Tensor) <span class="ansi-bold" style="color: rgb(0,135,0)">else</span> <span style="color: rgb(0,135,0)">type</span>(obj)<span style="color: rgb(98,98,98)">.</span><span style="color: rgb(0,0,135)">__name__</span>
-<span class="ansi-green-fg">--&gt; 783</span> <span class="ansi-bold" style="color: rgb(0,135,0)">raise</span> <span class="ansi-bold" style="color: rgb(215,95,95)">AssertionError</span>(<span style="color: rgb(175,0,0)">f</span><span style="color: rgb(175,0,0)">&#34;</span><span style="color: rgb(175,0,0)">Slicing </span><span class="ansi-bold" style="color: rgb(175,95,135)">{</span>class_name<span class="ansi-bold" style="color: rgb(175,95,135)">}</span><span style="color: rgb(175,0,0)">[</span><span class="ansi-bold" style="color: rgb(175,95,135)">{</span><span style="color: rgb(0,135,0)">type</span>(item)<span style="color: rgb(98,98,98)">.</span><span style="color: rgb(0,0,135)">__name__</span><span class="ansi-bold" style="color: rgb(175,95,135)">}</span><span style="color: rgb(175,0,0)">] is only supported for 1D values (excluding batch dimensions) but shape is </span><span class="ansi-bold" style="color: rgb(175,95,135)">{</span>shape(obj)<span class="ansi-bold" style="color: rgb(175,95,135)">}</span><span style="color: rgb(175,0,0)">&#34;</span>)
-
-<span class="ansi-red-fg">AssertionError</span>: Slicing Tensor[slice] is only supported for 1D values (excluding batch dimensions) but shape is (tᵇ=200)</pre>
+<pre>/tmp/ipykernel_2494/3571425526.py:45: UserWarning: To copy construct from a tensor, it is recommended to use sourceTensor.clone().detach() or sourceTensor.clone().detach().requires_grad_(True), rather than torch.tensor(sourceTensor).
+  print(f&#34;torch execution average: {torch.mean(torch.tensor(dt_torch[2:]))}&#34;)
+</pre>
 </div>
 </div>
 
@@ -15516,7 +15500,8 @@ File <span class="ansi-green-fg">/opt/hostedtoolcache/Python/3.8.18/x64/lib/pyth
 <div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[5]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython2"><pre><span></span><span class="kn">import</span> <span class="nn">tensorflow</span> <span class="k">as</span> <span class="nn">tf</span>
+<div class=" highlight hl-ipython2"><pre><span></span><span class="kn">import</span> <span class="nn">time</span>
+<span class="kn">import</span> <span class="nn">tensorflow</span> <span class="k">as</span> <span class="nn">tf</span>
 
 <span class="nd">@tf</span><span class="o">.</span><span class="n">function</span>
 <span class="k">def</span> <span class="nf">physics_step</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">v</span><span class="p">,</span> <span class="n">dt</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">elasticity</span><span class="o">=</span><span class="mf">0.8</span><span class="p">,</span> <span class="n">radius</span><span class="o">=</span><span class="mf">0.03</span><span class="p">):</span>
@@ -15573,8 +15558,8 @@ File <span class="ansi-green-fg">/opt/hostedtoolcache/Python/3.8.18/x64/lib/pyth
 
 
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
-<pre>tensorflow JIT compilation: 0.19925326108932495
-tensorflow execution average: 0.037149783223867416
+<pre>tensorflow JIT compilation: 0.3856211304664612
+tensorflow execution average: 0.03942878171801567
 </pre>
 </div>
 </div>
@@ -15647,7 +15632,7 @@ Importantly, this compilation usually needs to performed only once. All later fu
 </tr>
 </tbody>
 </table>
-<p>Here, Φ-ML beats the performance of our native PyTorch and Jax implementation and is on-par with TensorFlow.
+<p>Here, Φ-ML beats the performance of our native PyTorch implementation and is on-par with TensorFlow and Jax.
 As discussed above, all extra code of Φ-ML is completely optimized out during JIT compilation, resulting in similar compiled code.</p>
 <p>The fact that Φ-ML is faster than PyTorch may be down to some inefficiency in the native PyTorch implementation above.
 This was largely generated by ChatGPT based on our function, but we had to make some changes in order for the function to output the correct result.
