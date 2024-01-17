@@ -504,7 +504,7 @@ def shift(x: Tensor,
     for offset in offsets:
         components = {}
         for dimension in dims:
-            if padding:
+            if padding is not None:
                 slices = {dim: slice(pad_lower + offset, (-pad_upper + offset) or None) if dim == dimension else slice(pad_lower, -pad_upper or None) for dim in dims}
             else:
                 slices = {dim: slice(pad_lower + offset, (-pad_upper + offset) or None) if dim == dimension else slice(None, None) for dim in dims}
