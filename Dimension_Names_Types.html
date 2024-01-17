@@ -3,7 +3,7 @@
 <head><meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Shapes</title><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.1.10/require.min.js"></script>
+<title>Dimension_Names_Types</title><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.1.10/require.min.js"></script>
 
 
 
@@ -15110,7 +15110,7 @@ body[data-format='mobile'] .jp-OutputArea-child .jp-OutputArea-output {
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<h1 id="Shapes-in-%CE%A6ML">Shapes in &#934;<sub>ML</sub><a class="anchor-link" href="#Shapes-in-%CE%A6ML">&#182;</a></h1><p><a href="https://colab.research.google.com/github/tum-pbs/PhiML/blob/main/docs/Shapes.ipynb"><img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Colab" /></a>
+<h1 id="Dimension-Names-and-Types">Dimension Names and Types<a class="anchor-link" href="#Dimension-Names-and-Types">&#182;</a></h1><p><a href="https://colab.research.google.com/github/tum-pbs/PhiML/blob/main/docs/Dimension_Names_Types.ipynb"><img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Colab" /></a>
   •   <a href="https://github.com/tum-pbs/PhiML">🌐 <strong>Φ<sub>ML</sub></strong></a>
   •   <a href="https://tum-pbs.github.io/PhiML/">📖 <strong>Documentation</strong></a>
   •   <a href="https://tum-pbs.github.io/PhiML/phiml">🔗 <strong>API</strong></a>
@@ -15128,8 +15128,11 @@ body[data-format='mobile'] .jp-OutputArea-child .jp-OutputArea-output {
 <div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[1]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython2"><pre><span></span><span class="c1"># !pip install phiml</span>
+<div class=" highlight hl-ipython2"><pre><span></span><span class="o">%%capture</span>
+<span class="err">!</span><span class="n">pip</span> <span class="n">install</span> <span class="n">phiml</span>
 <span class="kn">from</span> <span class="nn">phiml</span> <span class="kn">import</span> <span class="n">math</span>
+<span class="kn">from</span> <span class="nn">phiml.math</span> <span class="kn">import</span> <span class="n">spatial</span><span class="p">,</span> <span class="n">instance</span><span class="p">,</span> <span class="n">channel</span><span class="p">,</span> <span class="n">batch</span>
+<span class="kn">import</span> <span class="nn">torch</span>
 </pre></div>
 
      </div>
@@ -15144,21 +15147,27 @@ body[data-format='mobile'] .jp-OutputArea-child .jp-OutputArea-output {
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<h2 id="Dimension-Types">Dimension Types<a class="anchor-link" href="#Dimension-Types">&#182;</a></h2><p>The largest difference between Φ<sub>ML</sub> and its backend libraries like PyTorch or Jax lies in the tensor shapes.
-When using <a href="Tensors.html">Φ<sub>ML</sub>'s tensors</a>, all dimensions must be assigned a name and type flag.
-The following dimension types are available:</p>
-<ul>
-<li><em>batch</em> dimensions can be added to any code in order to parallelize it. This is their only function. The code should always give the exact same result as if it was called sequentially on all slices and the results were stacked along the batch dimension.</li>
-<li><em>channel</em> dimensions list components of one object, such as a pixel, grid cell or particle. Typical examples include color channels or (x,y,z) components of a vector.</li>
-<li><em>spatial</em> dimensions denote grid dimensions. Typically, elements are equally-spaced along spatial dimensions, enabling operations such as convolutions or FFTs. The resolution of an image or lattice is typically expressed via spatial dimensions.</li>
-<li><em>instance</em> dimensions enumerate objects that are not regularly ordered, such as moving particles or finite elements.</li>
-<li><em>dual</em> dimensions represent function inputs and are typically used to denote the columns of matrices. See <a href="Matrices.html">the matrix documentation</a> for more.</li>
-</ul>
+<p>The interplay between dimension types and names enables user code to be much more concise and expressive.
+These advantages are hard to explain in abstract, so instead we are going to show the benefits on simple examples.</p>
 
 </div>
 </div>
 </div>
-</div><div  class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
+</div>
+<div  class="jp-Cell jp-MarkdownCell jp-Notebook-cell">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
+</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
+<h2 id="Gathering-and-Scattering">Gathering and Scattering<a class="anchor-link" href="#Gathering-and-Scattering">&#182;</a></h2><p>Operations like <code>gather</code> and <code>scatter</code> -- taking values out of a tensor or putting data into a tensor -- are among the most basic and important operations.
+Let's consider the following task: We want to compute <code>min(0, value)</code> for some values at given <code>indices</code> of a <code>data</code> tensor and write the updated values back to the tensor.</p>
+<p>Let's look at the Φ-ML version first. We are given the <code>data</code>, ordered in the usual format y,x and <code>indices</code> ordered as x,y.</p>
+
+</div>
+</div>
+</div>
+</div><div  class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -15166,37 +15175,13 @@ The following dimension types are available:</p>
 <div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[2]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython2"><pre><span></span><span class="kn">from</span> <span class="nn">phiml.math</span> <span class="kn">import</span> <span class="n">batch</span><span class="p">,</span> <span class="n">channel</span><span class="p">,</span> <span class="n">spatial</span><span class="p">,</span> <span class="n">instance</span><span class="p">,</span> <span class="n">dual</span>
-<span class="n">BATCH</span> <span class="o">=</span> <span class="n">batch</span><span class="p">(</span><span class="n">examples</span><span class="o">=</span><span class="mi">100</span><span class="p">)</span>
-<span class="n">BATCH</span>
+<div class=" highlight hl-ipython2"><pre><span></span><span class="n">data</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">tensor</span><span class="p">([[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">],</span> <span class="p">[</span><span class="o">-</span><span class="mi">4</span><span class="p">,</span> <span class="o">-</span><span class="mi">5</span><span class="p">,</span> <span class="o">-</span><span class="mi">6</span><span class="p">]],</span> <span class="n">spatial</span><span class="p">(</span><span class="s1">&#39;y,x&#39;</span><span class="p">))</span>
+<span class="n">indices</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">tensor</span><span class="p">([(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">)],</span> <span class="n">instance</span><span class="p">(</span><span class="s1">&#39;indices&#39;</span><span class="p">),</span> <span class="n">channel</span><span class="p">(</span><span class="n">idx</span><span class="o">=</span><span class="s1">&#39;x,y&#39;</span><span class="p">))</span>
 </pre></div>
 
      </div>
 </div>
 </div>
-</div>
-
-<div class="jp-Cell-outputWrapper">
-<div class="jp-Collapser jp-OutputCollapser jp-Cell-outputCollapser">
-</div>
-
-
-<div class="jp-OutputArea jp-Cell-outputArea">
-<div class="jp-OutputArea-child jp-OutputArea-executeResult">
-    
-    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[2]:</div>
-
-
-
-
-<div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre>(examplesᵇ=100)</pre>
-</div>
-
-</div>
-
-</div>
-
 </div>
 
 </div>
@@ -15206,9 +15191,7 @@ The following dimension types are available:</p>
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<p>Here, we have created a <a href="https://tum-pbs.github.io/PhiML/phiml/math/index.html#phiml.math.Shape"><code>Shape</code></a> containing a single <em>batch</em> dimension with name <code>examples</code>.
-Note the superscript <code>b</code> to indicate that this is a batch dimension. Naturally the other superscripts are <code>c</code> for <em>channel</em>, <code>s</code> for <em>spatial</em>, <code>i</code> for <em>instance</em> and <code>d</code> for <em>dual</em>.</p>
-<p>We can now use this shape to construct tensors:</p>
+<p>We can compute the result by gathering the values at the indices, computing the <code>minimum</code>, and then writing them back.</p>
 
 </div>
 </div>
@@ -15221,8 +15204,7 @@ Note the superscript <code>b</code> to indicate that this is a batch dimension. 
 <div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[3]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython2"><pre><span></span><span class="n">x</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">BATCH</span><span class="p">)</span>
-<span class="n">x</span>
+<div class=" highlight hl-ipython2"><pre><span></span><span class="n">math</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">indices</span><span class="p">,</span> <span class="n">math</span><span class="o">.</span><span class="n">minimum</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">data</span><span class="p">[</span><span class="n">indices</span><span class="p">]))</span>
 </pre></div>
 
      </div>
@@ -15244,7 +15226,7 @@ Note the superscript <code>b</code> to indicate that this is a batch dimension. 
 
 
 <div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre><span class="ansi-green-intense-fg">(examplesᵇ=100)</span> <span class="ansi-blue-intense-fg">const 0.0</span></pre>
+<pre>0; 2; 3; -4; -5; -6 <span class="ansi-green-intense-fg">(yˢ=2, xˢ=3)</span> <span class="ansi-yellow-intense-fg">int64</span></pre>
 </div>
 
 </div>
@@ -15260,8 +15242,9 @@ Note the superscript <code>b</code> to indicate that this is a batch dimension. 
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<p>Let's create a tensor with this batch and multiple spatial dimensions!
-We can pass multiple shapes to tensor constructors and can construct multiple dimensions of the same type in one call.</p>
+<p>As expected, the 1 at index (0,0) was replaced by a 0 while the -6 at (2,1) was already lower than 0.
+Also, the channel order was automatically matched to the dimension order since Φ-ML allows us to specify it directly.</p>
+<p>Actually, the Φ-ML scatter function already has a mode for computing the minimum, so we could have instead written</p>
 
 </div>
 </div>
@@ -15274,8 +15257,7 @@ We can pass multiple shapes to tensor constructors and can construct multiple di
 <div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[4]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython2"><pre><span></span><span class="n">x</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">BATCH</span><span class="p">,</span> <span class="n">spatial</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="mi">28</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="mi">28</span><span class="p">))</span>
-<span class="n">x</span>
+<div class=" highlight hl-ipython2"><pre><span></span><span class="n">math</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">indices</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="nb">min</span><span class="p">)</span>
 </pre></div>
 
      </div>
@@ -15297,7 +15279,7 @@ We can pass multiple shapes to tensor constructors and can construct multiple di
 
 
 <div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre><span class="ansi-green-intense-fg">(examplesᵇ=100, xˢ=28, yˢ=28)</span> <span class="ansi-blue-intense-fg">const 1.0</span></pre>
+<pre>0; 2; 3; -4; -5; -6 <span class="ansi-green-intense-fg">(yˢ=2, xˢ=3)</span> <span class="ansi-yellow-intense-fg">int64</span></pre>
 </div>
 
 </div>
@@ -15313,12 +15295,12 @@ We can pass multiple shapes to tensor constructors and can construct multiple di
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<p>We can retrieve the <code>Shape</code> of x using either <code>x.shape</code> or <a href="https://tum-pbs.github.io/PhiML/phiml/math/index.html#phiml.math.shape"><code>math.shape(x)</code></a> which also works on primitive types.</p>
+<p>Now let's look at the same operation in PyTorch, without dimension names.</p>
 
 </div>
 </div>
 </div>
-</div><div  class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
+</div><div  class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -15326,35 +15308,13 @@ We can pass multiple shapes to tensor constructors and can construct multiple di
 <div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[5]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython2"><pre><span></span><span class="n">x</span><span class="o">.</span><span class="n">shape</span>
+<div class=" highlight hl-ipython2"><pre><span></span><span class="n">data</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">([[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">],</span> <span class="p">[</span><span class="o">-</span><span class="mi">4</span><span class="p">,</span> <span class="o">-</span><span class="mi">5</span><span class="p">,</span> <span class="o">-</span><span class="mi">6</span><span class="p">]])</span>  <span class="c1"># y,x</span>
+<span class="n">indices</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">([(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">)])</span>  <span class="c1"># x,y</span>
 </pre></div>
 
      </div>
 </div>
 </div>
-</div>
-
-<div class="jp-Cell-outputWrapper">
-<div class="jp-Collapser jp-OutputCollapser jp-Cell-outputCollapser">
-</div>
-
-
-<div class="jp-OutputArea jp-Cell-outputArea">
-<div class="jp-OutputArea-child jp-OutputArea-executeResult">
-    
-    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[5]:</div>
-
-
-
-
-<div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre>(examplesᵇ=100, xˢ=28, yˢ=28)</pre>
-</div>
-
-</div>
-
-</div>
-
 </div>
 
 </div>
@@ -15364,7 +15324,8 @@ We can pass multiple shapes to tensor constructors and can construct multiple di
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<p>The dimension constructors, such as <code>math.spatial</code>, can also be used to filter for only these dimensions off an object.</p>
+<p>It turns out that doing this is quite hard to get right.
+The following is what ChatGPT came up with, given a detailed description of the task:</p>
 
 </div>
 </div>
@@ -15377,7 +15338,13 @@ We can pass multiple shapes to tensor constructors and can construct multiple di
 <div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[6]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython2"><pre><span></span><span class="n">spatial</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+<div class=" highlight hl-ipython2"><pre><span></span><span class="k">try</span><span class="p">:</span>
+    <span class="c1"># ChatGPT &quot;solution&quot;</span>
+    <span class="n">update_indices</span> <span class="o">=</span> <span class="n">indices</span><span class="p">[:,</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">]]</span>
+    <span class="n">update_values</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">update_indices</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">data</span><span class="o">.</span><span class="n">dtype</span><span class="p">),</span> <span class="n">data</span><span class="p">[</span><span class="n">update_indices</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">update_indices</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]])</span>
+    <span class="n">data</span><span class="o">.</span><span class="n">scatter_add_</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">update_indices</span><span class="p">,</span> <span class="n">update_values</span><span class="p">)</span>
+<span class="k">except</span> <span class="ne">RuntimeError</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">err</span><span class="p">)</span>
 </pre></div>
 
      </div>
@@ -15391,17 +15358,15 @@ We can pass multiple shapes to tensor constructors and can construct multiple di
 
 
 <div class="jp-OutputArea jp-Cell-outputArea">
-<div class="jp-OutputArea-child jp-OutputArea-executeResult">
+<div class="jp-OutputArea-child">
     
-    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[6]:</div>
+    <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
 
 
-
-
-<div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre>(xˢ=28, yˢ=28)</pre>
+<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
+<pre>index 2 is out of bounds for dimension 0 with size 2
+</pre>
 </div>
-
 </div>
 
 </div>
@@ -15415,8 +15380,8 @@ We can pass multiple shapes to tensor constructors and can construct multiple di
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<p>There are additional filter function, such as <a href="https://tum-pbs.github.io/PhiML/phiml/math/index.html#phiml.math.non_batch"><code>non_***</code></a> as well as <a href="https://tum-pbs.github.io/PhiML/phiml/math/index.html#phiml.math.primal"><code>primal</code></a> to exclude <em>batch</em> and <em>dual</em> dimensions.</p>
-<p>This way, we can easily construct a tensor without the batch dimension.</p>
+<p>ChatGPT is unable to correct this mistake, even when given the error message.
+With PyTorch, it's also not possible to gather using to <code>[]</code> syntax in this situation.</p>
 
 </div>
 </div>
@@ -15429,8 +15394,10 @@ We can pass multiple shapes to tensor constructors and can construct multiple di
 <div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[7]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython2"><pre><span></span><span class="kn">from</span> <span class="nn">phiml.math</span> <span class="kn">import</span> <span class="n">non_batch</span><span class="p">,</span> <span class="n">non_channel</span><span class="p">,</span> <span class="n">non_spatial</span><span class="p">,</span> <span class="n">non_instance</span><span class="p">,</span> <span class="n">non_dual</span><span class="p">,</span> <span class="n">primal</span><span class="p">,</span> <span class="n">non_primal</span>
-<span class="n">math</span><span class="o">.</span><span class="n">random_uniform</span><span class="p">(</span><span class="n">non_batch</span><span class="p">(</span><span class="n">x</span><span class="p">))</span>
+<div class=" highlight hl-ipython2"><pre><span></span><span class="k">try</span><span class="p">:</span>
+    <span class="n">data</span><span class="p">[</span><span class="n">indices</span><span class="p">[:,</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">]]]</span>
+<span class="k">except</span> <span class="ne">IndexError</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">err</span><span class="p">)</span>
 </pre></div>
 
      </div>
@@ -15444,17 +15411,15 @@ We can pass multiple shapes to tensor constructors and can construct multiple di
 
 
 <div class="jp-OutputArea jp-Cell-outputArea">
-<div class="jp-OutputArea-child jp-OutputArea-executeResult">
+<div class="jp-OutputArea-child">
     
-    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[7]:</div>
+    <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
 
 
-
-
-<div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre><span class="ansi-green-intense-fg">(xˢ=28, yˢ=28)</span> <span class="ansi-blue-intense-fg">0.498 ± 0.296</span> <span class="ansi-white-fg">(4e-03...1e+00)</span></pre>
+<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
+<pre>index 2 is out of bounds for dimension 0 with size 2
+</pre>
 </div>
-
 </div>
 
 </div>
@@ -15468,8 +15433,9 @@ We can pass multiple shapes to tensor constructors and can construct multiple di
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<h2 id="Automatic-Reshaping">Automatic Reshaping<a class="anchor-link" href="#Automatic-Reshaping">&#182;</a></h2><p>One major advantage of naming all dimensions is that reshaping operations can be performed under-the-hood.
-Assuming we have a tensor with dimensions <code>a,b</code> and another with the reverse dimension order.</p>
+<p>Getting this simple exercise right is quite difficult for someone not intimately familiar with PyTorch. We will leave this as an exercise to the reader.</p>
+<p>Now imagine, we had a batch dimension on <code>data</code> as well!
+Let's try this in Φ-ML.</p>
 
 </div>
 </div>
@@ -15482,8 +15448,9 @@ Assuming we have a tensor with dimensions <code>a,b</code> and another with the 
 <div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[8]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython2"><pre><span></span><span class="n">t1</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">random_normal</span><span class="p">(</span><span class="n">channel</span><span class="p">(</span><span class="n">a</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">b</span><span class="o">=</span><span class="mi">3</span><span class="p">))</span>
-<span class="n">t2</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">random_normal</span><span class="p">(</span><span class="n">channel</span><span class="p">(</span><span class="n">b</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">a</span><span class="o">=</span><span class="mi">2</span><span class="p">))</span>
+<div class=" highlight hl-ipython2"><pre><span></span><span class="n">data</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">tensor</span><span class="p">([[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">],</span> <span class="p">[</span><span class="o">-</span><span class="mi">4</span><span class="p">,</span> <span class="o">-</span><span class="mi">5</span><span class="p">,</span> <span class="o">-</span><span class="mi">6</span><span class="p">]],</span> <span class="n">spatial</span><span class="p">(</span><span class="s1">&#39;y,x&#39;</span><span class="p">))</span>
+<span class="n">indices</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">tensor</span><span class="p">([(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">)],</span> <span class="n">instance</span><span class="p">(</span><span class="s1">&#39;indices&#39;</span><span class="p">),</span> <span class="n">channel</span><span class="p">(</span><span class="n">idx</span><span class="o">=</span><span class="s1">&#39;x,y&#39;</span><span class="p">))</span>
+<span class="n">data</span> <span class="o">*=</span> <span class="n">math</span><span class="o">.</span><span class="n">range</span><span class="p">(</span><span class="n">batch</span><span class="p">(</span><span class="n">b</span><span class="o">=</span><span class="mi">10</span><span class="p">))</span>  <span class="c1"># this is new!</span>
 </pre></div>
 
      </div>
@@ -15498,7 +15465,7 @@ Assuming we have a tensor with dimensions <code>a,b</code> and another with the 
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<p>When combining them in a tensor operation, Φ<sub>ML</sub> automatically transposes the tensors to match.</p>
+<p>Our code from above works with this setting as well. To check this, we print batch index 1, which matches the case above.</p>
 
 </div>
 </div>
@@ -15511,7 +15478,7 @@ Assuming we have a tensor with dimensions <code>a,b</code> and another with the 
 <div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[9]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython2"><pre><span></span><span class="n">t1</span> <span class="o">+</span> <span class="n">t2</span>
+<div class=" highlight hl-ipython2"><pre><span></span><span class="n">math</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">indices</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="nb">min</span><span class="p">)</span><span class="o">.</span><span class="n">b</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
 </pre></div>
 
      </div>
@@ -15533,7 +15500,7 @@ Assuming we have a tensor with dimensions <code>a,b</code> and another with the 
 
 
 <div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre><span class="ansi-blue-intense-fg">(-3.858, 2.518, -0.298, 2.628, 1.528, -0.655)</span> <span class="ansi-green-intense-fg">(aᶜ=2, bᶜ=3)</span></pre>
+<pre>0; 2; 3; -4; -5; -6 <span class="ansi-green-intense-fg">(yˢ=2, xˢ=3)</span> <span class="ansi-yellow-intense-fg">int64</span></pre>
 </div>
 
 </div>
@@ -15549,10 +15516,22 @@ Assuming we have a tensor with dimensions <code>a,b</code> and another with the 
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<p>The resulting dimension order is generally undefined.
-However, this is of no consequence, because dimensions are never referenced by their index in the shape.</p>
-<p>When one of the tensors is missing a dimension, it will be added automatically.
-In these cases, you can think of the value being constant along the missing dimension (like with <a href="https://numpy.org/doc/stable/reference/generated/numpy.expand_dims.html">singleton dimensions in NumPy</a>).</p>
+<p>Adapting the PyTorch code requires detailed knowledge of the behavior of the respective gather and scatter operations.
+You are welcome to try it!</p>
+<p>Unsurprisingly, the same behavior can be observed when considering batched indices instead of batched values.</p>
+
+</div>
+</div>
+</div>
+</div>
+<div  class="jp-Cell jp-MarkdownCell jp-Notebook-cell">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
+</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
+<h2 id="Laplace-Operator">Laplace Operator<a class="anchor-link" href="#Laplace-Operator">&#182;</a></h2><p>Consider the discrete laplace operator ∇². On a 1D grid, it can be computed with the stencil (1, -2, 1) and in 2D with the stencil (0 1 0 / 1 -4, 1 / 0 1 0).
+With Φ-ML's typed dimensions, we can implement this</p>
 
 </div>
 </div>
@@ -15565,713 +15544,15 @@ In these cases, you can think of the value being constant along the missing dime
 <div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[10]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython2"><pre><span></span><span class="n">t1</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">random_normal</span><span class="p">(</span><span class="n">channel</span><span class="p">(</span><span class="n">a</span><span class="o">=</span><span class="mi">2</span><span class="p">))</span>
-<span class="n">t2</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">random_normal</span><span class="p">(</span><span class="n">channel</span><span class="p">(</span><span class="n">b</span><span class="o">=</span><span class="mi">3</span><span class="p">))</span>
-<span class="n">t1</span> <span class="o">+</span> <span class="n">t2</span>
-</pre></div>
-
-     </div>
-</div>
-</div>
-</div>
-
-<div class="jp-Cell-outputWrapper">
-<div class="jp-Collapser jp-OutputCollapser jp-Cell-outputCollapser">
-</div>
-
-
-<div class="jp-OutputArea jp-Cell-outputArea">
-<div class="jp-OutputArea-child jp-OutputArea-executeResult">
-    
-    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[10]:</div>
-
-
-
-
-<div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre><span class="ansi-blue-intense-fg">(-0.680, 0.161, -0.135, -2.362, -1.521, -1.817)</span> <span class="ansi-green-intense-fg">(aᶜ=2, bᶜ=3)</span></pre>
-</div>
-
-</div>
-
-</div>
-
-</div>
-
-</div>
-<div  class="jp-Cell jp-MarkdownCell jp-Notebook-cell">
-<div class="jp-Cell-inputWrapper">
-<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
-</div>
-<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
-</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<p>Here, we created a 2D tensor from two 1D tensors. No manual reshaping required.</p>
-
-</div>
-</div>
-</div>
-</div>
-<div  class="jp-Cell jp-MarkdownCell jp-Notebook-cell">
-<div class="jp-Cell-inputWrapper">
-<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
-</div>
-<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
-</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<h2 id="Selecting-and-Combining-Dimensions">Selecting and Combining Dimensions<a class="anchor-link" href="#Selecting-and-Combining-Dimensions">&#182;</a></h2><p>All tensor creation functions accept a variable number of <code>Shape</code> objects as input and concatenate the dimensions internally.
-This can also be done explicitly using <a href="phiml/math/#phiml.math.concat_shapes"><code>concat_shapes()</code></a>.</p>
-
-</div>
-</div>
-</div>
-</div><div  class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
-<div class="jp-Cell-inputWrapper">
-<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
-</div>
-<div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[11]:</div>
-<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
-     <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython2"><pre><span></span><span class="n">b</span> <span class="o">=</span> <span class="n">batch</span><span class="p">(</span><span class="n">examples</span><span class="o">=</span><span class="mi">16</span><span class="p">)</span>
-<span class="n">s</span> <span class="o">=</span> <span class="n">spatial</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="mi">28</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="mi">28</span><span class="p">)</span>
-<span class="n">c</span> <span class="o">=</span> <span class="n">channel</span><span class="p">(</span><span class="n">channels</span><span class="o">=</span><span class="s1">&#39;red,green,blue&#39;</span><span class="p">)</span>
-<span class="n">math</span><span class="o">.</span><span class="n">concat_shapes</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">c</span><span class="p">,</span> <span class="n">b</span><span class="p">)</span>
-</pre></div>
-
-     </div>
-</div>
-</div>
-</div>
-
-<div class="jp-Cell-outputWrapper">
-<div class="jp-Collapser jp-OutputCollapser jp-Cell-outputCollapser">
-</div>
-
-
-<div class="jp-OutputArea jp-Cell-outputArea">
-<div class="jp-OutputArea-child jp-OutputArea-executeResult">
-    
-    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[11]:</div>
-
-
-
-
-<div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre>(xˢ=28, yˢ=28, channelsᶜ=red,green,blue, examplesᵇ=16)</pre>
-</div>
-
-</div>
-
-</div>
-
-</div>
-
-</div>
-<div  class="jp-Cell jp-MarkdownCell jp-Notebook-cell">
-<div class="jp-Cell-inputWrapper">
-<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
-</div>
-<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
-</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<p>This preserves the dimension order and fails if multiple dimensions with the same name are given.
-Alternatively, <a href="phiml/math/#phiml.math.merge_shapes"><code>merge_shapes()</code></a> can be used, which groups dimensions by type and allows for the same dimensions to be present on multiple inputs.</p>
-
-</div>
-</div>
-</div>
-</div><div  class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
-<div class="jp-Cell-inputWrapper">
-<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
-</div>
-<div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[12]:</div>
-<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
-     <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython2"><pre><span></span><span class="n">s</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">merge_shapes</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">c</span><span class="p">,</span> <span class="n">b</span><span class="p">)</span>
-<span class="n">s</span>
-</pre></div>
-
-     </div>
-</div>
-</div>
-</div>
-
-<div class="jp-Cell-outputWrapper">
-<div class="jp-Collapser jp-OutputCollapser jp-Cell-outputCollapser">
-</div>
-
-
-<div class="jp-OutputArea jp-Cell-outputArea">
-<div class="jp-OutputArea-child jp-OutputArea-executeResult">
-    
-    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[12]:</div>
-
-
-
-
-<div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre>(examplesᵇ=16, xˢ=28, yˢ=28, channelsᶜ=red,green,blue)</pre>
-</div>
-
-</div>
-
-</div>
-
-</div>
-
-</div>
-<div  class="jp-Cell jp-MarkdownCell jp-Notebook-cell">
-<div class="jp-Cell-inputWrapper">
-<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
-</div>
-<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
-</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<p>This can also be done using the <code>&amp;</code> operator.
-Notice how the <em>batch</em> dimension is moved to the first place.</p>
-
-</div>
-</div>
-</div>
-</div><div  class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
-<div class="jp-Cell-inputWrapper">
-<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
-</div>
-<div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[13]:</div>
-<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
-     <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython2"><pre><span></span><span class="n">s</span> <span class="o">&amp;</span> <span class="n">c</span> <span class="o">&amp;</span> <span class="n">b</span>
-</pre></div>
-
-     </div>
-</div>
-</div>
-</div>
-
-<div class="jp-Cell-outputWrapper">
-<div class="jp-Collapser jp-OutputCollapser jp-Cell-outputCollapser">
-</div>
-
-
-<div class="jp-OutputArea jp-Cell-outputArea">
-<div class="jp-OutputArea-child jp-OutputArea-executeResult">
-    
-    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[13]:</div>
-
-
-
-
-<div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre>(examplesᵇ=16, xˢ=28, yˢ=28, channelsᶜ=red,green,blue)</pre>
-</div>
-
-</div>
-
-</div>
-
-</div>
-
-</div>
-<div  class="jp-Cell jp-MarkdownCell jp-Notebook-cell">
-<div class="jp-Cell-inputWrapper">
-<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
-</div>
-<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
-</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<p>Filtering shapes for specific dimensions can be done using <code>Shape[name]</code>, <a href="phiml/math/#phiml.math.Shape.only"><code>Shape.only()</code></a> and <a href="phiml/math/#phiml.math.Shape.without"><code>Shape.without()</code></a>.</p>
-
-</div>
-</div>
-</div>
-</div><div  class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
-<div class="jp-Cell-inputWrapper">
-<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
-</div>
-<div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[14]:</div>
-<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
-     <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython2"><pre><span></span><span class="n">s</span><span class="p">[</span><span class="s1">&#39;x&#39;</span><span class="p">]</span>
-</pre></div>
-
-     </div>
-</div>
-</div>
-</div>
-
-<div class="jp-Cell-outputWrapper">
-<div class="jp-Collapser jp-OutputCollapser jp-Cell-outputCollapser">
-</div>
-
-
-<div class="jp-OutputArea jp-Cell-outputArea">
-<div class="jp-OutputArea-child jp-OutputArea-executeResult">
-    
-    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[14]:</div>
-
-
-
-
-<div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre>(xˢ=28)</pre>
-</div>
-
-</div>
-
-</div>
-
-</div>
-
-</div><div  class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
-<div class="jp-Cell-inputWrapper">
-<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
-</div>
-<div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[15]:</div>
-<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
-     <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython2"><pre><span></span><span class="n">s</span><span class="o">.</span><span class="n">only</span><span class="p">(</span><span class="s1">&#39;x,y&#39;</span><span class="p">)</span>
-</pre></div>
-
-     </div>
-</div>
-</div>
-</div>
-
-<div class="jp-Cell-outputWrapper">
-<div class="jp-Collapser jp-OutputCollapser jp-Cell-outputCollapser">
-</div>
-
-
-<div class="jp-OutputArea jp-Cell-outputArea">
-<div class="jp-OutputArea-child jp-OutputArea-executeResult">
-    
-    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[15]:</div>
-
-
-
-
-<div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre>(xˢ=28, yˢ=28)</pre>
-</div>
-
-</div>
-
-</div>
-
-</div>
-
-</div><div  class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
-<div class="jp-Cell-inputWrapper">
-<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
-</div>
-<div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[16]:</div>
-<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
-     <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython2"><pre><span></span><span class="n">s</span><span class="o">.</span><span class="n">without</span><span class="p">(</span><span class="s1">&#39;x,y&#39;</span><span class="p">)</span>
-</pre></div>
-
-     </div>
-</div>
-</div>
-</div>
-
-<div class="jp-Cell-outputWrapper">
-<div class="jp-Collapser jp-OutputCollapser jp-Cell-outputCollapser">
-</div>
-
-
-<div class="jp-OutputArea jp-Cell-outputArea">
-<div class="jp-OutputArea-child jp-OutputArea-executeResult">
-    
-    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[16]:</div>
-
-
-
-
-<div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre>(examplesᵇ=16, channelsᶜ=red,green,blue)</pre>
-</div>
-
-</div>
-
-</div>
-
-</div>
-
-</div><div  class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
-<div class="jp-Cell-inputWrapper">
-<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
-</div>
-<div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[17]:</div>
-<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
-     <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython2"><pre><span></span><span class="n">s</span><span class="o">.</span><span class="n">only</span><span class="p">(</span><span class="n">spatial</span><span class="p">)</span>
-</pre></div>
-
-     </div>
-</div>
-</div>
-</div>
-
-<div class="jp-Cell-outputWrapper">
-<div class="jp-Collapser jp-OutputCollapser jp-Cell-outputCollapser">
-</div>
-
-
-<div class="jp-OutputArea jp-Cell-outputArea">
-<div class="jp-OutputArea-child jp-OutputArea-executeResult">
-    
-    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[17]:</div>
-
-
-
-
-<div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre>(xˢ=28, yˢ=28)</pre>
-</div>
-
-</div>
-
-</div>
-
-</div>
-
-</div>
-<div  class="jp-Cell jp-MarkdownCell jp-Notebook-cell">
-<div class="jp-Cell-inputWrapper">
-<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
-</div>
-<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
-</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<p>Selecting only one type of dimension can also be done using the construction function or the corresponding Shape member variable.</p>
-
-</div>
-</div>
-</div>
-</div><div  class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
-<div class="jp-Cell-inputWrapper">
-<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
-</div>
-<div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[18]:</div>
-<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
-     <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython2"><pre><span></span><span class="n">s</span><span class="o">.</span><span class="n">spatial</span>
-</pre></div>
-
-     </div>
-</div>
-</div>
-</div>
-
-<div class="jp-Cell-outputWrapper">
-<div class="jp-Collapser jp-OutputCollapser jp-Cell-outputCollapser">
-</div>
-
-
-<div class="jp-OutputArea jp-Cell-outputArea">
-<div class="jp-OutputArea-child jp-OutputArea-executeResult">
-    
-    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[18]:</div>
-
-
-
-
-<div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre>(xˢ=28, yˢ=28)</pre>
-</div>
-
-</div>
-
-</div>
-
-</div>
-
-</div><div  class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
-<div class="jp-Cell-inputWrapper">
-<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
-</div>
-<div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[19]:</div>
-<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
-     <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython2"><pre><span></span><span class="n">spatial</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
-</pre></div>
-
-     </div>
-</div>
-</div>
-</div>
-
-<div class="jp-Cell-outputWrapper">
-<div class="jp-Collapser jp-OutputCollapser jp-Cell-outputCollapser">
-</div>
-
-
-<div class="jp-OutputArea jp-Cell-outputArea">
-<div class="jp-OutputArea-child jp-OutputArea-executeResult">
-    
-    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[19]:</div>
-
-
-
-
-<div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre>(xˢ=28, yˢ=28)</pre>
-</div>
-
-</div>
-
-</div>
-
-</div>
-
-</div><div  class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
-<div class="jp-Cell-inputWrapper">
-<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
-</div>
-<div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[20]:</div>
-<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
-     <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython2"><pre><span></span><span class="n">s</span><span class="o">.</span><span class="n">non_spatial</span>
-</pre></div>
-
-     </div>
-</div>
-</div>
-</div>
-
-<div class="jp-Cell-outputWrapper">
-<div class="jp-Collapser jp-OutputCollapser jp-Cell-outputCollapser">
-</div>
-
-
-<div class="jp-OutputArea jp-Cell-outputArea">
-<div class="jp-OutputArea-child jp-OutputArea-executeResult">
-    
-    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[20]:</div>
-
-
-
-
-<div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre>(examplesᵇ=16, channelsᶜ=red,green,blue)</pre>
-</div>
-
-</div>
-
-</div>
-
-</div>
-
-</div><div  class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
-<div class="jp-Cell-inputWrapper">
-<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
-</div>
-<div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[21]:</div>
-<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
-     <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython2"><pre><span></span><span class="n">non_spatial</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
-</pre></div>
-
-     </div>
-</div>
-</div>
-</div>
-
-<div class="jp-Cell-outputWrapper">
-<div class="jp-Collapser jp-OutputCollapser jp-Cell-outputCollapser">
-</div>
-
-
-<div class="jp-OutputArea jp-Cell-outputArea">
-<div class="jp-OutputArea-child jp-OutputArea-executeResult">
-    
-    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[21]:</div>
-
-
-
-
-<div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre>(examplesᵇ=16, channelsᶜ=red,green,blue)</pre>
-</div>
-
-</div>
-
-</div>
-
-</div>
-
-</div>
-<div  class="jp-Cell jp-MarkdownCell jp-Notebook-cell">
-<div class="jp-Cell-inputWrapper">
-<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
-</div>
-<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
-</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<h2 id="Properties-of-Shapes">Properties of Shapes<a class="anchor-link" href="#Properties-of-Shapes">&#182;</a></h2><p><a href="phiml/math/#phiml.math.Shape"><code>Shape</code></a> objects are <em>immutable</em>. Do not attempt to change any property of a <code>Shape</code> directly.
-The sizes of all dimensions can be retrieved as a <code>tuple</code> using <code>Shape.sizes´. The result is equal to what NumPy or any of the other backends would return for</code>tensor.shape`.</p>
-
-</div>
-</div>
-</div>
-</div><div  class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
-<div class="jp-Cell-inputWrapper">
-<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
-</div>
-<div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[22]:</div>
-<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
-     <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython2"><pre><span></span><span class="n">s</span><span class="o">.</span><span class="n">sizes</span>
-</pre></div>
-
-     </div>
-</div>
-</div>
-</div>
-
-<div class="jp-Cell-outputWrapper">
-<div class="jp-Collapser jp-OutputCollapser jp-Cell-outputCollapser">
-</div>
-
-
-<div class="jp-OutputArea jp-Cell-outputArea">
-<div class="jp-OutputArea-child jp-OutputArea-executeResult">
-    
-    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[22]:</div>
-
-
-
-
-<div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre>(16, 28, 28, 3)</pre>
-</div>
-
-</div>
-
-</div>
-
-</div>
-
-</div>
-<div  class="jp-Cell jp-MarkdownCell jp-Notebook-cell">
-<div class="jp-Cell-inputWrapper">
-<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
-</div>
-<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
-</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<p>Likewise, the names of the dimensions can be read using <code>Shape.names</code>.</p>
-
-</div>
-</div>
-</div>
-</div><div  class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
-<div class="jp-Cell-inputWrapper">
-<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
-</div>
-<div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[23]:</div>
-<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
-     <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython2"><pre><span></span><span class="n">s</span><span class="o">.</span><span class="n">names</span>
-</pre></div>
-
-     </div>
-</div>
-</div>
-</div>
-
-<div class="jp-Cell-outputWrapper">
-<div class="jp-Collapser jp-OutputCollapser jp-Cell-outputCollapser">
-</div>
-
-
-<div class="jp-OutputArea jp-Cell-outputArea">
-<div class="jp-OutputArea-child jp-OutputArea-executeResult">
-    
-    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[23]:</div>
-
-
-
-
-<div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre>(&#39;examples&#39;, &#39;x&#39;, &#39;y&#39;, &#39;channels&#39;)</pre>
-</div>
-
-</div>
-
-</div>
-
-</div>
-
-</div>
-<div  class="jp-Cell jp-MarkdownCell jp-Notebook-cell">
-<div class="jp-Cell-inputWrapper">
-<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
-</div>
-<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
-</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<p>For single-dimension shapes, the properties <code>name</code> and <code>size</code> return the value directly.
-You can select
-To get the size of a specific dimension, you can use one of the following methods:</p>
-
-</div>
-</div>
-</div>
-</div><div  class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
-<div class="jp-Cell-inputWrapper">
-<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
-</div>
-<div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[24]:</div>
-<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
-     <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython2"><pre><span></span><span class="n">s</span><span class="p">[</span><span class="s1">&#39;x&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">size</span>
-</pre></div>
-
-     </div>
-</div>
-</div>
-</div>
-
-<div class="jp-Cell-outputWrapper">
-<div class="jp-Collapser jp-OutputCollapser jp-Cell-outputCollapser">
-</div>
-
-
-<div class="jp-OutputArea jp-Cell-outputArea">
-<div class="jp-OutputArea-child jp-OutputArea-executeResult">
-    
-    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[24]:</div>
-
-
-
-
-<div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre>28</pre>
-</div>
-
-</div>
-
-</div>
-
-</div>
-
-</div><div  class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
-<div class="jp-Cell-inputWrapper">
-<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
-</div>
-<div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[25]:</div>
-<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
-     <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython2"><pre><span></span><span class="k">for</span> <span class="n">dim</span> <span class="ow">in</span> <span class="n">s</span><span class="p">:</span>
-    <span class="nb">print</span><span class="p">(</span><span class="n">dim</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">dim</span><span class="o">.</span><span class="n">size</span><span class="p">,</span> <span class="n">dim</span><span class="o">.</span><span class="n">dim_type</span><span class="o">.</span><span class="vm">__name__</span><span class="p">)</span>
+<div class=" highlight hl-ipython2"><pre><span></span><span class="n">data_1d</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">tensor</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">spatial</span><span class="p">(</span><span class="s1">&#39;x&#39;</span><span class="p">))</span>
+<span class="n">data_2d</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">tensor</span><span class="p">([[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]],</span> <span class="n">spatial</span><span class="p">(</span><span class="s1">&#39;y,x&#39;</span><span class="p">))</span>
+
+<span class="k">def</span> <span class="nf">laplace</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">padding</span><span class="o">=</span><span class="s1">&#39;zero-gradient&#39;</span><span class="p">):</span>
+    <span class="n">left</span><span class="p">,</span> <span class="n">center</span><span class="p">,</span> <span class="n">right</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">shift</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="n">spatial</span><span class="p">,</span> <span class="n">padding</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">math</span><span class="o">.</span><span class="n">sum</span><span class="p">((</span><span class="n">left</span> <span class="o">+</span> <span class="n">right</span> <span class="o">-</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">center</span><span class="p">),</span> <span class="s1">&#39;shift&#39;</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="n">laplace</span><span class="p">(</span><span class="n">data_1d</span><span class="p">))</span>
+<span class="n">math</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="n">laplace</span><span class="p">(</span><span class="n">data_2d</span><span class="p">))</span>
 </pre></div>
 
      </div>
@@ -16291,10 +15572,10 @@ To get the size of a specific dimension, you can use one of the following method
 
 
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
-<pre>examples 16 batch
-x 28 spatial
-y 28 spatial
-channels 3 channel
+<pre><span class="ansi-blue-intense-fg">(1, -2, 1)</span> along <span class="ansi-green-intense-fg">xˢ</span> <span class="ansi-yellow-intense-fg">int64</span>
+<span class="ansi-blue-intense-fg">  0,  1,  0,
+  1, -4,  1,
+  0,  1,  0</span>  along <span class="ansi-green-intense-fg">(yˢ=3, xˢ=3)</span>
 </pre>
 </div>
 </div>
@@ -16310,7 +15591,9 @@ channels 3 channel
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<p>The number of dimensions and total elements can be retrieved using <code>len(Shape)</code> and <code>Shape.volume</code>, respectively.</p>
+<p>This automatically generalizes to <em>n</em> dimensions since we shift in all <em>spatial</em> dimensions.</p>
+<p>Doing this directly with PyTorch is much more cumbersome.
+After multiple iterations of generating code with ChatGPT and feeding it back the error message, it converged on the following output:</p>
 
 </div>
 </div>
@@ -16320,10 +15603,38 @@ channels 3 channel
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[26]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[11]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython2"><pre><span></span><span class="nb">len</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+<div class=" highlight hl-ipython2"><pre><span></span><span class="kn">import</span> <span class="nn">torch</span>
+<span class="kn">import</span> <span class="nn">torch.nn.functional</span> <span class="k">as</span> <span class="nn">F</span>
+
+<span class="c1"># ChatGPT &quot;solution&quot;</span>
+<span class="k">def</span> <span class="nf">laplace_operator_nd</span><span class="p">(</span><span class="n">grid</span><span class="p">):</span>
+    <span class="c1"># Get the number of dimensions</span>
+    <span class="n">ndim</span> <span class="o">=</span> <span class="n">grid</span><span class="o">.</span><span class="n">dim</span><span class="p">()</span>
+
+    <span class="c1"># Construct the Laplace stencil for n-dimensions</span>
+    <span class="n">laplace_stencil</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">1</span><span class="p">,)</span> <span class="o">*</span> <span class="p">(</span><span class="n">ndim</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">+</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span>
+    <span class="n">center_idx</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">slice</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">ndim</span> <span class="o">-</span> <span class="mi">1</span><span class="p">))</span> <span class="o">+</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="n">laplace_stencil</span><span class="p">[</span><span class="n">center_idx</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="mi">2</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">ndim</span> <span class="o">-</span> <span class="mi">1</span><span class="p">):</span>
+        <span class="n">laplace_stencil</span> <span class="o">=</span> <span class="n">laplace_stencil</span><span class="o">.</span><span class="n">narrow</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">clone</span><span class="p">()</span>
+
+    <span class="c1"># Apply the convolution along each dimension</span>
+    <span class="n">laplace_result</span> <span class="o">=</span> <span class="n">grid</span><span class="o">.</span><span class="n">clone</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">ndim</span><span class="p">):</span>
+        <span class="n">laplace_result</span> <span class="o">=</span> <span class="n">F</span><span class="o">.</span><span class="n">conv1d</span><span class="p">(</span><span class="n">laplace_result</span><span class="o">.</span><span class="n">unsqueeze</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span> <span class="n">laplace_stencil</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">laplace_result</span><span class="o">.</span><span class="n">device</span><span class="p">),</span> <span class="n">padding</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">laplace_result</span> <span class="o">=</span> <span class="n">laplace_result</span><span class="o">.</span><span class="n">squeeze</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">laplace_result</span>
+
+
+<span class="n">data_1d</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">])</span>
+<span class="k">try</span><span class="p">:</span>
+    <span class="n">result_1d</span> <span class="o">=</span> <span class="n">laplace_operator_nd</span><span class="p">(</span><span class="n">data_1d</span><span class="p">)</span>
+<span class="k">except</span> <span class="ne">RuntimeError</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">err</span><span class="p">)</span>
 </pre></div>
 
      </div>
@@ -16337,15 +15648,15 @@ channels 3 channel
 
 
 <div class="jp-OutputArea jp-Cell-outputArea">
-<div class="jp-OutputArea-child jp-OutputArea-executeResult">
+<div class="jp-OutputArea-child">
     
-    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[26]:</div>
+    <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
 
 
-
-
-<div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre>4</pre>
+<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
+<pre>Given groups=1, weight of size [1, 3, 3], expected input[1, 1, 5] to have 3 channels, but got 1 channels instead
+</pre>
+</div>
 </div>
 
 </div>
@@ -16353,16 +15664,40 @@ channels 3 channel
 </div>
 
 </div>
+<div  class="jp-Cell jp-MarkdownCell jp-Notebook-cell">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
+</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
+<p>The n-dimensional laplace seems to be too difficult for current LLMs to handle with PyTorch, indicating that the API is not well-suited to the task.
+However, ChatGPT is able to generate versions for a fixed number of dimensions.</p>
+<p>The below output does work for inputs of type float, but an additional cast is required to make it work with our example.
+These data type problems are always resolved under-the-hood in Φ-ML. Our version even accepts <code>bool</code> and <code>complex</code> inputs, neither of which work with PyTorch out-of-the-box.</p>
 
+</div>
+</div>
+</div>
 </div><div  class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[27]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[12]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython2"><pre><span></span><span class="n">s</span><span class="o">.</span><span class="n">non_batch</span><span class="o">.</span><span class="n">volume</span>
+<div class=" highlight hl-ipython2"><pre><span></span><span class="c1"># ChatGPT solution for 1D laplace</span>
+<span class="k">def</span> <span class="nf">laplace_operator_1d</span><span class="p">(</span><span class="n">grid</span><span class="p">):</span>
+    <span class="n">laplace_stencil</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">laplace_result</span> <span class="o">=</span> <span class="n">F</span><span class="o">.</span><span class="n">conv1d</span><span class="p">(</span><span class="n">grid</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">),</span> <span class="n">laplace_stencil</span><span class="p">,</span> <span class="n">padding</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">laplace_result</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+
+<span class="c1"># Example usage:</span>
+<span class="n">grid_1d</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
+<span class="k">try</span><span class="p">:</span>
+    <span class="n">result_1d</span> <span class="o">=</span> <span class="n">laplace_operator_1d</span><span class="p">(</span><span class="n">grid_1d</span><span class="p">)</span>
+<span class="k">except</span> <span class="ne">RuntimeError</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">err</span><span class="p">)</span>
 </pre></div>
 
      </div>
@@ -16376,17 +15711,15 @@ channels 3 channel
 
 
 <div class="jp-OutputArea jp-Cell-outputArea">
-<div class="jp-OutputArea-child jp-OutputArea-executeResult">
+<div class="jp-OutputArea-child">
     
-    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[27]:</div>
+    <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
 
 
-
-
-<div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre>2352</pre>
+<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
+<pre>expected scalar type Long but found Float
+</pre>
 </div>
-
 </div>
 
 </div>
@@ -16400,216 +15733,13 @@ channels 3 channel
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<h2 id="Changing-Dimensions">Changing Dimensions<a class="anchor-link" href="#Changing-Dimensions">&#182;</a></h2><p>The names and types of dimensions can be changed, but this always returns a new object, leaving the original unaltered.
-Assume, we want to rename the <code>channels</code> dimension from above to <code>color</code>.</p>
-
-</div>
-</div>
-</div>
-</div><div  class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
-<div class="jp-Cell-inputWrapper">
-<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
-</div>
-<div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[28]:</div>
-<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
-     <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython2"><pre><span></span><span class="n">math</span><span class="o">.</span><span class="n">rename_dims</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="s1">&#39;channels&#39;</span><span class="p">,</span> <span class="s1">&#39;color&#39;</span><span class="p">)</span>
-</pre></div>
-
-     </div>
-</div>
-</div>
-</div>
-
-<div class="jp-Cell-outputWrapper">
-<div class="jp-Collapser jp-OutputCollapser jp-Cell-outputCollapser">
-</div>
-
-
-<div class="jp-OutputArea jp-Cell-outputArea">
-<div class="jp-OutputArea-child jp-OutputArea-executeResult">
-    
-    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[28]:</div>
-
-
-
-
-<div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre>(examplesᵇ=16, xˢ=28, yˢ=28, colorᶜ=red,green,blue)</pre>
-</div>
-
-</div>
-
-</div>
-
-</div>
-
-</div>
-<div  class="jp-Cell jp-MarkdownCell jp-Notebook-cell">
-<div class="jp-Cell-inputWrapper">
-<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
-</div>
-<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
-</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<p>The same can be done for tensors.</p>
-
-</div>
-</div>
-</div>
-</div><div  class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
-<div class="jp-Cell-inputWrapper">
-<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
-</div>
-<div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[29]:</div>
-<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
-     <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython2"><pre><span></span><span class="n">math</span><span class="o">.</span><span class="n">rename_dims</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">s</span><span class="p">),</span> <span class="s1">&#39;channels&#39;</span><span class="p">,</span> <span class="s1">&#39;color&#39;</span><span class="p">)</span>
-</pre></div>
-
-     </div>
-</div>
-</div>
-</div>
-
-<div class="jp-Cell-outputWrapper">
-<div class="jp-Collapser jp-OutputCollapser jp-Cell-outputCollapser">
-</div>
-
-
-<div class="jp-OutputArea jp-Cell-outputArea">
-<div class="jp-OutputArea-child jp-OutputArea-executeResult">
-    
-    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[29]:</div>
-
-
-
-
-<div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre><span class="ansi-green-intense-fg">(examplesᵇ=16, xˢ=28, yˢ=28, colorᶜ=red,green,blue)</span> <span class="ansi-blue-intense-fg">const 0.0</span></pre>
-</div>
-
-</div>
-
-</div>
-
-</div>
-
-</div>
-<div  class="jp-Cell jp-MarkdownCell jp-Notebook-cell">
-<div class="jp-Cell-inputWrapper">
-<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
-</div>
-<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
-</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<p>To change the type, you may use <code>replace_dims()</code>, which is an alias for <code>rename_dims()</code> but clarifies the intended use.</p>
-
-</div>
-</div>
-</div>
-</div><div  class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
-<div class="jp-Cell-inputWrapper">
-<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
-</div>
-<div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[30]:</div>
-<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
-     <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython2"><pre><span></span><span class="n">math</span><span class="o">.</span><span class="n">replace_dims</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="s1">&#39;channels&#39;</span><span class="p">,</span> <span class="n">batch</span><span class="p">(</span><span class="s1">&#39;channels&#39;</span><span class="p">))</span>
-</pre></div>
-
-     </div>
-</div>
-</div>
-</div>
-
-<div class="jp-Cell-outputWrapper">
-<div class="jp-Collapser jp-OutputCollapser jp-Cell-outputCollapser">
-</div>
-
-
-<div class="jp-OutputArea jp-Cell-outputArea">
-<div class="jp-OutputArea-child jp-OutputArea-executeResult">
-    
-    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[30]:</div>
-
-
-
-
-<div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre>(examplesᵇ=16, xˢ=28, yˢ=28, channelsᵇ=3)</pre>
-</div>
-
-</div>
-
-</div>
-
-</div>
-
-</div>
-<div  class="jp-Cell jp-MarkdownCell jp-Notebook-cell">
-<div class="jp-Cell-inputWrapper">
-<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
-</div>
-<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
-</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<h2 id="Response-to-Dimension-Types-by-Function">Response to Dimension Types by Function<a class="anchor-link" href="#Response-to-Dimension-Types-by-Function">&#182;</a></h2><p>The dimension types serve an important role in indicating what role a dimension plays.
-Many <code>math</code> functions behave differently, depending on the given dimension types.</p>
-<p>Vector operations like <a href="phiml/math#phiml.math.vec_length"><code>vec_length</code></a> or <a href="phiml/math#phiml.math.rotate_vector"><code>rotate_vector</code></a> require the input to have a <em>channel</em> dimension to list the vector components.</p>
-<p>Spatial operations like <a href="phiml/math#phiml.math.fft"><code>fft</code></a> or <a href="phiml/math#phiml.math.convolve"><code>convolve</code></a>,
-as well as finite differences
-<a href="phiml/math#phiml.math.spatial_gradient"><code>spatial_gradient</code></a>, <a href="phiml/math#phiml.math.laplace"><code>laplace</code></a>,
-<a href="phiml/math#phiml.math.fourier_laplace"><code>fourier_laplace</code></a>, <a href="phiml/math#phiml.math.fourier_poisson"><code>fourier_poisson</code></a>,
-and resampling operations like
-<a href="phiml/math#phiml.math.downsample2x"><code>downsample2x</code></a>,
-<a href="phiml/math#phiml.math.upsample2x"><code>upsample2x</code></a>,
-<a href="phiml/math#phiml.math.grid_sample"><code>grid_sample</code></a> act only on <em>spatial</em> dimensions.
-Their dimensionality (1D/2D/3D/etc.) <a href="N_Dimensional.html">depends on the number of spatial dimensions</a> of the input.</p>
-<p>Dual dimensions are ignored (treated as batch dimensions) by almost all functions, except for <a href="Matrices.html">matrix multiplications</a>, <code>matrix @ vector</code>, which reduces the dual dimensions of the matrix against the corresponding primal dimensions of the vector.
-Dual dimensions are created by certain operations like <a href="phiml/math#phiml.math.pairwise_distances"><code>pairwise_distances</code></a>.</p>
-<p>All functions ignore <em>batch</em> dimensions.
-This also applies to functions that would usually reduce all dimensions by default, such as
-<a href="phiml/math#phiml.math.sum"><code>sum</code></a>, <a href="phiml/math#phiml.math.mean"><code>mean</code></a>, <a href="phiml/math#phiml.math.std"><code>std</code></a>,
-<a href="phiml/math#phiml.math.any"><code>any</code></a>, <a href="phiml/math#phiml.math.all"><code>all</code></a>,
-<a href="phiml/math#phiml.math.max"><code>max</code></a>, <a href="phiml/math#phiml.math.min"><code>min</code></a> and many more, as well as loss functions like the <a href="phiml/math#phiml.math.l2_loss"><code>l2_loss</code></a>.</p>
-<p>The elementary functions
-<a href="phiml/math#phiml.math.gather"><code>gather</code></a> and
-<a href="phiml/math#phiml.math.scatter"><code>scatter</code></a> act on <em>spatial</em> or <em>instance</em> dimensions of the grid.
-The indices are listed along <em>instance</em> dimensions and the index components along a singular <em>channel</em> dimension.</p>
-
-</div>
-</div>
-</div>
-</div>
-<div  class="jp-Cell jp-MarkdownCell jp-Notebook-cell">
-<div class="jp-Cell-inputWrapper">
-<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
-</div>
-<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
-</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<h2 id="Further-Reading">Further Reading<a class="anchor-link" href="#Further-Reading">&#182;</a></h2><p>Dimension names play an important role in <a href="Introduction.html#Slicing">slicing tensors</a>.
-To make your code more readable, you can also name slices along dimensions.</p>
-<p>The number of spatial dimensions dictates what dimensionality (1D, 2D, 3D) your code works in.
-You can therefore write code that <a href="N_Dimensional.html">works in 1D, 2D, 3D and beyond</a>.</p>
-<p>Dual dimensions are used to represent <a href="Matrices.html#Primal-and-Dual-Dimensions">columns of matrices</a>.</p>
-<p>Stacking tensors with the same dimension names but different sizes results in <a href="Non_Uniform.html">non-uniform shapes</a>.</p>
+<h2 id="Further-Reading">Further Reading<a class="anchor-link" href="#Further-Reading">&#182;</a></h2><p>Dimension names and types are organized in the <a href="Shapes.html">shapes of tensors</a>.</p>
+<p>Also see the <a href="Tensors.html">introduction to tensors</a>.</p>
 <p><a href="https://github.com/tum-pbs/PhiML">🌐 <strong>Φ<sub>ML</sub></strong></a>
   •   <a href="https://tum-pbs.github.io/PhiML/">📖 <strong>Documentation</strong></a>
   •   <a href="https://tum-pbs.github.io/PhiML/phiml">🔗 <strong>API</strong></a>
   •   <a href=""><strong>▶ Videos</strong></a>
   •   <a href="https://colab.research.google.com/github/tum-pbs/PhiML/blob/main/docs/Examples.ipynb"><img src="images/colab_logo_small.png" height=4></a> <a href="https://tum-pbs.github.io/PhiML/Examples.html"><strong>Examples</strong></a></p>
-
-</div>
-</div>
-</div>
-</div>
-<div  class="jp-Cell jp-MarkdownCell jp-Notebook-cell">
-<div class="jp-Cell-inputWrapper">
-<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
-</div>
-<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
-</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
 
 </div>
 </div>
