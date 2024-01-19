@@ -1103,21 +1103,25 @@ def _grid_sample(grid: Tensor, coordinates: Tensor, extrap: Union['e_.Extrapolat
     return result
 
 
+def broadcast_dims(*tensors: Tensor):
+    iter_dims = set()
+    for tensor in tensors:
+        iter_dims.update(shape(tensor).shape.without('dims').names)
+        if isinstance(tensor, TensorStack) and tensor.requires_broadcast:
+            iter_dims.add(tensor._stack_dim.name)
+        # --- remove iter_dims for which the sizes vary among tensors ---
+        for dim in tuple(iter_dims):
+            sizes = [t.shape.get_size(dim) for t in tensors if dim in t.shape]
+            if not all(s == sizes[0] for s in sizes[1:]):
+                iter_dims.remove(dim)
+    return iter_dims
+
+
 def broadcast_op(operation: Callable,
                  tensors: Union[tuple, list],
                  iter_dims: Union[set, tuple, list, Shape] = None,
                  no_return=False):
-    if iter_dims is None:
-        iter_dims = set()
-        for tensor in tensors:
-            iter_dims.update(shape(tensor).shape.without('dims').names)
-            if isinstance(tensor, TensorStack) and tensor.requires_broadcast:
-                iter_dims.add(tensor._stack_dim.name)
-            # --- remove iter_dims for which the sizes vary among tensors ---
-            for dim in tuple(iter_dims):
-                sizes = [t.shape.get_size(dim) for t in tensors if dim in t.shape]
-                if not all(s == sizes[0] for s in sizes[1:]):
-                    iter_dims.remove(dim)
+    iter_dims = broadcast_dims(*tensors) if iter_dims is None else iter_dims
     if len(iter_dims) == 0:
         return operation(*tensors)
     else:
@@ -2443,22 +2447,27 @@ def gather(values, indices: Tensor, dims: Union[DimFilter, None] = None):
             return values._gather(indices)
         else:
             return sparse_gather(values, indices)
+    broadcast = broadcast_dims(values, indices)
     treat_as_batch = non_channel(indices).non_instance.only(values.shape).without(dims)
-    batch_ = (values.shape.batch & indices.shape.batch).without(dims) & treat_as_batch
-    channel_ = values.shape.without(dims).without(batch_)
-    index_list_dims = indices.shape.non_channel.without(batch_)
-    squeeze_index_list = False
-    if not index_list_dims:
-        index_list_dims = instance(_single_index=1)
-        squeeze_index_list = True
-    native_values = reshaped_native(values, [batch_, *dims, channel_])
-    native_indices = reshaped_native(indices, [batch_, *index_list_dims, channel(indices)])
-    backend = choose_backend(native_values, native_indices)
-    native_result = backend.batched_gather_nd(native_values, native_indices)
-    result = reshaped_tensor(native_result, [batch_, *index_list_dims, channel_], convert=False)
-    if squeeze_index_list:
-        result = result[{'_single_index': 0}]
-    return result
+    batch_ = ((values.shape.batch & indices.shape.batch).without(dims) & treat_as_batch).without(broadcast)
+    channel_ = values.shape.without(dims).without(batch_).without(broadcast)
+
+    def uniform_gather(values, indices):
+        index_list_dims = indices.shape.non_channel.without(batch_)
+        squeeze_index_list = False
+        if not index_list_dims:
+            index_list_dims = instance(_single_index=1)
+            squeeze_index_list = True
+        native_values = reshaped_native(values, [batch_, *dims, channel_])
+        native_indices = reshaped_native(indices, [batch_, *index_list_dims, channel(indices)])
+        backend = choose_backend(native_values, native_indices)
+        native_result = backend.batched_gather_nd(native_values, native_indices)
+        result = reshaped_tensor(native_result, [batch_, *index_list_dims, channel_], convert=False)
+        if squeeze_index_list:
+            result = result[{'_single_index': 0}]
+        return result
+
+    return broadcast_op(uniform_gather, [values, indices], )
 
 
 def scatter(base_grid: Union[Tensor, Shape],

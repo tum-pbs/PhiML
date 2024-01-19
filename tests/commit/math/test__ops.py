@@ -466,6 +466,14 @@ class TestOps(TestCase):
                 math.assert_close([-1, -4, -1], math.gather((-t, t), indices)[0])
                 self.assertIsInstance(math.gather((-t, t), indices), tuple)
 
+    def test_non_uniform_gather(self):
+        data = math.tensor([[0, 1, 0, 2, 0, 1], [-1, 0, 1, 0, 2, 1]], batch('b'), spatial('seq'))
+        nb_offset = math.tensor([-1, 1], instance('neighbors'))
+        zero_positions = math.nonzero(data.seq[1:-1] == 0) + 1
+        valid = math.all(data[zero_positions + nb_offset] > 0, 'neighbors')
+        result = zero_positions[valid].nonzero[0]
+        math.assert_close([2, 3], result.vector['seq'])
+
     def test_scatter_1d(self):
         for backend in BACKENDS:
             with backend:
