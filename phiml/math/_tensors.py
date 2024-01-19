@@ -421,7 +421,7 @@ class Tensor:
         if isinstance(item, Tensor):
             if item.dtype.kind == bool:
                 from ._ops import boolean_mask
-                return boolean_mask(self, item.shape, item)
+                return boolean_mask(self, item.shape.non_batch or item.shape, item)
             elif item.dtype.kind == int:
                 from ._ops import gather
                 return gather(self, item)
