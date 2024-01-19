@@ -680,3 +680,10 @@ class TestTensors(TestCase):
     def test_single_index_gather(self):
         a = tensor([[1, 2, 3], [4, 5, 6]], spatial('y,x'))
         math.assert_close(6, a[vec(y=1, x=2)])
+
+    def test_expand_non_uniform(self):
+        size = vec(batch('dataset_size'), 2, 4, 8, 16, 64, 256)
+        b = batch(example=size, seed=64) & size
+        t = math.random_uniform(b)
+        curves = vec(dataset_size=size, fraction=t)
+        print(curves.shape)

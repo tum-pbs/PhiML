@@ -1984,7 +1984,11 @@ def expand_tensor(value: Tensor, dims: Shape):
             if stack_dim.rank > 1:
                 raise NotImplementedError("Higher-order non-uniform expand() not yet supported")
             unstacked_dims = [dims.after_gather(i) for i in stack_dim.meshgrid()]
-            components = [NativeTensor(value._native, value._native_shape, inner_shape) for inner_shape in unstacked_dims]
+            if stack_dim in value.shape:
+                unstacked = unstack(value, stack_dim)
+                components = [NativeTensor(inner._native, inner._native_shape, inner_shape & inner._native_shape) for inner_shape, inner in zip(unstacked_dims, unstacked)]
+            else:
+                components = [NativeTensor(value._native, value._native_shape, inner_shape & value._native_shape) for inner_shape in unstacked_dims]
             return TensorStack(components, stack_dim)
     if isinstance(value, TensorStack):
         expanded = [expand_tensor(v, dims.without(value.stack_dim)) for v in value._tensors]
