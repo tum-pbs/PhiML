@@ -10,7 +10,7 @@ from typing import Tuple, Callable, List
 import numpy
 import numpy as np
 
-from ._magic_ops import PhiTreeNodeType, variable_attributes, copy_with, stack, pack_dims, expand, slice_, flatten
+from ._magic_ops import PhiTreeNodeType, variable_attributes, copy_with, stack, pack_dims, expand, slice_, flatten, rename_dims, unpack_dim, unstack
 from ._shape import (Shape,
                      CHANNEL_DIM, BATCH_DIM, SPATIAL_DIM, EMPTY_SHAPE,
                      parse_dim_order, shape_stack, merge_shapes, channel, concat_shapes, primal,
@@ -436,7 +436,6 @@ class Tensor:
             selection = self.shape.prepare_gather(dim, selection)
             # Either handle slicing directly or add it to the dict
             if isinstance(selection, (tuple, list)):
-                from ._magic_ops import stack
                 result = [sliced[{dim: i}] for i in selection]
                 stack_dim = sliced.shape[dim].after_gather({dim: selection})
                 sliced = stack(result, stack_dim)
@@ -508,7 +507,6 @@ class Tensor:
         return concat_tensor(values, dim)
 
     def __replace_dims__(self, dims: Tuple[str, ...], new_dims: Shape, **kwargs) -> 'Tensor':
-        from ._magic_ops import rename_dims
         return self._with_shape_replaced(rename_dims(self.shape, dims, new_dims))
 
     def __unpack_dim__(self, dim: str, unpacked_dims: Shape, **kwargs) -> 'Tensor':
@@ -541,7 +539,6 @@ class Tensor:
             return NativeTensor(native, new_shape)
         else:
             from ._ops import concat_tensor
-            from ._magic_ops import pack_dims
             value = cached(self)
             assert isinstance(value, TensorStack)
             inner_packed = [pack_dims(t, dims, packed_dim) for t in value._tensors]
@@ -877,7 +874,6 @@ class TensorDim(BoundDim):
     def split(self, split_dimensions: Shape):
         """ See `phiml.math.unpack_dim()` """
         warnings.warn("dim.split() is deprecated. Use math.split_dims() instead.", stacklevel=2)
-        from ._magic_ops import unpack_dim
         return unpack_dim(self.tensor, self.name, split_dimensions)
 
     def __matmul__(self, other):
@@ -2513,7 +2509,6 @@ def format_numpy(self: Tensor, options: PrintOptions) -> str:
 def _format_vector(self: Tensor, options: PrintOptions) -> str:
     colors = options.get_colors()
     if self.shape.rank > 1:
-        from ._magic_ops import flatten
         self = flatten(self, channel('flat'))
     if self.shape.get_item_names(0) is not None and options.include_shape is not False:
         content = ", ".join([f"{item}={_format_number(number, options, self.dtype)}" for number, item in zip(self, self.shape.get_item_names(0))])

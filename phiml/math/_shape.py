@@ -1471,7 +1471,7 @@ def shape(obj, allow_unshaped=False) -> Shape:
             raise ValueError(f'shape() requires Shaped or Shape argument but got {type(obj)}')
 
 
-def spatial(*args, **dims: Union[int, str, tuple, list, Shape]) -> Shape:
+def spatial(*args, **dims: Union[int, str, tuple, list, Shape, 'Tensor']) -> Shape:
     """
     Returns the spatial dimensions of an existing `Shape` or creates a new `Shape` with only spatial dimensions.
 
@@ -1513,7 +1513,7 @@ def spatial(*args, **dims: Union[int, str, tuple, list, Shape]) -> Shape:
         raise AssertionError(f"spatial() must be called either as a selector spatial(Shape) or spatial(Tensor) or as a constructor spatial(*names, **dims). Got *args={args}, **dims={dims}")
 
 
-def channel(*args, **dims: Union[int, str, tuple, list, Shape]) -> Shape:
+def channel(*args, **dims: Union[int, str, tuple, list, Shape, 'Tensor']) -> Shape:
     """
     Returns the channel dimensions of an existing `Shape` or creates a new `Shape` with only channel dimensions.
 
@@ -1555,7 +1555,7 @@ def channel(*args, **dims: Union[int, str, tuple, list, Shape]) -> Shape:
         raise AssertionError(f"channel() must be called either as a selector channel(Shape) or channel(Tensor) or as a constructor channel(*names, **dims). Got *args={args}, **dims={dims}")
 
 
-def batch(*args, **dims: Union[int, str, tuple, list, Shape]) -> Shape:
+def batch(*args, **dims: Union[int, str, tuple, list, Shape, 'Tensor']) -> Shape:
     """
     Returns the batch dimensions of an existing `Shape` or creates a new `Shape` with only batch dimensions.
 
@@ -1597,7 +1597,7 @@ def batch(*args, **dims: Union[int, str, tuple, list, Shape]) -> Shape:
         raise AssertionError(f"batch() must be called either as a selector batch(Shape) or batch(Tensor) or as a constructor batch(*names, **dims). Got *args={args}, **dims={dims}")
 
 
-def instance(*args, **dims: Union[int, str, tuple, list, Shape]) -> Shape:
+def instance(*args, **dims: Union[int, str, tuple, list, Shape, 'Tensor']) -> Shape:
     """
     Returns the instance dimensions of an existing `Shape` or creates a new `Shape` with only instance dimensions.
 
@@ -1639,7 +1639,7 @@ def instance(*args, **dims: Union[int, str, tuple, list, Shape]) -> Shape:
         raise AssertionError(f"instance() must be called either as a selector instance(Shape) or instance(Tensor) or as a constructor instance(*names, **dims). Got *args={args}, **dims={dims}")
 
 
-def dual(*args, **dims: Union[int, str, tuple, list, Shape]) -> Shape:
+def dual(*args, **dims: Union[int, str, tuple, list, Shape, 'Tensor']) -> Shape:
     """
     Returns the dual dimensions of an existing `Shape` or creates a new `Shape` with only dual dimensions.
 
