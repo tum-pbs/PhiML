@@ -1170,7 +1170,7 @@ Raises an AssertionError if the values of this tensor are not within tolerance o
 </details>
 </dd>
 <dt id="phiml.math.batch"><code class="name flex">
-<span>def <span class="ident">batch</span></span>(<span>*args, **dims: Union[int, str, tuple, list, phiml.math._shape.Shape]) ‑> phiml.math._shape.Shape</span>
+<span>def <span class="ident">batch</span></span>(<span>*args, **dims: Union[int, str, tuple, list, phiml.math._shape.Shape, ForwardRef('<a title="phiml.math.Tensor" href="#phiml.math.Tensor">Tensor</a>')]) ‑> phiml.math._shape.Shape</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Returns the batch dimensions of an existing <code><a title="phiml.math.Shape" href="#phiml.math.Shape">Shape</a></code> or creates a new <code><a title="phiml.math.Shape" href="#phiml.math.Shape">Shape</a></code> with only batch dimensions.</p>
@@ -1206,7 +1206,7 @@ Undefined sizes are automatically filled in by <code><a title="phiml.math.tensor
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def batch(*args, **dims: Union[int, str, tuple, list, Shape]) -&gt; Shape:
+<pre><code class="python">def batch(*args, **dims: Union[int, str, tuple, list, Shape, &#39;Tensor&#39;]) -&gt; Shape:
     &#34;&#34;&#34;
     Returns the batch dimensions of an existing `Shape` or creates a new `Shape` with only batch dimensions.
 
@@ -1492,7 +1492,7 @@ If <code>dims</code> is not specified, all dimensions from the <code><a title="p
 </details>
 </dd>
 <dt id="phiml.math.channel"><code class="name flex">
-<span>def <span class="ident">channel</span></span>(<span>*args, **dims: Union[int, str, tuple, list, phiml.math._shape.Shape]) ‑> phiml.math._shape.Shape</span>
+<span>def <span class="ident">channel</span></span>(<span>*args, **dims: Union[int, str, tuple, list, phiml.math._shape.Shape, ForwardRef('<a title="phiml.math.Tensor" href="#phiml.math.Tensor">Tensor</a>')]) ‑> phiml.math._shape.Shape</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Returns the channel dimensions of an existing <code><a title="phiml.math.Shape" href="#phiml.math.Shape">Shape</a></code> or creates a new <code><a title="phiml.math.Shape" href="#phiml.math.Shape">Shape</a></code> with only channel dimensions.</p>
@@ -1528,7 +1528,7 @@ Undefined sizes are automatically filled in by <code><a title="phiml.math.tensor
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def channel(*args, **dims: Union[int, str, tuple, list, Shape]) -&gt; Shape:
+<pre><code class="python">def channel(*args, **dims: Union[int, str, tuple, list, Shape, &#39;Tensor&#39;]) -&gt; Shape:
     &#34;&#34;&#34;
     Returns the channel dimensions of an existing `Shape` or creates a new `Shape` with only channel dimensions.
 
@@ -2623,7 +2623,7 @@ The grid values at the new points are determined via mean (linear interpolation)
 </details>
 </dd>
 <dt id="phiml.math.dual"><code class="name flex">
-<span>def <span class="ident">dual</span></span>(<span>*args, **dims: Union[int, str, tuple, list, phiml.math._shape.Shape]) ‑> phiml.math._shape.Shape</span>
+<span>def <span class="ident">dual</span></span>(<span>*args, **dims: Union[int, str, tuple, list, phiml.math._shape.Shape, ForwardRef('<a title="phiml.math.Tensor" href="#phiml.math.Tensor">Tensor</a>')]) ‑> phiml.math._shape.Shape</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Returns the dual dimensions of an existing <code><a title="phiml.math.Shape" href="#phiml.math.Shape">Shape</a></code> or creates a new <code><a title="phiml.math.Shape" href="#phiml.math.Shape">Shape</a></code> with only dual dimensions.</p>
@@ -2664,7 +2664,7 @@ Undefined sizes are automatically filled in by <code><a title="phiml.math.tensor
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def dual(*args, **dims: Union[int, str, tuple, list, Shape]) -&gt; Shape:
+<pre><code class="python">def dual(*args, **dims: Union[int, str, tuple, list, Shape, &#39;Tensor&#39;]) -&gt; Shape:
     &#34;&#34;&#34;
     Returns the dual dimensions of an existing `Shape` or creates a new `Shape` with only dual dimensions.
 
@@ -3855,22 +3855,27 @@ If <code>None</code> and no index item names are specified, will default to all 
             return values._gather(indices)
         else:
             return sparse_gather(values, indices)
+    broadcast = broadcast_dims(values, indices)
     treat_as_batch = non_channel(indices).non_instance.only(values.shape).without(dims)
-    batch_ = (values.shape.batch &amp; indices.shape.batch).without(dims) &amp; treat_as_batch
-    channel_ = values.shape.without(dims).without(batch_)
-    index_list_dims = indices.shape.non_channel.without(batch_)
-    squeeze_index_list = False
-    if not index_list_dims:
-        index_list_dims = instance(_single_index=1)
-        squeeze_index_list = True
-    native_values = reshaped_native(values, [batch_, *dims, channel_])
-    native_indices = reshaped_native(indices, [batch_, *index_list_dims, channel(indices)])
-    backend = choose_backend(native_values, native_indices)
-    native_result = backend.batched_gather_nd(native_values, native_indices)
-    result = reshaped_tensor(native_result, [batch_, *index_list_dims, channel_], convert=False)
-    if squeeze_index_list:
-        result = result[{&#39;_single_index&#39;: 0}]
-    return result</code></pre>
+    batch_ = ((values.shape.batch &amp; indices.shape.batch).without(dims) &amp; treat_as_batch).without(broadcast)
+    channel_ = values.shape.without(dims).without(batch_).without(broadcast)
+
+    def uniform_gather(values, indices):
+        index_list_dims = indices.shape.non_channel.without(batch_)
+        squeeze_index_list = False
+        if not index_list_dims:
+            index_list_dims = instance(_single_index=1)
+            squeeze_index_list = True
+        native_values = reshaped_native(values, [batch_, *dims, channel_])
+        native_indices = reshaped_native(indices, [batch_, *index_list_dims, channel(indices)])
+        backend = choose_backend(native_values, native_indices)
+        native_result = backend.batched_gather_nd(native_values, native_indices)
+        result = reshaped_tensor(native_result, [batch_, *index_list_dims, channel_], convert=False)
+        if squeeze_index_list:
+            result = result[{&#39;_single_index&#39;: 0}]
+        return result
+
+    return broadcast_op(uniform_gather, [values, indices], )</code></pre>
 </details>
 </dd>
 <dt id="phiml.math.get_format"><code class="name flex">
@@ -4395,7 +4400,7 @@ Can be set to <code>None</code> to disable padding. Then the result tensors will
 </details>
 </dd>
 <dt id="phiml.math.instance"><code class="name flex">
-<span>def <span class="ident">instance</span></span>(<span>*args, **dims: Union[int, str, tuple, list, phiml.math._shape.Shape]) ‑> phiml.math._shape.Shape</span>
+<span>def <span class="ident">instance</span></span>(<span>*args, **dims: Union[int, str, tuple, list, phiml.math._shape.Shape, ForwardRef('<a title="phiml.math.Tensor" href="#phiml.math.Tensor">Tensor</a>')]) ‑> phiml.math._shape.Shape</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Returns the instance dimensions of an existing <code><a title="phiml.math.Shape" href="#phiml.math.Shape">Shape</a></code> or creates a new <code><a title="phiml.math.Shape" href="#phiml.math.Shape">Shape</a></code> with only instance dimensions.</p>
@@ -4431,7 +4436,7 @@ Undefined sizes are automatically filled in by <code><a title="phiml.math.tensor
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def instance(*args, **dims: Union[int, str, tuple, list, Shape]) -&gt; Shape:
+<pre><code class="python">def instance(*args, **dims: Union[int, str, tuple, list, Shape, &#39;Tensor&#39;]) -&gt; Shape:
     &#34;&#34;&#34;
     Returns the instance dimensions of an existing `Shape` or creates a new `Shape` with only instance dimensions.
 
@@ -9703,7 +9708,7 @@ If so, values at the same index will be summed.</dd>
 </details>
 </dd>
 <dt id="phiml.math.spatial"><code class="name flex">
-<span>def <span class="ident">spatial</span></span>(<span>*args, **dims: Union[int, str, tuple, list, phiml.math._shape.Shape]) ‑> phiml.math._shape.Shape</span>
+<span>def <span class="ident">spatial</span></span>(<span>*args, **dims: Union[int, str, tuple, list, phiml.math._shape.Shape, ForwardRef('<a title="phiml.math.Tensor" href="#phiml.math.Tensor">Tensor</a>')]) ‑> phiml.math._shape.Shape</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Returns the spatial dimensions of an existing <code><a title="phiml.math.Shape" href="#phiml.math.Shape">Shape</a></code> or creates a new <code><a title="phiml.math.Shape" href="#phiml.math.Shape">Shape</a></code> with only spatial dimensions.</p>
@@ -9739,7 +9744,7 @@ Undefined sizes are automatically filled in by <code><a title="phiml.math.tensor
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def spatial(*args, **dims: Union[int, str, tuple, list, Shape]) -&gt; Shape:
+<pre><code class="python">def spatial(*args, **dims: Union[int, str, tuple, list, Shape, &#39;Tensor&#39;]) -&gt; Shape:
     &#34;&#34;&#34;
     Returns the spatial dimensions of an existing `Shape` or creates a new `Shape` with only spatial dimensions.
 
@@ -16375,7 +16380,7 @@ When backed by an editable native tensor, e.g. a <code>numpy.ndarray</code>, do 
         if isinstance(item, Tensor):
             if item.dtype.kind == bool:
                 from ._ops import boolean_mask
-                return boolean_mask(self, item.shape, item)
+                return boolean_mask(self, item.shape.non_batch or item.shape, item)
             elif item.dtype.kind == int:
                 from ._ops import gather
                 return gather(self, item)
@@ -16390,7 +16395,6 @@ When backed by an editable native tensor, e.g. a <code>numpy.ndarray</code>, do 
             selection = self.shape.prepare_gather(dim, selection)
             # Either handle slicing directly or add it to the dict
             if isinstance(selection, (tuple, list)):
-                from ._magic_ops import stack
                 result = [sliced[{dim: i}] for i in selection]
                 stack_dim = sliced.shape[dim].after_gather({dim: selection})
                 sliced = stack(result, stack_dim)
@@ -16462,7 +16466,6 @@ When backed by an editable native tensor, e.g. a <code>numpy.ndarray</code>, do 
         return concat_tensor(values, dim)
 
     def __replace_dims__(self, dims: Tuple[str, ...], new_dims: Shape, **kwargs) -&gt; &#39;Tensor&#39;:
-        from ._magic_ops import rename_dims
         return self._with_shape_replaced(rename_dims(self.shape, dims, new_dims))
 
     def __unpack_dim__(self, dim: str, unpacked_dims: Shape, **kwargs) -&gt; &#39;Tensor&#39;:
@@ -16495,7 +16498,6 @@ When backed by an editable native tensor, e.g. a <code>numpy.ndarray</code>, do 
             return NativeTensor(native, new_shape)
         else:
             from ._ops import concat_tensor
-            from ._magic_ops import pack_dims
             value = cached(self)
             assert isinstance(value, TensorStack)
             inner_packed = [pack_dims(t, dims, packed_dim) for t in value._tensors]

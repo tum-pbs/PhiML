@@ -15110,7 +15110,7 @@ body[data-format='mobile'] .jp-OutputArea-child .jp-OutputArea-output {
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<h1 id="Dimension-Names-and-Types">Dimension Names and Types<a class="anchor-link" href="#Dimension-Names-and-Types">&#182;</a></h1><p><a href="https://colab.research.google.com/github/tum-pbs/PhiML/blob/main/docs/Dimension_Names_Types.ipynb"><img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Colab" /></a>
+<h1 id="Advantages-of-Dimension-Names-and-Types">Advantages of Dimension Names and Types<a class="anchor-link" href="#Advantages-of-Dimension-Names-and-Types">&#182;</a></h1><p><a href="https://colab.research.google.com/github/tum-pbs/PhiML/blob/main/docs/Dimension_Names_Types.ipynb"><img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Colab" /></a>
   •   <a href="https://github.com/tum-pbs/PhiML">🌐 <strong>Φ<sub>ML</sub></strong></a>
   •   <a href="https://tum-pbs.github.io/PhiML/">📖 <strong>Documentation</strong></a>
   •   <a href="https://tum-pbs.github.io/PhiML/phiml">🔗 <strong>API</strong></a>
@@ -15160,8 +15160,8 @@ These advantages are hard to explain in abstract, so instead we are going to sho
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<h2 id="Gathering-and-Scattering">Gathering and Scattering<a class="anchor-link" href="#Gathering-and-Scattering">&#182;</a></h2><p>Operations like <code>gather</code> and <code>scatter</code> -- taking values out of a tensor or putting data into a tensor -- are among the most basic and important operations.
-Let's consider the following task: We want to compute <code>min(0, value)</code> for some values at given <code>indices</code> of a <code>data</code> tensor and write the updated values back to the tensor.</p>
+<h2 id="Gathering-and-Scattering">Gathering and Scattering<a class="anchor-link" href="#Gathering-and-Scattering">&#182;</a></h2><p>Operations like <code>gather</code> and <code>scatter</code> -- taking values out of a tensor or putting data into a tensor -- are among the most basic and important operations.</p>
+<p><strong>Task</strong>: Compute <code>min(0, value)</code> for some values at given <code>indices</code> of a <code>data</code> tensor and write the updated values back to the tensor. The complexity should be independent of the size of <code>data</code> and the code should be differentiable.</p>
 <p>Let's look at the Φ-ML version first. We are given the <code>data</code>, ordered in the usual format y,x and <code>indices</code> ordered as x,y.</p>
 
 </div>
@@ -15325,6 +15325,7 @@ Also, the channel order was automatically matched to the dimension order since �
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
 <p>It turns out that doing this is quite hard to get right.
+After our initial attempts at this task failed, we asked two fellow AI researchers using PyTorch for help, both of which could not produce working code within 10 minutes.
 The following is what ChatGPT came up with, given a detailed description of the task:</p>
 
 </div>
@@ -15380,62 +15381,9 @@ The following is what ChatGPT came up with, given a detailed description of the 
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<p>ChatGPT is unable to correct this mistake, even when given the error message.
-With PyTorch, it's also not possible to gather using to <code>[]</code> syntax in this situation.</p>
-
-</div>
-</div>
-</div>
-</div><div  class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
-<div class="jp-Cell-inputWrapper">
-<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
-</div>
-<div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[7]:</div>
-<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
-     <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython2"><pre><span></span><span class="k">try</span><span class="p">:</span>
-    <span class="n">data</span><span class="p">[</span><span class="n">indices</span><span class="p">[:,</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">]]]</span>
-<span class="k">except</span> <span class="ne">IndexError</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>
-    <span class="nb">print</span><span class="p">(</span><span class="n">err</span><span class="p">)</span>
-</pre></div>
-
-     </div>
-</div>
-</div>
-</div>
-
-<div class="jp-Cell-outputWrapper">
-<div class="jp-Collapser jp-OutputCollapser jp-Cell-outputCollapser">
-</div>
-
-
-<div class="jp-OutputArea jp-Cell-outputArea">
-<div class="jp-OutputArea-child">
-    
-    <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
-
-
-<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
-<pre>index 2 is out of bounds for dimension 0 with size 2
-</pre>
-</div>
-</div>
-
-</div>
-
-</div>
-
-</div>
-<div  class="jp-Cell jp-MarkdownCell jp-Notebook-cell">
-<div class="jp-Cell-inputWrapper">
-<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
-</div>
-<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
-</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<p>Getting this simple exercise right is quite difficult for someone not intimately familiar with PyTorch. We will leave this as an exercise to the reader.</p>
-<p>Now imagine, we had a batch dimension on <code>data</code> as well!
-Let's try this in Φ-ML.</p>
+<p>Getting this simple exercise right seems to be quite difficult, both for LLMs and long-time PyTorch users. We will leave this as an exercise to the reader. If you think, you have a solution, check that the code is differentiable as well!</p>
+<p>Now imagine, we had a batch dimension on <code>data</code> as well.
+Let's try this in Φ-ML!</p>
 
 </div>
 </div>
@@ -15445,7 +15393,7 @@ Let's try this in Φ-ML.</p>
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[8]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[7]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython2"><pre><span></span><span class="n">data</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">tensor</span><span class="p">([[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">],</span> <span class="p">[</span><span class="o">-</span><span class="mi">4</span><span class="p">,</span> <span class="o">-</span><span class="mi">5</span><span class="p">,</span> <span class="o">-</span><span class="mi">6</span><span class="p">]],</span> <span class="n">spatial</span><span class="p">(</span><span class="s1">&#39;y,x&#39;</span><span class="p">))</span>
@@ -15475,7 +15423,7 @@ Let's try this in Φ-ML.</p>
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[9]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[8]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython2"><pre><span></span><span class="n">math</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">indices</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="nb">min</span><span class="p">)</span><span class="o">.</span><span class="n">b</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
@@ -15494,7 +15442,7 @@ Let's try this in Φ-ML.</p>
 <div class="jp-OutputArea jp-Cell-outputArea">
 <div class="jp-OutputArea-child jp-OutputArea-executeResult">
     
-    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[9]:</div>
+    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[8]:</div>
 
 
 
@@ -15516,9 +15464,8 @@ Let's try this in Φ-ML.</p>
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<p>Adapting the PyTorch code requires detailed knowledge of the behavior of the respective gather and scatter operations.
-You are welcome to try it!</p>
-<p>Unsurprisingly, the same behavior can be observed when considering batched indices instead of batched values.</p>
+<p>Making PyTorch code scale with arbitrary batch dimensions is exceedingly difficult.
+That's why practically all PyTorch code requires inputs with a fixed number of dimensions in a specific order.</p>
 
 </div>
 </div>
@@ -15530,8 +15477,64 @@ You are welcome to try it!</p>
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<h2 id="Laplace-Operator">Laplace Operator<a class="anchor-link" href="#Laplace-Operator">&#182;</a></h2><p>Consider the discrete laplace operator ∇². On a 1D grid, it can be computed with the stencil (1, -2, 1) and in 2D with the stencil (0 1 0 / 1 -4, 1 / 0 1 0).
-With Φ-ML's typed dimensions, we can implement this</p>
+<h2 id="Finding-Specific-Values">Finding Specific Values<a class="anchor-link" href="#Finding-Specific-Values">&#182;</a></h2><p><strong>Task</strong>: For each 1D sequence in a batch, find the index of the first <code>0</code> that has two positive neighbors.</p>
+<p>Φ-ML solution:</p>
+
+</div>
+</div>
+</div>
+</div><div  class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[9]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-ipython2"><pre><span></span><span class="n">data</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">tensor</span><span class="p">([[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">]],</span> <span class="n">batch</span><span class="p">(</span><span class="s1">&#39;b&#39;</span><span class="p">),</span> <span class="n">spatial</span><span class="p">(</span><span class="s1">&#39;seq&#39;</span><span class="p">))</span>
+<span class="n">nb_offset</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">tensor</span><span class="p">([</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">instance</span><span class="p">(</span><span class="s1">&#39;neighbors&#39;</span><span class="p">))</span>
+
+<span class="n">zero_positions</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">nonzero</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">seq</span><span class="p">[</span><span class="mi">1</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span>
+<span class="n">valid</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">zero_positions</span> <span class="o">+</span> <span class="n">nb_offset</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;neighbors&#39;</span><span class="p">)</span>
+<span class="n">zero_positions</span><span class="p">[</span><span class="n">valid</span><span class="p">]</span><span class="o">.</span><span class="n">nonzero</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+<div class="jp-Cell-outputWrapper">
+<div class="jp-Collapser jp-OutputCollapser jp-Cell-outputCollapser">
+</div>
+
+
+<div class="jp-OutputArea jp-Cell-outputArea">
+<div class="jp-OutputArea-child jp-OutputArea-executeResult">
+    
+    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[9]:</div>
+
+
+
+
+<div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
+<pre><span class="ansi-blue-intense-fg">(seq=2)</span>; <span class="ansi-blue-intense-fg">(seq=3)</span> <span class="ansi-green-intense-fg">(bᵇ=2, vectorᶜ=seq)</span> <span class="ansi-yellow-intense-fg">int64</span></pre>
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+<div  class="jp-Cell jp-MarkdownCell jp-Notebook-cell">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
+</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
+<p>PyTorch solution:</p>
 
 </div>
 </div>
@@ -15542,6 +15545,80 @@ With Φ-ML's typed dimensions, we can implement this</p>
 </div>
 <div class="jp-InputArea jp-Cell-inputArea">
 <div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[10]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-ipython2"><pre><span></span><span class="n">data</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">([[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">]])</span>
+
+<span class="n">result</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="k">for</span> <span class="n">sequence</span> <span class="ow">in</span> <span class="n">data</span><span class="p">:</span>
+    <span class="n">zero_positions</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">nonzero</span><span class="p">(</span><span class="n">sequence</span> <span class="o">==</span> <span class="mi">0</span><span class="p">,</span> <span class="n">as_tuple</span><span class="o">=</span><span class="kc">True</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">valid_positions</span> <span class="o">=</span> <span class="n">zero_positions</span><span class="p">[(</span><span class="n">zero_positions</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">zero_positions</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">sequence</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)]</span>
+    <span class="n">neighbors_positive</span> <span class="o">=</span> <span class="p">(</span><span class="n">sequence</span><span class="p">[</span><span class="n">valid_positions</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">sequence</span><span class="p">[</span><span class="n">valid_positions</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span>
+    <span class="n">result_index</span> <span class="o">=</span> <span class="n">valid_positions</span><span class="p">[</span><span class="n">neighbors_positive</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">result</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">result_index</span><span class="p">)</span>
+<span class="n">torch</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="n">dim</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+<div class="jp-Cell-outputWrapper">
+<div class="jp-Collapser jp-OutputCollapser jp-Cell-outputCollapser">
+</div>
+
+
+<div class="jp-OutputArea jp-Cell-outputArea">
+<div class="jp-OutputArea-child jp-OutputArea-executeResult">
+    
+    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[10]:</div>
+
+
+
+
+<div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
+<pre>tensor([2, 3])</pre>
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+<div  class="jp-Cell jp-MarkdownCell jp-Notebook-cell">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
+</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
+<p>Unlike the PyTorch version, Φ-ML can automatically vectorize over the sequences without the user needing to write a <code>for</code> loop.</p>
+
+</div>
+</div>
+</div>
+</div>
+<div  class="jp-Cell jp-MarkdownCell jp-Notebook-cell">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
+</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
+<h2 id="Laplace-Operator">Laplace Operator<a class="anchor-link" href="#Laplace-Operator">&#182;</a></h2><p>Consider the discrete Laplace operator ∇². On a 1D grid, it can be computed with the stencil (1, -2, 1) and in 2D with the stencil (0 1 0 / 1 -4, 1 / 0 1 0).</p>
+<p><strong>Task</strong>: Implement the Laplace operator for n-dimensional grids.</p>
+<p>With Φ-ML's typed dimensions, we can use <code>shift</code>, passing in the dimensions along which we want to shift the data. Then we apply the stencil and sum the components.</p>
+
+</div>
+</div>
+</div>
+</div><div  class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[11]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython2"><pre><span></span><span class="n">data_1d</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">tensor</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">spatial</span><span class="p">(</span><span class="s1">&#39;x&#39;</span><span class="p">))</span>
@@ -15603,7 +15680,7 @@ After multiple iterations of generating code with ChatGPT and feeding it back th
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[11]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[12]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython2"><pre><span></span><span class="kn">import</span> <span class="nn">torch</span>
@@ -15683,7 +15760,7 @@ These data type problems are always resolved under-the-hood in Φ-ML. Our versio
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[12]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[13]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython2"><pre><span></span><span class="c1"># ChatGPT solution for 1D laplace</span>

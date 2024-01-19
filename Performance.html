@@ -15110,7 +15110,7 @@ body[data-format='mobile'] .jp-OutputArea-child .jp-OutputArea-output {
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<h1 id="%CE%A6ML-Performance">&#934;<sub>ML</sub> Performance<a class="anchor-link" href="#%CE%A6ML-Performance">&#182;</a></h1><p><a href="https://colab.research.google.com/github/tum-pbs/PhiML/blob/main/docs/Convert.ipynb"><img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Colab" /></a>
+<h1 id="%CE%A6ML-Performance">&#934;<sub>ML</sub> Performance<a class="anchor-link" href="#%CE%A6ML-Performance">&#182;</a></h1><p><a href="https://colab.research.google.com/github/tum-pbs/PhiML/blob/main/docs/Performance.ipynb"><img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Colab" /></a>
   •   <a href="https://github.com/tum-pbs/PhiML">🌐 <strong>Φ<sub>ML</sub></strong></a>
   •   <a href="https://tum-pbs.github.io/PhiML/">📖 <strong>Documentation</strong></a>
   •   <a href="https://tum-pbs.github.io/PhiML/phiml">🔗 <strong>API</strong></a>
@@ -15225,8 +15225,8 @@ The below function defines the physics step using the Φ-ML API.</p>
 
 
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
-<pre>Φ-ML + torch JIT compilation: <span class="ansi-yellow-intense-fg">float64</span> <span class="ansi-blue-intense-fg">0.23684178</span>
-Φ-ML + torch execution average: 0.034204863011837006 +- 0.002309993375092745
+<pre>Φ-ML + torch JIT compilation: <span class="ansi-yellow-intense-fg">float64</span> <span class="ansi-blue-intense-fg">0.22597444</span>
+Φ-ML + torch execution average: 0.03328820317983627 +- 0.0032562636770308018
 </pre>
 </div>
 </div>
@@ -15246,8 +15246,8 @@ The below function defines the physics step using the Φ-ML API.</p>
 
 
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
-<pre>Φ-ML + jax JIT compilation: <span class="ansi-yellow-intense-fg">float64</span> <span class="ansi-blue-intense-fg">0.16631798</span>
-Φ-ML + jax execution average: 0.011768005788326263 +- 0.0009931015083566308
+<pre>Φ-ML + jax JIT compilation: <span class="ansi-yellow-intense-fg">float64</span> <span class="ansi-blue-intense-fg">0.15948434</span>
+Φ-ML + jax execution average: 0.011672304943203926 +- 0.001190456561744213
 </pre>
 </div>
 </div>
@@ -15257,7 +15257,7 @@ The below function defines the physics step using the Φ-ML API.</p>
 
 
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="application/vnd.jupyter.stderr">
-<pre>2024-01-17 21:32:41.880043: W tensorflow/compiler/tf2tensorrt/utils/py_utils.cc:38] TF-TRT Warning: Could not find TensorRT
+<pre>2024-01-19 14:24:33.210748: W tensorflow/compiler/tf2tensorrt/utils/py_utils.cc:38] TF-TRT Warning: Could not find TensorRT
 </pre>
 </div>
 </div>
@@ -15267,8 +15267,8 @@ The below function defines the physics step using the Φ-ML API.</p>
 
 
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
-<pre>Φ-ML + tensorflow JIT compilation: <span class="ansi-yellow-intense-fg">float64</span> <span class="ansi-blue-intense-fg">12.013254</span>
-Φ-ML + tensorflow execution average: 0.05284293740987778 +- 0.0019949038978666067
+<pre>Φ-ML + tensorflow JIT compilation: <span class="ansi-yellow-intense-fg">float64</span> <span class="ansi-blue-intense-fg">11.528445</span>
+Φ-ML + tensorflow execution average: 0.05245763808488846 +- 0.004598767496645451
 </pre>
 </div>
 </div>
@@ -15374,8 +15374,8 @@ We provide reference GPU numbers below.</p>
 
 
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
-<pre>jax JIT compilation: 0.1395820630000344
-jax execution average: 0.01016457169696986
+<pre>jax JIT compilation: 0.12415930600002412
+jax execution average: 0.009851851606060677
 </pre>
 </div>
 </div>
@@ -15456,11 +15456,11 @@ jax execution average: 0.01016457169696986
 
 
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="application/vnd.jupyter.stderr">
-<pre>/tmp/ipykernel_2532/3571425526.py:12: TracerWarning: torch.tensor results are registered as constants in the trace. You can safely ignore this warning if you use this function to create tensors out of constant variables that would be the same every time you call this function. In any other case, this might cause the trace to be incorrect.
+<pre>/tmp/ipykernel_2474/3571425526.py:12: TracerWarning: torch.tensor results are registered as constants in the trace. You can safely ignore this warning if you use this function to create tensors out of constant variables that would be the same every time you call this function. In any other case, this might cause the trace to be incorrect.
   dist = torch.sqrt(torch.maximum(torch.sum(deltas ** 2, -1), torch.tensor(1e-4)))  # eps=1e-4 to avoid NaN during backprop of sqrt
-/tmp/ipykernel_2532/3571425526.py:20: TracerWarning: torch.tensor results are registered as constants in the trace. You can safely ignore this warning if you use this function to create tensors out of constant variables that would be the same every time you call this function. In any other case, this might cause the trace to be incorrect.
+/tmp/ipykernel_2474/3571425526.py:20: TracerWarning: torch.tensor results are registered as constants in the trace. You can safely ignore this warning if you use this function to create tensors out of constant variables that would be the same every time you call this function. In any other case, this might cause the trace to be incorrect.
   x_inc_contrib = torch.sum(torch.where(has_impact.unsqueeze(-1), torch.minimum(impact_time.unsqueeze(-1) - dt, torch.tensor(0.0)) * impulse, torch.tensor(0.0)), -2)
-/tmp/ipykernel_2532/3571425526.py:22: TracerWarning: torch.tensor results are registered as constants in the trace. You can safely ignore this warning if you use this function to create tensors out of constant variables that would be the same every time you call this function. In any other case, this might cause the trace to be incorrect.
+/tmp/ipykernel_2474/3571425526.py:22: TracerWarning: torch.tensor results are registered as constants in the trace. You can safely ignore this warning if you use this function to create tensors out of constant variables that would be the same every time you call this function. In any other case, this might cause the trace to be incorrect.
   v += torch.sum(torch.where(has_impact.unsqueeze(-1), impulse, torch.tensor(0.0)), -2)
 </pre>
 </div>
@@ -15471,8 +15471,8 @@ jax execution average: 0.01016457169696986
 
 
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
-<pre>torch JIT compilation: 0.035945065319538116
-torch execution average: 0.033517349511384964
+<pre>torch JIT compilation: 0.034628428518772125
+torch execution average: 0.03286103159189224
 </pre>
 </div>
 </div>
@@ -15482,7 +15482,7 @@ torch execution average: 0.033517349511384964
 
 
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="application/vnd.jupyter.stderr">
-<pre>/tmp/ipykernel_2532/3571425526.py:45: UserWarning: To copy construct from a tensor, it is recommended to use sourceTensor.clone().detach() or sourceTensor.clone().detach().requires_grad_(True), rather than torch.tensor(sourceTensor).
+<pre>/tmp/ipykernel_2474/3571425526.py:45: UserWarning: To copy construct from a tensor, it is recommended to use sourceTensor.clone().detach() or sourceTensor.clone().detach().requires_grad_(True), rather than torch.tensor(sourceTensor).
   print(f&#34;torch execution average: {torch.mean(torch.tensor(dt_torch[2:]))}&#34;)
 </pre>
 </div>
@@ -15558,8 +15558,8 @@ torch execution average: 0.033517349511384964
 
 
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
-<pre>tensorflow JIT compilation: 0.3732277750968933
-tensorflow execution average: 0.037943821400403976
+<pre>tensorflow JIT compilation: 0.1957276165485382
+tensorflow execution average: 0.03664292395114899
 </pre>
 </div>
 </div>
