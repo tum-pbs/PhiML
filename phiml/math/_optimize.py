@@ -409,11 +409,16 @@ def minimize(f: Callable[[X], Y], solve: Solve[X, Y]) -> X:
         else:
             y = f(x)
         _, y_tensors = disassemble_tree(y, cache=False)
-        assert not non_batch(y_tensors[0]), f"Failed to minimize '{f.__name__}' because it returned a non-scalar output {shape(y_tensors[0])}. Reduce all non-batch dimensions, e.g. using math.l2_loss()"
-        if y_tensors[0].shape.without(batch_dims):  # output added more batch dims. We should expand the initial guess
-            raise NewBatchDims(y_tensors[0].shape, y_tensors[0].shape.without(batch_dims))
-        loss_native = reshaped_native(y_tensors[0], [batch_dims], force_expand=False)
-        return y_tensors[0].sum, (loss_native,)
+        loss_tensor = y_tensors[0]
+        assert not non_batch(loss_tensor), f"Failed to minimize '{f.__name__}' because it returned a non-scalar output {shape(loss_tensor)}. Reduce all non-batch dimensions, e.g. using math.l2_loss()"
+        extra_batch = loss_tensor.shape.without(batch_dims)
+        if extra_batch:  # output added more batch dims. We should expand the initial guess
+            if extra_batch.volume > 1:
+                raise NewBatchDims(loss_tensor.shape, extra_batch)
+            else:
+                loss_tensor = loss_tensor[next(iter(extra_batch.meshgrid()))]
+        loss_native = reshaped_native(loss_tensor, [batch_dims], force_expand=False)
+        return loss_tensor.sum, (loss_native,)
 
     atol = backend.to_float(reshaped_native(solve.abs_tol, [batch_dims]))
     maxi = reshaped_numpy(solve.max_iterations, [batch_dims])
