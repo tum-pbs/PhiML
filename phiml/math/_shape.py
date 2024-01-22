@@ -1784,7 +1784,7 @@ def merge_shapes(*objs: Union[Shape, Any], order=(batch, dual, instance, spatial
                         if names1 is not None and names2 is not None and len(names1) > 1:
                             if names1 != names2:
                                 if set(names1) == set(names2):
-                                    raise IncompatibleShapes(f"Inconsistent component order: '{','.join(names1)}' vs '{','.join(names2)}' in dimension '{dim.name}'. Failed to merge shapes {shapes}", *shapes)
+                                    raise IncompatibleShapes(f"Inconsistent component order on {dim.name}: '{','.join(names1)}' vs '{','.join(names2)}' in dimension '{dim.name}'. Failed to merge shapes {shapes}", *shapes)
                                 else:
                                     raise IncompatibleShapes(f"Cannot merge shapes {shapes} because dimension '{dim.name}' exists with different item names.", *shapes)
                         elif names1 is None and names2 is not None:
