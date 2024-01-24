@@ -2037,6 +2037,24 @@ def log_gamma(x: TensorOrTree) -> TensorOrTree:
     return _backend_op1(x, Backend.log_gamma)
 
 
+def incomplete_gamma(a: TensorOrTree, x: TensorOrTree, upper=False, regularized=True) -> TensorOrTree:
+    """
+    Computes the incomplete gamma function.
+
+    Args:
+        a: Positive parameter, `Tensor` or tree.
+        x: Non-negative argument, `Tensor` or tree.
+        upper: Whether to complete the upper integral (x to infinity) or the lower integral (0 to x).
+        regularized: Whether the integral is divided by Γ(a).
+    """
+    call = lambda a, x: incomplete_gamma(a, x, upper=upper, regularized=regularized)
+    if upper:
+        reg = custom_op2(a, x, call, lambda a, x: choose_backend(a, x).gamma_inc_u(a, x), 'gamma_inc_u')
+    else:
+        reg = custom_op2(a, x, call, lambda a, x: choose_backend(a, x).gamma_inc_l(a, x), 'gamma_inc_l')
+    return reg if regularized else reg * exp(log_gamma(a))
+
+
 def to_float(x: TensorOrTree) -> TensorOrTree:
     """
     Converts the given tensor to floating point format with the currently specified precision.

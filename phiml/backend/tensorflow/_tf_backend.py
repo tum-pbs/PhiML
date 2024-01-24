@@ -454,6 +454,14 @@ class TFBackend(Backend):
         with self.device_of(x):
             return tf.math.lgamma(self.to_float(x))
 
+    def gamma_inc_l(self, a, x):
+        with self._device_for(a, x):
+            return tf.math.igamma(a, x)
+
+    def gamma_inc_u(self, a, x):
+        with self._device_for(a, x):
+            return tf.math.igammac(a, x)
+
     def conv(self, value, kernel, zero_padding=True):
         with self._device_for(value, kernel):
             value = self.to_float(value)

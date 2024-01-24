@@ -740,6 +740,14 @@ class Backend:
     def log_gamma(self, x):
         raise NotImplementedError(self)
 
+    def gamma_inc_l(self, a, x):
+        """Regularized lower incomplete gamma function."""
+        raise NotImplementedError(self)
+
+    def gamma_inc_u(self, a, x):
+        """Regularized upper incomplete gamma function."""
+        raise NotImplementedError(self)
+
     def factorial(self, x: TensorType) -> TensorType:
         if self.dtype(x).kind == int:
             max_factorial = {32: 12, 64: 19}[self.dtype(x).bits]

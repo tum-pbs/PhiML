@@ -655,6 +655,11 @@ class TestOps(TestCase):
                 math.assert_close(24., math.factorial(math.tensor(4.)))
                 self.assertEqual(float, math.factorial(math.tensor(4.)).dtype.kind)
 
+    def test_incomplete_gamma(self):
+        math.assert_close(0.13533528, math.incomplete_gamma(1, 2, upper=True, regularized=False))
+        math.assert_close(0.36787945, math.incomplete_gamma(1, 1, upper=True, regularized=False))
+        math.assert_close(1, math.incomplete_gamma(1, 1, upper=False, regularized=True) + math.incomplete_gamma(1, 1, upper=True, regularized=True))
+
     def test_degrees(self):
         rad = [0, PI/4, PI/2, 3/4*PI, PI, -PI]
         math.assert_close([0, 45, 90, 135, 180, -180], math.radians_to_degrees(rad))

@@ -71,6 +71,8 @@ class NumPyBackend(Backend):
     ceil = np.ceil
     floor = np.floor
     log_gamma = np.math.lgamma
+    gamma_inc_l = scipy.special.gammainc
+    gamma_inc_u = scipy.special.gammaincc
     shape = staticmethod(np.shape)
     staticshape = staticmethod(np.shape)
     imag = staticmethod(np.imag)

@@ -384,6 +384,12 @@ class JaxBackend(Backend):
     def log_gamma(self, x):
         return jax.lax.lgamma(self.to_float(x))
 
+    def gamma_inc_l(self, a, x):
+        return scipy.special.gammainc(a, x)
+
+    def gamma_inc_u(self, a, x):
+        return scipy.special.gammaincc(a, x)
+
     def tensordot(self, a, a_axes: Union[tuple, list], b, b_axes: Union[tuple, list]):
         return jnp.tensordot(a, b, (a_axes, b_axes))
 
