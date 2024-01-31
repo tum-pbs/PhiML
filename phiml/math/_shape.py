@@ -311,10 +311,12 @@ class Shape:
             else:
                 selection = self.index(selection)
             return self[selection]
-        elif isinstance(selection, (tuple, list)):
+        elif isinstance(selection, Shape):
+            selection = selection.names
+        if isinstance(selection, (tuple, list)):
             selection = [self.index(s) if isinstance(s, str) else s for s in selection]
             return Shape(tuple([self.sizes[i] for i in selection]), tuple([self.names[i] for i in selection]), tuple([self.types[i] for i in selection]), tuple([self.item_names[i] for i in selection]))
-        raise AssertionError("Can only access shape elements as shape[int] or shape[slice]")
+        raise AssertionError("Can only access shape elements as shape[int], shape[str], shape[slice], shape[Sequence] or shape[Shape]")
 
     @property
     def reversed(self):
