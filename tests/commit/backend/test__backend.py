@@ -237,8 +237,9 @@ class TestBackends(TestCase):
         torch = get_backend('torch')
         self.assertEqual('torch', torch.name)
         self.assertEqual(torch, get_backend(torch))
+        t = torch.as_tensor(1.)
         with backend.profile():
-            default = backend.default_backend()
+            default = backend.choose_backend(t)
             self.assertEqual('torch', default.name)
             self.assertEqual('profile[torch]', str(default))
 
