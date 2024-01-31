@@ -793,6 +793,7 @@ def linspace(start: Union[float, Tensor, tuple, list], stop: Union[float, Tensor
         (0.000, 0.000); (-0.500, 0.500); (-1.000, 1.000) (xˢ=3, vectorᶜ=2)
     """
     assert isinstance(dim, Shape), f"dim must be a Shape but got {dim}"
+    assert isinstance(dim.size, int), f"dim must have an integer size but got {dim}"
     start = wrap(start)
     stop = wrap(stop)
     if dim.rank > 1:
@@ -888,8 +889,8 @@ def concat_tensor(values: Union[tuple, list], dim: str) -> Tensor:
         dim_index = broadcast_shape.index(dim)
         natives = [v.native(order=broadcast_shape.names) for v in values]
         concatenated = choose_backend(*natives).concat(natives, dim_index)
-        if all([v.shape.get_item_names(dim) is not None for v in values]):
-            broadcast_shape = broadcast_shape.with_dim_size(dim, sum([v.shape.get_item_names(dim) for v in values], ()))
+        if all([v.shape.get_item_names(dim) is not None or v.shape.get_size(dim) == 0 for v in values]):
+            broadcast_shape = broadcast_shape.with_dim_size(dim, sum([v.shape.get_item_names(dim) or () for v in values], ()))
         else:
             broadcast_shape = broadcast_shape.with_dim_size(dim, sum([v.shape.get_size(dim) for v in values]))
         return NativeTensor(concatenated, broadcast_shape)
