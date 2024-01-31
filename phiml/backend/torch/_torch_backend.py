@@ -188,10 +188,13 @@ class TorchBackend(Backend):
     ceil = torch.ceil
     floor = torch.floor
     flip = torch.flip
-    seed = staticmethod(torch.manual_seed)
     log_gamma = torch.lgamma
     gamma_inc_l = torch.special.gammainc
     gamma_inc_u = torch.special.gammaincc
+
+    def seed(self, seed: int):
+        torch.manual_seed(seed)
+        torch.cuda.manual_seed(seed)
 
     def softplus(self, x):
         return torch.nn.Softplus()(x)
