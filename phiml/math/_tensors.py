@@ -1982,7 +1982,7 @@ def expand_tensor(value: Tensor, dims: Shape):
         else:
             stack_dim = dims.shape.without('dims')
             if stack_dim.rank > 1:
-                raise NotImplementedError("Higher-order non-uniform expand() not yet supported")
+                raise NotImplementedError(f"Higher-order non-uniform expand() not yet supported. Tried expanding {value.shape} by {dims}")
             unstacked_dims = [dims.after_gather(i) for i in stack_dim.meshgrid()]
             if stack_dim in value.shape:
                 unstacked = unstack(value, stack_dim)
