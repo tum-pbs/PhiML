@@ -63,6 +63,8 @@ def vec(name: Union[str, Shape] = 'vector', *sequence, tuple_dim=spatial('sequen
             else:
                 return value
         components = {n: wrap_sequence(v) for n, v in components.items()}
+        if not components:
+            return wrap([], dim)
         return stack(components, dim, expand_values=True)
 
 
