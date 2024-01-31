@@ -793,7 +793,7 @@ def linspace(start: Union[float, Tensor, tuple, list], stop: Union[float, Tensor
         (0.000, 0.000); (-0.500, 0.500); (-1.000, 1.000) (xˢ=3, vectorᶜ=2)
     """
     assert isinstance(dim, Shape), f"dim must be a Shape but got {dim}"
-    assert isinstance(dim.size, int), f"dim must have an integer size but got {dim}"
+    assert dim.is_uniform, f"dim must be uniform but got {dim}"
     start = wrap(start)
     stop = wrap(stop)
     if dim.rank > 1:
