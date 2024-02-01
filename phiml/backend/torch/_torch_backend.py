@@ -398,6 +398,7 @@ class TorchBackend(Backend):
 
     def quantile(self, x, quantiles):
         x = self.to_float(x)
+        quantiles = self.to_float(quantiles)
         result = torch.quantile(x, quantiles, dim=-1)
         return result
     
