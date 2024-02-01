@@ -1669,10 +1669,9 @@ def tensor(data,
         raise ValueError(f"{type(data)} is not supported. Only (Tensor, tuple, list, np.ndarray, native tensors) are allowed.\nCurrent backends: {BACKENDS}")
 
 
-def wrap(data,
-         *shape: Shape) -> Tensor:
+def wrap(data, *shape: Shape, default_list_dim=channel('vector')) -> Tensor:
     """ Short for `phiml.math.tensor()` with `convert=False`. """
-    return tensor(data, *shape, convert=False)  # TODO inline, simplify
+    return tensor(data, *shape, convert=False, default_list_dim=default_list_dim)
 
 
 def layout(objects, *shape: Shape) -> Tensor:
