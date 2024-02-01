@@ -1831,7 +1831,7 @@ def quantile(value: Tensor,
     dims = value.shape.only(dim)
     native_values = reshaped_native(value, [*value.shape.without(dims), value.shape.only(dims)])
     backend = choose_backend(native_values)
-    q = tensor(quantiles, default_list_dim=instance('quantiles'))
+    q = wrap(quantiles, default_list_dim=instance('quantiles'))
     native_quantiles = reshaped_native(q, [q.shape])
     native_result = backend.quantile(native_values, native_quantiles)
     return reshaped_tensor(native_result, [q.shape, *value.shape.without(dims)])
@@ -1858,7 +1858,22 @@ def median(value, dim: DimFilter = non_batch):
     Returns:
         `Tensor`
     """
-    return quantile(value, 0.5, dim)
+    return reduce_(_median, value, dim)
+
+
+def _median(value: Tensor, dims: Shape) -> Tensor:
+    if not dims:
+        return value
+    if isinstance(value, NativeTensor):
+        return quantile(value, 0.5, dims)
+    elif isinstance(value, TensorStack):
+        reduced_inners = [_median(t, dims.without(value._stack_dim)) for t in value._tensors]
+        if value._stack_dim in dims:
+            raise NotImplementedError  # return median(reduced_inners)
+        else:
+            return TensorStack(reduced_inners, value._stack_dim)
+    else:
+        raise ValueError(type(value))
 
 
 def dot(x: Tensor,
