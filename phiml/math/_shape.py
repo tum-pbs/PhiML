@@ -779,6 +779,10 @@ class Shape:
         if isinstance(dims, Shape):
             dims = dims.names
         if isinstance(dims, (tuple, list, set)):
+            if all(isinstance(d, int) for d in dims):
+                if not reorder:
+                    dims = tuple(sorted(dims))
+                return self[dims]
             dim_names = []
             for d in dims:
                 if callable(d):
