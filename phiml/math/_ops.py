@@ -636,7 +636,8 @@ def random_uniform(*shape: Shape,
 def transpose(x, axes):
     """
     Swap the dimension order of `x`.
-    This operation is superfluous since tensors will be reshaped under the hood or when getting the native/numpy representations.
+    This operation is generally not necessary for `Tensor`s because tensors will be reshaped under the hood or when getting the native/numpy representations.
+    It can be used to transpose native tensors.
 
     Implementations:
 
@@ -653,6 +654,8 @@ def transpose(x, axes):
         `Tensor` or native tensor, depending on `x`.
     """
     if isinstance(x, Tensor):
+        if x.shape[axes] == x.shape.only(axes):  # order is correct
+            return x
         new_shape = x.shape[axes]
         packed = pack_dims(x, new_shape, instance('_t_flat'))
         return unpack_dim(packed, '_t_flat', new_shape)
