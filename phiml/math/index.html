@@ -10986,7 +10986,8 @@ If true, jit-compiled functions are very fast since the Python function is not a
 </code></dt>
 <dd>
 <div class="desc"><p>Swap the dimension order of <code>x</code>.
-This operation is superfluous since tensors will be reshaped under the hood or when getting the native/numpy representations.</p>
+This operation is generally not necessary for <code><a title="phiml.math.Tensor" href="#phiml.math.Tensor">Tensor</a></code>s because tensors will be reshaped under the hood or when getting the native/numpy representations.
+It can be used to transpose native tensors.</p>
 <p>Implementations:</p>
 <ul>
 <li>NumPy: <a href="https://numpy.org/doc/stable/reference/generated/numpy.transpose.html"><code>numpy.transpose</code></a></li>
@@ -11010,7 +11011,8 @@ This operation is superfluous since tensors will be reshaped under the hood or w
 <pre><code class="python">def transpose(x, axes):
     &#34;&#34;&#34;
     Swap the dimension order of `x`.
-    This operation is superfluous since tensors will be reshaped under the hood or when getting the native/numpy representations.
+    This operation is generally not necessary for `Tensor`s because tensors will be reshaped under the hood or when getting the native/numpy representations.
+    It can be used to transpose native tensors.
 
     Implementations:
 
@@ -11027,6 +11029,8 @@ This operation is superfluous since tensors will be reshaped under the hood or w
         `Tensor` or native tensor, depending on `x`.
     &#34;&#34;&#34;
     if isinstance(x, Tensor):
+        if x.shape[axes] == x.shape.only(axes):  # order is correct
+            return x
         new_shape = x.shape[axes]
         packed = pack_dims(x, new_shape, instance(&#39;_t_flat&#39;))
         return unpack_dim(packed, &#39;_t_flat&#39;, new_shape)
@@ -13175,6 +13179,10 @@ To create a shape with multiple types, use <code><a title="phiml.math.merge_shap
         if isinstance(dims, Shape):
             dims = dims.names
         if isinstance(dims, (tuple, list, set)):
+            if all(isinstance(d, int) for d in dims):
+                if not reorder:
+                    dims = tuple(sorted(dims))
+                return self[dims]
             dim_names = []
             for d in dims:
                 if callable(d):
@@ -15063,6 +15071,10 @@ If <code>True</code>, reorders the dimensions of this shape to match the order o
     if isinstance(dims, Shape):
         dims = dims.names
     if isinstance(dims, (tuple, list, set)):
+        if all(isinstance(d, int) for d in dims):
+            if not reorder:
+                dims = tuple(sorted(dims))
+            return self[dims]
         dim_names = []
         for d in dims:
             if callable(d):
