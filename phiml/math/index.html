@@ -92,7 +92,7 @@ from ._ops import (
     round_ as round, ceil, floor,
     maximum, minimum, clip,
     sqrt, exp, erf, log, log2, log10, sigmoid, soft_plus,
-    sin, cos, tan, sinh, cosh, tanh, arcsin, arccos, arctan, arcsinh, arccosh, arctanh, log_gamma, factorial,
+    sin, cos, tan, sinh, cosh, tanh, arcsin, arccos, arctan, arcsinh, arccosh, arctanh, log_gamma, factorial, incomplete_gamma,
     to_float, to_int32, to_int64, to_complex, imag, real, conjugate, angle,
     radians_to_degrees, degrees_to_radians,
     boolean_mask,
@@ -296,7 +296,7 @@ from ._ops import (
     round_ as round, ceil, floor,
     maximum, minimum, clip,
     sqrt, exp, erf, log, log2, log10, sigmoid, soft_plus,
-    sin, cos, tan, sinh, cosh, tanh, arcsin, arccos, arctan, arcsinh, arccosh, arctanh, log_gamma, factorial,
+    sin, cos, tan, sinh, cosh, tanh, arcsin, arccos, arctan, arcsinh, arccosh, arctanh, log_gamma, factorial, incomplete_gamma,
     to_float, to_int32, to_int64, to_complex, imag, real, conjugate, angle,
     radians_to_degrees, degrees_to_radians,
     boolean_mask,
@@ -4345,6 +4345,44 @@ If <code>x</code> does not store complex numbers, returns a zero tensor with the
     return _backend_op1(x, Backend.imag)</code></pre>
 </details>
 </dd>
+<dt id="phiml.math.incomplete_gamma"><code class="name flex">
+<span>def <span class="ident">incomplete_gamma</span></span>(<span>a: ~TensorOrTree, x: ~TensorOrTree, upper=False, regularized=True) ‑> ~TensorOrTree</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Computes the incomplete gamma function.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>a</code></strong></dt>
+<dd>Positive parameter, <code><a title="phiml.math.Tensor" href="#phiml.math.Tensor">Tensor</a></code> or tree.</dd>
+<dt><strong><code>x</code></strong></dt>
+<dd>Non-negative argument, <code><a title="phiml.math.Tensor" href="#phiml.math.Tensor">Tensor</a></code> or tree.</dd>
+<dt><strong><code>upper</code></strong></dt>
+<dd>Whether to complete the upper integral (x to infinity) or the lower integral (0 to x).</dd>
+<dt><strong><code>regularized</code></strong></dt>
+<dd>Whether the integral is divided by Γ(a).</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def incomplete_gamma(a: TensorOrTree, x: TensorOrTree, upper=False, regularized=True) -&gt; TensorOrTree:
+    &#34;&#34;&#34;
+    Computes the incomplete gamma function.
+
+    Args:
+        a: Positive parameter, `Tensor` or tree.
+        x: Non-negative argument, `Tensor` or tree.
+        upper: Whether to complete the upper integral (x to infinity) or the lower integral (0 to x).
+        regularized: Whether the integral is divided by Γ(a).
+    &#34;&#34;&#34;
+    call = lambda a, x: incomplete_gamma(a, x, upper=upper, regularized=regularized)
+    if upper:
+        reg = custom_op2(a, x, call, lambda a, x: choose_backend(a, x).gamma_inc_u(a, x), &#39;gamma_inc_u&#39;)
+    else:
+        reg = custom_op2(a, x, call, lambda a, x: choose_backend(a, x).gamma_inc_l(a, x), &#39;gamma_inc_l&#39;)
+    return reg if regularized else reg * exp(log_gamma(a))</code></pre>
+</details>
+</dd>
 <dt id="phiml.math.index_shift"><code class="name flex">
 <span>def <span class="ident">index_shift</span></span>(<span>x: phiml.math._tensors.Tensor, offsets: Sequence[Union[int, phiml.math._tensors.Tensor]], padding: Union[<a title="phiml.math.extrapolation.Extrapolation" href="extrapolation.html#phiml.math.extrapolation.Extrapolation">Extrapolation</a>, float, phiml.math._tensors.Tensor, str, None] = None) ‑> List[phiml.math._tensors.Tensor]</span>
 </code></dt>
@@ -5278,6 +5316,7 @@ The values will be laid out along <code>dim</code>.</dd>
         (0.000, 0.000); (-0.500, 0.500); (-1.000, 1.000) (xˢ=3, vectorᶜ=2)
     &#34;&#34;&#34;
     assert isinstance(dim, Shape), f&#34;dim must be a Shape but got {dim}&#34;
+    assert dim.is_uniform, f&#34;dim must be uniform but got {dim}&#34;
     start = wrap(start)
     stop = wrap(stop)
     if dim.rank &gt; 1:
@@ -5922,7 +5961,7 @@ For odd dimension sizes (ambigous choice), the linear average of the two median 
     Returns:
         `Tensor`
     &#34;&#34;&#34;
-    return quantile(value, 0.5, dim)</code></pre>
+    return reduce_(_median, value, dim)</code></pre>
 </details>
 </dd>
 <dt id="phiml.math.merge_shapes"><code class="name flex">
@@ -5993,7 +6032,7 @@ If dimensions with equal names are present in multiple shapes, their types and s
                         if names1 is not None and names2 is not None and len(names1) &gt; 1:
                             if names1 != names2:
                                 if set(names1) == set(names2):
-                                    raise IncompatibleShapes(f&#34;Inconsistent component order: &#39;{&#39;,&#39;.join(names1)}&#39; vs &#39;{&#39;,&#39;.join(names2)}&#39; in dimension &#39;{dim.name}&#39;. Failed to merge shapes {shapes}&#34;, *shapes)
+                                    raise IncompatibleShapes(f&#34;Inconsistent component order on {dim.name}: &#39;{&#39;,&#39;.join(names1)}&#39; vs &#39;{&#39;,&#39;.join(names2)}&#39; in dimension &#39;{dim.name}&#39;. Failed to merge shapes {shapes}&#34;, *shapes)
                                 else:
                                     raise IncompatibleShapes(f&#34;Cannot merge shapes {shapes} because dimension &#39;{dim.name}&#39; exists with different item names.&#34;, *shapes)
                         elif names1 is None and names2 is not None:
@@ -7693,7 +7732,7 @@ Must be of type <code>float</code>, <code>tuple</code>, <code>list</code> or <co
     dims = value.shape.only(dim)
     native_values = reshaped_native(value, [*value.shape.without(dims), value.shape.only(dims)])
     backend = choose_backend(native_values)
-    q = tensor(quantiles, default_list_dim=instance(&#39;quantiles&#39;))
+    q = wrap(quantiles, default_list_dim=instance(&#39;quantiles&#39;))
     native_quantiles = reshaped_native(q, [q.shape])
     native_result = backend.quantile(native_values, native_quantiles)
     return reshaped_tensor(native_result, [q.shape, *value.shape.without(dims)])</code></pre>
@@ -11352,6 +11391,8 @@ If specified, no additional positional arguments must be given.</dd>
             else:
                 return value
         components = {n: wrap_sequence(v) for n, v in components.items()}
+        if not components:
+            return wrap([], dim)
         return stack(components, dim, expand_values=True)</code></pre>
 </details>
 </dd>
@@ -11550,7 +11591,7 @@ To get the indices of True / non-zero values, use :func:<code><a title="phiml.ma
 </details>
 </dd>
 <dt id="phiml.math.wrap"><code class="name flex">
-<span>def <span class="ident">wrap</span></span>(<span>data, *shape: phiml.math._shape.Shape) ‑> phiml.math._tensors.Tensor</span>
+<span>def <span class="ident">wrap</span></span>(<span>data, *shape: phiml.math._shape.Shape, default_list_dim=(vectorᶜ=None)) ‑> phiml.math._tensors.Tensor</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Short for <code><a title="phiml.math.tensor" href="#phiml.math.tensor">tensor()</a></code> with <code>convert=False</code>.</p></div>
@@ -11558,10 +11599,9 @@ To get the indices of True / non-zero values, use :func:<code><a title="phiml.ma
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def wrap(data,
-         *shape: Shape) -&gt; Tensor:
+<pre><code class="python">def wrap(data, *shape: Shape, default_list_dim=channel(&#39;vector&#39;)) -&gt; Tensor:
     &#34;&#34;&#34; Short for `phiml.math.tensor()` with `convert=False`. &#34;&#34;&#34;
-    return tensor(data, *shape, convert=False)  # TODO inline, simplify</code></pre>
+    return tensor(data, *shape, convert=False, default_list_dim=default_list_dim)</code></pre>
 </details>
 </dd>
 <dt id="phiml.math.zeros"><code class="name flex">
@@ -12667,10 +12707,12 @@ To create a shape with multiple types, use <code><a title="phiml.math.merge_shap
             else:
                 selection = self.index(selection)
             return self[selection]
-        elif isinstance(selection, (tuple, list)):
+        elif isinstance(selection, Shape):
+            selection = selection.names
+        if isinstance(selection, (tuple, list)):
             selection = [self.index(s) if isinstance(s, str) else s for s in selection]
             return Shape(tuple([self.sizes[i] for i in selection]), tuple([self.names[i] for i in selection]), tuple([self.types[i] for i in selection]), tuple([self.item_names[i] for i in selection]))
-        raise AssertionError(&#34;Can only access shape elements as shape[int] or shape[slice]&#34;)
+        raise AssertionError(&#34;Can only access shape elements as shape[int], shape[str], shape[slice], shape[Sequence] or shape[Shape]&#34;)
 
     @property
     def reversed(self):
@@ -17394,6 +17436,7 @@ If a dimension of the tensor is not listed in <code>order</code>, a <code>ValueE
 <li><code><a title="phiml.math.identity" href="#phiml.math.identity">identity</a></code></li>
 <li><code><a title="phiml.math.ifft" href="#phiml.math.ifft">ifft</a></code></li>
 <li><code><a title="phiml.math.imag" href="#phiml.math.imag">imag</a></code></li>
+<li><code><a title="phiml.math.incomplete_gamma" href="#phiml.math.incomplete_gamma">incomplete_gamma</a></code></li>
 <li><code><a title="phiml.math.index_shift" href="#phiml.math.index_shift">index_shift</a></code></li>
 <li><code><a title="phiml.math.instance" href="#phiml.math.instance">instance</a></code></li>
 <li><code><a title="phiml.math.is_finite" href="#phiml.math.is_finite">is_finite</a></code></li>

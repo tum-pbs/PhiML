@@ -1220,6 +1220,14 @@ The methods of <code><a title="phiml.backend.Backend" href="#phiml.backend.Backe
     def log_gamma(self, x):
         raise NotImplementedError(self)
 
+    def gamma_inc_l(self, a, x):
+        &#34;&#34;&#34;Regularized lower incomplete gamma function.&#34;&#34;&#34;
+        raise NotImplementedError(self)
+
+    def gamma_inc_u(self, a, x):
+        &#34;&#34;&#34;Regularized upper incomplete gamma function.&#34;&#34;&#34;
+        raise NotImplementedError(self)
+
     def factorial(self, x: TensorType) -&gt; TensorType:
         if self.dtype(x).kind == int:
             max_factorial = {32: 12, 64: 19}[self.dtype(x).bits]
@@ -3483,6 +3491,34 @@ Higher dimensions may not be supported.</p>
 </summary>
 <pre><code class="python">def from_dlpack(self, capsule):
     raise NotImplementedError(self.__class__)</code></pre>
+</details>
+</dd>
+<dt id="phiml.backend.Backend.gamma_inc_l"><code class="name flex">
+<span>def <span class="ident">gamma_inc_l</span></span>(<span>self, a, x)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Regularized lower incomplete gamma function.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def gamma_inc_l(self, a, x):
+    &#34;&#34;&#34;Regularized lower incomplete gamma function.&#34;&#34;&#34;
+    raise NotImplementedError(self)</code></pre>
+</details>
+</dd>
+<dt id="phiml.backend.Backend.gamma_inc_u"><code class="name flex">
+<span>def <span class="ident">gamma_inc_u</span></span>(<span>self, a, x)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Regularized upper incomplete gamma function.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def gamma_inc_u(self, a, x):
+    &#34;&#34;&#34;Regularized upper incomplete gamma function.&#34;&#34;&#34;
+    raise NotImplementedError(self)</code></pre>
 </details>
 </dd>
 <dt id="phiml.backend.Backend.gather"><code class="name flex">
@@ -6941,6 +6977,8 @@ def retime(self):
 <li><code><a title="phiml.backend.Backend.floor" href="#phiml.backend.Backend.floor">floor</a></code></li>
 <li><code><a title="phiml.backend.Backend.floordiv" href="#phiml.backend.Backend.floordiv">floordiv</a></code></li>
 <li><code><a title="phiml.backend.Backend.from_dlpack" href="#phiml.backend.Backend.from_dlpack">from_dlpack</a></code></li>
+<li><code><a title="phiml.backend.Backend.gamma_inc_l" href="#phiml.backend.Backend.gamma_inc_l">gamma_inc_l</a></code></li>
+<li><code><a title="phiml.backend.Backend.gamma_inc_u" href="#phiml.backend.Backend.gamma_inc_u">gamma_inc_u</a></code></li>
 <li><code><a title="phiml.backend.Backend.gather" href="#phiml.backend.Backend.gather">gather</a></code></li>
 <li><code><a title="phiml.backend.Backend.gather_1d" href="#phiml.backend.Backend.gather_1d">gather_1d</a></code></li>
 <li><code><a title="phiml.backend.Backend.gather_by_component_indices" href="#phiml.backend.Backend.gather_by_component_indices">gather_by_component_indices</a></code></li>
