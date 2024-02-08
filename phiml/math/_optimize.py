@@ -11,7 +11,7 @@ from ..backend import get_precision, NUMPY, Backend
 from ..backend._backend import SolveResult, ML_LOGGER, default_backend, convert, Preconditioner, choose_backend
 from ..backend._linalg import IncompleteLU, incomplete_lu_dense, incomplete_lu_coo, coarse_explicit_preconditioner_coo
 from ._shape import EMPTY_SHAPE, Shape, merge_shapes, batch, non_batch, shape, dual, channel, non_dual, instance, spatial
-from ._magic_ops import stack, copy_with, rename_dims, unpack_dim, unstack, expand
+from ._magic_ops import stack, copy_with, rename_dims, unpack_dim, unstack, expand, value_attributes
 from ._sparse import native_matrix, SparseCoordinateTensor, CompressedSparseMatrix, stored_values, is_sparse
 from ._tensors import Tensor, disassemble_tree, assemble_tree, wrap, cached, NativeTensor, layout
 from . import _ops as math
@@ -367,7 +367,7 @@ def minimize(f: Callable[[X], Y], solve: Solve[X, Y]) -> X:
     solve = solve.with_defaults('optimization')
     assert (solve.rel_tol == 0).all, f"rel_tol must be zero for minimize() but got {solve.rel_tol}"
     assert solve.preprocess_y is None, "minimize() does not allow preprocess_y"
-    x0_nest, x0_tensors = disassemble_tree(solve.x0, cache=True)
+    x0_nest, x0_tensors = disassemble_tree(solve.x0, cache=True, attr_type=value_attributes)
     x0_tensors = [to_float(t) for t in x0_tensors]
     backend = choose_backend_t(*x0_tensors, prefer_default=True)
     batch_dims = merge_shapes(*[t.shape for t in x0_tensors]).batch
@@ -402,7 +402,7 @@ def minimize(f: Callable[[X], Y], solve: Solve[X, Y]) -> X:
                 stack_dims = t.shape.shape.without('dims')
                 x_tensors.append(stack(partial_tensors[:stack_dims.volume], stack_dims))
                 partial_tensors = partial_tensors[stack_dims.volume:]
-        x = assemble_tree(x0_nest, x_tensors)
+        x = assemble_tree(x0_nest, x_tensors, attr_type=value_attributes)
         return x
 
     def native_function(x_flat):
@@ -567,8 +567,8 @@ def solve_linear(f: Union[Callable[[X], Y], Tensor],
     f_kwargs.update(f_kwargs_)
     f_args = f_args[0] if len(f_args) == 1 and isinstance(f_args[0], tuple) else f_args
     # --- Get input and output tensors ---
-    y_tree, y_tensors = disassemble_tree(y, cache=False)
-    x0_tree, x0_tensors = disassemble_tree(solve.x0, cache=False)
+    y_tree, y_tensors = disassemble_tree(y, cache=False, attr_type=value_attributes)
+    x0_tree, x0_tensors = disassemble_tree(solve.x0, cache=False, attr_type=value_attributes)
     assert solve.x0 is not None, "Please specify the initial guess as Solve(..., x0=initial_guess)"
     assert len(x0_tensors) == len(y_tensors) == 1, "Only single-tensor linear solves are currently supported"
     if y_tree == 'native' and x0_tree == 'native':
@@ -634,17 +634,17 @@ def solve_linear(f: Union[Callable[[X], Y], Tensor],
         assert solve.preconditioner is None, f"Preconditioners not currently supported for matrix-free solves. Decorate '{f_name(f)}' with @math.jit_compile_linear to perform a matrix solve."
 
         def _function_solve_forward(y, solve: Solve, f_args: tuple, f_kwargs: dict = None, is_backprop=False):
-            y_nest, (y_tensor,) = disassemble_tree(y, cache=False)
-            x0_nest, (x0_tensor,) = disassemble_tree(solve.x0, cache=False)
+            y_nest, (y_tensor,) = disassemble_tree(y, cache=False, attr_type=value_attributes)
+            x0_nest, (x0_tensor,) = disassemble_tree(solve.x0, cache=False, attr_type=value_attributes)
             # active_dims = (y_tensor.shape & x0_tensor.shape).non_batch  # assumes batch dimensions are not active
             batches = (y_tensor.shape & x0_tensor.shape).batch
 
             def native_lin_f(native_x, batch_index=None):
                 if batch_index is not None and batches.volume > 1:
                     native_x = backend.tile(backend.expand_dims(native_x), [batches.volume, 1])
-                x = assemble_tree(x0_nest, [reshaped_tensor(native_x, [batches, non_batch(x0_tensor)] if backend.ndims(native_x) >= 2 else [non_batch(x0_tensor)], convert=False)])
+                x = assemble_tree(x0_nest, [reshaped_tensor(native_x, [batches, non_batch(x0_tensor)] if backend.ndims(native_x) >= 2 else [non_batch(x0_tensor)], convert=False)], attr_type=value_attributes)
                 y = f(x, *f_args, **f_kwargs)
-                _, (y_tensor,) = disassemble_tree(y, cache=False)
+                _, (y_tensor,) = disassemble_tree(y, cache=False, attr_type=value_attributes)
                 y_native = reshaped_native(y_tensor, [batches, non_batch(y_tensor)] if backend.ndims(native_x) >= 2 else [non_batch(y_tensor)])
                 if batch_index is not None and batches.volume > 1:
                     y_native = y_native[batch_index]
@@ -669,8 +669,8 @@ def _linear_solve_forward(y: Tensor,
     ML_LOGGER.debug(f"Performing linear solve {solve} with backend {backend}")
     if solve.preprocess_y is not None:
         y = solve.preprocess_y(y, *solve.preprocess_y_args)
-    y_nest, (y_tensor,) = disassemble_tree(y, cache=False)
-    x0_nest, (x0_tensor,) = disassemble_tree(solve.x0, cache=False)
+    y_nest, (y_tensor,) = disassemble_tree(y, cache=False, attr_type=value_attributes)
+    x0_nest, (x0_tensor,) = disassemble_tree(solve.x0, cache=False, attr_type=value_attributes)
     pattern_dims_in = x0_tensor.shape.only(pattern_dims_in, reorder=True)
     if pattern_dims_out not in y_tensor.shape:
         warnings.warn(f"right-hand-side has shape {y_tensor.shape} but output dimensions are {pattern_dims_out}. This may result in unexpected behavior", RuntimeWarning, stacklevel=3)
@@ -699,15 +699,15 @@ def _linear_solve_forward(y: Tensor,
     assert isinstance(ret, SolveResult)
     converged = reshaped_tensor(ret.converged, [*trj_dims, batch_dims])
     diverged = reshaped_tensor(ret.diverged, [*trj_dims, batch_dims])
-    x = assemble_tree(x0_nest, [reshaped_tensor(ret.x, [*trj_dims, batch_dims, pattern_dims_out])])
-    final_x = x if not trj_dims else assemble_tree(x0_nest, [reshaped_tensor(ret.x[-1, ...], [batch_dims, pattern_dims_out])])
+    x = assemble_tree(x0_nest, [reshaped_tensor(ret.x, [*trj_dims, batch_dims, pattern_dims_out])], attr_type=value_attributes)
+    final_x = x if not trj_dims else assemble_tree(x0_nest, [reshaped_tensor(ret.x[-1, ...], [batch_dims, pattern_dims_out])], attr_type=value_attributes)
     iterations = reshaped_tensor(ret.iterations, [*trj_dims, batch_dims])
     function_evaluations = reshaped_tensor(ret.function_evaluations, [*trj_dims, batch_dims])
     if ret.residual is not None:
-        residual = assemble_tree(y_nest, [reshaped_tensor(ret.residual, [*trj_dims, batch_dims, pattern_dims_out])])
+        residual = assemble_tree(y_nest, [reshaped_tensor(ret.residual, [*trj_dims, batch_dims, pattern_dims_out])], attr_type=value_attributes)
     elif _SOLVE_TAPES:
         residual = backend.linear(native_lin_op, ret.x) - y_native
-        residual = assemble_tree(y_nest, [reshaped_tensor(residual, [*trj_dims, batch_dims, pattern_dims_out])])
+        residual = assemble_tree(y_nest, [reshaped_tensor(residual, [*trj_dims, batch_dims, pattern_dims_out])], attr_type=value_attributes)
     else:
         residual = None
     msg = unpack_dim(layout(ret.message, batch('_all')), '_all', batch_dims)
@@ -737,8 +737,8 @@ def attach_gradient_solve(forward_solve: Callable, auxiliary_args: str, matrix_a
             if isinstance(matrix, SparseCoordinateTensor):
                 col = matrix.dual_indices(to_primal=True)
                 row = matrix.primal_indices()
-                _, dy_tensors = disassemble_tree(dy, cache=False)
-                _, x_tensors = disassemble_tree(x, cache=False)
+                _, dy_tensors = disassemble_tree(dy, cache=False, attr_type=value_attributes)
+                _, x_tensors = disassemble_tree(x, cache=False, attr_type=value_attributes)
                 dm_values = dy_tensors[0][col] * x_tensors[0][row]
                 dm = matrix._with_values(dm_values)
                 dm = -dm

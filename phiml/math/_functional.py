@@ -195,6 +195,7 @@ class JitFunction:
             warnings.warn(f"jit_copmile() not supported by {key.backend}. Running function '{f_name(self.f)}' as-is.", RuntimeWarning)
             return self.f(*args, **kwargs)
         if key not in self.traces:
+            print(trace_check(self, *args, **kwargs))
             if self.forget_traces:
                 self.traces.clear()
                 self.recorded_mappings.clear()
@@ -203,7 +204,7 @@ class JitFunction:
                 warnings.warn(f"""Φ-ML-lin: The jit-compiled function '{f_name(self.f)}' was traced {len(self.traces)} times.
 Performing many traces may be slow and cause memory leaks.
 Re-tracing occurs when the number or types of arguments vary, tensor shapes vary between calls or different auxiliary arguments are given (compared by reference).
-Set forget_traces=True to avoid memory leaks when many traces are required.""", RuntimeWarning)
+Set forget_traces=True to avoid memory leaks when many traces are required. Tracing reason: {trace_check(self, *args, **kwargs)[1]}""", RuntimeWarning)
         native_result = self.traces[key](*natives)
         output_key = match_output_signature(key, self.recorded_mappings, self)
         output_tensors = assemble_tensors(native_result, output_key.specs)
