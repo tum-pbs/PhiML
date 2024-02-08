@@ -47,14 +47,19 @@ astrophysics [@CMB2020; @Galaxy2004; @Galaxy2015],
 geology [@Mineral2015], and many more.
 The use of ML for scientific applications is still in its early stages, but it has the potential to revolutionize the way that science is done. ML can help researchers to make new discoveries and insights that were previously impossible.
 
-ML in science sets itself apart from other ML applications by a number of features.
+The availability of domain knowledge sets science applications apart from other ML fields like computer vision or language modelling.
+Domain knowledge often allows for explicit modelling of known dynamics by simulating them with handwritten algorithms, which has been shown to improve results when training ML models [@SolverInTheLoop2020; @PINN2019].
+Implementing differentiable simulations into ML frameworks requires different functions and concepts than classical ML tasks.
+The major differences are:
 
-* The dynamics of the observed system is often (partially) known and can be explicitly simulated. Making use of this knowledge has been shown to improve results when training ML models [@SolverInTheLoop2020; @PINN2019].
 * Data typically represent objects or signals that exist in space and time. Data dimensions are interpretable, e.g. vector components, time series, *n*-dimensional lattices.
 * Information transfer is usually local, resulting in sparsity in the dependency matrix between objects (particles, elements or cells).
 * A high numerical accuracy is desirable, often requiring 64-bit floating point calculations.
 
-However, current machine learning frameworks have limited support for these features, or they are cumbersome to use.
+However, current machine learning frameworks have been designed for the core ML tasks which reflects in their priorities and design choices.
+This can result in overly verbose code when implementing scientific applications and may require implementing custom operators, since many 
+common functions like sparse-sparse matrix multiplication, periodic padding or triangular solves are not available in all libraries.
+
 $\Phi_\textrm{ML}$ is a scientific computing library based on Python 3 [@Python3] that aims to address these issues and simplify scientific code in the process.
 It consists of a high-level NumPy-like API geared towards writing easy-to-read and scalable simulation code, as well as a neural network API designed to allow users to quickly iterate over many network architectures and hyperparameter settings.
 Similar to eagerpy [@rauber2020eagerpy], $\Phi_\textrm{ML}$ integrates with Jax [@Jax2018], PyTorch [@PyTorch2019], TensorFlow [@TensorFlow2016] and NumPy [@NumPy2020], providing a custom Tensor class.
