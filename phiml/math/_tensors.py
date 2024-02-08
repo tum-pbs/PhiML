@@ -10,7 +10,7 @@ from typing import Tuple, Callable, List
 import numpy
 import numpy as np
 
-from ._magic_ops import PhiTreeNodeType, variable_attributes, copy_with, stack, pack_dims, expand, slice_, flatten, rename_dims, unpack_dim, unstack
+from ._magic_ops import PhiTreeNodeType, variable_attributes, copy_with, stack, pack_dims, expand, slice_, flatten, rename_dims, unpack_dim, unstack, value_attributes
 from ._shape import (Shape,
                      CHANNEL_DIM, BATCH_DIM, SPATIAL_DIM, EMPTY_SHAPE,
                      parse_dim_order, shape_stack, merge_shapes, channel, concat_shapes, primal,
@@ -1857,7 +1857,7 @@ MISSING_TENSOR = 'missing'
 NATIVE_TENSOR = 'native'
 
 
-def disassemble_tree(obj: PhiTreeNodeType, cache: bool) -> Tuple[PhiTreeNodeType, List[Tensor]]:
+def disassemble_tree(obj: PhiTreeNodeType, cache: bool, attr_type=variable_attributes) -> Tuple[PhiTreeNodeType, List[Tensor]]:
     """
     Splits a nested structure of Tensors into the structure without the tensors and an ordered list of tensors.
     Native tensors will be wrapped in phiml.math.Tensors with default dimension names and dimension types `None`.
@@ -1882,7 +1882,7 @@ def disassemble_tree(obj: PhiTreeNodeType, cache: bool) -> Tuple[PhiTreeNodeType
         keys = []
         values = []
         for item in obj:
-            key, value = disassemble_tree(item, cache)
+            key, value = disassemble_tree(item, cache, attr_type)
             keys.append(key)
             values.extend(value)
         return (tuple(keys) if isinstance(obj, tuple) else keys), values
@@ -1890,20 +1890,20 @@ def disassemble_tree(obj: PhiTreeNodeType, cache: bool) -> Tuple[PhiTreeNodeType
         keys = {}
         values = []
         for name, item in obj.items():
-            key, value = disassemble_tree(item, cache)
+            key, value = disassemble_tree(item, cache, attr_type)
             keys[name] = key
             values.extend(value)
         return keys, values
     elif isinstance(obj, PhiTreeNode):
-        attributes = variable_attributes(obj)
+        attributes = attr_type(obj)
         keys = {}
         values = []
         for attr in attributes:
-            key, value = disassemble_tree(getattr(obj, attr), cache)
+            key, value = disassemble_tree(getattr(obj, attr), cache, attr_type)
             keys[attr] = key
             values.extend(value)
         return copy_with(obj, **keys), values
-    else:
+    else:  # native tensor?
         try:
             backend = choose_backend(obj)
             if backend == OBJECTS:
@@ -1915,7 +1915,7 @@ def disassemble_tree(obj: PhiTreeNodeType, cache: bool) -> Tuple[PhiTreeNodeType
             return obj, []
 
 
-def assemble_tree(obj: PhiTreeNodeType, values: List[Tensor]) -> PhiTreeNodeType:
+def assemble_tree(obj: PhiTreeNodeType, values: List[Tensor], attr_type=variable_attributes) -> PhiTreeNodeType:
     """ Reverses `disassemble_tree()` given an empty nested structure and a list of tensors. """
     if obj is MISSING_TENSOR:
         return None
@@ -1930,14 +1930,14 @@ def assemble_tree(obj: PhiTreeNodeType, values: List[Tensor]) -> PhiTreeNodeType
         assert isinstance(value, Tensor)
         return value
     elif isinstance(obj, list):
-        return [assemble_tree(item, values) for item in obj]
+        return [assemble_tree(item, values, attr_type) for item in obj]
     elif isinstance(obj, tuple):
-        return tuple([assemble_tree(item, values) for item in obj])
+        return tuple([assemble_tree(item, values, attr_type) for item in obj])
     elif isinstance(obj, dict):
-        return {name: assemble_tree(val, values) for name, val in obj.items()}
+        return {name: assemble_tree(val, values, attr_type) for name, val in obj.items()}
     elif isinstance(obj, PhiTreeNode):
-        attributes = variable_attributes(obj)
-        values = {a: assemble_tree(getattr(obj, a), values) for a in attributes}
+        attributes = attr_type(obj)
+        values = {a: assemble_tree(getattr(obj, a), values, attr_type) for a in attributes}
         return copy_with(obj, **values)
     else:
         return obj
@@ -2467,8 +2467,12 @@ def format_row(self: Tensor, options: PrintOptions) -> str:  # all values in a s
     """
     if not self.available:
         return format_tracer(self, options)
+    from ..backend import NUMPY
     from ._sparse import dense
-    self = dense(self)
+    from ._ops import convert
+    self = convert(self, NUMPY)
+    with NUMPY:
+        self = dense(self)
     colors = options.get_colors()
     if self.shape.rank == 1:
         content = _format_vector(self, options)

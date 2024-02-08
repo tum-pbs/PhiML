@@ -545,13 +545,13 @@ def zeros(*shape: Shape, dtype: Union[DType, tuple, type] = None) -> Tensor:
 
 def zeros_like(obj: Union[Tensor, PhiTreeNode]) -> Union[Tensor, PhiTreeNode]:
     """ Create a `Tensor` containing only `0.0` / `0` / `False` with the same shape and dtype as `obj`. """
-    nest, values = disassemble_tree(obj, cache=False)
+    nest, values = disassemble_tree(obj, cache=False, attr_type=value_attributes)
     zeros_ = []
     for val in values:
         val = wrap(val)
         with val.default_backend:
             zeros_.append(zeros(val.shape, dtype=val.dtype))
-    return assemble_tree(nest, zeros_)
+    return assemble_tree(nest, zeros_, attr_type=value_attributes)
 
 
 def ones(*shape: Shape, dtype: Union[DType, tuple, type] = None) -> Tensor:

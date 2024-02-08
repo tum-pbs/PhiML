@@ -8,7 +8,7 @@ from scipy.sparse import csr_matrix
 from ..backend import choose_backend, NUMPY, Backend
 from ._ops import choose_backend_t, concat_tensor, scatter, zeros_like
 from ._shape import Shape, parse_dim_order, merge_shapes, spatial, instance, batch, concat_shapes, EMPTY_SHAPE, dual, channel, non_batch, primal, non_channel, DEBUG_CHECKS
-from ._magic_ops import stack, expand, rename_dims, unpack_dim, unstack
+from ._magic_ops import stack, expand, rename_dims, unpack_dim, unstack, value_attributes
 from ._tensors import Tensor, wrap, disassemble_tree, disassemble_tensors, assemble_tree, TensorStack, may_vary_along, discard_constant_dims, variable_shape
 from ._sparse import SparseCoordinateTensor, is_sparse, sparse_dims, same_sparsity_pattern, sparse_tensor, stored_indices, stored_values, add_sparse_batch_dim
 from . import _ops as math
@@ -593,7 +593,7 @@ def matrix_from_function(f: Callable,
     all_args = {**kwargs, **{f_params[i]: v for i, v in enumerate(args)}}
     aux_args = {k: v for k, v in all_args.items() if k in aux}
     trace_args = {k: v for k, v in all_args.items() if k not in aux}
-    tree, tensors = disassemble_tree(trace_args, cache=False)
+    tree, tensors = disassemble_tree(trace_args, cache=False, attr_type=value_attributes)
     assert len(tensors) == 1, f"Only one input tensor can be traced bot got {tensors}"
     target_backend = choose_backend_t(*tensors)
     # --- Trace function ---
@@ -602,7 +602,7 @@ def matrix_from_function(f: Callable,
         tracer = ShiftLinTracer(src, {EMPTY_SHAPE: math.ones()}, tensors[0].shape, bias=math.zeros(dtype=tensors[0].dtype), renamed={d: d for d in tensors[0].shape.names})
         x_kwargs = assemble_tree(tree, [tracer] + tensors[1:])
         result = f(**x_kwargs, **aux_args)
-    out_tree, result_tensors = disassemble_tree(result, cache=False)
+    out_tree, result_tensors = disassemble_tree(result, cache=False, attr_type=value_attributes)
     assert len(result_tensors) == 1, f"Linear function output must be or contain a single Tensor but got {result}"
     # for t in result_tensors[1:]:
     #     assert not t._is_tracer, f"Linear function must only return a single tracer at position 0 but got {result_tensors}"
