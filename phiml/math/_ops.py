@@ -3022,14 +3022,7 @@ def stop_gradient(x):
     Returns:
         Copy of `x`.
     """
-    if isinstance(x, Tensor):
-        return x._op1(lambda native: choose_backend(native).stop_gradient(native))
-    elif isinstance(x, PhiTreeNode):
-        nest, values = disassemble_tree(x, cache=False)
-        new_values = [stop_gradient(v) for v in values]
-        return assemble_tree(nest, new_values)
-    else:
-        return wrap(choose_backend(x).stop_gradient(x))
+    return _backend_op1(x, Backend.stop_gradient)
 
 
 def pairwise_distances(positions: Tensor,
