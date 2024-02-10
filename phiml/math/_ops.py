@@ -55,7 +55,7 @@ def convert(x, backend: Backend = None, use_dlpack=True):
     if isinstance(x, Tensor):
         return x._op1(lambda native: b_convert(native, backend, use_dlpack=use_dlpack))
     elif isinstance(x, PhiTreeNode):
-        return copy_with(x, **{a: convert(getattr(x, a), backend, use_dlpack=use_dlpack) for a in variable_attributes(x)})
+        return tree_map(convert, x, backend=backend, use_dlpack=use_dlpack)
     else:
         return b_convert(x, backend, use_dlpack=use_dlpack)
 
@@ -2814,6 +2814,8 @@ def always_close(t1: Union[Number, Tensor, bool], t2: Union[Number, Tensor, bool
     Returns:
         `bool`
     """
+    if t1 is None or t2 is None:
+        return t1 is None and t2 is None
     t1 = wrap(t1)
     t2 = wrap(t2)
     if t1.available != t2.available:
@@ -2927,9 +2929,9 @@ def assert_close(*values,
         for other in values[1:]:
             _assert_close(values[0], other, rel_tolerance, abs_tolerance, msg, verbose)
     elif all(isinstance(v, PhiTreeNode) for v in values):
-        tree0, tensors0 = disassemble_tree(values[0], cache=False)
+        tree0, tensors0 = disassemble_tree(values[0], cache=False, attr_type=value_attributes)
         for value in values[1:]:
-            tree, tensors_ = disassemble_tree(value, cache=False)
+            tree, tensors_ = disassemble_tree(value, cache=False, attr_type=value_attributes)
             assert tree0 == tree, f"Tree structures do not match: {tree0} and {tree}"
             for t0, t in zip(tensors0, tensors_):
                 _assert_close(t0, t, rel_tolerance, abs_tolerance, msg, verbose)
