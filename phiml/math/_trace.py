@@ -600,7 +600,7 @@ def matrix_from_function(f: Callable,
     with NUMPY:
         src = TracerSource(tensors[0].shape, tensors[0].dtype, tuple(trace_args.keys())[0], 0)
         tracer = ShiftLinTracer(src, {EMPTY_SHAPE: math.ones()}, tensors[0].shape, bias=math.zeros(dtype=tensors[0].dtype), renamed={d: d for d in tensors[0].shape.names})
-        x_kwargs = assemble_tree(tree, [tracer] + tensors[1:])
+        x_kwargs = assemble_tree(tree, [tracer] + tensors[1:], attr_type=value_attributes)
         result = f(**x_kwargs, **aux_args)
     out_tree, result_tensors = disassemble_tree(result, cache=False, attr_type=value_attributes)
     assert len(result_tensors) == 1, f"Linear function output must be or contain a single Tensor but got {result}"

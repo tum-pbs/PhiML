@@ -623,7 +623,7 @@ def flatten(value, flat_dim: Shape = instance('flat'), flatten_batch=False, **kw
 PhiTreeNodeType = TypeVar('PhiTreeNodeType')  # Defined in phiml.math.magic: tuple, list, dict, custom
 
 
-def variable_attributes(obj) -> Tuple[str]:
+def variable_attributes(obj) -> Tuple[str, ...]:
     if hasattr(obj, '__variable_attrs__'):
         return obj.__variable_attrs__()
     elif hasattr(obj, '__value_attrs__'):
