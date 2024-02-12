@@ -256,7 +256,7 @@ class JaxBackend(Backend):
             def unwrap_outputs(*args):
                 args = [self.to_float(arg) if self.dtype(arg).kind in (bool, int) and i in wrt else arg for i, arg in enumerate(args)]
                 (_, output_tuple), grads = jax_grad_f(*args)
-                return (*output_tuple, *grads)
+                return (*output_tuple, *[jnp.conjugate(g) for g in grads])
             return unwrap_outputs
         else:
             @wraps(f)
@@ -267,7 +267,8 @@ class JaxBackend(Backend):
             @wraps(f)
             def call_jax_grad(*args):
                 args = [self.to_float(arg) if self.dtype(arg).kind in (bool, int) and i in wrt else arg for i, arg in enumerate(args)]
-                return jax_grad(*args)
+                grads = jax_grad(*args)
+                return tuple([jnp.conjugate(g) for g in grads])
             return call_jax_grad
 
     def custom_gradient(self, f: Callable, gradient: Callable, get_external_cache: Callable = None, on_call_skipped: Callable = None) -> Callable:
