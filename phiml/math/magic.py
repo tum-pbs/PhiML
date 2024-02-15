@@ -749,6 +749,8 @@ def slicing_dict(obj, item) -> dict:
     Returns:
         `dict` mapping dimension names to slices.
     """
+    if isinstance(item, Shape):
+        item = item.name_list
     if isinstance(item, dict):
         def valid_key(key):
             if callable(key):
@@ -760,7 +762,7 @@ def slicing_dict(obj, item) -> dict:
             else:
                 raise ValueError(f"Illegal slicing dim: {key}. Only str and single-dim Shape and filters are allowed. While trying to slice {obj} by {item}")
         return {valid_key(k): v for k, v in item.items()}
-    if isinstance(item, tuple):
+    elif isinstance(item, tuple):
         if item[0] == Ellipsis:
             assert len(item) - 1 == shape(obj).channel_rank
             return {name: selection for name, selection in zip(channel(obj).names, item[1:])}
