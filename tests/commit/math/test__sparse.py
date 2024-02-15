@@ -124,3 +124,10 @@ class TestSparse(TestCase):
             math.assert_close([1, -1], math.min(matrix, dual))  # the 0 is not part of the matrix anymore
             math.assert_close([-1, 2], math.max(matrix, channel))
             math.assert_close([1, 2], math.max(matrix, dual))
+
+    def test_sparse_sparse_mul(self):
+        expected = wrap([[9, 1], [-3, 3]], channel('in'), dual('out'))
+        for format in ['coo', 'csr', 'csc', 'dense']:
+            a = math.to_format(tensor([[1, 2], [3, 0]], channel('in'), dual('red')), format)
+            b = math.to_format(tensor([[-1, 1], [5, 0]], channel('red'), dual('out')), format)
+            math.assert_close(expected, a @ b, msg=format)
