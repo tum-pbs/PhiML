@@ -1,5 +1,5 @@
 ---
-title: '$\Phi_\textrm{ML}$: A Science-oriented Math and Neural Network Library for Jax, PyTorch, TensorFlow & NumPy'
+title: '$\Phi_\textrm{ML}$: Intuitive scientific computing with dimension types for Jax, PyTorch, TensorFlow & NumPy'
 tags:
   - Python
   - Machine Learning
@@ -54,11 +54,11 @@ The major differences are:
 
 * Data typically represent objects or signals that exist in space and time. Data dimensions are interpretable, e.g. vector components, time series, *n*-dimensional lattices.
 * Information transfer is usually local, resulting in sparsity in the dependency matrix between objects (particles, elements or cells).
-* A high numerical accuracy is desirable, often requiring 64-bit floating point calculations.
+* A high numerical accuracy is desirable for some operations, often requiring 64-bit and 32-bit floating point calculations.
 
 However, current machine learning frameworks have been designed for the core ML tasks which reflects in their priorities and design choices.
 This can result in overly verbose code when implementing scientific applications and may require implementing custom operators, since many 
-common functions like sparse-sparse matrix multiplication, periodic padding or triangular solves are not available in all libraries.
+common functions like sparse-sparse matrix multiplication, periodic padding or sparse linear solvers are not available in all libraries.
 
 $\Phi_\textrm{ML}$ is a scientific computing library based on Python 3 [@Python3] that aims to address these issues and simplify scientific code in the process.
 It consists of a high-level NumPy-like API geared towards writing easy-to-read and scalable simulation code, as well as a neural network API designed to allow users to quickly iterate over many network architectures and hyperparameter settings.
