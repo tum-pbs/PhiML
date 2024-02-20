@@ -156,11 +156,11 @@ def mlp(in_channels: int,
     Fully-connected neural networks are available in Φ-ML via mlp().
 
     Args:
-        in_channels : size of input layer, int
+        in_channels: size of input layer, int
         out_channels = size of output layer, int
-        layers : tuple of linear layers between input and output neurons, list or tuple
-        activation : activation function used within the layers, string
-        batch_norm : use of batch norm after each linear layer, bool
+        layers: tuple of linear layers between input and output neurons, list or tuple
+        activation: activation function used within the layers, string
+        batch_norm: use of batch norm after each linear layer, bool
 
     Returns:
         Dense net model as specified by input arguments
@@ -183,14 +183,14 @@ def u_net(in_channels: int,
     Built-in U-net architecture, classically popular for Semantic Segmentation in Computer Vision, composed of downsampling and upsampling layers.
 
     Args:
-        in_channels: input channels of the feature map, dtype : int
-        out_channels : output channels of the feature map, dtype : int
-        levels : number of levels of down-sampling and upsampling, dtype : int
-        filters : filter sizes at each down/up sampling convolutional layer, if the input is integer all conv layers have the same filter size,
-        activation : activation function used within the layers, dtype : string
-        batch_norm : use of batchnorm after each conv layer, dtype : bool
-        in_spatial : spatial dimensions of the input feature map, dtype : int
-        use_res_blocks : use convolutional blocks with skip connections instead of regular convolutional blocks, dtype : bool
+        in_channels: input channels of the feature map, dtype: int
+        out_channels: output channels of the feature map, dtype: int
+        levels: number of levels of down-sampling and upsampling, dtype: int
+        filters: filter sizes at each down/up sampling convolutional layer, if the input is integer all conv layers have the same filter size,
+        activation: activation function used within the layers, dtype: string
+        batch_norm: use of batchnorm after each conv layer, dtype: bool
+        in_spatial: spatial dimensions of the input feature map, dtype: int
+        use_res_blocks: use convolutional blocks with skip connections instead of regular convolutional blocks, dtype: bool
         down_kernel_size: Kernel size for convolutions on the down-sampling (first half) side of the U-Net.
         up_kernel_size: Kernel size for convolutions on the up-sampling (second half) of the U-Net.
 
@@ -211,12 +211,12 @@ def conv_net(in_channels: int,
     Built in Conv-Nets are also provided. Contrary to the classical convolutional neural networks, the feature map spatial size remains the same throughout the layers. Each layer of the network is essentially a convolutional block comprising of two conv layers. A filter size of 3 is used in the convolutional layers.
 
     Args:
-        in_channels : input channels of the feature map, dtype : int
-        out_channels : output channels of the feature map, dtype : int
-        layers : list or tuple of output channels for each intermediate layer between the input and final output channels, dtype : list or tuple
-        activation : activation function used within the layers, dtype : string
-        batch_norm : use of batchnorm after each conv layer, dtype : bool
-        in_spatial : spatial dimensions of the input feature map, dtype : int
+        in_channels: input channels of the feature map, dtype: int
+        out_channels: output channels of the feature map, dtype: int
+        layers: list or tuple of output channels for each intermediate layer between the input and final output channels, dtype: list or tuple
+        activation: activation function used within the layers, dtype: string
+        batch_norm: use of batchnorm after each conv layer, dtype: bool
+        in_spatial: spatial dimensions of the input feature map, dtype: int
 
     Returns:
         Conv-net model as specified by input arguments
@@ -237,12 +237,12 @@ def res_net(in_channels: int,
     A default filter size of 3 is used in the convolutional layers.
 
     Args:
-        in_channels : input channels of the feature map, dtype : int
-        out_channels : output channels of the feature map, dtype : int
-        layers : list or tuple of output channels for each intermediate layer between the input and final output channels, dtype : list or tuple
-        activation : activation function used within the layers, dtype : string
-        batch_norm : use of batchnorm after each conv layer, dtype : bool
-        in_spatial : spatial dimensions of the input feature map, dtype : int
+        in_channels: input channels of the feature map, dtype: int
+        out_channels: output channels of the feature map, dtype: int
+        layers: list or tuple of output channels for each intermediate layer between the input and final output channels, dtype: list or tuple
+        activation: activation function used within the layers, dtype: string
+        batch_norm: use of batchnorm after each conv layer, dtype: bool
+        in_spatial: spatial dimensions of the input feature map, dtype: int
 
     Returns:
         Res-net model as specified by input arguments
@@ -280,11 +280,11 @@ def invertible_net(num_blocks: int = 3,
     Invertible nets are only implemented for PyTorch and TensorFlow.
 
     Args:
-        num_blocks : number of coupling blocks inside the invertible net, dtype : int
-        construct_net : Function to construct one part of the neural network.
+        num_blocks: number of coupling blocks inside the invertible net, dtype: int
+        construct_net: Function to construct one part of the neural network.
             This network must have the same number of inputs and outputs.
             Can be a `lambda` function or one of the following strings: `mlp, u_net, res_net, conv_net`
-        construct_kwargs : Keyword arguments passed to `construct_net`.
+        construct_kwargs: Keyword arguments passed to `construct_net`.
 
     Returns:
         Invertible neural network model
@@ -306,13 +306,13 @@ def invertible_net(num_blocks: int = 3,
 #     3. Project from the channel space to the output space by self.fc1 and self.fc2.
 #
 #     Args:
-#         in_channels : input channels of the feature map, dtype : int
-#         out_channels : output channels of the feature map, dtype : int
-#         mid_channels : channels used in Spectral Convolution Layers, dtype : int
-#         modes : Fourier modes for each spatial channel, dtype : List[int] or int (in case all number modes are to be the same for each spatial channel)
-#         activation : activation function used within the layers, dtype : string
-#         batch_norm : use of batchnorm after each conv layer, dtype : bool
-#         in_spatial : spatial dimensions of the input feature map, dtype : int
+#         in_channels: input channels of the feature map, dtype: int
+#         out_channels: output channels of the feature map, dtype: int
+#         mid_channels: channels used in Spectral Convolution Layers, dtype: int
+#         modes: Fourier modes for each spatial channel, dtype: List[int] or int (in case all number modes are to be the same for each spatial channel)
+#         activation: activation function used within the layers, dtype: string
+#         batch_norm: use of batchnorm after each conv layer, dtype: bool
+#         in_spatial: spatial dimensions of the input feature map, dtype: int
 #
 #     Returns:
 #         Fourier Neural Operator model as specified by input arguments.
