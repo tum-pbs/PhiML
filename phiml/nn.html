@@ -209,12 +209,14 @@ def mlp(in_channels: int,
 def u_net(in_channels: int,
           out_channels: int,
           levels: int = 4,
-          filters: Union[int, tuple, list] = 16,
+          filters: Union[int, Sequence] = 16,
           batch_norm: bool = True,
           activation: Union[str, type] = &#39;ReLU&#39;,
           in_spatial: Union[tuple, int] = 2,
           periodic=False,
-          use_res_blocks: bool = False) -&gt; Network:
+          use_res_blocks: bool = False,
+          down_kernel_size=3,
+          up_kernel_size=3) -&gt; Network:
     &#34;&#34;&#34;
     Built-in U-net architecture, classically popular for Semantic Segmentation in Computer Vision, composed of downsampling and upsampling layers.
 
@@ -227,6 +229,7 @@ def u_net(in_channels: int,
         batch_norm : use of batchnorm after each conv layer, dtype : bool
         in_spatial : spatial dimensions of the input feature map, dtype : int
         use_res_blocks : use convolutional blocks with skip connections instead of regular convolutional blocks, dtype : bool
+        down_kernel_size
 
     Returns:
         U-net model as specified by input arguments.
@@ -763,7 +766,7 @@ Analogue functions exist for other learning frameworks.</p></div>
 </details>
 </dd>
 <dt id="phiml.nn.u_net"><code class="name flex">
-<span>def <span class="ident">u_net</span></span>(<span>in_channels: int, out_channels: int, levels: int = 4, filters: Union[int, tuple, list] = 16, batch_norm: bool = True, activation: Union[str, type] = 'ReLU', in_spatial: Union[int, tuple] = 2, periodic=False, use_res_blocks: bool = False) ‑> ~Network</span>
+<span>def <span class="ident">u_net</span></span>(<span>in_channels: int, out_channels: int, levels: int = 4, filters: Union[int, Sequence[+T_co]] = 16, batch_norm: bool = True, activation: Union[str, type] = 'ReLU', in_spatial: Union[int, tuple] = 2, periodic=False, use_res_blocks: bool = False, down_kernel_size=3, up_kernel_size=3) ‑> ~Network</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Built-in U-net architecture, classically popular for Semantic Segmentation in Computer Vision, composed of downsampling and upsampling layers.</p>
@@ -778,7 +781,8 @@ filters : filter sizes at each down/up sampling convolutional layer, if the inpu
 activation : activation function used within the layers, dtype : string
 batch_norm : use of batchnorm after each conv layer, dtype : bool
 in_spatial : spatial dimensions of the input feature map, dtype : int
-use_res_blocks : use convolutional blocks with skip connections instead of regular convolutional blocks, dtype : bool</p>
+use_res_blocks : use convolutional blocks with skip connections instead of regular convolutional blocks, dtype : bool
+down_kernel_size</p>
 <h2 id="returns">Returns</h2>
 <p>U-net model as specified by input arguments.</p></div>
 <details class="source">
@@ -788,12 +792,14 @@ use_res_blocks : use convolutional blocks with skip connections instead of regul
 <pre><code class="python">def u_net(in_channels: int,
           out_channels: int,
           levels: int = 4,
-          filters: Union[int, tuple, list] = 16,
+          filters: Union[int, Sequence] = 16,
           batch_norm: bool = True,
           activation: Union[str, type] = &#39;ReLU&#39;,
           in_spatial: Union[tuple, int] = 2,
           periodic=False,
-          use_res_blocks: bool = False) -&gt; Network:
+          use_res_blocks: bool = False,
+          down_kernel_size=3,
+          up_kernel_size=3) -&gt; Network:
     &#34;&#34;&#34;
     Built-in U-net architecture, classically popular for Semantic Segmentation in Computer Vision, composed of downsampling and upsampling layers.
 
@@ -806,6 +812,7 @@ use_res_blocks : use convolutional blocks with skip connections instead of regul
         batch_norm : use of batchnorm after each conv layer, dtype : bool
         in_spatial : spatial dimensions of the input feature map, dtype : int
         use_res_blocks : use convolutional blocks with skip connections instead of regular convolutional blocks, dtype : bool
+        down_kernel_size
 
     Returns:
         U-net model as specified by input arguments.

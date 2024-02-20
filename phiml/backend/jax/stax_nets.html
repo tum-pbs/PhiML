@@ -282,12 +282,14 @@ def mlp(in_channels: int,
 def u_net(in_channels: int,
           out_channels: int,
           levels: int = 4,
-          filters: Union[int, tuple, list] = 16,
+          filters: Union[int, Sequence] = 16,
           batch_norm: bool = True,
           activation=&#39;ReLU&#39;,
           in_spatial: Union[tuple, int] = 2,
           periodic=False,
-          use_res_blocks: bool = False) -&gt; StaxNet:
+          use_res_blocks: bool = False,
+          down_kernel_size=3,
+          up_kernel_size=3) -&gt; StaxNet:
     if isinstance(filters, (tuple, list)):
         assert len(filters) == levels, f&#34;List of filters has length {len(filters)} but u-net has {levels} levels.&#34;
     else:
@@ -301,17 +303,17 @@ def u_net(in_channels: int,
         d = len(in_spatial)
     # Create layers
     if use_res_blocks:
-        inc_init, inc_apply = resnet_block(in_channels, filters[0], periodic, batch_norm, activation, d)
+        inc_init, inc_apply = resnet_block(in_channels, filters[0], periodic, batch_norm, activation, d, down_kernel_size)
     else:
-        inc_init, inc_apply = create_double_conv(d, filters[0], filters[0], batch_norm, activation, periodic)
+        inc_init, inc_apply = create_double_conv(d, filters[0], filters[0], batch_norm, activation, periodic, down_kernel_size)
     init_functions, apply_functions = {}, {}
     for i in range(1, levels):
         if use_res_blocks:
-            init_functions[f&#39;down{i}&#39;], apply_functions[f&#39;down{i}&#39;] = resnet_block(filters[i - 1], filters[i], periodic, batch_norm, activation, d)
-            init_functions[f&#39;up{i}&#39;], apply_functions[f&#39;up{i}&#39;] = resnet_block(filters[i] + filters[i - 1], filters[i - 1], periodic, batch_norm, activation, d)
+            init_functions[f&#39;down{i}&#39;], apply_functions[f&#39;down{i}&#39;] = resnet_block(filters[i - 1], filters[i], periodic, batch_norm, activation, d, down_kernel_size)
+            init_functions[f&#39;up{i}&#39;], apply_functions[f&#39;up{i}&#39;] = resnet_block(filters[i] + filters[i - 1], filters[i - 1], periodic, batch_norm, activation, d, down_kernel_size)
         else:
-            init_functions[f&#39;down{i}&#39;], apply_functions[f&#39;down{i}&#39;] = create_double_conv(d, filters[i], filters[i], batch_norm, activation, periodic)
-            init_functions[f&#39;up{i}&#39;], apply_functions[f&#39;up{i}&#39;] = create_double_conv(d, filters[i - 1], filters[i - 1], batch_norm, activation, periodic)
+            init_functions[f&#39;down{i}&#39;], apply_functions[f&#39;down{i}&#39;] = create_double_conv(d, filters[i], filters[i], batch_norm, activation, periodic, up_kernel_size)
+            init_functions[f&#39;up{i}&#39;], apply_functions[f&#39;up{i}&#39;] = create_double_conv(d, filters[i - 1], filters[i - 1], batch_norm, activation, periodic, up_kernel_size)
     outc_init, outc_apply = CONV[d](out_channels, (1,) * d, padding=&#39;same&#39;)
     max_pool_init, max_pool_apply = stax.MaxPool((2,) * d, padding=&#39;same&#39;, strides=(2,) * d)
     _, up_apply = create_upsample()
@@ -361,10 +363,10 @@ CONV = [None,
         functools.partial(stax.GeneralConv, (&#39;NWHDC&#39;, &#39;WHDIO&#39;, &#39;NWHDC&#39;))]
 
 
-def create_double_conv(d: int, out_channels: int, mid_channels: int, batch_norm: bool, activation: Callable, periodic: bool):
+def create_double_conv(d: int, out_channels: int, mid_channels: int, batch_norm: bool, activation: Callable, periodic: bool, kernel_size=3):
     init_fn, apply_fn = {}, {}
-    init_fn[&#39;conv1&#39;], apply_fn[&#39;conv1&#39;] = stax.serial(CONV[d](mid_channels, (3,) * d, padding=&#39;valid&#39;), stax.BatchNorm(axis=tuple(range(d + 1))) if batch_norm else stax.Identity, activation)
-    init_fn[&#39;conv2&#39;], apply_fn[&#39;conv2&#39;] = stax.serial(CONV[d](mid_channels, (3,) * d, padding=&#39;valid&#39;), stax.BatchNorm(axis=tuple(range(d + 1))) if batch_norm else stax.Identity, activation)
+    init_fn[&#39;conv1&#39;], apply_fn[&#39;conv1&#39;] = stax.serial(CONV[d](mid_channels, (kernel_size,) * d, padding=&#39;valid&#39;), stax.BatchNorm(axis=tuple(range(d + 1))) if batch_norm else stax.Identity, activation)
+    init_fn[&#39;conv2&#39;], apply_fn[&#39;conv2&#39;] = stax.serial(CONV[d](mid_channels, (kernel_size,) * d, padding=&#39;valid&#39;), stax.BatchNorm(axis=tuple(range(d + 1))) if batch_norm else stax.Identity, activation)
 
     def net_init(rng, input_shape):
         params = {}
@@ -571,15 +573,16 @@ def resnet_block(in_channels: int,
                  periodic: bool,
                  batch_norm: bool,
                  activation: Union[str, Callable] = &#39;ReLU&#39;,
-                 d: Union[int, tuple] = 2):
+                 d: Union[int, tuple] = 2,
+                 kernel_size=3):
     activation = ACTIVATIONS[activation] if isinstance(activation, str) else activation
     init_fn, apply_fn = {}, {}
     init_fn[&#39;conv1&#39;], apply_fn[&#39;conv1&#39;] = stax.serial(
-        CONV[d](out_channels, (3,) * d, padding=&#39;valid&#39;),
+        CONV[d](out_channels, (kernel_size,) * d, padding=&#39;valid&#39;),
         stax.BatchNorm(axis=tuple(range(d + 1))) if batch_norm else stax.Identity,
         activation)
     init_fn[&#39;conv2&#39;], apply_fn[&#39;conv2&#39;] = stax.serial(
-        CONV[d](out_channels, (3,) * d, padding=&#39;valid&#39;),
+        CONV[d](out_channels, (kernel_size,) * d, padding=&#39;valid&#39;),
         stax.BatchNorm(axis=tuple(range(d + 1))) if batch_norm else stax.Identity,
         activation)
     init_activation, apply_activation = activation
@@ -732,7 +735,7 @@ def conv_net_unit(in_channels: int,
 def u_net_unit(in_channels: int,
                out_channels: int,
                levels: int = 4,
-               filters: Union[int, tuple, list] = 16,
+               filters: Union[int, Sequence] = 16,
                batch_norm: bool = True,
                activation=&#39;ReLU&#39;,
                periodic=False,
@@ -1330,7 +1333,7 @@ in_spatial : spatial dimensions of the input feature map, dtype : int</p>
 </details>
 </dd>
 <dt id="phiml.backend.jax.stax_nets.create_double_conv"><code class="name flex">
-<span>def <span class="ident">create_double_conv</span></span>(<span>d: int, out_channels: int, mid_channels: int, batch_norm: bool, activation: Callable, periodic: bool)</span>
+<span>def <span class="ident">create_double_conv</span></span>(<span>d: int, out_channels: int, mid_channels: int, batch_norm: bool, activation: Callable, periodic: bool, kernel_size=3)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -1338,10 +1341,10 @@ in_spatial : spatial dimensions of the input feature map, dtype : int</p>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def create_double_conv(d: int, out_channels: int, mid_channels: int, batch_norm: bool, activation: Callable, periodic: bool):
+<pre><code class="python">def create_double_conv(d: int, out_channels: int, mid_channels: int, batch_norm: bool, activation: Callable, periodic: bool, kernel_size=3):
     init_fn, apply_fn = {}, {}
-    init_fn[&#39;conv1&#39;], apply_fn[&#39;conv1&#39;] = stax.serial(CONV[d](mid_channels, (3,) * d, padding=&#39;valid&#39;), stax.BatchNorm(axis=tuple(range(d + 1))) if batch_norm else stax.Identity, activation)
-    init_fn[&#39;conv2&#39;], apply_fn[&#39;conv2&#39;] = stax.serial(CONV[d](mid_channels, (3,) * d, padding=&#39;valid&#39;), stax.BatchNorm(axis=tuple(range(d + 1))) if batch_norm else stax.Identity, activation)
+    init_fn[&#39;conv1&#39;], apply_fn[&#39;conv1&#39;] = stax.serial(CONV[d](mid_channels, (kernel_size,) * d, padding=&#39;valid&#39;), stax.BatchNorm(axis=tuple(range(d + 1))) if batch_norm else stax.Identity, activation)
+    init_fn[&#39;conv2&#39;], apply_fn[&#39;conv2&#39;] = stax.serial(CONV[d](mid_channels, (kernel_size,) * d, padding=&#39;valid&#39;), stax.BatchNorm(axis=tuple(range(d + 1))) if batch_norm else stax.Identity, activation)
 
     def net_init(rng, input_shape):
         params = {}
@@ -1625,7 +1628,7 @@ in_spatial : spatial dimensions of the input feature map, dtype : int</p>
 </details>
 </dd>
 <dt id="phiml.backend.jax.stax_nets.resnet_block"><code class="name flex">
-<span>def <span class="ident">resnet_block</span></span>(<span>in_channels: int, out_channels: int, periodic: bool, batch_norm: bool, activation: Union[str, Callable] = 'ReLU', d: Union[int, tuple] = 2)</span>
+<span>def <span class="ident">resnet_block</span></span>(<span>in_channels: int, out_channels: int, periodic: bool, batch_norm: bool, activation: Union[str, Callable] = 'ReLU', d: Union[int, tuple] = 2, kernel_size=3)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -1638,15 +1641,16 @@ in_spatial : spatial dimensions of the input feature map, dtype : int</p>
                  periodic: bool,
                  batch_norm: bool,
                  activation: Union[str, Callable] = &#39;ReLU&#39;,
-                 d: Union[int, tuple] = 2):
+                 d: Union[int, tuple] = 2,
+                 kernel_size=3):
     activation = ACTIVATIONS[activation] if isinstance(activation, str) else activation
     init_fn, apply_fn = {}, {}
     init_fn[&#39;conv1&#39;], apply_fn[&#39;conv1&#39;] = stax.serial(
-        CONV[d](out_channels, (3,) * d, padding=&#39;valid&#39;),
+        CONV[d](out_channels, (kernel_size,) * d, padding=&#39;valid&#39;),
         stax.BatchNorm(axis=tuple(range(d + 1))) if batch_norm else stax.Identity,
         activation)
     init_fn[&#39;conv2&#39;], apply_fn[&#39;conv2&#39;] = stax.serial(
-        CONV[d](out_channels, (3,) * d, padding=&#39;valid&#39;),
+        CONV[d](out_channels, (kernel_size,) * d, padding=&#39;valid&#39;),
         stax.BatchNorm(axis=tuple(range(d + 1))) if batch_norm else stax.Identity,
         activation)
     init_activation, apply_activation = activation
@@ -1743,7 +1747,7 @@ in_spatial : spatial dimensions of the input feature map, dtype : int</p>
 </details>
 </dd>
 <dt id="phiml.backend.jax.stax_nets.u_net"><code class="name flex">
-<span>def <span class="ident">u_net</span></span>(<span>in_channels: int, out_channels: int, levels: int = 4, filters: Union[int, tuple, list] = 16, batch_norm: bool = True, activation='ReLU', in_spatial: Union[int, tuple] = 2, periodic=False, use_res_blocks: bool = False) ‑> <a title="phiml.backend.jax.stax_nets.StaxNet" href="#phiml.backend.jax.stax_nets.StaxNet">StaxNet</a></span>
+<span>def <span class="ident">u_net</span></span>(<span>in_channels: int, out_channels: int, levels: int = 4, filters: Union[int, Sequence[+T_co]] = 16, batch_norm: bool = True, activation='ReLU', in_spatial: Union[int, tuple] = 2, periodic=False, use_res_blocks: bool = False, down_kernel_size=3, up_kernel_size=3) ‑> <a title="phiml.backend.jax.stax_nets.StaxNet" href="#phiml.backend.jax.stax_nets.StaxNet">StaxNet</a></span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -1754,12 +1758,14 @@ in_spatial : spatial dimensions of the input feature map, dtype : int</p>
 <pre><code class="python">def u_net(in_channels: int,
           out_channels: int,
           levels: int = 4,
-          filters: Union[int, tuple, list] = 16,
+          filters: Union[int, Sequence] = 16,
           batch_norm: bool = True,
           activation=&#39;ReLU&#39;,
           in_spatial: Union[tuple, int] = 2,
           periodic=False,
-          use_res_blocks: bool = False) -&gt; StaxNet:
+          use_res_blocks: bool = False,
+          down_kernel_size=3,
+          up_kernel_size=3) -&gt; StaxNet:
     if isinstance(filters, (tuple, list)):
         assert len(filters) == levels, f&#34;List of filters has length {len(filters)} but u-net has {levels} levels.&#34;
     else:
@@ -1773,17 +1779,17 @@ in_spatial : spatial dimensions of the input feature map, dtype : int</p>
         d = len(in_spatial)
     # Create layers
     if use_res_blocks:
-        inc_init, inc_apply = resnet_block(in_channels, filters[0], periodic, batch_norm, activation, d)
+        inc_init, inc_apply = resnet_block(in_channels, filters[0], periodic, batch_norm, activation, d, down_kernel_size)
     else:
-        inc_init, inc_apply = create_double_conv(d, filters[0], filters[0], batch_norm, activation, periodic)
+        inc_init, inc_apply = create_double_conv(d, filters[0], filters[0], batch_norm, activation, periodic, down_kernel_size)
     init_functions, apply_functions = {}, {}
     for i in range(1, levels):
         if use_res_blocks:
-            init_functions[f&#39;down{i}&#39;], apply_functions[f&#39;down{i}&#39;] = resnet_block(filters[i - 1], filters[i], periodic, batch_norm, activation, d)
-            init_functions[f&#39;up{i}&#39;], apply_functions[f&#39;up{i}&#39;] = resnet_block(filters[i] + filters[i - 1], filters[i - 1], periodic, batch_norm, activation, d)
+            init_functions[f&#39;down{i}&#39;], apply_functions[f&#39;down{i}&#39;] = resnet_block(filters[i - 1], filters[i], periodic, batch_norm, activation, d, down_kernel_size)
+            init_functions[f&#39;up{i}&#39;], apply_functions[f&#39;up{i}&#39;] = resnet_block(filters[i] + filters[i - 1], filters[i - 1], periodic, batch_norm, activation, d, down_kernel_size)
         else:
-            init_functions[f&#39;down{i}&#39;], apply_functions[f&#39;down{i}&#39;] = create_double_conv(d, filters[i], filters[i], batch_norm, activation, periodic)
-            init_functions[f&#39;up{i}&#39;], apply_functions[f&#39;up{i}&#39;] = create_double_conv(d, filters[i - 1], filters[i - 1], batch_norm, activation, periodic)
+            init_functions[f&#39;down{i}&#39;], apply_functions[f&#39;down{i}&#39;] = create_double_conv(d, filters[i], filters[i], batch_norm, activation, periodic, up_kernel_size)
+            init_functions[f&#39;up{i}&#39;], apply_functions[f&#39;up{i}&#39;] = create_double_conv(d, filters[i - 1], filters[i - 1], batch_norm, activation, periodic, up_kernel_size)
     outc_init, outc_apply = CONV[d](out_channels, (1,) * d, padding=&#39;same&#39;)
     max_pool_init, max_pool_apply = stax.MaxPool((2,) * d, padding=&#39;same&#39;, strides=(2,) * d)
     _, up_apply = create_upsample()
@@ -1827,7 +1833,7 @@ in_spatial : spatial dimensions of the input feature map, dtype : int</p>
 </details>
 </dd>
 <dt id="phiml.backend.jax.stax_nets.u_net_unit"><code class="name flex">
-<span>def <span class="ident">u_net_unit</span></span>(<span>in_channels: int, out_channels: int, levels: int = 4, filters: Union[int, tuple, list] = 16, batch_norm: bool = True, activation='ReLU', periodic=False, in_spatial: Union[int, tuple] = 2, use_res_blocks: bool = False, **kwargs)</span>
+<span>def <span class="ident">u_net_unit</span></span>(<span>in_channels: int, out_channels: int, levels: int = 4, filters: Union[int, Sequence[+T_co]] = 16, batch_norm: bool = True, activation='ReLU', periodic=False, in_spatial: Union[int, tuple] = 2, use_res_blocks: bool = False, **kwargs)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>U-net unit for Invertible Nets</p></div>
@@ -1838,7 +1844,7 @@ in_spatial : spatial dimensions of the input feature map, dtype : int</p>
 <pre><code class="python">def u_net_unit(in_channels: int,
                out_channels: int,
                levels: int = 4,
-               filters: Union[int, tuple, list] = 16,
+               filters: Union[int, Sequence] = 16,
                batch_norm: bool = True,
                activation=&#39;ReLU&#39;,
                periodic=False,
