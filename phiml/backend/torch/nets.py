@@ -167,12 +167,14 @@ class DenseResNetBlock(nn.Module):
 def u_net(in_channels: int,
           out_channels: int,
           levels: int = 4,
-          filters: Union[int, tuple, list] = 16,
+          filters: Union[int, Sequence] = 16,
           batch_norm: bool = True,
           activation: Union[str, type] = 'ReLU',
           in_spatial: Union[tuple, int] = 2,
           periodic=False,
-          use_res_blocks: bool = False) -> nn.Module:
+          use_res_blocks: bool = False,
+          down_kernel_size=3,
+          up_kernel_size=3) -> nn.Module:
     if isinstance(filters, (tuple, list)):
         assert len(filters) == levels, f"List of filters has length {len(filters)} but u-net has {levels} levels."
     else:
@@ -183,23 +185,23 @@ def u_net(in_channels: int,
     else:
         assert isinstance(in_spatial, tuple)
         d = len(in_spatial)
-    net = UNet(d, in_channels, out_channels, filters, batch_norm, activation, periodic, use_res_blocks)
+    net = UNet(d, in_channels, out_channels, filters, batch_norm, activation, periodic, use_res_blocks, down_kernel_size, up_kernel_size)
     return net.to(TORCH.get_default_device().ref)
 
 
 class UNet(nn.Module):
 
-    def __init__(self, d: int, in_channels: int, out_channels: int, filters: tuple, batch_norm: bool, activation: type, periodic: bool, use_res_blocks: bool):
+    def __init__(self, d: int, in_channels: int, out_channels: int, filters: tuple, batch_norm: bool, activation: type, periodic: bool, use_res_blocks: bool, down_kernel_size: int, up_kernel_size: int):
         super(UNet, self).__init__()
         self._levels = len(filters)
         self._spatial_rank = d
         if use_res_blocks:
-            self.add_module('inc', ResNetBlock(d, in_channels, filters[0], batch_norm, activation, periodic))
+            self.add_module('inc', ResNetBlock(d, in_channels, filters[0], batch_norm, activation, periodic, down_kernel_size))
         else:
-            self.add_module('inc', DoubleConv(d, in_channels, filters[0], filters[0], batch_norm, activation, periodic))
+            self.add_module('inc', DoubleConv(d, in_channels, filters[0], filters[0], batch_norm, activation, periodic, down_kernel_size))
         for i in range(1, self._levels):
-            self.add_module(f'down{i}', Down(d, filters[i - 1], filters[i], batch_norm, activation, periodic, use_res_blocks))
-            self.add_module(f'up{i}', Up(d, filters[i] + filters[i - 1], filters[i - 1], batch_norm, activation, periodic, use_res_blocks))
+            self.add_module(f'down{i}', Down(d, filters[i - 1], filters[i], batch_norm, activation, periodic, use_res_blocks, down_kernel_size))
+            self.add_module(f'up{i}', Up(d, filters[i] + filters[i - 1], filters[i - 1], batch_norm, activation, periodic, use_res_blocks, up_kernel_size))
         self.add_module('outc', CONV[d](filters[0], out_channels, kernel_size=1))
 
     def forward(self, x):
@@ -219,13 +221,13 @@ class UNet(nn.Module):
 class DoubleConv(nn.Module):
     """(convolution => [BN] => ReLU) * 2"""
 
-    def __init__(self, d: int, in_channels: int, out_channels: int, mid_channels: int, batch_norm: bool, activation: type, periodic: bool):
+    def __init__(self, d: int, in_channels: int, out_channels: int, mid_channels: int, batch_norm: bool, activation: type, periodic: bool, kernel_size=3):
         super().__init__()
         self.add_module('double_conv', nn.Sequential(
-            CONV[d](in_channels, mid_channels, kernel_size=3, padding=1, padding_mode='circular' if periodic else 'zeros'),
+            CONV[d](in_channels, mid_channels, kernel_size=kernel_size, padding=1, padding_mode='circular' if periodic else 'zeros'),
             NORM[d](mid_channels) if batch_norm else nn.Identity(),
             activation(),
-            CONV[d](mid_channels, out_channels, kernel_size=3, padding=1, padding_mode='circular' if periodic else 'zeros'),
+            CONV[d](mid_channels, out_channels, kernel_size=kernel_size, padding=1, padding_mode='circular' if periodic else 'zeros'),
             NORM[d](out_channels) if batch_norm else nn.Identity(),
             nn.ReLU(inplace=True)
         ))
@@ -240,13 +242,13 @@ MAX_POOL = [None, nn.MaxPool1d, nn.MaxPool2d, nn.MaxPool3d]
 class Down(nn.Module):
     """Downscaling with maxpool then double conv or resnet_block"""
 
-    def __init__(self, d: int, in_channels: int, out_channels: int, batch_norm: bool, activation: Union[str, type], use_res_blocks: bool, periodic):
+    def __init__(self, d: int, in_channels: int, out_channels: int, batch_norm: bool, activation: Union[str, type], use_res_blocks: bool, periodic, kernel_size: int):
         super().__init__()
         self.add_module('maxpool', MAX_POOL[d](2))
         if use_res_blocks:
-            self.add_module('conv', ResNetBlock(d, in_channels, out_channels, batch_norm, activation, periodic))
+            self.add_module('conv', ResNetBlock(d, in_channels, out_channels, batch_norm, activation, periodic, kernel_size))
         else:
-            self.add_module('conv', DoubleConv(d, in_channels, out_channels, out_channels, batch_norm, activation, periodic))
+            self.add_module('conv', DoubleConv(d, in_channels, out_channels, out_channels, batch_norm, activation, periodic, kernel_size))
 
     def forward(self, x):
         x = self.maxpool(x)
@@ -258,13 +260,13 @@ class Up(nn.Module):
 
     _MODES = [None, 'linear', 'bilinear', 'trilinear']
 
-    def __init__(self, d: int, in_channels: int, out_channels: int, batch_norm: bool, activation: type, periodic: bool, use_res_blocks: bool):
+    def __init__(self, d: int, in_channels: int, out_channels: int, batch_norm: bool, activation: type, periodic: bool, use_res_blocks: bool, kernel_size: int):
         super().__init__()
         up = nn.Upsample(scale_factor=2, mode=Up._MODES[d])
         if use_res_blocks:
-            conv = ResNetBlock(d, in_channels, out_channels, batch_norm, activation, periodic)
+            conv = ResNetBlock(d, in_channels, out_channels, batch_norm, activation, periodic, kernel_size)
         else:
-            conv = DoubleConv(d, in_channels, out_channels, in_channels // 2, batch_norm, activation, periodic)
+            conv = DoubleConv(d, in_channels, out_channels, in_channels // 2, batch_norm, activation, periodic, kernel_size)
         self.add_module('up', up)
         self.add_module('conv', conv)
 
@@ -327,7 +329,7 @@ def conv_net(in_channels: int,
 
 class ResNetBlock(nn.Module):
 
-    def __init__(self, in_spatial, in_channels, out_channels, batch_norm, activation, periodic: bool):
+    def __init__(self, in_spatial, in_channels, out_channels, batch_norm, activation, periodic: bool, kernel_size=3):
         # Since in_channels and out_channels might be different, we need a sampling layer for up/down sampling input in order to add it as a skip connection
         super(ResNetBlock, self).__init__()
         if in_channels != out_channels:
@@ -338,9 +340,9 @@ class ResNetBlock(nn.Module):
             self.bn_sample = nn.Identity()
         self.activation = ACTIVATIONS[activation] if isinstance(activation, str) else activation
         self.bn1 = NORM[in_spatial](out_channels) if batch_norm else nn.Identity()
-        self.conv1 = CONV[in_spatial](in_channels, out_channels, kernel_size=3, padding=1, padding_mode='circular' if periodic else 'zeros')
+        self.conv1 = CONV[in_spatial](in_channels, out_channels, kernel_size=kernel_size, padding=1, padding_mode='circular' if periodic else 'zeros')
         self.bn2 = NORM[in_spatial](out_channels) if batch_norm else nn.Identity()
-        self.conv2 = CONV[in_spatial](out_channels, out_channels, kernel_size=3, padding=1, padding_mode='circular' if periodic else 'zeros')
+        self.conv2 = CONV[in_spatial](out_channels, out_channels, kernel_size=kernel_size, padding=1, padding_mode='circular' if periodic else 'zeros')
 
     def forward(self, x):
         x = TORCH.as_tensor(x)

@@ -171,12 +171,14 @@ def mlp(in_channels: int,
 def u_net(in_channels: int,
           out_channels: int,
           levels: int = 4,
-          filters: Union[int, tuple, list] = 16,
+          filters: Union[int, Sequence] = 16,
           batch_norm: bool = True,
           activation: Union[str, type] = 'ReLU',
           in_spatial: Union[tuple, int] = 2,
           periodic=False,
-          use_res_blocks: bool = False) -> Network:
+          use_res_blocks: bool = False,
+          down_kernel_size=3,
+          up_kernel_size=3) -> Network:
     """
     Built-in U-net architecture, classically popular for Semantic Segmentation in Computer Vision, composed of downsampling and upsampling layers.
 
@@ -189,6 +191,8 @@ def u_net(in_channels: int,
         batch_norm : use of batchnorm after each conv layer, dtype : bool
         in_spatial : spatial dimensions of the input feature map, dtype : int
         use_res_blocks : use convolutional blocks with skip connections instead of regular convolutional blocks, dtype : bool
+        down_kernel_size: Kernel size for convolutions on the down-sampling (first half) side of the U-Net.
+        up_kernel_size: Kernel size for convolutions on the up-sampling (second half) of the U-Net.
 
     Returns:
         U-net model as specified by input arguments.

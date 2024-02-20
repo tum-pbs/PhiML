@@ -250,12 +250,14 @@ def mlp(in_channels: int,
 def u_net(in_channels: int,
           out_channels: int,
           levels: int = 4,
-          filters: Union[int, tuple, list] = 16,
+          filters: Union[int, Sequence] = 16,
           batch_norm: bool = True,
           activation='ReLU',
           in_spatial: Union[tuple, int] = 2,
           periodic=False,
-          use_res_blocks: bool = False) -> StaxNet:
+          use_res_blocks: bool = False,
+          down_kernel_size=3,
+          up_kernel_size=3) -> StaxNet:
     if isinstance(filters, (tuple, list)):
         assert len(filters) == levels, f"List of filters has length {len(filters)} but u-net has {levels} levels."
     else:
@@ -269,17 +271,17 @@ def u_net(in_channels: int,
         d = len(in_spatial)
     # Create layers
     if use_res_blocks:
-        inc_init, inc_apply = resnet_block(in_channels, filters[0], periodic, batch_norm, activation, d)
+        inc_init, inc_apply = resnet_block(in_channels, filters[0], periodic, batch_norm, activation, d, down_kernel_size)
     else:
-        inc_init, inc_apply = create_double_conv(d, filters[0], filters[0], batch_norm, activation, periodic)
+        inc_init, inc_apply = create_double_conv(d, filters[0], filters[0], batch_norm, activation, periodic, down_kernel_size)
     init_functions, apply_functions = {}, {}
     for i in range(1, levels):
         if use_res_blocks:
-            init_functions[f'down{i}'], apply_functions[f'down{i}'] = resnet_block(filters[i - 1], filters[i], periodic, batch_norm, activation, d)
-            init_functions[f'up{i}'], apply_functions[f'up{i}'] = resnet_block(filters[i] + filters[i - 1], filters[i - 1], periodic, batch_norm, activation, d)
+            init_functions[f'down{i}'], apply_functions[f'down{i}'] = resnet_block(filters[i - 1], filters[i], periodic, batch_norm, activation, d, down_kernel_size)
+            init_functions[f'up{i}'], apply_functions[f'up{i}'] = resnet_block(filters[i] + filters[i - 1], filters[i - 1], periodic, batch_norm, activation, d, down_kernel_size)
         else:
-            init_functions[f'down{i}'], apply_functions[f'down{i}'] = create_double_conv(d, filters[i], filters[i], batch_norm, activation, periodic)
-            init_functions[f'up{i}'], apply_functions[f'up{i}'] = create_double_conv(d, filters[i - 1], filters[i - 1], batch_norm, activation, periodic)
+            init_functions[f'down{i}'], apply_functions[f'down{i}'] = create_double_conv(d, filters[i], filters[i], batch_norm, activation, periodic, up_kernel_size)
+            init_functions[f'up{i}'], apply_functions[f'up{i}'] = create_double_conv(d, filters[i - 1], filters[i - 1], batch_norm, activation, periodic, up_kernel_size)
     outc_init, outc_apply = CONV[d](out_channels, (1,) * d, padding='same')
     max_pool_init, max_pool_apply = stax.MaxPool((2,) * d, padding='same', strides=(2,) * d)
     _, up_apply = create_upsample()
@@ -329,10 +331,10 @@ CONV = [None,
         functools.partial(stax.GeneralConv, ('NWHDC', 'WHDIO', 'NWHDC'))]
 
 
-def create_double_conv(d: int, out_channels: int, mid_channels: int, batch_norm: bool, activation: Callable, periodic: bool):
+def create_double_conv(d: int, out_channels: int, mid_channels: int, batch_norm: bool, activation: Callable, periodic: bool, kernel_size=3):
     init_fn, apply_fn = {}, {}
-    init_fn['conv1'], apply_fn['conv1'] = stax.serial(CONV[d](mid_channels, (3,) * d, padding='valid'), stax.BatchNorm(axis=tuple(range(d + 1))) if batch_norm else stax.Identity, activation)
-    init_fn['conv2'], apply_fn['conv2'] = stax.serial(CONV[d](mid_channels, (3,) * d, padding='valid'), stax.BatchNorm(axis=tuple(range(d + 1))) if batch_norm else stax.Identity, activation)
+    init_fn['conv1'], apply_fn['conv1'] = stax.serial(CONV[d](mid_channels, (kernel_size,) * d, padding='valid'), stax.BatchNorm(axis=tuple(range(d + 1))) if batch_norm else stax.Identity, activation)
+    init_fn['conv2'], apply_fn['conv2'] = stax.serial(CONV[d](mid_channels, (kernel_size,) * d, padding='valid'), stax.BatchNorm(axis=tuple(range(d + 1))) if batch_norm else stax.Identity, activation)
 
     def net_init(rng, input_shape):
         params = {}
@@ -539,15 +541,16 @@ def resnet_block(in_channels: int,
                  periodic: bool,
                  batch_norm: bool,
                  activation: Union[str, Callable] = 'ReLU',
-                 d: Union[int, tuple] = 2):
+                 d: Union[int, tuple] = 2,
+                 kernel_size=3):
     activation = ACTIVATIONS[activation] if isinstance(activation, str) else activation
     init_fn, apply_fn = {}, {}
     init_fn['conv1'], apply_fn['conv1'] = stax.serial(
-        CONV[d](out_channels, (3,) * d, padding='valid'),
+        CONV[d](out_channels, (kernel_size,) * d, padding='valid'),
         stax.BatchNorm(axis=tuple(range(d + 1))) if batch_norm else stax.Identity,
         activation)
     init_fn['conv2'], apply_fn['conv2'] = stax.serial(
-        CONV[d](out_channels, (3,) * d, padding='valid'),
+        CONV[d](out_channels, (kernel_size,) * d, padding='valid'),
         stax.BatchNorm(axis=tuple(range(d + 1))) if batch_norm else stax.Identity,
         activation)
     init_activation, apply_activation = activation
@@ -700,7 +703,7 @@ def conv_net_unit(in_channels: int,
 def u_net_unit(in_channels: int,
                out_channels: int,
                levels: int = 4,
-               filters: Union[int, tuple, list] = 16,
+               filters: Union[int, Sequence] = 16,
                batch_norm: bool = True,
                activation='ReLU',
                periodic=False,

@@ -154,12 +154,14 @@ def _inv_net_dense_resnet_block(in_channels: int,
 def u_net(in_channels: int,
           out_channels: int,
           levels: int = 4,
-          filters: Union[int, tuple, list] = 16,
+          filters: Union[int, Sequence] = 16,
           batch_norm: bool = True,
           activation: Union[str, Callable] = 'ReLU',
           in_spatial: Union[tuple, int] = 2,
           periodic=False,
-          use_res_blocks: bool = False) -> keras.Model:
+          use_res_blocks: bool = False,
+          down_kernel_size=3,
+          up_kernel_size=3) -> keras.Model:
     activation = ACTIVATIONS[activation] if isinstance(activation, str) else activation
     if isinstance(in_spatial, int):
         d = in_spatial
@@ -173,16 +175,16 @@ def u_net(in_channels: int,
         filters = (filters,) * levels
     # --- Construct the U-Net ---
     x = inputs = keras.Input(shape=in_spatial + (in_channels,))
-    x = resnet_block(x.shape[-1], filters[0], periodic, batch_norm, activation, d)(x) if use_res_blocks else double_conv(x, d, filters[0], filters[0], batch_norm, activation, periodic)
+    x = resnet_block(x.shape[-1], filters[0], periodic, batch_norm, activation, d, down_kernel_size)(x) if use_res_blocks else double_conv(x, d, filters[0], filters[0], batch_norm, activation, periodic, down_kernel_size)
     xs = [x]
     for i in range(1, levels):
         x = MAX_POOL[d](2, padding="same")(x)
-        x = resnet_block(x.shape[-1], filters[i], periodic, batch_norm, activation, d)(x) if use_res_blocks else double_conv(x, d, filters[i], filters[i], batch_norm, activation, periodic)
+        x = resnet_block(x.shape[-1], filters[i], periodic, batch_norm, activation, d, down_kernel_size)(x) if use_res_blocks else double_conv(x, d, filters[i], filters[i], batch_norm, activation, periodic, down_kernel_size)
         xs.insert(0, x)
     for i in range(1, levels):
         x = UPSAMPLE[d](2)(x)
         x = kl.Concatenate()([x, xs[i]])
-        x = resnet_block(x.shape[-1], filters[i - 1], periodic, batch_norm, activation, d)(x) if use_res_blocks else double_conv(x, d, filters[i - 1], filters[i - 1], batch_norm, activation, periodic)
+        x = resnet_block(x.shape[-1], filters[i - 1], periodic, batch_norm, activation, d, up_kernel_size)(x) if use_res_blocks else double_conv(x, d, filters[i - 1], filters[i - 1], batch_norm, activation, periodic, up_kernel_size)
     x = CONV[d](out_channels, 1)(x)
     return keras.Model(inputs, x)
 
@@ -205,12 +207,12 @@ def pad_periodic(x: Tensor):
     return x
 
 
-def double_conv(x, d: int, out_channels: int, mid_channels: int, batch_norm: bool, activation: Callable, periodic: bool):
-    x = CONV[d](mid_channels, 3, padding='valid')(pad_periodic(x)) if periodic else CONV[d](mid_channels, 3, padding='same')(x)
+def double_conv(x, d: int, out_channels: int, mid_channels: int, batch_norm: bool, activation: Callable, periodic: bool, kernel_size=3):
+    x = CONV[d](mid_channels, kernel_size, padding='valid')(pad_periodic(x)) if periodic else CONV[d](mid_channels, kernel_size, padding='same')(x)
     if batch_norm:
         x = kl.BatchNormalization()(x)
     x = activation(x)
-    x = CONV[d](out_channels, 3, padding='valid')(pad_periodic(x)) if periodic else CONV[d](out_channels, 3, padding='same')(x)
+    x = CONV[d](out_channels, kernel_size, padding='valid')(pad_periodic(x)) if periodic else CONV[d](out_channels, kernel_size, padding='same')(x)
     if batch_norm:
         x = kl.BatchNormalization()(x)
     x = activation(x)
@@ -248,7 +250,8 @@ def resnet_block(in_channels: int,
                  periodic: bool,
                  batch_norm: bool = False,
                  activation: Union[str, Callable] = 'ReLU',
-                 in_spatial: Union[int, tuple] = 2):
+                 in_spatial: Union[int, tuple] = 2,
+                 kernel_size=3):
     activation = ACTIVATIONS[activation] if isinstance(activation, str) else activation
     if isinstance(in_spatial, int):
         d = in_spatial
@@ -256,11 +259,11 @@ def resnet_block(in_channels: int,
         assert isinstance(in_spatial, tuple)
         d = len(in_spatial)
     x = x_1 = inputs = keras.Input(shape=(None,) * d + (in_channels,))
-    x = CONV[d](out_channels, 3, padding='valid')(pad_periodic(x)) if periodic else CONV[d](out_channels, 3, padding='same')(x)
+    x = CONV[d](out_channels, kernel_size, padding='valid')(pad_periodic(x)) if periodic else CONV[d](out_channels, kernel_size, padding='same')(x)
     if batch_norm:
         x = kl.BatchNormalization()(x)
     x = activation(x)
-    x = CONV[d](out_channels, 3, padding='valid')(pad_periodic(x)) if periodic else CONV[d](out_channels, 3, padding='same')(x)
+    x = CONV[d](out_channels, kernel_size, padding='valid')(pad_periodic(x)) if periodic else CONV[d](out_channels, kernel_size, padding='same')(x)
     if batch_norm:
         x = kl.BatchNormalization()(x)
     x = activation(x)
