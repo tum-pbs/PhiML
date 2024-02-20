@@ -274,13 +274,13 @@ MAX_POOL = [None, nn.MaxPool1d, nn.MaxPool2d, nn.MaxPool3d]
 class Down(nn.Module):
     &#34;&#34;&#34;Downscaling with maxpool then double conv or resnet_block&#34;&#34;&#34;
 
-    def __init__(self, d: int, in_channels: int, out_channels: int, batch_norm: bool, activation: Union[str, type], use_res_blocks: bool, periodic):
+    def __init__(self, d: int, in_channels: int, out_channels: int, batch_norm: bool, activation: Union[str, type], use_res_blocks: bool, periodic, kernel_size: int):
         super().__init__()
         self.add_module(&#39;maxpool&#39;, MAX_POOL[d](2))
         if use_res_blocks:
-            self.add_module(&#39;conv&#39;, ResNetBlock(d, in_channels, out_channels, batch_norm, activation, periodic))
+            self.add_module(&#39;conv&#39;, ResNetBlock(d, in_channels, out_channels, batch_norm, activation, periodic, kernel_size))
         else:
-            self.add_module(&#39;conv&#39;, DoubleConv(d, in_channels, out_channels, out_channels, batch_norm, activation, periodic))
+            self.add_module(&#39;conv&#39;, DoubleConv(d, in_channels, out_channels, out_channels, batch_norm, activation, periodic, kernel_size))
 
     def forward(self, x):
         x = self.maxpool(x)
@@ -292,13 +292,13 @@ class Up(nn.Module):
 
     _MODES = [None, &#39;linear&#39;, &#39;bilinear&#39;, &#39;trilinear&#39;]
 
-    def __init__(self, d: int, in_channels: int, out_channels: int, batch_norm: bool, activation: type, periodic: bool, use_res_blocks: bool):
+    def __init__(self, d: int, in_channels: int, out_channels: int, batch_norm: bool, activation: type, periodic: bool, use_res_blocks: bool, kernel_size: int):
         super().__init__()
         up = nn.Upsample(scale_factor=2, mode=Up._MODES[d])
         if use_res_blocks:
-            conv = ResNetBlock(d, in_channels, out_channels, batch_norm, activation, periodic)
+            conv = ResNetBlock(d, in_channels, out_channels, batch_norm, activation, periodic, kernel_size)
         else:
-            conv = DoubleConv(d, in_channels, out_channels, in_channels // 2, batch_norm, activation, periodic)
+            conv = DoubleConv(d, in_channels, out_channels, in_channels // 2, batch_norm, activation, periodic, kernel_size)
         self.add_module(&#39;up&#39;, up)
         self.add_module(&#39;conv&#39;, conv)
 
@@ -1713,7 +1713,7 @@ registered hooks while the latter silently ignores them.</p>
 </dd>
 <dt id="phiml.backend.torch.nets.Down"><code class="flex name class">
 <span>class <span class="ident">Down</span></span>
-<span>(</span><span>d: int, in_channels: int, out_channels: int, batch_norm: bool, activation: Union[str, type], use_res_blocks: bool, periodic)</span>
+<span>(</span><span>d: int, in_channels: int, out_channels: int, batch_norm: bool, activation: Union[str, type], use_res_blocks: bool, periodic, kernel_size: int)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Downscaling with maxpool then double conv or resnet_block</p>
@@ -1725,13 +1725,13 @@ registered hooks while the latter silently ignores them.</p>
 <pre><code class="python">class Down(nn.Module):
     &#34;&#34;&#34;Downscaling with maxpool then double conv or resnet_block&#34;&#34;&#34;
 
-    def __init__(self, d: int, in_channels: int, out_channels: int, batch_norm: bool, activation: Union[str, type], use_res_blocks: bool, periodic):
+    def __init__(self, d: int, in_channels: int, out_channels: int, batch_norm: bool, activation: Union[str, type], use_res_blocks: bool, periodic, kernel_size: int):
         super().__init__()
         self.add_module(&#39;maxpool&#39;, MAX_POOL[d](2))
         if use_res_blocks:
-            self.add_module(&#39;conv&#39;, ResNetBlock(d, in_channels, out_channels, batch_norm, activation, periodic))
+            self.add_module(&#39;conv&#39;, ResNetBlock(d, in_channels, out_channels, batch_norm, activation, periodic, kernel_size))
         else:
-            self.add_module(&#39;conv&#39;, DoubleConv(d, in_channels, out_channels, out_channels, batch_norm, activation, periodic))
+            self.add_module(&#39;conv&#39;, DoubleConv(d, in_channels, out_channels, out_channels, batch_norm, activation, periodic, kernel_size))
 
     def forward(self, x):
         x = self.maxpool(x)
@@ -2221,7 +2221,7 @@ registered hooks while the latter silently ignores them.</p>
 </dd>
 <dt id="phiml.backend.torch.nets.Up"><code class="flex name class">
 <span>class <span class="ident">Up</span></span>
-<span>(</span><span>d: int, in_channels: int, out_channels: int, batch_norm: bool, activation: type, periodic: bool, use_res_blocks: bool)</span>
+<span>(</span><span>d: int, in_channels: int, out_channels: int, batch_norm: bool, activation: type, periodic: bool, use_res_blocks: bool, kernel_size: int)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Upscaling then double conv</p>
@@ -2235,13 +2235,13 @@ registered hooks while the latter silently ignores them.</p>
 
     _MODES = [None, &#39;linear&#39;, &#39;bilinear&#39;, &#39;trilinear&#39;]
 
-    def __init__(self, d: int, in_channels: int, out_channels: int, batch_norm: bool, activation: type, periodic: bool, use_res_blocks: bool):
+    def __init__(self, d: int, in_channels: int, out_channels: int, batch_norm: bool, activation: type, periodic: bool, use_res_blocks: bool, kernel_size: int):
         super().__init__()
         up = nn.Upsample(scale_factor=2, mode=Up._MODES[d])
         if use_res_blocks:
-            conv = ResNetBlock(d, in_channels, out_channels, batch_norm, activation, periodic)
+            conv = ResNetBlock(d, in_channels, out_channels, batch_norm, activation, periodic, kernel_size)
         else:
-            conv = DoubleConv(d, in_channels, out_channels, in_channels // 2, batch_norm, activation, periodic)
+            conv = DoubleConv(d, in_channels, out_channels, in_channels // 2, batch_norm, activation, periodic, kernel_size)
         self.add_module(&#39;up&#39;, up)
         self.add_module(&#39;conv&#39;, conv)
 

@@ -229,7 +229,8 @@ def u_net(in_channels: int,
         batch_norm : use of batchnorm after each conv layer, dtype : bool
         in_spatial : spatial dimensions of the input feature map, dtype : int
         use_res_blocks : use convolutional blocks with skip connections instead of regular convolutional blocks, dtype : bool
-        down_kernel_size
+        down_kernel_size: Kernel size for convolutions on the down-sampling (first half) side of the U-Net.
+        up_kernel_size: Kernel size for convolutions on the up-sampling (second half) of the U-Net.
 
     Returns:
         U-net model as specified by input arguments.
@@ -774,15 +775,18 @@ Analogue functions exist for other learning frameworks.</p></div>
 <dl>
 <dt><strong><code>in_channels</code></strong></dt>
 <dd>input channels of the feature map, dtype : int</dd>
+<dt>out_channels : output channels of the feature map, dtype : int</dt>
+<dt>levels : number of levels of down-sampling and upsampling, dtype : int</dt>
+<dt>filters : filter sizes at each down/up sampling convolutional layer, if the input is integer all conv layers have the same filter size,</dt>
+<dt>activation : activation function used within the layers, dtype : string</dt>
+<dt>batch_norm : use of batchnorm after each conv layer, dtype : bool</dt>
+<dt>in_spatial : spatial dimensions of the input feature map, dtype : int</dt>
+<dt>use_res_blocks : use convolutional blocks with skip connections instead of regular convolutional blocks, dtype : bool</dt>
+<dt><strong><code>down_kernel_size</code></strong></dt>
+<dd>Kernel size for convolutions on the down-sampling (first half) side of the U-Net.</dd>
+<dt><strong><code>up_kernel_size</code></strong></dt>
+<dd>Kernel size for convolutions on the up-sampling (second half) of the U-Net.</dd>
 </dl>
-<p>out_channels : output channels of the feature map, dtype : int
-levels : number of levels of down-sampling and upsampling, dtype : int
-filters : filter sizes at each down/up sampling convolutional layer, if the input is integer all conv layers have the same filter size,
-activation : activation function used within the layers, dtype : string
-batch_norm : use of batchnorm after each conv layer, dtype : bool
-in_spatial : spatial dimensions of the input feature map, dtype : int
-use_res_blocks : use convolutional blocks with skip connections instead of regular convolutional blocks, dtype : bool
-down_kernel_size</p>
 <h2 id="returns">Returns</h2>
 <p>U-net model as specified by input arguments.</p></div>
 <details class="source">
@@ -812,7 +816,8 @@ down_kernel_size</p>
         batch_norm : use of batchnorm after each conv layer, dtype : bool
         in_spatial : spatial dimensions of the input feature map, dtype : int
         use_res_blocks : use convolutional blocks with skip connections instead of regular convolutional blocks, dtype : bool
-        down_kernel_size
+        down_kernel_size: Kernel size for convolutions on the down-sampling (first half) side of the U-Net.
+        up_kernel_size: Kernel size for convolutions on the up-sampling (second half) of the U-Net.
 
     Returns:
         U-net model as specified by input arguments.

@@ -464,7 +464,7 @@ TensorFlow and PyTorch return 0 while Jax returns 1.</p>
 </details>
 </dd>
 <dt id="phiml.math.all"><code class="name flex">
-<span>def <span class="ident">all</span></span>(<span>boolean_tensor: Union[phiml.math._tensors.Tensor, list, tuple, numbers.Number, bool], dim: Union[str, tuple, list, set, phiml.math._shape.Shape, Callable] = &lt;function non_batch&gt;) ‑> phiml.math._tensors.Tensor</span>
+<span>def <span class="ident">all</span></span>(<span>boolean_tensor: Union[phiml.math._tensors.Tensor, list, tuple, numbers.Number, bool], dim: Union[str, tuple, list, set, ForwardRef('<a title="phiml.math.Shape" href="#phiml.math.Shape">Shape</a>'), Callable] = &lt;function non_batch&gt;) ‑> phiml.math._tensors.Tensor</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Tests whether all entries of <code>boolean_tensor</code> are <code>True</code> along the specified dimensions.</p>
@@ -661,7 +661,7 @@ This is equal to <em>atan(Im/Re)</em> for most values.</p>
 </details>
 </dd>
 <dt id="phiml.math.any"><code class="name flex">
-<span>def <span class="ident">any</span></span>(<span>boolean_tensor: Union[phiml.math._tensors.Tensor, list, tuple], dim: Union[str, tuple, list, set, phiml.math._shape.Shape, Callable] = &lt;function non_batch&gt;) ‑> phiml.math._tensors.Tensor</span>
+<span>def <span class="ident">any</span></span>(<span>boolean_tensor: Union[phiml.math._tensors.Tensor, list, tuple], dim: Union[str, tuple, list, set, ForwardRef('<a title="phiml.math.Shape" href="#phiml.math.Shape">Shape</a>'), Callable] = &lt;function non_batch&gt;) ‑> phiml.math._tensors.Tensor</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Tests whether any entry of <code>boolean_tensor</code> is <code>True</code> along the specified dimensions.</p>
@@ -819,7 +819,7 @@ This is equivalent to the common <code>arctan2</code> function.</dd>
 </details>
 </dd>
 <dt id="phiml.math.argmax"><code class="name flex">
-<span>def <span class="ident">argmax</span></span>(<span>x: phiml.math._tensors.Tensor, dim: Union[str, tuple, list, set, phiml.math._shape.Shape, Callable], index_dim=(indexᶜ=None))</span>
+<span>def <span class="ident">argmax</span></span>(<span>x: phiml.math._tensors.Tensor, dim: Union[str, tuple, list, set, ForwardRef('<a title="phiml.math.Shape" href="#phiml.math.Shape">Shape</a>'), Callable], index_dim=(indexᶜ=None))</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Finds the maximum value along one or multiple dimensions and returns the corresponding index.</p>
@@ -877,7 +877,7 @@ This is equivalent to the common <code>arctan2</code> function.</dd>
 </details>
 </dd>
 <dt id="phiml.math.argmin"><code class="name flex">
-<span>def <span class="ident">argmin</span></span>(<span>x: phiml.math._tensors.Tensor, dim: Union[str, tuple, list, set, phiml.math._shape.Shape, Callable], index_dim=(indexᶜ=None))</span>
+<span>def <span class="ident">argmin</span></span>(<span>x: phiml.math._tensors.Tensor, dim: Union[str, tuple, list, set, ForwardRef('<a title="phiml.math.Shape" href="#phiml.math.Shape">Shape</a>'), Callable], index_dim=(indexᶜ=None))</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Finds the minimum value along one or multiple dimensions and returns the corresponding index.</p>
@@ -1048,7 +1048,7 @@ Raises an AssertionError if the values of this tensor are not within tolerance o
 </details>
 </dd>
 <dt id="phiml.math.at_max"><code class="name flex">
-<span>def <span class="ident">at_max</span></span>(<span>value, key: phiml.math._tensors.Tensor, dim: Union[str, tuple, list, set, phiml.math._shape.Shape, Callable] = &lt;function non_batch&gt;)</span>
+<span>def <span class="ident">at_max</span></span>(<span>value, key: phiml.math._tensors.Tensor, dim: Union[str, tuple, list, set, ForwardRef('<a title="phiml.math.Shape" href="#phiml.math.Shape">Shape</a>'), Callable] = &lt;function non_batch&gt;)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Looks up the values of <code>value</code> at the positions where the maximum values in <code>key</code> are located along <code>dim</code>.</p>
@@ -1088,7 +1088,7 @@ Raises an AssertionError if the values of this tensor are not within tolerance o
 </details>
 </dd>
 <dt id="phiml.math.at_max_neighbor"><code class="name flex">
-<span>def <span class="ident">at_max_neighbor</span></span>(<span>values, key_grid: phiml.math._tensors.Tensor, dims: Union[str, tuple, list, set, phiml.math._shape.Shape, Callable] = &lt;function spatial&gt;, padding: Union[<a title="phiml.math.extrapolation.Extrapolation" href="extrapolation.html#phiml.math.extrapolation.Extrapolation">Extrapolation</a>, float, phiml.math._tensors.Tensor, str, None] = None) ‑> phiml.math._tensors.Tensor</span>
+<span>def <span class="ident">at_max_neighbor</span></span>(<span>values, key_grid: phiml.math._tensors.Tensor, dims: Union[str, tuple, list, set, ForwardRef('<a title="phiml.math.Shape" href="#phiml.math.Shape">Shape</a>'), Callable] = &lt;function spatial&gt;, padding: Union[<a title="phiml.math.extrapolation.Extrapolation" href="extrapolation.html#phiml.math.extrapolation.Extrapolation">Extrapolation</a>, float, phiml.math._tensors.Tensor, str, None] = None) ‑> phiml.math._tensors.Tensor</span>
 </code></dt>
 <dd>
 <div class="desc"><p><code>at_neighbor_where</code> with <code>reduce_fun</code> set to <code><a title="phiml.math.at_max" href="#phiml.math.at_max">at_max()</a></code>.</p></div>
@@ -1102,7 +1102,7 @@ Raises an AssertionError if the values of this tensor are not within tolerance o
 </details>
 </dd>
 <dt id="phiml.math.at_min"><code class="name flex">
-<span>def <span class="ident">at_min</span></span>(<span>value, key: phiml.math._tensors.Tensor, dim: Union[str, tuple, list, set, phiml.math._shape.Shape, Callable] = &lt;function non_batch&gt;)</span>
+<span>def <span class="ident">at_min</span></span>(<span>value, key: phiml.math._tensors.Tensor, dim: Union[str, tuple, list, set, ForwardRef('<a title="phiml.math.Shape" href="#phiml.math.Shape">Shape</a>'), Callable] = &lt;function non_batch&gt;)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Looks up the values of <code>value</code> at the positions where the minimum values in <code>key</code> are located along <code>dim</code>.</p>
@@ -1142,7 +1142,7 @@ Raises an AssertionError if the values of this tensor are not within tolerance o
 </details>
 </dd>
 <dt id="phiml.math.at_min_neighbor"><code class="name flex">
-<span>def <span class="ident">at_min_neighbor</span></span>(<span>values, key_grid: phiml.math._tensors.Tensor, dims: Union[str, tuple, list, set, phiml.math._shape.Shape, Callable] = &lt;function spatial&gt;, padding: Union[<a title="phiml.math.extrapolation.Extrapolation" href="extrapolation.html#phiml.math.extrapolation.Extrapolation">Extrapolation</a>, float, phiml.math._tensors.Tensor, str, None] = None) ‑> phiml.math._tensors.Tensor</span>
+<span>def <span class="ident">at_min_neighbor</span></span>(<span>values, key_grid: phiml.math._tensors.Tensor, dims: Union[str, tuple, list, set, ForwardRef('<a title="phiml.math.Shape" href="#phiml.math.Shape">Shape</a>'), Callable] = &lt;function spatial&gt;, padding: Union[<a title="phiml.math.extrapolation.Extrapolation" href="extrapolation.html#phiml.math.extrapolation.Extrapolation">Extrapolation</a>, float, phiml.math._tensors.Tensor, str, None] = None) ‑> phiml.math._tensors.Tensor</span>
 </code></dt>
 <dd>
 <div class="desc"><p><code>at_neighbor_where</code> with <code>reduce_fun</code> set to <code><a title="phiml.math.at_min" href="#phiml.math.at_min">at_min()</a></code>.</p></div>
@@ -1249,7 +1249,7 @@ Undefined sizes are automatically filled in by <code><a title="phiml.math.tensor
 </details>
 </dd>
 <dt id="phiml.math.boolean_mask"><code class="name flex">
-<span>def <span class="ident">boolean_mask</span></span>(<span>x, dim: Union[str, tuple, list, set, phiml.math._shape.Shape, Callable], mask: phiml.math._tensors.Tensor)</span>
+<span>def <span class="ident">boolean_mask</span></span>(<span>x, dim: Union[str, tuple, list, set, ForwardRef('<a title="phiml.math.Shape" href="#phiml.math.Shape">Shape</a>'), Callable], mask: phiml.math._tensors.Tensor)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Discards values <code>x.dim[i]</code> where <code>mask.dim[i]=False</code>.
@@ -2228,7 +2228,7 @@ Otherwise, the <code><a title="phiml.math.copy" href="#phiml.math.copy">copy()</
 </details>
 </dd>
 <dt id="phiml.math.cumulative_sum"><code class="name flex">
-<span>def <span class="ident">cumulative_sum</span></span>(<span>x: phiml.math._tensors.Tensor, dim: Union[str, tuple, list, set, phiml.math._shape.Shape, Callable])</span>
+<span>def <span class="ident">cumulative_sum</span></span>(<span>x: phiml.math._tensors.Tensor, dim: Union[str, tuple, list, set, ForwardRef('<a title="phiml.math.Shape" href="#phiml.math.Shape">Shape</a>'), Callable])</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Performs a cumulative sum of <code>x</code> along <code>dim</code>.</p>
@@ -2381,7 +2381,7 @@ Python primitives like <code>float</code>, <code>int</code> or <code>bool</code>
 </details>
 </dd>
 <dt id="phiml.math.dim_mask"><code class="name flex">
-<span>def <span class="ident">dim_mask</span></span>(<span>all_dims: Union[phiml.math._shape.Shape, tuple, list], dims: Union[str, tuple, list, set, phiml.math._shape.Shape, Callable], mask_dim=(vectorᶜ=None)) ‑> phiml.math._tensors.Tensor</span>
+<span>def <span class="ident">dim_mask</span></span>(<span>all_dims: Union[phiml.math._shape.Shape, tuple, list], dims: Union[str, tuple, list, set, ForwardRef('<a title="phiml.math.Shape" href="#phiml.math.Shape">Shape</a>'), Callable], mask_dim=(vectorᶜ=None)) ‑> phiml.math._tensors.Tensor</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Creates a masked vector with 1 elements for <code>dims</code> and 0 for all other dimensions in <code>all_dims</code>.</p>
@@ -2423,7 +2423,7 @@ Python primitives like <code>float</code>, <code>int</code> or <code>bool</code>
 </details>
 </dd>
 <dt id="phiml.math.dot"><code class="name flex">
-<span>def <span class="ident">dot</span></span>(<span>x: phiml.math._tensors.Tensor, x_dims: Union[str, tuple, list, set, phiml.math._shape.Shape, Callable], y: phiml.math._tensors.Tensor, y_dims: Union[str, tuple, list, set, phiml.math._shape.Shape, Callable]) ‑> phiml.math._tensors.Tensor</span>
+<span>def <span class="ident">dot</span></span>(<span>x: phiml.math._tensors.Tensor, x_dims: Union[str, tuple, list, set, ForwardRef('<a title="phiml.math.Shape" href="#phiml.math.Shape">Shape</a>'), Callable], y: phiml.math._tensors.Tensor, y_dims: Union[str, tuple, list, set, ForwardRef('<a title="phiml.math.Shape" href="#phiml.math.Shape">Shape</a>'), Callable]) ‑> phiml.math._tensors.Tensor</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Computes the dot product along the specified dimensions.
@@ -2535,7 +2535,7 @@ Contracts <code>x_dims</code> with <code>y_dims</code> by first multiplying the 
 </details>
 </dd>
 <dt id="phiml.math.downsample2x"><code class="name flex">
-<span>def <span class="ident">downsample2x</span></span>(<span>grid: phiml.math._tensors.Tensor, padding: <a title="phiml.math.extrapolation.Extrapolation" href="extrapolation.html#phiml.math.extrapolation.Extrapolation">Extrapolation</a> = zero-gradient, dims: Union[str, tuple, list, set, phiml.math._shape.Shape, Callable] = &lt;function spatial&gt;) ‑> phiml.math._tensors.Tensor</span>
+<span>def <span class="ident">downsample2x</span></span>(<span>grid: phiml.math._tensors.Tensor, padding: <a title="phiml.math.extrapolation.Extrapolation" href="extrapolation.html#phiml.math.extrapolation.Extrapolation">Extrapolation</a> = zero-gradient, dims: Union[str, tuple, list, set, ForwardRef('<a title="phiml.math.Shape" href="#phiml.math.Shape">Shape</a>'), Callable] = &lt;function spatial&gt;) ‑> phiml.math._tensors.Tensor</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Resamples a regular grid to half the number of spatial sample points per dimension.
@@ -3028,7 +3028,7 @@ However, this results in integer overflow for inputs larger than 12 (int32) or 1
 </details>
 </dd>
 <dt id="phiml.math.fft"><code class="name flex">
-<span>def <span class="ident">fft</span></span>(<span>x: phiml.math._tensors.Tensor, dims: Union[str, tuple, list, set, phiml.math._shape.Shape, Callable] = &lt;function spatial&gt;) ‑> phiml.math._tensors.Tensor</span>
+<span>def <span class="ident">fft</span></span>(<span>x: phiml.math._tensors.Tensor, dims: Union[str, tuple, list, set, ForwardRef('<a title="phiml.math.Shape" href="#phiml.math.Shape">Shape</a>'), Callable] = &lt;function spatial&gt;) ‑> phiml.math._tensors.Tensor</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Performs a fast Fourier transform (FFT) on all spatial dimensions of x.</p>
@@ -3204,7 +3204,7 @@ This is implemented using a k-d tree built from <code>vectors</code>.</p>
 </details>
 </dd>
 <dt id="phiml.math.finite_fill"><code class="name flex">
-<span>def <span class="ident">finite_fill</span></span>(<span>values: phiml.math._tensors.Tensor, dims: Union[str, tuple, list, set, phiml.math._shape.Shape, Callable] = &lt;function spatial&gt;, distance: int = 1, diagonal: bool = True, padding=zero-gradient) ‑> Tuple[phiml.math._tensors.Tensor, phiml.math._tensors.Tensor]</span>
+<span>def <span class="ident">finite_fill</span></span>(<span>values: phiml.math._tensors.Tensor, dims: Union[str, tuple, list, set, ForwardRef('<a title="phiml.math.Shape" href="#phiml.math.Shape">Shape</a>'), Callable] = &lt;function spatial&gt;, distance: int = 1, diagonal: bool = True, padding=zero-gradient) ‑> Tuple[phiml.math._tensors.Tensor, phiml.math._tensors.Tensor]</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Fills non-finite (NaN, inf, -inf) values from nearby finite values.
@@ -3269,7 +3269,7 @@ Where multiple finite values could fill an invalid value, the average is compute
 </details>
 </dd>
 <dt id="phiml.math.finite_max"><code class="name flex">
-<span>def <span class="ident">finite_max</span></span>(<span>value, dim: Union[str, tuple, list, set, phiml.math._shape.Shape, Callable] = &lt;function non_batch&gt;, default: Union[complex, float] = nan)</span>
+<span>def <span class="ident">finite_max</span></span>(<span>value, dim: Union[str, tuple, list, set, ForwardRef('<a title="phiml.math.Shape" href="#phiml.math.Shape">Shape</a>'), Callable] = &lt;function non_batch&gt;, default: Union[complex, float] = nan)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Finds the maximum along <code>dim</code> ignoring all non-finite values.</p>
@@ -3324,7 +3324,7 @@ Where multiple finite values could fill an invalid value, the average is compute
 </details>
 </dd>
 <dt id="phiml.math.finite_mean"><code class="name flex">
-<span>def <span class="ident">finite_mean</span></span>(<span>value, dim: Union[str, tuple, list, set, phiml.math._shape.Shape, Callable] = &lt;function non_batch&gt;, default: Union[complex, float] = nan)</span>
+<span>def <span class="ident">finite_mean</span></span>(<span>value, dim: Union[str, tuple, list, set, ForwardRef('<a title="phiml.math.Shape" href="#phiml.math.Shape">Shape</a>'), Callable] = &lt;function non_batch&gt;, default: Union[complex, float] = nan)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Computes the mean value of all finite values in <code>value</code> along <code>dim</code>.</p>
@@ -3381,7 +3381,7 @@ Where multiple finite values could fill an invalid value, the average is compute
 </details>
 </dd>
 <dt id="phiml.math.finite_min"><code class="name flex">
-<span>def <span class="ident">finite_min</span></span>(<span>value, dim: Union[str, tuple, list, set, phiml.math._shape.Shape, Callable] = &lt;function non_batch&gt;, default: Union[complex, float] = nan)</span>
+<span>def <span class="ident">finite_min</span></span>(<span>value, dim: Union[str, tuple, list, set, ForwardRef('<a title="phiml.math.Shape" href="#phiml.math.Shape">Shape</a>'), Callable] = &lt;function non_batch&gt;, default: Union[complex, float] = nan)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Finds the minimum along <code>dim</code> ignoring all non-finite values.</p>
@@ -3436,7 +3436,7 @@ Where multiple finite values could fill an invalid value, the average is compute
 </details>
 </dd>
 <dt id="phiml.math.finite_sum"><code class="name flex">
-<span>def <span class="ident">finite_sum</span></span>(<span>value, dim: Union[str, tuple, list, set, phiml.math._shape.Shape, Callable] = &lt;function non_batch&gt;, default: Union[complex, float] = nan)</span>
+<span>def <span class="ident">finite_sum</span></span>(<span>value, dim: Union[str, tuple, list, set, ForwardRef('<a title="phiml.math.Shape" href="#phiml.math.Shape">Shape</a>'), Callable] = &lt;function non_batch&gt;, default: Union[complex, float] = nan)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Sums all finite values in <code>value</code> along <code>dim</code>.</p>
@@ -3779,7 +3779,7 @@ Setting this to zero may cause infinities or NaN values during backpropagation.<
 </details>
 </dd>
 <dt id="phiml.math.gather"><code class="name flex">
-<span>def <span class="ident">gather</span></span>(<span>values, indices: phiml.math._tensors.Tensor, dims: Union[str, tuple, list, set, phiml.math._shape.Shape, Callable, None] = None)</span>
+<span>def <span class="ident">gather</span></span>(<span>values, indices: phiml.math._tensors.Tensor, dims: Union[str, tuple, list, set, ForwardRef('<a title="phiml.math.Shape" href="#phiml.math.Shape">Shape</a>'), Callable, None] = None)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Gathers the entries of <code>values</code> at positions described by <code>indices</code>.
@@ -4144,7 +4144,7 @@ The size of the <code>vector</code> dimension must match the number of spatial d
 </details>
 </dd>
 <dt id="phiml.math.histogram"><code class="name flex">
-<span>def <span class="ident">histogram</span></span>(<span>values: phiml.math._tensors.Tensor, bins: phiml.math._shape.Shape = (binsˢ=30), weights=1, same_bins: Union[str, tuple, list, set, phiml.math._shape.Shape, Callable] = None)</span>
+<span>def <span class="ident">histogram</span></span>(<span>values: phiml.math._tensors.Tensor, bins: phiml.math._shape.Shape = (binsˢ=30), weights=1, same_bins: Union[str, tuple, list, set, ForwardRef('<a title="phiml.math.Shape" href="#phiml.math.Shape">Shape</a>'), Callable] = None)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Compute a histogram of a distribution of values.</p>
@@ -4273,7 +4273,7 @@ Vararg functions cannot be transformed as the argument names are unknown.</p>
 </details>
 </dd>
 <dt id="phiml.math.ifft"><code class="name flex">
-<span>def <span class="ident">ifft</span></span>(<span>k: phiml.math._tensors.Tensor, dims: Union[str, tuple, list, set, phiml.math._shape.Shape, Callable] = &lt;function spatial&gt;)</span>
+<span>def <span class="ident">ifft</span></span>(<span>k: phiml.math._tensors.Tensor, dims: Union[str, tuple, list, set, ForwardRef('<a title="phiml.math.Shape" href="#phiml.math.Shape">Shape</a>'), Callable] = &lt;function spatial&gt;)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Inverse of <code><a title="phiml.math.fft" href="#phiml.math.fft">fft()</a></code>.</p>
@@ -4992,7 +4992,7 @@ Upon tracing with new instance (due to changed shapes or auxiliary args), delete
 </details>
 </dd>
 <dt id="phiml.math.l1_loss"><code class="name flex">
-<span>def <span class="ident">l1_loss</span></span>(<span>x, reduce: Union[str, tuple, list, set, phiml.math._shape.Shape, Callable] = &lt;function non_batch&gt;) ‑> phiml.math._tensors.Tensor</span>
+<span>def <span class="ident">l1_loss</span></span>(<span>x, reduce: Union[str, tuple, list, set, ForwardRef('<a title="phiml.math.Shape" href="#phiml.math.Shape">Shape</a>'), Callable] = &lt;function non_batch&gt;) ‑> phiml.math._tensors.Tensor</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Computes <em>∑<sub>i</sub> ||x<sub>i</sub>||<sub>1</sub></em>, summing over all non-batch dimensions.</p>
@@ -5044,7 +5044,7 @@ For <code><a title="phiml.math.magic.PhiTreeNode" href="magic.html#phiml.math.ma
 </details>
 </dd>
 <dt id="phiml.math.l2_loss"><code class="name flex">
-<span>def <span class="ident">l2_loss</span></span>(<span>x, reduce: Union[str, tuple, list, set, phiml.math._shape.Shape, Callable] = &lt;function non_batch&gt;) ‑> phiml.math._tensors.Tensor</span>
+<span>def <span class="ident">l2_loss</span></span>(<span>x, reduce: Union[str, tuple, list, set, ForwardRef('<a title="phiml.math.Shape" href="#phiml.math.Shape">Shape</a>'), Callable] = &lt;function non_batch&gt;) ‑> phiml.math._tensors.Tensor</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Computes <em>∑<sub>i</sub> ||x<sub>i</sub>||<sub>2</sub><sup>2</sup> / 2</em>, summing over all non-batch dimensions.</p>
@@ -5098,7 +5098,7 @@ For <code><a title="phiml.math.magic.PhiTreeNode" href="magic.html#phiml.math.ma
 </details>
 </dd>
 <dt id="phiml.math.laplace"><code class="name flex">
-<span>def <span class="ident">laplace</span></span>(<span>x: phiml.math._tensors.Tensor, dx: Union[float, phiml.math._tensors.Tensor] = 1, padding: Union[<a title="phiml.math.extrapolation.Extrapolation" href="extrapolation.html#phiml.math.extrapolation.Extrapolation">Extrapolation</a>, float, phiml.math._tensors.Tensor, str, None] = zero-gradient, dims: Union[str, tuple, list, set, phiml.math._shape.Shape, Callable] = &lt;function spatial&gt;, weights: phiml.math._tensors.Tensor = None)</span>
+<span>def <span class="ident">laplace</span></span>(<span>x: phiml.math._tensors.Tensor, dx: Union[float, phiml.math._tensors.Tensor] = 1, padding: Union[<a title="phiml.math.extrapolation.Extrapolation" href="extrapolation.html#phiml.math.extrapolation.Extrapolation">Extrapolation</a>, float, phiml.math._tensors.Tensor, str, None] = zero-gradient, dims: Union[str, tuple, list, set, ForwardRef('<a title="phiml.math.Shape" href="#phiml.math.Shape">Shape</a>'), Callable] = &lt;function spatial&gt;, weights: phiml.math._tensors.Tensor = None)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Spatial Laplace operator as defined for scalar fields.
@@ -5388,7 +5388,7 @@ The values will be laid out along <code>dim</code>.</dd>
 </details>
 </dd>
 <dt id="phiml.math.map"><code class="name flex">
-<span>def <span class="ident">map</span></span>(<span>function, *args, dims: Union[str, tuple, list, set, phiml.math._shape.Shape, Callable] = &lt;function shape&gt;, range=builtins.range, unwrap_scalars=True, **kwargs) ‑> Union[None, phiml.math._tensors.Tensor, Tuple[Optional[phiml.math._tensors.Tensor]]]</span>
+<span>def <span class="ident">map</span></span>(<span>function, *args, dims: Union[str, tuple, list, set, ForwardRef('<a title="phiml.math.Shape" href="#phiml.math.Shape">Shape</a>'), Callable] = &lt;function shape&gt;, range=builtins.range, unwrap_scalars=True, **kwargs) ‑> Union[None, phiml.math._tensors.Tensor, Tuple[Optional[phiml.math._tensors.Tensor]]]</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Calls <code>function</code> on slices of the arguments and returns the stacked result.</p>
@@ -5799,7 +5799,7 @@ Input dimensions will be <code><a title="phiml.math.dual" href="#phiml.math.dual
 </details>
 </dd>
 <dt id="phiml.math.max"><code class="name flex">
-<span>def <span class="ident">max</span></span>(<span>value: Union[phiml.math._tensors.Tensor, list, tuple, numbers.Number, bool], dim: Union[str, tuple, list, set, phiml.math._shape.Shape, Callable] = &lt;function non_batch&gt;) ‑> phiml.math._tensors.Tensor</span>
+<span>def <span class="ident">max</span></span>(<span>value: Union[phiml.math._tensors.Tensor, list, tuple, numbers.Number, bool], dim: Union[str, tuple, list, set, ForwardRef('<a title="phiml.math.Shape" href="#phiml.math.Shape">Shape</a>'), Callable] = &lt;function non_batch&gt;) ‑> phiml.math._tensors.Tensor</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Determines the maximum value of <code>values</code> along the specified dimensions.</p>
@@ -5862,7 +5862,7 @@ Input dimensions will be <code><a title="phiml.math.dual" href="#phiml.math.dual
 </details>
 </dd>
 <dt id="phiml.math.mean"><code class="name flex">
-<span>def <span class="ident">mean</span></span>(<span>value: Union[phiml.math._tensors.Tensor, list, tuple, numbers.Number, bool], dim: Union[str, tuple, list, set, phiml.math._shape.Shape, Callable] = &lt;function non_batch&gt;) ‑> phiml.math._tensors.Tensor</span>
+<span>def <span class="ident">mean</span></span>(<span>value: Union[phiml.math._tensors.Tensor, list, tuple, numbers.Number, bool], dim: Union[str, tuple, list, set, ForwardRef('<a title="phiml.math.Shape" href="#phiml.math.Shape">Shape</a>'), Callable] = &lt;function non_batch&gt;) ‑> phiml.math._tensors.Tensor</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Computes the mean over <code>values</code> along the specified dimensions.</p>
@@ -5911,7 +5911,7 @@ Input dimensions will be <code><a title="phiml.math.dual" href="#phiml.math.dual
 </details>
 </dd>
 <dt id="phiml.math.median"><code class="name flex">
-<span>def <span class="ident">median</span></span>(<span>value, dim: Union[str, tuple, list, set, phiml.math._shape.Shape, Callable] = &lt;function non_batch&gt;)</span>
+<span>def <span class="ident">median</span></span>(<span>value, dim: Union[str, tuple, list, set, ForwardRef('<a title="phiml.math.Shape" href="#phiml.math.Shape">Shape</a>'), Callable] = &lt;function non_batch&gt;)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Reduces <code>dim</code> of <code>value</code> by picking the median value.
@@ -6136,7 +6136,7 @@ This is optional for 1D mesh-grids. In that case returns a <code><a title="phiml
 </details>
 </dd>
 <dt id="phiml.math.min"><code class="name flex">
-<span>def <span class="ident">min</span></span>(<span>value: Union[phiml.math._tensors.Tensor, list, tuple, numbers.Number, bool], dim: Union[str, tuple, list, set, phiml.math._shape.Shape, Callable] = &lt;function non_batch&gt;) ‑> phiml.math._tensors.Tensor</span>
+<span>def <span class="ident">min</span></span>(<span>value: Union[phiml.math._tensors.Tensor, list, tuple, numbers.Number, bool], dim: Union[str, tuple, list, set, ForwardRef('<a title="phiml.math.Shape" href="#phiml.math.Shape">Shape</a>'), Callable] = &lt;function non_batch&gt;) ‑> phiml.math._tensors.Tensor</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Determines the minimum value of <code>values</code> along the specified dimensions.</p>
@@ -6505,7 +6505,7 @@ and single channel dimension <code>channel_dim</code>.</p></div>
 </details>
 </dd>
 <dt id="phiml.math.neighbor_max"><code class="name flex">
-<span>def <span class="ident">neighbor_max</span></span>(<span>grid: phiml.math._tensors.Tensor, dims: Union[str, tuple, list, set, phiml.math._shape.Shape, Callable] = &lt;function spatial&gt;, padding: Union[<a title="phiml.math.extrapolation.Extrapolation" href="extrapolation.html#phiml.math.extrapolation.Extrapolation">Extrapolation</a>, float, phiml.math._tensors.Tensor, str, None] = None) ‑> phiml.math._tensors.Tensor</span>
+<span>def <span class="ident">neighbor_max</span></span>(<span>grid: phiml.math._tensors.Tensor, dims: Union[str, tuple, list, set, ForwardRef('<a title="phiml.math.Shape" href="#phiml.math.Shape">Shape</a>'), Callable] = &lt;function spatial&gt;, padding: Union[<a title="phiml.math.extrapolation.Extrapolation" href="extrapolation.html#phiml.math.extrapolation.Extrapolation">Extrapolation</a>, float, phiml.math._tensors.Tensor, str, None] = None) ‑> phiml.math._tensors.Tensor</span>
 </code></dt>
 <dd>
 <div class="desc"><p><code><a title="phiml.math.neighbor_reduce" href="#phiml.math.neighbor_reduce">neighbor_reduce()</a></code> with <code>reduce_fun</code> set to <code><a title="phiml.math.max" href="#phiml.math.max">max_()</a></code>.</p></div>
@@ -6519,7 +6519,7 @@ and single channel dimension <code>channel_dim</code>.</p></div>
 </details>
 </dd>
 <dt id="phiml.math.neighbor_mean"><code class="name flex">
-<span>def <span class="ident">neighbor_mean</span></span>(<span>grid: phiml.math._tensors.Tensor, dims: Union[str, tuple, list, set, phiml.math._shape.Shape, Callable] = &lt;function spatial&gt;, padding: Union[<a title="phiml.math.extrapolation.Extrapolation" href="extrapolation.html#phiml.math.extrapolation.Extrapolation">Extrapolation</a>, float, phiml.math._tensors.Tensor, str, None] = None) ‑> phiml.math._tensors.Tensor</span>
+<span>def <span class="ident">neighbor_mean</span></span>(<span>grid: phiml.math._tensors.Tensor, dims: Union[str, tuple, list, set, ForwardRef('<a title="phiml.math.Shape" href="#phiml.math.Shape">Shape</a>'), Callable] = &lt;function spatial&gt;, padding: Union[<a title="phiml.math.extrapolation.Extrapolation" href="extrapolation.html#phiml.math.extrapolation.Extrapolation">Extrapolation</a>, float, phiml.math._tensors.Tensor, str, None] = None) ‑> phiml.math._tensors.Tensor</span>
 </code></dt>
 <dd>
 <div class="desc"><p><code><a title="phiml.math.neighbor_reduce" href="#phiml.math.neighbor_reduce">neighbor_reduce()</a></code> with <code>reduce_fun</code> set to <code><a title="phiml.math.mean" href="#phiml.math.mean">mean()</a></code>.</p></div>
@@ -6533,7 +6533,7 @@ and single channel dimension <code>channel_dim</code>.</p></div>
 </details>
 </dd>
 <dt id="phiml.math.neighbor_min"><code class="name flex">
-<span>def <span class="ident">neighbor_min</span></span>(<span>grid: phiml.math._tensors.Tensor, dims: Union[str, tuple, list, set, phiml.math._shape.Shape, Callable] = &lt;function spatial&gt;, padding: Union[<a title="phiml.math.extrapolation.Extrapolation" href="extrapolation.html#phiml.math.extrapolation.Extrapolation">Extrapolation</a>, float, phiml.math._tensors.Tensor, str, None] = None) ‑> phiml.math._tensors.Tensor</span>
+<span>def <span class="ident">neighbor_min</span></span>(<span>grid: phiml.math._tensors.Tensor, dims: Union[str, tuple, list, set, ForwardRef('<a title="phiml.math.Shape" href="#phiml.math.Shape">Shape</a>'), Callable] = &lt;function spatial&gt;, padding: Union[<a title="phiml.math.extrapolation.Extrapolation" href="extrapolation.html#phiml.math.extrapolation.Extrapolation">Extrapolation</a>, float, phiml.math._tensors.Tensor, str, None] = None) ‑> phiml.math._tensors.Tensor</span>
 </code></dt>
 <dd>
 <div class="desc"><p><code><a title="phiml.math.neighbor_reduce" href="#phiml.math.neighbor_reduce">neighbor_reduce()</a></code> with <code>reduce_fun</code> set to <code><a title="phiml.math.min" href="#phiml.math.min">min_()</a></code>.</p></div>
@@ -6547,7 +6547,7 @@ and single channel dimension <code>channel_dim</code>.</p></div>
 </details>
 </dd>
 <dt id="phiml.math.neighbor_reduce"><code class="name flex">
-<span>def <span class="ident">neighbor_reduce</span></span>(<span>reduce_fun: Callable, grid: phiml.math._tensors.Tensor, dims: Union[str, tuple, list, set, phiml.math._shape.Shape, Callable] = &lt;function spatial&gt;, padding: Union[<a title="phiml.math.extrapolation.Extrapolation" href="extrapolation.html#phiml.math.extrapolation.Extrapolation">Extrapolation</a>, float, phiml.math._tensors.Tensor, str, None] = None) ‑> phiml.math._tensors.Tensor</span>
+<span>def <span class="ident">neighbor_reduce</span></span>(<span>reduce_fun: Callable, grid: phiml.math._tensors.Tensor, dims: Union[str, tuple, list, set, ForwardRef('<a title="phiml.math.Shape" href="#phiml.math.Shape">Shape</a>'), Callable] = &lt;function spatial&gt;, padding: Union[<a title="phiml.math.extrapolation.Extrapolation" href="extrapolation.html#phiml.math.extrapolation.Extrapolation">Extrapolation</a>, float, phiml.math._tensors.Tensor, str, None] = None) ‑> phiml.math._tensors.Tensor</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Computes the sum/mean/min/max/prod/etc. of two neighboring values along each dimension in <code>dim</code>.
@@ -6596,7 +6596,7 @@ The result tensor has one entry less than <code>grid</code> in each averaged dim
 </details>
 </dd>
 <dt id="phiml.math.neighbor_sum"><code class="name flex">
-<span>def <span class="ident">neighbor_sum</span></span>(<span>grid: phiml.math._tensors.Tensor, dims: Union[str, tuple, list, set, phiml.math._shape.Shape, Callable] = &lt;function spatial&gt;, padding: Union[<a title="phiml.math.extrapolation.Extrapolation" href="extrapolation.html#phiml.math.extrapolation.Extrapolation">Extrapolation</a>, float, phiml.math._tensors.Tensor, str, None] = None) ‑> phiml.math._tensors.Tensor</span>
+<span>def <span class="ident">neighbor_sum</span></span>(<span>grid: phiml.math._tensors.Tensor, dims: Union[str, tuple, list, set, ForwardRef('<a title="phiml.math.Shape" href="#phiml.math.Shape">Shape</a>'), Callable] = &lt;function spatial&gt;, padding: Union[<a title="phiml.math.extrapolation.Extrapolation" href="extrapolation.html#phiml.math.extrapolation.Extrapolation">Extrapolation</a>, float, phiml.math._tensors.Tensor, str, None] = None) ‑> phiml.math._tensors.Tensor</span>
 </code></dt>
 <dd>
 <div class="desc"><p><code><a title="phiml.math.neighbor_reduce" href="#phiml.math.neighbor_reduce">neighbor_reduce()</a></code> with <code>reduce_fun</code> set to <code><a title="phiml.math.sum" href="#phiml.math.sum">sum_()</a></code>.</p></div>
@@ -7031,7 +7031,7 @@ If a dimension of the tensor is not listed in <code>order</code>, a <code>ValueE
 </details>
 </dd>
 <dt id="phiml.math.pack_dims"><code class="name flex">
-<span>def <span class="ident">pack_dims</span></span>(<span>value, dims: Union[str, tuple, list, set, phiml.math._shape.Shape, Callable], packed_dim: phiml.math._shape.Shape, pos: Optional[int] = None, **kwargs)</span>
+<span>def <span class="ident">pack_dims</span></span>(<span>value, dims: Union[str, tuple, list, set, ForwardRef('<a title="phiml.math.Shape" href="#phiml.math.Shape">Shape</a>'), Callable], packed_dim: phiml.math._shape.Shape, pos: Optional[int] = None, **kwargs)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Compresses multiple dimensions into a single dimension by concatenating the elements.
@@ -7614,7 +7614,7 @@ math.jacobian(f)(math.ones(x=6))
 </details>
 </dd>
 <dt id="phiml.math.prod"><code class="name flex">
-<span>def <span class="ident">prod</span></span>(<span>value: Union[phiml.math._tensors.Tensor, list, tuple, numbers.Number, bool], dim: Union[str, tuple, list, set, phiml.math._shape.Shape, Callable] = &lt;function non_batch&gt;) ‑> phiml.math._tensors.Tensor</span>
+<span>def <span class="ident">prod</span></span>(<span>value: Union[phiml.math._tensors.Tensor, list, tuple, numbers.Number, bool], dim: Union[str, tuple, list, set, ForwardRef('<a title="phiml.math.Shape" href="#phiml.math.Shape">Shape</a>'), Callable] = &lt;function non_batch&gt;) ‑> phiml.math._tensors.Tensor</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Multiplies <code>values</code> along the specified dimensions.</p>
@@ -7663,7 +7663,7 @@ math.jacobian(f)(math.ones(x=6))
 </details>
 </dd>
 <dt id="phiml.math.quantile"><code class="name flex">
-<span>def <span class="ident">quantile</span></span>(<span>value: phiml.math._tensors.Tensor, quantiles: Union[float, phiml.math._tensors.Tensor, tuple, list], dim: Union[str, tuple, list, set, phiml.math._shape.Shape, Callable] = &lt;function non_batch&gt;)</span>
+<span>def <span class="ident">quantile</span></span>(<span>value: phiml.math._tensors.Tensor, quantiles: Union[float, phiml.math._tensors.Tensor, tuple, list], dim: Union[str, tuple, list, set, ForwardRef('<a title="phiml.math.Shape" href="#phiml.math.Shape">Shape</a>'), Callable] = &lt;function non_batch&gt;)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Compute the q-th quantile of <code>value</code> along <code>dim</code> for each q in <code>quantiles</code>.</p>
@@ -7982,7 +7982,7 @@ For 1D tensors, this equivalent to <code>arange()</code> with <code>step=1</code
 </details>
 </dd>
 <dt id="phiml.math.rename_dims"><code class="name flex">
-<span>def <span class="ident">rename_dims</span></span>(<span>value, dims: Union[str, tuple, list, set, phiml.math._shape.Shape, Callable], names: Union[str, tuple, list, set, phiml.math._shape.Shape, Callable], **kwargs)</span>
+<span>def <span class="ident">rename_dims</span></span>(<span>value, dims: Union[str, tuple, list, set, ForwardRef('<a title="phiml.math.Shape" href="#phiml.math.Shape">Shape</a>'), Callable], names: Union[str, tuple, list, set, ForwardRef('<a title="phiml.math.Shape" href="#phiml.math.Shape">Shape</a>'), Callable], **kwargs)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Change the name and optionally the type of some dimensions of <code>value</code>.</p>
@@ -8120,7 +8120,7 @@ Otherwise, the <code><a title="phiml.math.copy" href="#phiml.math.copy">copy()</
 </details>
 </dd>
 <dt id="phiml.math.replace_dims"><code class="name flex">
-<span>def <span class="ident">replace_dims</span></span>(<span>value, dims: Union[str, tuple, list, set, phiml.math._shape.Shape, Callable], names: Union[str, tuple, list, set, phiml.math._shape.Shape, Callable], **kwargs)</span>
+<span>def <span class="ident">replace_dims</span></span>(<span>value, dims: Union[str, tuple, list, set, ForwardRef('<a title="phiml.math.Shape" href="#phiml.math.Shape">Shape</a>'), Callable], names: Union[str, tuple, list, set, ForwardRef('<a title="phiml.math.Shape" href="#phiml.math.Shape">Shape</a>'), Callable], **kwargs)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Change the name and optionally the type of some dimensions of <code>value</code>.</p>
@@ -9031,7 +9031,7 @@ If <code>obj</code> is a <code><a title="phiml.math.Shape" href="#phiml.math.Sha
 </details>
 </dd>
 <dt id="phiml.math.shift"><code class="name flex">
-<span>def <span class="ident">shift</span></span>(<span>x: phiml.math._tensors.Tensor, offsets: Sequence[int], dims: Union[str, tuple, list, set, phiml.math._shape.Shape, Callable] = &lt;function spatial&gt;, padding: Union[<a title="phiml.math.extrapolation.Extrapolation" href="extrapolation.html#phiml.math.extrapolation.Extrapolation">Extrapolation</a>, float, phiml.math._tensors.Tensor, str, None] = zero-gradient, stack_dim: Union[phiml.math._shape.Shape, str, None] = (shiftᶜ=None), extend_bounds=0) ‑> List[phiml.math._tensors.Tensor]</span>
+<span>def <span class="ident">shift</span></span>(<span>x: phiml.math._tensors.Tensor, offsets: Sequence[int], dims: Union[str, tuple, list, set, ForwardRef('<a title="phiml.math.Shape" href="#phiml.math.Shape">Shape</a>'), Callable] = &lt;function spatial&gt;, padding: Union[<a title="phiml.math.extrapolation.Extrapolation" href="extrapolation.html#phiml.math.extrapolation.Extrapolation">Extrapolation</a>, float, phiml.math._tensors.Tensor, str, None] = zero-gradient, stack_dim: Union[phiml.math._shape.Shape, str, None] = (shiftᶜ=None), extend_bounds=0) ‑> List[phiml.math._tensors.Tensor]</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Shift the tensor <code>x</code> by a fixed offset, using <code>padding</code> for edge values.</p>
@@ -9831,7 +9831,7 @@ Undefined sizes are automatically filled in by <code><a title="phiml.math.tensor
 </details>
 </dd>
 <dt id="phiml.math.spatial_gradient"><code class="name flex">
-<span>def <span class="ident">spatial_gradient</span></span>(<span>grid: phiml.math._tensors.Tensor, dx: Union[float, phiml.math._tensors.Tensor] = 1, difference: str = 'central', padding: Union[<a title="phiml.math.extrapolation.Extrapolation" href="extrapolation.html#phiml.math.extrapolation.Extrapolation">Extrapolation</a>, float, phiml.math._tensors.Tensor, str, None] = zero-gradient, dims: Union[str, tuple, list, set, phiml.math._shape.Shape, Callable] = &lt;function spatial&gt;, stack_dim: Union[phiml.math._shape.Shape, str, None] = (gradientᶜ=None), pad=0) ‑> phiml.math._tensors.Tensor</span>
+<span>def <span class="ident">spatial_gradient</span></span>(<span>grid: phiml.math._tensors.Tensor, dx: Union[float, phiml.math._tensors.Tensor] = 1, difference: str = 'central', padding: Union[<a title="phiml.math.extrapolation.Extrapolation" href="extrapolation.html#phiml.math.extrapolation.Extrapolation">Extrapolation</a>, float, phiml.math._tensors.Tensor, str, None] = zero-gradient, dims: Union[str, tuple, list, set, ForwardRef('<a title="phiml.math.Shape" href="#phiml.math.Shape">Shape</a>'), Callable] = &lt;function spatial&gt;, stack_dim: Union[phiml.math._shape.Shape, str, None] = (gradientᶜ=None), pad=0) ‑> phiml.math._tensors.Tensor</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Calculates the spatial_gradient of a scalar channel from finite differences.
@@ -10099,7 +10099,7 @@ Adding batch dimensions must always work without keyword arguments.</dd>
 </details>
 </dd>
 <dt id="phiml.math.std"><code class="name flex">
-<span>def <span class="ident">std</span></span>(<span>value: Union[phiml.math._tensors.Tensor, list, tuple, numbers.Number, bool], dim: Union[str, tuple, list, set, phiml.math._shape.Shape, Callable] = &lt;function non_batch&gt;) ‑> phiml.math._tensors.Tensor</span>
+<span>def <span class="ident">std</span></span>(<span>value: Union[phiml.math._tensors.Tensor, list, tuple, numbers.Number, bool], dim: Union[str, tuple, list, set, ForwardRef('<a title="phiml.math.Shape" href="#phiml.math.Shape">Shape</a>'), Callable] = &lt;function non_batch&gt;) ‑> phiml.math._tensors.Tensor</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Computes the standard deviation over <code>values</code> along the specified dimensions.</p>
@@ -10195,14 +10195,7 @@ This may switch off the gradients for <code>x</code> itself or create a copy of 
     Returns:
         Copy of `x`.
     &#34;&#34;&#34;
-    if isinstance(x, Tensor):
-        return x._op1(lambda native: choose_backend(native).stop_gradient(native))
-    elif isinstance(x, PhiTreeNode):
-        nest, values = disassemble_tree(x, cache=False)
-        new_values = [stop_gradient(v) for v in values]
-        return assemble_tree(nest, new_values)
-    else:
-        return wrap(choose_backend(x).stop_gradient(x))</code></pre>
+    return _backend_op1(x, Backend.stop_gradient)</code></pre>
 </details>
 </dd>
 <dt id="phiml.math.stored_indices"><code class="name flex">
@@ -10325,7 +10318,7 @@ Internally, invalid indices may be stored for performance reasons.</dd>
 </details>
 </dd>
 <dt id="phiml.math.sum"><code class="name flex">
-<span>def <span class="ident">sum</span></span>(<span>value: Union[phiml.math._tensors.Tensor, list, tuple, numbers.Number, bool], dim: Union[str, tuple, list, set, phiml.math._shape.Shape, Callable] = &lt;function non_batch&gt;) ‑> phiml.math._tensors.Tensor</span>
+<span>def <span class="ident">sum</span></span>(<span>value: Union[phiml.math._tensors.Tensor, list, tuple, numbers.Number, bool], dim: Union[str, tuple, list, set, ForwardRef('<a title="phiml.math.Shape" href="#phiml.math.Shape">Shape</a>'), Callable] = &lt;function non_batch&gt;) ‑> phiml.math._tensors.Tensor</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Sums <code>values</code> along the specified dimensions.</p>
@@ -11039,7 +11032,7 @@ It can be used to transpose native tensors.</p>
 </details>
 </dd>
 <dt id="phiml.math.unpack_dim"><code class="name flex">
-<span>def <span class="ident">unpack_dim</span></span>(<span>value, dim: Union[str, tuple, list, set, phiml.math._shape.Shape, Callable], *unpacked_dims: phiml.math._shape.Shape, **kwargs)</span>
+<span>def <span class="ident">unpack_dim</span></span>(<span>value, dim: Union[str, tuple, list, set, ForwardRef('<a title="phiml.math.Shape" href="#phiml.math.Shape">Shape</a>'), Callable], *unpacked_dims: phiml.math._shape.Shape, **kwargs)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Decompresses a dimension by unstacking the elements along it.
@@ -11129,7 +11122,7 @@ Adding batch dimensions must always work without keyword arguments.</dd>
 </details>
 </dd>
 <dt id="phiml.math.unstack"><code class="name flex">
-<span>def <span class="ident">unstack</span></span>(<span>value, dim: Union[str, tuple, list, set, phiml.math._shape.Shape, Callable]) ‑> tuple</span>
+<span>def <span class="ident">unstack</span></span>(<span>value, dim: Union[str, tuple, list, set, ForwardRef('<a title="phiml.math.Shape" href="#phiml.math.Shape">Shape</a>'), Callable]) ‑> tuple</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Un-stacks a <code>Sliceable</code> along one or multiple dimensions.</p>
@@ -11200,7 +11193,7 @@ If no dimension is given or none of the given dimensions exists on <code>value</
 </details>
 </dd>
 <dt id="phiml.math.upsample2x"><code class="name flex">
-<span>def <span class="ident">upsample2x</span></span>(<span>grid: phiml.math._tensors.Tensor, padding: <a title="phiml.math.extrapolation.Extrapolation" href="extrapolation.html#phiml.math.extrapolation.Extrapolation">Extrapolation</a> = zero-gradient, dims: Union[str, tuple, list, set, phiml.math._shape.Shape, Callable] = &lt;function spatial&gt;) ‑> phiml.math._tensors.Tensor</span>
+<span>def <span class="ident">upsample2x</span></span>(<span>grid: phiml.math._tensors.Tensor, padding: <a title="phiml.math.extrapolation.Extrapolation" href="extrapolation.html#phiml.math.extrapolation.Extrapolation">Extrapolation</a> = zero-gradient, dims: Union[str, tuple, list, set, ForwardRef('<a title="phiml.math.Shape" href="#phiml.math.Shape">Shape</a>'), Callable] = &lt;function spatial&gt;) ‑> phiml.math._tensors.Tensor</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Resamples a regular grid to double the number of spatial sample points per dimension.
@@ -11401,7 +11394,7 @@ If specified, no additional positional arguments must be given.</dd>
 </details>
 </dd>
 <dt id="phiml.math.vec_length"><code class="name flex">
-<span>def <span class="ident">vec_length</span></span>(<span>vec: phiml.math._tensors.Tensor, vec_dim: Union[str, tuple, list, set, phiml.math._shape.Shape, Callable] = &lt;function channel&gt;, eps: Union[float, phiml.math._tensors.Tensor] = None)</span>
+<span>def <span class="ident">vec_length</span></span>(<span>vec: phiml.math._tensors.Tensor, vec_dim: Union[str, tuple, list, set, ForwardRef('<a title="phiml.math.Shape" href="#phiml.math.Shape">Shape</a>'), Callable] = &lt;function channel&gt;, eps: Union[float, phiml.math._tensors.Tensor] = None)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Computes the vector length of <code><a title="phiml.math.vec" href="#phiml.math.vec">vec()</a></code>.</p>
@@ -11430,7 +11423,7 @@ If specified, no additional positional arguments must be given.</dd>
 </details>
 </dd>
 <dt id="phiml.math.vec_normalize"><code class="name flex">
-<span>def <span class="ident">vec_normalize</span></span>(<span>vec: phiml.math._tensors.Tensor, vec_dim: Union[str, tuple, list, set, phiml.math._shape.Shape, Callable] = &lt;function channel&gt;, epsilon=None, allow_infinite=False)</span>
+<span>def <span class="ident">vec_normalize</span></span>(<span>vec: phiml.math._tensors.Tensor, vec_dim: Union[str, tuple, list, set, ForwardRef('<a title="phiml.math.Shape" href="#phiml.math.Shape">Shape</a>'), Callable] = &lt;function channel&gt;, epsilon=None, allow_infinite=False)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Normalizes the vectors in <code><a title="phiml.math.vec" href="#phiml.math.vec">vec()</a></code>. If <code>vec_dim</code> is None, the combined channel dimensions of <code><a title="phiml.math.vec" href="#phiml.math.vec">vec()</a></code> are interpreted as a vector.</p>
@@ -11473,7 +11466,7 @@ If not specified, the zero-vector yields <code>NaN</code> as it cannot be normal
 </details>
 </dd>
 <dt id="phiml.math.vec_squared"><code class="name flex">
-<span>def <span class="ident">vec_squared</span></span>(<span>vec: phiml.math._tensors.Tensor, vec_dim: Union[str, tuple, list, set, phiml.math._shape.Shape, Callable] = &lt;function channel&gt;)</span>
+<span>def <span class="ident">vec_squared</span></span>(<span>vec: phiml.math._tensors.Tensor, vec_dim: Union[str, tuple, list, set, ForwardRef('<a title="phiml.math.Shape" href="#phiml.math.Shape">Shape</a>'), Callable] = &lt;function channel&gt;)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Computes the squared length of <code><a title="phiml.math.vec" href="#phiml.math.vec">vec()</a></code>. If <code>vec_dim</code> is None, the combined channel dimensions of <code><a title="phiml.math.vec" href="#phiml.math.vec">vec()</a></code> are interpreted as a vector.</p></div>
@@ -13439,7 +13432,7 @@ To create a shape with multiple types, use <code><a title="phiml.math.merge_shap
                     names[self.index(old_name)] = _apply_prefix(new_dim, types[self.index(old_name)])
         return Shape(tuple(sizes), tuple(names), tuple(types), tuple(item_names))
 
-    def replace(self, dims: Union[&#39;Shape&#39;, str, tuple, list], new: &#39;Shape&#39;, keep_item_names=True) -&gt; &#39;Shape&#39;:
+    def replace(self, dims: Union[&#39;Shape&#39;, str, tuple, list], new: &#39;Shape&#39;, keep_item_names=True, replace_item_names: DimFilter = None) -&gt; &#39;Shape&#39;:
         &#34;&#34;&#34;
         Returns a copy of `self` with `dims` replaced by `new`.
         Dimensions that are not present in `self` are ignored.
@@ -13451,6 +13444,7 @@ To create a shape with multiple types, use <code><a title="phiml.math.merge_shap
             new: New dimensions, must have same length as `dims`.
                 If a `Shape` is given, replaces the dimension types and item names as well.
             keep_item_names: Keeps existing item names for dimensions where `new` does not specify item names if the new dimension has the same size.
+            replace_item_names: For which dims the item names should be replaced as well.
 
         Returns:
             `Shape` with same rank and dimension order as `self`.
@@ -13461,6 +13455,13 @@ To create a shape with multiple types, use <code><a title="phiml.math.merge_shap
         sizes = list(self.sizes)
         types = list(self.types)
         item_names = list(self.item_names)
+        for i in self.indices(self.only(replace_item_names)):
+            if item_names[i]:
+                if len(new) &gt; len(dims):
+                    raise NotImplementedError
+                else:
+                    name_map = {d: n for d, n in zip(dims, new.names)}
+                    item_names[i] = tuple([name_map.get(n, n) for n in item_names[i]])
         if len(new) &gt; len(dims):  # Put all in one spot
             assert len(dims) == 1, &#34;Cannot replace 2+ dims by more replacements&#34;
             index = self.index(dims[0])
@@ -15148,7 +15149,7 @@ If <code>True</code>, reorders the dimensions of this shape to match the order o
 </details>
 </dd>
 <dt id="phiml.math.Shape.replace"><code class="name flex">
-<span>def <span class="ident">replace</span></span>(<span>self, dims: Union[ForwardRef('<a title="phiml.math.Shape" href="#phiml.math.Shape">Shape</a>'), tuple, list, str], new: <a title="phiml.math.Shape" href="#phiml.math.Shape">Shape</a>, keep_item_names=True) ‑> phiml.math._shape.Shape</span>
+<span>def <span class="ident">replace</span></span>(<span>self, dims: Union[ForwardRef('<a title="phiml.math.Shape" href="#phiml.math.Shape">Shape</a>'), tuple, list, str], new: <a title="phiml.math.Shape" href="#phiml.math.Shape">Shape</a>, keep_item_names=True, replace_item_names: Union[str, tuple, list, set, ForwardRef('<a title="phiml.math.Shape" href="#phiml.math.Shape">Shape</a>'), Callable] = None) ‑> phiml.math._shape.Shape</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Returns a copy of <code>self</code> with <code>dims</code> replaced by <code>new</code>.
@@ -15163,6 +15164,8 @@ Dimensions that are not present in <code>self</code> are ignored.</p>
 If a <code><a title="phiml.math.Shape" href="#phiml.math.Shape">Shape</a></code> is given, replaces the dimension types and item names as well.</dd>
 <dt><strong><code>keep_item_names</code></strong></dt>
 <dd>Keeps existing item names for dimensions where <code>new</code> does not specify item names if the new dimension has the same size.</dd>
+<dt><strong><code>replace_item_names</code></strong></dt>
+<dd>For which dims the item names should be replaced as well.</dd>
 </dl>
 <h2 id="returns">Returns</h2>
 <p><code><a title="phiml.math.Shape" href="#phiml.math.Shape">Shape</a></code> with same rank and dimension order as <code>self</code>.</p></div>
@@ -15170,7 +15173,7 @@ If a <code><a title="phiml.math.Shape" href="#phiml.math.Shape">Shape</a></code>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def replace(self, dims: Union[&#39;Shape&#39;, str, tuple, list], new: &#39;Shape&#39;, keep_item_names=True) -&gt; &#39;Shape&#39;:
+<pre><code class="python">def replace(self, dims: Union[&#39;Shape&#39;, str, tuple, list], new: &#39;Shape&#39;, keep_item_names=True, replace_item_names: DimFilter = None) -&gt; &#39;Shape&#39;:
     &#34;&#34;&#34;
     Returns a copy of `self` with `dims` replaced by `new`.
     Dimensions that are not present in `self` are ignored.
@@ -15182,6 +15185,7 @@ If a <code><a title="phiml.math.Shape" href="#phiml.math.Shape">Shape</a></code>
         new: New dimensions, must have same length as `dims`.
             If a `Shape` is given, replaces the dimension types and item names as well.
         keep_item_names: Keeps existing item names for dimensions where `new` does not specify item names if the new dimension has the same size.
+        replace_item_names: For which dims the item names should be replaced as well.
 
     Returns:
         `Shape` with same rank and dimension order as `self`.
@@ -15192,6 +15196,13 @@ If a <code><a title="phiml.math.Shape" href="#phiml.math.Shape">Shape</a></code>
     sizes = list(self.sizes)
     types = list(self.types)
     item_names = list(self.item_names)
+    for i in self.indices(self.only(replace_item_names)):
+        if item_names[i]:
+            if len(new) &gt; len(dims):
+                raise NotImplementedError
+            else:
+                name_map = {d: n for d, n in zip(dims, new.names)}
+                item_names[i] = tuple([name_map.get(n, n) for n in item_names[i]])
     if len(new) &gt; len(dims):  # Put all in one spot
         assert len(dims) == 1, &#34;Cannot replace 2+ dims by more replacements&#34;
         index = self.index(dims[0])
