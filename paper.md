@@ -15,6 +15,7 @@ authors:
     orcid: 0000-0001-9246-5195
     affiliation: 1
   - name: Nils Thuerey
+    orcid: 0000-0001-6647-8910
     affiliation: 1
 affiliations:
   - name: Technical University of Munich
