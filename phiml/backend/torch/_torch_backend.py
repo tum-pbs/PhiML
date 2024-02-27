@@ -1144,8 +1144,11 @@ def construct_torch_custom_function(f: Callable, jit_f: Optional[Callable], f_ex
 
         @staticmethod
         def backward(ctx, *grad_args):  # Breakpoints not supported here
-            x = ctx.saved_tensors[:ctx.input_count]
-            y = ctx.saved_tensors[ctx.input_count:]
+            # Cache the saved_tensors, so it is only accessed once.
+            # This is a requirement for gradient checkpointing
+            ctx_tensors = ctx.saved_tensors
+            x = ctx_tensors[:ctx.input_count]
+            y = ctx_tensors[ctx.input_count:]
             if is_f_traced:
                 if not jit_g:
                     # backward pass can return None but that's not allowed in JIT functions
