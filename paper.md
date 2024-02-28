@@ -99,7 +99,7 @@ These findings were summarized and formalized in @PBDL2021, along with many addi
 
 The library was also used in network optimization publications, such as showing that inverted simulations can be used to train networks [@ScaleInvariant2022] and that gradient inversion benefits learning the solutions to inverse problems [@HalfInverse2022].
 
-Simulations powered by $\Phi_\textrm{ML}$ have since been used in open data sets [@PDEBench; @PDEArena] and in publications from various research groups [@brandstetter2021message; @wandel2021teaching; @brandstetter2022clifford; @wandel2020learning; @sengar2021multi; @parekh1993sex; @ramos2022control; @wang2022approximately; @wang2022meta; @wang2023applications; @wu2022learning; @li2023latent].
+Simulations powered by $\Phi_\textrm{ML}$ have since been used in open data sets [@PDEBench; @PDEArena] and in publications from various research groups [@brandstetter2021message; @wandel2021teaching; @brandstetter2023clifford; @wandel2020learning; @sengar2021multi; @parekh1993sex; @ramos2022control; @wang2022approximately; @wang2022meta; @wang2023applications; @wu2022learning; @li2023latent].
 
 
 
