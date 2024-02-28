@@ -18,7 +18,7 @@ authors:
     orcid: 0000-0001-6647-8910
     affiliation: 1
 affiliations:
-  - name: Technical University of Munich
+  - name: School of Computation, Information and Technology, Technical University of Munich, Germany
     index: 1
 date: 01 August 2023
 bibliography: paper.bib
@@ -95,7 +95,7 @@ $\Phi_\textrm{Flow}$ includes geometry, physics, and visualization modules, all 
 
 It was first used to show that differentiable PDE simulations can be used to train neural networks that steer the dynamics towards desired outcomes [@phiflow].
 Differentiable PDEs, implemented against $\Phi_\textrm{ML}$'s API, were later shown to benefit learning corrections for low-resolution or incomplete physics models [@SolverInTheLoop2020].
-These findings were summarized and formalized in [@PBDL2021], along with many additional examples.
+These findings were summarized and formalized in @PBDL2021, along with many additional examples.
 
 The library was also used in network optimization publications, such as showing that inverted simulations can be used to train networks [@ScaleInvariant2022] and that gradient inversion benefits learning the solutions to inverse problems [@HalfInverse2022].
 
