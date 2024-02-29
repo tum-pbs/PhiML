@@ -20,8 +20,7 @@ if version.parse(jax.__version__) >= version.parse('0.2.20'):
 from .._dtype import DType, to_numpy_dtype, from_numpy_dtype
 from .._backend import Backend, ComputeDevice, combined_dim, ML_LOGGER, TensorType, map_structure
 
-from jax.config import config
-config.update("jax_enable_x64", True)
+jax.config.update("jax_enable_x64", True)
 
 
 class JaxBackend(Backend):
