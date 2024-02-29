@@ -594,15 +594,18 @@ def matrix_from_function(f: Callable,
     aux_args = {k: v for k, v in all_args.items() if k in aux}
     trace_args = {k: v for k, v in all_args.items() if k not in aux}
     tree, tensors = disassemble_tree(trace_args, cache=False)
+    assert len(tensors) == 1, f"Only one input tensor can be traced bot got {tensors}"
     target_backend = choose_backend_t(*tensors)
     # --- Trace function ---
     with NUMPY:
         src = TracerSource(tensors[0].shape, tensors[0].dtype, tuple(trace_args.keys())[0], 0)
         tracer = ShiftLinTracer(src, {EMPTY_SHAPE: math.ones()}, tensors[0].shape, bias=math.zeros(dtype=tensors[0].dtype), renamed={d: d for d in tensors[0].shape.names})
-        x_kwargs = assemble_tree(tree, [tracer])
+        x_kwargs = assemble_tree(tree, [tracer] + tensors[1:])
         result = f(**x_kwargs, **aux_args)
     out_tree, result_tensors = disassemble_tree(result, cache=False)
     assert len(result_tensors) == 1, f"Linear function output must be or contain a single Tensor but got {result}"
+    # for t in result_tensors[1:]:
+    #     assert not t._is_tracer, f"Linear function must only return a single tracer at position 0 but got {result_tensors}"
     tracer = result_tensors[0]._simplify()
     assert tracer._is_tracer, f"Tracing linear function '{f_name(f)}' failed. Make sure only linear operations are used. Output: {tracer.shape}"
     # --- Convert to COO ---
