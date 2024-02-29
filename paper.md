@@ -85,7 +85,7 @@ However, $\Phi_\textrm{ML}$ adds additional functionality.
 
 # Research Projects
 
-$\Phi_\textrm{ML}$ has been in development since 2019 as part of the [$\Phi_\textrm{Flow}$](https://github.com/tum-pbs/PhiFlow) project where it originated as a unified API for TensorFlow and NumPy, used to run differentiable fluid simulations.
+$\Phi_\textrm{ML}$ has been in development since 2019 as part of the [PhiFlow](https://github.com/tum-pbs/PhiFlow) ($\Phi_\textrm{Flow}$) project where it originated as a unified API for TensorFlow and NumPy, used to run differentiable fluid simulations.
 $\Phi_\textrm{Flow}$ includes geometry, physics, and visualization modules, all of which use the `math` API of $\Phi_\textrm{ML}$ to benefit from its reusability, compatibility, and performance.
 
 It was first used to show that differentiable PDE simulations can be used to train neural networks that steer the dynamics towards desired outcomes [@phiflow].
