@@ -1,6 +1,7 @@
 import time
 import uuid
 import warnings
+from functools import partial
 from typing import Callable, Generic, List, TypeVar, Any, Tuple, Union, Optional
 
 import numpy
@@ -168,7 +169,9 @@ class SolveInfo(Generic[X, Y]):
         self.method = method
         """ `str`, which method and implementation that was used. """
         if all_available(diverged, converged, iterations):
-            msg = map_(_default_solve_info_msg, msg, converged.trajectory[-1], diverged.trajectory[-1], iterations.trajectory[-1], solve=solve, method=method, residual=residual, dims=converged.shape.without('trajectory'))
+            _, res_tensors = disassemble_tree(residual, cache=False)
+            msg_fun = partial(_default_solve_info_msg, solve=solve)
+            msg = map_(msg_fun, msg, converged.trajectory[-1], diverged.trajectory[-1], iterations.trajectory[-1], method=method, residual=res_tensors[0], dims=converged.shape.without('trajectory'))
         self.msg = msg
         """ `str`, termination message """
         self.solve_time = solve_time
@@ -198,13 +201,13 @@ class SolveInfo(Generic[X, Y]):
                     raise NotConverged(self)
 
 
-def _default_solve_info_msg(msg: str, converged: bool, diverged: bool, iterations: int, solve: Solve, method, residual):
+def _default_solve_info_msg(msg: str, converged: bool, diverged: bool, iterations: int, solve: Solve, method, residual: Tensor):
     if msg:
         return msg
     if diverged:
         return f"Solve diverged within {iterations if iterations is not None else '?'} iterations using {method}."
     elif not converged:
-        max_res = [f"{math.max_(t.trajectory[-1]):no-color:no-dtype}" for t in disassemble_tree(residual, cache=False)[1]]
+        max_res = f"{math.max_(residual.trajectory[-1]):no-color:no-dtype}"
         return f"{method} did not converge to rel_tol={float(solve.rel_tol):.0e}, abs_tol={float(solve.abs_tol):.0e} within {int(solve.max_iterations)} iterations. Max residual: {', '.join(max_res)}"
     else:
         return f"Converged within {iterations if iterations is not None else '?'} iterations."
