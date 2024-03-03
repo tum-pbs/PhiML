@@ -55,8 +55,8 @@ This will check for compatible PyTorch, Jax and TensorFlow installations as well
 
 **Fewer mistakes**
 
-* *No more data type troubles*: Φ<sub>ML</sub> [automatically converts data types](https://tum-pbs.github.io/PhiML/Data_Types.html) where needed and lets you specify the [FP precision globally or by context](https://tum-pbs.github.io/PhiML/Data_Types.html#Precision)!
-* *No more reshaping troubles*: Φ<sub>ML</sub> performs [reshaping under-the-hood.](https://tum-pbs.github.io/PhiML/Shapes.html)
+* *No more data type troubles*: Φ<sub>ML</sub> [automatically converts data types](https://tum-pbs.github.io/PhiML/Advantages_Data_Types.html) where needed and lets you specify the [FP precision globally or by context](https://tum-pbs.github.io/PhiML/Data_Types.html#Precision)!
+* *No more reshaping troubles*: Φ<sub>ML</sub> performs [reshaping under-the-hood.](https://tum-pbs.github.io/PhiML/Dimension_Names_Types.html)
 * *Is `neighbor_idx.at[jnp.reshape(idx, (-1,))].set(jnp.reshape(cell_idx, (-1,) + cell_idx.shape[-2:]))` correct?*: Φ<sub>ML</sub> provides a custom Tensor class that lets you write [easy-to-read, more concise, more explicit, less error-prone code](https://tum-pbs.github.io/PhiML/Tensors.html).
 
 
