@@ -4,6 +4,7 @@
 # Φ<sub>ML</sub>
 
 ![Build Status](https://github.com/tum-pbs/PhiML/actions/workflows/unit-tests.yml/badge.svg)
+[![DOI](https://joss.theoj.org/papers/10.21105/joss.06171/status.svg)](https://doi.org/10.21105/joss.06171)
 [![PyPI pyversions](https://img.shields.io/pypi/pyversions/phiml.svg)](https://pypi.org/project/phiml/)
 [![PyPI license](https://img.shields.io/pypi/l/phiml.svg)](https://pypi.org/project/phiml/)
 [![Code Coverage](https://codecov.io/gh/tum-pbs/PhiML/branch/main/graph/badge.svg)](https://codecov.io/gh/tum-pbs/PhiML/branch/main/)
@@ -168,7 +169,23 @@ If you have changes to be merged, check out our [style guide](https://github.com
 
 ## 📄 Citation
 
-We are in the process of submitting a paper. Updates will follow.
+Please use the following citation:
+
+```
+@article{Holl2024,
+    doi = {10.21105/joss.06171},
+    url = {https://doi.org/10.21105/joss.06171},
+    year = {2024},
+    publisher = {The Open Journal},
+    volume = {9},
+    number = {95},
+    pages = {6171},
+    author = {Philipp Holl and Nils Thuerey},
+    title = {Φ-ML: Intuitive Scientific Computing with Dimension Types for Jax, PyTorch, TensorFlow & NumPy},
+    journal = {Journal of Open Source Software}
+}
+```
+Also see the corresponding [journal article](https://doi.org/10.21105/joss.06171) and [software archive of version 1.4.0](https://figshare.com/articles/software/_-ML_1_4_0/25282300).
 
 
 ## Projects using Φ<sub>ML</sub>
