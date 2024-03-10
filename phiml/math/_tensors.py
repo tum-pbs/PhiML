@@ -1630,7 +1630,7 @@ def tensor(data,
             data = default_backend().as_tensor(data, convert_external=True)
         return NativeTensor(data, EMPTY_SHAPE)
     if isinstance(data, (tuple, list)):
-        if all(isinstance(d, (bool, int, float, complex)) for d in data):
+        if all(isinstance(d, (bool, int, float, complex, np.generic)) for d in data):
             array = np.array(data)
             assert array.dtype != object
             data = array
