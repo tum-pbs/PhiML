@@ -625,9 +625,13 @@ PhiTreeNodeType = TypeVar('PhiTreeNodeType')  # Defined in phiml.math.magic: tup
 
 def variable_attributes(obj) -> Tuple[str, ...]:
     if hasattr(obj, '__variable_attrs__'):
-        return obj.__variable_attrs__()
+        result = obj.__variable_attrs__()
+        assert isinstance(result, tuple), f"__variable_attrs__ must return Tuple[str,...] but got '{type(result)}' from '{type(obj)}'"
+        return result
     elif hasattr(obj, '__value_attrs__'):
-        return obj.__value_attrs__()
+        result = obj.__value_attrs__()
+        assert isinstance(result, tuple), f"__value_attrs__ must return Tuple[str,...] but got '{type(result)}' from '{type(obj)}'"
+        return result
     elif dataclasses.is_dataclass(obj):
         return tuple([f.name for f in dataclasses.fields(obj)])
     else:
@@ -636,7 +640,9 @@ def variable_attributes(obj) -> Tuple[str, ...]:
 
 def value_attributes(obj) -> Tuple[str, ...]:
     if hasattr(obj, '__value_attrs__'):
-        return obj.__value_attrs__()
+        result = obj.__value_attrs__()
+        assert isinstance(result, tuple), f"__value_attrs__ must return Tuple[str,...] but got '{type(result)}' from '{type(obj)}'"
+        return result
     if dataclasses.is_dataclass(obj):
         return tuple([f.name for f in dataclasses.fields(obj)])
     raise ValueError(f"{type(obj).__name__} must implement '__value_attrs__()' or be a dataclass to be used with value functions.")
