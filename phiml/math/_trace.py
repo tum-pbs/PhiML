@@ -706,6 +706,9 @@ def dependent_src_dims(tracer: Tensor) -> Shape:
     Source dimensions relevant to the linear operation.
     This includes `pattern_dims` as well as dimensions along which only the values vary.
     These dimensions cannot be parallelized trivially with a non-batched matrix.
+
+    Bias dimensions do not require a batched matrix but are subtracted from the right-hand-side vector.
+    They are not included unless also relevant to the matrix.
     """
     if isinstance(tracer, ShiftLinTracer):
         bias_dims = set(variable_shape(tracer._bias).names)
@@ -717,7 +720,7 @@ def dependent_src_dims(tracer: Tensor) -> Shape:
         dims = set()
         if tracer._selection is not None:
             dims.update(set(channel(tracer._selection).item_names[0]))
-        dims.update(set([tracer._renamed.get(d, d) for d in tracer._bias.shape.names + tracer._diag.shape.names]))
+        dims.update(set([tracer._renamed.get(d, d) for d in tracer._diag.shape.names]))
         return tracer._source.shape.only(dims)
     elif isinstance(tracer, SparseLinTracer):
         return tracer._source.shape.only(sparse_dims(tracer._matrix).names)
@@ -728,6 +731,9 @@ def dependent_out_dims(tracer: Tensor) -> Shape:
     Current dimensions relevant to the linear operation.
     This includes `pattern_dims` as well as dimensions along which only the values vary.
     These dimensions cannot be parallelized trivially with a non-batched matrix.
+
+    Bias dimensions do not require a batched matrix but are subtracted from the right-hand-side vector.
+    They are not included unless also relevant to the matrix.
     """
     if isinstance(tracer, ShiftLinTracer):
         bias_dims = set(variable_shape(tracer._bias).names)
@@ -736,7 +742,7 @@ def dependent_out_dims(tracer: Tensor) -> Shape:
         assert len(result) == len(names)
         return result
     elif isinstance(tracer, GatherLinTracer):
-        result = tracer._bias.shape & tracer._diag.shape
+        result = tracer._diag.shape
         if tracer._selection is not None:
             result &= tracer._selection.shape.non_channel
         return result
