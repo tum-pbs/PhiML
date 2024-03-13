@@ -618,7 +618,7 @@ class _ZeroGradient(_CopyExtrapolation):
     def sparse_pad_values(self, value: Tensor, connectivity: Tensor, dim: str, **kwargs) -> Tensor:
         from ._sparse import stored_indices, is_sparse
         from ._ops import arange, nonzero, scatter
-        dual_dim = dual(value).name
+        dual_dim = dual(connectivity).name
         # --- Gather the edge values ---
         if is_sparse(connectivity):
             indices = stored_indices(connectivity, invalid='discard')
