@@ -85,9 +85,6 @@ class TorchBackend(Backend):
                 tensor = self.to_float(tensor)
             elif dtype.kind == complex:
                 tensor = self.to_complex(tensor)
-        # --- Move to default device ---
-        if isinstance(tensor, torch.Tensor) and tensor.device != self.get_default_device().ref:
-            tensor = tensor.to(self.get_default_device().ref)
         return tensor
 
     def recursive_as_tensor(self, obj):

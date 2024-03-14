@@ -65,7 +65,7 @@ class TFBackend(Backend):
         return 'coo' if isinstance(x, tf.SparseTensor) else 'dense'
 
     def as_tensor(self, x, convert_external=True):
-        with tf.device(self._default_device.ref):
+        with self._device_for(x):
             if self.is_tensor(x, only_native=convert_external):
                 return tf.identity(x)
             tensor = tf.convert_to_tensor(x)
