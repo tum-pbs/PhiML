@@ -45,7 +45,7 @@ def troubleshoot_tensorflow():
     except ImportError:
         return f"Installed ({tf_version}) but module 'tensorflow_probability' missing. Some functions may be unavailable, such as math.median() and math.quantile(). To install it, run  $ pip install tensorflow-probability"
     try:
-        from . import tf
+        from .backend import tensorflow as tf
     except BaseException as err:
         return f"Installed ({tf_version}) but not available due to internal error: {err}"
     try:
@@ -81,7 +81,7 @@ def troubleshoot_torch():
         return "Not installed."
     torch_version = f"{torch.__version__} at {dirname(torch.__file__)}"
     try:
-        from . import torch as torch_
+        from .backend import torch as torch_
     except BaseException as err:
         return f"Installed ({torch_version}) but not available due to internal error: {err}"
     try:
@@ -109,7 +109,7 @@ def troubleshoot_jax():
         return "Not installed."
     version = f"jax {jax.__version__} at {dirname(jax.__file__)}, jaxlib {jaxlib.__version__}"
     try:
-        from . import jax as jax_
+        from .backend import jax as jax_
     except BaseException as err:
         return f"Installed ({version}) but not available due to internal error: {err}"
     try:
