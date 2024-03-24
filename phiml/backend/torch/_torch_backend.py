@@ -1121,6 +1121,10 @@ def register_module_call(module: torch.nn.Module):
 
 
 def construct_torch_custom_function(f: Callable, jit_f: Optional[Callable], f_example_output, g: Callable, is_f_traced: bool, backend: TorchBackend):
+    if isinstance(f_example_output, (tuple, list)):
+        f_example_output = type(f_example_output)([o.detach() if isinstance(o, torch.Tensor) else o for o in f_example_output])
+    else:
+        assert f_example_output is None
     jit_g = []
 
     class TorchCustomFunction(torch.autograd.Function):
@@ -1129,9 +1133,10 @@ def construct_torch_custom_function(f: Callable, jit_f: Optional[Callable], f_ex
         @staticmethod
         def forward(ctx, *args, **kwargs):  # The result of this is used in the graph.
             if torch._C._get_tracing_state():
-                ML_LOGGER.debug(f"torch.jit.trace encountered forward pass of {f.__name__}. Returning cached output to avoid double execution.")
+                ML_LOGGER.debug(f"torch.jit.trace encountered forward pass of {f.__name__}. Returning cached output to avoid double execution: {[(tuple(o.shape), o.requires_grad if isinstance(o, torch.Tensor) else type(o)) for o in f_example_output]}")
                 # jit_context = CURRENT_JIT_CALLS[-1]; jit_context.cached_output[torch_custom_function]
                 return f_example_output
+            ML_LOGGER.debug(f"TorchScript -> run compiled {f.__name__} with args {[(tuple(a.shape), a.requires_grad) for a in args]}")
             y = (jit_f or f)(*args, **kwargs)
             ctx.save_for_backward(*args, *y)
             ctx.input_count = len(args)
