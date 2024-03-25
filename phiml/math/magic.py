@@ -465,6 +465,8 @@ class BoundDim:
             raise AttributeError(f"'{type(self)}' object has no attribute '{name}'")
         if name == 'shape':
             raise AttributeError(f"Object of type {type(obj)} has no shape")
+        if name == 'is_tensor_like':
+            raise AttributeError(f"Trying to access {type(obj)}.is_tensor_like which does not exist. This is likely a TensorFlow JIT compile check. This name is reserved.")
         assert isinstance(obj, Sliceable) and isinstance(obj, Shaped), f"Cannot create BoundDim for {type(obj).__name__}. Objects must be Sliceable and Shaped, see https://tum-pbs.github.io/PhiML/phiml/math/magic.html"
         self.obj = obj
         self.name = name
