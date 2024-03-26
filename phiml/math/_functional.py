@@ -7,7 +7,7 @@ from typing import Tuple, Callable, Dict, Generic, List, TypeVar, Any, Set, Unio
 
 import numpy as np
 
-from . import _ops as math, all_available
+from . import _ops as math, all_available, stop_gradient
 from ._magic_ops import stack, slice_, value_attributes
 from ._shape import EMPTY_SHAPE, Shape, spatial, instance, batch, channel, merge_shapes, DimFilter, shape
 from ._sparse import SparseCoordinateTensor
@@ -31,7 +31,7 @@ class SignatureKey:
                  specs: Union[Tuple[Shape], None],
                  backend: Backend,
                  tracing: bool,
-                 condition: Any = None):
+                 auxiliary_kwargs: Any = None):
         if source_function is None:  # this is an input signature
             assert isinstance(shapes, tuple)
         self.source_function = source_function
@@ -40,7 +40,7 @@ class SignatureKey:
         self.backend = backend
         self.tracing = tracing
         self.specs = specs
-        self.auxiliary_kwargs = condition
+        self.auxiliary_kwargs = auxiliary_kwargs
         self.spatial_derivative_order = get_spatial_derivative_order()
 
     def __repr__(self):
@@ -109,7 +109,7 @@ def key_from_args(args: tuple,
     if aux:
         for param in aux:
             if param in kwargs:
-                aux_kwargs[param] = kwargs[param]
+                aux_kwargs[param] = stop_gradient(kwargs[param])
                 del kwargs[param]
     tree, tensors = disassemble_tree(kwargs, cache=cache, attr_type=attr_type)
     tracing = not math.all_available(*tensors)

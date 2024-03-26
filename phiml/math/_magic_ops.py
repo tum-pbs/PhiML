@@ -765,10 +765,22 @@ def bool_to_int(x: MagicType, bits=32):
 
 
 def tree_map(f, tree, **f_kwargs):
+    """
+    Recursively iterates over Layouts, lists, tuples, dicts and the value attributes of PhiTreeNodes.
+    Calls `f` on `Tensor` instances and everything else not in the above list.
+
+    Args:
+        f: Function mapping `Tensor`s or leaves
+        tree: Nested tree or leaf
+        **f_kwargs: Keyword arguments for `f`.
+
+    Returns:
+        Tree matching structure of `tree` with transformed leaf values.
+    """
     from ._tensors import Tensor, Layout
     if isinstance(tree, Layout):
         return tree._op1(lambda x: f(x, **f_kwargs))
-    if isinstance(tree, Tensor):
+    if isinstance(tree, Tensor) or tree is None:
         return f(tree, **f_kwargs)
     if isinstance(tree, list):
         return [tree_map(f, e, **f_kwargs) for e in tree]
