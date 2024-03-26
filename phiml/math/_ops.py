@@ -1961,14 +1961,16 @@ def dot(x: Tensor,
 
 
 def _backend_op1(x, unbound_method) -> Union[Tensor, PhiTreeNode]:
-    if isinstance(x, Tensor):
+    if isinstance(x, Tensor) and x.dtype.kind != object:
         def apply_op(native_tensor):
             backend = choose_backend(native_tensor)
             return getattr(backend, unbound_method.__name__)(backend.auto_cast(native_tensor)[0])
         apply_op.__name__ = unbound_method.__name__
         return x._op1(apply_op)
-    elif isinstance(x, PhiTreeNode):
-        return copy_with(x, **{a: _backend_op1(getattr(x, a), unbound_method) for a in value_attributes(x)})
+    elif x is None:
+        return None
+    elif isinstance(x, (PhiTreeNode, Layout, tuple, list, dict)):
+        return tree_map(_backend_op1, x, unbound_method=unbound_method)
     else:
         backend = choose_backend(x)
         y = getattr(backend, unbound_method.__name__)(backend.auto_cast(x)[0])
