@@ -168,8 +168,6 @@ class JitFunction:
         self._tracing_in_key: SignatureKey = None
 
     def _jit_compile(self, in_key: SignatureKey):
-        ML_LOGGER.debug(f"Φ-ML-jit: '{f_name(self.f)}' called with new key. shapes={[s.volume for s in in_key.shapes]}, args={in_key.tree}")
-
         def jit_f_native(*natives):
             ML_LOGGER.debug(f"Φ-ML-jit: Tracing '{f_name(self.f)}'")
             _TRACING_JIT.append(self)
@@ -200,13 +198,13 @@ class JitFunction:
             warnings.warn(f"jit_copmile() not supported by {key.backend}. Running function '{f_name(self.f)}' as-is.", RuntimeWarning)
             return self.f(*args, **kwargs)
         if key not in self.traces:
-            print(trace_check(self, *args, **kwargs))
+            ML_LOGGER.debug(f"Φ-ML-jit: '{f_name(self.f)}' called with new key.\nshapes={[s.volume for s in key.shapes]}, args={key.tree}\n", trace_check(self, *args, **kwargs))
             if self.forget_traces:
                 self.traces.clear()
                 self.recorded_mappings.clear()
             self.traces[key] = self._jit_compile(key)
             if len(self.traces) >= 10:
-                warnings.warn(f"""Φ-ML-lin: The jit-compiled function '{f_name(self.f)}' was traced {len(self.traces)} times.
+                warnings.warn(f"""Φ-ML: The jit-compiled function '{f_name(self.f)}' was traced {len(self.traces)} times.
 Performing many traces may be slow and cause memory leaks.
 Re-tracing occurs when the number or types of arguments vary, tensor shapes vary between calls or different auxiliary arguments are given (compared by reference).
 Set forget_traces=True to avoid memory leaks when many traces are required. Tracing reason: {trace_check(self, *args, **kwargs)[1]}""", RuntimeWarning)
