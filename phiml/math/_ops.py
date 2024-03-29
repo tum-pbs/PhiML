@@ -2858,6 +2858,8 @@ def close(*tensors, rel_tolerance=1e-5, abs_tolerance=0, equal_nan=False) -> boo
         return all(o is None for o in tensors)
     if any(o is None for o in tensors):
         return False
+    if all(t is tensors[0] for t in tensors):
+        return True
     tensors = [wrap(t) for t in tensors]
     for other in tensors[1:]:
         if not _close(tensors[0], other, rel_tolerance=rel_tolerance, abs_tolerance=abs_tolerance, equal_nan=equal_nan):
@@ -2883,6 +2885,8 @@ def equal(*objects, equal_nan=False) -> bool:
         return all(o is None for o in objects)
     if any(o is None for o in objects):
         return False
+    if all(o is objects[0] for o in objects):
+        return True
     try:
         tensors = [wrap(o) for o in objects]
         if any(t.dtype.kind == object for t in tensors):
