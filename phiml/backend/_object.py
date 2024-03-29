@@ -61,3 +61,6 @@ class ObjectBackend(Backend):
 
     def sign(self, x):
         return math.copysign(1, x)
+
+    def stop_gradient(self, value):
+        return value
