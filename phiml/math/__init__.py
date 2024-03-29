@@ -29,7 +29,7 @@ from ._magic_ops import (
     stack, concat, expand,
     rename_dims, rename_dims as replace_dims, pack_dims, unpack_dim, flatten,
     b2i, c2b, c2d, i2b, s2b, si2d,
-    copy_with, replace
+    copy_with, replace, find_differences
 )
 
 from ._tensors import wrap, tensor, layout, Tensor, Dict, to_dict, from_dict, is_scalar, BROADCAST_FORMATTER as f
