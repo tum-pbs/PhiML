@@ -1238,9 +1238,11 @@ class NativeTensor(Tensor):
         self._native_shape = self._shape
 
     def _cached(self, dims: Shape = None) -> 'NativeTensor':
-        if dims is None or self._shape in (dims & self._native_shape):
+        if self._native_shape == self._shape:  # nothing to expand
+            return self
+        elif dims is None or self._shape in (dims & self._native_shape):  # expand all
             return NativeTensor(self.native(order=self._shape), self._shape, self._shape)
-        else:
+        else:  # expand specific dims
             new_native_shape = dims & self._native_shape
             tmp_tensor = NativeTensor(self._native, self._native_shape, new_native_shape)
             return NativeTensor(tmp_tensor.native(new_native_shape), new_native_shape, self._shape)
