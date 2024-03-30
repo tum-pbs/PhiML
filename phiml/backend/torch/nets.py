@@ -75,15 +75,15 @@ def adam(net: nn.Module, learning_rate: float = 1e-3, betas=(0.9, 0.999), epsilo
     return optim.Adam(net.parameters(), learning_rate, betas, epsilon)
 
 
-def sgd(net: nn.Module, learning_rate: float = 1e-3, momentum=0, dampening=0, weight_decay=0, nesterov=False):
+def sgd(net: nn.Module, learning_rate: float = 1e-3, momentum=0., dampening=0., weight_decay=0., nesterov=False):
     return optim.SGD(net.parameters(), learning_rate, momentum, dampening, weight_decay, nesterov)
 
 
-def adagrad(net: nn.Module, learning_rate: float = 1e-3, lr_decay=0, weight_decay=0, initial_accumulator_value=0, eps=1e-10):
+def adagrad(net: nn.Module, learning_rate: float = 1e-3, lr_decay=0., weight_decay=0., initial_accumulator_value=0., eps=1e-10):
     return optim.Adagrad(net.parameters(), learning_rate, lr_decay, weight_decay, initial_accumulator_value, eps)
 
 
-def rmsprop(net: nn.Module, learning_rate: float = 1e-3, alpha=0.99, eps=1e-08, weight_decay=0, momentum=0, centered=False):
+def rmsprop(net: nn.Module, learning_rate: float = 1e-3, alpha=0.99, eps=1e-08, weight_decay=0., momentum=0., centered=False):
     return optim.RMSprop(net.parameters(), learning_rate, alpha, eps, weight_decay, momentum, centered)
 
 

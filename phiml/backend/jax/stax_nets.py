@@ -192,7 +192,7 @@ def adam(net: StaxNet, learning_rate: float = 1e-3, betas=(0.9, 0.999), epsilon=
     return opt
 
 
-def sgd(net: StaxNet, learning_rate: float = 1e-3, momentum=0, dampening=0, weight_decay=0, nesterov=False):
+def sgd(net: StaxNet, learning_rate: float = 1e-3, momentum=0., dampening=0., weight_decay=0., nesterov=False):
     assert dampening == 0
     assert weight_decay == 0
     assert not nesterov
@@ -204,7 +204,7 @@ def sgd(net: StaxNet, learning_rate: float = 1e-3, momentum=0, dampening=0, weig
     return opt
 
 
-def adagrad(net: StaxNet, learning_rate: float = 1e-3, lr_decay=0, weight_decay=0, initial_accumulator_value=0, eps=1e-10):
+def adagrad(net: StaxNet, learning_rate: float = 1e-3, lr_decay=0., weight_decay=0., initial_accumulator_value=0., eps=1e-10):
     assert lr_decay == 0
     assert weight_decay == 0
     assert initial_accumulator_value == 0
@@ -214,7 +214,7 @@ def adagrad(net: StaxNet, learning_rate: float = 1e-3, lr_decay=0, weight_decay=
     return opt
 
 
-def rmsprop(net: StaxNet, learning_rate: float = 1e-3, alpha=0.99, eps=1e-08, weight_decay=0, momentum=0, centered=False):
+def rmsprop(net: StaxNet, learning_rate: float = 1e-3, alpha=0.99, eps=1e-08, weight_decay=0., momentum=0., centered=False):
     assert weight_decay == 0
     assert not centered
     if momentum == 0:

@@ -106,19 +106,19 @@ def adam(net: keras.Model, learning_rate: float = 1e-3, betas=(0.9, 0.999), epsi
     return keras.optimizers.Adam(learning_rate, betas[0], betas[1], epsilon)
 
 
-def sgd(net: keras.Model, learning_rate: float = 1e-3, momentum=0, dampening=0, weight_decay=0, nesterov=False):
+def sgd(net: keras.Model, learning_rate: float = 1e-3, momentum=0., dampening=0., weight_decay=0., nesterov=False):
     assert dampening == 0
     assert weight_decay == 0
     return keras.optimizers.SGD(learning_rate, momentum, nesterov)
 
 
-def adagrad(net: keras.Model, learning_rate: float = 1e-3, lr_decay=0, weight_decay=0, initial_accumulator_value=0, eps=1e-10):
+def adagrad(net: keras.Model, learning_rate: float = 1e-3, lr_decay=0., weight_decay=0., initial_accumulator_value=0., eps=1e-10):
     assert lr_decay == 0
     assert weight_decay == 0
     return keras.optimizers.Adagrad(learning_rate, initial_accumulator_value, eps)
 
 
-def rmsprop(net: keras.Model, learning_rate: float = 1e-3, alpha=0.99, eps=1e-08, weight_decay=0, momentum=0, centered=False):
+def rmsprop(net: keras.Model, learning_rate: float = 1e-3, alpha=0.99, eps=1e-08, weight_decay=0., momentum=0., centered=False):
     assert weight_decay == 0
     return keras.optimizers.RMSprop(learning_rate, alpha, momentum, eps, centered)
 

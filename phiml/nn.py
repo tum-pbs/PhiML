@@ -120,7 +120,7 @@ def adam(net: Network, learning_rate: float = 1e-3, betas=(0.9, 0.999), epsilon=
     return _native_lib().adam(**locals())
 
 
-def sgd(net: Network, learning_rate: float = 1e-3, momentum=0, dampening=0, weight_decay=0, nesterov=False):
+def sgd(net: Network, learning_rate: float = 1e-3, momentum=0., dampening=0., weight_decay=0., nesterov=False):
     """
     Creates an SGD optimizer for 'net', alias for ['torch.optim.SGD'](https://pytorch.org/docs/stable/generated/torch.optim.SGD.html)
     Analogue functions exist for other learning frameworks.
@@ -128,8 +128,7 @@ def sgd(net: Network, learning_rate: float = 1e-3, momentum=0, dampening=0, weig
     return _native_lib().sgd(**locals())
 
 
-def adagrad(net: Network, learning_rate: float = 1e-3, lr_decay=0, weight_decay=0, initial_accumulator_value=0,
-            eps=1e-10):
+def adagrad(net: Network, learning_rate: float = 1e-3, lr_decay=0., weight_decay=0., initial_accumulator_value=0., eps=1e-10):
     """
     Creates an Adagrad optimizer for 'net', alias for ['torch.optim.Adagrad'](https://pytorch.org/docs/stable/generated/torch.optim.Adagrad.html)
     Analogue functions exist for other learning frameworks.
@@ -137,8 +136,7 @@ def adagrad(net: Network, learning_rate: float = 1e-3, lr_decay=0, weight_decay=
     return _native_lib().adagrad(**locals())
 
 
-def rmsprop(net: Network, learning_rate: float = 1e-3, alpha=0.99, eps=1e-08, weight_decay=0, momentum=0,
-            centered=False):
+def rmsprop(net: Network, learning_rate: float = 1e-3, alpha=0.99, eps=1e-08, weight_decay=0., momentum=0., centered=False):
     """
     Creates an RMSProp optimizer for 'net', alias for ['torch.optim.RMSprop'](https://pytorch.org/docs/stable/generated/torch.optim.RMSprop.html)
     Analogue functions exist for other learning frameworks.
