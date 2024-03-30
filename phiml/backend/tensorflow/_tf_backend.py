@@ -589,7 +589,8 @@ class TFBackend(Backend):
             return tf.sort(x, axis)
 
     def searchsorted(self, sorted_sequence, search_values, side: str, dtype=DType(int, 32)):
-        return tf.searchsorted(sorted_sequence, search_values, side=side, out_type=to_numpy_dtype(dtype))
+        with self._device_for(sorted_sequence, search_values):
+            return tf.searchsorted(sorted_sequence, search_values, side=side, out_type=to_numpy_dtype(dtype))
 
     def scatter(self, base_grid, indices, values, mode: str):
         with self._device_for(base_grid, indices, values):
@@ -612,56 +613,60 @@ class TFBackend(Backend):
         # if x_sorted:
         #     return tf.math.segment_sum(weights or 1, x)
         # else:
-        return tf.math.bincount(x, weights=weights, minlength=bins, maxlength=bins)
+        with self._device_for(x, weights):
+            return tf.math.bincount(x, weights=weights, minlength=bins, maxlength=bins)
 
     def unique(self, x: TensorType, return_inverse: bool, return_counts: bool, axis: int) -> Tuple[TensorType, ...]:
-        if self.ndims(x) > 1:
+        with self.device_of(x):
+            if self.ndims(x) > 1:
+                if return_counts:
+                    raise NotImplementedError("TensorFlow multidimensional unique does not support counts")
+                ux, ui = tf.raw_ops.UniqueV2(x=x, axis=[0])
+                return (ux, ui) if return_inverse else ux
             if return_counts:
-                raise NotImplementedError("TensorFlow multidimensional unique does not support counts")
-            ux, ui = tf.raw_ops.UniqueV2(x=x, axis=[0])
-            return (ux, ui) if return_inverse else ux
-        if return_counts:
-            ux, ui, uc = tf.unique_with_counts(x)
-            return (ux, ui, uc) if return_inverse else (ux, uc)
-        else:
-            ux, ui = tf.unique(x)
-            return (ux, ui) if return_inverse else ux
+                ux, ui, uc = tf.unique_with_counts(x)
+                return (ux, ui, uc) if return_inverse else (ux, uc)
+            else:
+                ux, ui = tf.unique(x)
+                return (ux, ui) if return_inverse else ux
 
     def fft(self, x, axes: Union[tuple, list]):
-        if not axes:
-            return x
-        x = self.to_complex(x)
-        perm = (*[i for i in range(self.ndims(x)) if i not in axes], *axes)
-        iperm = np.argsort(perm)
         with self.device_of(x):
-            if len(axes) == 1:
-                return tf.transpose(tf.signal.fft(tf.transpose(x, perm)), iperm)
-            elif len(axes) == 2:
-                return tf.transpose(tf.signal.fft2d(tf.transpose(x, perm)), iperm)
-            elif len(axes) == 3:
-                return tf.transpose(tf.signal.fft3d(tf.transpose(x, perm)), iperm)
-            else:
-                for axis in axes:
-                    x = self.fft(x, [axis])
+            if not axes:
                 return x
+            x = self.to_complex(x)
+            perm = (*[i for i in range(self.ndims(x)) if i not in axes], *axes)
+            iperm = np.argsort(perm)
+            with self.device_of(x):
+                if len(axes) == 1:
+                    return tf.transpose(tf.signal.fft(tf.transpose(x, perm)), iperm)
+                elif len(axes) == 2:
+                    return tf.transpose(tf.signal.fft2d(tf.transpose(x, perm)), iperm)
+                elif len(axes) == 3:
+                    return tf.transpose(tf.signal.fft3d(tf.transpose(x, perm)), iperm)
+                else:
+                    for axis in axes:
+                        x = self.fft(x, [axis])
+                    return x
 
     def ifft(self, k, axes: Union[tuple, list]):
-        if not axes:
-            return k
-        k = self.to_complex(k)
-        perm = (*[i for i in range(self.ndims(k)) if i not in axes], *axes)
-        iperm = np.argsort(perm)
         with self.device_of(k):
-            if len(axes) == 1:
-                return tf.transpose(tf.signal.ifft(tf.transpose(k, perm)), iperm)
-            elif len(axes) == 2:
-                return tf.transpose(tf.signal.ifft2d(tf.transpose(k, perm)), iperm)
-            elif len(axes) == 3:
-                return tf.transpose(tf.signal.ifft3d(tf.transpose(k, perm)), iperm)
-            else:
-                for axis in axes:
-                    k = self.ifft(k, [axis])
+            if not axes:
                 return k
+            k = self.to_complex(k)
+            perm = (*[i for i in range(self.ndims(k)) if i not in axes], *axes)
+            iperm = np.argsort(perm)
+            with self.device_of(k):
+                if len(axes) == 1:
+                    return tf.transpose(tf.signal.ifft(tf.transpose(k, perm)), iperm)
+                elif len(axes) == 2:
+                    return tf.transpose(tf.signal.ifft2d(tf.transpose(k, perm)), iperm)
+                elif len(axes) == 3:
+                    return tf.transpose(tf.signal.ifft3d(tf.transpose(k, perm)), iperm)
+                else:
+                    for axis in axes:
+                        k = self.ifft(k, [axis])
+                    return k
 
     def imag(self, x):
         with self.device_of(x):
