@@ -21,15 +21,24 @@ from ... import math
 def get_parameters(model: keras.Model, wrap=True) -> dict:
     result = {}
     for var in model.trainable_weights:
-        name: str = var.name
-        layer = name[:name.index('/')].replace('_', '').replace('dense', 'linear')
-        try:
-            int(layer[-1:])
-        except ValueError:
-            layer += '0'
-        prop = name[name.index('/') + 1:].replace('kernel', 'weight')
-        if prop.endswith(':0'):
-            prop = prop[:-2]
+        if hasattr(var, 'path'):
+            name: str = var.path.split('/')
+            layer = '.'.join(name[:-1]).replace('dense', 'linear').replace('_', '')
+            try:
+                int(layer[-1:])
+            except ValueError:
+                layer += '0'
+            prop = name[-1].replace('kernel', 'weight')
+        else:
+            name: str = var.path if hasattr(var, 'path') else var.name  # path replaces name in tensorflow >= 2.16
+            layer = name[:name.index('/')].replace('_', '').replace('dense', 'linear')
+            try:
+                int(layer[-1:])
+            except ValueError:
+                layer += '0'
+            prop = name[name.index('/') + 1:].replace('kernel', 'weight')
+            if prop.endswith(':0'):
+                prop = prop[:-2]
         name = f"{layer}.{prop}"
         var = var.numpy()
         if not wrap:
