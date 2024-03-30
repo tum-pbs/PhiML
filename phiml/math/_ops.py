@@ -1887,7 +1887,14 @@ def quantile(value: Tensor,
     q = wrap(quantiles, default_list_dim=instance('quantiles'))
     native_quantiles = reshaped_native(q, [q.shape])
     native_result = backend.quantile(native_values, native_quantiles)
-    return reshaped_tensor(native_result, [q.shape, *value.shape.without(dims)])
+    if native_result is not NotImplemented:
+        return reshaped_tensor(native_result, [q.shape, *value.shape.without(dims)])
+    # --- fallback: custom quantile implementation ---
+    v_sorted = sort(value, dims)
+    q_idx = q * (v_sorted.shape.get_size(dims) - 1)
+    q_idx = expand(q_idx, channel(vector=dims))
+    result = grid_sample(v_sorted, q_idx, e_.ZERO_GRADIENT)
+    return result
 
 
 def median(value, dim: DimFilter = non_batch):

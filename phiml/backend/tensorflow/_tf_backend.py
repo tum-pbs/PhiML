@@ -574,7 +574,10 @@ class TFBackend(Backend):
             return tf.reduce_all(boolean_tensor, axis=axis, keepdims=keepdims)
 
     def quantile(self, x, quantiles):
-        import tensorflow_probability as tfp
+        try:
+            import tensorflow_probability as tfp
+        except ModuleNotFoundError:
+            return NotImplemented
         with self.device_of(x):
             x = self.to_float(x)
             result = tfp.stats.percentile(x, quantiles * 100, axis=-1, interpolation='linear')
