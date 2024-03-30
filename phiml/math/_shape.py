@@ -1012,7 +1012,7 @@ class Shape:
             dim = dim.name
         assert isinstance(dim, str)
         new_size, new_item_names = Shape._size_and_item_names_from_obj(size, self.get_size(dim), self.get_item_names(dim), keep_item_names)
-        return self.replace(dim, Shape((new_size,), (dim,), (self.get_type(dim),), (new_item_names,)))
+        return self.replace(dim, Shape((new_size,), (dim,), (self.get_type(dim),), (new_item_names,)), keep_item_names=keep_item_names)
 
     def _with_names(self, names: Union[str, tuple, list]):
         if isinstance(names, str):

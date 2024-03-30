@@ -14,7 +14,7 @@ from ._shape import (Shape, EMPTY_SHAPE,
 from ._sparse import CompressedSparseMatrix, dense, SparseCoordinateTensor, get_format, to_format, stored_indices, tensor_like, sparse_dims, same_sparsity_pattern, is_sparse, sparse_dot, sparse_sum, sparse_gather, sparse_max, sparse_min
 from ._tensors import (Tensor, wrap, tensor, broadcastable_native_tensors, NativeTensor, TensorStack,
                        custom_op2, compatible_tensor, variable_attributes, disassemble_tree, assemble_tree,
-                       is_scalar, Layout, expand_tensor, TensorOrTree, cached)
+                       is_scalar, Layout, expand_tensor, TensorOrTree, cached, variable_shape)
 from ..backend import default_backend, choose_backend, Backend, get_precision, convert as b_convert, BACKENDS, NoBackendFound, ComputeDevice, NUMPY
 from ..backend._dtype import DType, combine_types
 from .magic import PhiTreeNode
@@ -661,6 +661,34 @@ def transpose(x, axes):
         return unpack_dim(packed, '_t_flat', new_shape)
     else:
         return choose_backend(x).transpose(x, axes)
+
+
+def sort(x: Tensor, dim: DimFilter = non_batch) -> Tensor:
+    """
+    Sort the values of `x` along `dim`.
+    In order to sort a flattened array, use `pack_dims` first.
+
+    Args:
+        x: `Tensor`
+        dim: Dimension to sort. If not present, sorting will be skipped. Defaults to non-batch dim.
+
+    Returns:
+        Sorted `Tensor` or `x` if `x` is constant along `dims`.
+    """
+    v_shape = variable_shape(x)
+    dim = v_shape.only(dim)
+    if not dim:
+        return x  # nothing to do; x is constant along dim
+    assert dim.rank == 1, f"Can only sort one dimension at a time. Use pack_dims() to jointly sort over multiple dimensions."
+    axis = v_shape.index(dim)
+    x_native = x._native if isinstance(x, NativeTensor) else x.native(x.shape)
+    sorted_native = x.default_backend.sort(x_native, axis=axis)
+    x_shape = x.shape
+    if x.shape.get_item_names(dim):
+        warnings.warn(f"sort() removes item names along sorted axis '{dim}'. Was {x.shape.get_item_names(dim)}", RuntimeWarning, stacklevel=2)
+        v_shape = v_shape.with_dim_size(dim, v_shape.get_size(dim), keep_item_names=False)
+        x_shape = x_shape.with_dim_size(dim, x_shape.get_size(dim), keep_item_names=False)
+    return NativeTensor(sorted_native, v_shape, x_shape)
 
 
 def cumulative_sum(x: Tensor, dim: DimFilter):

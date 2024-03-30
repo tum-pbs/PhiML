@@ -581,7 +581,12 @@ class TFBackend(Backend):
             return result
 
     def argsort(self, x, axis=-1):
-        return tf.argsort(x, axis)
+        with self.device_of(x):
+            return tf.argsort(x, axis)
+
+    def sort(self, x, axis=-1):
+        with self.device_of(x):
+            return tf.sort(x, axis)
 
     def searchsorted(self, sorted_sequence, search_values, side: str, dtype=DType(int, 32)):
         return tf.searchsorted(sorted_sequence, search_values, side=side, out_type=to_numpy_dtype(dtype))

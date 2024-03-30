@@ -402,6 +402,9 @@ class TorchBackend(Backend):
     def argsort(self, x, axis=-1):
         return torch.argsort(x, axis)
 
+    def sort(self, x, axis=-1):
+        return torch.sort(x, axis)[0]
+
     def searchsorted(self, sorted_sequence, search_values, side: str, dtype=DType(int, 32)):
         int32 = {32: True, 64: False}[dtype.bits]
         return torch.searchsorted(sorted_sequence, search_values, right=side == 'right', side=side, out_int32=int32)

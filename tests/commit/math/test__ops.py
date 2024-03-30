@@ -5,7 +5,8 @@ import numpy as np
 from phiml import math
 from phiml.backend import Backend
 from phiml.backend._backend import init_installed_backends
-from phiml.math import extrapolation, spatial, channel, instance, batch, DType, IncompatibleShapes, NAN, vec, non_spatial, wrap, assert_close, PI
+from phiml.math import extrapolation, spatial, channel, instance, batch, DType, IncompatibleShapes, NAN, vec, \
+    non_spatial, wrap, assert_close, PI, tensor
 
 BACKENDS = init_installed_backends()
 
@@ -990,4 +991,12 @@ class TestOps(TestCase):
         t = wrap([[0, 1, 2], [3, 4, 5]], spatial('y,x')).native('y,x')
         math.assert_close([[0, 3], [1, 4], [2, 5]], math.transpose(t, [1, 0]))
 
+    def test_sort(self):
+        for b in BACKENDS:
+            with b:
+                t = tensor([[3, 2, 1], [-1, 5, 2]], batch('b'), spatial('x'))
+                math.assert_close([[1, 2, 3], [-1, 2, 5]], math.sort(t))
+                math.assert_close([[-1, 2, 1], [3, 5, 2]], math.sort(t, 'b'))
+                t = tensor([[3, 2, 1], [-1, 5, 2]], batch('b'), spatial(x='1,2,3'))
+                self.assertIsNone(math.sort(t).shape.get_item_names('x'))
 

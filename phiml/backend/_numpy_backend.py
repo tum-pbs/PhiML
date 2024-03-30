@@ -400,6 +400,9 @@ class NumPyBackend(Backend):
     def argsort(self, x, axis=-1):
         return np.argsort(x, axis)
 
+    def sort(self, x, axis=-1):
+        return np.sort(x, axis)
+
     def searchsorted(self, sorted_sequence, search_values, side: str, dtype=DType(int, 32)):
         if self.ndims(sorted_sequence) == 1:
             return np.searchsorted(sorted_sequence, search_values, side=side).astype(to_numpy_dtype(dtype))

@@ -1071,6 +1071,9 @@ class Backend:
     def argsort(self, x, axis=-1):
         raise NotImplementedError(self)
 
+    def sort(self, x, axis=-1):
+        raise NotImplementedError(self)
+
     def searchsorted(self, sorted_sequence, search_values, side: str, dtype=DType(int, 32)):
         raise NotImplementedError(self)
 
