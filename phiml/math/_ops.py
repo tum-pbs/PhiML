@@ -1023,19 +1023,20 @@ def closest_grid_values(grid: Tensor,
                         stack_dim_prefix='closest_',
                         **kwargs):
     """
-    Finds the neighboring grid points in all spatial directions and returns their values.
-    The result will have 2^d values for each vector in coordiantes in d dimensions.
+    Finds the neighboring grid points in all directions and returns their values.
+    The result will have 2^d values for each vector in coordinates in d dimensions.
+
+    If `coordinates` does not have a channel dimension with item names, the spatial dims of `grid` will be used.
 
     Args:
-      grid: grid data. The grid is spanned by the spatial dimensions of the tensor
-      coordinates: tensor with 1 channel dimension holding vectors pointing to locations in grid index space
-      extrap: grid extrapolation
-      stack_dim_prefix: For each spatial dimension `dim`, stacks lower and upper closest values along dimension `stack_dim_prefix+dim`.
-      kwargs: Additional information for the extrapolation.
+        grid: grid data. The grid is spanned by the spatial dimensions of the tensor
+        coordinates: tensor with 1 channel dimension holding vectors pointing to locations in grid index space
+        extrap: grid extrapolation
+        stack_dim_prefix: For each spatial dimension `dim`, stacks lower and upper closest values along dimension `stack_dim_prefix+dim`.
+        kwargs: Additional information for the extrapolation.
 
     Returns:
-      Tensor of shape (batch, coord_spatial, grid_spatial=(2, 2,...), grid_channel)
-
+        `Tensor` of shape (batch, coord_spatial, grid_spatial=(2, 2,...), grid_channel)
     """
     return broadcast_op(functools.partial(_closest_grid_values, extrap=extrap, stack_dim_prefix=stack_dim_prefix, pad_kwargs=kwargs), [grid, coordinates])
 
@@ -1046,28 +1047,31 @@ def _closest_grid_values(grid: Tensor,
                          stack_dim_prefix: str,
                          pad_kwargs: dict):
     # alternative method: pad array for all 2^d combinations, then stack to simplify gather.
+    dim_names = channel(coordinates).item_names[0] or grid.shape.spatial.names
+    dims = grid.shape.only(dim_names, reorder=True)
+    assert len(dims) == len(dim_names), f"all grid dims {dim_names} must be present on grid but got shape {grid.shape}"
     # --- Pad tensor where transform is not possible ---
-    non_copy_pad = {dim: (0 if extrap.is_copy_pad(dim, False) else 1, 0 if extrap.is_copy_pad(dim, True) else 1) for dim in grid.shape.spatial.names}
+    non_copy_pad = {dim: (0 if extrap.is_copy_pad(dim, False) else 1, 0 if extrap.is_copy_pad(dim, True) else 1) for dim in dim_names}
     grid = extrap.pad(grid, non_copy_pad, **pad_kwargs)
-    coordinates += wrap([not extrap.is_copy_pad(dim, False) for dim in grid.shape.spatial.names], channel('vector'))
+    coordinates += wrap([not extrap.is_copy_pad(dim, False) for dim in dim_names], channel('vector'))
     # --- Transform coordiantes ---
     min_coords = to_int32(floor(coordinates))
     max_coords = extrap.transform_coordinates(min_coords + 1, grid.shape)
     min_coords = extrap.transform_coordinates(min_coords, grid.shape)
 
     def left_right(is_hi_by_axis_left, ax_idx):
-        is_hi_by_axis_right = is_hi_by_axis_left | np.array([ax == ax_idx for ax in range(grid.shape.spatial_rank)])
+        is_hi_by_axis_right = is_hi_by_axis_left | np.array([ax == ax_idx for ax in range(dims.rank)])
         coords_left = where(is_hi_by_axis_left, max_coords, min_coords)
         coords_right = where(is_hi_by_axis_right, max_coords, min_coords)
-        if ax_idx == grid.shape.spatial_rank - 1:
+        if ax_idx == dims.rank - 1:
             values_left = gather(grid, coords_left)
             values_right = gather(grid, coords_right)
         else:
             values_left = left_right(is_hi_by_axis_left, ax_idx + 1)
             values_right = left_right(is_hi_by_axis_right, ax_idx + 1)
-        return stack_tensors([values_left, values_right], channel(f"{stack_dim_prefix}{grid.shape.spatial.names[ax_idx]}"))
+        return stack_tensors([values_left, values_right], channel(f"{stack_dim_prefix}{dim_names[ax_idx]}"))
 
-    result = left_right(np.array([False] * grid.shape.spatial_rank), 0)
+    result = left_right(np.array([False] * dims.rank), 0)
     return result
 
 
@@ -1075,6 +1079,9 @@ def grid_sample(grid: Tensor, coordinates: Tensor, extrap: Union['e_.Extrapolati
     """
     Samples values of `grid` at the locations referenced by `coordinates`.
     Values lying in between sample points are determined via linear interpolation.
+
+    If `coordinates` has a channel dimension, its item names are used to determine the grid dimensions of `grid`.
+    Otherwise, the spatial dims of `grid` will be used.
 
     For values outside the valid bounds of `grid` (`coord < 0 or coord > grid.shape - 1`), `extrap` is used to determine the neighboring grid values.
     If the extrapolation does not support resampling, the grid is padded by one cell layer before resampling.
@@ -1091,27 +1098,42 @@ def grid_sample(grid: Tensor, coordinates: Tensor, extrap: Union['e_.Extrapolati
         `Tensor` with channel dimensions of `grid`, spatial and instance dimensions of `coordinates` and combined batch dimensions.
     """
     extrap = e_.as_extrapolation(extrap) if extrap is not None else None
+    if not channel(coordinates):
+        assert spatial(grid).rank == 1, f"grid must have 1 spatial dimension if coordinates does not have a channel dimension"
+        coordinates = expand(coordinates, channel(vector=spatial(grid)))
+    assert channel(coordinates).rank == 1, f"coordinates must have at most one channel dimension but got {channel(coordinates)}"
+    coordinates = rename_dims(coordinates, channel, 'vector')
     result = broadcast_op(functools.partial(_grid_sample, extrap=extrap, pad_kwargs=kwargs), [grid, coordinates])
     return result
 
 
 def _grid_sample(grid: Tensor, coordinates: Tensor, extrap: Union['e_.Extrapolation', None], pad_kwargs: dict):
+    """
+    Args:
+        grid:
+        coordinates: has exactly one channel dimension
+        extrap:
+        pad_kwargs:
+    """
+    dim_names = channel(coordinates).item_names[0] or grid.shape.spatial.names
+    dims = grid.shape.only(dim_names, reorder=True)
+    assert len(dims) == len(dim_names), f"all grid dims {dim_names} must be present on grid but got shape {grid.shape}"
     if grid.shape.batch == coordinates.shape.batch or grid.shape.batch.volume == 1 or coordinates.shape.batch.volume == 1:
         # call backend.grid_sample()
-        batch = grid.shape.batch & coordinates.shape.batch
+        batch_dims = (grid.shape.batch & coordinates.shape.batch).without(dims)
         backend = choose_backend_t(grid, coordinates)
         result = NotImplemented
         if extrap is None:
-            result = backend.grid_sample(reshaped_native(grid, [batch, *grid.shape.spatial, grid.shape.channel]),
-                                         reshaped_native(coordinates, [batch, *coordinates.shape.instance, *coordinates.shape.spatial, 'vector']),
+            result = backend.grid_sample(reshaped_native(grid, [batch_dims, *dims, grid.shape.non_batch.without(dims)]),
+                                         reshaped_native(coordinates, [batch_dims, *coordinates.shape.instance, *coordinates.shape.spatial, 'vector']),
                                          'undefined')
         elif extrap.native_grid_sample_mode:
-            result = backend.grid_sample(reshaped_native(grid, [batch, *grid.shape.spatial, grid.shape.channel]),
-                                         reshaped_native(coordinates, [batch, *coordinates.shape.instance, *coordinates.shape.spatial, 'vector']),
+            result = backend.grid_sample(reshaped_native(grid, [batch_dims, *dims, grid.shape.non_batch.without(dims)]),
+                                         reshaped_native(coordinates, [batch_dims, *coordinates.shape.instance, *coordinates.shape.spatial, 'vector']),
                                          extrap.native_grid_sample_mode)
         if result is NotImplemented:
             # pad one layer
-            grid_padded = pad(grid, {dim: (1, 1) for dim in grid.shape.spatial.names}, extrap or e_.ZERO, **pad_kwargs)
+            grid_padded = pad(grid, {dim: (1, 1) for dim in dim_names}, extrap or e_.ZERO, **pad_kwargs)
             if extrap is not None:
                 from .extrapolation import _CopyExtrapolation
                 if isinstance(extrap, _CopyExtrapolation):
@@ -1120,18 +1142,18 @@ def _grid_sample(grid: Tensor, coordinates: Tensor, extrap: Union['e_.Extrapolat
                     inner_coordinates = extrap.transform_coordinates(coordinates + 1, grid_padded.shape)
             else:
                 inner_coordinates = coordinates + 1
-            result = backend.grid_sample(reshaped_native(grid_padded, [batch, *grid_padded.shape.spatial.names, grid.shape.channel]),
-                                         reshaped_native(inner_coordinates, [batch, *coordinates.shape.instance, *coordinates.shape.spatial, 'vector']),
+            result = backend.grid_sample(reshaped_native(grid_padded, [batch_dims, *dims.names, grid.shape.non_batch.without(dims)]),
+                                         reshaped_native(inner_coordinates, [batch_dims, *coordinates.shape.instance, *coordinates.shape.spatial, 'vector']),
                                          'boundary')
         if result is not NotImplemented:
-            result = reshaped_tensor(result, [grid.shape.batch & coordinates.shape.batch, *coordinates.shape.instance, *coordinates.shape.spatial, grid.shape.channel])
+            result = reshaped_tensor(result, [batch_dims, *coordinates.shape.instance, *coordinates.shape.spatial, grid.shape.non_batch.without(dims)])
             return result
     # fallback to slower grid sampling
     neighbors = _closest_grid_values(grid, coordinates, extrap or e_.ZERO, '_closest_', pad_kwargs)
-    binary = meshgrid(channel, **{f'_closest_{dim}': (0, 1) for dim in grid.shape.spatial.names}, stack_dim=channel(coordinates))
+    binary = meshgrid(channel, **{f'_closest_{dim}': (0, 1) for dim in dim_names}, stack_dim=channel(coordinates))
     right_weights = coordinates % 1
     weights = prod(binary * right_weights + (1 - binary) * (1 - right_weights), 'vector')
-    result = sum_(neighbors * weights, dim=[f"_closest_{dim}" for dim in grid.shape.spatial.names])
+    result = sum_(neighbors * weights, dim=[f"_closest_{dim}" for dim in dim_names])
     return result
 
 
