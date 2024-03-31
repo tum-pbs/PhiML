@@ -605,6 +605,9 @@ The methods of <code>Backend</code> form a comprehensive list of available opera
     def argsort(self, x, axis=-1):
         return jnp.argsort(x, axis)
 
+    def sort(self, x, axis=-1):
+        return jnp.sort(x, axis)
+
     def searchsorted(self, sorted_sequence, search_values, side: str, dtype=DType(int, 32)):
         if self.ndims(sorted_sequence) == 1:
             return jnp.searchsorted(sorted_sequence, search_values, side=side).astype(to_numpy_dtype(dtype))
@@ -3554,6 +3557,19 @@ unit_diagonal:</p>
     return x</code></pre>
 </details>
 </dd>
+<dt id="phiml.backend.jax.JaxBackend.sort"><code class="name flex">
+<span>def <span class="ident">sort</span></span>(<span>self, x, axis=-1)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def sort(self, x, axis=-1):
+    return jnp.sort(x, axis)</code></pre>
+</details>
+</dd>
 <dt id="phiml.backend.jax.JaxBackend.sparse_coo_tensor"><code class="name flex">
 <span>def <span class="ident">sparse_coo_tensor</span></span>(<span>self, indices: Union[tuple, list], values, shape: tuple)</span>
 </code></dt>
@@ -3932,6 +3948,7 @@ If the loop is broken, the values returned by the last loop are expected to be c
 <li><code><a title="phiml.backend.jax.JaxBackend.sinh" href="#phiml.backend.jax.JaxBackend.sinh">sinh</a></code></li>
 <li><code><a title="phiml.backend.jax.JaxBackend.softplus" href="#phiml.backend.jax.JaxBackend.softplus">softplus</a></code></li>
 <li><code><a title="phiml.backend.jax.JaxBackend.solve_triangular_dense" href="#phiml.backend.jax.JaxBackend.solve_triangular_dense">solve_triangular_dense</a></code></li>
+<li><code><a title="phiml.backend.jax.JaxBackend.sort" href="#phiml.backend.jax.JaxBackend.sort">sort</a></code></li>
 <li><code><a title="phiml.backend.jax.JaxBackend.sparse_coo_tensor" href="#phiml.backend.jax.JaxBackend.sparse_coo_tensor">sparse_coo_tensor</a></code></li>
 <li><code><a title="phiml.backend.jax.JaxBackend.sqrt" href="#phiml.backend.jax.JaxBackend.sqrt">sqrt</a></code></li>
 <li><code><a title="phiml.backend.jax.JaxBackend.stack" href="#phiml.backend.jax.JaxBackend.stack">stack</a></code></li>

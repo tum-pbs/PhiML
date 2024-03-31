@@ -65,7 +65,7 @@ from ._magic_ops import (
     stack, concat, expand,
     rename_dims, rename_dims as replace_dims, pack_dims, unpack_dim, flatten,
     b2i, c2b, c2d, i2b, s2b, si2d,
-    copy_with, replace
+    copy_with, replace, find_differences
 )
 
 from ._tensors import wrap, tensor, layout, Tensor, Dict, to_dict, from_dict, is_scalar, BROADCAST_FORMATTER as f
@@ -83,6 +83,7 @@ from ._ops import (
     zeros_like, ones_like,
     pad,
     transpose,  # reshape operations
+    sort,
     safe_div,
     where, nonzero,
     sum_ as sum, finite_sum, mean, finite_mean, std, prod, max_ as max, finite_max, min_ as min, finite_min, any_ as any, all_ as all, quantile, median,  # reduce
@@ -269,7 +270,7 @@ from ._magic_ops import (
     stack, concat, expand,
     rename_dims, rename_dims as replace_dims, pack_dims, unpack_dim, flatten,
     b2i, c2b, c2d, i2b, s2b, si2d,
-    copy_with, replace
+    copy_with, replace, find_differences
 )
 
 from ._tensors import wrap, tensor, layout, Tensor, Dict, to_dict, from_dict, is_scalar, BROADCAST_FORMATTER as f
@@ -287,6 +288,7 @@ from ._ops import (
     zeros_like, ones_like,
     pad,
     transpose,  # reshape operations
+    sort,
     safe_div,
     where, nonzero,
     sum_ as sum, finite_sum, mean, finite_mean, std, prod, max_ as max, finite_max, min_ as min, finite_min, any_ as any, all_ as all, quantile, median,  # reduce
@@ -614,6 +616,8 @@ Otherwise, an element-wise equality check is performed.</p>
     Returns:
         `bool`
     &#34;&#34;&#34;
+    if t1 is None or t2 is None:
+        return t1 is None and t2 is None
     t1 = wrap(t1)
     t2 = wrap(t2)
     if t1.available != t2.available:
@@ -1035,9 +1039,9 @@ Raises an AssertionError if the values of this tensor are not within tolerance o
         for other in values[1:]:
             _assert_close(values[0], other, rel_tolerance, abs_tolerance, msg, verbose)
     elif all(isinstance(v, PhiTreeNode) for v in values):
-        tree0, tensors0 = disassemble_tree(values[0], cache=False)
+        tree0, tensors0 = disassemble_tree(values[0], cache=False, attr_type=value_attributes)
         for value in values[1:]:
-            tree, tensors_ = disassemble_tree(value, cache=False)
+            tree, tensors_ = disassemble_tree(value, cache=False, attr_type=value_attributes)
             assert tree0 == tree, f&#34;Tree structures do not match: {tree0} and {tree}&#34;
             for t0, t in zip(tensors0, tensors_):
                 _assert_close(t0, t, rel_tolerance, abs_tolerance, msg, verbose)
@@ -1680,6 +1684,8 @@ If any argument is <code>None</code>, returns <code>True</code> only if all are 
         return all(o is None for o in tensors)
     if any(o is None for o in tensors):
         return False
+    if all(t is tensors[0] for t in tensors):
+        return True
     tensors = [wrap(t) for t in tensors]
     for other in tensors[1:]:
         if not _close(tensors[0], other, rel_tolerance=rel_tolerance, abs_tolerance=abs_tolerance, equal_nan=equal_nan):
@@ -1691,8 +1697,9 @@ If any argument is <code>None</code>, returns <code>True</code> only if all are 
 <span>def <span class="ident">closest_grid_values</span></span>(<span>grid: phiml.math._tensors.Tensor, coordinates: phiml.math._tensors.Tensor, extrap: e_.Extrapolation, stack_dim_prefix='closest_', **kwargs)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Finds the neighboring grid points in all spatial directions and returns their values.
-The result will have 2^d values for each vector in coordiantes in d dimensions.</p>
+<div class="desc"><p>Finds the neighboring grid points in all directions and returns their values.
+The result will have 2^d values for each vector in coordinates in d dimensions.</p>
+<p>If <code>coordinates</code> does not have a channel dimension with item names, the spatial dims of <code>grid</code> will be used.</p>
 <h2 id="args">Args</h2>
 <dl>
 <dt><strong><code>grid</code></strong></dt>
@@ -1707,7 +1714,7 @@ The result will have 2^d values for each vector in coordiantes in d dimensions.<
 <dd>Additional information for the extrapolation.</dd>
 </dl>
 <h2 id="returns">Returns</h2>
-<p>Tensor of shape (batch, coord_spatial, grid_spatial=(2, 2,&hellip;), grid_channel)</p></div>
+<p><code><a title="phiml.math.Tensor" href="#phiml.math.Tensor">Tensor</a></code> of shape (batch, coord_spatial, grid_spatial=(2, 2,&hellip;), grid_channel)</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -1718,19 +1725,20 @@ The result will have 2^d values for each vector in coordiantes in d dimensions.<
                         stack_dim_prefix=&#39;closest_&#39;,
                         **kwargs):
     &#34;&#34;&#34;
-    Finds the neighboring grid points in all spatial directions and returns their values.
-    The result will have 2^d values for each vector in coordiantes in d dimensions.
+    Finds the neighboring grid points in all directions and returns their values.
+    The result will have 2^d values for each vector in coordinates in d dimensions.
+
+    If `coordinates` does not have a channel dimension with item names, the spatial dims of `grid` will be used.
 
     Args:
-      grid: grid data. The grid is spanned by the spatial dimensions of the tensor
-      coordinates: tensor with 1 channel dimension holding vectors pointing to locations in grid index space
-      extrap: grid extrapolation
-      stack_dim_prefix: For each spatial dimension `dim`, stacks lower and upper closest values along dimension `stack_dim_prefix+dim`.
-      kwargs: Additional information for the extrapolation.
+        grid: grid data. The grid is spanned by the spatial dimensions of the tensor
+        coordinates: tensor with 1 channel dimension holding vectors pointing to locations in grid index space
+        extrap: grid extrapolation
+        stack_dim_prefix: For each spatial dimension `dim`, stacks lower and upper closest values along dimension `stack_dim_prefix+dim`.
+        kwargs: Additional information for the extrapolation.
 
     Returns:
-      Tensor of shape (batch, coord_spatial, grid_spatial=(2, 2,...), grid_channel)
-
+        `Tensor` of shape (batch, coord_spatial, grid_spatial=(2, 2,...), grid_channel)
     &#34;&#34;&#34;
     return broadcast_op(functools.partial(_closest_grid_values, extrap=extrap, stack_dim_prefix=stack_dim_prefix, pad_kwargs=kwargs), [grid, coordinates])</code></pre>
 </details>
@@ -2007,7 +2015,7 @@ In the latter case, a new channel dimension named <code>'vector'</code> will be 
     if isinstance(x, Tensor):
         return x._op1(lambda native: b_convert(native, backend, use_dlpack=use_dlpack))
     elif isinstance(x, PhiTreeNode):
-        return copy_with(x, **{a: convert(getattr(x, a), backend, use_dlpack=use_dlpack) for a in variable_attributes(x)})
+        return tree_map(convert, x, backend=backend, use_dlpack=use_dlpack)
     else:
         return b_convert(x, backend, use_dlpack=use_dlpack)</code></pre>
 </details>
@@ -2133,10 +2141,12 @@ Otherwise, the <code><a title="phiml.math.copy" href="#phiml.math.copy">copy()</
         Copy of `obj` with updated values.
     &#34;&#34;&#34;
     if hasattr(obj, &#39;__with_attrs__&#39;):
-        return obj.__with_attrs__(**updates)
+        result = obj.__with_attrs__(**updates)
+        if result is not NotImplemented:
+            return result
     elif isinstance(obj, (Number, bool)):
         return obj
-    elif dataclasses.is_dataclass(obj):
+    if dataclasses.is_dataclass(obj):
         return dataclasses.replace(obj, **updates)
     else:
         cpy = copy.copy(obj)
@@ -2771,6 +2781,8 @@ This may result in a noticeable drop in performance.</p></div>
         return all(o is None for o in objects)
     if any(o is None for o in objects):
         return False
+    if all(o is objects[0] for o in objects):
+        return True
     try:
         tensors = [wrap(o) for o in objects]
         if any(t.dtype.kind == object for t in tensors):
@@ -3201,6 +3213,44 @@ This is implemented using a k-d tree built from <code>vectors</code>.</p>
         native_idx = b.numpy_call(perform_query, (batch(vectors).volume, query.shape.without(batch(vectors)).non_channel.volume), DType(int, 64), native_vectors, native_query)
     native_multi_idx = choose_backend(native_idx).unravel_index(native_idx, vectors.shape.non_batch.non_channel.sizes)
     return reshaped_tensor(native_multi_idx, [batch(vectors), query.shape.without(batch(vectors)).non_channel, index_dim.with_size(non_batch(vectors).non_channel.names)])</code></pre>
+</details>
+</dd>
+<dt id="phiml.math.find_differences"><code class="name flex">
+<span>def <span class="ident">find_differences</span></span>(<span>tree1, tree2, compare_tensors_by_id=False) ‑> Sequence[Tuple[str, str, Any, Any]]</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Compares <code>tree1</code> and <code>tree2</code> and returns all differences in the form <code>(difference_description: str, variable_identifier: str, value1, value2)</code>.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>tree1</code></strong></dt>
+<dd>Nested tree or leaf</dd>
+<dt><strong><code>tree2</code></strong></dt>
+<dd>Nested tree or leaf</dd>
+<dt><strong><code>compare_tensors_by_id</code></strong></dt>
+<dd>Whether <code><a title="phiml.math.Tensor" href="#phiml.math.Tensor">Tensor</a></code> objects should be compared by identity or values.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<p>List of differences, each represented as a <code>tuple</code>.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def find_differences(tree1, tree2, compare_tensors_by_id=False) -&gt; Sequence[Tuple[str, str, Any, Any]]:
+    &#34;&#34;&#34;
+    Compares `tree1` and `tree2` and returns all differences in the form `(difference_description: str, variable_identifier: str, value1, value2)`.
+
+    Args:
+        tree1: Nested tree or leaf
+        tree2: Nested tree or leaf
+        compare_tensors_by_id: Whether `phiml.math.Tensor` objects should be compared by identity or values.
+
+    Returns:
+        List of differences, each represented as a `tuple`.
+    &#34;&#34;&#34;
+    from ._ops import equal, always_close
+    result = []
+    _recursive_diff(tree1, tree2, &#39;&#39;, result, compare_tensors_by_id)
+    return result</code></pre>
 </details>
 </dd>
 <dt id="phiml.math.finite_fill"><code class="name flex">
@@ -4098,6 +4148,8 @@ If not specified, the gradient will be computed w.r.t. the first positional argu
 <dd>
 <div class="desc"><p>Samples values of <code>grid</code> at the locations referenced by <code>coordinates</code>.
 Values lying in between sample points are determined via linear interpolation.</p>
+<p>If <code>coordinates</code> has a channel dimension, its item names are used to determine the grid dimensions of <code>grid</code>.
+Otherwise, the spatial dims of <code>grid</code> will be used.</p>
 <p>For values outside the valid bounds of <code>grid</code> (<code>coord &lt; 0 or coord &gt; grid.shape - 1</code>), <code>extrap</code> is used to determine the neighboring grid values.
 If the extrapolation does not support resampling, the grid is padded by one cell layer before resampling.
 In that case, values lying further outside will not be sampled according to the extrapolation.</p>
@@ -4124,6 +4176,9 @@ The size of the <code>vector</code> dimension must match the number of spatial d
     Samples values of `grid` at the locations referenced by `coordinates`.
     Values lying in between sample points are determined via linear interpolation.
 
+    If `coordinates` has a channel dimension, its item names are used to determine the grid dimensions of `grid`.
+    Otherwise, the spatial dims of `grid` will be used.
+
     For values outside the valid bounds of `grid` (`coord &lt; 0 or coord &gt; grid.shape - 1`), `extrap` is used to determine the neighboring grid values.
     If the extrapolation does not support resampling, the grid is padded by one cell layer before resampling.
     In that case, values lying further outside will not be sampled according to the extrapolation.
@@ -4139,6 +4194,11 @@ The size of the <code>vector</code> dimension must match the number of spatial d
         `Tensor` with channel dimensions of `grid`, spatial and instance dimensions of `coordinates` and combined batch dimensions.
     &#34;&#34;&#34;
     extrap = e_.as_extrapolation(extrap) if extrap is not None else None
+    if not channel(coordinates):
+        assert spatial(grid).rank == 1, f&#34;grid must have 1 spatial dimension if coordinates does not have a channel dimension&#34;
+        coordinates = expand(coordinates, channel(vector=spatial(grid)))
+    assert channel(coordinates).rank == 1, f&#34;coordinates must have at most one channel dimension but got {channel(coordinates)}&#34;
+    coordinates = rename_dims(coordinates, channel, &#39;vector&#39;)
     result = broadcast_op(functools.partial(_grid_sample, extrap=extrap, pad_kwargs=kwargs), [grid, coordinates])
     return result</code></pre>
 </details>
@@ -5766,16 +5826,19 @@ Input dimensions will be <code><a title="phiml.math.dual" href="#phiml.math.dual
     all_args = {**kwargs, **{f_params[i]: v for i, v in enumerate(args)}}
     aux_args = {k: v for k, v in all_args.items() if k in aux}
     trace_args = {k: v for k, v in all_args.items() if k not in aux}
-    tree, tensors = disassemble_tree(trace_args, cache=False)
+    tree, tensors = disassemble_tree(trace_args, cache=False, attr_type=value_attributes)
+    assert len(tensors) == 1, f&#34;Only one input tensor can be traced bot got {tensors}&#34;
     target_backend = choose_backend_t(*tensors)
     # --- Trace function ---
     with NUMPY:
         src = TracerSource(tensors[0].shape, tensors[0].dtype, tuple(trace_args.keys())[0], 0)
         tracer = ShiftLinTracer(src, {EMPTY_SHAPE: math.ones()}, tensors[0].shape, bias=math.zeros(dtype=tensors[0].dtype), renamed={d: d for d in tensors[0].shape.names})
-        x_kwargs = assemble_tree(tree, [tracer])
+        x_kwargs = assemble_tree(tree, [tracer] + tensors[1:], attr_type=value_attributes)
         result = f(**x_kwargs, **aux_args)
-    out_tree, result_tensors = disassemble_tree(result, cache=False)
+    out_tree, result_tensors = disassemble_tree(result, cache=False, attr_type=value_attributes)
     assert len(result_tensors) == 1, f&#34;Linear function output must be or contain a single Tensor but got {result}&#34;
+    # for t in result_tensors[1:]:
+    #     assert not t._is_tracer, f&#34;Linear function must only return a single tracer at position 0 but got {result_tensors}&#34;
     tracer = result_tensors[0]._simplify()
     assert tracer._is_tracer, f&#34;Tracing linear function &#39;{f_name(f)}&#39; failed. Make sure only linear operations are used. Output: {tracer.shape}&#34;
     # --- Convert to COO ---
@@ -6257,7 +6320,7 @@ The first return value of <code><a title="phiml.math.f" href="#phiml.math.f">f</
     solve = solve.with_defaults(&#39;optimization&#39;)
     assert (solve.rel_tol == 0).all, f&#34;rel_tol must be zero for minimize() but got {solve.rel_tol}&#34;
     assert solve.preprocess_y is None, &#34;minimize() does not allow preprocess_y&#34;
-    x0_nest, x0_tensors = disassemble_tree(solve.x0, cache=True)
+    x0_nest, x0_tensors = disassemble_tree(solve.x0, cache=True, attr_type=value_attributes)
     x0_tensors = [to_float(t) for t in x0_tensors]
     backend = choose_backend_t(*x0_tensors, prefer_default=True)
     batch_dims = merge_shapes(*[t.shape for t in x0_tensors]).batch
@@ -6292,7 +6355,7 @@ The first return value of <code><a title="phiml.math.f" href="#phiml.math.f">f</
                 stack_dims = t.shape.shape.without(&#39;dims&#39;)
                 x_tensors.append(stack(partial_tensors[:stack_dims.volume], stack_dims))
                 partial_tensors = partial_tensors[stack_dims.volume:]
-        x = assemble_tree(x0_nest, x_tensors)
+        x = assemble_tree(x0_nest, x_tensors, attr_type=value_attributes)
         return x
 
     def native_function(x_flat):
@@ -7735,7 +7798,14 @@ Must be of type <code>float</code>, <code>tuple</code>, <code>list</code> or <co
     q = wrap(quantiles, default_list_dim=instance(&#39;quantiles&#39;))
     native_quantiles = reshaped_native(q, [q.shape])
     native_result = backend.quantile(native_values, native_quantiles)
-    return reshaped_tensor(native_result, [q.shape, *value.shape.without(dims)])</code></pre>
+    if native_result is not NotImplemented:
+        return reshaped_tensor(native_result, [q.shape, *value.shape.without(dims)])
+    # --- fallback: custom quantile implementation ---
+    v_sorted = sort(value, dims)
+    q_idx = q * (v_sorted.shape.get_size(dims) - 1)
+    q_idx = expand(q_idx, channel(vector=dims))
+    result = grid_sample(v_sorted, q_idx, e_.ZERO_GRADIENT)
+    return result</code></pre>
 </details>
 </dd>
 <dt id="phiml.math.radians_to_degrees"><code class="name flex">
@@ -8107,10 +8177,12 @@ Otherwise, the <code><a title="phiml.math.copy" href="#phiml.math.copy">copy()</
         Copy of `obj` with updated values.
     &#34;&#34;&#34;
     if hasattr(obj, &#39;__with_attrs__&#39;):
-        return obj.__with_attrs__(**updates)
+        result = obj.__with_attrs__(**updates)
+        if result is not NotImplemented:
+            return result
     elif isinstance(obj, (Number, bool)):
         return obj
-    elif dataclasses.is_dataclass(obj):
+    if dataclasses.is_dataclass(obj):
         return dataclasses.replace(obj, **updates)
     else:
         cpy = copy.copy(obj)
@@ -9496,8 +9568,8 @@ These arguments are treated as auxiliary arguments and can be of any type.</dd>
     f_kwargs.update(f_kwargs_)
     f_args = f_args[0] if len(f_args) == 1 and isinstance(f_args[0], tuple) else f_args
     # --- Get input and output tensors ---
-    y_tree, y_tensors = disassemble_tree(y, cache=False)
-    x0_tree, x0_tensors = disassemble_tree(solve.x0, cache=False)
+    y_tree, y_tensors = disassemble_tree(y, cache=False, attr_type=value_attributes)
+    x0_tree, x0_tensors = disassemble_tree(solve.x0, cache=False, attr_type=value_attributes)
     assert solve.x0 is not None, &#34;Please specify the initial guess as Solve(..., x0=initial_guess)&#34;
     assert len(x0_tensors) == len(y_tensors) == 1, &#34;Only single-tensor linear solves are currently supported&#34;
     if y_tree == &#39;native&#39; and x0_tree == &#39;native&#39;:
@@ -9563,17 +9635,17 @@ These arguments are treated as auxiliary arguments and can be of any type.</dd>
         assert solve.preconditioner is None, f&#34;Preconditioners not currently supported for matrix-free solves. Decorate &#39;{f_name(f)}&#39; with @math.jit_compile_linear to perform a matrix solve.&#34;
 
         def _function_solve_forward(y, solve: Solve, f_args: tuple, f_kwargs: dict = None, is_backprop=False):
-            y_nest, (y_tensor,) = disassemble_tree(y, cache=False)
-            x0_nest, (x0_tensor,) = disassemble_tree(solve.x0, cache=False)
+            y_nest, (y_tensor,) = disassemble_tree(y, cache=False, attr_type=value_attributes)
+            x0_nest, (x0_tensor,) = disassemble_tree(solve.x0, cache=False, attr_type=value_attributes)
             # active_dims = (y_tensor.shape &amp; x0_tensor.shape).non_batch  # assumes batch dimensions are not active
             batches = (y_tensor.shape &amp; x0_tensor.shape).batch
 
             def native_lin_f(native_x, batch_index=None):
                 if batch_index is not None and batches.volume &gt; 1:
                     native_x = backend.tile(backend.expand_dims(native_x), [batches.volume, 1])
-                x = assemble_tree(x0_nest, [reshaped_tensor(native_x, [batches, non_batch(x0_tensor)] if backend.ndims(native_x) &gt;= 2 else [non_batch(x0_tensor)], convert=False)])
+                x = assemble_tree(x0_nest, [reshaped_tensor(native_x, [batches, non_batch(x0_tensor)] if backend.ndims(native_x) &gt;= 2 else [non_batch(x0_tensor)], convert=False)], attr_type=value_attributes)
                 y = f(x, *f_args, **f_kwargs)
-                _, (y_tensor,) = disassemble_tree(y, cache=False)
+                _, (y_tensor,) = disassemble_tree(y, cache=False, attr_type=value_attributes)
                 y_native = reshaped_native(y_tensor, [batches, non_batch(y_tensor)] if backend.ndims(native_x) &gt;= 2 else [non_batch(y_tensor)])
                 if batch_index is not None and batches.volume &gt; 1:
                     y_native = y_native[batch_index]
@@ -9658,6 +9730,53 @@ The output of <code><a title="phiml.math.f" href="#phiml.math.f">f</a></code> mu
     tol = math.maximum(solve.rel_tol * l2_loss(y), solve.abs_tol)
     min_solve = copy_with(solve, abs_tol=tol, rel_tol=0, preprocess_y=None)
     return minimize(min_func, min_solve)</code></pre>
+</details>
+</dd>
+<dt id="phiml.math.sort"><code class="name flex">
+<span>def <span class="ident">sort</span></span>(<span>x: phiml.math._tensors.Tensor, dim: Union[str, tuple, list, set, ForwardRef('<a title="phiml.math.Shape" href="#phiml.math.Shape">Shape</a>'), Callable] = &lt;function non_batch&gt;) ‑> phiml.math._tensors.Tensor</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Sort the values of <code>x</code> along <code>dim</code>.
+In order to sort a flattened array, use <code><a title="phiml.math.pack_dims" href="#phiml.math.pack_dims">pack_dims()</a></code> first.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>x</code></strong></dt>
+<dd><code><a title="phiml.math.Tensor" href="#phiml.math.Tensor">Tensor</a></code></dd>
+<dt><strong><code>dim</code></strong></dt>
+<dd>Dimension to sort. If not present, sorting will be skipped. Defaults to non-batch dim.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<p>Sorted <code><a title="phiml.math.Tensor" href="#phiml.math.Tensor">Tensor</a></code> or <code>x</code> if <code>x</code> is constant along <code>dims</code>.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def sort(x: Tensor, dim: DimFilter = non_batch) -&gt; Tensor:
+    &#34;&#34;&#34;
+    Sort the values of `x` along `dim`.
+    In order to sort a flattened array, use `pack_dims` first.
+
+    Args:
+        x: `Tensor`
+        dim: Dimension to sort. If not present, sorting will be skipped. Defaults to non-batch dim.
+
+    Returns:
+        Sorted `Tensor` or `x` if `x` is constant along `dims`.
+    &#34;&#34;&#34;
+    v_shape = variable_shape(x)
+    dim = v_shape.only(dim)
+    if not dim:
+        return x  # nothing to do; x is constant along dim
+    assert dim.rank == 1, f&#34;Can only sort one dimension at a time. Use pack_dims() to jointly sort over multiple dimensions.&#34;
+    axis = v_shape.index(dim)
+    x_native = x._native if isinstance(x, NativeTensor) else x.native(x.shape)
+    sorted_native = x.default_backend.sort(x_native, axis=axis)
+    x_shape = x.shape
+    if x.shape.get_item_names(dim):
+        warnings.warn(f&#34;sort() removes item names along sorted axis &#39;{dim}&#39;. Was {x.shape.get_item_names(dim)}&#34;, RuntimeWarning, stacklevel=2)
+        v_shape = v_shape.with_dim_size(dim, v_shape.get_size(dim), keep_item_names=False)
+        x_shape = x_shape.with_dim_size(dim, x_shape.get_size(dim), keep_item_names=False)
+    return NativeTensor(sorted_native, v_shape, x_shape)</code></pre>
 </details>
 </dd>
 <dt id="phiml.math.sparse_tensor"><code class="name flex">
@@ -10552,7 +10671,7 @@ If False, wraps the data in a <code><a title="phiml.math.Tensor" href="#phiml.ma
             data = default_backend().as_tensor(data, convert_external=True)
         return NativeTensor(data, EMPTY_SHAPE)
     if isinstance(data, (tuple, list)):
-        if all(isinstance(d, (bool, int, float, complex)) for d in data):
+        if all(isinstance(d, (bool, int, float, complex, np.generic)) for d in data):
             array = np.array(data)
             assert array.dtype != object
             data = array
@@ -11652,13 +11771,13 @@ To get the indices of True / non-zero values, use :func:<code><a title="phiml.ma
 </summary>
 <pre><code class="python">def zeros_like(obj: Union[Tensor, PhiTreeNode]) -&gt; Union[Tensor, PhiTreeNode]:
     &#34;&#34;&#34; Create a `Tensor` containing only `0.0` / `0` / `False` with the same shape and dtype as `obj`. &#34;&#34;&#34;
-    nest, values = disassemble_tree(obj, cache=False)
+    nest, values = disassemble_tree(obj, cache=False, attr_type=value_attributes)
     zeros_ = []
     for val in values:
         val = wrap(val)
         with val.default_backend:
             zeros_.append(zeros(val.shape, dtype=val.dtype))
-    return assemble_tree(nest, zeros_)</code></pre>
+    return assemble_tree(nest, zeros_, attr_type=value_attributes)</code></pre>
 </details>
 </dd>
 </dl>
@@ -13391,7 +13510,7 @@ To create a shape with multiple types, use <code><a title="phiml.math.merge_shap
             dim = dim.name
         assert isinstance(dim, str)
         new_size, new_item_names = Shape._size_and_item_names_from_obj(size, self.get_size(dim), self.get_item_names(dim), keep_item_names)
-        return self.replace(dim, Shape((new_size,), (dim,), (self.get_type(dim),), (new_item_names,)))
+        return self.replace(dim, Shape((new_size,), (dim,), (self.get_type(dim),), (new_item_names,)), keep_item_names=keep_item_names)
 
     def _with_names(self, names: Union[str, tuple, list]):
         if isinstance(names, str):
@@ -15341,7 +15460,7 @@ The dimension listing the sizes of the shape is referred to as <code>'dims'</cod
         dim = dim.name
     assert isinstance(dim, str)
     new_size, new_item_names = Shape._size_and_item_names_from_obj(size, self.get_size(dim), self.get_item_names(dim), keep_item_names)
-    return self.replace(dim, Shape((new_size,), (dim,), (self.get_type(dim),), (new_item_names,)))</code></pre>
+    return self.replace(dim, Shape((new_size,), (dim,), (self.get_type(dim),), (new_item_names,)), keep_item_names=keep_item_names)</code></pre>
 </details>
 </dd>
 <dt id="phiml.math.Shape.with_size"><code class="name flex">
@@ -15796,7 +15915,9 @@ This property must be set to a value compatible with the solution <code>x</code>
         self.method = method
         &#34;&#34;&#34; `str`, which method and implementation that was used. &#34;&#34;&#34;
         if all_available(diverged, converged, iterations):
-            msg = map_(_default_solve_info_msg, msg, converged.trajectory[-1], diverged.trajectory[-1], iterations.trajectory[-1], solve=solve, method=method, residual=residual, dims=converged.shape.without(&#39;trajectory&#39;))
+            _, res_tensors = disassemble_tree(residual, cache=False)
+            msg_fun = partial(_default_solve_info_msg, solve=solve)
+            msg = map_(msg_fun, msg, converged.trajectory[-1], diverged.trajectory[-1], iterations.trajectory[-1], method=method, residual=res_tensors[0], dims=converged.shape.without(&#39;trajectory&#39;))
         self.msg = msg
         &#34;&#34;&#34; `str`, termination message &#34;&#34;&#34;
         self.solve_time = solve_time
@@ -17437,6 +17558,7 @@ If a dimension of the tensor is not listed in <code>order</code>, a <code>ValueE
 <li><code><a title="phiml.math.fft" href="#phiml.math.fft">fft</a></code></li>
 <li><code><a title="phiml.math.fftfreq" href="#phiml.math.fftfreq">fftfreq</a></code></li>
 <li><code><a title="phiml.math.find_closest" href="#phiml.math.find_closest">find_closest</a></code></li>
+<li><code><a title="phiml.math.find_differences" href="#phiml.math.find_differences">find_differences</a></code></li>
 <li><code><a title="phiml.math.finite_fill" href="#phiml.math.finite_fill">finite_fill</a></code></li>
 <li><code><a title="phiml.math.finite_max" href="#phiml.math.finite_max">finite_max</a></code></li>
 <li><code><a title="phiml.math.finite_mean" href="#phiml.math.finite_mean">finite_mean</a></code></li>
@@ -17559,6 +17681,7 @@ If a dimension of the tensor is not listed in <code>order</code>, a <code>ValueE
 <li><code><a title="phiml.math.soft_plus" href="#phiml.math.soft_plus">soft_plus</a></code></li>
 <li><code><a title="phiml.math.solve_linear" href="#phiml.math.solve_linear">solve_linear</a></code></li>
 <li><code><a title="phiml.math.solve_nonlinear" href="#phiml.math.solve_nonlinear">solve_nonlinear</a></code></li>
+<li><code><a title="phiml.math.sort" href="#phiml.math.sort">sort</a></code></li>
 <li><code><a title="phiml.math.sparse_tensor" href="#phiml.math.sparse_tensor">sparse_tensor</a></code></li>
 <li><code><a title="phiml.math.spatial" href="#phiml.math.spatial">spatial</a></code></li>
 <li><code><a title="phiml.math.spatial_gradient" href="#phiml.math.spatial_gradient">spatial_gradient</a></code></li>

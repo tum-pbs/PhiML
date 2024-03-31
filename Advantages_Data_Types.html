@@ -15151,10 +15151,10 @@ To accommodate these requirements, Φ<sub>ML</sub> provides custom precision man
 
 
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="application/vnd.jupyter.stderr">
-<pre>2024-02-20 23:42:00.297373: I tensorflow/tsl/cuda/cudart_stub.cc:28] Could not find cuda drivers on your machine, GPU will not be used.
-2024-02-20 23:42:00.335622: I tensorflow/core/platform/cpu_feature_guard.cc:182] This TensorFlow binary is optimized to use available CPU instructions in performance-critical operations.
+<pre>2024-03-31 16:50:36.368346: I tensorflow/tsl/cuda/cudart_stub.cc:28] Could not find cuda drivers on your machine, GPU will not be used.
+2024-03-31 16:50:36.405962: I tensorflow/core/platform/cpu_feature_guard.cc:182] This TensorFlow binary is optimized to use available CPU instructions in performance-critical operations.
 To enable the following instructions: AVX2 FMA, in other operations, rebuild TensorFlow with the appropriate compiler flags.
-2024-02-20 23:42:01.067006: W tensorflow/compiler/tf2tensorrt/utils/py_utils.cc:38] TF-TRT Warning: Could not find TensorRT
+2024-03-31 16:50:37.121457: W tensorflow/compiler/tf2tensorrt/utils/py_utils.cc:38] TF-TRT Warning: Could not find TensorRT
 </pre>
 </div>
 </div>
@@ -15977,9 +15977,45 @@ When adding a primitive <code>int</code> instead, TensorFlow can perform the ope
 <ul>
 <li>NumPy defaults to <code>float64</code> and upgrades when combining tensors and primitives, including <code>int</code>.</li>
 <li>PyTorch defaults to <code>float32</code> and upgrades only for float tensors, not primitives or integer tensors.</li>
-<li>TensorFlow defaults to <code>float32</code> but requires all tensors to have the same precision, except for Python primitives.</li>
 <li>Jax defaults to the precision specified by its configuration and uses involved upgrading rules that take into account whether the initial precision was set or inferred.</li>
+<li>TensorFlow defaults to <code>float32</code> but requires all tensors to have the same precision, except for Python primitives.</li>
 </ul>
+<table>
+<thead>
+<tr>
+  <th>Library</th>
+  <th><code>f32+f64</code></th>
+  <th><code>f32</code> + primitive <code>f64</code></th>
+  <th><code>f32+i32</code></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td>NumPy</td>
+  <td><code>f64</code></td>
+  <td><code>f64</code></td>
+  <td><code>f64</code></td>
+</tr>
+<tr>
+  <td>PyTorch</td>
+  <td><code>f64</code></td>
+  <td><code>f32</code></td>
+  <td><code>f32</code></td>
+</tr>
+<tr>
+  <td>TensorFlow</td>
+  <td>Error</td>
+  <td><code>f32</code></td>
+  <td>Error</td>
+</tr>
+<tr>
+  <td>Jax</td>
+  <td>Depends</td>
+  <td><code>f32</code></td>
+  <td><code>f32</code></td>
+</tr>
+</tbody>
+</table>
 <p>These inconsistencies indicate that there is not one obvious correct way to handle precision with the data type system these libraries employ, i.e. where the output <code>dtype</code> is determined solely by the input types.</p>
 
 </div>
@@ -16313,6 +16349,23 @@ The expected values after 5 iterations are: 0.2659 (FP64), 0.2663 (FP32), 0.2657
 <p>These conversions seem relatively tame here, but imagine we had a bunch of variables to keep track of!
 Making sure they all have the correct precision can be a time sink, especially when one variable with a too-high precision can upgrade all following intermediate results.
 The danger of this going unnoticed is why TensorFlow and Jax have taken the extreme measures of banning operations with mixed inputs and disabling FP64 by default, respectively.</p>
+
+</div>
+</div>
+</div>
+</div>
+<div  class="jp-Cell jp-MarkdownCell jp-Notebook-cell">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
+</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
+<h2 id="Further-Reading">Further Reading<a class="anchor-link" href="#Further-Reading">&#182;</a></h2><p><a href="Data_Types.html">Data types in Φ<sub>ML</sub></a></p>
+<p><a href="https://github.com/tum-pbs/PhiML">🌐 <strong>Φ<sub>ML</sub></strong></a>
+  •   <a href="https://tum-pbs.github.io/PhiML/">📖 <strong>Documentation</strong></a>
+  •   <a href="https://tum-pbs.github.io/PhiML/phiml">🔗 <strong>API</strong></a>
+  •   <a href=""><strong>▶ Videos</strong></a>
+  •   <a href="https://colab.research.google.com/github/tum-pbs/PhiML/blob/main/docs/Examples.ipynb"><img src="images/colab_logo_small.png" height=4></a> <a href="https://tum-pbs.github.io/PhiML/Examples.html"><strong>Examples</strong></a></p>
 
 </div>
 </div>

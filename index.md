@@ -18,6 +18,11 @@ Check out the corresponding introductory [▶ tutorial video]() as well!
 * [Φ<sub>ML</sub>'s `Tensor`](Tensors.html)
 * [Data types](Data_Types.html)
 
+**If you're already familiar with NumPy, PyTorch, TensorFlow, or JAX**
+
+* [Advantages of Dimension Names and Types](Dimension_Names_Types.html)
+* [Advantages of Precision Management](Advantages_Data_Types.html)
+
 
 **Advanced topics**
 
@@ -31,6 +36,7 @@ Check out the corresponding introductory [▶ tutorial video]() as well!
 * [Just-in-time (JIT) compilation](JIT.html)
 * [Converting between Jax, PyTorch, TensorFlow, NumPy](Convert.html)
 * [What to avoid in Φ<sub>ML</sub>](Limitations.md)
+* [Performance](Performance.html)
 
 ## Neural Networks
 

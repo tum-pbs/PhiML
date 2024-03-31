@@ -107,15 +107,15 @@ def adam(net: nn.Module, learning_rate: float = 1e-3, betas=(0.9, 0.999), epsilo
     return optim.Adam(net.parameters(), learning_rate, betas, epsilon)
 
 
-def sgd(net: nn.Module, learning_rate: float = 1e-3, momentum=0, dampening=0, weight_decay=0, nesterov=False):
+def sgd(net: nn.Module, learning_rate: float = 1e-3, momentum=0., dampening=0., weight_decay=0., nesterov=False):
     return optim.SGD(net.parameters(), learning_rate, momentum, dampening, weight_decay, nesterov)
 
 
-def adagrad(net: nn.Module, learning_rate: float = 1e-3, lr_decay=0, weight_decay=0, initial_accumulator_value=0, eps=1e-10):
+def adagrad(net: nn.Module, learning_rate: float = 1e-3, lr_decay=0., weight_decay=0., initial_accumulator_value=0., eps=1e-10):
     return optim.Adagrad(net.parameters(), learning_rate, lr_decay, weight_decay, initial_accumulator_value, eps)
 
 
-def rmsprop(net: nn.Module, learning_rate: float = 1e-3, alpha=0.99, eps=1e-08, weight_decay=0, momentum=0, centered=False):
+def rmsprop(net: nn.Module, learning_rate: float = 1e-3, alpha=0.99, eps=1e-08, weight_decay=0., momentum=0., centered=False):
     return optim.RMSprop(net.parameters(), learning_rate, alpha, eps, weight_decay, momentum, centered)
 
 
@@ -704,7 +704,7 @@ def coupling_layer(in_channels: int,
 <h2 class="section-title" id="header-functions">Functions</h2>
 <dl>
 <dt id="phiml.backend.torch.nets.adagrad"><code class="name flex">
-<span>def <span class="ident">adagrad</span></span>(<span>net: torch.nn.modules.module.Module, learning_rate: float = 0.001, lr_decay=0, weight_decay=0, initial_accumulator_value=0, eps=1e-10)</span>
+<span>def <span class="ident">adagrad</span></span>(<span>net: torch.nn.modules.module.Module, learning_rate: float = 0.001, lr_decay=0.0, weight_decay=0.0, initial_accumulator_value=0.0, eps=1e-10)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -712,7 +712,7 @@ def coupling_layer(in_channels: int,
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def adagrad(net: nn.Module, learning_rate: float = 1e-3, lr_decay=0, weight_decay=0, initial_accumulator_value=0, eps=1e-10):
+<pre><code class="python">def adagrad(net: nn.Module, learning_rate: float = 1e-3, lr_decay=0., weight_decay=0., initial_accumulator_value=0., eps=1e-10):
     return optim.Adagrad(net.parameters(), learning_rate, lr_decay, weight_decay, initial_accumulator_value, eps)</code></pre>
 </details>
 </dd>
@@ -960,7 +960,7 @@ def coupling_layer(in_channels: int,
 </details>
 </dd>
 <dt id="phiml.backend.torch.nets.rmsprop"><code class="name flex">
-<span>def <span class="ident">rmsprop</span></span>(<span>net: torch.nn.modules.module.Module, learning_rate: float = 0.001, alpha=0.99, eps=1e-08, weight_decay=0, momentum=0, centered=False)</span>
+<span>def <span class="ident">rmsprop</span></span>(<span>net: torch.nn.modules.module.Module, learning_rate: float = 0.001, alpha=0.99, eps=1e-08, weight_decay=0.0, momentum=0.0, centered=False)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -968,7 +968,7 @@ def coupling_layer(in_channels: int,
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def rmsprop(net: nn.Module, learning_rate: float = 1e-3, alpha=0.99, eps=1e-08, weight_decay=0, momentum=0, centered=False):
+<pre><code class="python">def rmsprop(net: nn.Module, learning_rate: float = 1e-3, alpha=0.99, eps=1e-08, weight_decay=0., momentum=0., centered=False):
     return optim.RMSprop(net.parameters(), learning_rate, alpha, eps, weight_decay, momentum, centered)</code></pre>
 </details>
 </dd>
@@ -988,7 +988,7 @@ def coupling_layer(in_channels: int,
 </details>
 </dd>
 <dt id="phiml.backend.torch.nets.sgd"><code class="name flex">
-<span>def <span class="ident">sgd</span></span>(<span>net: torch.nn.modules.module.Module, learning_rate: float = 0.001, momentum=0, dampening=0, weight_decay=0, nesterov=False)</span>
+<span>def <span class="ident">sgd</span></span>(<span>net: torch.nn.modules.module.Module, learning_rate: float = 0.001, momentum=0.0, dampening=0.0, weight_decay=0.0, nesterov=False)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -996,7 +996,7 @@ def coupling_layer(in_channels: int,
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def sgd(net: nn.Module, learning_rate: float = 1e-3, momentum=0, dampening=0, weight_decay=0, nesterov=False):
+<pre><code class="python">def sgd(net: nn.Module, learning_rate: float = 1e-3, momentum=0., dampening=0., weight_decay=0., nesterov=False):
     return optim.SGD(net.parameters(), learning_rate, momentum, dampening, weight_decay, nesterov)</code></pre>
 </details>
 </dd>

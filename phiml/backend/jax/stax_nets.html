@@ -224,7 +224,7 @@ def adam(net: StaxNet, learning_rate: float = 1e-3, betas=(0.9, 0.999), epsilon=
     return opt
 
 
-def sgd(net: StaxNet, learning_rate: float = 1e-3, momentum=0, dampening=0, weight_decay=0, nesterov=False):
+def sgd(net: StaxNet, learning_rate: float = 1e-3, momentum=0., dampening=0., weight_decay=0., nesterov=False):
     assert dampening == 0
     assert weight_decay == 0
     assert not nesterov
@@ -236,7 +236,7 @@ def sgd(net: StaxNet, learning_rate: float = 1e-3, momentum=0, dampening=0, weig
     return opt
 
 
-def adagrad(net: StaxNet, learning_rate: float = 1e-3, lr_decay=0, weight_decay=0, initial_accumulator_value=0, eps=1e-10):
+def adagrad(net: StaxNet, learning_rate: float = 1e-3, lr_decay=0., weight_decay=0., initial_accumulator_value=0., eps=1e-10):
     assert lr_decay == 0
     assert weight_decay == 0
     assert initial_accumulator_value == 0
@@ -246,7 +246,7 @@ def adagrad(net: StaxNet, learning_rate: float = 1e-3, lr_decay=0, weight_decay=
     return opt
 
 
-def rmsprop(net: StaxNet, learning_rate: float = 1e-3, alpha=0.99, eps=1e-08, weight_decay=0, momentum=0, centered=False):
+def rmsprop(net: StaxNet, learning_rate: float = 1e-3, alpha=0.99, eps=1e-08, weight_decay=0., momentum=0., centered=False):
     assert weight_decay == 0
     assert not centered
     if momentum == 0:
@@ -993,7 +993,7 @@ def fno(in_channels: int,
 </details>
 </dd>
 <dt id="phiml.backend.jax.stax_nets.adagrad"><code class="name flex">
-<span>def <span class="ident">adagrad</span></span>(<span>net: <a title="phiml.backend.jax.stax_nets.StaxNet" href="#phiml.backend.jax.stax_nets.StaxNet">StaxNet</a>, learning_rate: float = 0.001, lr_decay=0, weight_decay=0, initial_accumulator_value=0, eps=1e-10)</span>
+<span>def <span class="ident">adagrad</span></span>(<span>net: <a title="phiml.backend.jax.stax_nets.StaxNet" href="#phiml.backend.jax.stax_nets.StaxNet">StaxNet</a>, learning_rate: float = 0.001, lr_decay=0.0, weight_decay=0.0, initial_accumulator_value=0.0, eps=1e-10)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -1001,7 +1001,7 @@ def fno(in_channels: int,
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def adagrad(net: StaxNet, learning_rate: float = 1e-3, lr_decay=0, weight_decay=0, initial_accumulator_value=0, eps=1e-10):
+<pre><code class="python">def adagrad(net: StaxNet, learning_rate: float = 1e-3, lr_decay=0., weight_decay=0., initial_accumulator_value=0., eps=1e-10):
     assert lr_decay == 0
     assert weight_decay == 0
     assert initial_accumulator_value == 0
@@ -1687,7 +1687,7 @@ in_spatial : spatial dimensions of the input feature map, dtype : int</p>
 </details>
 </dd>
 <dt id="phiml.backend.jax.stax_nets.rmsprop"><code class="name flex">
-<span>def <span class="ident">rmsprop</span></span>(<span>net: <a title="phiml.backend.jax.stax_nets.StaxNet" href="#phiml.backend.jax.stax_nets.StaxNet">StaxNet</a>, learning_rate: float = 0.001, alpha=0.99, eps=1e-08, weight_decay=0, momentum=0, centered=False)</span>
+<span>def <span class="ident">rmsprop</span></span>(<span>net: <a title="phiml.backend.jax.stax_nets.StaxNet" href="#phiml.backend.jax.stax_nets.StaxNet">StaxNet</a>, learning_rate: float = 0.001, alpha=0.99, eps=1e-08, weight_decay=0.0, momentum=0.0, centered=False)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -1695,7 +1695,7 @@ in_spatial : spatial dimensions of the input feature map, dtype : int</p>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def rmsprop(net: StaxNet, learning_rate: float = 1e-3, alpha=0.99, eps=1e-08, weight_decay=0, momentum=0, centered=False):
+<pre><code class="python">def rmsprop(net: StaxNet, learning_rate: float = 1e-3, alpha=0.99, eps=1e-08, weight_decay=0., momentum=0., centered=False):
     assert weight_decay == 0
     assert not centered
     if momentum == 0:
@@ -1726,7 +1726,7 @@ in_spatial : spatial dimensions of the input feature map, dtype : int</p>
 </details>
 </dd>
 <dt id="phiml.backend.jax.stax_nets.sgd"><code class="name flex">
-<span>def <span class="ident">sgd</span></span>(<span>net: <a title="phiml.backend.jax.stax_nets.StaxNet" href="#phiml.backend.jax.stax_nets.StaxNet">StaxNet</a>, learning_rate: float = 0.001, momentum=0, dampening=0, weight_decay=0, nesterov=False)</span>
+<span>def <span class="ident">sgd</span></span>(<span>net: <a title="phiml.backend.jax.stax_nets.StaxNet" href="#phiml.backend.jax.stax_nets.StaxNet">StaxNet</a>, learning_rate: float = 0.001, momentum=0.0, dampening=0.0, weight_decay=0.0, nesterov=False)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -1734,7 +1734,7 @@ in_spatial : spatial dimensions of the input feature map, dtype : int</p>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def sgd(net: StaxNet, learning_rate: float = 1e-3, momentum=0, dampening=0, weight_decay=0, nesterov=False):
+<pre><code class="python">def sgd(net: StaxNet, learning_rate: float = 1e-3, momentum=0., dampening=0., weight_decay=0., nesterov=False):
     assert dampening == 0
     assert weight_decay == 0
     assert not nesterov

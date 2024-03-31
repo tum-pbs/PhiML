@@ -1551,6 +1551,9 @@ The methods of <code><a title="phiml.backend.Backend" href="#phiml.backend.Backe
     def argsort(self, x, axis=-1):
         raise NotImplementedError(self)
 
+    def sort(self, x, axis=-1):
+        raise NotImplementedError(self)
+
     def searchsorted(self, sorted_sequence, search_values, side: str, dtype=DType(int, 32)):
         raise NotImplementedError(self)
 
@@ -5668,6 +5671,19 @@ unit_diagonal:</p>
     return self.as_tensor(np_result)</code></pre>
 </details>
 </dd>
+<dt id="phiml.backend.Backend.sort"><code class="name flex">
+<span>def <span class="ident">sort</span></span>(<span>self, x, axis=-1)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def sort(self, x, axis=-1):
+    raise NotImplementedError(self)</code></pre>
+</details>
+</dd>
 <dt id="phiml.backend.Backend.sparse_coo_tensor"><code class="name flex">
 <span>def <span class="ident">sparse_coo_tensor</span></span>(<span>self, indices: Union[tuple, list], values, shape: tuple)</span>
 </code></dt>
@@ -7076,6 +7092,7 @@ def retime(self):
 <li><code><a title="phiml.backend.Backend.solve_triangular" href="#phiml.backend.Backend.solve_triangular">solve_triangular</a></code></li>
 <li><code><a title="phiml.backend.Backend.solve_triangular_dense" href="#phiml.backend.Backend.solve_triangular_dense">solve_triangular_dense</a></code></li>
 <li><code><a title="phiml.backend.Backend.solve_triangular_sparse" href="#phiml.backend.Backend.solve_triangular_sparse">solve_triangular_sparse</a></code></li>
+<li><code><a title="phiml.backend.Backend.sort" href="#phiml.backend.Backend.sort">sort</a></code></li>
 <li><code><a title="phiml.backend.Backend.sparse_coo_tensor" href="#phiml.backend.Backend.sparse_coo_tensor">sparse_coo_tensor</a></code></li>
 <li><code><a title="phiml.backend.Backend.sparse_coo_tensor_batched" href="#phiml.backend.Backend.sparse_coo_tensor_batched">sparse_coo_tensor_batched</a></code></li>
 <li><code><a title="phiml.backend.Backend.sqrt" href="#phiml.backend.Backend.sqrt">sqrt</a></code></li>

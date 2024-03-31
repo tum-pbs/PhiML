@@ -15146,7 +15146,8 @@ body[data-format='mobile'] .jp-OutputArea-child .jp-OutputArea-output {
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
 <h2 id="Dimension-Types">Dimension Types<a class="anchor-link" href="#Dimension-Types">&#182;</a></h2><p>The largest difference between Φ<sub>ML</sub> and its backend libraries like PyTorch or Jax lies in the tensor shapes.
 When using <a href="Tensors.html">Φ<sub>ML</sub>'s tensors</a>, all dimensions must be assigned a name and type flag.
-The following dimension types are available:</p>
+To learn why this is useful, see <a href="Dimension_Names_Types.html">here</a>.</p>
+<p>The following dimension types are available:</p>
 <ul>
 <li><em>batch</em> dimensions can be added to any code in order to parallelize it. This is their only function. The code should always give the exact same result as if it was called sequentially on all slices and the results were stacked along the batch dimension.</li>
 <li><em>channel</em> dimensions list components of one object, such as a pixel, grid cell or particle. Typical examples include color channels or (x,y,z) components of a vector.</li>
@@ -15452,7 +15453,7 @@ We can pass multiple shapes to tensor constructors and can construct multiple di
 
 
 <div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre><span class="ansi-green-intense-fg">(xˢ=28, yˢ=28)</span> <span class="ansi-blue-intense-fg">0.505 ± 0.287</span> <span class="ansi-white-fg">(2e-04...1e+00)</span></pre>
+<pre><span class="ansi-green-intense-fg">(xˢ=28, yˢ=28)</span> <span class="ansi-blue-intense-fg">0.514 ± 0.290</span> <span class="ansi-white-fg">(2e-05...1e+00)</span></pre>
 </div>
 
 </div>
@@ -15533,7 +15534,7 @@ Assuming we have a tensor with dimensions <code>a,b</code> and another with the 
 
 
 <div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre><span class="ansi-blue-intense-fg">(-2.898, -0.597, -0.334, -0.937, -0.399, -1.463)</span> <span class="ansi-green-intense-fg">(aᶜ=2, bᶜ=3)</span></pre>
+<pre><span class="ansi-blue-intense-fg">(-1.567, 0.739, -3.079, -0.733, 1.554, 1.885)</span> <span class="ansi-green-intense-fg">(aᶜ=2, bᶜ=3)</span></pre>
 </div>
 
 </div>
@@ -15589,7 +15590,7 @@ In these cases, you can think of the value being constant along the missing dime
 
 
 <div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre><span class="ansi-blue-intense-fg">(3.306, 0.932, -0.414, 1.657, -0.716, -2.062)</span> <span class="ansi-green-intense-fg">(aᶜ=2, bᶜ=3)</span></pre>
+<pre><span class="ansi-blue-intense-fg">(1.897, 1.289, 1.532, -0.489, -1.097, -0.854)</span> <span class="ansi-green-intense-fg">(aᶜ=2, bᶜ=3)</span></pre>
 </div>
 
 </div>
@@ -16588,7 +16589,8 @@ The indices are listed along <em>instance</em> dimensions and the index componen
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<h2 id="Further-Reading">Further Reading<a class="anchor-link" href="#Further-Reading">&#182;</a></h2><p>Dimension names play an important role in <a href="Introduction.html#Slicing">slicing tensors</a>.
+<h2 id="Further-Reading">Further Reading<a class="anchor-link" href="#Further-Reading">&#182;</a></h2><p>See <a href="Dimension_Names_Types.html">Advantages of Dimension Names and Types</a> for additional examples with comparisons to other computing libraries.</p>
+<p>Dimension names play an important role in <a href="Introduction.html#Slicing">slicing tensors</a>.
 To make your code more readable, you can also name slices along dimensions.</p>
 <p>The number of spatial dimensions dictates what dimensionality (1D, 2D, 3D) your code works in.
 You can therefore write code that <a href="N_Dimensional.html">works in 1D, 2D, 3D and beyond</a>.</p>

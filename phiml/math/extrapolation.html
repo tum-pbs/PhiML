@@ -192,7 +192,7 @@ class Extrapolation:
         Returns:
             Transformed coordinates
         &#34;&#34;&#34;
-        res = shape.spatial[coordinates.shape.get_item_names(&#39;vector&#39;)] if &#39;vector&#39; in coordinates.shape and coordinates.shape.get_item_names(&#39;vector&#39;) else shape.spatial
+        res = shape[coordinates.shape.get_item_names(&#39;vector&#39;)] if &#39;vector&#39; in coordinates.shape and coordinates.shape.get_item_names(&#39;vector&#39;) else shape.spatial
         return math.clip(coordinates, 0, math.wrap(res - 1, channel(&#39;vector&#39;)))
 
     def is_copy_pad(self, dim: str, upper_edge: bool):
@@ -651,7 +651,7 @@ class _ZeroGradient(_CopyExtrapolation):
     def sparse_pad_values(self, value: Tensor, connectivity: Tensor, dim: str, **kwargs) -&gt; Tensor:
         from ._sparse import stored_indices, is_sparse
         from ._ops import arange, nonzero, scatter
-        dual_dim = dual(value).name
+        dual_dim = dual(connectivity).name
         # --- Gather the edge values ---
         if is_sparse(connectivity):
             indices = stored_indices(connectivity, invalid=&#39;discard&#39;)
@@ -2721,7 +2721,7 @@ The typical order is periodic=1, boundary=2, symmetric=3, reflect=4, constant=5.
         Returns:
             Transformed coordinates
         &#34;&#34;&#34;
-        res = shape.spatial[coordinates.shape.get_item_names(&#39;vector&#39;)] if &#39;vector&#39; in coordinates.shape and coordinates.shape.get_item_names(&#39;vector&#39;) else shape.spatial
+        res = shape[coordinates.shape.get_item_names(&#39;vector&#39;)] if &#39;vector&#39; in coordinates.shape and coordinates.shape.get_item_names(&#39;vector&#39;) else shape.spatial
         return math.clip(coordinates, 0, math.wrap(res - 1, channel(&#39;vector&#39;)))
 
     def is_copy_pad(self, dim: str, upper_edge: bool):
@@ -3136,7 +3136,7 @@ This is the default implementation.</p>
     Returns:
         Transformed coordinates
     &#34;&#34;&#34;
-    res = shape.spatial[coordinates.shape.get_item_names(&#39;vector&#39;)] if &#39;vector&#39; in coordinates.shape and coordinates.shape.get_item_names(&#39;vector&#39;) else shape.spatial
+    res = shape[coordinates.shape.get_item_names(&#39;vector&#39;)] if &#39;vector&#39; in coordinates.shape and coordinates.shape.get_item_names(&#39;vector&#39;) else shape.spatial
     return math.clip(coordinates, 0, math.wrap(res - 1, channel(&#39;vector&#39;)))</code></pre>
 </details>
 </dd>

@@ -359,7 +359,7 @@ class _PhiTreeNodeType(type):
         elif isinstance(instance, Dict):
             return True
         elif isinstance(instance, dict):
-            return all(isinstance(name, str) for name in instance.keys()) and all(isinstance(val, (Shaped, PhiTreeNode)) for val in instance.values())
+            return all(isinstance(val, (Shaped, PhiTreeNode)) for val in instance.values())
         elif dataclasses.is_dataclass(instance):
             return True
         else:
@@ -506,6 +506,8 @@ class BoundDim:
             raise AttributeError(f&#34;&#39;{type(self)}&#39; object has no attribute &#39;{name}&#39;&#34;)
         if name == &#39;shape&#39;:
             raise AttributeError(f&#34;Object of type {type(obj)} has no shape&#34;)
+        if name == &#39;is_tensor_like&#39;:
+            raise AttributeError(f&#34;Trying to access {type(obj)}.is_tensor_like which does not exist. This is likely a TensorFlow JIT compile check. This name is reserved.&#34;)
         assert isinstance(obj, Sliceable) and isinstance(obj, Shaped), f&#34;Cannot create BoundDim for {type(obj).__name__}. Objects must be Sliceable and Shaped, see https://tum-pbs.github.io/PhiML/phiml/math/magic.html&#34;
         self.obj = obj
         self.name = name
@@ -1021,6 +1023,8 @@ This supports the following operations:</p>
             raise AttributeError(f&#34;&#39;{type(self)}&#39; object has no attribute &#39;{name}&#39;&#34;)
         if name == &#39;shape&#39;:
             raise AttributeError(f&#34;Object of type {type(obj)} has no shape&#34;)
+        if name == &#39;is_tensor_like&#39;:
+            raise AttributeError(f&#34;Trying to access {type(obj)}.is_tensor_like which does not exist. This is likely a TensorFlow JIT compile check. This name is reserved.&#34;)
         assert isinstance(obj, Sliceable) and isinstance(obj, Shaped), f&#34;Cannot create BoundDim for {type(obj).__name__}. Objects must be Sliceable and Shaped, see https://tum-pbs.github.io/PhiML/phiml/math/magic.html&#34;
         self.obj = obj
         self.name = name

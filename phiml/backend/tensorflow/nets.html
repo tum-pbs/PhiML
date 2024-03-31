@@ -53,15 +53,24 @@ from ... import math
 def get_parameters(model: keras.Model, wrap=True) -&gt; dict:
     result = {}
     for var in model.trainable_weights:
-        name: str = var.name
-        layer = name[:name.index(&#39;/&#39;)].replace(&#39;_&#39;, &#39;&#39;).replace(&#39;dense&#39;, &#39;linear&#39;)
-        try:
-            int(layer[-1:])
-        except ValueError:
-            layer += &#39;0&#39;
-        prop = name[name.index(&#39;/&#39;) + 1:].replace(&#39;kernel&#39;, &#39;weight&#39;)
-        if prop.endswith(&#39;:0&#39;):
-            prop = prop[:-2]
+        if hasattr(var, &#39;path&#39;):
+            name: str = var.path.split(&#39;/&#39;)
+            layer = &#39;.&#39;.join(name[:-1]).replace(&#39;dense&#39;, &#39;linear&#39;).replace(&#39;_&#39;, &#39;&#39;)
+            try:
+                int(layer[-1:])
+            except ValueError:
+                layer += &#39;0&#39;
+            prop = name[-1].replace(&#39;kernel&#39;, &#39;weight&#39;)
+        else:
+            name: str = var.path if hasattr(var, &#39;path&#39;) else var.name  # path replaces name in tensorflow &gt;= 2.16
+            layer = name[:name.index(&#39;/&#39;)].replace(&#39;_&#39;, &#39;&#39;).replace(&#39;dense&#39;, &#39;linear&#39;)
+            try:
+                int(layer[-1:])
+            except ValueError:
+                layer += &#39;0&#39;
+            prop = name[name.index(&#39;/&#39;) + 1:].replace(&#39;kernel&#39;, &#39;weight&#39;)
+            if prop.endswith(&#39;:0&#39;):
+                prop = prop[:-2]
         name = f&#34;{layer}.{prop}&#34;
         var = var.numpy()
         if not wrap:
@@ -129,19 +138,19 @@ def adam(net: keras.Model, learning_rate: float = 1e-3, betas=(0.9, 0.999), epsi
     return keras.optimizers.Adam(learning_rate, betas[0], betas[1], epsilon)
 
 
-def sgd(net: keras.Model, learning_rate: float = 1e-3, momentum=0, dampening=0, weight_decay=0, nesterov=False):
+def sgd(net: keras.Model, learning_rate: float = 1e-3, momentum=0., dampening=0., weight_decay=0., nesterov=False):
     assert dampening == 0
     assert weight_decay == 0
     return keras.optimizers.SGD(learning_rate, momentum, nesterov)
 
 
-def adagrad(net: keras.Model, learning_rate: float = 1e-3, lr_decay=0, weight_decay=0, initial_accumulator_value=0, eps=1e-10):
+def adagrad(net: keras.Model, learning_rate: float = 1e-3, lr_decay=0., weight_decay=0., initial_accumulator_value=0., eps=1e-10):
     assert lr_decay == 0
     assert weight_decay == 0
     return keras.optimizers.Adagrad(learning_rate, initial_accumulator_value, eps)
 
 
-def rmsprop(net: keras.Model, learning_rate: float = 1e-3, alpha=0.99, eps=1e-08, weight_decay=0, momentum=0, centered=False):
+def rmsprop(net: keras.Model, learning_rate: float = 1e-3, alpha=0.99, eps=1e-08, weight_decay=0., momentum=0., centered=False):
     assert weight_decay == 0
     return keras.optimizers.RMSprop(learning_rate, alpha, momentum, eps, centered)
 
@@ -590,7 +599,7 @@ def invertible_net(num_blocks: int,
 <h2 class="section-title" id="header-functions">Functions</h2>
 <dl>
 <dt id="phiml.backend.tensorflow.nets.adagrad"><code class="name flex">
-<span>def <span class="ident">adagrad</span></span>(<span>net: keras.src.engine.training.Model, learning_rate: float = 0.001, lr_decay=0, weight_decay=0, initial_accumulator_value=0, eps=1e-10)</span>
+<span>def <span class="ident">adagrad</span></span>(<span>net: keras.src.engine.training.Model, learning_rate: float = 0.001, lr_decay=0.0, weight_decay=0.0, initial_accumulator_value=0.0, eps=1e-10)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -598,7 +607,7 @@ def invertible_net(num_blocks: int,
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def adagrad(net: keras.Model, learning_rate: float = 1e-3, lr_decay=0, weight_decay=0, initial_accumulator_value=0, eps=1e-10):
+<pre><code class="python">def adagrad(net: keras.Model, learning_rate: float = 1e-3, lr_decay=0., weight_decay=0., initial_accumulator_value=0., eps=1e-10):
     assert lr_decay == 0
     assert weight_decay == 0
     return keras.optimizers.Adagrad(learning_rate, initial_accumulator_value, eps)</code></pre>
@@ -760,15 +769,24 @@ def invertible_net(num_blocks: int,
 <pre><code class="python">def get_parameters(model: keras.Model, wrap=True) -&gt; dict:
     result = {}
     for var in model.trainable_weights:
-        name: str = var.name
-        layer = name[:name.index(&#39;/&#39;)].replace(&#39;_&#39;, &#39;&#39;).replace(&#39;dense&#39;, &#39;linear&#39;)
-        try:
-            int(layer[-1:])
-        except ValueError:
-            layer += &#39;0&#39;
-        prop = name[name.index(&#39;/&#39;) + 1:].replace(&#39;kernel&#39;, &#39;weight&#39;)
-        if prop.endswith(&#39;:0&#39;):
-            prop = prop[:-2]
+        if hasattr(var, &#39;path&#39;):
+            name: str = var.path.split(&#39;/&#39;)
+            layer = &#39;.&#39;.join(name[:-1]).replace(&#39;dense&#39;, &#39;linear&#39;).replace(&#39;_&#39;, &#39;&#39;)
+            try:
+                int(layer[-1:])
+            except ValueError:
+                layer += &#39;0&#39;
+            prop = name[-1].replace(&#39;kernel&#39;, &#39;weight&#39;)
+        else:
+            name: str = var.path if hasattr(var, &#39;path&#39;) else var.name  # path replaces name in tensorflow &gt;= 2.16
+            layer = name[:name.index(&#39;/&#39;)].replace(&#39;_&#39;, &#39;&#39;).replace(&#39;dense&#39;, &#39;linear&#39;)
+            try:
+                int(layer[-1:])
+            except ValueError:
+                layer += &#39;0&#39;
+            prop = name[name.index(&#39;/&#39;) + 1:].replace(&#39;kernel&#39;, &#39;weight&#39;)
+            if prop.endswith(&#39;:0&#39;):
+                prop = prop[:-2]
         name = f&#34;{layer}.{prop}&#34;
         var = var.numpy()
         if not wrap:
@@ -959,7 +977,7 @@ def invertible_net(num_blocks: int,
 </details>
 </dd>
 <dt id="phiml.backend.tensorflow.nets.rmsprop"><code class="name flex">
-<span>def <span class="ident">rmsprop</span></span>(<span>net: keras.src.engine.training.Model, learning_rate: float = 0.001, alpha=0.99, eps=1e-08, weight_decay=0, momentum=0, centered=False)</span>
+<span>def <span class="ident">rmsprop</span></span>(<span>net: keras.src.engine.training.Model, learning_rate: float = 0.001, alpha=0.99, eps=1e-08, weight_decay=0.0, momentum=0.0, centered=False)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -967,7 +985,7 @@ def invertible_net(num_blocks: int,
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def rmsprop(net: keras.Model, learning_rate: float = 1e-3, alpha=0.99, eps=1e-08, weight_decay=0, momentum=0, centered=False):
+<pre><code class="python">def rmsprop(net: keras.Model, learning_rate: float = 1e-3, alpha=0.99, eps=1e-08, weight_decay=0., momentum=0., centered=False):
     assert weight_decay == 0
     return keras.optimizers.RMSprop(learning_rate, alpha, momentum, eps, centered)</code></pre>
 </details>
@@ -997,7 +1015,7 @@ def invertible_net(num_blocks: int,
 </details>
 </dd>
 <dt id="phiml.backend.tensorflow.nets.sgd"><code class="name flex">
-<span>def <span class="ident">sgd</span></span>(<span>net: keras.src.engine.training.Model, learning_rate: float = 0.001, momentum=0, dampening=0, weight_decay=0, nesterov=False)</span>
+<span>def <span class="ident">sgd</span></span>(<span>net: keras.src.engine.training.Model, learning_rate: float = 0.001, momentum=0.0, dampening=0.0, weight_decay=0.0, nesterov=False)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -1005,7 +1023,7 @@ def invertible_net(num_blocks: int,
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def sgd(net: keras.Model, learning_rate: float = 1e-3, momentum=0, dampening=0, weight_decay=0, nesterov=False):
+<pre><code class="python">def sgd(net: keras.Model, learning_rate: float = 1e-3, momentum=0., dampening=0., weight_decay=0., nesterov=False):
     assert dampening == 0
     assert weight_decay == 0
     return keras.optimizers.SGD(learning_rate, momentum, nesterov)</code></pre>
