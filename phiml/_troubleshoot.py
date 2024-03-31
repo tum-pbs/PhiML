@@ -42,24 +42,25 @@ def troubleshoot_tensorflow():
     tf_version = f"{tensorflow.__version__} at {dirname(tensorflow.__file__)}"
     try:
         import tensorflow_probability
+        tf_prob = f"tensorflow_probability {tensorflow_probability.__version__}"
     except ImportError:
-        return f"Installed ({tf_version}) but module 'tensorflow_probability' missing. Some functions may be unavailable, such as math.median() and math.quantile(). To install it, run  $ pip install tensorflow-probability"
+        tf_prob = "'tensorflow_probability' missing. Using fallback implementations instead. To install it, run  $ pip install tensorflow-probability"
     try:
         from .backend import tensorflow as tf
     except BaseException as err:
-        return f"Installed ({tf_version}) but not available due to internal error: {err}"
+        return f"Installed ({tf_version}) but not available due to internal error: {err}\n{tf_prob}"
     try:
         gpu_count = len(tf.TENSORFLOW.list_devices('GPU'))
     except BaseException as err:
-        return f"Installed ({tf_version}) but device initialization failed with error: {err}"
+        return f"Installed ({tf_version}) but device initialization failed with error: {err}\n{tf_prob}"
     with tf.TENSORFLOW:
         try:
             math.assert_close(math.ones() + math.ones(), 2)
             # TODO cuDNN math.convolve(math.ones(batch=8, x=64), math.ones(x=4))
         except BaseException as err:
-            return f"Installed ({tf_version}) but tests failed with error: {err}"
+            return f"Installed ({tf_version}) but tests failed with error: {err}\n{tf_prob}"
     if gpu_count == 0:
-        return f"Installed ({tf_version}), {gpu_count} GPUs available."
+        return f"Installed ({tf_version}), {gpu_count} GPUs available.\n{tf_prob}"
     else:
         from .backend.tensorflow._tf_cuda_resample import librariesLoaded
         if librariesLoaded:
@@ -70,7 +71,7 @@ def troubleshoot_tensorflow():
                 cuda_str = f"Optional TensorFlow CUDA kernels not available and compilation not recommended on {platform.system()}. GPU will be used nevertheless."
             else:
                 cuda_str = f"Optional TensorFlow CUDA kernels not available. GPU will be used nevertheless. Clone the Φ-ML source from GitHub and run 'python setup.py tf_cuda' to compile them. See https://tum-pbs.github.io/PhiML/Installation_Instructions.html"
-        return f"Installed ({tf_version}), {gpu_count} GPUs available.\n{cuda_str}"
+        return f"Installed ({tf_version}), {gpu_count} GPUs available.\n{cuda_str}\n{tf_prob}"
 
 
 def troubleshoot_torch():
