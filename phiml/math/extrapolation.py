@@ -299,7 +299,7 @@ class ConstantExtrapolation(Extrapolation):
             return Extrapolation.pad(self, value, widths, already_padded=already_padded, **kwargs)
         elif isinstance(value, TensorStack):
             if not value.requires_broadcast:
-                return self.pad(value._cache(), widths)
+                return self.pad(value._contiguous(), widths)
             inner_widths = {dim: w for dim, w in widths.items() if dim != value._stack_dim.name}
             tensors = [self[{value._stack_dim.name: i}].pad(t, inner_widths) for i, t in enumerate(value.dimension(value._stack_dim.name))]
             return TensorStack(tensors, value._stack_dim)
@@ -464,7 +464,7 @@ class _CopyExtrapolation(Extrapolation, ABC):
             return Extrapolation.pad(self, value, widths)
         elif isinstance(value, TensorStack):
             if not value.requires_broadcast:
-                return self.pad(value._cache(), widths)
+                return self.pad(value._contiguous(), widths)
             inner_widths = {dim: w for dim, w in widths.items() if dim != value._stack_dim.name}
             tensors = [self.pad(t, inner_widths) for t in value.dimension(value._stack_dim.name)]
             return TensorStack(tensors, value._stack_dim)

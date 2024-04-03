@@ -199,7 +199,7 @@ def cache_all_tensors(print=print):
                 if print is not None:
                     print(f"Expanding tensor with shape {obj._shape} from {obj._native_shape} {type(obj._native).__name__} {obj._native}")
                 try:
-                    obj._cache()
+                    obj._contiguous()
                 except BaseException as exc:
                     print(f"ERROR    Expansion failed. {exc}")
                     path = find_variable_reference(obj)
@@ -214,8 +214,8 @@ def cache_all_tensors(print=print):
         elif isinstance(obj, TensorStack):
             if obj._cached is None and not obj.requires_broadcast:
                 if print is not None:
-                    print(f"Caching tensor stack with shape {obj._shape} from along {obj._stack_dim}")
-                obj._cache()
+                    print(f"Caching tensor stack with shape {obj._shape} along {obj._stack_dim}. Contents: {obj._tensors}")
+                obj._contiguous()
 
 
 def find_variable_reference(obj):
