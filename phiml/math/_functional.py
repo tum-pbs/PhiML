@@ -8,7 +8,7 @@ from typing import Tuple, Callable, Dict, Generic, List, TypeVar, Any, Set, Unio
 import numpy as np
 
 from . import _ops as math, all_available, stop_gradient
-from ._magic_ops import stack, slice_, value_attributes
+from ._magic_ops import stack, slice_, value_attributes, find_differences
 from ._shape import EMPTY_SHAPE, Shape, spatial, instance, batch, channel, merge_shapes, DimFilter, shape
 from ._sparse import SparseCoordinateTensor
 from ._tensors import Tensor, disassemble_tree, assemble_tree, disassemble_tensors, assemble_tensors, variable_attributes, wrap, specs_equal, equality_by_shape_and_value, object_dims
@@ -49,7 +49,8 @@ class SignatureKey:
     def __eq__(self, other: 'SignatureKey'):
         assert isinstance(other, SignatureKey)
         with equality_by_shape_and_value():
-            cond_equal = self.auxiliary_kwargs == other.auxiliary_kwargs
+            diff = find_differences(self.auxiliary_kwargs, other.auxiliary_kwargs)
+            cond_equal = not diff
         if isinstance(cond_equal, Tensor):
             cond_equal = cond_equal.all
         # shapes need not be compared because they are included in specs

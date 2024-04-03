@@ -836,7 +836,7 @@ def _recursive_diff(a, b, path: str, result: list, compare_tensors_by_id=False, 
             from ._ops import equal
             if a.shape != b.shape:
                 result.append(("Tensor shapes do not match", path, a, b))
-            elif not equal(a, b):
+            elif not equal(a, b, equal_nan=True):
                 result.append(("Tensor values do not match", path, a, b))
     elif type(a) != type(b):
         result.append(("Types do not match", path, a, b))
@@ -865,8 +865,13 @@ def _recursive_diff(a, b, path: str, result: list, compare_tensors_by_id=False, 
                 _recursive_diff(av, bv, f"{path}.{k}", result, compare_tensors_by_id, attr_type)
     else:
         try:
-            b = choose_backend(a, b)
-            raise NotImplementedError
+            backend = choose_backend(a, b)
+            if backend.shape(a) != backend.shape(b):
+                result.append(("Native tensor shapes do not match", path, a, b))
+            equal_tensor = backend.equal(a, b) | (backend.isnan(a) & backend.isnan(b))
+            equal = backend.numpy(backend.all(equal_tensor))
+            if not equal:
+                result.append(("Native tensor values do not match", path, a, b))
         except NoBackendFound:
             if a != b:
                 result.append(("Values do not match", path, a, b))
