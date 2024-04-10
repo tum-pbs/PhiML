@@ -9,7 +9,8 @@ from ..backend import choose_backend, NUMPY, Backend
 from ._ops import choose_backend_t, concat_tensor, scatter, zeros_like
 from ._shape import Shape, parse_dim_order, merge_shapes, spatial, instance, batch, concat_shapes, EMPTY_SHAPE, dual, channel, non_batch, primal, non_channel, DEBUG_CHECKS
 from ._magic_ops import stack, expand, rename_dims, unpack_dim, unstack, value_attributes
-from ._tensors import Tensor, wrap, disassemble_tree, disassemble_tensors, assemble_tree, TensorStack, may_vary_along, discard_constant_dims, variable_shape
+from ._tensors import Tensor, wrap, disassemble_tree, disassemble_tensors, assemble_tree, TensorStack, may_vary_along, \
+    discard_constant_dims, variable_shape, NativeTensor
 from ._sparse import SparseCoordinateTensor, is_sparse, sparse_dims, same_sparsity_pattern, sparse_tensor, stored_indices, stored_values, add_sparse_batch_dim
 from . import _ops as math
 from ..backend._dtype import combine_types
@@ -433,7 +434,10 @@ class SparseLinTracer(Tensor):
         if isinstance(other, SparseLinTracer):
             assert op_symbol in '+-', f"Non-linear operation '{op_symbol}' cannot be converted to matrix"
             bias = operator(self._bias, other._bias)
-            matrix = operator(self._matrix, other._matrix)  # ToDo if other has no dependence on vector, it would also be in the output
+            matrix_dims = sparse_dims(self._matrix) & sparse_dims(other._matrix)
+            self_matrix = expand_matrix(self._matrix, matrix_dims)
+            other_matrix = expand_matrix(other._matrix, matrix_dims)
+            matrix = operator(self_matrix, other_matrix)  # ToDo if other has no dependence on vector, it would also be in the output
             shape = self._shape & other._shape
             return SparseLinTracer(self._source, matrix, bias, shape)
         else:
@@ -806,3 +810,22 @@ def to_gather_tracer(t: Tensor) -> GatherLinTracer:
     if len(t.val) > 1 or next(iter(t.val)):
         raise NotImplementedError(f"Converting off-diagonal elements to sparse tracer not supported")
     return GatherLinTracer(t._source, t.val[EMPTY_SHAPE], t._bias, t._shape, None, t._renamed)
+
+
+def expand_matrix(matrix: Tensor, dims: Shape) -> Tensor:
+    """Add missing dims as diagonals"""
+    if dims in matrix.shape:
+        return matrix
+    missing = dims.without(matrix.shape)
+    src_dims = [d for d in missing if d.name.startswith('~') and d.name.endswith('_src')]
+    out_dims = [d.name[1:-4] for d in src_dims]
+    out_dims = [missing[d] for d in out_dims]
+    if isinstance(matrix, NativeTensor):
+        if len(src_dims) > 1:
+            raise NotImplementedError
+        for src_dim, out_dim in zip(src_dims, out_dims):
+            assert src_dim.size == out_dim.size
+            diagonal_idx = expand(math.arange(instance(diagonal_entries=src_dim.size)), channel(sparse_idx=[src_dim.name, out_dim.name]))
+            values = math.ones(instance(diagonal_entries=src_dim.size))
+            return sparse_tensor(diagonal_idx, values, missing, can_contain_double_entries=False, indices_sorted=True, default=None)
+    raise NotImplementedError
