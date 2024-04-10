@@ -1269,10 +1269,9 @@ class Backend:
         assert batch_size_d == batch_size
         assert dense_rows == shape[1]
         assert channel_count == channel_count_d
-        assert dense_cols == 1  # not implemented yet
         dense_formatted = self.reshape(dense, (batch_size, dense_rows, channel_count * dense_cols))
         dense_gathered = self.batched_gather_nd(dense_formatted, indices[:, :, 1:2])
-        base_grid = self.zeros((batch_size, shape[0], channel_count), self.dtype(dense))
+        base_grid = self.zeros((batch_size, shape[0], channel_count * dense_cols), self.dtype(dense))
         result = self.scatter(base_grid, indices[:, :, 0:1], values * dense_gathered, mode='add')
         return self.reshape(result, (batch_size, shape[0], channel_count, dense_cols))
 
