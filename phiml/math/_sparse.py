@@ -10,7 +10,7 @@ from scipy.sparse import csr_matrix
 from ._shape import Shape, non_batch, merge_shapes, instance, batch, non_instance, shape, channel, spatial, DimFilter, concat_shapes, EMPTY_SHAPE, dual, DUAL_DIM, SPATIAL_DIM, \
     non_channel, DEBUG_CHECKS
 from ._magic_ops import concat, pack_dims, expand, rename_dims, stack, unpack_dim, unstack
-from ._tensors import Tensor, TensorStack, NativeTensor, cached, wrap
+from ._tensors import Tensor, TensorStack, NativeTensor, cached, wrap, variable_shape
 from ..backend import choose_backend, NUMPY, Backend
 from ..backend._dtype import DType
 
@@ -520,7 +520,7 @@ class CompressedSparseMatrix(Tensor):
         return CompressedSparseMatrix(indices, pointers, values, spec['uncompressed_dims'], spec['compressed_dims'], spec['default'], spec['uncompressed_offset'], spec['uncompressed_indices'], spec['uncompressed_indices_perm'])
 
     def _getitem(self, selection: dict) -> 'Tensor':
-        batch_selection = {dim: selection[dim] for dim in self._shape.only(tuple(selection)).names}
+        batch_selection = {dim: selection[dim] for dim in self._shape.batch.only(tuple(selection)).names}
         indices = self._indices[batch_selection]
         pointers = self._pointers[batch_selection]
         values = self._values[batch_selection]
@@ -556,7 +556,7 @@ class CompressedSparseMatrix(Tensor):
                 assert ind_sel.step in (None, 1), f"Only step size 1 supported for sparse indexing but got {ind_sel.step}"
                 start = ind_sel.start or 0
                 stop = uncompressed.volume if ind_sel.stop is None else ind_sel.stop
-                keep = (start <= self._indices) & (self._indices < stop)
+                keep = (start <= indices) & (indices < stop)
                 from ._ops import where
                 values = where(keep, values, 0)
                 uncompressed_offset = start
@@ -883,7 +883,8 @@ def stored_values(x: Tensor, list_dim=instance('entries'), invalid='discard') ->
     """
     assert invalid in ['discard', 'clamp', 'keep'], f"invalid handling must be one of 'discard', 'clamp', 'keep' but got {invalid}"
     if isinstance(x, NativeTensor):
-        return expand(NativeTensor(x._native, x._native_shape, x._native_shape), list_dim.with_size(1))
+        entries_dims = variable_shape(x).non_batch.non_channel
+        return pack_dims(x, entries_dims, list_dim)
     if isinstance(x, TensorStack):
         if x.is_cached:
             return stored_values(cached(x))
@@ -920,7 +921,7 @@ def stored_indices(x: Tensor, list_dim=instance('entries'), index_dim=channel('i
         from ._ops import meshgrid
         if batch(x):
             raise NotImplementedError
-        indices = meshgrid(x._native_shape.non_batch.non_channel)
+        indices = meshgrid(x._native_shape.non_batch.non_channel, stack_dim=index_dim)
         return pack_dims(indices, non_channel, list_dim)
     if isinstance(x, TensorStack):
         if x.is_cached or not x.requires_broadcast:
