@@ -1568,8 +1568,7 @@ def _all(value: Tensor, dims: Shape) -> Tensor:
         return functools.reduce(lambda x, y: x & y, reduced_inners) if value._stack_dim in dims else TensorStack(reduced_inners, value._stack_dim)
     elif isinstance(value, (SparseCoordinateTensor, CompressedSparseMatrix)):
         if sparse_dims(value) in dims:
-            values_all = _all(value._values, dims.without(sparse_dims(value)) & instance(value._values))
-            return all_([values_all, value._default], '0') if value._default is not None else values_all
+            return _all(value._values, dims.without(sparse_dims(value)) & instance(value._values))
     raise ValueError(type(value))
 
 
@@ -2719,7 +2718,7 @@ def scatter(base_grid: Union[Tensor, Shape],
             count = backend.scatter(zero_grid, native_indices, backend.ones_like(native_values), mode='add')
             native_result = summed / backend.maximum(count, 1)
             native_result = backend.where(count == 0, native_grid, native_result)
-        return reshaped_tensor(native_result, [batches, *indexed_dims, channels], check_sizes=True)
+        return reshaped_tensor(native_result, [batches, *indexed_dims, channels], check_sizes=True, convert=False)
 
     def scatter_backward(args: dict, _output, d_output):
         from ._nd import spatial_gradient
@@ -3207,7 +3206,7 @@ def pairwise_distances(positions: Tensor,
         raise RuntimeError
     # --- Assemble sparse matrix ---
     dense_shape = primal_dims & dual_dims
-    coo = SparseCoordinateTensor(indices, values, dense_shape, can_contain_double_entries=False, indices_sorted=False, default=default)
+    coo = SparseCoordinateTensor(indices, values, dense_shape, can_contain_double_entries=False, indices_sorted=False, indices_constant=False)
     return to_format(coo, format)
 
 

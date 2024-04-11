@@ -1934,9 +1934,9 @@ def cached(t: TensorOrTree) -> TensorOrTree:
             native = choose_backend(*natives).stack(natives, axis=t.shape.index(t._stack_dim.name))
             return NativeTensor(native, t.shape)
     elif isinstance(t, SparseCoordinateTensor):
-        return SparseCoordinateTensor(cached(t._indices), cached(t._values), t._dense_shape, t._can_contain_double_entries, t._indices_sorted, t._default)
+        return SparseCoordinateTensor(cached(t._indices), cached(t._values), t._dense_shape, t._can_contain_double_entries, t._indices_sorted, t._indices_constant)
     elif isinstance(t, CompressedSparseMatrix):
-        return CompressedSparseMatrix(cached(t._indices), cached(t._pointers), cached(t._values), t._uncompressed_dims, t._compressed_dims, t._default, t._uncompressed_offset, t._uncompressed_indices, t._uncompressed_indices_perm)
+        return CompressedSparseMatrix(cached(t._indices), cached(t._pointers), cached(t._values), t._uncompressed_dims, t._compressed_dims, t._indices_constant, t._uncompressed_offset, t._uncompressed_indices, t._uncompressed_indices_perm)
     elif isinstance(t, Layout):
         return t
     elif isinstance(t, PhiTreeNode):

@@ -1,10 +1,7 @@
 from unittest import TestCase
 
 from phiml import math
-from phiml.backend._backend import init_installed_backends
 from phiml.math import expand, spatial, non_dual, extrapolation, vec, wrap, batch
-
-BACKENDS = init_installed_backends()
 
 
 class TestTrace(TestCase):
