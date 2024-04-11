@@ -1075,12 +1075,13 @@ def native_matrix(value: Tensor, target_backend: Backend):
             return b.sparse_coo_tensor_batched(indices, values, shape)
         else:
             return b.sparse_coo_tensor(indices[0], values[0, :, 0], shape)
-    else:
+    else:  # dense matrix
         if batch(value):
             raise NotImplementedError
         v = pack_dims(value, rows, channel('_row'))
         v = pack_dims(v, cols, channel('_col'))
-        from ._ops import reshaped_native
+        from ._ops import convert, reshaped_native
+        v = convert(v, target_backend)
         return reshaped_native(v, ['_row', '_col'])
 
 

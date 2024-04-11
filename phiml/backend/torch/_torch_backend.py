@@ -852,7 +852,7 @@ class TorchBackend(Backend):
         if callable(lin) or len(max_iter) > 1 or pre:
             assert self.is_available(y), "Tracing conjugate_gradient with linear operator is not yet supported."
             return Backend.conjugate_gradient(self, lin, y, x0, rtol, atol, max_iter, pre)
-        assert isinstance(lin, torch.Tensor), "Batched matrices are not yet supported"
+        assert isinstance(lin, (torch.Tensor, np.ndarray)), "Batched matrices are not yet supported"
         batch_size = self.staticshape(y)[0]
         y = self.to_float(y)
         x0 = self.copy(self.to_float(x0))
