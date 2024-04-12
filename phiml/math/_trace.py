@@ -743,7 +743,7 @@ def dependent_out_dims(tracer: Tensor) -> Shape:
         bias_dims = set(variable_shape(tracer._bias).names)
         names = pattern_dim_names(tracer) | set(sum([t.shape.names for t in tracer.val.values()], ())) | bias_dims
         result = tracer.shape.only(names)
-        assert len(result) == len(names)
+        assert len(result) == len(names), f"Tracer was modified along {names} but the dimensions {names - set(result.names)} are not present anymore, probably due to slicing. Make sure the linear function output retains all dimensions relevant to the linear operation."
         return result
     elif isinstance(tracer, GatherLinTracer):
         result = tracer._diag.shape
