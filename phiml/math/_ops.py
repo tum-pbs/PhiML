@@ -3087,6 +3087,8 @@ def stop_gradient(x):
     Returns:
         Copy of `x`.
     """
+    if isinstance(x, Shape):
+        return x
     return _backend_op1(x, Backend.stop_gradient)
 
 
