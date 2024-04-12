@@ -198,6 +198,12 @@ class TestOptimize(TestCase):
                 x = solve(math.ones(spatial(x=3)))
                 math.assert_close([-1.5, -2, -1.5], x)
 
+    def test_solve_scalar(self):
+        def f(x):
+            return 2 * x
+
+        math.assert_close(42, math.solve_linear(f, 84, Solve('CG', 1e-5, x0=0)))
+
     def test_solve_np(self):
         from phiml import math
 

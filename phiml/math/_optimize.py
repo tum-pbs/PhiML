@@ -575,8 +575,12 @@ def solve_linear(f: Union[Callable[[X], Y], Tensor],
         if callable(f):  # assume batch + 1 dim
             rank = y_tensors[0].rank
             assert x0_tensors[0].rank == rank, f"y and x0 must have the same rank but got {y_tensors[0].shape.sizes} for y and {x0_tensors[0].shape.sizes} for x0"
-            y = wrap(y, *[batch(f'batch{i}') for i in range(rank - 1)], channel('vector'))
-            x0 = wrap(solve.x0, *[batch(f'batch{i}') for i in range(rank - 1)], channel('vector'))
+            if rank == 0:
+                y = wrap(y)
+                x0 = wrap(solve.x0)
+            else:
+                y = wrap(y, *[batch(f'batch{i}') for i in range(rank - 1)], channel('vector'))
+                x0 = wrap(solve.x0, *[batch(f'batch{i}') for i in range(rank - 1)], channel('vector'))
             solve = copy_with(solve, x0=x0)
             solution = solve_linear(f, y, solve, *f_args, grad_for_f=grad_for_f, f_kwargs=f_kwargs, **f_kwargs_)
             return solution.native(','.join([f'batch{i}' for i in range(rank - 1)]) + ',vector')
