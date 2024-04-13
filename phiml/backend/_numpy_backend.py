@@ -313,7 +313,7 @@ class NumPyBackend(Backend):
     def ravel_multi_index(self, multi_index, shape, mode: Union[str, int] = 'undefined'):
         mode = mode if isinstance(mode, int) else {'undefined': 'raise', 'periodic': 'wrap', 'clamp': 'clip'}[mode]
         idx_first = np.transpose(multi_index, (-1,) + tuple(range(self.ndims(multi_index)-1)))
-        result = np.ravel_multi_index(idx_first, shape, mode='wrap' if isinstance(mode, int) else mode)
+        result = np.ravel_multi_index(idx_first, shape, mode='wrap' if isinstance(mode, int) else mode).astype(multi_index.dtype)
         if isinstance(mode, int):
             outside = self.any((multi_index < 0) | (multi_index >= shape), -1)
             result = self.where(outside, mode, result)

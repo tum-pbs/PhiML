@@ -858,7 +858,7 @@ class Backend:
             mode: `'undefined'`, `'periodic'`, `'clamp'` or an `int` to use for all invalid indices.
 
         Returns:
-            Integer tensor of shape (batch...)
+            Integer tensor of shape (batch...) of same dtype as `multi_index`.
         """
         strides = [self.ones((), self.dtype(multi_index))]
         for size in reversed(shape[1:]):

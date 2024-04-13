@@ -617,6 +617,7 @@ class TFBackend(Backend):
         #     return tf.math.segment_sum(weights or 1, x)
         # else:
         with self._device_for(x, weights):
+            x = tf.cast(x, tf.int32)
             return tf.math.bincount(x, weights=weights, minlength=bins, maxlength=bins)
 
     def unique(self, x: TensorType, return_inverse: bool, return_counts: bool, axis: int) -> Tuple[TensorType, ...]:
