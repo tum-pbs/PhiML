@@ -771,7 +771,10 @@ def compute_preconditioner(method: str, matrix: Tensor, safe=False, target_backe
         elif native_triangular:
             method = 'ilu'
         elif spatial(matrix):
-            method = 'cluster'
+            if target_backend.name == 'torch' and not target_backend.is_available(None):  # PyTorch JIT not efficient with preconditioner
+                method = None
+            else:
+                method = 'cluster'
         else:
             method = None
         ML_LOGGER.info(f"Auto-selecting preconditioner '{method}' for '{solver}' on {target_backend}")

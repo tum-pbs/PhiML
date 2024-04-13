@@ -850,7 +850,7 @@ class TorchBackend(Backend):
 
     def conjugate_gradient(self, lin, y, x0, rtol, atol, max_iter, pre) -> SolveResult:
         if callable(lin) or len(max_iter) > 1 or pre:
-            assert self.is_available(y), "Tracing conjugate_gradient with linear operator is not yet supported."
+            assert self.is_available(y), f"JIT-compiling conjugate_gradient with PyTorch is not yet supported for arbitrary functions. Build a matrix from the function '{lin}' first."
             return Backend.conjugate_gradient(self, lin, y, x0, rtol, atol, max_iter, pre)
         assert isinstance(lin, (torch.Tensor, np.ndarray)), "Batched matrices are not yet supported"
         batch_size = self.staticshape(y)[0]
@@ -866,7 +866,8 @@ class TorchBackend(Backend):
 
     def conjugate_gradient_adaptive(self, lin, y, x0, rtol, atol, max_iter, pre) -> SolveResult:
         if callable(lin) or len(max_iter) > 1 or pre:
-            assert self.is_available(y), "Tracing conjugate_gradient with linear operator is not yet supported."
+            if not self.is_available(y):
+                warnings.warn(f"CG with preconditioners is not optimized for PyTorch and will always run the maximum number of iterations when JIT-compiled (max_iter={max_iter}).", RuntimeWarning)
             return Backend.conjugate_gradient_adaptive(self, lin, y, x0, rtol, atol, max_iter, pre)
         assert isinstance(lin, torch.Tensor), "Batched matrices are not yet supported"
         batch_size = self.staticshape(y)[0]
@@ -882,7 +883,7 @@ class TorchBackend(Backend):
 
     def bi_conjugate_gradient(self, lin, y, x0, rtol, atol, max_iter, pre, poly_order=2) -> SolveResult:
         if not self.is_available(y):
-            warnings.warn("Bi-CG is not optimized for PyTorch and will always run the maximum number of iterations.", RuntimeWarning)
+            warnings.warn(f"Bi-CG is not optimized for PyTorch and will always run the maximum number of iterations when JIT compiled (max_iter={max_iter}).", RuntimeWarning)
         return Backend.bi_conjugate_gradient(self, lin, y, x0, rtol, atol, max_iter, pre, poly_order)
 
     def matrix_solve_least_squares(self, matrix: TensorType, rhs: TensorType) -> Tuple[TensorType, TensorType, TensorType, TensorType]:
