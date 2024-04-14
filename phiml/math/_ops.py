@@ -3092,7 +3092,7 @@ def stop_gradient(x):
     return _backend_op1(x, Backend.stop_gradient)
 
 
-def pairwise_distances(positions: Tensor,
+def pairwise_differences(positions: Tensor,
                        max_distance: Union[float, Tensor] = None,
                        format: Union[str, Tensor] = 'dense',
                        default: Optional[float] = None,
@@ -3127,7 +3127,6 @@ def pairwise_distances(positions: Tensor,
         (x=0.000, y=0.000); (x=0.000, y=1.000); (x=0.000, y=0.000) (~particlesᵈ=3, vectorᶜ=x,y)
     """
     assert isinstance(positions, Tensor), f"positions must be a Tensor but got {type(positions)}"
-    assert default in [0, None], f"default value must be either 0 or None but got '{default}'"
     primal_dims = positions.shape.non_batch.non_channel.non_dual
     dual_dims = primal_dims.as_dual()
     # --- Dense ---
@@ -3177,6 +3176,8 @@ def pairwise_distances(positions: Tensor,
         for b in batch_shape.meshgrid():
             native_positions = reshaped_native(positions[b], [primal_dims, channel(positions)])
             native_max_dist = max_distance[b].native()
+            if method == 'auto':
+                method = 'sparse'  # ToDo
             if method == 'sparse':
                 nat_rows, nat_cols, nat_vals = find_neighbors_sparse(native_positions, native_max_dist, None, periodic=False, default=default)
             elif method == 'semi-sparse':

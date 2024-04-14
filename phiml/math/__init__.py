@@ -68,7 +68,7 @@ from ._ops import (
     dtype, cast,
     close, always_close, assert_close, equal,
     stop_gradient,
-    pairwise_distances, map_pairs,
+    pairwise_differences, pairwise_differences as pairwise_distances, map_pairs,
 )
 
 from ._nd import (
