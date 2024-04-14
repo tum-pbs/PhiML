@@ -400,8 +400,23 @@ class SparseCoordinateTensor(Tensor):
             indices_sorted = all([t._indices_sorted for t in tensors])
             indices_constant = all([t._indices_constant for t in tensors])
             return SparseCoordinateTensor(indices, values, dense_shape, can_contain_double_entries, indices_sorted, indices_constant)
+        elif all([same_sparsity_pattern(v, tensors[0]) for v in tensors[1:]]):
+            stored = [v._values for v in tensors]
+            cat = concat(stored, dim, **kwargs)
+            return tensors[0]._with_values(cat)
         else:
             raise NotImplementedError("concatenating compressed sparse tensors along non-sparse dims not yet supported")
+
+    @staticmethod
+    def __stack__(values: tuple, dim: Shape, **_kwargs) -> 'Tensor':
+        if all(isinstance(v, SparseCoordinateTensor) for v in values) and all([same_sparsity_pattern(v, values[0]) for v in values[1:]]):
+            stored = [v._values for v in values]
+            stacked = stack(stored, dim, **_kwargs)
+            return values[0]._with_values(stacked)
+        return Tensor.__stack__(values, dim, **_kwargs)
+
+    def __expand__(self, dims: Shape, **kwargs) -> 'Tensor':
+        return self._with_values(expand(self._values, dims, **kwargs))
 
 
 class CompressedSparseMatrix(Tensor):
@@ -582,8 +597,23 @@ class CompressedSparseMatrix(Tensor):
                 return CompressedSparseMatrix(self._indices, self._pointers, values, uncompressed, self._compressed_dims, self._indices_constant, uncompressed_offset=None)
             else:
                 raise NotImplementedError("concatenating arbitrary compressed sparse tensors along uncompressed dim is not yet supported")
+        elif all([same_sparsity_pattern(v, tensors[0]) for v in tensors[1:]]):
+            stored = [v._values for v in tensors]
+            cat = concat(stored, dim, **kwargs)
+            return tensors[0]._with_values(cat)
         else:
             raise NotImplementedError("concatenating compressed sparse tensors along non-sparse dims not yet supported")
+
+    @staticmethod
+    def __stack__(values: tuple, dim: Shape, **_kwargs) -> 'Tensor':
+        if all(isinstance(v, CompressedSparseMatrix) for v in values) and all([same_sparsity_pattern(v, values[0]) for v in values[1:]]):
+            stored = [v._values for v in values]
+            stacked = stack(stored, dim, **_kwargs)
+            return values[0]._with_values(stacked)
+        return Tensor.__stack__(values, dim, **_kwargs)
+
+    def __expand__(self, dims: Shape, **kwargs) -> 'Tensor':
+        return self._with_values(expand(self._values, dims, **kwargs))
 
     def _op1(self, native_function):
         return self._with_values(self._values._op1(native_function))

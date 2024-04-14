@@ -2,7 +2,8 @@ from unittest import TestCase
 
 from phiml import math
 from phiml.backend._backend import init_installed_backends
-from phiml.math import batch, get_sparsity, expand, wrap, stack, zeros, channel, spatial, ones, instance, tensor, pairwise_distances, dense, assert_close, non_dual, dual
+from phiml.math import batch, get_sparsity, expand, wrap, stack, zeros, channel, spatial, ones, instance, tensor, \
+    pairwise_distances, dense, assert_close, non_dual, dual, concat
 from phiml.math._sparse import SparseCoordinateTensor, CompressedSparseMatrix
 
 BACKENDS = init_installed_backends()
@@ -132,3 +133,20 @@ class TestSparse(TestCase):
             a = math.to_format(tensor([[1, 2], [3, 0]], channel('in'), dual('red')), format)
             b = math.to_format(tensor([[-1, 1], [5, 0]], channel('red'), dual('out')), format)
             math.assert_close(expected, a @ b, msg=format)
+
+    def test_stack_values(self):
+        for format in ['coo', 'csr', 'csc']:
+            matrix = wrap([[0, 1], [-1, 2]], channel('c'), dual('d'))
+            matrix = math.to_format(matrix, format)
+            stacked = stack([matrix, matrix*2], channel(vector='x,y'))
+            self.assertTrue(math.is_sparse(stacked))
+            self.assertEqual(type(stacked), type(matrix))
+
+    def test_concat_values(self):
+        for format in ['coo', 'csr', 'csc']:
+            matrix = wrap([[0, 1], [-1, 2]], channel('c'), dual('d'))
+            matrix = math.to_format(matrix, format)
+            matrix = expand(matrix, channel(vector=1))
+            stacked = concat([matrix, matrix*2], 'vector')
+            self.assertTrue(math.is_sparse(stacked))
+            self.assertEqual(type(stacked), type(matrix))
