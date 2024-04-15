@@ -209,6 +209,17 @@ class TFBackend(Backend):
         x = self.as_tensor(x)
         with self.device_of(x):
             return tf.repeat(x, repeats, axis)
+        # new_length can be larger than the actual required size. So if we use it, we have to pad the data.
+        # if new_length is not None and self.staticshape(result)[axis] is None:
+        #     shape = list(self.staticshape(result))
+        #     shape[axis] = new_length
+        #     result = tf.ensure_shape(result, shape)
+
+    def ravel_multi_index(self, multi_index, shape, mode: Union[str, int] = 'undefined'):
+        if self.is_tensor(shape, only_native=True):
+            with self.device_of(shape):
+                shape = self.unstack(shape)
+        return Backend.ravel_multi_index(self, multi_index, shape, mode=mode)
 
     def stack(self, values, axis=0):
         with self._device_for(*values):
@@ -518,11 +529,13 @@ class TFBackend(Backend):
     def batched_gather_nd(self, values, indices):
         with self._device_for(values, indices):
             values_shape = self.staticshape(values)
-            if values_shape[0] == 1 and self.staticshape(indices)[0] > 1:
-                result = tf.gather_nd(values[0, ...], indices, batch_dims=0)
-                return result
-            if values_shape[0] > 1 and self.staticshape(indices)[0] == 1:
-                indices = tf.tile(indices, [values_shape[0]] + [1] * (len(values_shape) - 1))
+            # --- tile values/indices as needed ---
+            if values_shape[0] is not None and self.staticshape(indices)[0] is not None:  # does not work without knowing the batch dims
+                if values_shape[0] == 1 and self.staticshape(indices)[0] > 1:
+                    result = tf.gather_nd(values[0, ...], indices, batch_dims=0)
+                    return result
+                if values_shape[0] > 1 and self.staticshape(indices)[0] == 1:
+                    indices = tf.tile(indices, [values_shape[0]] + [1] * (len(values_shape) - 1))
             return tf.gather_nd(values, indices, batch_dims=1)
 
     def unstack(self, tensor, axis=0, keepdims=False):
