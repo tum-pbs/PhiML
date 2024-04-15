@@ -15628,7 +15628,7 @@ Available SciPy solvers include <code>'scipy-direct'</code>, <code>'scipy-CG'</c
 
 
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="application/vnd.jupyter.stderr">
-<pre>/opt/hostedtoolcache/Python/3.8.18/x64/lib/python3.8/site-packages/phiml/math/_optimize.py:690: RuntimeWarning: Preconditioners are not supported for sparse scipy-CG in torch JIT mode. Disabling preconditioner. Use Jax or TensorFlow to enable preconditioners in JIT mode.
+<pre>/opt/hostedtoolcache/Python/3.8.18/x64/lib/python3.8/site-packages/phiml/math/_optimize.py:694: RuntimeWarning: Preconditioners are not supported for sparse scipy-CG in torch JIT mode. Disabling preconditioner. Use Jax or TensorFlow to enable preconditioners in JIT mode.
   warnings.warn(f&#34;Preconditioners are not supported for sparse {method} in {y.default_backend} JIT mode. Disabling preconditioner. Use Jax or TensorFlow to enable preconditioners in JIT mode.&#34;, RuntimeWarning)
 /opt/hostedtoolcache/Python/3.8.18/x64/lib/python3.8/site-packages/phiml/backend/torch/_torch_backend.py:68: TracerWarning: torch.from_numpy results are registered as constants in the trace. You can safely ignore this warning if you use this function to create tensors out of constant variables that would be the same every time you call this function. In any other case, this might cause the trace to be incorrect.
   tensor = torch.from_numpy(x)
@@ -15908,13 +15908,13 @@ Recording the full optimization trajectory requires setting <code>record_traject
 
 
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
-<pre>factor_ilu: auto-selecting iterations=1 (eager mode) for matrix <span class="ansi-blue-intense-fg">(2.000, 0.000)</span>; <span class="ansi-blue-intense-fg">(0.000, 1.000)</span> <span class="ansi-green-intense-fg">(b_vecᶜ=2, ~b_vecᵈ=2)</span> (DEBUG), 2024-03-31 16:51:36,817n
+<pre>factor_ilu: auto-selecting iterations=1 (eager mode) for matrix <span class="ansi-blue-intense-fg">(2.000, 0.000)</span>; <span class="ansi-blue-intense-fg">(0.000, 1.000)</span> <span class="ansi-green-intense-fg">(b_vecᶜ=2, ~b_vecᵈ=2)</span> (DEBUG), 2024-04-15 12:16:48,296n
 
-TorchScript -&gt; run compiled forward &#39;_matrix_solve_forward&#39; with args [((2,), False)] (DEBUG), 2024-03-31 16:51:36,830n
+TorchScript -&gt; run compiled forward &#39;_matrix_solve_forward&#39; with args [((2,), False)] (DEBUG), 2024-04-15 12:16:48,310n
 
-Running forward pass of custom op forward &#39;_matrix_solve_forward&#39; given args (&#39;y&#39;,) containing 1 native tensors (DEBUG), 2024-03-31 16:51:36,831n
+Running forward pass of custom op forward &#39;_matrix_solve_forward&#39; given args (&#39;y&#39;,) containing 1 native tensors (DEBUG), 2024-04-15 12:16:48,310n
 
-Performing linear solve scipy-CG with tolerance <span class="ansi-yellow-intense-fg">float64</span> <span class="ansi-blue-intense-fg">1e-05</span> (rel), <span class="ansi-yellow-intense-fg">float64</span> <span class="ansi-blue-intense-fg">1e-05</span> (abs), max_iterations=<span class="ansi-blue-intense-fg">1000</span> with backend torch (DEBUG), 2024-03-31 16:51:36,835n
+Performing linear solve scipy-CG with tolerance <span class="ansi-yellow-intense-fg">float64</span> <span class="ansi-blue-intense-fg">1e-05</span> (rel), <span class="ansi-yellow-intense-fg">float64</span> <span class="ansi-blue-intense-fg">1e-05</span> (abs), max_iterations=<span class="ansi-blue-intense-fg">1000</span> with backend torch (DEBUG), 2024-04-15 12:16:48,314n
 
 </pre>
 </div>
@@ -16031,11 +16031,11 @@ This matches the signatures of the native solve functions like <code>torch.linal
 
 
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
-<pre>TorchScript -&gt; run compiled forward &#39;_matrix_solve_forward&#39; with args [((2,), False), ((2, 2), False)] (DEBUG), 2024-03-31 16:51:36,857n
+<pre>TorchScript -&gt; run compiled forward &#39;_matrix_solve_forward&#39; with args [((2,), False), ((2, 2), False)] (DEBUG), 2024-04-15 12:16:48,337n
 
-Running forward pass of custom op forward &#39;_matrix_solve_forward&#39; given args (&#39;y&#39;, &#39;matrix&#39;) containing 2 native tensors (DEBUG), 2024-03-31 16:51:36,857n
+Running forward pass of custom op forward &#39;_matrix_solve_forward&#39; given args (&#39;y&#39;, &#39;matrix&#39;) containing 2 native tensors (DEBUG), 2024-04-15 12:16:48,337n
 
-Performing linear solve auto with tolerance <span class="ansi-yellow-intense-fg">float64</span> <span class="ansi-blue-intense-fg">1e-05</span> (rel), <span class="ansi-yellow-intense-fg">float64</span> <span class="ansi-blue-intense-fg">1e-05</span> (abs), max_iterations=<span class="ansi-blue-intense-fg">1000</span> with backend torch (DEBUG), 2024-03-31 16:51:36,859n
+Performing linear solve auto with tolerance <span class="ansi-yellow-intense-fg">float64</span> <span class="ansi-blue-intense-fg">1e-05</span> (rel), <span class="ansi-yellow-intense-fg">float64</span> <span class="ansi-blue-intense-fg">1e-05</span> (abs), max_iterations=<span class="ansi-blue-intense-fg">1000</span> with backend torch (DEBUG), 2024-04-15 12:16:48,340n
 
 </pre>
 </div>

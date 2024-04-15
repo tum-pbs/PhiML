@@ -104,7 +104,7 @@ from ._ops import (
     dtype, cast,
     close, always_close, assert_close, equal,
     stop_gradient,
-    pairwise_distances, map_pairs,
+    pairwise_differences, pairwise_differences as pairwise_distances, map_pairs,
 )
 
 from ._nd import (
@@ -309,7 +309,7 @@ from ._ops import (
     dtype, cast,
     close, always_close, assert_close, equal,
     stop_gradient,
-    pairwise_distances, map_pairs,
+    pairwise_differences, pairwise_differences as pairwise_distances, map_pairs,
 )
 
 from ._nd import (
@@ -3007,8 +3007,8 @@ row=2      0.   1.  -2.  along ~col
         u_indices = matrix._unpack_indices(u_idx_nat[..., 0], u_idx_nat[..., 1], row_dims, col_dims, ind_batch)
         l_values = reshaped_tensor(l_val_nat, [ind_batch, instance(matrix._values), channels], convert=False)
         u_values = reshaped_tensor(u_val_nat, [ind_batch, instance(matrix._values), channels], convert=False)
-        lower = SparseCoordinateTensor(l_indices, l_values, matrix._dense_shape, matrix._can_contain_double_entries, matrix._indices_sorted, matrix._default)
-        upper = SparseCoordinateTensor(u_indices, u_values, matrix._dense_shape, matrix._can_contain_double_entries, matrix._indices_sorted, matrix._default)
+        lower = SparseCoordinateTensor(l_indices, l_values, matrix._dense_shape, matrix._can_contain_double_entries, matrix._indices_sorted, matrix._indices_constant)
+        upper = SparseCoordinateTensor(u_indices, u_values, matrix._dense_shape, matrix._can_contain_double_entries, matrix._indices_sorted, matrix._indices_constant)
     else:  # dense matrix
         native_matrix = reshaped_native(matrix, [batch, non_batch(matrix).non_dual, dual, EMPTY_SHAPE])
         l_native, u_native = incomplete_lu_dense(native_matrix, iterations, safe)
@@ -7276,8 +7276,8 @@ These are ignored by the standard extrapolations defined in <code><a title="phim
     return result_sliced</code></pre>
 </details>
 </dd>
-<dt id="phiml.math.pairwise_distances"><code class="name flex">
-<span>def <span class="ident">pairwise_distances</span></span>(<span>positions: phiml.math._tensors.Tensor, max_distance: Union[float, phiml.math._tensors.Tensor] = None, format: Union[str, phiml.math._tensors.Tensor] = 'dense', default: Optional[float] = None, method: str = 'sparse') ‑> phiml.math._tensors.Tensor</span>
+<dt id="phiml.math.pairwise_differences"><code class="name flex">
+<span>def <span class="ident">pairwise_differences</span></span>(<span>positions: phiml.math._tensors.Tensor, max_distance: Union[float, phiml.math._tensors.Tensor] = None, format: Union[str, phiml.math._tensors.Tensor] = 'dense', default: Optional[float] = None, method: str = 'sparse') ‑> phiml.math._tensors.Tensor</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Computes the distance matrix containing the pairwise position differences between each pair of points.
@@ -7315,7 +7315,7 @@ The matrix also contains all batch dimensions of <code>positions</code> and one 
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def pairwise_distances(positions: Tensor,
+<pre><code class="python">def pairwise_differences(positions: Tensor,
                        max_distance: Union[float, Tensor] = None,
                        format: Union[str, Tensor] = &#39;dense&#39;,
                        default: Optional[float] = None,
@@ -7350,7 +7350,6 @@ The matrix also contains all batch dimensions of <code>positions</code> and one 
         (x=0.000, y=0.000); (x=0.000, y=1.000); (x=0.000, y=0.000) (~particlesᵈ=3, vectorᶜ=x,y)
     &#34;&#34;&#34;
     assert isinstance(positions, Tensor), f&#34;positions must be a Tensor but got {type(positions)}&#34;
-    assert default in [0, None], f&#34;default value must be either 0 or None but got &#39;{default}&#39;&#34;
     primal_dims = positions.shape.non_batch.non_channel.non_dual
     dual_dims = primal_dims.as_dual()
     # --- Dense ---
@@ -7400,6 +7399,8 @@ The matrix also contains all batch dimensions of <code>positions</code> and one 
         for b in batch_shape.meshgrid():
             native_positions = reshaped_native(positions[b], [primal_dims, channel(positions)])
             native_max_dist = max_distance[b].native()
+            if method == &#39;auto&#39;:
+                method = &#39;sparse&#39;  # ToDo
             if method == &#39;sparse&#39;:
                 nat_rows, nat_cols, nat_vals = find_neighbors_sparse(native_positions, native_max_dist, None, periodic=False, default=default)
             elif method == &#39;semi-sparse&#39;:
@@ -7431,7 +7432,167 @@ The matrix also contains all batch dimensions of <code>positions</code> and one 
         raise RuntimeError
     # --- Assemble sparse matrix ---
     dense_shape = primal_dims &amp; dual_dims
-    coo = SparseCoordinateTensor(indices, values, dense_shape, can_contain_double_entries=False, indices_sorted=False, default=default)
+    coo = SparseCoordinateTensor(indices, values, dense_shape, can_contain_double_entries=False, indices_sorted=False, indices_constant=False)
+    return to_format(coo, format)</code></pre>
+</details>
+</dd>
+<dt id="phiml.math.pairwise_distances"><code class="name flex">
+<span>def <span class="ident">pairwise_distances</span></span>(<span>positions: phiml.math._tensors.Tensor, max_distance: Union[float, phiml.math._tensors.Tensor] = None, format: Union[str, phiml.math._tensors.Tensor] = 'dense', default: Optional[float] = None, method: str = 'sparse') ‑> phiml.math._tensors.Tensor</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Computes the distance matrix containing the pairwise position differences between each pair of points.
+Points that are further apart than <code>max_distance</code> (if specified) are assigned a distance value of <code>0</code>.
+The diagonal of the matrix (self-distance) also consists purely of zero-vectors and may or may not be stored explicitly.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>positions</code></strong></dt>
+<dd><code><a title="phiml.math.Tensor" href="#phiml.math.Tensor">Tensor</a></code>.
+Channel dimensions are interpreted as position components.
+Instance and spatial dimensions list nodes.</dd>
+<dt><strong><code>max_distance</code></strong></dt>
+<dd>Scalar or <code><a title="phiml.math.Tensor" href="#phiml.math.Tensor">Tensor</a></code> specifying a max_radius for each point separately.
+Can contain additional batch dimensions but spatial/instance dimensions must match <code>positions</code> if present.
+If not specified, uses an infinite cutoff radius, i.e. all points will be considered neighbors.</dd>
+<dt><strong><code>format</code></strong></dt>
+<dd>Matrix format as <code>str</code> or concrete sparsity pattern as <code><a title="phiml.math.Tensor" href="#phiml.math.Tensor">Tensor</a></code>.
+Allowed strings are <code>'dense',</code>'csr'<code>, </code>'coo'<code>, </code>'csc'`.
+When a <code><a title="phiml.math.Tensor" href="#phiml.math.Tensor">Tensor</a></code> is passed, it needs to have all instance and spatial dims as <code>positions</code> as well as corresponding dual dimensions.
+The distances will be evaluated at all stored entries of the <code>format</code> tensor.</dd>
+<dt><strong><code>default</code></strong></dt>
+<dd>Value the sparse tensor returns for non-stored values. Must be <code>0</code> or <code>None</code>.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<p>Distance matrix as sparse or dense <code><a title="phiml.math.Tensor" href="#phiml.math.Tensor">Tensor</a></code>, depending on <code>format</code>.
+For each spatial/instance dimension in <code>positions</code>, the matrix also contains a dual dimension of the same name and size.
+The matrix also contains all batch dimensions of <code>positions</code> and one channel dimension called <code>vector</code>.</p>
+<h2 id="examples">Examples</h2>
+<pre><code class="language-python-repl">&gt;&gt;&gt; pos = vec(x=0, y=tensor([0, 1, 2.5], instance('particles')))
+&gt;&gt;&gt; dx = pairwise_distances(pos, format='dense', max_distance=2)
+&gt;&gt;&gt; dx.particles[0]
+(x=0.000, y=0.000); (x=0.000, y=1.000); (x=0.000, y=0.000) (~particlesᵈ=3, vectorᶜ=x,y)
+</code></pre></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def pairwise_differences(positions: Tensor,
+                       max_distance: Union[float, Tensor] = None,
+                       format: Union[str, Tensor] = &#39;dense&#39;,
+                       default: Optional[float] = None,
+                       method: str = &#39;sparse&#39;) -&gt; Tensor:
+    &#34;&#34;&#34;
+    Computes the distance matrix containing the pairwise position differences between each pair of points.
+    Points that are further apart than `max_distance` (if specified) are assigned a distance value of `0`.
+    The diagonal of the matrix (self-distance) also consists purely of zero-vectors and may or may not be stored explicitly.
+
+    Args:
+        positions: `Tensor`.
+            Channel dimensions are interpreted as position components.
+            Instance and spatial dimensions list nodes.
+        max_distance: Scalar or `Tensor` specifying a max_radius for each point separately.
+            Can contain additional batch dimensions but spatial/instance dimensions must match `positions` if present.
+            If not specified, uses an infinite cutoff radius, i.e. all points will be considered neighbors.
+        format: Matrix format as `str` or concrete sparsity pattern as `Tensor`.
+            Allowed strings are `&#39;dense&#39;, `&#39;csr&#39;`, `&#39;coo&#39;`, `&#39;csc&#39;`.
+            When a `Tensor` is passed, it needs to have all instance and spatial dims as `positions` as well as corresponding dual dimensions.
+            The distances will be evaluated at all stored entries of the `format` tensor.
+        default: Value the sparse tensor returns for non-stored values. Must be `0` or `None`.
+
+    Returns:
+        Distance matrix as sparse or dense `Tensor`, depending on `format`.
+        For each spatial/instance dimension in `positions`, the matrix also contains a dual dimension of the same name and size.
+        The matrix also contains all batch dimensions of `positions` and one channel dimension called `vector`.
+
+    Examples:
+        &gt;&gt;&gt; pos = vec(x=0, y=tensor([0, 1, 2.5], instance(&#39;particles&#39;)))
+        &gt;&gt;&gt; dx = pairwise_distances(pos, format=&#39;dense&#39;, max_distance=2)
+        &gt;&gt;&gt; dx.particles[0]
+        (x=0.000, y=0.000); (x=0.000, y=1.000); (x=0.000, y=0.000) (~particlesᵈ=3, vectorᶜ=x,y)
+    &#34;&#34;&#34;
+    assert isinstance(positions, Tensor), f&#34;positions must be a Tensor but got {type(positions)}&#34;
+    primal_dims = positions.shape.non_batch.non_channel.non_dual
+    dual_dims = primal_dims.as_dual()
+    # --- Dense ---
+    if (isinstance(format, str) and format == &#39;dense&#39;) or (isinstance(format, Tensor) and get_format(format) == &#39;dense&#39;):
+        if isinstance(format, Tensor):
+            dual_dims = dual(format)
+        dx = unpack_dim(pack_dims(positions, non_batch(positions).non_channel.non_dual, instance(&#39;_tmp&#39;)), &#39;_tmp&#39;, dual_dims) - positions
+        if max_distance is not None:
+            neighbors = sum_(dx ** 2, channel) &lt;= max_distance ** 2
+            default = float(&#39;nan&#39;) if default is None else default
+            dx = where(neighbors, dx, default)
+        return dx
+    # --- sparse with known connectivity ---
+    if isinstance(format, Tensor):  # sparse connectivity specified, no neighborhood search required
+        assert max_distance is None, &#34;max_distance not allowed when connectivity is specified (passing a Tensor for format)&#34;
+        assert is_sparse(format)
+        return map_pairs(lambda p1, p2: p2 - p1, positions, format)
+    # --- Sparse neighbor search ---
+    assert max_distance is not None, &#34;max_distance must be specified when computing distance in sparse format&#34;
+    max_distance = wrap(max_distance)
+    index_dtype = DType(int, 32)
+    backend = choose_backend_t(positions, max_distance)
+    batch_shape = batch(positions) &amp; batch(max_distance)
+    if not dual_dims.well_defined:
+        assert dual_dims.rank == 1, f&#34;others_dims sizes must be specified when passing more then one dimension but got {dual_dims}&#34;
+        dual_dims = dual_dims.with_size(primal_dims.volume)
+    # --- Determine mode ---
+    # if method == &#39;sklearn&#39;:
+
+    pair_count = None
+    table_len = None
+    mode = &#39;vectorize&#39; if batch_shape.volume &gt; 1 and batch_shape.is_uniform else &#39;loop&#39;
+    if backend.is_available(positions):
+        if mode == &#39;vectorize&#39;:
+            # ToDo determine limits from positions? build_cells+bincount would be enough
+            pair_count = 7
+    else:  # tracing
+        if backend.requires_fixed_shapes_when_tracing():
+            # ToDo use fixed limits (set by user)
+            pair_count = 7
+            mode = &#39;vectorize&#39;
+    # --- Run neighborhood search ---
+    from ..backend._partition import find_neighbors_sparse, find_neighbors_semi_sparse, find_neighbors_matscipy, find_neighbors_sklearn
+    if mode == &#39;loop&#39;:
+        indices = []
+        values = []
+        for b in batch_shape.meshgrid():
+            native_positions = reshaped_native(positions[b], [primal_dims, channel(positions)])
+            native_max_dist = max_distance[b].native()
+            if method == &#39;auto&#39;:
+                method = &#39;sparse&#39;  # ToDo
+            if method == &#39;sparse&#39;:
+                nat_rows, nat_cols, nat_vals = find_neighbors_sparse(native_positions, native_max_dist, None, periodic=False, default=default)
+            elif method == &#39;semi-sparse&#39;:
+                nat_rows, nat_cols, nat_vals, req_pair_count, req_max_occupancy = find_neighbors_semi_sparse(native_positions, native_max_dist, None, periodic=False, default=default)
+            elif method == &#39;matscipy&#39;:
+                assert positions.available, f&#34;Cannot jit-compile matscipy neighborhood search&#34;
+                nat_rows, nat_cols, nat_vals = find_neighbors_matscipy(native_positions, native_max_dist, None, periodic=False)
+            elif method == &#39;sklearn&#39;:
+                assert positions.available, f&#34;Cannot jit-compile matscipy neighborhood search&#34;
+                nat_rows, nat_cols, nat_vals = find_neighbors_sklearn(native_positions, native_max_dist)
+            else:
+                raise ValueError(method)
+            nat_indices = backend.stack([nat_rows, nat_cols], -1)
+            indices.append(reshaped_tensor(nat_indices, [instance(&#39;pairs&#39;), channel(vector=primal_dims.names + dual_dims.names)], convert=False))
+            values.append(reshaped_tensor(nat_vals, [instance(&#39;pairs&#39;), channel(positions)]))
+        indices = stack(indices, batch_shape)
+        values = stack(values, batch_shape)
+    elif mode == &#39;vectorize&#39;:
+        raise NotImplementedError
+        # native_positions = reshaped_native(positions, [batch_shape, primal_dims, channel(positions)])
+        # native_max_dist = reshaped_native(max_distance, [batch_shape, primal_dims], force_expand=False)
+        # def single_search(pos, r):
+        #     return find_neighbors(pos, r, None, periodic=False, pair_count=pair_count, default=default)
+        # nat_rows, nat_cols, nat_vals = backend.vectorized_call(single_search, native_positions, native_max_dist, output_dtypes=(index_dtype, index_dtype, positions.dtype))
+        # nat_indices = backend.stack([nat_rows, nat_cols], -1)
+        # indices = reshaped_tensor(nat_indices, [batch_shape, instance(&#39;pairs&#39;), channel(vector=primal_dims.names + dual_dims.names)], convert=False)
+        # values = reshaped_tensor(nat_vals, [batch_shape, instance(&#39;pairs&#39;), channel(positions)])
+    else:
+        raise RuntimeError
+    # --- Assemble sparse matrix ---
+    dense_shape = primal_dims &amp; dual_dims
+    coo = SparseCoordinateTensor(indices, values, dense_shape, can_contain_double_entries=False, indices_sorted=False, indices_constant=False)
     return to_format(coo, format)</code></pre>
 </details>
 </dd>
@@ -8346,6 +8507,7 @@ If a sequence of dimensions is provided, only forces the expansion for groups co
         Native tensor with dimensions matching `groups`.
     &#34;&#34;&#34;
     assert isinstance(value, Tensor), f&#34;value must be a Tensor but got {type(value)}&#34;
+    assert not value._is_tracer, f&#34;Failed accessing native values because tensor {value.shape} is a tracer&#34;
     assert value.shape.is_uniform, f&#34;Only uniform (homogenous) tensors can be converted to native but got shape {value.shape}&#34;
     assert isinstance(groups, (tuple, list)), f&#34;groups must be a tuple or list but got {type(value)}&#34;
     order = []
@@ -8948,7 +9110,7 @@ This will upgrade the data type to <code>float</code> if necessary.</dd>
             count = backend.scatter(zero_grid, native_indices, backend.ones_like(native_values), mode=&#39;add&#39;)
             native_result = summed / backend.maximum(count, 1)
             native_result = backend.where(count == 0, native_grid, native_result)
-        return reshaped_tensor(native_result, [batches, *indexed_dims, channels], check_sizes=True)
+        return reshaped_tensor(native_result, [batches, *indexed_dims, channels], check_sizes=True, convert=False)
 
     def scatter_backward(args: dict, _output, d_output):
         from ._nd import spatial_gradient
@@ -9576,8 +9738,12 @@ These arguments are treated as auxiliary arguments and can be of any type.</dd>
         if callable(f):  # assume batch + 1 dim
             rank = y_tensors[0].rank
             assert x0_tensors[0].rank == rank, f&#34;y and x0 must have the same rank but got {y_tensors[0].shape.sizes} for y and {x0_tensors[0].shape.sizes} for x0&#34;
-            y = wrap(y, *[batch(f&#39;batch{i}&#39;) for i in range(rank - 1)], channel(&#39;vector&#39;))
-            x0 = wrap(solve.x0, *[batch(f&#39;batch{i}&#39;) for i in range(rank - 1)], channel(&#39;vector&#39;))
+            if rank == 0:
+                y = wrap(y)
+                x0 = wrap(solve.x0)
+            else:
+                y = wrap(y, *[batch(f&#39;batch{i}&#39;) for i in range(rank - 1)], channel(&#39;vector&#39;))
+                x0 = wrap(solve.x0, *[batch(f&#39;batch{i}&#39;) for i in range(rank - 1)], channel(&#39;vector&#39;))
             solve = copy_with(solve, x0=x0)
             solution = solve_linear(f, y, solve, *f_args, grad_for_f=grad_for_f, f_kwargs=f_kwargs, **f_kwargs_)
             return solution.native(&#39;,&#39;.join([f&#39;batch{i}&#39; for i in range(rank - 1)]) + &#39;,vector&#39;)
@@ -9780,7 +9946,7 @@ In order to sort a flattened array, use <code><a title="phiml.math.pack_dims" hr
 </details>
 </dd>
 <dt id="phiml.math.sparse_tensor"><code class="name flex">
-<span>def <span class="ident">sparse_tensor</span></span>(<span>indices: phiml.math._tensors.Tensor, values: phiml.math._tensors.Tensor, dense_shape: phiml.math._shape.Shape, can_contain_double_entries=True, indices_sorted=False, format='coo', default: numbers.Number = 0) ‑> phiml.math._tensors.Tensor</span>
+<span>def <span class="ident">sparse_tensor</span></span>(<span>indices: phiml.math._tensors.Tensor, values: phiml.math._tensors.Tensor, dense_shape: phiml.math._shape.Shape, can_contain_double_entries=True, indices_sorted=False, format='coo', indices_constant: bool = True) ‑> phiml.math._tensors.Tensor</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Construct a sparse tensor that stores <code>values</code> at the corresponding <code>indices</code> and is 0 everywhere else.
@@ -9816,10 +9982,11 @@ The order can differ from the item names of <code>indices</code>.</dd>
 If so, values at the same index will be summed.</dd>
 <dt><strong><code>indices_sorted</code></strong></dt>
 <dd>Whether the indices are sorted in ascending order given the dimension order of the item names of <code>indices</code>.</dd>
+<dt><strong><code>indices_constant</code></strong></dt>
+<dd>Whether the positions of the non-zero values are fixed.
+If <code>True</code>, JIT compilation will not create a placeholder for <code>indices</code>.</dd>
 <dt><strong><code>format</code></strong></dt>
 <dd>Sparse format in which to store the data, such as <code>'coo'</code> or <code>'csr'</code>. See <code><a title="phiml.math.get_format" href="#phiml.math.get_format">get_format()</a></code>.</dd>
-<dt><strong><code>default</code></strong></dt>
-<dd>Value the sparse tensor returns for non-stored values. Must be <code>0</code> or <code>None</code>.</dd>
 </dl>
 <h2 id="returns">Returns</h2>
 <p>Sparse <code><a title="phiml.math.Tensor" href="#phiml.math.Tensor">Tensor</a></code> with the specified <code>format</code>.</p></div>
@@ -9833,7 +10000,7 @@ If so, values at the same index will be summed.</dd>
                   can_contain_double_entries=True,
                   indices_sorted=False,
                   format=&#39;coo&#39;,
-                  default: Number or None = 0) -&gt; Tensor:
+                  indices_constant: bool = True) -&gt; Tensor:
     &#34;&#34;&#34;
     Construct a sparse tensor that stores `values` at the corresponding `indices` and is 0 everywhere else.
     In addition to the sparse dimensions indexed by `indices`, the tensor inherits all batch and channel dimensions from `values`.
@@ -9859,14 +10026,17 @@ If so, values at the same index will be summed.</dd>
         can_contain_double_entries: Whether some indices might occur more than once.
             If so, values at the same index will be summed.
         indices_sorted: Whether the indices are sorted in ascending order given the dimension order of the item names of `indices`.
+        indices_constant: Whether the positions of the non-zero values are fixed.
+            If `True`, JIT compilation will not create a placeholder for `indices`.
         format: Sparse format in which to store the data, such as `&#39;coo&#39;` or `&#39;csr&#39;`. See `phiml.math.get_format`.
-        default: Value the sparse tensor returns for non-stored values. Must be `0` or `None`.
 
     Returns:
         Sparse `Tensor` with the specified `format`.
     &#34;&#34;&#34;
-    assert default in [0, None], f&#34;default value must be either 0 or None but got &#39;{default}&#39;&#34;
-    coo = SparseCoordinateTensor(indices, values, dense_shape, can_contain_double_entries, indices_sorted, default)
+    if indices_constant is None:
+        indices_constant = indices.default_backend.name == &#39;numpy&#39;
+    assert isinstance(indices_constant, bool)
+    coo = SparseCoordinateTensor(indices, values, dense_shape, can_contain_double_entries, indices_sorted, indices_constant)
     return to_format(coo, format)</code></pre>
 </details>
 </dd>
@@ -10314,6 +10484,8 @@ This may switch off the gradients for <code>x</code> itself or create a copy of 
     Returns:
         Copy of `x`.
     &#34;&#34;&#34;
+    if isinstance(x, Shape):
+        return x
     return _backend_op1(x, Backend.stop_gradient)</code></pre>
 </details>
 </dd>
@@ -10360,7 +10532,7 @@ Internally, invalid indices may be stored for performance reasons.</dd>
         from ._ops import meshgrid
         if batch(x):
             raise NotImplementedError
-        indices = meshgrid(x._native_shape.non_batch.non_channel)
+        indices = meshgrid(x._native_shape.non_batch.non_channel, stack_dim=index_dim)
         return pack_dims(indices, non_channel, list_dim)
     if isinstance(x, TensorStack):
         if x.is_cached or not x.requires_broadcast:
@@ -10381,10 +10553,9 @@ Internally, invalid indices may be stored for performance reasons.</dd>
 <span>def <span class="ident">stored_values</span></span>(<span>x: phiml.math._tensors.Tensor, list_dim=(entriesⁱ=None), invalid='discard') ‑> phiml.math._tensors.Tensor</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Returns the stored values for a given `Tensor``.
-For sparse tensors, this will return only the stored entries.
-For collapsed tensors, only the stored dimensions will be returned.
-Dense tensors are returned as-is.</p>
+<div class="desc"><p>Returns the stored values for a given `Tensor``.</p>
+<p>For sparse tensors, this will return only the stored entries.</p>
+<p>Dense tensors are reshaped so that all non-batch dimensions are packed into <code>list_dim</code>. Batch dimensions are preserved.</p>
 <h2 id="args">Args</h2>
 <dl>
 <dt><strong><code>x</code></strong></dt>
@@ -10404,9 +10575,10 @@ Internally, invalid indices may be stored for performance reasons.</dd>
 <pre><code class="python">def stored_values(x: Tensor, list_dim=instance(&#39;entries&#39;), invalid=&#39;discard&#39;) -&gt; Tensor:
     &#34;&#34;&#34;
     Returns the stored values for a given `Tensor``.
+
     For sparse tensors, this will return only the stored entries.
-    For collapsed tensors, only the stored dimensions will be returned.
-    Dense tensors are returned as-is.
+
+    Dense tensors are reshaped so that all non-batch dimensions are packed into `list_dim`. Batch dimensions are preserved.
 
     Args:
         x: `Tensor`
@@ -10419,7 +10591,9 @@ Internally, invalid indices may be stored for performance reasons.</dd>
     &#34;&#34;&#34;
     assert invalid in [&#39;discard&#39;, &#39;clamp&#39;, &#39;keep&#39;], f&#34;invalid handling must be one of &#39;discard&#39;, &#39;clamp&#39;, &#39;keep&#39; but got {invalid}&#34;
     if isinstance(x, NativeTensor):
-        return expand(NativeTensor(x._native, x._native_shape, x._native_shape), list_dim.with_size(1))
+        x = NativeTensor(x._native, x._native_shape, x._native_shape)
+        entries_dims = x.shape.non_batch
+        return pack_dims(x, entries_dims, list_dim)
     if isinstance(x, TensorStack):
         if x.is_cached:
             return stored_values(cached(x))
@@ -10721,9 +10895,9 @@ If False, wraps the data in a <code><a title="phiml.math.Tensor" href="#phiml.ma
 <dd>Any <code><a title="phiml.math.Tensor" href="#phiml.math.Tensor">Tensor</a></code>, sparse or dense.</dd>
 <dt><strong><code>values</code></strong></dt>
 <dd>New values to replace the existing values by.
-If <code>existing_tensor</code> is sparse, <code>values</code> must have an instance dimension to list the stored values, matching the sparse indices.</dd>
+If <code>existing_tensor</code> is sparse, <code>values</code> must broadcast to the instance dimension listing the stored indices.</dd>
 <dt><strong><code>value_order</code></strong></dt>
-<dd>Order of <code>values</code> compared to <code>existing_tensor</code>.
+<dd>Order of <code>values</code> compared to <code>existing_tensor</code>, only relevant if <code>existing_tensor</code> is sparse.
 If <code>'original'</code>, the values are ordered like the values that was used to create the first tensor with this sparsity pattern.
 If <code>'as existing'</code>, the values match the current order of <code>existing_tensor</code>.
 Note that the order of values may be changed upon creating a sparse tensor.</dd>
@@ -10741,8 +10915,8 @@ Note that the order of values may be changed upon creating a sparse tensor.</dd>
     Args:
         existing_tensor: Any `Tensor`, sparse or dense.
         values: New values to replace the existing values by.
-            If `existing_tensor` is sparse, `values` must have an instance dimension to list the stored values, matching the sparse indices.
-        value_order: Order of `values` compared to `existing_tensor`.
+            If `existing_tensor` is sparse, `values` must broadcast to the instance dimension listing the stored indices.
+        value_order: Order of `values` compared to `existing_tensor`, only relevant if `existing_tensor` is sparse.
             If `&#39;original&#39;`, the values are ordered like the values that was used to create the first tensor with this sparsity pattern.
             If `&#39;as existing&#39;`, the values match the current order of `existing_tensor`.
             Note that the order of values may be changed upon creating a sparse tensor.
@@ -10988,7 +11162,7 @@ The result can be written to a JSON file, for example.</p>
         from ._ops import nonzero
         indices = nonzero(rename_dims(x, channel, instance))
         values = x[indices]
-        coo = SparseCoordinateTensor(indices, values, x.shape, can_contain_double_entries=False, indices_sorted=False, default=0)
+        coo = SparseCoordinateTensor(indices, values, x.shape, can_contain_double_entries=False, indices_sorted=False, indices_constant=x.default_backend.name == &#39;numpy&#39;)
         return to_format(coo, format)</code></pre>
 </details>
 </dd>
@@ -17639,6 +17813,7 @@ If a dimension of the tensor is not listed in <code>order</code>, a <code>ValueE
 <li><code><a title="phiml.math.ones_like" href="#phiml.math.ones_like">ones_like</a></code></li>
 <li><code><a title="phiml.math.pack_dims" href="#phiml.math.pack_dims">pack_dims</a></code></li>
 <li><code><a title="phiml.math.pad" href="#phiml.math.pad">pad</a></code></li>
+<li><code><a title="phiml.math.pairwise_differences" href="#phiml.math.pairwise_differences">pairwise_differences</a></code></li>
 <li><code><a title="phiml.math.pairwise_distances" href="#phiml.math.pairwise_distances">pairwise_distances</a></code></li>
 <li><code><a title="phiml.math.perf_counter" href="#phiml.math.perf_counter">perf_counter</a></code></li>
 <li><code><a title="phiml.math.precision" href="#phiml.math.precision">precision</a></code></li>

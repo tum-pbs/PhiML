@@ -1338,7 +1338,7 @@ The methods of <code><a title="phiml.backend.Backend" href="#phiml.backend.Backe
             mode: `&#39;undefined&#39;`, `&#39;periodic&#39;`, `&#39;clamp&#39;` or an `int` to use for all invalid indices.
 
         Returns:
-            Integer tensor of shape (batch...)
+            Integer tensor of shape (batch...) of same dtype as `multi_index`.
         &#34;&#34;&#34;
         strides = [self.ones((), self.dtype(multi_index))]
         for size in reversed(shape[1:]):
@@ -1749,10 +1749,9 @@ The methods of <code><a title="phiml.backend.Backend" href="#phiml.backend.Backe
         assert batch_size_d == batch_size
         assert dense_rows == shape[1]
         assert channel_count == channel_count_d
-        assert dense_cols == 1  # not implemented yet
         dense_formatted = self.reshape(dense, (batch_size, dense_rows, channel_count * dense_cols))
         dense_gathered = self.batched_gather_nd(dense_formatted, indices[:, :, 1:2])
-        base_grid = self.zeros((batch_size, shape[0], channel_count), self.dtype(dense))
+        base_grid = self.zeros((batch_size, shape[0], channel_count * dense_cols), self.dtype(dense))
         result = self.scatter(base_grid, indices[:, :, 0:1], values * dense_gathered, mode=&#39;add&#39;)
         return self.reshape(result, (batch_size, shape[0], channel_count, dense_cols))
 
@@ -4652,10 +4651,9 @@ This is the fallback if CSR multiplication is not supported.</p>
     assert batch_size_d == batch_size
     assert dense_rows == shape[1]
     assert channel_count == channel_count_d
-    assert dense_cols == 1  # not implemented yet
     dense_formatted = self.reshape(dense, (batch_size, dense_rows, channel_count * dense_cols))
     dense_gathered = self.batched_gather_nd(dense_formatted, indices[:, :, 1:2])
-    base_grid = self.zeros((batch_size, shape[0], channel_count), self.dtype(dense))
+    base_grid = self.zeros((batch_size, shape[0], channel_count * dense_cols), self.dtype(dense))
     result = self.scatter(base_grid, indices[:, :, 0:1], values * dense_gathered, mode=&#39;add&#39;)
     return self.reshape(result, (batch_size, shape[0], channel_count, dense_cols))</code></pre>
 </details>
@@ -5138,7 +5136,7 @@ Use <code>is_available(tensor)</code> to check if the value can be represented a
 <dd><code>'undefined'</code>, <code>'periodic'</code>, <code>'clamp'</code> or an <code>int</code> to use for all invalid indices.</dd>
 </dl>
 <h2 id="returns">Returns</h2>
-<p>Integer tensor of shape (batch&hellip;)</p></div>
+<p>Integer tensor of shape (batch&hellip;) of same dtype as <code>multi_index</code>.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -5151,7 +5149,7 @@ Use <code>is_available(tensor)</code> to check if the value can be represented a
         mode: `&#39;undefined&#39;`, `&#39;periodic&#39;`, `&#39;clamp&#39;` or an `int` to use for all invalid indices.
 
     Returns:
-        Integer tensor of shape (batch...)
+        Integer tensor of shape (batch...) of same dtype as `multi_index`.
     &#34;&#34;&#34;
     strides = [self.ones((), self.dtype(multi_index))]
     for size in reversed(shape[1:]):
