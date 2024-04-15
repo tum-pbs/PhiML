@@ -3,6 +3,7 @@ from typing import Tuple, Any, Union, Optional
 
 import numpy as np
 
+from ._buffer import register_buffer
 from ._dtype import DType, to_numpy_dtype
 from ._backend import Backend, choose_backend, TensorType
 
@@ -116,7 +117,7 @@ def find_neighbors_sparse(positions,
                           cutoff,
                           domain: Optional[Tuple[TensorType, TensorType]] = None,
                           periodic: Union[bool, Tuple[bool, ...]] = False,
-                          pair_count: int = None,
+                          default_pair_count: int = 512,
                           index_dtype: DType = DType(int, 32),
                           trim: bool = True,
                           default: Number = float('nan'),
@@ -130,7 +131,7 @@ def find_neighbors_sparse(positions,
         cutoff: Scalar float or 1D tensor
         domain: (Optional) Lower and upper corner of domain.
         periodic: Whether domain boundaries are periodic.
-        pair_count: Length of output lists.
+        default_pair_count: Default length of output lists.
             This must be set when jit-compiling this function with Jax.
         index_dtype: Either int32 or int64.
         trim: Whether to only include pairs for particles in range. If `False`, returns a possibly larger list with invalid deltas represented as `default´.
@@ -144,13 +145,9 @@ def find_neighbors_sparse(positions,
         differences: (pair_count, #dims)
     """
     b = choose_backend(positions)
-    if not b.is_available(positions):
-        assert pair_count is not None, f"pair_count must be provided when tracing find_neighbors"
     positions = b.to_float(b.as_tensor(positions))
     n, d = b.staticshape(positions)
     cells, perm, neighbor_cells, cell_size, structure = build_cells(positions, cutoff, domain, periodic)
-    b_ = choose_backend(cell_size)
-    tmp_pair_count = b_.to_int32(b_.ceil(pair_count * b_.prod(3 * cell_size) / (_sphere_volume(cutoff, d)))) if pair_count is not None else None  # approximate over-counting from including out-of-range particles in neighboring cells
     linear_indices = b.range(n, dtype=index_dtype)
     particle_ids = b.gather(linear_indices, perm, 0)
     positions = b.gather(positions, perm, 0)
@@ -158,7 +155,8 @@ def find_neighbors_sparse(positions,
     num_neighbors_by_direction = structure.get_num_elements_in_cell(neighbor_cells)
     num_potential_neighbors = b.sum(num_neighbors_by_direction, 0)
     num_required_tmp_pairs = b.sum(num_potential_neighbors)
-    pair_indices = b.range(tmp_pair_count or num_required_tmp_pairs, dtype=index_dtype)
+    max_pair_count = register_buffer('potential_pair_count', num_required_tmp_pairs, default_pair_count)
+    pair_indices = b.range(max_pair_count, dtype=index_dtype)
     if pair_by == 'scatter':
         raise NotImplementedError
         # to_id = b.zeros(sum(num_potential_neighbors), dtype=index_dtype)  # ToDo bound this by some constant (jit)
@@ -168,28 +166,28 @@ def find_neighbors_sparse(positions,
         #     offsets += ...
     elif pair_by == 'repeat-gather':
         neighbor_partitions = b.cumsum(num_neighbors_by_direction, 0)
-        small_index = b.repeat(linear_indices, num_potential_neighbors, 0, new_length=tmp_pair_count)
+        small_index = b.repeat(linear_indices, num_potential_neighbors, 0, new_length=max_pair_count)
         all_directions = b.tile(b.range(neighbor_cells.shape[0]), [n])
-        direction = b.repeat(all_directions, b.flatten(b.transpose(num_neighbors_by_direction, (1, 0))), 0, new_length=None)
-        nb_part_idx_in_cell = pair_indices - b.repeat(b.cumsum(num_potential_neighbors, 0) - num_potential_neighbors, num_potential_neighbors, 0, new_length=tmp_pair_count)
-        neighbor_partitions = b.repeat(b.transpose(neighbor_partitions, (1, 0)), num_potential_neighbors, 0, new_length=tmp_pair_count)
+        direction = b.repeat(all_directions, b.flatten(b.transpose(num_neighbors_by_direction, (1, 0))), 0, new_length=max_pair_count)
+        nb_part_idx_in_cell = pair_indices - b.repeat(b.cumsum(num_potential_neighbors, 0) - num_potential_neighbors, num_potential_neighbors, 0, new_length=max_pair_count)
+        neighbor_partitions = b.repeat(b.transpose(neighbor_partitions, (1, 0)), num_potential_neighbors, 0, new_length=max_pair_count)
         neighbor_cell = b.gather_by_component_indices(neighbor_cells, direction, small_index)
         relative_particle_idx = nb_part_idx_in_cell - b.batched_gather_1d(neighbor_partitions, direction[:, None] - 1)[:, 0]
         to_idx = structure.get_first_element_by_cell(neighbor_cell) + relative_particle_idx
     else:
         raise ValueError(pair_by)
     # --- Lookup positions and compute distances ---
-    from_id = b.repeat(particle_ids, num_potential_neighbors, 0, new_length=tmp_pair_count)
+    from_id = b.repeat(particle_ids, num_potential_neighbors, 0, new_length=max_pair_count)
     to_id = b.gather(particle_ids, to_idx, 0)
-    from_positions = b.repeat(positions, num_potential_neighbors, 0, new_length=tmp_pair_count)
+    from_positions = b.repeat(positions, num_potential_neighbors, 0, new_length=max_pair_count)
     to_positions = b.gather(positions, to_idx, 0)
     dx = to_positions - from_positions
     # --- Filter by cutoff ---
     dist = b.sqrt(b.sum(dx ** 2, -1))
-    in_range = dist < cutoff
+    in_range = dist < b.as_tensor(cutoff)
     valid = in_range & (pair_indices < num_required_tmp_pairs)
-    if trim and (tmp_pair_count is None or (pair_count is not None and pair_count < tmp_pair_count)):
-        pair_count = pair_count or tmp_pair_count
+    if trim:
+        pair_count = register_buffer('pair_count', b.sum(b.cast(valid, index_dtype)), default_pair_count)
         dx = b.boolean_mask(dx, valid, new_length=pair_count, fill_value=default)
         from_id = b.boolean_mask(from_id, valid, new_length=pair_count, fill_value=-1)
         to_id = b.boolean_mask(to_id, valid, new_length=pair_count, fill_value=-1)
@@ -211,16 +209,19 @@ def build_cells(positions,
     if domain is None:
         domain = b.min(positions, 0), b.max(positions, 0) + 1e-5
         b_ = choose_backend(min_cell_size, *domain)
+    min_cell_size = b_.as_tensor(min_cell_size)
     domain_size = b_.maximum(domain[1] - domain[0], min_cell_size)
     resolution = b_.maximum(1, b_.to_int32(b_.ceil(domain_size / min_cell_size)))
+    resolution_f = b_.to_float(resolution)
     cell_count = b_.prod(resolution)
-    extent = min_cell_size * resolution
-    cell_size = extent / resolution
-    cell_indices = b.to_int32((positions - domain[0]) / extent * b.to_float(resolution))
+    extent = min_cell_size * resolution_f
+    cell_size = extent / resolution_f
+    cell_indices = b.to_int32((positions - domain[0]) / extent * resolution_f)
     cell_ids = b.ravel_multi_index(cell_indices, resolution)
     perm = b.argsort(cell_ids)
     cell_indices = b.gather(cell_indices, perm, 0)
     cell_ids = b.gather(cell_ids, perm, 0)
+    cell_count = register_buffer('cell_count', cell_count, {1: 256, 2: 512, 3: 1024}.get(d, 8**d))
     idx_by_cell = b.searchsorted(cell_ids, b.range(cell_count), 'left')
     occupancy = b.bincount(cell_ids, None, bins=cell_count, x_sorted=True)
     neighbor_offsets = b.as_tensor(np.reshape(np.stack(np.meshgrid(*[(-1, 0, 1)] * d, indexing='ij'), -1), (-1, 1, d)))
