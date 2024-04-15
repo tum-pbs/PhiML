@@ -120,7 +120,7 @@ def find_neighbors_sparse(positions,
                           index_dtype: DType = DType(int, 32),
                           trim: bool = True,
                           default: Number = float('nan'),
-                          pair_by: str = 'gather-search') -> tuple:
+                          pair_by: str = 'repeat-gather') -> tuple:
     """
     Neighbor search with JIT support.
     This implementation uses pointers to reference cell contents instead of padding each cell to a common occupancy.
@@ -166,12 +166,13 @@ def find_neighbors_sparse(positions,
         # for neighbor_cell_ids in neighbor_cells:
         #     to_id = b.scatter(to_id, offsets)  # ToDo either scatter (current) or gather (other viewpoint)
         #     offsets += ...
-    elif pair_by == 'gather-search':
+    elif pair_by == 'repeat-gather':
         neighbor_partitions = b.cumsum(num_neighbors_by_direction, 0)
         small_index = b.repeat(linear_indices, num_potential_neighbors, 0, new_length=tmp_pair_count)
+        all_directions = b.tile(b.range(neighbor_cells.shape[0]), [n])
+        direction = b.repeat(all_directions, b.flatten(b.transpose(num_neighbors_by_direction, (1, 0))), 0, new_length=None)
         nb_part_idx_in_cell = pair_indices - b.repeat(b.cumsum(num_potential_neighbors, 0) - num_potential_neighbors, num_potential_neighbors, 0, new_length=tmp_pair_count)
         neighbor_partitions = b.repeat(b.transpose(neighbor_partitions, (1, 0)), num_potential_neighbors, 0, new_length=tmp_pair_count)
-        direction = b.searchsorted(neighbor_partitions, nb_part_idx_in_cell[:, None], 'right')[:, 0]
         neighbor_cell = b.gather_by_component_indices(neighbor_cells, direction, small_index)
         relative_particle_idx = nb_part_idx_in_cell - b.batched_gather_1d(neighbor_partitions, direction[:, None] - 1)[:, 0]
         to_idx = structure.get_first_element_by_cell(neighbor_cell) + relative_particle_idx
@@ -208,7 +209,8 @@ def build_cells(positions,
     _, d = b.staticshape(positions)
     periodic = [periodic] * d if np.ndim(periodic) == 0 else tuple(periodic)
     if domain is None:
-        domain = b_.min(positions, 0), b.max(positions, 0) + 1e-5
+        domain = b.min(positions, 0), b.max(positions, 0) + 1e-5
+        b_ = choose_backend(min_cell_size, *domain)
     domain_size = b_.maximum(domain[1] - domain[0], min_cell_size)
     resolution = b_.maximum(1, b_.to_int32(b_.ceil(domain_size / min_cell_size)))
     cell_count = b_.prod(resolution)
