@@ -68,8 +68,8 @@ def tensor_like(existing_tensor: Tensor, values: Union[Tensor, Number, bool], va
     Args:
         existing_tensor: Any `Tensor`, sparse or dense.
         values: New values to replace the existing values by.
-            If `existing_tensor` is sparse, `values` must have an instance dimension to list the stored values, matching the sparse indices.
-        value_order: Order of `values` compared to `existing_tensor`.
+            If `existing_tensor` is sparse, `values` must broadcast to the instance dimension listing the stored indices.
+        value_order: Order of `values` compared to `existing_tensor`, only relevant if `existing_tensor` is sparse.
             If `'original'`, the values are ordered like the values that was used to create the first tensor with this sparsity pattern.
             If `'as existing'`, the values match the current order of `existing_tensor`.
             Note that the order of values may be changed upon creating a sparse tensor.
