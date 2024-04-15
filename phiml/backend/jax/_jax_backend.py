@@ -487,12 +487,16 @@ class JaxBackend(Backend):
     def batched_gather_nd(self, values, indices):
         values = self.as_tensor(values)
         indices = self.as_tensor(indices)
-        # batch_size = combined_dim(values.shape[0], indices.shape[0])
         assert indices.shape[-1] == self.ndims(values) - 2
-        def unbatched_gather_nd(b_values, b_indices):
-            b_indices = self.unstack(b_indices, -1)
-            return b_values[b_indices]
-        return self.vectorized_call(unbatched_gather_nd, values, indices)
+        batch_size = combined_dim(values.shape[0], indices.shape[0])
+        indices_list = [indices[..., i] for i in range(indices.shape[-1])]
+        batch_range = self.expand_dims(np.arange(batch_size), -1, number=self.ndims(indices) - 2)
+        slices = (batch_range, *indices_list)
+        return values[slices]
+
+    def batched_gather_1d(self, values, indices):
+        batch_size = combined_dim(values.shape[0], indices.shape[0])
+        return values[np.arange(batch_size)[:, None], indices]
 
     def repeat(self, x, repeats, axis: int, new_length=None):
         return jnp.repeat(x, self.as_tensor(repeats), axis, total_repeat_length=new_length)
