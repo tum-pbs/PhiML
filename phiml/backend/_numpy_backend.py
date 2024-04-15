@@ -326,12 +326,14 @@ class NumPyBackend(Backend):
     def batched_gather_nd(self, values, indices):
         assert indices.shape[-1] == self.ndims(values) - 2
         batch_size = combined_dim(values.shape[0], indices.shape[0])
-        result = np.empty((batch_size, *indices.shape[1:-1], values.shape[-1],), values.dtype)
-        for b in range(batch_size):
-            b_values = values[min(b, values.shape[0] - 1)]
-            b_indices = self.unstack(indices[min(b, indices.shape[0] - 1)], -1)
-            result[b] = b_values[b_indices]
-        return result
+        indices_list = [indices[..., i] for i in range(indices.shape[-1])]
+        batch_range = self.expand_dims(np.arange(batch_size), -1, number=self.ndims(indices) - 2)
+        slices = (batch_range, *indices_list)
+        return values[slices]
+
+    def batched_gather_1d(self, values, indices):
+        batch_size = combined_dim(values.shape[0], indices.shape[0])
+        return values[np.arange(batch_size)[:, None], indices]
 
     def std(self, x, axis=None, keepdims=False):
         return np.std(x, axis, keepdims=keepdims)

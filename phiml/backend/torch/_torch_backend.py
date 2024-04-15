@@ -626,14 +626,15 @@ class TorchBackend(Backend):
         v_batch_size, *v_spatial, channels = self.staticshape(values)
         i_batch_size, *i_spatial, d = self.staticshape(indices)
         batch_size = combined_dim(v_batch_size, i_batch_size)
-        # --- ravel indices and gather in 1d ---
-        values_packed = self.reshape(values, (batch_size, -1, channels))
-        lin_indices = self.ravel_multi_index(indices, v_spatial)[:, :, None]
-        indices_packed = self.reshape(lin_indices, (batch_size, -1, 1))
-        tiled_indices = self.tile(indices_packed, (1, 1, channels))
-        result = torch.gather(values_packed, dim=1, index=tiled_indices)
-        result = self.reshape(result, (batch_size, *i_spatial, channels))
-        return result
+        batch_range = self.expand_dims(torch.arange(batch_size), -1, number=self.ndims(indices) - 2)
+        slices = (batch_range, *self.unstack(indices, -1))
+        return values[slices]
+
+    def batched_gather_1d(self, values, indices):
+        values = self.as_tensor(values)
+        indices = self.as_tensor(indices).long()
+        batch_size = combined_dim(self.staticshape(values)[0], self.staticshape(indices)[0])
+        return values[torch.arange(batch_size)[:, None], indices]
 
     def unstack(self, tensor, axis=0, keepdims=False):
         unstacked = torch.unbind(tensor, dim=axis)
@@ -649,12 +650,8 @@ class TorchBackend(Backend):
     def boolean_mask(self, x, mask, axis=0, new_length=None, fill_value=0):
         x = self.as_tensor(x)
         mask = self.as_tensor(mask)
-        result = []
-        for selected, data in zip(mask, self.unstack(x, axis)):
-            if selected:
-                result.append(data)
-        return self.stack(result, axis)
-        # return torch.masked_select(x_, mask_)
+        slices = [mask if i == axis else slice(None) for i in range(self.ndims(x))]
+        return x[tuple(slices)]
 
     def scatter(self, base_grid, indices, values, mode: str):
         assert mode in ('add', 'update', 'max', 'min')
