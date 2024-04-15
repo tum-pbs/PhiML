@@ -817,6 +817,22 @@ class Shape:
                 return self[[i for i in range(self.rank) if self.names[i] in dim_names]]
         raise ValueError(dims)
 
+    def is_compatible(self, *others: 'Shape'):
+        """
+        Checks if this shape and the others can be broadcast.
+
+        Args:
+            others: Other shapes.
+
+        Returns:
+            `True` only if all shapes are compatible.
+        """
+        try:
+            merge_shapes(self, *others)
+            return True
+        except IncompatibleShapes:
+            return False
+
     @property
     def rank(self) -> int:
         """

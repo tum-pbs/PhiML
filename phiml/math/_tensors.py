@@ -2575,8 +2575,10 @@ def discard_constant_dims(value: Tensor):
 def specs_equal(spec1, spec2):
     if isinstance(spec1, Tensor) or isinstance(spec2, Tensor):
         if isinstance(spec1, Tensor) and isinstance(spec2, Tensor):
-            from ._ops import close
-            return close(spec1, spec2, rel_tolerance=0, abs_tolerance=0)
+            if not spec1.shape.is_compatible(spec2.shape):
+                return False
+            from ._ops import equal
+            return equal(spec1, spec2, equal_nan=True)
         return False
     if isinstance(spec1, dict):
         return set(spec1) == set(spec2) and all([key in spec2 and specs_equal(spec1[key], spec2[key]) for key in spec1.keys()])
