@@ -3093,10 +3093,13 @@ def stop_gradient(x):
 
 
 def pairwise_differences(positions: Tensor,
-                       max_distance: Union[float, Tensor] = None,
-                       format: Union[str, Tensor] = 'dense',
-                       default: Optional[float] = None,
-                       method: str = 'sparse') -> Tensor:
+                         max_distance: Union[float, Tensor] = None,
+                         format: Union[str, Tensor] = 'dense',
+                         domain: Optional[Tuple[Tensor, Tensor]] = None,
+                         periodic: Union[bool, Tensor] = False,
+                         method: str = 'auto',
+                         default: float = float('nan'),
+                         avg_neighbors=8.) -> Tensor:
     """
     Computes the distance matrix containing the pairwise position differences between each pair of points.
     Points that are further apart than `max_distance` (if specified) are assigned a distance value of `0`.
@@ -3110,10 +3113,20 @@ def pairwise_differences(positions: Tensor,
             Can contain additional batch dimensions but spatial/instance dimensions must match `positions` if present.
             If not specified, uses an infinite cutoff radius, i.e. all points will be considered neighbors.
         format: Matrix format as `str` or concrete sparsity pattern as `Tensor`.
-            Allowed strings are `'dense', `'csr'`, `'coo'`, `'csc'`.
+            Allowed strings are `'dense'', `'sparse'`, `'csr'`, `'coo'`, `'csc'`.
             When a `Tensor` is passed, it needs to have all instance and spatial dims as `positions` as well as corresponding dual dimensions.
             The distances will be evaluated at all stored entries of the `format` tensor.
-        default: Value the sparse tensor returns for non-stored values. Must be `0` or `None`.
+        domain: Lower and upper corner of the bounding box. All positions must lie within this box.
+            This must be specified to use with periodic boundaries.
+        periodic: Which domain boundaries should be treated as periodic, i.e. particles on opposite sides are neighbors.
+            Can be specified as a `bool` for all sides or as a vector-valued boolean `Tensor` to specify periodicity by direction.
+        default: Value for distances greater than `max_distance`. Only for dense distance matrices.
+        method: Neighbor search algorithm. The default, `'auto'` lets the runtime decide on the best method. Supported methods:
+
+            * `'sparse'`: GPU-supported backend-agnostic Φ-ML hash grid implementation.
+            * `'scipy-kd'`: SciPy's [kd-tree](https://docs.scipy.org/doc/scipy/reference/generated/scipy.spatial.KDTree.query_ball_point.html#scipy.spatial.KDTree.query_ball_point) implementation.
+
+        avg_neighbors: Expected average number of neighbors. This is only relevant for hash grid searches, where it influences the default buffer sizes.
 
     Returns:
         Distance matrix as sparse or dense `Tensor`, depending on `format`.
@@ -3122,7 +3135,7 @@ def pairwise_differences(positions: Tensor,
 
     Examples:
         >>> pos = vec(x=0, y=tensor([0, 1, 2.5], instance('particles')))
-        >>> dx = pairwise_distances(pos, format='dense', max_distance=2)
+        >>> dx = pairwise_differences(pos, format='dense', max_distance=2)
         >>> dx.particles[0]
         (x=0.000, y=0.000); (x=0.000, y=1.000); (x=0.000, y=0.000) (~particlesᵈ=3, vectorᶜ=x,y)
     """
@@ -3136,7 +3149,6 @@ def pairwise_differences(positions: Tensor,
         dx = unpack_dim(pack_dims(positions, non_batch(positions).non_channel.non_dual, instance('_tmp')), '_tmp', dual_dims) - positions
         if max_distance is not None:
             neighbors = sum_(dx ** 2, channel) <= max_distance ** 2
-            default = float('nan') if default is None else default
             dx = where(neighbors, dx, default)
         return dx
     # --- sparse with known connectivity ---
@@ -3153,64 +3165,58 @@ def pairwise_differences(positions: Tensor,
     if not dual_dims.well_defined:
         assert dual_dims.rank == 1, f"others_dims sizes must be specified when passing more then one dimension but got {dual_dims}"
         dual_dims = dual_dims.with_size(primal_dims.volume)
-    # --- Determine mode ---
-    # if method == 'sklearn':
-
-    pair_count = None
-    table_len = None
-    mode = 'vectorize' if batch_shape.volume > 1 and batch_shape.is_uniform else 'loop'
-    if backend.is_available(positions):
-        if mode == 'vectorize':
-            # ToDo determine limits from positions? build_cells+bincount would be enough
-            pair_count = 7
-    else:  # tracing
-        if backend.requires_fixed_shapes_when_tracing():
-            # ToDo use fixed limits (set by user)
-            pair_count = 7
-            mode = 'vectorize'
-    # --- Run neighborhood search ---
-    from ..backend._partition import find_neighbors_sparse, find_neighbors_semi_sparse, find_neighbors_matscipy, find_neighbors_sklearn
-    if mode == 'loop':
-        indices = []
-        values = []
-        for b in batch_shape.meshgrid():
-            native_positions = reshaped_native(positions[b], [primal_dims, channel(positions)])
-            native_max_dist = max_distance[b].native()
-            if method == 'auto':
-                method = 'sparse'  # ToDo
-            if method == 'sparse':
-                nat_rows, nat_cols, nat_vals = find_neighbors_sparse(native_positions, native_max_dist, None, periodic=False, default=default)
-            elif method == 'semi-sparse':
-                nat_rows, nat_cols, nat_vals, req_pair_count, req_max_occupancy = find_neighbors_semi_sparse(native_positions, native_max_dist, None, periodic=False, default=default)
-            elif method == 'matscipy':
-                assert positions.available, f"Cannot jit-compile matscipy neighborhood search"
-                nat_rows, nat_cols, nat_vals = find_neighbors_matscipy(native_positions, native_max_dist, None, periodic=False)
-            elif method == 'sklearn':
-                assert positions.available, f"Cannot jit-compile matscipy neighborhood search"
-                nat_rows, nat_cols, nat_vals = find_neighbors_sklearn(native_positions, native_max_dist)
-            else:
-                raise ValueError(method)
-            nat_indices = backend.stack([nat_rows, nat_cols], -1)
-            indices.append(reshaped_tensor(nat_indices, [instance('pairs'), channel(vector=primal_dims.names + dual_dims.names)], convert=False))
-            values.append(reshaped_tensor(nat_vals, [instance('pairs'), channel(positions)]))
-        indices = stack(indices, batch_shape)
-        values = stack(values, batch_shape)
-    elif mode == 'vectorize':
-        raise NotImplementedError
-        # native_positions = reshaped_native(positions, [batch_shape, primal_dims, channel(positions)])
-        # native_max_dist = reshaped_native(max_distance, [batch_shape, primal_dims], force_expand=False)
-        # def single_search(pos, r):
-        #     return find_neighbors(pos, r, None, periodic=False, pair_count=pair_count, default=default)
-        # nat_rows, nat_cols, nat_vals = backend.vectorized_call(single_search, native_positions, native_max_dist, output_dtypes=(index_dtype, index_dtype, positions.dtype))
-        # nat_indices = backend.stack([nat_rows, nat_cols], -1)
-        # indices = reshaped_tensor(nat_indices, [batch_shape, instance('pairs'), channel(vector=primal_dims.names + dual_dims.names)], convert=False)
-        # values = reshaped_tensor(nat_vals, [batch_shape, instance('pairs'), channel(positions)])
+    if domain is not None:
+        assert isinstance(domain, tuple) and len(domain) == 2, f"Domain needs to be of the form (lower_corner, upper_corner) but got {domain}"
+        assert domain[0].shape.names == channel(positions).names, f"Domain must have exactly the channel dimensions of positions but got {domain[0]}"
+        assert domain[1].shape.names == channel(positions).names, f"Domain must have exactly the channel dimensions of positions but got {domain[1]}"
+        domain = (reshaped_native(domain[0], [channel]), reshaped_native(domain[1], [channel]))
+    if method == 'auto':
+        method = 'sparse'
+    assert method in ['sparse'], f"Invalid neighbor search method: '{method}'"
+    if isinstance(periodic, bool):
+        any_periodic = periodic
     else:
-        raise RuntimeError
+        assert isinstance(periodic, Tensor), f"periodic must be a bool or Tensor but got {periodic}"
+        assert periodic.shape.names == channel(positions)
+        assert periodic.shape.item_names == channel(positions).item_names
+        any_periodic = periodic.any
+        periodic = unstack(periodic, channel)
+    if any_periodic:
+        assert domain is not None, f"domain must be specified when periodic=True"
+        if method in ['scipy-kd']:
+            warnings.warn(f"Neighbor search method '{method}' is not compatible with periodic boundaries.", RuntimeWarning, stacklevel=2)
+            method = 'sparse'
+    def uniform_neighbor_search(positions: Tensor, max_distance: Tensor):
+        if method == 'sparse':
+            from phiml.backend._partition import find_neighbors_sparse
+            native_positions = reshaped_native(positions, [primal_dims, channel(positions)])
+            native_max_dist = max_distance.native()
+            nat_rows, nat_cols, nat_vals = find_neighbors_sparse(native_positions, native_max_dist, domain, periodic=periodic, default=default, index_dtype=index_dtype, avg_neighbors=avg_neighbors)
+            nat_indices = backend.stack([nat_rows, nat_cols], -1)
+            indices = reshaped_tensor(nat_indices, [instance('pairs'), channel(vector=primal_dims.names + dual_dims.names)], convert=False)
+            values = reshaped_tensor(nat_vals, [instance('pairs'), channel(positions)])
+            return SparseCoordinateTensor(indices, values, primal_dims & dual_dims, can_contain_double_entries=False, indices_sorted=True, indices_constant=False)
+        # elif method == 'scipy-kd':
+        #     raise NotImplementedError
+        # elif method == 'semi-sparse':
+        #     from phiml.backend._partition import find_neighbors_semi_sparse
+        #     native_positions = reshaped_native(positions, [primal_dims, channel(positions)])
+        #     native_max_dist = max_distance.native()
+        #     nat_rows, nat_cols, nat_vals, req_pair_count, req_max_occupancy = find_neighbors_semi_sparse(native_positions, native_max_dist, None, periodic=False, default=default)
+        # elif method == 'matscipy':
+        #     positions.default_backend.numpy_call()
+        #     from phiml.backend._partition import find_neighbors_matscipy
+        #     nat_rows, nat_cols, nat_vals = find_neighbors_matscipy(native_positions, native_max_dist, None, periodic=False)
+        # elif method == 'sklearn':
+        #     assert positions.available, f"Cannot jit-compile matscipy neighborhood search"
+        #     from phiml.backend._partition import find_neighbors_sklearn
+        #     nat_rows, nat_cols, nat_vals = find_neighbors_sklearn(native_positions, native_max_dist)
+        else:
+            raise ValueError(method)
+
+    matrix = broadcast_op(uniform_neighbor_search, [positions, max_distance], iter_dims=None if method in ['sparse', 'semi-sparse'] else batch_shape)
     # --- Assemble sparse matrix ---
-    dense_shape = primal_dims & dual_dims
-    coo = SparseCoordinateTensor(indices, values, dense_shape, can_contain_double_entries=False, indices_sorted=False, indices_constant=False)
-    return to_format(coo, format)
+    return to_format(matrix, format)
 
 
 def map_pairs(map_function: Callable, values: Tensor, connections: Tensor):
