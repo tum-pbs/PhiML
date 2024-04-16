@@ -816,11 +816,17 @@ def to_format(x: Tensor, format: str):
     Args:
         x: Sparse or dense `Tensor`
         format: Target format. One of `'dense'`, `'coo'`, `'csr'`, or `'csc'`.
+            Additionally, `'sparse'` can be passed to convert dense matrices to a sparse format, decided based on the backend for `x`.
 
     Returns:
         `Tensor` of the specified format.
     """
-    assert format in ('coo', 'csr', 'csc', 'dense'), f"Invalid format: '{format}'. Must be one of 'coo', 'csr', 'csc', 'dense'"
+    assert format in ('coo', 'csr', 'csc', 'dense', 'sparse'), f"Invalid format: '{format}'. Must be one of 'coo', 'csr', 'csc', 'dense'"
+    if format == 'sparse':
+        if is_sparse(x):
+            return x
+        else:
+            format = 'csr' if x.default_backend.supports(Backend.mul_csr_dense) else 'coo'
     if get_format(x) == format:
         return x
     if format == 'dense':
