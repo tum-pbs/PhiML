@@ -117,7 +117,7 @@ def find_neighbors_sparse(positions,
                           cutoff,
                           domain: Optional[Tuple[TensorType, TensorType]] = None,
                           periodic: Union[bool, Tuple[bool, ...]] = False,
-                          default_pair_count: int = 512,
+                          avg_neighbors: float = 8.,
                           index_dtype: DType = DType(int, 32),
                           trim: bool = True,
                           default: Number = float('nan'),
@@ -131,8 +131,7 @@ def find_neighbors_sparse(positions,
         cutoff: Scalar float or 1D tensor
         domain: (Optional) Lower and upper corner of domain.
         periodic: Whether domain boundaries are periodic.
-        default_pair_count: Default length of output lists.
-            This must be set when jit-compiling this function with Jax.
+        avg_neighbors: Expected average number of neighbors per position.
         index_dtype: Either int32 or int64.
         trim: Whether to only include pairs for particles in range. If `False`, returns a possibly larger list with invalid deltas represented as `default´.
             If `pair_count` is specified the result list may be of that size and fill unused values with `default` anyway.
@@ -155,7 +154,8 @@ def find_neighbors_sparse(positions,
     num_neighbors_by_direction = structure.get_num_elements_in_cell(neighbor_cells)
     num_potential_neighbors = b.sum(num_neighbors_by_direction, 0)
     num_required_tmp_pairs = b.sum(num_potential_neighbors)
-    max_pair_count = register_buffer('potential_pair_count', num_required_tmp_pairs, default_pair_count)
+    over_count = 3**d / _sphere_volume(1, d)
+    max_pair_count = register_buffer('potential_pair_count', num_required_tmp_pairs, int(n * avg_neighbors * over_count))
     pair_indices = b.range(max_pair_count, dtype=index_dtype)
     if pair_by == 'scatter':
         raise NotImplementedError
@@ -187,7 +187,7 @@ def find_neighbors_sparse(positions,
     in_range = dist < b.as_tensor(cutoff)
     valid = in_range & (pair_indices < num_required_tmp_pairs)
     if trim:
-        pair_count = register_buffer('pair_count', b.sum(b.cast(valid, index_dtype)), default_pair_count)
+        pair_count = register_buffer('pair_count', b.sum(b.cast(valid, index_dtype)), int(n * avg_neighbors))
         dx = b.boolean_mask(dx, valid, new_length=pair_count, fill_value=default)
         from_id = b.boolean_mask(from_id, valid, new_length=pair_count, fill_value=-1)
         to_id = b.boolean_mask(to_id, valid, new_length=pair_count, fill_value=-1)

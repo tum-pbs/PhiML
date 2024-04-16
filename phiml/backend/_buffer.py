@@ -50,9 +50,9 @@ def register_buffer(name: str, min_size: TensorType, default_size: int) -> int:
         return min_size  # PyTorch & TF allow variable shapes during tracing. Jax doesn't
     # --- determine id ---
     i = 0
-    while f"{name}_{i}" in _REQUIRED_SIZES:
+    while f"{name}{i}" in _REQUIRED_SIZES:
         i += 1
-    buffer_id = f"{name}_{i}"
+    buffer_id = f"{name}{i}"
     # --- Register buffer ---
     _REQUIRED_SIZES[buffer_id] = min_size
     if _SET_CONFIG:
