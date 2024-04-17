@@ -3,7 +3,7 @@ import time
 import types
 import warnings
 from functools import wraps, partial
-from typing import Tuple, Callable, Dict, Generic, List, TypeVar, Any, Set, Union, Optional
+from typing import Tuple, Callable, Dict, Generic, List, TypeVar, Any, Set, Union, Optional, Sequence
 
 import numpy as np
 
@@ -16,6 +16,7 @@ from ._trace import ShiftLinTracer, matrix_from_function, LinearTraceInProgress
 from .magic import PhiTreeNode, Shapable
 from ..backend import Backend
 from ..backend._backend import get_spatial_derivative_order, functional_derivative_evaluation, ML_LOGGER
+from ..backend._buffer import set_buffer_config, get_buffer_config, get_required_buffer_sizes, wasted_memory
 from ..backend._dtype import DType
 
 X = TypeVar('X')
@@ -31,7 +32,8 @@ class SignatureKey:
                  specs: Union[Tuple[Shape], None],
                  backend: Backend,
                  tracing: bool,
-                 auxiliary_kwargs: Any = None):
+                 auxiliary_kwargs: Any = None,
+                 buffer_config: Dict[str, int] = None):
         if source_function is None:  # this is an input signature
             assert isinstance(shapes, tuple)
         self.source_function = source_function
@@ -42,6 +44,7 @@ class SignatureKey:
         self.specs = specs
         self.auxiliary_kwargs = auxiliary_kwargs
         self.spatial_derivative_order = get_spatial_derivative_order()
+        self.buffer_config = buffer_config
 
     def __repr__(self):
         return f"{self.tree} with shapes {self.shapes}"
@@ -93,6 +96,19 @@ def match_output_signature(new_in: SignatureKey, recorded_mappings: Dict[Signatu
     for rec_in, rec_out in recorded_mappings.items():
         if rec_in.matches_structure_and_names(new_in):
             return rec_out.extrapolate(rec_in, new_in)
+    transforms_str = ''.join([f'\n* {i} -> {o}' for i, o in recorded_mappings.items()])
+    raise RuntimeError(f"{source}: no output shape found for input shapes {new_in}.\n"
+                       f"Maybe the backend extrapolated the concrete function from another trace?\n"
+                       f"Registered transforms:\n{transforms_str}")  # KeyError does not support \n
+
+
+def match_output_signature_list(new_in: SignatureKey, recorded_mappings: Dict[SignatureKey, List[SignatureKey]], source) -> List[SignatureKey]:
+    for rec_in, rec_out in recorded_mappings.items():
+        if rec_in == new_in:  # exact match
+            return rec_out
+    for rec_in, rec_out in recorded_mappings.items():
+        if rec_in.matches_structure_and_names(new_in):
+            return [r.extrapolate(rec_in, new_in) for r in rec_out]
     transforms_str = ''.join([f'\n* {i} -> {o}' for i, o in recorded_mappings.items()])
     raise RuntimeError(f"{source}: no output shape found for input shapes {new_in}.\n"
                        f"Maybe the backend extrapolated the concrete function from another trace?\n"
@@ -154,6 +170,35 @@ def f_name(f):
         return "unknown"
 
 
+def default_determine_config(traced_configs: Sequence[Dict[str, int]], requirement_history: Dict[str, Sequence[int]]) -> Tuple[Optional[int], Dict[str, int]]:
+    """
+    Decides on the buffer configuration to use for the next invocation of a JIT-compiled function.
+
+    Args:
+        traced_configs: Configurations for which traces already exist. These should be preferred where possible.
+        requirement_history: Required buffer sizes from the most recent function evaluations, at least 1.
+            This includes failed evaluations due to too-small buffers.
+
+    Returns:
+        trace_index: If we should use an existing trace, returns the index into `traced_configs`. For a new trace, returns `None`.
+        config: Configuration parameters to use, both for existing and new traces.
+    """
+    last_required = {k: hist[-1] for k, hist in requirement_history.items()}
+    possible_configs = [c for c in traced_configs if wasted_memory(c, last_required) >= 0]
+    if possible_configs:
+        best = min(possible_configs, key=lambda c: wasted_memory(c, last_required))
+        # ToDo if too much memory wasted, re-trace
+        # wasted_fraction = wasted_memory(best, last_required) /
+        return traced_configs.index(best), best
+    # --- no previously traced config works ---
+    def with_margin(size: int, margin=0.25, multiple=32):
+        size = int(size * (1 + margin))
+        r = size % multiple
+        return size + multiple - r if r != 0 else size
+    new_config = {k: with_margin(v) for k, v in last_required.items()}
+    return None, new_config
+
+
 class JitFunction:
 
     def __init__(self, f: Callable, auxiliary_args: Set[str], forget_traces: bool):
@@ -161,17 +206,20 @@ class JitFunction:
         self.f_params = function_parameters(f)
         self.auxiliary_args = auxiliary_args
         self.forget_traces = forget_traces
-        self.traces: Dict[SignatureKey, Callable] = {}
-        self.recorded_mappings: Dict[SignatureKey, SignatureKey] = {}
+        self.traces: Dict[SignatureKey, List[Callable]] = {}
+        self.recorded_mappings: Dict[SignatureKey, List[SignatureKey]] = {}
+        self.req_buffer_history: Dict[SignatureKey, Dict[str, List[int]]] = {}
         self.grad_jit = GradientFunction(f.f, self.f_params, f.wrt, f.get_output, f.is_f_scalar, jit=True) if isinstance(f, GradientFunction) else None
         self._extract_tensors: List[Tuple[Tensor]] = []
         self._post_call: List[Callable] = []
         self._tracing_in_key: SignatureKey = None
+        self._buffer_manager = default_determine_config
 
-    def _jit_compile(self, in_key: SignatureKey):
+    def _jit_compile(self, in_key: SignatureKey, buffer_config: Dict[str, int]):
         def jit_f_native(*natives):
             ML_LOGGER.debug(f"Φ-ML-jit: Tracing '{f_name(self.f)}'")
             _TRACING_JIT.append(self)
+            set_buffer_config(buffer_config)
             try:
                 self._tracing_in_key = in_key
                 in_tensors = assemble_tensors(natives, in_key.specs)
@@ -179,11 +227,16 @@ class JitFunction:
                 f_output = self.f(**kwargs, **in_key.auxiliary_kwargs)  # Tensor or tuple/list of Tensors
                 tree, out_tensors = disassemble_tree((f_output, self._extract_tensors), cache=True)
                 result_natives, result_shapes, specs = disassemble_tensors(out_tensors, expand=True)
-                self.recorded_mappings[in_key] = SignatureKey(jit_f_native, tree, result_shapes, specs, in_key.backend, in_key.tracing)
+                tracers = get_required_buffer_sizes()
+                out_key = SignatureKey(jit_f_native, tree, result_shapes, specs, in_key.backend, in_key.tracing, buffer_config=get_buffer_config())
+                if not buffer_config and get_buffer_config():
+                    ML_LOGGER.info(f"Tracing {self} with default buffer sizes: {get_buffer_config()}")
+                self.recorded_mappings.setdefault(in_key, []).append(out_key)
+                set_buffer_config({})
             finally:
                 assert _TRACING_JIT.pop(-1) is self
-            self._tracing_in_key = None
-            return result_natives
+                self._tracing_in_key = None
+            return result_natives + tuple(tracers.values())
 
         jit_f_native.__name__ = f"native({f_name(self.f) if isinstance(self.f, types.FunctionType) else str(self.f)})"
         return in_key.backend.jit_compile(jit_f_native)
@@ -198,21 +251,55 @@ class JitFunction:
         if not key.backend.supports(Backend.jit_compile):
             warnings.warn(f"jit_copmile() not supported by {key.backend}. Running function '{f_name(self.f)}' as-is.", RuntimeWarning)
             return self.f(*args, **kwargs)
-        if key not in self.traces:
+        # --- do we need to trace? ---
+        if key in self.traces:
+            traced_configs = [k.buffer_config for k in self.recorded_mappings[key]]
+            trace_index, buffer_config = self._buffer_manager(traced_configs, self.req_buffer_history[key])
+            if trace_index is None:
+                last_required = {k: hist[-1] for k, hist in self.req_buffer_history[key].items()}
+                ML_LOGGER.info(f"Re-tracing {self} due to larger buffer requirements: {last_required}. Setting {buffer_config}")
+            out_key = match_output_signature_list(key, self.recorded_mappings, self)[trace_index] if trace_index is not None else None
+            # out_key = self.recorded_mappings[key][trace_index] if trace_index is not None else None
+        else:  # called with new arguments
+            buffer_config = {}
+            out_key = None
+            trace_index = None
+        # --- trace if necessary ---
+        if out_key is None:
             ML_LOGGER.debug(f"Φ-ML-jit: '{f_name(self.f)}' called with new key.\nshapes={[s.volume for s in key.shapes]}, args={key.tree}\n", trace_check(self, *args, **kwargs))
             if self.forget_traces:
                 self.traces.clear()
                 self.recorded_mappings.clear()
-            self.traces[key] = self._jit_compile(key)
+            native_jit_function = self._jit_compile(key, buffer_config)
+            self.traces.setdefault(key, []).append(native_jit_function)
             if len(self.traces) >= 10:
                 warnings.warn(f"""Φ-ML: The jit-compiled function '{f_name(self.f)}' was traced {len(self.traces)} times.
 Performing many traces may be slow and cause memory leaks.
 Re-tracing occurs when the number or types of arguments vary, tensor shapes vary between calls or different auxiliary arguments are given (compared by reference).
 Set forget_traces=True to avoid memory leaks when many traces are required. Tracing reason: {trace_check(self, *args, **kwargs)[1]}""", RuntimeWarning)
-        native_result = self.traces[key](*natives)
-        output_key = match_output_signature(key, self.recorded_mappings, self)
-        output_tensors = assemble_tensors(native_result, output_key.specs)
-        output, extracted_tensor_lists = assemble_tree(output_key.tree, output_tensors)
+            all_natives = native_jit_function(*natives)  # this appends out_key to recorded_mappings
+            out_key = self.recorded_mappings[key][-1]
+            buffer_config = out_key.buffer_config
+        else:
+            all_natives = self.traces[key][trace_index](*natives)  # call compiled function
+        # --- record buffers ---
+        if buffer_config:
+            native_result = all_natives[:-len(buffer_config)]
+            req_buffers = all_natives[-len(buffer_config):]
+            req_buffers = {k: int(size) for k, size in zip(buffer_config.keys(), req_buffers)}
+            history = self.req_buffer_history.setdefault(key, {})
+            for k, size in req_buffers.items():
+                history.setdefault(k, []).append(size)
+            # --- re-run function if any buffer was too small ---
+            re_run = any([req > buffer_config[k] for k, req in req_buffers.items()])
+            if re_run:
+                return self.__call__(*args, **kwargs)
+        else:
+            native_result = all_natives
+            self.req_buffer_history.setdefault(key, {})
+        # --- assemble result ---
+        output_tensors = assemble_tensors(native_result, out_key.specs)
+        output, extracted_tensor_lists = assemble_tree(out_key.tree, output_tensors)
         for extracted_tensors, runnable in zip(extracted_tensor_lists, self._post_call):
             runnable(*extracted_tensors)
         return output
@@ -220,6 +307,10 @@ Set forget_traces=True to avoid memory leaks when many traces are required. Trac
     def extract_and_call(self, tensors: Tuple[Tensor], runnable: Callable):
         self._extract_tensors.append(tensors)
         self._post_call.append(runnable)
+
+    def set_buffer_manager(self, manager: Callable):
+        assert callable(manager)
+        self._buffer_manager = manager
 
     def __repr__(self):
         return f"jit({f_name(self.f)})"

@@ -3,12 +3,12 @@ from typing import Sequence, Tuple, Callable, Any, Dict
 from ._backend import Backend, choose_backend, TensorType
 
 
-_REQUIRED_SIZES: Dict[str, Any] = {}
+_REQUIRED_SIZES: Dict[str, TensorType] = {}
 _CURRENT_TRACE: Dict[str, int] = {}
 _SET_CONFIG: Dict[str, int] = {}
 
 
-def set_config(config: Dict[str, int]):
+def set_buffer_config(config: Dict[str, int]):
     """
     Call this function before tracing a new configuration.
     If this is the first trace, pass an empty dict for `config` and retrieve the default config using `get_used_config()`.
@@ -19,15 +19,26 @@ def set_config(config: Dict[str, int]):
     Returns:
 
     """
+    _REQUIRED_SIZES.clear()
+    _CURRENT_TRACE.clear()
     _SET_CONFIG.clear()
-    _SET_CONFIG.update(config)
+    _SET_CONFIG.update({k: int(v) for k, v in config.items()})
 
 
-def get_used_config() -> Dict[str, int]:
+def get_buffer_config() -> Dict[str, int]:
+    """
+    Returns:
+        The buffer sizes used during the current trace.
+        If the trace is not completed yet, the result might be incomplete.
+    """
     return dict(_CURRENT_TRACE)
 
 
-def get_required_size_tracers() -> Dict[str, TensorType]:
+def get_required_buffer_sizes() -> Dict[str, TensorType]:
+    """
+    Returns:
+        Size placeholders / tracers.
+    """
     return dict(_REQUIRED_SIZES)
 
 
@@ -62,3 +73,19 @@ def register_buffer(name: str, min_size: TensorType, default_size: int) -> int:
     else:  # no config available, use default
         _CURRENT_TRACE[buffer_id] = default_size
         return default_size
+
+
+def wasted_memory(config: Dict[str, int], required: Dict[str, int]):
+    """
+    Args:
+        config: Buffer size configuration.
+        required: Minimum required buffer sizes. Must have same keys as `config`.
+
+    Returns:
+        If all buffers in `config` are large enough for `required`, returns the total number of unnecessary elements.
+        Otherwise, i.e. if `config` is not sufficient, returns a negative number representing the total number of missing elements.
+    """
+    assert config.keys() == required.keys(), f"Buffers must match but got config={config}, required={required}"
+    if any(config[k] < req for k, req in required.items()):  # buffers too small!
+        return sum([min(0, config[k] - req) for k, req in required.items()])
+    return sum([max(0, config[k] - req) for k, req in required.items()])
