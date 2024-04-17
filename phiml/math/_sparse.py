@@ -991,6 +991,8 @@ def same_sparsity_pattern(t1: Tensor, t2: Tensor, allow_const=False):
     if isinstance(t1, SparseCoordinateTensor):
         if t1._indices is t2._indices:
             return True
+        if isinstance(t1._indices, NativeTensor) and isinstance(t2._indices, NativeTensor) and t1._indices._native is t2._indices._native:
+            return True
         if set(t1._indices.shape) != set(t2._indices.shape):
             return False
         return close(t1._indices, t2._indices)
