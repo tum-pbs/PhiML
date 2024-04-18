@@ -2403,7 +2403,7 @@ def minimum(x: Union[Tensor, float], y: Union[Tensor, float]):
     return custom_op2(x, y, minimum, lambda x_, y_: choose_backend(x_, y_).minimum(x_, y_), op_name='minimum')
 
 
-def clip(x: Tensor, lower_limit: Union[float, Tensor], upper_limit: Union[float, Tensor]):
+def clip(x: Tensor, lower_limit: Union[float, Tensor] = 0, upper_limit: Union[float, Tensor] = 1):
     """ Limits the values of the `Tensor` `x` to lie between `lower_limit` and `upper_limit` (inclusive). """
     if isinstance(lower_limit, Number) and isinstance(upper_limit, Number):
 
