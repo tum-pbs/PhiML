@@ -146,7 +146,7 @@ def find_neighbors_sparse(positions,
     b = choose_backend(positions)
     positions = b.to_float(b.as_tensor(positions))
     n, d = b.staticshape(positions)
-    cells, perm, neighbor_cells, cell_size, structure = build_cells(positions, cutoff, domain, periodic)
+    cells, perm, neighbor_cells, cell_size, structure = build_hash_grid(positions, cutoff, domain, periodic)
     linear_indices = b.range(n, dtype=index_dtype)
     particle_ids = b.gather(linear_indices, perm, 0)
     positions = b.gather(positions, perm, 0)
@@ -198,10 +198,18 @@ def find_neighbors_sparse(positions,
     return from_id, to_id, dx
 
 
-def build_cells(positions,
-                min_cell_size,
-                domain: Optional[Tuple[TensorType, TensorType]],
-                periodic: Union[bool, Tuple[bool, ...]]) -> Tuple[TensorType, TensorType, TensorType, TensorType, 'IndexingStructure']:
+def build_hash_grid(positions,
+                    min_cell_size,
+                    domain: Optional[Tuple[TensorType, TensorType]],
+                    periodic: Union[bool, Tuple[bool, ...]]) -> Tuple[TensorType, TensorType, TensorType, TensorType, 'IndexingStructure']:
+    """
+    Returns:
+        cells_ids: Cell ID each element belongs to.
+        perm: Element array permutation. This re-orders the elements so that elements belonging to the same cell are neighbors in the array.
+        neighbor_ids: Lists all neighboring cell ids for each particle. Non-existing cells are marked as `-1`.
+        cell_size: Single vector
+        structure: `IndexingStructure` to read element lists by cell id.
+    """
     b = choose_backend(positions)
     b_ = choose_backend(min_cell_size, *domain or ())
     _, d = b.staticshape(positions)
@@ -216,7 +224,7 @@ def build_cells(positions,
     cell_count = b_.prod(resolution)
     extent = min_cell_size * resolution_f
     cell_size = extent / resolution_f
-    cell_indices = b.to_int32((positions - domain[0]) / extent * resolution_f)
+    cell_indices = b.to_int32((positions - b.to_float(domain[0]) / b.to_float(extent * resolution_f)))
     cell_ids = b.ravel_multi_index(cell_indices, resolution)
     perm = b.argsort(cell_ids)
     cell_indices = b.gather(cell_indices, perm, 0)
