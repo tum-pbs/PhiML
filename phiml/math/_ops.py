@@ -2873,6 +2873,8 @@ def always_close(t1: Union[Number, Tensor, bool], t2: Union[Number, Tensor, bool
     Returns:
         `bool`
     """
+    if t1 is t2:
+        return True
     if t1 is None or t2 is None:
         return t1 is None and t2 is None
     t1 = wrap(t1)
