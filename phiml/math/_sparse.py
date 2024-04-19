@@ -1,16 +1,14 @@
 import warnings
 from functools import partial
 from numbers import Number
-from typing import List, Callable, Tuple, Union
+from typing import Callable, Tuple, Union
 
 import numpy as np
-import scipy.sparse
 from scipy.sparse import csr_matrix
 
-from ._shape import Shape, non_batch, merge_shapes, instance, batch, non_instance, shape, channel, spatial, DimFilter, concat_shapes, EMPTY_SHAPE, dual, DUAL_DIM, SPATIAL_DIM, \
-    non_channel, DEBUG_CHECKS
 from ._magic_ops import concat, pack_dims, expand, rename_dims, stack, unpack_dim, unstack
-from ._tensors import Tensor, TensorStack, NativeTensor, cached, wrap, variable_shape
+from ._shape import Shape, non_batch, merge_shapes, instance, batch, non_instance, shape, channel, spatial, DimFilter, concat_shapes, EMPTY_SHAPE, dual, non_channel
+from ._tensors import Tensor, TensorStack, NativeTensor, cached, wrap
 from ..backend import choose_backend, NUMPY, Backend
 from ..backend._dtype import DType
 
@@ -983,19 +981,11 @@ def same_sparsity_pattern(t1: Tensor, t2: Tensor, allow_const=False):
         raise NotImplementedError
     if type(t1) != type(t2):
         return False
-    from ._ops import close
+    from ._ops import always_close
     if isinstance(t1, CompressedSparseMatrix):
-        if t2._indices is t1._indices and t2._pointers is t1._pointers:
-            return True
-        return close(t1._indices, t2._indices) and close(t1._pointers, t2._pointers)
+        return always_close(t1._indices, t2._indices) and always_close(t1._pointers, t2._pointers)
     if isinstance(t1, SparseCoordinateTensor):
-        if t1._indices is t2._indices:
-            return True
-        if isinstance(t1._indices, NativeTensor) and isinstance(t2._indices, NativeTensor) and t1._indices._native is t2._indices._native:
-            return True
-        if set(t1._indices.shape) != set(t2._indices.shape):
-            return False
-        return close(t1._indices, t2._indices)
+        return always_close(t1._indices, t2._indices, rel_tolerance=0)
     raise NotImplementedError
 
 
@@ -1043,7 +1033,7 @@ def dot_compressed_dense(compressed: CompressedSparseMatrix, cdims: Shape, dense
 
 
 def dot_coordinate_dense(sparse: SparseCoordinateTensor, sdims: Shape, dense: Tensor, ddims: Shape):
-    from ._ops import reshaped_native, reshaped_tensor, dot
+    from ._ops import reshaped_native, reshaped_tensor
     if dense._is_tracer:
         return dense.matmul(sparse, sdims, ddims)
     if sdims.as_instance() in instance(sparse._indices):  # no arbitrary sparse reduction needed
@@ -1158,7 +1148,7 @@ def add_sparse_batch_dim(matrix: Tensor, in_dims: Shape, out_dims: Shape):
     """
     assert instance(out_dims).is_empty
     assert instance(in_dims).is_empty
-    from ._ops import arange, meshgrid
+    from ._ops import arange
     if isinstance(matrix, SparseCoordinateTensor):
         assert out_dims not in matrix.shape
         assert in_dims not in matrix.shape
@@ -1224,7 +1214,7 @@ def with_sparsified_dim(indices: Tensor, values: Tensor, dims: Shape):
 
 
 def sparse_reduce(value: Tensor, dims: Shape, mode: str):
-    from ._ops import _sum, _max, _min, scatter, dot, ones, zeros
+    from ._ops import _sum, _max, _min, scatter, dot, ones
     reduce = {'add': _sum, 'max': _max, 'min': _min}[mode]
     if value.sparse_dims in dims:  # reduce all sparse dims
         return reduce(value._values, dims.without(value.sparse_dims) & instance(value._values))
