@@ -213,6 +213,11 @@ class JaxBackend(Backend):
         return vec_f(*args)
 
     def numpy_call(self, f, output_shapes, output_dtypes, *args, **aux_args):
+        if all([self.is_available(arg) for arg in args]):
+            args = [self.numpy(arg) for arg in args]
+            output = f(*args, **aux_args)
+            result = map_structure(self.as_tensor, output)
+            return result
         @dataclasses.dataclass
         class OutputTensor:
             shape: Tuple[int]
