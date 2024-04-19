@@ -154,7 +154,8 @@ class NumPyBackend(Backend):
         else:
             assert len(output) == len(output_dtypes) == len(output_shapes)
             for i, (o, d, s) in enumerate(zip(output, output_dtypes, output_shapes)):
-                assert o.shape == s, f"numpy_call: out[{i}] has shape {o.shape} but was promised to be {s}"
+                assert len(o.shape) == len(s), f"numpy_call: out[{i}] has shape {o.shape} but was promised to be rank {len(s)}"
+                assert all([s_ is None or o_ == s_ for o_, s_ in zip(o.shape, s)]), f"numpy_call: out[{i}] has shape {o.shape} but was promised to be {s}"
                 assert self.dtype(o) == d, f"numpy_call: out[{i}] has dtype {o.dtype} but was promised to be {d}"
         return output
 
