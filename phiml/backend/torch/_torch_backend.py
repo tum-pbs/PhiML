@@ -633,8 +633,8 @@ class TorchBackend(Backend):
     def batched_gather_1d(self, values, indices):
         values = self.as_tensor(values)
         indices = self.as_tensor(indices).long()
-        batch_size = combined_dim(self.staticshape(values)[0], self.staticshape(indices)[0])
-        return values[torch.arange(batch_size)[:, None], indices]
+        batch_size = combined_dim(values.shape[0], indices.shape[0])
+        return values[self.range(batch_size)[:, None], indices]
 
     def unstack(self, tensor, axis=0, keepdims=False):
         unstacked = torch.unbind(tensor, dim=axis)
