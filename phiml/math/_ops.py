@@ -2,7 +2,7 @@ import functools
 import math
 import warnings
 from numbers import Number
-from typing import Tuple, Callable, Any, Union, Optional, Dict, Collection, Sequence
+from typing import Tuple, Callable, Any, Union, Optional, Dict, Collection, Sequence, List
 
 import numpy as np
 
@@ -3125,7 +3125,7 @@ def pairwise_differences(positions: Tensor,
         default: Value for distances greater than `max_distance`. Only for dense distance matrices.
         method: Neighbor search algorithm. The default, `'auto'` lets the runtime decide on the best method. Supported methods:
 
-            * `'sparse'`: GPU-supported backend-agnostic Φ-ML hash grid implementation.
+            * `'sparse'`: GPU-supported backend-agnostic hash grid implementation with fully sparse connectivity, i.e. minimal wasted memory.
             * `'scipy-kd'`: SciPy's [kd-tree](https://docs.scipy.org/doc/scipy/reference/generated/scipy.spatial.KDTree.query_ball_point.html#scipy.spatial.KDTree.query_ball_point) implementation.
 
         avg_neighbors: Expected average number of neighbors. This is only relevant for hash grid searches, where it influences the default buffer sizes.
@@ -3174,7 +3174,7 @@ def pairwise_differences(positions: Tensor,
         domain = (reshaped_native(domain[0], [channel]), reshaped_native(domain[1], [channel]))
     if method == 'auto':
         method = 'sparse'
-    assert method in ['sparse'], f"Invalid neighbor search method: '{method}'"
+    assert method in ['sparse', 'scipy-kd'], f"Invalid neighbor search method: '{method}'"
     if isinstance(periodic, bool):
         any_periodic = periodic
     else:
@@ -3196,10 +3196,37 @@ def pairwise_differences(positions: Tensor,
             nat_rows, nat_cols, nat_vals = find_neighbors_sparse(native_positions, native_max_dist, domain, periodic=periodic, default=default, index_dtype=index_dtype, avg_neighbors=avg_neighbors)
             nat_indices = backend.stack([nat_rows, nat_cols], -1)
             indices = reshaped_tensor(nat_indices, [instance('pairs'), channel(vector=primal_dims.names + dual_dims.names)], convert=False)
-            values = reshaped_tensor(nat_vals, [instance('pairs'), channel(positions)])
+            values = reshaped_tensor(nat_vals, [instance('pairs'), channel(positions)], convert=False)
             return SparseCoordinateTensor(indices, values, primal_dims & dual_dims, can_contain_double_entries=False, indices_sorted=True, indices_constant=False)
-        # elif method == 'scipy-kd':
-        #     raise NotImplementedError
+        elif method == 'scipy-kd':
+            native_positions = reshaped_native(positions, [primal_dims, channel(positions)])
+            native_max_dist = max_distance.native()
+            b = choose_backend_t(native_positions, native_max_dist)
+            n = non_channel(positions).volume
+            from phiml.backend._buffer import register_buffer_deferred
+            index_buffer, provide_size = register_buffer_deferred('pairs', [native_positions, native_max_dist], int(n * avg_neighbors))
+            def perform_query(np_positions, np_r):
+                from scipy.spatial import KDTree
+                tree = KDTree(np_positions)
+                neighbor_lists: List[list] = tree.query_ball_tree(tree, np_r)
+                sizes = np.asarray([len(l) for l in neighbor_lists])
+                indices = np.asarray(sum(neighbor_lists, []))
+                pair_count = len(indices)
+                pointers = np.pad(np.cumsum(sizes), (1, 0))
+                if index_buffer is not None:
+                    indices = indices[:index_buffer] if pair_count > index_buffer else np.pad(indices, (0, index_buffer - pair_count), constant_values=-1)
+                pair_count = NUMPY.cast(pair_count, index_dtype)
+                indices = NUMPY.cast(indices, index_dtype)
+                pointers = NUMPY.cast(pointers, index_dtype)
+                sizes = NUMPY.cast(sizes, index_dtype)
+                return pair_count, indices, pointers, sizes
+            req_pairs, nat_idx, nat_ptr, nat_sizes = b.numpy_call(perform_query, ((), (index_buffer,), (n+1,), (n,)), (index_dtype,)*4, native_positions, native_max_dist)
+            provide_size(req_pairs)
+            nat_values = native_positions[nat_idx, :] - native_positions[b.repeat(b.range(n), nat_sizes, 0, new_length=index_buffer), :]
+            indices = reshaped_tensor(nat_idx, [instance('pairs')], convert=False)
+            pointers = reshaped_tensor(nat_ptr, [instance('pointers')], convert=False)
+            values = reshaped_tensor(nat_values, [instance('pairs'), channel(positions)], convert=False)
+            return CompressedSparseMatrix(indices, pointers, values, dual_dims, primal_dims, indices_constant=False)
         # elif method == 'semi-sparse':
         #     from phiml.backend._partition import find_neighbors_semi_sparse
         #     native_positions = reshaped_native(positions, [primal_dims, channel(positions)])
