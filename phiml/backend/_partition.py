@@ -124,6 +124,8 @@ def find_neighbors_sparse(positions,
                           pair_by: str = 'repeat-gather') -> tuple:
     """
     Neighbor search with JIT support.
+    Builds a hash grid to efficiently query for neighbors.
+
     This implementation uses pointers to reference cell contents instead of padding each cell to a common occupancy.
 
     Args:
@@ -215,7 +217,7 @@ def build_hash_grid(positions,
     _, d = b.staticshape(positions)
     periodic = [periodic] * d if np.ndim(periodic) == 0 else tuple(periodic)
     if domain is None:
-        domain = b.min(positions, 0), b.max(positions, 0) + 1e-5
+        domain = b.min(positions, 0), b.max(positions, 0)
         b_ = choose_backend(min_cell_size, *domain)
     min_cell_size = b_.as_tensor(min_cell_size)
     domain_size = b_.maximum(domain[1] - domain[0], min_cell_size)
@@ -225,6 +227,7 @@ def build_hash_grid(positions,
     extent = min_cell_size * resolution_f
     cell_size = extent / resolution_f
     cell_indices = b.to_int32((positions - b.to_float(domain[0]) / b.to_float(extent * resolution_f)))
+    cell_indices = b.minimum(cell_indices, b.as_tensor(resolution-1))
     cell_ids = b.ravel_multi_index(cell_indices, resolution)
     perm = b.argsort(cell_ids)
     cell_indices = b.gather(cell_indices, perm, 0)
