@@ -7,7 +7,8 @@ import numpy as np
 from scipy.sparse import csr_matrix
 
 from ._magic_ops import concat, pack_dims, expand, rename_dims, stack, unpack_dim, unstack
-from ._shape import Shape, non_batch, merge_shapes, instance, batch, non_instance, shape, channel, spatial, DimFilter, concat_shapes, EMPTY_SHAPE, dual, non_channel
+from ._shape import Shape, non_batch, merge_shapes, instance, batch, non_instance, shape, channel, spatial, DimFilter, \
+    concat_shapes, EMPTY_SHAPE, dual, non_channel, DEBUG_CHECKS
 from ._tensors import Tensor, TensorStack, NativeTensor, cached, wrap
 from ..backend import choose_backend, NUMPY, Backend
 from ..backend._dtype import DType
@@ -582,7 +583,8 @@ class CompressedSparseMatrix(Tensor):
             for i, t in enumerate(tensors):
                 pointers.append((t._pointers[1:] if i else t._pointers) + pointer_offset)
                 pointer_offset += t._pointers[-1]
-            assert pointer_offset == instance(indices).volume
+            if DEBUG_CHECKS:
+                assert int(pointer_offset) == instance(indices).volume
             pointers = concat(pointers, instance(self._pointers))
             compressed = self._compressed_dims.with_dim_size(dim, sum(t.shape.get_size(dim) for t in tensors))
             return CompressedSparseMatrix(indices, pointers, values, self._uncompressed_dims, compressed, self._indices_constant, self._uncompressed_offset)
