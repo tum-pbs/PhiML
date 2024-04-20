@@ -148,7 +148,7 @@ def find_neighbors_sparse(positions,
     b = choose_backend(positions)
     positions = b.to_float(b.as_tensor(positions))
     n, d = b.staticshape(positions)
-    cells, perm, neighbor_cells, cell_size, structure = build_hash_grid(positions, cutoff, domain, periodic)
+    cells, perm, neighbor_cells, cell_size, structure = build_hash_grid(positions, cutoff, domain, periodic, index_dtype)
     linear_indices = b.range(n, dtype=index_dtype)
     particle_ids = b.gather(linear_indices, perm, 0)
     positions = b.gather(positions, perm, 0)
@@ -203,7 +203,8 @@ def find_neighbors_sparse(positions,
 def build_hash_grid(positions,
                     min_cell_size,
                     domain: Optional[Tuple[TensorType, TensorType]],
-                    periodic: Union[bool, Tuple[bool, ...]]) -> Tuple[TensorType, TensorType, TensorType, TensorType, 'IndexingStructure']:
+                    periodic: Union[bool, Tuple[bool, ...]],
+                    index_dtype: DType) -> Tuple[TensorType, TensorType, TensorType, TensorType, 'IndexingStructure']:
     """
     Returns:
         cells_ids: Cell ID each element belongs to.
@@ -221,21 +222,21 @@ def build_hash_grid(positions,
         b_ = choose_backend(min_cell_size, *domain)
     min_cell_size = b_.as_tensor(min_cell_size)
     domain_size = b_.maximum(domain[1] - domain[0], min_cell_size)
-    resolution = b_.maximum(1, b_.to_int32(b_.ceil(domain_size / min_cell_size)))
+    resolution = b_.maximum(1, b_.cast(b_.ceil(domain_size / min_cell_size), index_dtype))
     resolution_f = b_.to_float(resolution)
     cell_count = b_.prod(resolution)
     extent = min_cell_size * resolution_f
     cell_size = extent / resolution_f
-    cell_indices = b.to_int32((positions - b.to_float(domain[0]) / b.to_float(extent * resolution_f)))
-    cell_indices = b.minimum(cell_indices, b.as_tensor(resolution-1))
+    cell_indices = b.cast((positions - b.to_float(domain[0]) / b.to_float(extent * resolution_f)), index_dtype)
+    cell_indices = b.minimum(cell_indices, b.cast(resolution-1, index_dtype))
     cell_ids = b.ravel_multi_index(cell_indices, resolution)
     perm = b.argsort(cell_ids)
     cell_indices = b.gather(cell_indices, perm, 0)
     cell_ids = b.gather(cell_ids, perm, 0)
     cell_count = register_buffer('cell_count', cell_count, {1: 256, 2: 512, 3: 1024}.get(d, 8**d))
-    idx_by_cell = b.searchsorted(cell_ids, b.range(cell_count), 'left')
-    occupancy = b.bincount(cell_ids, None, bins=cell_count, x_sorted=True)
-    neighbor_offsets = b.as_tensor(np.reshape(np.stack(np.meshgrid(*[(-1, 0, 1)] * d, indexing='ij'), -1), (-1, 1, d)))
+    idx_by_cell = b.searchsorted(cell_ids, b.range(cell_count, dtype=index_dtype), 'left')
+    occupancy = b.cast(b.bincount(cell_ids, None, bins=cell_count, x_sorted=True), index_dtype)
+    neighbor_offsets = b.cast(np.reshape(np.stack(np.meshgrid(*[(-1, 0, 1)] * d, indexing='ij'), -1), (-1, 1, d)), index_dtype)
     if any(periodic):
         assert all(periodic), f"Only fully periodic or fully non-periodic boundaries currently supported"
         neighbor_ids = b.ravel_multi_index(cell_indices + neighbor_offsets, resolution, mode='periodic')
