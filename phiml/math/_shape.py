@@ -912,7 +912,8 @@ class Shape:
         See Also:
             `Shape.is_non_uniform`, `Shape.shape`.
         """
-        return all(isinstance(s, int) for s in self.sizes)
+        from ._tensors import Tensor
+        return all(not isinstance(s, Tensor) for s in self.sizes)
 
     @property
     def is_non_uniform(self) -> bool:
