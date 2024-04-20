@@ -239,6 +239,8 @@ class SparseCoordinateTensor(Tensor):
         return self.compress(self._dense_shape.dual)
 
     def compress(self, dims: DimFilter):
+        if not self._indices.available:
+            raise NotImplementedError(f"compressing a {self._indices.default_backend} matrix in JIT mode is not yet supported")
         c_dims = self._shape.only(dims, reorder=True)
         u_dims = self._dense_shape.without(c_dims)
         c_idx_packed, u_idx_packed = self._pack_indices(c_dims, u_dims)
