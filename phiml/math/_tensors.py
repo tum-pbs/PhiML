@@ -1342,7 +1342,13 @@ class NativeTensor(Tensor):
 
     @classmethod
     def _from_spec_and_natives(cls, spec: dict, natives: list):
-        return NativeTensor(natives.pop(0), spec['native_shape'], spec['shape'])
+        native_shape: Shape = spec['native_shape']
+        expanded_shape: Shape = spec['shape']
+        native = natives.pop(0)
+        # --- update sizes in case JIT compilation gave None or outdated size ---
+        native_shape = native_shape.with_sizes(choose_backend(native).staticshape(native))
+        expanded_shape = expanded_shape.with_sizes(native_shape)
+        return NativeTensor(native, native_shape, expanded_shape)
 
 
 class TensorStack(Tensor):
