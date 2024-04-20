@@ -3104,8 +3104,23 @@ def pairwise_differences(positions: Tensor,
                          avg_neighbors=8.) -> Tensor:
     """
     Computes the distance matrix containing the pairwise position differences between each pair of points.
-    Points that are further apart than `max_distance` (if specified) are assigned a distance value of `0`.
-    The diagonal of the matrix (self-distance) also consists purely of zero-vectors and may or may not be stored explicitly.
+    Points that are further apart than `max_distance` (if specified) are assigned an invalid value given by `default`.
+    The diagonal of the matrix (self-distance) consists purely of zero-vectors and is always stored explicitly.
+
+    This function can operate in *dense* mode or *sparse* mode, depending on `format`.
+    If `format=='dense'` or a dense `Tensor`, all possible pair-wise distances are considered and a full-rank tensor is returned.
+    The value of `method` is ignored in that case.
+
+    Otherwise, if `format` is a sparse format identifier or sparse `Tensor`, only a subset of distances is considered, depending on `method`.
+    In this case, the result is a sparse matrix with the same dimensionos as the dense tensor would have had.
+
+    **JIT behavior:** This function can be JIT compiled with all backends.
+    However, as the exact number of neighbors is unknown beforehand, all sparse methods rely on a variable-size buffer.
+    PyTorch and TensorFlow allow variable shapes and behave the same way with JIT compilation as without.
+    JAX, however, requires all tensor shapes to be known beforehand.
+    This function will guess the required buffer size based on `avg_neighbors` and track the actually required sizes.
+    When using `phiml.math.jit_compile`, this will automatically trigger a re-tracing when a buffer overflow is detected.
+    User calling `jax.jit` manually must retrieve these sizes from the buffer API and implement buffer overflow handling.
 
     Args:
         positions: `Tensor`.
@@ -3123,9 +3138,10 @@ def pairwise_differences(positions: Tensor,
         periodic: Which domain boundaries should be treated as periodic, i.e. particles on opposite sides are neighbors.
             Can be specified as a `bool` for all sides or as a vector-valued boolean `Tensor` to specify periodicity by direction.
         default: Value for distances greater than `max_distance`. Only for dense distance matrices.
-        method: Neighbor search algorithm. The default, `'auto'` lets the runtime decide on the best method. Supported methods:
+        method: Neighbor search algorithm; only used if `format` is a sparse format or `Tensor`.
+            The default, `'auto'` lets the runtime decide on the best method. Supported methods:
 
-            * `'sparse'`: GPU-supported backend-agnostic hash grid implementation with fully sparse connectivity, i.e. minimal wasted memory.
+            * `'sparse'`: GPU-supported hash grid implementation with fully sparse connectivity.
             * `'scipy-kd'`: SciPy's [kd-tree](https://docs.scipy.org/doc/scipy/reference/generated/scipy.spatial.KDTree.query_ball_point.html#scipy.spatial.KDTree.query_ball_point) implementation.
 
         avg_neighbors: Expected average number of neighbors. This is only relevant for hash grid searches, where it influences the default buffer sizes.
@@ -3133,7 +3149,7 @@ def pairwise_differences(positions: Tensor,
     Returns:
         Distance matrix as sparse or dense `Tensor`, depending on `format`.
         For each spatial/instance dimension in `positions`, the matrix also contains a dual dimension of the same name and size.
-        The matrix also contains all batch dimensions of `positions` and one channel dimension called `vector`.
+        The matrix also contains all batch dimensions of `positions` and the channel dimension of `positions`.
 
     Examples:
         >>> pos = vec(x=0, y=tensor([0, 1, 2.5], instance('particles')))
@@ -3189,44 +3205,26 @@ def pairwise_differences(positions: Tensor,
             warnings.warn(f"Neighbor search method '{method}' is not compatible with periodic boundaries.", RuntimeWarning, stacklevel=2)
             method = 'sparse'
     def uniform_neighbor_search(positions: Tensor, max_distance: Tensor):
+        native_positions = reshaped_native(positions, [primal_dims, channel(positions)])
+        native_max_dist = max_distance.native()
         if method == 'sparse':
             from phiml.backend._partition import find_neighbors_sparse
-            native_positions = reshaped_native(positions, [primal_dims, channel(positions)])
-            native_max_dist = max_distance.native()
-            nat_rows, nat_cols, nat_vals = find_neighbors_sparse(native_positions, native_max_dist, domain, periodic=periodic, default=default, index_dtype=index_dtype, avg_neighbors=avg_neighbors)
+            nat_rows, nat_cols, nat_deltas = find_neighbors_sparse(native_positions, native_max_dist, domain, periodic=periodic, default=default, index_dtype=index_dtype, avg_neighbors=avg_neighbors)
             nat_indices = backend.stack([nat_rows, nat_cols], -1)
             indices = reshaped_tensor(nat_indices, [instance('pairs'), channel(vector=primal_dims.names + dual_dims.names)], convert=False)
-            values = reshaped_tensor(nat_vals, [instance('pairs'), channel(positions)], convert=False)
-            return SparseCoordinateTensor(indices, values, primal_dims & dual_dims, can_contain_double_entries=False, indices_sorted=True, indices_constant=False)
+            deltas = reshaped_tensor(nat_deltas, [instance('pairs'), channel(positions)], convert=False)
+            return SparseCoordinateTensor(indices, deltas, primal_dims & dual_dims, can_contain_double_entries=False, indices_sorted=True, indices_constant=False)
         elif method == 'scipy-kd':
-            native_positions = reshaped_native(positions, [primal_dims, channel(positions)])
-            native_max_dist = max_distance.native()
-            b = choose_backend_t(native_positions, native_max_dist)
-            n = non_channel(positions).volume
-            from phiml.backend._buffer import register_buffer_deferred
-            index_buffer, provide_size = register_buffer_deferred('pairs', [native_positions, native_max_dist], int(n * avg_neighbors))
-            def perform_query(np_positions, np_r):
-                from scipy.spatial import KDTree
-                tree = KDTree(np_positions)
-                neighbor_lists: List[list] = tree.query_ball_tree(tree, np_r)
-                sizes = np.asarray([len(l) for l in neighbor_lists])
-                indices = np.asarray(sum(neighbor_lists, []))
-                pair_count = len(indices)
-                pointers = np.pad(np.cumsum(sizes), (1, 0))
-                if index_buffer is not None:
-                    indices = indices[:index_buffer] if pair_count > index_buffer else np.pad(indices, (0, index_buffer - pair_count), constant_values=-1)
-                pair_count = NUMPY.cast(pair_count, index_dtype)
-                indices = NUMPY.cast(indices, index_dtype)
-                pointers = NUMPY.cast(pointers, index_dtype)
-                sizes = NUMPY.cast(sizes, index_dtype)
-                return pair_count, indices, pointers, sizes
-            req_pairs, nat_idx, nat_ptr, nat_sizes = b.numpy_call(perform_query, ((), (index_buffer,), (n+1,), (n,)), (index_dtype,)*4, native_positions, native_max_dist)
-            provide_size(req_pairs)
-            nat_values = native_positions[nat_idx, :] - native_positions[b.repeat(b.range(n), nat_sizes, 0, new_length=index_buffer), :]
+            from phiml.backend._partition import find_neighbors_scipy_kd
+            nat_idx, nat_ptr, nat_deltas = find_neighbors_scipy_kd(native_positions, native_max_dist, avg_neighbors, index_dtype)
             indices = reshaped_tensor(nat_idx, [instance('pairs')], convert=False)
             pointers = reshaped_tensor(nat_ptr, [instance('pointers')], convert=False)
-            values = reshaped_tensor(nat_values, [instance('pairs'), channel(positions)], convert=False)
-            return CompressedSparseMatrix(indices, pointers, values, dual_dims, primal_dims, indices_constant=False)
+            deltas = reshaped_tensor(nat_deltas, [instance('pairs'), channel(positions)], convert=False)
+            if format == 'csc':  # the matrix is symmetric, so we can transpose to match desired result
+                uncompressed, compressed = primal_dims, dual_dims
+            else:
+                uncompressed, compressed = dual_dims, primal_dims
+            return CompressedSparseMatrix(indices, pointers, deltas, uncompressed, compressed, indices_constant=False)
         # elif method == 'semi-sparse':
         #     from phiml.backend._partition import find_neighbors_semi_sparse
         #     native_positions = reshaped_native(positions, [primal_dims, channel(positions)])
@@ -3243,7 +3241,7 @@ def pairwise_differences(positions: Tensor,
         else:
             raise ValueError(method)
 
-    matrix = broadcast_op(uniform_neighbor_search, [positions, max_distance], iter_dims=None if method in ['sparse', 'semi-sparse'] else batch_shape)
+    matrix = broadcast_op(uniform_neighbor_search, [positions, max_distance], iter_dims=batch_shape)
     # --- Assemble sparse matrix ---
     return to_format(matrix, format)
 

@@ -1,5 +1,5 @@
 from numbers import Number
-from typing import Tuple, Any, Union, Optional
+from typing import Tuple, Union, Optional, List
 
 import numpy as np
 
@@ -283,6 +283,35 @@ def _sphere_volume(radius, d: int):
 
 
 # ToDo hierarchy of cells if too many cells to list all explicitly. Sorting by lowest index must also sort for higher indices
+
+
+def find_neighbors_scipy_kd(positions: TensorType,
+                            cutoff: Union[float, TensorType],
+                            avg_neighbors: float,
+                            index_dtype=DType(int, 32)):
+    from scipy.spatial import KDTree
+    b = choose_backend(positions, cutoff)
+    n, d = b.staticshape(positions)
+    from phiml.backend._buffer import register_buffer_deferred
+    index_buffer, provide_size = register_buffer_deferred('pairs', [positions, cutoff], int(n * avg_neighbors))
+    def perform_query(np_positions, np_r):
+        dtype = to_numpy_dtype(index_dtype)
+        tree = KDTree(np_positions)
+        neighbor_lists: List[list] = tree.query_ball_tree(tree, np_r)
+        sizes = np.asarray([len(l) for l in neighbor_lists], dtype=dtype)
+        indices = np.asarray(sum(neighbor_lists, []), dtype=dtype)
+        pair_count = np.asarray(len(indices), dtype=dtype)
+        pointers = np.pad(np.cumsum(sizes), (1, 0)).astype(dtype)
+        if index_buffer is not None:
+            indices = indices[:index_buffer] if pair_count > index_buffer else np.pad(indices, (0, index_buffer - pair_count), constant_values=-1)
+        return pair_count, indices, pointers, sizes
+
+    req_pairs, nat_idx, nat_ptr, nat_sizes = b.numpy_call(perform_query, ((), (index_buffer,), (n + 1,), (n,)), (index_dtype,) * 4, positions, cutoff)
+    provide_size(req_pairs)
+    pos_from = b.gather_nd(positions, nat_idx[:, None])
+    pos_to = b.gather_nd(positions, b.repeat(b.range(n), nat_sizes, 0, new_length=index_buffer)[:, None])
+    deltas = pos_to - pos_from
+    return nat_idx, nat_ptr, deltas
 
 
 def find_neighbors_sklearn(positions: TensorType,
