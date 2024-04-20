@@ -999,3 +999,29 @@ class TestOps(TestCase):
                 t = tensor([[3, 2, 1], [-1, 5, 2]], batch('b'), spatial(x='1,2,3'))
                 self.assertIsNone(math.sort(t).shape.get_item_names('x'))
 
+    def test_pairwise_differences(self):
+        for b in BACKENDS:
+            with b:
+                for format in ['sparse', 'coo', 'csr', 'csc']:
+                    for method in ['sparse', 'scipy-kd']:
+                        def diffs(points):
+                            return math.pairwise_differences(points, max_distance=1.1, format=format, method=method)
+                        idx = math.stored_indices(diffs(tensor(vec(x=[0, 100, 900], y=[0, 0, 1]))))
+                        math.assert_close([(0, 0), (1, 1), (2, 2)], idx)
+                        idx = math.stored_indices(diffs(tensor(vec(x=[0, 1, 900], y=[0, 0, 1]))))
+                        math.assert_close([(0, 0), (0, 1), (1, 0), (1, 1), (2, 2)], idx)
+
+    def test_pairwise_differences_jit(self):
+        for b in BACKENDS:
+            with b:
+                for format in ['sparse', 'coo']:  # compressing to 'csr', 'csc' not yet supported in JIT mode
+                    for method in ['sparse', 'scipy-kd']:
+                        @math.jit_compile
+                        def diffs(points):
+                            return math.pairwise_differences(points, max_distance=1.1, format=format, method=method)
+                        idx = math.stored_indices(diffs(tensor(vec(x=[0, 100, 900], y=[0, 0, 1]))))
+                        math.assert_close([(0, 0), (1, 1), (2, 2)], idx.entries[:3])
+                        idx = math.stored_indices(diffs(tensor(vec(x=[0, 1, 900], y=[0, 0, 1]))))
+                        math.assert_close([(0, 0), (0, 1), (1, 0), (1, 1), (2, 2)], idx.entries[:5])
+
+
