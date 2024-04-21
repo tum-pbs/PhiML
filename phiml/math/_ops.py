@@ -11,7 +11,9 @@ from ._magic_ops import expand, pack_dims, unpack_dim, cast, copy_with, value_at
 from ._shape import (Shape, EMPTY_SHAPE,
                      spatial, batch, channel, instance, merge_shapes, parse_dim_order, concat_shapes,
                      IncompatibleShapes, DimFilter, non_batch, dual, non_channel, shape, shape as get_shape)
-from ._sparse import CompressedSparseMatrix, dense, SparseCoordinateTensor, get_format, to_format, stored_indices, tensor_like, sparse_dims, same_sparsity_pattern, is_sparse, sparse_dot, sparse_sum, sparse_gather, sparse_max, sparse_min
+from ._sparse import CompressedSparseMatrix, dense, SparseCoordinateTensor, get_format, to_format, stored_indices, \
+    tensor_like, sparse_dims, same_sparsity_pattern, is_sparse, sparse_dot, sparse_sum, sparse_gather, sparse_max, \
+    sparse_min, sparse_tensor, dense_dims
 from ._tensors import (Tensor, wrap, tensor, broadcastable_native_tensors, NativeTensor, TensorStack,
                        custom_op2, compatible_tensor, variable_attributes, disassemble_tree, assemble_tree,
                        is_scalar, Layout, expand_tensor, TensorOrTree, cached, variable_shape)
@@ -1241,14 +1243,21 @@ def where(condition: Union[Tensor, float, int],
     def inner_where(c: Tensor, vt: Tensor, vf: Tensor):
         if vt._is_tracer or vf._is_tracer or c._is_tracer:
             return c * vt + (1 - c) * vf  # ToDo this does not take NaN into account
-        if is_sparse(vt) or is_sparse(vf):
-            if same_sparsity_pattern(vt, vf, allow_const=True) and same_sparsity_pattern(c, vt, allow_const=True):
-                c_values = c._values if is_sparse(c) else c
-                vt_values = vt._values if is_sparse(vt) else vt
-                vf_values = vf._values if is_sparse(vf) else vf
-                result_values = where(c_values, vt_values, vf_values)
-                return c._with_values(result_values)
-            raise NotImplementedError
+        if is_sparse(c) or is_sparse(vt) or is_sparse(vf):
+            if not same_sparsity_pattern(vt, vf, allow_const=True) or not same_sparsity_pattern(c, vt, allow_const=True):
+                raise NotImplementedError(f"When calling where() on sparse tensors, all arguments must have the same sparsity pattern or be dense")
+            sp_dims = sparse_dims(c) & sparse_dims(vt) & sparse_dims(vf)
+            d_dims = dense_dims(c) & dense_dims(vt) & dense_dims(vf)
+            if d_dims and d_dims in sp_dims:  # sparse / dense conflict -> first apply sparse format
+                any_sparse = c if is_sparse(c) else vt if is_sparse(vt) else vf
+                sparse_ones = tensor_like(any_sparse, 1)
+                c = c if is_sparse(c) else sparse_ones * c
+                vt = vt if is_sparse(vt) else sparse_ones * vt
+                vf = vf if is_sparse(vf) else sparse_ones * vf
+            c_values = c._values if is_sparse(c) else c
+            vt_values = vt._values if is_sparse(vt) else vt
+            vf_values = vf._values if is_sparse(vf) else vf
+            return c._with_values(where(c_values, vt_values, vf_values))
         shape, (c, vt, vf) = broadcastable_native_tensors(c, vt, vf)
         result = choose_backend(c, vt, vf).where(c, vt, vf)
         return NativeTensor(result, shape)
