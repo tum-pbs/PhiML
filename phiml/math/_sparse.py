@@ -324,7 +324,9 @@ class SparseCoordinateTensor(Tensor):
             if same_sparsity_pattern(self, other):
                 return self._with_values(operator(self._values, other._values))
             else:
-                assert op_name in ['add', 'radd', 'sub', 'rsub']
+                if op_name not in ['add', 'radd', 'sub', 'rsub']:
+                    same_sparsity_pattern(self, other)  # debug checkpoint
+                    raise AssertionError(f"Operation '{op_symbol}' ({op_name}) requires sparse matrices with the same sparsity pattern.")
                 all_sparse_dims = sparse_dims(other) & sparse_dims(self)
                 self_indices = pack_dims(self._indices, instance, instance('sp_entries'))
                 other_indices = pack_dims(other._indices, instance, instance('sp_entries'))
@@ -869,6 +871,20 @@ def sparse_dims(x: Tensor) -> Shape:
         return EMPTY_SHAPE
 
 
+def dense_dims(x: Tensor) -> Shape:
+    """
+    Returns the dimensions of a `Tensor` that are stored in dense format, i.e. not in a sparse format.
+    This generally includes all batch dimensions and possibly additional dimensions of sparse tensors, often channel dimensions.
+
+    Args:
+        x: Any `Tensor`
+
+    Returns:
+        `Shape`
+    """
+    return x.shape.without(sparse_dims(x))
+
+
 def get_sparsity(x: Tensor):
     """
     Fraction of values currently stored on disk for the given `Tensor` `x`.
@@ -975,7 +991,7 @@ def same_sparsity_pattern(t1: Tensor, t2: Tensor, allow_const=False):
     if allow_const:
         if is_sparse(t1) and not is_sparse(t2) and sparse_dims(t1) not in t2.shape:
             return True
-        if is_sparse(t2) and not is_sparse(t1) and sparse_dims(t2) not in t2.shape:
+        if is_sparse(t2) and not is_sparse(t1) and sparse_dims(t2) not in t1.shape:
             return True
         if not is_sparse(t1) and not is_sparse(t2):
             return True  # no sparsity pattern
@@ -985,6 +1001,8 @@ def same_sparsity_pattern(t1: Tensor, t2: Tensor, allow_const=False):
         raise NotImplementedError
     if type(t1) != type(t2):
         return False
+    if isinstance(t1, NativeTensor) and isinstance(t2, NativeTensor):
+        return True
     from ._ops import always_close
     if isinstance(t1, CompressedSparseMatrix):
         return always_close(t1._indices, t2._indices) and always_close(t1._pointers, t2._pointers)
