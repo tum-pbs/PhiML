@@ -1028,7 +1028,7 @@ def dense(x: Tensor) -> Tensor:
         return scatter(x.shape, x._indices, x._values, mode='add', outside_handling='undefined')
     elif isinstance(x, CompressedSparseMatrix):
         ind_batch, channels, native_indices, native_pointers, native_values, native_shape = x._native_csr_components()
-        native_dense = x.default_backend.csr_to_dense(native_indices, native_pointers, native_values, native_shape)
+        native_dense = x.default_backend.csr_to_dense(native_indices, native_pointers, native_values, native_shape, contains_duplicates=x._uncompressed_offset is not None)
         return reshaped_tensor(native_dense, [ind_batch, x._compressed_dims, x._uncompressed_dims, channels])
     elif isinstance(x, NativeTensor):
         return x
