@@ -3113,8 +3113,10 @@ def pairwise_differences(positions: Tensor,
                          avg_neighbors=8.) -> Tensor:
     """
     Computes the distance matrix containing the pairwise position differences between each pair of points.
+    The matrix will consist of the channel and batch dimension of `positions` and the primal dimensions plus their dual counterparts, spanning the matrix.
     Points that are further apart than `max_distance` (if specified) are assigned an invalid value given by `default`.
     The diagonal of the matrix (self-distance) consists purely of zero-vectors and is always stored explicitly.
+    The neighbors of the positions are listed along the dual dimension(s) of the matrix, and vectors point *towards* the neighbors.
 
     This function can operate in *dense* mode or *sparse* mode, depending on `format`.
     If `format=='dense'` or a dense `Tensor`, all possible pair-wise distances are considered and a full-rank tensor is returned.
@@ -3233,6 +3235,7 @@ def pairwise_differences(positions: Tensor,
                 uncompressed, compressed = primal_dims, dual_dims
             else:
                 uncompressed, compressed = dual_dims, primal_dims
+                deltas = -deltas
             return CompressedSparseMatrix(indices, pointers, deltas, uncompressed, compressed, indices_constant=False)
         # elif method == 'semi-sparse':
         #     from phiml.backend._partition import find_neighbors_semi_sparse

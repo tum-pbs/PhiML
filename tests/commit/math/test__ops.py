@@ -1024,4 +1024,13 @@ class TestOps(TestCase):
                         idx = math.stored_indices(diffs(tensor(vec(x=[0, 1, 900], y=[0, 0, 1]))))
                         math.assert_close([(0, 0), (0, 1), (1, 0), (1, 1), (2, 2)], idx.entries[:5])
 
-
+    def test_pairwise_differences_deltas(self):
+        for format in ['dense', 'sparse', 'coo', 'csr', 'csc']:
+            for method in ['sparse', 'scipy-kd']:
+                def diffs(points):
+                    return math.pairwise_differences(points, max_distance=1.1, format=format, method=method)
+                result = diffs(tensor(vec(x=[0, 1, 900], y=[0, 0, 1])))
+                math.assert_close(vec(x=0, y=0), result.sequence[0:1].sequence.dual[0:1])
+                math.assert_close(vec(x=1, y=0), result.sequence[0:1].sequence.dual[1:2])
+                math.assert_close(vec(x=-1, y=0), result.sequence[1:2].sequence.dual[0:1])
+                math.assert_close(vec(x=0, y=0), result.sequence[1:2].sequence.dual[1:2])
