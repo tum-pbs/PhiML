@@ -1361,9 +1361,9 @@ class Backend:
         row_indices = [self.repeat(self.range(row_count, dtype=self.dtype(column_indices)), repeats[b], -1, new_length=index_count) for b in range(batch_size)]
         return self.stack([self.stack(row_indices), column_indices], axis=-1)
 
-    def csr_to_dense(self, column_indices, row_pointers, values, shape: Tuple[int, int]):
+    def csr_to_dense(self, column_indices, row_pointers, values, shape: Tuple[int, int], contains_duplicates=False):
         indices = self.csr_to_coo(column_indices, row_pointers)
-        return self.coo_to_dense(indices, values, shape, contains_duplicates=False)
+        return self.coo_to_dense(indices, values, shape, contains_duplicates=contains_duplicates)
 
     def csc_matrix(self, column_pointers, row_indices, values, shape: Tuple[int, int]):
         """
