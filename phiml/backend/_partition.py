@@ -227,7 +227,7 @@ def build_hash_grid(positions,
     cell_count = b_.prod(resolution)
     extent = min_cell_size * resolution_f
     cell_size = extent / resolution_f
-    cell_indices = b.cast((positions - b.to_float(domain[0]) / b.to_float(extent * resolution_f)), index_dtype)
+    cell_indices = b.cast((positions - b.to_float(domain[0])) / cell_size, index_dtype)
     cell_indices = b.minimum(cell_indices, b.cast(resolution-1, index_dtype))
     cell_ids = b.ravel_multi_index(cell_indices, resolution)
     perm = b.argsort(cell_ids)
