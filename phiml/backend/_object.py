@@ -1,6 +1,8 @@
 import math
 import random
 
+import numpy
+
 from ._backend import Backend, ComputeDevice
 from ._dtype import DType
 
@@ -34,6 +36,21 @@ class ObjectBackend(Backend):
 
     def shape(self, tensor):
         return ()
+
+    def equal(self, x, y):
+        return x == y
+
+    def isnan(self, x):
+        return False
+
+    def all(self, boolean_tensor, axis=None, keepdims=False):
+        return bool(boolean_tensor)
+
+    def any(self, boolean_tensor, axis=None, keepdims=False):
+        return bool(boolean_tensor)
+
+    def numpy(self, tensor) -> numpy.ndarray:
+        return numpy.asarray(tensor)
 
     sqrt = math.sqrt
     exp = math.exp
