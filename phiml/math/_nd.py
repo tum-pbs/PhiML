@@ -492,7 +492,7 @@ def shift(x: Tensor,
     """
     if dims is None:
         raise ValueError("dims=None is not supported anymore.")
-    dims = x.shape.only(dims).names
+    dims = x.shape.only(dims, reorder=True).names
     if stack_dim is None:
         assert len(dims) == 1
     x = wrap(x)
