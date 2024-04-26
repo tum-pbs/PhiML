@@ -562,6 +562,7 @@ def solve_linear(f: Union[Callable[[X], Y], Tensor],
         NotConverged: If the desired accuracy was not be reached within the maximum number of iterations.
         Diverged: If the solve failed prematurely.
     """
+    assert solve.x0 is not None, "Please specify the initial guess as Solve(..., x0=initial_guess)"
     # --- Handle parameters ---
     f_kwargs = f_kwargs or {}
     f_kwargs.update(f_kwargs_)
@@ -569,7 +570,6 @@ def solve_linear(f: Union[Callable[[X], Y], Tensor],
     # --- Get input and output tensors ---
     y_tree, y_tensors = disassemble_tree(y, cache=False, attr_type=value_attributes)
     x0_tree, x0_tensors = disassemble_tree(solve.x0, cache=False, attr_type=value_attributes)
-    assert solve.x0 is not None, "Please specify the initial guess as Solve(..., x0=initial_guess)"
     assert len(x0_tensors) == len(y_tensors) == 1, "Only single-tensor linear solves are currently supported"
     if y_tree == 'native' and x0_tree == 'native':
         if callable(f):  # assume batch + 1 dim
@@ -647,9 +647,10 @@ def solve_linear(f: Union[Callable[[X], Y], Tensor],
                 if batch_index is not None and batches.volume > 1:
                     native_x = backend.tile(backend.expand_dims(native_x), [batches.volume, 1])
                 x = assemble_tree(x0_nest, [reshaped_tensor(native_x, [batches, non_batch(x0_tensor)] if backend.ndims(native_x) >= 2 else [non_batch(x0_tensor)], convert=False)], attr_type=value_attributes)
-                y = f(x, *f_args, **f_kwargs)
-                _, (y_tensor,) = disassemble_tree(y, cache=False, attr_type=value_attributes)
-                y_native = reshaped_native(y_tensor, [batches, non_batch(y_tensor)] if backend.ndims(native_x) >= 2 else [non_batch(y_tensor)])
+                y_ = f(x, *f_args, **f_kwargs)
+                _, (y_tensor_,) = disassemble_tree(y_, cache=False, attr_type=value_attributes)
+                assert set(non_batch(y_tensor_)) == set(non_batch(y_tensor)), f"Function returned dimensions {y_tensor_.shape} but right-hand-side has shape {y_tensor.shape}"
+                y_native = reshaped_native(y_tensor_, [batches, non_batch(y_tensor)] if backend.ndims(native_x) >= 2 else [non_batch(y_tensor)])  # order like right-hand-side
                 if batch_index is not None and batches.volume > 1:
                     y_native = y_native[batch_index]
                 return y_native
