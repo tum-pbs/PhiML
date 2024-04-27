@@ -1,5 +1,6 @@
 import copy
 import warnings
+from functools import partial
 from numbers import Number
 from typing import TypeVar, Tuple, Set, Dict, Union, Optional, Sequence, Any
 
@@ -798,7 +799,7 @@ def tree_map(f, tree, **f_kwargs):
         return f(tree, **f_kwargs)  # try anyway
 
 
-def find_differences(tree1, tree2, compare_tensors_by_id=False) -> Sequence[Tuple[str, str, Any, Any]]:
+def find_differences(tree1, tree2, compare_tensors_by_id=False, attr_type=value_attributes, tensor_equality=None) -> Sequence[Tuple[str, str, Any, Any]]:
     """
     Compares `tree1` and `tree2` and returns all differences in the form `(difference_description: str, variable_identifier: str, value1, value2)`.
 
@@ -806,17 +807,18 @@ def find_differences(tree1, tree2, compare_tensors_by_id=False) -> Sequence[Tupl
         tree1: Nested tree or leaf
         tree2: Nested tree or leaf
         compare_tensors_by_id: Whether `phiml.math.Tensor` objects should be compared by identity or values.
+        attr_type: What attributes to compare, either `value_attributes` or `variable_attributes`.
+        tensor_equality: Function that compares two tensors for equality. `None` defaults to `equal`.
 
     Returns:
         List of differences, each represented as a `tuple`.
     """
-    from ._ops import equal, always_close
     result = []
-    _recursive_diff(tree1, tree2, '', result, compare_tensors_by_id)
+    _recursive_diff(tree1, tree2, '', result, compare_tensors_by_id, attr_type, tensor_equality)
     return result
 
 
-def _recursive_diff(a, b, path: str, result: list, compare_tensors_by_id=False, attr_type=value_attributes):
+def _recursive_diff(a, b, path: str, result: list, compare_tensors_by_id=False, attr_type=value_attributes, tensor_equality=None):
     if a is b:
         return
     if (a is None) != (b is None):
@@ -833,10 +835,12 @@ def _recursive_diff(a, b, path: str, result: list, compare_tensors_by_id=False, 
             if a is not b:
                 result.append(("Tensor ids do not match", path, a, b))
         else:
-            from ._ops import equal
+            if tensor_equality is None:
+                from ._ops import equal
+                tensor_equality = partial(equal, equal_nan=True)
             if a.shape != b.shape:
                 result.append(("Tensor shapes do not match", path, a, b))
-            elif not equal(a, b, equal_nan=True):
+            elif not tensor_equality(a, b):
                 result.append(("Tensor values do not match", path, a, b))
     elif type(a) != type(b):
         result.append(("Types do not match", path, a, b))
@@ -846,14 +850,14 @@ def _recursive_diff(a, b, path: str, result: list, compare_tensors_by_id=False, 
             result.append(("Lengths do not match", path, a, b))
         else:
             for i, (ae, be) in enumerate(zip(a, b)):
-                _recursive_diff(ae, be, f"{path}[{i}]", result, compare_tensors_by_id, attr_type)
+                _recursive_diff(ae, be, f"{path}[{i}]", result, compare_tensors_by_id, attr_type, tensor_equality)
     elif isinstance(a, dict):
         if set(a) != set(b):
             result.append(("Keys do not match", path, a, b))
         else:
             for k, av in a.items():
                 bv = b[k]
-                _recursive_diff(av, bv, f"{path}[{k}]", result, compare_tensors_by_id, attr_type)
+                _recursive_diff(av, bv, f"{path}[{k}]", result, compare_tensors_by_id, attr_type, tensor_equality)
     elif isinstance(a, PhiTreeNode):
         a_attrs = attr_type(a)
         if set(a_attrs) != set(attr_type(b)):
@@ -862,7 +866,7 @@ def _recursive_diff(a, b, path: str, result: list, compare_tensors_by_id=False, 
             for k in a_attrs:
                 av = getattr(a, k)
                 bv = getattr(b, k)
-                _recursive_diff(av, bv, f"{path}.{k}", result, compare_tensors_by_id, attr_type)
+                _recursive_diff(av, bv, f"{path}.{k}", result, compare_tensors_by_id, attr_type, tensor_equality)
     else:
         try:
             backend = choose_backend(a, b)
