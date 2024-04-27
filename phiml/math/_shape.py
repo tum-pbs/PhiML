@@ -929,10 +929,32 @@ class Shape:
     def non_uniform(self) -> 'Shape':
         """
         Returns only the non-uniform dimensions of this shape, i.e. the dimensions whose size varies along another dimension.
+
+        See Also
+            `Shape.non_uniform_shape`
         """
         from . import Tensor
         indices = [i for i, size in enumerate(self.sizes) if isinstance(size, Tensor) and size.rank > 0]
         return self[indices]
+
+    @property
+    def non_uniform_shape(self):
+        """
+        Returns the stack dimensions of non-uniform shapes.
+        This is equal to `Shape.shape` excluding the `dims` dimension.
+
+        For example, when stacking `(x=3)` and `(x=2)` along `vector`, the resulting shape is non_uniform.
+        Its `non_uniform_shape` is `vector` and its `non_uniform` dimension is `x`.
+
+        See Also
+            `Shape.non_uniform`.
+        """
+        from . import Tensor
+        shape = EMPTY_SHAPE
+        for size in self.sizes:
+            if isinstance(size, Tensor):
+                shape = shape & size.shape
+        return shape
 
     def with_size(self, size: Union[int, Tuple[str, ...]]):
         """
