@@ -215,7 +215,7 @@ class TestExtrapolation(TestCase):
     def test_slice_normal_tangential(self):
         INFLOW_LEFT = combine_by_direction(normal=1, tangential=0)
         ext = combine_sides(x=(INFLOW_LEFT, BOUNDARY), y=0)
-        self.assertEqual(combine_sides(x=(1, BOUNDARY), y=0), ext[{'vector': 'x'}])
+        self.assertEqual(combine_sides(x=(1, BOUNDARY), y=0), ext['x'])
         self.assertEqual(combine_sides(x=(0, BOUNDARY), y=0), ext[{'vector': 'y'}])
 
     def test_get_normal(self):
