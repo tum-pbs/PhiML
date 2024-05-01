@@ -148,6 +148,7 @@ def find_neighbors_sparse(positions,
     b = choose_backend(positions)
     positions = b.to_float(b.as_tensor(positions))
     n, d = b.staticshape(positions)
+    periodic: tuple = (periodic,) * d if np.ndim(periodic) == 0 else tuple(periodic)
     cells, perm, neighbor_cells, cell_size, structure = build_hash_grid(positions, cutoff, domain, periodic, index_dtype)
     linear_indices = b.range(n, dtype=index_dtype)
     particle_ids = b.gather(linear_indices, perm, 0)
@@ -183,8 +184,12 @@ def find_neighbors_sparse(positions,
     to_id = b.gather(particle_ids, to_idx, 0)
     from_positions = b.repeat(positions, num_potential_neighbors, 0, new_length=max_pair_count)
     to_positions = b.gather(positions, to_idx, 0)
-    dx = to_positions - from_positions
     # --- Filter by cutoff ---
+    dx = to_positions - from_positions
+    if any(periodic):
+        domain_size = domain[1] - domain[0]
+        dx_periodic = (dx + domain_size / 2) % domain_size - domain_size / 2
+        dx = b.where(b.as_tensor(periodic), dx_periodic, dx)
     dist = b.sqrt(b.sum(dx ** 2, -1))
     in_range = dist < b.as_tensor(cutoff)
     valid = in_range & (pair_indices < num_required_tmp_pairs)
@@ -203,7 +208,7 @@ def find_neighbors_sparse(positions,
 def build_hash_grid(positions,
                     min_cell_size,
                     domain: Optional[Tuple[TensorType, TensorType]],
-                    periodic: Union[bool, Tuple[bool, ...]],
+                    periodic: Tuple[bool, ...],
                     index_dtype: DType) -> Tuple[TensorType, TensorType, TensorType, TensorType, 'IndexingStructure']:
     """
     Returns:
@@ -216,7 +221,6 @@ def build_hash_grid(positions,
     b = choose_backend(positions)
     b_ = choose_backend(min_cell_size, *domain or ())
     _, d = b.staticshape(positions)
-    periodic = [periodic] * d if np.ndim(periodic) == 0 else tuple(periodic)
     if domain is None:
         domain = b.min(positions, 0), b.max(positions, 0)
         b_ = choose_backend(min_cell_size, *domain)

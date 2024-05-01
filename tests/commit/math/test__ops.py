@@ -1034,3 +1034,10 @@ class TestOps(TestCase):
                 math.assert_close(vec(x=1, y=0), result.sequence[0:1].sequence.dual[1:2])
                 math.assert_close(vec(x=-1, y=0), result.sequence[1:2].sequence.dual[0:1])
                 math.assert_close(vec(x=0, y=0), result.sequence[1:2].sequence.dual[1:2])
+
+    def test_pairwise_differences_periodic(self):
+        for format in ['dense', 'sparse', 'coo', 'csr', 'csc']:
+            for method in ['sparse', 'scipy-kd']:
+                points = vec(x=(0, 0.99))
+                diff = math.pairwise_differences(points, 0.1, format=format, domain=(0, 1), periodic=True, method=method)
+                math.assert_close([[0, 0.01], [0.01, 0]], math.vec_length(diff))
