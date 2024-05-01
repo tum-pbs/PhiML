@@ -976,8 +976,9 @@ class Layout(Tensor):
         return None
 
     def native(self, order: Union[str, tuple, list, Shape] = None, singleton_for_const=False):
-        order = parse_dim_order(order)
-        assert order is None or order == self._stack_dim.names, "Layout.native() does not allow for changing the dimension order"
+        if order is not None:
+            order = parse_dim_order(order)
+            assert order == self._stack_dim.names, "Layout.native() does not allow for changing the dimension order"
         return self._obj
 
     def numpy(self, order: Union[str, tuple, list, Shape] = None) -> np.ndarray:
@@ -1205,8 +1206,11 @@ class NativeTensor(Tensor):
         self._native_shape = native_shape
 
     def native(self, order: Union[str, tuple, list, Shape] = None, singleton_for_const=False):
-        order = parse_dim_order(order, check_rank=self.rank)
-        order = self._shape.names if order is None else order
+        if order is None:
+            assert self.rank <= 1, f"When calling Tensor.native() or Tensor.numpy(), the dimension order must be specified for Tensors with more than one dimension, e.g. '{','.join(self._shape.names)}'. The listed default dimension order can vary depending on the chosen backend. Consider using math.reshaped_native(Tensor) instead."
+            order = self._shape.names
+        else:
+            order = parse_dim_order(order)
         assert isinstance(order, tuple)  # should not be necessary
         assert all([n in order for n in self._native_shape.names]), f"order must list all essential dimensions but got {order} for tensor {self.shape}"
         backend = self.default_backend
@@ -1417,7 +1421,10 @@ class TensorStack(Tensor):
         return self._shape
 
     def native(self, order: Union[str, tuple, list, Shape] = None, singleton_for_const=False):
-        order = parse_dim_order(order, check_rank=self.rank)
+        if order is None:
+            assert self.rank <= 1, f"When calling Tensor.native() or Tensor.numpy(), the dimension order must be specified for Tensors with more than one dimension, e.g. '{','.join(self._shape.names)}'. The listed default dimension order can vary depending on the chosen backend. Consider using math.reshaped_native(Tensor) instead."
+        else:
+            order = parse_dim_order(order)
         # Is only the stack dimension shifted?
         if order is not None and self._shape.without(self._stack_dim).names == tuple(filter(lambda name: name != self._stack_dim.name, order)):
             inner_order = [dim for dim in order if dim != self._stack_dim.name]
