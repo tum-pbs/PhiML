@@ -3169,14 +3169,28 @@ def pairwise_differences(positions: Tensor,
         (x=0.000, y=0.000); (x=0.000, y=1.000); (x=0.000, y=0.000) (~particlesᵈ=3, vectorᶜ=x,y)
     """
     assert isinstance(positions, Tensor), f"positions must be a Tensor but got {type(positions)}"
+    assert channel(positions).rank == 1, f"positions must have exactly one channel dimension but got {positions.shape}"
     primal_dims = positions.shape.non_batch.non_channel.non_dual
     dual_dims = primal_dims.as_dual()
+    if isinstance(periodic, bool):
+        any_periodic = periodic
+        periodic = (periodic,) * channel(positions).size
+    else:
+        assert isinstance(periodic, Tensor), f"periodic must be a bool or Tensor but got {periodic}"
+        assert periodic.shape.names == channel(positions)
+        assert periodic.shape.item_names == channel(positions).item_names
+        any_periodic = periodic.any
+        periodic = unstack(periodic, channel)
     # --- Dense ---
     if (isinstance(format, str) and format == 'dense') or (isinstance(format, Tensor) and get_format(format) == 'dense'):
         if isinstance(format, Tensor):
             dual_dims = dual(format)
         dx = unpack_dim(pack_dims(positions, non_batch(positions).non_channel.non_dual, instance('_tmp')), '_tmp', dual_dims) - positions
         if max_distance is not None:
+            if any_periodic:
+                domain_size = domain[1] - domain[0]
+                dx_periodic = (dx + domain_size / 2) % domain_size - domain_size / 2
+                dx = where(wrap(periodic, channel(positions)), dx_periodic, dx)
             neighbors = sum_(dx ** 2, channel) <= max_distance ** 2
             dx = where(neighbors, dx, default)
         return dx
@@ -3196,20 +3210,14 @@ def pairwise_differences(positions: Tensor,
         dual_dims = dual_dims.with_size(primal_dims.volume)
     if domain is not None:
         assert isinstance(domain, tuple) and len(domain) == 2, f"Domain needs to be of the form (lower_corner, upper_corner) but got {domain}"
-        assert domain[0].shape.names == channel(positions).names, f"Domain must have exactly the channel dimensions of positions but got {domain[0]}"
-        assert domain[1].shape.names == channel(positions).names, f"Domain must have exactly the channel dimensions of positions but got {domain[1]}"
+        domain = (wrap(domain[0]), wrap(domain[1]))
+        if channel(positions).size > 1:
+            assert domain[0].shape.names == channel(positions).names, f"Domain must have exactly the channel dimensions of positions but got {domain[0]}"
+            assert domain[1].shape.names == channel(positions).names, f"Domain must have exactly the channel dimensions of positions but got {domain[1]}"
         domain = (reshaped_native(domain[0], [channel]), reshaped_native(domain[1], [channel]))
     if method == 'auto':
         method = 'sparse'
     assert method in ['sparse', 'scipy-kd'], f"Invalid neighbor search method: '{method}'"
-    if isinstance(periodic, bool):
-        any_periodic = periodic
-    else:
-        assert isinstance(periodic, Tensor), f"periodic must be a bool or Tensor but got {periodic}"
-        assert periodic.shape.names == channel(positions)
-        assert periodic.shape.item_names == channel(positions).item_names
-        any_periodic = periodic.any
-        periodic = unstack(periodic, channel)
     if any_periodic:
         assert domain is not None, f"domain must be specified when periodic=True"
         if method in ['scipy-kd']:
