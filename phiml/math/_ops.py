@@ -2971,6 +2971,21 @@ def _close(tensor1: Tensor, tensor2: Tensor, rel_tolerance=1e-5, abs_tolerance=0
         non_uniform_dims = tensor2.shape.shape.without('dims') & tensor1.shape.shape.without('dims')
         inner_close = [_close(t1, t2) for t1, t2 in zip(unstack(tensor1, non_uniform_dims), unstack(tensor2, non_uniform_dims))]
         return all(inner_close)
+    if is_sparse(tensor1) or is_sparse(tensor2):
+        if not is_sparse(tensor1) or not is_sparse(tensor2):
+            tensor1 = dense(tensor1)
+            tensor2 = dense(tensor2)
+        else:  # both sparse
+            if type(tensor1) != type(tensor2):
+                raise NotImplementedError("Checking sparse equality only supported for same sparse format")
+            if not _close(tensor1._indices, tensor2._indices, rel_tolerance=0, abs_tolerance=0):
+                return False
+            if not _close(tensor1._values, tensor2._values, rel_tolerance=rel_tolerance, abs_tolerance=abs_tolerance, equal_nan=equal_nan):
+                return False
+            if isinstance(tensor1, CompressedSparseMatrix) and isinstance(tensor2, CompressedSparseMatrix):
+                if not _close(tensor1._pointers, tensor2._pointers, rel_tolerance=0, abs_tolerance=0):
+                    return False
+            return True
     new_shape, (native1, native2) = broadcastable_native_tensors(tensor1, tensor2)
     np1 = choose_backend(native1).numpy(native1)
     np2 = choose_backend(native2).numpy(native2)
@@ -2981,7 +2996,8 @@ def assert_close(*values,
                  rel_tolerance: float = 1e-5,
                  abs_tolerance: float = 0,
                  msg: str = "",
-                 verbose: bool = True):
+                 verbose: bool = True,
+                 equal_nan=True):
     """
     Checks that all given tensors have equal values within the specified tolerance.
     Raises an AssertionError if the values of this tensor are not within tolerance of any of the other tensors.
@@ -2989,11 +3005,12 @@ def assert_close(*values,
     Does not check that the shapes match as long as they can be broadcast to a common shape.
 
     Args:
-      values: Tensors or native tensors or numbers or sequences of numbers.
-      rel_tolerance: Relative tolerance.
-      abs_tolerance: Absolute tolerance.
-      msg: Optional error message.
-      verbose: Whether to print conflicting values.
+        values: Tensors or native tensors or numbers or sequences of numbers.
+        rel_tolerance: Relative tolerance.
+        abs_tolerance: Absolute tolerance.
+        msg: Optional error message.
+        verbose: Whether to print conflicting values.
+        equal_nan: If `False`, `NaN` values will always trigger an assertion error.
     """
     if not values:
         return
@@ -3012,7 +3029,7 @@ def assert_close(*values,
     else:
         np_values = [choose_backend(t).numpy(t) for t in values]
         for other in np_values[1:]:
-            np.testing.assert_allclose(np_values[0], other, rel_tolerance, abs_tolerance, err_msg=msg, verbose=verbose)
+            np.testing.assert_allclose(np_values[0], other, rel_tolerance, abs_tolerance, err_msg=msg, verbose=verbose, equal_nan=equal_nan)
 
 
 def _assert_close(tensor1: Tensor, tensor2: Tensor, rel_tolerance: float, abs_tolerance: float, msg: str, verbose: bool):

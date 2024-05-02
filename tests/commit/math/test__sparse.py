@@ -150,3 +150,10 @@ class TestSparse(TestCase):
             stacked = concat([matrix, matrix*2], 'vector')
             self.assertTrue(math.is_sparse(stacked))
             self.assertEqual(type(stacked), type(matrix))
+
+    def test_close(self):
+        for format in ['coo', 'csr', 'csc']:
+            m = wrap([[0, 1], [-1, 2]], channel('c'), dual('d'))
+            m1 = math.to_format(m, format)
+            m2 = m1 * 2 * .5
+            math.assert_close(m1, m2)
