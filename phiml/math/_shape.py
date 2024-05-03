@@ -2065,7 +2065,7 @@ def shape_stack(stack_dim: Shape, *shapes: Shape, stack_dim_first=False):
             else:
                 from ._magic_ops import stack
                 dim_sizes_or_1 = [1 if s is None else s for s in dim_sizes]
-                size = stack(dim_sizes_or_1, stack_dim)
+                size = stack(dim_sizes_or_1, stack_dim, expand_values=True)
         sizes.append(size)
     return Shape(tuple(sizes), tuple(names), tuple(types), tuple(item_names))
 
