@@ -283,6 +283,7 @@ class TorchBackend(Backend):
         mode = {'constant': 'constant', 'reflect': 'reflect', 'boundary': 'replicate', 'periodic': 'circular'}.get(mode, None)
         if not mode:
             return NotImplemented
+        value = self.as_tensor(value)
         # for PyTorch, we have to reshape value such that the outer 2 dimensions are not padded.
         ndims = self.ndims(value)
         no_pad_dims = [i for i in range(ndims) if pad_width[i] == (0, 0)]
