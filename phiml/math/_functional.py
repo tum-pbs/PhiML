@@ -1038,13 +1038,13 @@ def print_gradient(value: Tensor, name="", detailed=False) -> Tensor:
     return identity(value)
 
 
-def trace_check(f, *args, **kwargs) -> Tuple[bool, str]:
+def trace_check(traced_function, *args, **kwargs) -> Tuple[bool, str]:
     """
     Tests if `f(*args, **kwargs)` has already been traced for arguments compatible with `args` and `kwargs`.
     If true, jit-compiled functions are very fast since the Python function is not actually called anymore.
 
     Args:
-        f: Transformed Function, e.g. jit-compiled or linear function.
+        traced_function: Transformed Function, e.g. jit-compiled or linear function.
         *args: Hypothetical arguments to be passed to `f`
         **kwargs: Hypothetical keyword arguments to be passed to `f`
 
@@ -1053,6 +1053,7 @@ def trace_check(f, *args, **kwargs) -> Tuple[bool, str]:
         message: A `str` that, if `result == False`, gives hints as to why `f` needs to be re-traced given `args` and `kwargs`.
     """
     assert args or kwargs, f"Please pass the hypothetical function arguments to trace_check()"
+    f = traced_function
     if isinstance(f, (JitFunction, GradientFunction, HessianFunction, CustomGradientFunction)):
         keys = f.traces.keys()
     elif isinstance(f, LinearFunction):
