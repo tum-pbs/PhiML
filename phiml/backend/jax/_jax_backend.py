@@ -147,7 +147,11 @@ class JaxBackend(Backend):
         return jnp.array(tensor, copy=True)
 
     def get_device(self, tensor: TensorType) -> ComputeDevice:
-        return self.get_device_by_ref(tensor.device())
+        if hasattr(tensor, 'devices'):
+            return self.get_device_by_ref(next(iter(tensor.devices())))
+        if hasattr(tensor, 'device'):
+            return self.get_device_by_ref(tensor.device())
+        raise AssertionError(f"tensor {type(tensor)} has no device attribute")
 
     def allocate_on_device(self, tensor: TensorType, device: ComputeDevice) -> TensorType:
         return jax.device_put(tensor, device.ref)
