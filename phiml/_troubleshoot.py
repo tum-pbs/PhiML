@@ -198,24 +198,28 @@ def cache_all_tensors(print=print):
             if obj._shape != obj._native_shape:
                 if print is not None:
                     print(f"Expanding tensor with shape {obj._shape} from {obj._native_shape} {type(obj._native).__name__} {obj._native}")
-                try:
-                    obj._contiguous()
-                except BaseException as exc:
-                    print(f"ERROR    Expansion failed. {exc}")
-                    path = find_variable_reference(obj)
-                    print(f"Reference path to tensor: {path}")
-                    if hasattr(obj, '_init_stack'):
-                        print("Tensor creation stack trace:")
-                        for frame in obj._init_stack:
-                            filename, line_number, function_name, line = frame
-                            print(f"{filename}:{line_number} ({function_name})    {line}")
-                    else:
-                        print("Enable debug checks to obtain the stack trace for the Tensor's creation.")
+                _check_for_tracers(obj)
         elif isinstance(obj, TensorStack):
-            if obj._cached is None and not obj.requires_broadcast:
+            if not obj.requires_broadcast:
                 if print is not None:
                     print(f"Caching tensor stack with shape {obj._shape} along {obj._stack_dim}. Contents: {obj._tensors}")
-                obj._contiguous()
+                _check_for_tracers(obj)
+
+
+def _check_for_tracers(tensor):
+    try:
+        tensor._contiguous()
+    except BaseException as exc:
+        print(f"ERROR    Expansion failed. {exc}")
+        path = find_variable_reference(tensor)
+        print(f"Reference path to tensor: {path}")
+        if hasattr(tensor, '_init_stack'):
+            print("Tensor creation stack trace:")
+            for frame in tensor._init_stack:
+                filename, line_number, function_name, line = frame
+                print(f"{filename}:{line_number} ({function_name})    {line}")
+        else:
+            print("Enable debug checks to obtain the stack trace for the Tensor's creation.")
 
 
 def find_variable_reference(obj):
