@@ -13,7 +13,7 @@ from ._shape import (Shape, EMPTY_SHAPE,
                      IncompatibleShapes, DimFilter, non_batch, dual, non_channel, shape, shape as get_shape)
 from ._sparse import CompressedSparseMatrix, dense, SparseCoordinateTensor, get_format, to_format, stored_indices, \
     tensor_like, sparse_dims, same_sparsity_pattern, is_sparse, sparse_dot, sparse_sum, sparse_gather, sparse_max, \
-    sparse_min, sparse_tensor, dense_dims
+    sparse_min, dense_dims, sparse_mean
 from ._tensors import (Tensor, wrap, tensor, broadcastable_native_tensors, NativeTensor, TensorStack,
                        custom_op2, compatible_tensor, variable_attributes, disassemble_tree, assemble_tree,
                        is_scalar, Layout, expand_tensor, TensorOrTree, cached, variable_shape)
@@ -1471,6 +1471,8 @@ def _mean(value: Tensor, dims: Shape) -> Tensor:
     elif isinstance(value, TensorStack):
         reduced_inners = [_mean(t, dims.without(value._stack_dim)) for t in value._tensors]
         return functools.reduce(lambda x, y: x + y, reduced_inners) / len(reduced_inners) if value._stack_dim in dims else TensorStack(reduced_inners, value._stack_dim)
+    elif isinstance(value, (SparseCoordinateTensor, CompressedSparseMatrix)):
+        return sparse_mean(value, dims)
     else:
         raise ValueError(type(value))
 
