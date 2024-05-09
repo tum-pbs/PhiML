@@ -1236,8 +1236,8 @@ def with_sparsified_dim(indices: Tensor, values: Tensor, dims: Shape):
 
 
 def sparse_reduce(value: Tensor, dims: Shape, mode: str):
-    from ._ops import _sum, _max, _min, scatter, dot, ones
-    reduce = {'add': _sum, 'max': _max, 'min': _min}[mode]
+    from ._ops import _sum, _max, _min, _mean, scatter, dot, ones
+    reduce = {'add': _sum, 'max': _max, 'min': _min, 'mean': _mean}[mode]
     if value.sparse_dims in dims:  # reduce all sparse dims
         return reduce(value._values, dims.without(value.sparse_dims) & instance(value._values))
     value_only_dims = dims.only(value._values.shape).without(value.sparse_dims)
@@ -1283,6 +1283,7 @@ def sparse_reduce(value: Tensor, dims: Shape, mode: str):
 sparse_sum = partial(sparse_reduce, mode='add')
 sparse_max = partial(sparse_reduce, mode='max')
 sparse_min = partial(sparse_reduce, mode='min')
+sparse_mean = partial(sparse_reduce, mode='mean')
 
 
 def sum_equal_entries(matrix: Tensor, flatten_entries=True):
