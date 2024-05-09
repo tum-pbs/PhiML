@@ -1179,60 +1179,71 @@ def broadcast(function=None, dims=shape, range=range, unwrap_scalars=True):
     return broadcast_
 
 
-def iterate(f: Callable,
+builtin_range = range
+
+
+def iterate(map_function: Callable,
             iterations: Union[int, Shape],
             *x0,
             f_kwargs: dict = None,
             range: Callable = range,
             measure: Callable = None,
+            substeps: int = 1,
             **f_kwargs_):
     """
     Repeatedly call `function`, passing the previous output as the next input.
 
-    If the function outputs more values than the number of arguments in `x0`, only the first `len(x0)` ones are passed to `f`.
+    If the function outputs more values than the number of arguments in `x0`, only the first `len(x0)` ones are passed to `map_function`.
     However, all outputs will be returned by `iterate`.
 
     Args:
-        f: Function to call. Must be callable as `f(x0, **f_kwargs)` and `f(f(x0, **f_kwargs), **f_kwargs)`.
+        map_function: Function to call. Must be callable as `f(x0, **f_kwargs)` and `f(f(x0, **f_kwargs), **f_kwargs)`.
         iterations: Number of iterations as `int` or single-dimension `Shape`.
-            If `int`, returns the final output of `f`.
-            If `Shape`, returns the trajectory (`x0` and all outputs of `f`), stacking the values along this dimension.
-        x0: Initial positional arguments for `f`.
+            If `int`, returns the final output of `map_function`.
+            If `Shape`, returns the trajectory (`x0` and all outputs of `map_function`), stacking the values along this dimension.
+        x0: Initial positional arguments for `map_function`.
             Values that are initially `None` are not stacked with the other values if `iterations` is a `Shape`.
         range: Range function. Can be used to generate tqdm output by passing `trange`.
-        measure: Function without arguments to call at the start and end (and in between if `isinstance(iterations, Shape)`) calls to `f`.
-            The measure of each call to `f` is `measure()` after minus `measure()` before the call.
-        f_kwargs: Additional keyword arguments to be passed to `f`.
+        measure: Function without arguments to call at the start and end (and in between if `isinstance(iterations, Shape)`) calls to `map_function`.
+            The measure of each call to `map_function` is `measure()` after minus `measure()` before the call.
+        substeps: If > 1, iterates the function multiple times for each recorded step.
+            The returned trajectories as well as measurements only record the large steps, not the sub-steps.
+            The `range` is also only used on large steps, not sub-steps.
+        f_kwargs: Additional keyword arguments to be passed to `map_function`.
             These arguments can be of any type.
         f_kwargs_: More keyword arguments.
 
     Returns:
-        trajectory: Trajectory of final output of `f`, depending on `iterations`.
+        final_or_trajectory: Stacked trajectory or final output of `map_function`, depending on `iterations`.
         measured: Only if `measure` was specified, returns the measured value or trajectory tensor.
     """
     if f_kwargs is None:
         f_kwargs = {}
     f_kwargs.update(f_kwargs_)
+    assert isinstance(substeps, int), f"substeps must be an int but got {type(substeps)}"
+    assert substeps >= 1, f"substeps must be >= 1"
     x = x0
     if isinstance(iterations, int):
         start_time = measure() if measure else None
-        for _ in range(iterations):
-            x = f(*x[:len(x0)], **f_kwargs)
-            x = x if isinstance(x, tuple) else (x,)
-            if len(x) < len(x0):
-                raise AssertionError(f"Function to iterate must return at least {len(x0)} outputs to match input but got {x}")
+        for _i in range(iterations):
+            for _sub_i in builtin_range(substeps):
+                x = map_function(*x[:len(x0)], **f_kwargs)
+                x = x if isinstance(x, tuple) else (x,)
+                if len(x) < len(x0):
+                    raise AssertionError(f"Function to iterate must return at least {len(x0)} outputs to match input but got {x}")
         result = x[0] if len(x) == 1 else x
         return (result, measure() - start_time) if measure else result
     elif isinstance(iterations, Shape):
         xs = [x0]
         ts = [measure()] if measure else None
-        for _ in range(iterations.size):
-            x = f(*x[:len(x0)], **f_kwargs)
-            x = x if isinstance(x, tuple) else (x,)
-            if len(x) < len(x0):
-                raise AssertionError(f"Function to iterate must return at least {len(x0)} outputs to match input but got {x}")
-            elif len(x) > len(x0):
-                xs[0] = xs[0] + (None,) * (len(x) - len(x0))
+        for _i in range(iterations.size):
+            for _sub_i in builtin_range(substeps):
+                x = map_function(*x[:len(x0)], **f_kwargs)
+                x = x if isinstance(x, tuple) else (x,)
+                if len(x) < len(x0):
+                    raise AssertionError(f"Function to iterate must return at least {len(x0)} outputs to match input but got {x}")
+                elif len(x) > len(x0):
+                    xs[0] = xs[0] + (None,) * (len(x) - len(x0))
             xs.append(x)
             if measure:
                 ts.append(measure())

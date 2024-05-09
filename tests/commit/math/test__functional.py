@@ -188,7 +188,6 @@ class TestFunctional(TestCase):
     def test_iterate(self):
         def f(x, fac):
             return x * fac
-
         self.assertEqual(4, math.iterate(f, 2, 1, f_kwargs=dict(fac=2.)))
         math.assert_close([1, 2, 4], math.iterate(f, batch(trajectory=2), 1, fac=2.))
         # With measure
@@ -202,7 +201,6 @@ class TestFunctional(TestCase):
     def test_iterate_more_outputs(self):
         def f(x):
             return x + 1, 1
-
         x_trj, one_trj = math.iterate(f, spatial(t=10), 0)
         math.assert_close(x_trj, math.range(spatial(t=11)))
         math.assert_close(one_trj, 1)
@@ -213,11 +211,19 @@ class TestFunctional(TestCase):
     def test_iterate_without_initial(self):
         def f(x):
             return x + 1 if x is not None else 0
-
         x_trj = math.iterate(f, spatial(t=10), None)
         math.assert_close(x_trj, math.range(spatial(t=10)))
         final_x = math.iterate(f, 10, None)
         math.assert_close(final_x, 9)
+
+    def test_iterate_with_substeps(self):
+        def m(x):
+            return x + 1
+        final = math.iterate(m, 10, 0, substeps=2)
+        math.assert_close(20, final)
+        trj = math.iterate(m, spatial(x=10), 0, substeps=2)
+        self.assertEqual(11, trj.shape.size)
+        math.assert_close(20, trj[-1])
 
     def test_delayed_decorator(self):
         def f(x, y):
