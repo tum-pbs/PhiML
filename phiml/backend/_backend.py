@@ -1862,6 +1862,8 @@ def set_global_default_backend(backend: Union[str, Backend]) -> Backend:
             raise ValueError(f"Illegal backend: '{backend}'")
         backend = matches[0]
     assert isinstance(backend, Backend), backend
+    if backend not in BACKENDS:
+        BACKENDS.append(backend)
     if _DEFAULT[0] is not backend:
         _DEFAULT[0] = backend
         ML_LOGGER.info(f"Φ-ML's default backend is now {backend}")
