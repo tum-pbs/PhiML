@@ -231,7 +231,7 @@ def stack(values: Union[tuple, list, dict], dim: Union[Shape, str], expand_value
                     assert isinstance(stacked, Shapable), "__stack__ must return a Shapable object"
                     assert hasattr(stacked, '__unpack_dim__'), "If a value supports __unpack_dim__, the result of __stack__ must also support it."
                     reshaped = stacked.__unpack_dim__(stack_dim.name, dim, **kwargs)
-                    if kwargs is NotImplemented:
+                    if reshaped is NotImplemented:
                         warnings.warn("__unpack_dim__ is overridden but returned NotImplemented during multi-dimensional stack. This results in unnecessary stack operations.", RuntimeWarning, stacklevel=2)
                     else:
                         return reshaped
