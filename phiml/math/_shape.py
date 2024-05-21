@@ -1491,7 +1491,7 @@ def shape(obj, allow_unshaped=False) -> Shape:
     elif isinstance(obj, (int, float, complex, bool)):
         return EMPTY_SHAPE
     elif isinstance(obj, (tuple, list)) and all(isinstance(item, (int, float, complex, bool)) for item in obj):
-        return channel('vector')
+        return channel(vector=len(obj))
     elif isinstance(obj, (Number, bool)):
         return EMPTY_SHAPE
     elif obj is None:

@@ -203,3 +203,7 @@ class TestShape(TestCase):
     def test_without(self):
         s = batch(b=10) & channel(vector='x,y')
         self.assertEqual(channel(vector='x,y'), s.without([batch, spatial]))
+
+    def test_primitive_shape(self):
+        s = non_batch([0, 1])
+        self.assertEqual(2, s.size)
