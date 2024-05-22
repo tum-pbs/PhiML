@@ -499,7 +499,7 @@ def concat_tracers(tracers: Sequence[Tensor], dim: str):
             else:  # constant
                 # mapped_shape = rename_dims(t.shape, tuple(any_tracer._renamed), [any_tracer._source.shape[o] for o in any_tracer._renamed.values()])
                 biases.append(expand(discard_constant_dims(t), t.shape[dim]))
-            offset += t.shape[dim]
+            offset += t.shape[dim].size
         full_bias = math.concat(biases, dim, expand_values=True)
         indices = concat_tensor(indices, 'entries')
         values = concat_tensor(values, 'entries')
