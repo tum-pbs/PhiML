@@ -142,7 +142,19 @@ class Extrapolation:
         """
         raise NotImplementedError(self.__class__)
 
-    def sparse_pad_values(self, value: Tensor, connectivity: Tensor, dim: str, **kwargs) -> Tensor:
+    def sparse_pad_values(self, value: Tensor, connectivity: Tensor, boundary: str, **kwargs) -> Tensor:
+        """
+        Determines pad values for boundary nodes of a sparsely connected graph.
+
+        Args:
+            value: `Tensor` to pad. Dense tensor containing an entry for each non-boundary node of the graph, laid out along a dual dim.
+            connectivity: Sliced graph connectivity as sparse matrix. Only the relevant entries along the primal node dim are given.
+            boundary: Boundary name to pad.
+            **kwargs: Additional provided arguments, such as `mesh`.
+
+        Returns:
+            Values with which to pad `value`, laid out along the dual dim of `value`.
+        """
         raise NotImplementedError(self.__class__)
 
     def transform_coordinates(self, coordinates: Tensor, shape: Shape, **kwargs) -> Tensor:
@@ -1294,7 +1306,8 @@ class _MixedExtrapolation(Extrapolation):
         return extrap.pad_values(value, width, dim, upper_edge, already_padded=already_padded, **kwargs)
 
     def sparse_pad_values(self, value: Tensor, connectivity: Tensor, dim: str, **kwargs) -> Tensor:
-        return self.ext[dim].sparse_pad_values(value, connectivity, dim, **kwargs)
+        extrap: Extrapolation = self._at_boundary(dim)
+        return extrap.sparse_pad_values(value, connectivity, dim, **kwargs)
 
     def transform_coordinates(self, coordinates: Tensor, shape: Shape, **kwargs) -> Tensor:
         result = []
