@@ -408,7 +408,7 @@ class SparseLinTracer(Tensor):
         transformed_indices = concat_tensor([rows, cols], 'sparse_idx')
         dense_shape = sparse_dims(self._matrix).without(row_dims) & min_shape
         matrix = SparseCoordinateTensor(transformed_indices, self._matrix._values, dense_shape, can_contain_double_entries=True, indices_sorted=False, indices_constant=True)
-        bias = scatter(min_shape, indices, self._bias, outside_handling='undefined') + add_bias
+        bias = scatter(min_shape, indices, self._bias, mode='add', outside_handling='undefined') + add_bias
         return SparseLinTracer(self._source, matrix, bias, full_shape)
 
     def __neg__(self):
