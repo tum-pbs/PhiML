@@ -1455,12 +1455,11 @@ class TensorStack(Tensor):
         # --- stack dimension ---
         if self._stack_dim.name in selection:
             selection = selection[self._stack_dim.name]
-            if isinstance(selection, int):
-                return tensors[selection]
-            elif isinstance(selection, slice):
+            if isinstance(selection, slice):
                 return TensorStack(tensors[selection], self._stack_dim)
             else:
-                raise NotImplementedError(f"{type(selection)} not supported. Only (int, slice) allwoed")
+                selection = int(selection)
+                return tensors[selection]
         else:
             return TensorStack(tensors, self._stack_dim)
 
