@@ -705,6 +705,8 @@ class TorchBackend(Backend):
         return hist
 
     def bincount(self, x, weights: Optional[TensorType], bins: int, x_sorted=False):
+        x = self.as_tensor(x)
+        weights = self.as_tensor(weights) if weights is not None else None
         return torch.bincount(x, weights, minlength=bins)
 
     def unique(self, x: TensorType, return_inverse: bool, return_counts: bool, axis: int) -> Tuple[TensorType, ...]:
