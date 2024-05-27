@@ -1077,13 +1077,14 @@ def trace_check(traced_function, *args, **kwargs) -> Tuple[bool, str]:
     for name in traced_key.tree.keys():
         if traced_key.tree[name] != key.tree[name]:
             return False, f"Primary argument '{name}' differs in non-traced variables: {traced_key.tree[name]} vs {key.tree[name]}. Make sure the corresponding class overrides __eq__()."
-    if traced_key.specs != key.specs:
-        return False, "Traced variables differ in shape"
+    with equality_by_shape_and_value():
+        if traced_key.specs != key.specs:
+            return False, "Traced variables differ in shape"
     if traced_key.backend != key.backend:
         return False, f"Function was not traced with backend {key.backend}"
     if traced_key.spatial_derivative_order != key.spatial_derivative_order:
         return False, f"Different in spatial_derivative_order. This is likely an internal problem."
-    return True
+    return True, ""
 
 
 def map_types(f: Callable, dims: Union[Shape, tuple, list, str, Callable], dim_type: Union[Callable, str]) -> Callable:
