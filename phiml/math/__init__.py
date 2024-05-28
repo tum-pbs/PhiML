@@ -74,7 +74,7 @@ from ._ops import (
 from ._nd import (
     shift, index_shift,
     vec, const_vec, vec_length, vec_squared, vec_normalize, cross_product, rotate_vector, rotation_matrix, rotation_angles, dim_mask,
-    normalize_to,
+    normalize_to, clip_length,
     l1_loss, l2_loss, frequency_loss,
     spatial_gradient, laplace,
     neighbor_reduce, neighbor_mean, neighbor_sum, neighbor_max, neighbor_min, at_min_neighbor, at_max_neighbor,

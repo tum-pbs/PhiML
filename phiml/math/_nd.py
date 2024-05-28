@@ -136,6 +136,26 @@ def vec_normalize(vec: Tensor, vec_dim: DimFilter = channel, epsilon=None, allow
     return math.where(abs(length) <= epsilon, unit_vec, vec / length)
 
 
+def clip_length(vec: Tensor, min_len=0, max_len=1, vec_dim: DimFilter = channel, eps: Union[float, Tensor] = None):
+    """
+    Clips the length of a vector to the interval `[min_len, max_len]` while keeping the direction.
+    Zero-vectors remain zero-vectors.
+
+    Args:
+        vec: `Tensor`
+        min_len: Lower clipping threshold.
+        max_len: Upper clipping threshold.
+        vec_dim: Dimensions to compute the length over. By default, all channel dimensions are used to compute the vector length.
+        eps: Minimum vector length. Use to avoid `inf` gradients for zero-length vectors.
+
+    Returns:
+        `Tensor` with same shape as `vec`.
+    """
+    length = vec_length(vec, vec_dim, eps)
+    new_length = math.clip(length, min_len, max_len)
+    return vec * math.safe_div(new_length, length)
+
+
 def cross_product(vec1: Tensor, vec2: Tensor) -> Tensor:
     """
     Computes the cross product of two vectors in 2D.
