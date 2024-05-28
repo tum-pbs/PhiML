@@ -435,3 +435,9 @@ class TestMathNDNumpy(TestCase):
             idx = find_closest(vectors, lookup, method=method)
             math.assert_close([(0, 0), (0, 1), (1, 1)], idx)
             math.assert_close([(0, 0), (1, 0), (1, 1)], vectors[idx])
+
+    def test_clip_length(self):
+        vecs = vec(x=[0, 1, 2, 3, 4, 5], y=0, z=0)
+        clipped = math.clip_length(vecs, 2, 3)
+        math.assert_close(0, clipped['y,z'])
+        math.assert_close([0, 2, 2, 3, 3, 3], clipped['x'])
