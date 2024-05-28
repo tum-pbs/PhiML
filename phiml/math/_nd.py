@@ -605,10 +605,10 @@ def neighbor_min(grid: Tensor, dims: DimFilter = spatial, padding: Union[Extrapo
     return neighbor_reduce(math.min_, grid, dims, padding)
 
 
-def at_neighbor_where(reduce_fun: Callable, values, key_grid: Tensor, dims: DimFilter = spatial, padding: Union[Extrapolation, float, Tensor, str, None] = None) -> Tensor:
+def at_neighbor_where(reduce_fun: Callable, values, key_grid: Tensor, dims: DimFilter = spatial, padding: Union[Extrapolation, float, Tensor, str, None] = None, offsets=(0, 1), diagonal=True) -> Tensor:
     """
     Computes the mean of two neighboring values along each dimension in `dim`.
-    The result tensor has one entry less than `grid` in each averaged dimension unless `padding` is specified..
+    The result tensor has one entry less than `grid` in each averaged dimension unless `padding` is specified.
 
     With two `dims`, computes the mean of 4 values, in 3D, the mean of 8 values.
 
@@ -618,27 +618,63 @@ def at_neighbor_where(reduce_fun: Callable, values, key_grid: Tensor, dims: DimF
         key_grid: Values to compare.
         dims: Dimensions along which neighbors should be averaged.
         padding: Padding at the upper edges of `grid` along `dims'. If not `None`, the result tensor will have the same shape as `grid`.
+        offsets: Relative neighbor indices as `int`. `0` refers to self, negative values to earlier (left) neighbors and positive values to later (right) neighbors.
+        diagonal: If `True`, performs sequential reductions along each axis, determining the minimum value along each axis independently.
+            If the values of `key_grid` depend on `values`, this can lead to undesired behavior.
 
     Returns:
         `Tensor`
     """
     result = key_grid
     dims = key_grid.shape.only(dims)
-    for dim in dims:
-        lr = stack(shift(result, (0, 1), dim, padding, None), batch('_reduce'))
-        values = tree_map(lambda t: stack(shift(t, (0, 1), dim, padding, None), batch('_reduce')), values)
+    if diagonal:
+        for dim in dims:
+            lr = stack(shift(result, offsets, dim, padding, None), batch('_reduce'))
+            values = tree_map(lambda t: stack(shift(t, offsets, dim, padding, None), batch('_reduce')), values)
+            result, values = reduce_fun([lr, values], lr, '_reduce')
+    else:
+        lr = concat(shift(result, offsets, dims, padding, channel('_reduce')), '_reduce')
+        values = tree_map(lambda t: concat(shift(t, offsets, dims, padding, channel('_reduce')), '_reduce'), values)
         result, values = reduce_fun([lr, values], lr, '_reduce')
     return values
 
 
-def at_max_neighbor(values, key_grid: Tensor, dims: DimFilter = spatial, padding: Union[Extrapolation, float, Tensor, str, None] = None) -> Tensor:
-    """`at_neighbor_where` with `reduce_fun` set to `phiml.math.at_max`."""
-    return at_neighbor_where(math.at_max, values, key_grid, dims, padding=padding)
+def at_max_neighbor(values, key_grid: Tensor, dims: DimFilter = spatial, padding: Union[Extrapolation, float, Tensor, str, None] = None, offsets=(0, 1), diagonal=True) -> Tensor:
+    """
+    Computes the min of neighboring values in `key_grid` along each dimension in `dims` and retrieves the corresponding values from `values`.
+
+    Args:
+        values: Values to look up and return. `Tensor` or tree structure.
+        key_grid: Values to compare.
+        dims: Dimensions along which neighbors should be averaged.
+        padding: Padding at the upper edges of `grid` along `dims'. If not `None`, the result tensor will have the same shape as `grid`.
+        offsets: Relative neighbor indices as `int`. `0` refers to self, negative values to earlier (left) neighbors and positive values to later (right) neighbors.
+        diagonal: If `True`, performs sequential reductions along each axis, determining the minimum value along each axis independently.
+            If the values of `key_grid` depend on `values` or their position in the grid, this can lead to undesired behavior.
+
+    Returns:
+        Tree or `Tensor` like values.
+    """
+    return at_neighbor_where(math.at_max, values, key_grid, dims, padding=padding, offsets=offsets, diagonal=diagonal)
 
 
-def at_min_neighbor(values, key_grid: Tensor, dims: DimFilter = spatial, padding: Union[Extrapolation, float, Tensor, str, None] = None) -> Tensor:
-    """`at_neighbor_where` with `reduce_fun` set to `phiml.math.at_min`."""
-    return at_neighbor_where(math.at_min, values, key_grid, dims, padding=padding)
+def at_min_neighbor(values, key_grid: Tensor, dims: DimFilter = spatial, padding: Union[Extrapolation, float, Tensor, str, None] = None, offsets=(0, 1), diagonal=True) -> Tensor:
+    """
+    Computes the max of neighboring values in `key_grid` along each dimension in `dims` and retrieves the corresponding values from `values`.
+
+    Args:
+        values: Values to look up and return.
+        key_grid: Values to compare.
+        dims: Dimensions along which neighbors should be averaged.
+        padding: Padding at the upper edges of `grid` along `dims'. If not `None`, the result tensor will have the same shape as `grid`.
+        offsets: Relative neighbor indices as `int`. `0` refers to self, negative values to earlier (left) neighbors and positive values to later (right) neighbors.
+        diagonal: If `True`, performs sequential reductions along each axis, determining the minimum value along each axis independently.
+            If the values of `key_grid` depend on `values` or their position in the grid, this can lead to undesired behavior.
+
+    Returns:
+        Tree or `Tensor` like values.
+    """
+    return at_neighbor_where(math.at_min, values, key_grid, dims, padding=padding, offsets=offsets, diagonal=diagonal)
 
 
 
