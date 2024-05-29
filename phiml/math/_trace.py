@@ -556,6 +556,15 @@ def concat_tracers(tracers: Sequence[Tensor], dim: str):
         # return ShiftLinTracer(any_tracer._source, full_tracer.val, shape, full_bias, any_tracer._renamed)
 
 
+def expand_tracer(tracer: Tensor, dims: Shape):
+    if isinstance(tracer, GatherLinTracer):
+        return GatherLinTracer(tracer._source, tracer._diag, tracer._bias, tracer.shape & dims, tracer._selection, tracer._renamed)
+    if isinstance(tracer, ShiftLinTracer):
+        return ShiftLinTracer(tracer._source, tracer.val, tracer.shape & dims, tracer._bias, tracer._renamed)
+    assert isinstance(tracer, SparseLinTracer)
+    return SparseLinTracer(tracer._source, tracer._matrix, tracer._bias, tracer.shape & dims)
+
+
 class LinearTraceInProgress(Exception):
 
     def __init__(self, tracer: Tensor):
