@@ -1979,6 +1979,9 @@ def expand_tensor(value: Tensor, dims: Shape):
     if isinstance(value, TensorStack):
         expanded = [expand_tensor(v, dims.without(value.stack_dim)) for v in value._tensors]
         return TensorStack(expanded, value.stack_dim)
+    if value._is_tracer:
+        from ._trace import expand_tracer
+        return expand_tracer(value, dims)
     raise NotImplementedError
 
 
