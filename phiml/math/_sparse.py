@@ -262,7 +262,7 @@ class SparseCoordinateTensor(Tensor):
                     values = wrap(values_nat, non_instance(values), instance('sp_entries'))
                 else:
                     values = b.bincount(u_ptr, weights=values.native(), bins=num_entries)
-                    values = reshaped_tensor(values, [instance('sp_entries')])
+                    values = reshaped_tensor(values, [instance('sp_entries')], convert=False)
                 idx_packed = bi.unravel_index(u_idx, (c_dims.volume, u_dims.volume))
                 c_idx_packed = idx_packed[None, :, 0]
                 u_idx_packed = idx_packed[None, :, 1]
