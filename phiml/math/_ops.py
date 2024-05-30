@@ -1751,7 +1751,7 @@ def finite_mean(value, dim: DimFilter = non_batch, default: Union[complex, float
     return where(is_finite(mean_nan), mean_nan, default)
 
 
-def lookup_where(native_index_fn: Callable, value: Union[Tensor, PhiTreeNode], key: Tensor, dim: DimFilter):
+def lookup_where(native_index_fn: Callable, value: Union[Tensor, PhiTreeNode, None], key: Tensor, dim: DimFilter):
     dims = key.shape.only(dim)
     keep = key.shape.without(dims)
     assert dim, f"No dimensions {dim} present on key {key.shape}"
@@ -1760,6 +1760,8 @@ def lookup_where(native_index_fn: Callable, value: Union[Tensor, PhiTreeNode], k
     multi_idx_native = choose_backend(idx_native).unravel_index(idx_native[:, 0], dims.sizes)
     idx = reshaped_tensor(multi_idx_native, [keep.as_batch(), channel(_index=dims)])
     def lookup(t: Tensor):
+        if t is None:
+            return None
         keep_t = t.shape.without(dims)
         sel = rename_dims(t, keep_t, batch)[idx]
         return rename_dims(rename_dims(sel, keep_t.names, keep_t), keep.names, keep)
