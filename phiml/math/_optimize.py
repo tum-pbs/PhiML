@@ -615,7 +615,7 @@ def solve_linear(f: Union[Callable[[X], Y], Tensor],
 
     if isinstance(f, Tensor) or (isinstance(f, LinearFunction) and prefer_explicit):  # Matrix solve
         if isinstance(f, LinearFunction):
-            x0 = math.convert(solve.x0)
+            x0 = math.convert(solve.x0, backend)
             matrix, bias = f.sparse_matrix_and_bias(x0, *f_args, **f_kwargs)
         else:
             matrix = f
