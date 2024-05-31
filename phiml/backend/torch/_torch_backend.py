@@ -9,6 +9,7 @@ import torch.fft
 import torch.nn.functional as torchf
 from numpy.core.numeric import indices
 from packaging import version
+from torch.jit import TracerWarning
 
 from .._dtype import DType
 from .. import Backend, NUMPY, ComputeDevice, ML_LOGGER
@@ -1093,7 +1094,9 @@ class JITFunction:
                     return self_jit.f(*args)
 
             module = JitModule()
-            self.traced = torch.jit.trace(module, tuple(args), check_trace=False, strict=False)
+            with warnings.catch_warnings():
+                warnings.simplefilter("ignore", category=TracerWarning)
+                self.traced = torch.jit.trace(module, tuple(args), check_trace=False, strict=False)
             assert self.autograd_function_call_counts == len(self.autograd_function_calls), "Not all custom-gradient functions were called during tracing! Nested custom gradients are not supported."
             assert CURRENT_JIT_CALLS.pop(-1) == self
         from .. import choose_backend
@@ -1195,7 +1198,9 @@ def construct_torch_custom_function(f: Callable, jit_f: Optional[Callable], f_ex
         def compile(args: tuple, output):
             assert jit_f is None
             ML_LOGGER.debug(f"Tracing forward pass of '{f.__name__}' which uses a custom gradient")
-            jit_f_ = torch.jit.trace(f, args, strict=False, check_trace=False)
+            with warnings.catch_warnings():
+                warnings.simplefilter("ignore", category=TracerWarning)
+                jit_f_ = torch.jit.trace(f, args, strict=False, check_trace=False)
             return construct_torch_custom_function(f, jit_f_, output, g, is_f_traced=True, backend=backend)
 
         @property
