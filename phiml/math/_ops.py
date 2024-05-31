@@ -2533,7 +2533,6 @@ def gather(values, indices: Tensor, dims: Union[DimFilter, None] = None):
         if channel(indices) and channel(indices).item_names[0]:
             dims = channel(indices).item_names[0]
         else:  # Fallback to spatial / instance
-            warnings.warn(f"Indexing without item names is not recommended. Got indices {indices.shape}", SyntaxWarning, stacklevel=2)
             assert values.shape.instance.is_empty or values.shape.spatial.is_empty, f"Specify gather dimensions for values with both instance and spatial dimensions. Got {values.shape}"
             dims = values.shape.instance if values.shape.spatial.is_empty else values.shape.spatial
             assert dims, f"Specify gather dimensions for values with neither instance nor spatial dimensions. Got {values.shape}"
