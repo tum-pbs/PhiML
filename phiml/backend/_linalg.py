@@ -310,7 +310,7 @@ def scipy_sparse_solve(b: Backend, method: Union[str, Callable], lin, y, x0, rto
     i = DType(int, 32)
     bo = DType(bool)
     x, residual, iterations, function_evaluations, converged, diverged = b.numpy_call(scipy_solve, (x0.shape, x0.shape, x0.shape[:1], x0.shape[:1], x0.shape[:1], x0.shape[:1]), (fp, fp, i, i, bo, bo), y, x0, rtol, atol, *lin_tensors, *pre_tensors)
-    return SolveResult(method_name[0], x, residual, iterations, function_evaluations, converged, diverged, [""] * batch_size)
+    return SolveResult(method_name, x, residual, iterations, function_evaluations, converged, diverged, [""] * batch_size)
 
 
 def scipy_direct_linear_solve(b: Backend, lin, y) -> SolveResult:
