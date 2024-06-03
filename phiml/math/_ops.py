@@ -1829,9 +1829,13 @@ def argmax(x: Tensor, dim: DimFilter, index_dim=channel('index')):
             is_max = x == max_val
             is_max_idx = nonzero(is_max, list_dim=instance('true_values'))
             scatter_val = is_max_idx[dims.only(sparse_dims(x)).name_list]
-            scatter_idx = is_max_idx[sparse_dims(x).without(dims).name_list]
+            remaining_dims = sparse_dims(x).without(dims)
             result_shape = max_val.shape & channel(scatter_val)
-            result = scatter(result_shape, scatter_idx, scatter_val, mode='update', default=-1)
+            if remaining_dims:
+                scatter_idx = is_max_idx[remaining_dims.name_list]
+                result = scatter(result_shape, scatter_idx, scatter_val, mode='update', default=-1)
+            else:  # all sparse dims are reduced
+                result = scatter_val.true_values[0]
             return rename_dims(result, channel(scatter_val), index_dim)
         else:
             raise NotImplementedError
@@ -1859,6 +1863,22 @@ def argmin(x: Tensor, dim: DimFilter, index_dim=channel('index')):
     dims = x.shape.only(dim)
     keep = x.shape.without(dims)
     assert dim, f"No dimensions {dim} present on key {x.shape}"
+    if isinstance(x, (SparseCoordinateTensor, CompressedSparseMatrix)):
+        if dims in sparse_dims(x):
+            min_val = min_(x, dim)
+            is_min = x == min_val
+            is_min_idx = nonzero(is_min, list_dim=instance('true_values'))
+            scatter_val = is_min_idx[dims.only(sparse_dims(x)).name_list]
+            remaining_dims = sparse_dims(x).without(dims)
+            result_shape = min_val.shape & channel(scatter_val)
+            if remaining_dims:
+                scatter_idx = is_min_idx[remaining_dims.name_list]
+                result = scatter(result_shape, scatter_idx, scatter_val, mode='update', default=-1)
+            else:  # all sparse dims are reduced
+                result = scatter_val.true_values[0]
+            return rename_dims(result, channel(scatter_val), index_dim)
+        else:
+            raise NotImplementedError
     v_native = reshaped_native(x, [keep, dims])
     idx_native = x.default_backend.argmin(v_native, 1, keepdims=True)
     multi_idx_native = choose_backend(idx_native).unravel_index(idx_native[:, 0], dims.sizes)
