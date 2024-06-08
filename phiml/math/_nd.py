@@ -129,9 +129,9 @@ def vec_normalize(vec: Tensor, vec_dim: DimFilter = channel, epsilon=None, allow
         is_infinite = ~math.is_finite(vec)
         inf_mask = is_infinite & ~math.is_nan(vec)
         vec = math.where(math.any_(is_infinite, channel), inf_mask, vec)
-    length = vec_length(vec, vec_dim=vec_dim)
     if epsilon is None:
         return vec / vec_length(vec, vec_dim=vec_dim)
+    length = vec_length(vec, vec_dim=vec_dim, eps=epsilon**2 * .99)
     unit_vec = wrap([1] + [0] * (channel(vec).volume - 1), channel(vec))
     return math.where(abs(length) <= epsilon, unit_vec, vec / length)
 
