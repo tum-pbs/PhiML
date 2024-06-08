@@ -2326,7 +2326,7 @@ def format_summary(self: Tensor, options: PrintOptions) -> str:
         elif self.dtype.kind == bool:
             tokens.append(colors.value(f"{self.sum} / {self.shape.volume} True"))
         elif self.dtype.kind in (float, int):
-            min_val, max_val, mean, std = [float(f) for f in [self.finite_min, self.finite_max, self.finite_mean, self.std]]
+            min_val, max_val, mean, std = [float(self.default_backend.numpy(f)) for f in [self.finite_min, self.finite_max, self.finite_mean, self.std]]
             if std == 0:
                 tokens.append(colors.value(f"const {mean:{options.float_format or ''}}"))
             else:

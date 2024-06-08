@@ -10,6 +10,7 @@ import jax.scipy as scipy
 import numpy as np
 from jax import random
 from jax.core import Tracer
+from jax.interpreters.ad import JVPTracer
 from packaging import version
 
 from .._numpy_backend import NUMPY
@@ -110,9 +111,13 @@ class JaxBackend(Backend):
         return format_names.get(type(x), 'dense')
 
     def is_available(self, tensor):
+        if isinstance(tensor, JVPTracer):
+            tensor = tensor.primal
         return not isinstance(tensor, Tracer)
 
     def numpy(self, tensor):
+        if isinstance(tensor, JVPTracer):
+            tensor = tensor.primal
         if self.is_sparse(tensor):
             assemble, parts = self.disassemble(tensor)
             return assemble(NUMPY, *[self.numpy(t) for t in parts])
