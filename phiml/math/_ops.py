@@ -1500,8 +1500,6 @@ def std(value: Union[Tensor, list, tuple, Number, bool], dim: DimFilter = non_ba
     if not dim:
         warnings.warn("std along empty shape returns 0", RuntimeWarning, stacklevel=2)
         return zeros_like(value)
-    if not callable(dim) and set(parse_dim_order(dim)) - set(value.shape.names):
-        return zeros_like(value)  # std along constant dim is 0
     return reduce_(_std, value, dim)
 
 

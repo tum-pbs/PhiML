@@ -160,6 +160,12 @@ class TestOps(TestCase):
         std = math.std(ones)
         assert_close(0, std)
 
+    def test_std_missing_dim(self):
+        x = math.random_normal(spatial(x=2))
+        std = math.std(x, 'y')
+        math.assert_close(0, std)
+        self.assertEqual(x.shape, std.shape)
+
     def test_sum_by_type(self):
         a = math.ones(spatial(x=3, y=4), batch(b=10), instance(i=2), channel(vector=2))
         assert_close(math.sum(a, spatial), 12)
