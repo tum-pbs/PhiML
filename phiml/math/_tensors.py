@@ -1977,7 +1977,7 @@ def expand_tensor(value: Tensor, dims: Shape):
                 components = [NativeTensor(value._native, value._native_shape, inner_shape & value._native_shape) for inner_shape in unstacked_dims]
             return TensorStack(components, stack_dim)
     if isinstance(value, TensorStack):
-        expanded = [expand_tensor(v, dims.without(value.stack_dim)) for v in value._tensors]
+        expanded = [expand_tensor(v, dims.after_gather({value._stack_dim.name: i})) for i, v in enumerate(value._tensors)]
         return TensorStack(expanded, value.stack_dim)
     if value._is_tracer:
         from ._trace import expand_tracer
