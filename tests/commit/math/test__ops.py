@@ -155,6 +155,12 @@ class TestOps(TestCase):
         data = math.stack([ones, ones * 2], spatial('vector'))
         assert_close(1.5, math.mean(data))
 
+    def test_std(self):
+        t1 = wrap([0, 1, 0, 1], spatial('x'))
+        t2 = wrap([[0, 1], [0, 1]], spatial('x,y'))
+        t3 = math.stack([wrap([0, 1, 0], spatial('x')), wrap([1], spatial('x'))], spatial('y'))
+        math.assert_close(0.5, t1.std, t2.std, t3.std)
+
     def test_std_collapsed(self):
         ones = math.ones(spatial(x=4, y=3))  # hi-res disabled because the current implementation caches the tensor, causes out-of-memory
         std = math.std(ones)

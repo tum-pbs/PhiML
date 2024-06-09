@@ -1511,9 +1511,14 @@ def _std(value: Tensor, dims: Shape) -> Tensor:
         result = value.default_backend.std(value.native(value.shape), value.shape.indices(dims))
         return NativeTensor(result, value.shape.without(dims))
     else:
-        non_uniform_dim = value.shape.shape.without('dims')
-        assert non_uniform_dim.only(dims).is_empty, f"Cannot compute std along non-uniform dims {dims}. shape={value.shape}"
-        return stack([_std(t, dims) for t in value._unstack(non_uniform_dim.name)], non_uniform_dim)
+        non_uniform_dims = value.shape.shape.without('dims')
+        if non_uniform_dims.only(dims).is_empty:  # reduce uniform dims only
+            return stack([_std(t, dims) for t in value._unstack(non_uniform_dims.name)], non_uniform_dims)
+        else:
+            mean_val = mean(value, dims)
+            diff = value - mean_val
+            variance = sum_(diff ** 2, dims) / dims.volume
+            return sqrt(variance)
 
 
 def any_(boolean_tensor: Union[Tensor, list, tuple], dim: DimFilter = non_batch) -> Tensor:
