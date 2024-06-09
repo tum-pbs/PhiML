@@ -2422,7 +2422,7 @@ def cast_same(*values: Tensor) -> Tuple[Tensor]:
         return values
 
 
-def safe_div(x: Union[float, Tensor], y: Union[float, Tensor]):
+def safe_div(x: Union[Number, Tensor], y: Union[Number, Tensor]):
     """ Computes *x/y* with the `Tensor`s `x` and `y` but returns 0 where *y=0*. """
     return custom_op2(x, y,
                       l_operator=safe_div,

@@ -3,6 +3,7 @@ import time
 import types
 import warnings
 from functools import wraps, partial
+from numbers import Number
 from typing import Tuple, Callable, Dict, Generic, List, TypeVar, Any, Set, Union, Optional, Sequence
 
 import numpy as np
@@ -1036,6 +1037,29 @@ def print_gradient(value: Tensor, name="", detailed=False) -> Tensor:
 
     identity = custom_gradient(lambda x: x, print_grad)
     return identity(value)
+
+
+def safe_mul(x: Union[Number, Tensor], y: Union[Number, Tensor]):
+    """Multiplication for tensors with non-finite values.
+    Computes *x·y* in the forward pass but drops gradient contributions from infinite and `NaN` values."""
+    return _safe_mul(x, y)
+
+
+def _safe_mul_fwd(x, y):
+    return x * y
+
+
+def _safe_mul_bwd(input_dict, prod, adj):
+    x, y = input_dict['x'], input_dict['y']
+    x = math.where(math.is_finite(x), x, 0)
+    y = math.where(math.is_finite(y), y, 0)
+    return {
+        'x': adj * y,
+        'y': adj * x,
+    }
+
+
+_safe_mul = custom_gradient(_safe_mul_fwd, _safe_mul_bwd)
 
 
 def trace_check(traced_function, *args, **kwargs) -> Tuple[bool, str]:
