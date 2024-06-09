@@ -838,6 +838,18 @@ class TestOps(TestCase):
                 assert_close(math.safe_div(zero, nan), nan)
                 assert_close(math.safe_div(nan, one), nan)
 
+    def test_safe_mul(self):
+        for backend in BACKENDS:
+            if backend.supports(Backend.jacobian):
+                with backend:
+                    x = tensor([2., 2., NAN], batch('x'))
+                    y = tensor([3., NAN, 3.], x.shape)
+                    prod, (dx, dy) = math.gradient(lambda x, y: x * y, 'x,y')(x, y)
+                    prods, (dxs, dys) = math.gradient(math.safe_mul, 'x,y')(x, y)
+                    math.assert_close(prod, prods)
+                    math.assert_close(math.where(math.is_finite(dx), dx, 0), dxs)
+                    math.assert_close(math.where(math.is_finite(dy), dy, 0), dys)
+
     def test_random_int(self):
         for backend in BACKENDS:
             with backend:
