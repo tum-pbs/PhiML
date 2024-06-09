@@ -2326,10 +2326,11 @@ def format_summary(self: Tensor, options: PrintOptions) -> str:
         elif self.dtype.kind == bool:
             tokens.append(colors.value(f"{self.sum} / {self.shape.volume} True"))
         elif self.dtype.kind in (float, int):
-            min_val, max_val, mean, std = [float(self.default_backend.numpy(f)) for f in [self.finite_min, self.finite_max, self.finite_mean, self.std]]
-            if std == 0:
+            min_val, max_val, mean = [float(self.default_backend.numpy(f)) for f in [self.finite_min, self.finite_max, self.finite_mean]]
+            if min_val == max_val:
                 tokens.append(colors.value(f"const {mean:{options.float_format or ''}}"))
             else:
+                std = float(self.default_backend.numpy(self.std))
                 if any([abs(val) < 0.001 or abs(val) > 1000 for val in [mean, std]]):
                     tokens.append(colors.value(f"{mean:{options.float_format or '.2e'}} ± {std:{options.float_format or '.1e'}}"))
                 else:
@@ -2530,7 +2531,7 @@ def format_tensor(self: Tensor, options: PrintOptions) -> str:
     if not self.available:
         return format_tracer(self, options)
     if self.shape.is_non_uniform:
-        return f"{options.get_colors().shape(self.shape)} non-uniform"
+        return format_summary(self, options)
     if options.layout == 'auto':
         if not self.shape:
             return format_summary(self, options)
