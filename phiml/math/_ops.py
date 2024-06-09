@@ -1469,8 +1469,11 @@ def _mean(value: Tensor, dims: Shape) -> Tensor:
         result = value.default_backend.mean(value._native, value._native_shape.indices(dims))
         return NativeTensor(result, value._native_shape.without(dims), value.shape.without(dims))
     elif isinstance(value, TensorStack):
-        reduced_inners = [_mean(t, dims.without(value._stack_dim)) for t in value._tensors]
-        return functools.reduce(lambda x, y: x + y, reduced_inners) / len(reduced_inners) if value._stack_dim in dims else TensorStack(reduced_inners, value._stack_dim)
+        if value._stack_dim in dims:
+            total = _sum(value, dims)
+            return total / dims.volume
+        else:  # keep stack_dim
+            return TensorStack([_mean(t, dims.without(value._stack_dim)) for t in value._tensors], value._stack_dim)
     elif isinstance(value, (SparseCoordinateTensor, CompressedSparseMatrix)):
         return sparse_mean(value, dims)
     else:
