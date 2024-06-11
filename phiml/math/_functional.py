@@ -237,6 +237,7 @@ class JitFunction:
             finally:
                 assert _TRACING_JIT.pop(-1) is self
                 self._tracing_in_key = None
+            result_natives = tuple([in_key.backend.as_tensor(n) for n in result_natives])  # PyTorch only allows Tensor outputs
             return result_natives + tuple(tracers.values())
 
         jit_f_native.__name__ = f"native({f_name(self.f) if isinstance(self.f, types.FunctionType) else str(self.f)})"
