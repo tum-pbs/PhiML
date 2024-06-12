@@ -1414,7 +1414,7 @@ class Backend:
                      atol: Union[ndarray, TensorType],
                      max_iter: ndarray,
                      pre: Optional[Preconditioner],
-                     fix_rank_deficiency=False) -> SolveResult:
+                     fix_rank_deficiency=None) -> SolveResult:
         """
         Solve the system of linear equations A · x = y.
         This method need not provide a gradient for the operation.
@@ -1472,23 +1472,23 @@ class Backend:
         from ._linalg import cg_adaptive
         return cg_adaptive(self, lin, y, x0, rtol, atol, max_iter, pre)
 
-    def bi_conjugate_gradient(self, lin, y, x0, rtol, atol, max_iter, pre, poly_order=2, fix_rank_deficiency=False) -> SolveResult:
+    def bi_conjugate_gradient(self, lin, y, x0, rtol, atol, max_iter, pre, poly_order=2, fix_rank_deficiency=None) -> SolveResult:
         """ Generalized stabilized biconjugate gradient algorithm. Signature matches to `Backend.linear_solve()`. """
         from ._linalg import bicg
         return bicg(self, lin, y, x0, rtol, atol, max_iter, pre, poly_order, fix_rank_deficiency)
 
-    def linear(self, lin, vector, regulizer=0):
+    def linear(self, lin, vector):
         if callable(lin):
-            return lin(vector) + self.sum(vector) * regulizer
+            return lin(vector)
         elif isinstance(lin, (tuple, list)):
             for lin_i in lin:
                 lin_shape = self.staticshape(lin_i)
                 assert len(lin_shape) == 2
-            return self.stack([self.mul_matrix_batched_vector(m, v) for m, v in zip(lin, self.unstack(vector))]) + self.sum(vector) * regulizer
+            return self.stack([self.mul_matrix_batched_vector(m, v) for m, v in zip(lin, self.unstack(vector))])
         else:
             lin_shape = self.staticshape(lin)
             assert len(lin_shape) == 2, f"A must be a matrix but got shape {lin_shape}"
-            return self.mul_matrix_batched_vector(lin, vector) + self.sum(vector) * regulizer
+            return self.mul_matrix_batched_vector(lin, vector)
 
     def matrix_solve_least_squares(self, matrix: TensorType, rhs: TensorType) -> Tuple[TensorType, TensorType, TensorType, TensorType]:
         """
