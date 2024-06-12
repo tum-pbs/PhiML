@@ -658,8 +658,6 @@ class Tensor:
         if _EQUALITY_REDUCE[-1] == 'ref':
             return wrap(self is other)
         elif _EQUALITY_REDUCE[-1] == 'shape_and_value':
-            if type(self) != type(other):   # necessary for comparison of nested tensors with different dims
-                return wrap(False)
             if set(self.shape) != set(other.shape):
                 return wrap(False)
             from ._ops import close

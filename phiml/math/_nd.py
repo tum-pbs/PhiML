@@ -849,10 +849,8 @@ def laplace(x: Tensor,
         dx = rename_dims(dx, 'vector', batch('_laplace'))
     if isinstance(x, Extrapolation):
         return x.spatial_gradient()
-    x = math.rename_dims(x, dual('vector'), channel('vector'))
     left, center, right = shift(wrap(x), (-1, 0, 1), dims, padding, stack_dim=batch('_laplace'))
     result = (left + right - 2 * center) / (dx ** 2)
-    result = math.rename_dims(result, channel('vector'), dual('vector'))
     if weights is not None:
         dim_names = x.shape.only(dims).names
         if channel(weights):
