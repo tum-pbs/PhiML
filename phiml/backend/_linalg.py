@@ -138,7 +138,7 @@ def bicg(b: Backend, lin, y, x0, rtol, atol, max_iter, pre: Optional[Preconditio
     y = b.to_float(y)
     x = b.copy(b.to_float(x0), only_mutable=True)
     batch_size = b.staticshape(y)[0]
-    r0_tild = residual = y - b.linear(lin, x, fix_rank_deficiency)
+    r0_tild = residual = y - reg_lin(b, lin, x, fix_rank_deficiency)
     iterations = b.zeros([batch_size], DType(int, 32))
     function_evaluations = b.ones([batch_size], DType(int, 32))
     residual_squared = b.sum(residual ** 2, -1, keepdims=True)
@@ -173,7 +173,7 @@ def bicg(b: Backend, lin, y, x0, rtol, atol, max_iter, pre: Optional[Preconditio
                 u_hat[i] = r0_hat[i] - u_hat[i]
             put = pre.apply(u_hat[j])
             with spatial_derivative_evaluation(1):
-                u_hat[j + 1] = b.linear(lin, put, fix_rank_deficiency)
+                u_hat[j + 1] = reg_lin(b, lin, put, fix_rank_deficiency)
                 function_evaluations += continue_1
             gamma_coeff = b.sum(u_hat[j + 1] * r0_tild, axis=-1, keepdims=True)
             alpha = rho_0 / gamma_coeff  # ToDo produces NaN if pre is perfect
@@ -181,7 +181,7 @@ def bicg(b: Backend, lin, y, x0, rtol, atol, max_iter, pre: Optional[Preconditio
                 r0_hat[i] = r0_hat[i] - alpha * u_hat[i + 1]
             prt = pre.apply(r0_hat[j])
             with spatial_derivative_evaluation(1):
-                r0_hat[j + 1] = b.linear(lin, prt, fix_rank_deficiency)
+                r0_hat[j + 1] = reg_lin(b, lin, prt, fix_rank_deficiency)
                 function_evaluations += continue_1
             x = x + alpha * u_hat[0]
         for j in range(1, poly_order + 1):
@@ -771,3 +771,11 @@ def cluster_coo(indices: np.ndarray, shape: Tuple[int, int], cluster_count: int)
             raise NotImplementedError
     ML_LOGGER.info(f"Clustering successful.")
     return ...
+
+
+def reg_lin(b: Backend, lin, vector, regularizer):
+    """Apply linear function with matrix offset to vector"""
+    result = b.linear(lin, vector)
+    if regularizer is not None:
+        result += b.sum(vector) * regularizer
+    return result
