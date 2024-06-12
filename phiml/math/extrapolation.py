@@ -13,7 +13,7 @@ from typing import Union, Dict, Callable, Tuple, Optional, Sequence
 from .magic import slicing_dict
 from ..backend._backend import get_spatial_derivative_order
 from ..backend import choose_backend
-from ._shape import Shape, channel, spatial, EMPTY_SHAPE, merge_shapes, dual, non_dual, instance
+from ._shape import Shape, channel, spatial, EMPTY_SHAPE, merge_shapes, dual, non_dual, instance, parse_dim_names, parse_dim_order
 from ._magic_ops import concat, stack, expand, rename_dims
 from ._tensors import Tensor, NativeTensor, TensorStack, wrap, to_dict as tensor_to_dict, from_dict as tensor_from_dict
 from . import _ops as math  # TODO this executes _ops.py, can we avoid this?
@@ -201,7 +201,7 @@ class Extrapolation:
     def __getitem__(self, item):
         return self
 
-    def _getitem_with_domain(self, item: dict, dim: str, upper_edge: bool, all_dims: Sequence[str]):
+    def _getitem_with_domain(self, item: dict, dim: str, upper_edge: bool, all_dims: Sequence[str]) -> 'Extrapolation':
         return self[item]
 
     def __eq__(self, other):
@@ -1391,6 +1391,11 @@ class _NormalTangentialExtrapolation(Extrapolation):
     def _get_shape(self, domain_dims: Sequence[str]):
         return self.shape & channel(vector=domain_dims)
 
+    def __getitem__(self, item):
+        if 'vector' in item:
+            raise AssertionError(f"Cannot slice normal/tangential extrapolation along vector without providing domain dimensions. Use domain_slice() instead.")
+        return self
+
     def to_dict(self) -> dict:
         return {
             'type': 'normal-tangential',
@@ -1438,7 +1443,8 @@ class _NormalTangentialExtrapolation(Extrapolation):
         if 'vector' not in item:
             return self
         component = item['vector']
-        assert isinstance(component, str), f"Selecting a component of normal/tangential must be done by dimension name but got {component}"
+        if isinstance(component, int):
+            component = all_dims[component]
         if component == dim:
             return self.normal
         else:
@@ -1755,3 +1761,31 @@ def remove_constant_offset(extrapolation):
         else:
             return extrapolation
     return map(const_to_zero, extrapolation)
+
+
+def domain_slice(ext: Extrapolation, item: dict, domain_dims: Union[Shape, tuple, list, str]) -> Extrapolation:
+    """
+    Slices a domain, similar to `ext[item]` but with additional information about the domain.
+    In some cases, `ext[item]` will fail, e.g. slicing a normal/tangential extrapolation along `vector`.
+
+    Args:
+        ext: `Extrapolation`
+        item: slicing dict
+        domain_dims: All spatial dimensions.
+
+    Returns:
+        `Extrapolation`
+    """
+    if isinstance(ext, (ConstantExtrapolation, _CopyExtrapolation)):
+        return ext[item]
+    sides = {}
+    domain_dims = parse_dim_order(domain_dims)
+    for dim in domain_dims:
+        lo = ext._getitem_with_domain(item, dim, False, domain_dims)
+        up = ext._getitem_with_domain(item, dim, True, domain_dims)
+        if lo == up:
+            sides[dim] = lo
+        else:
+            sides[dim+'-'] = lo
+            sides[dim+'+'] = up
+    return combine_sides(sides)
