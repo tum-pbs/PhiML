@@ -49,7 +49,7 @@ def _max_iter(max_iter: np.ndarray) -> Union[int, list]:
         return max_iter[:, 0].tolist()
 
 
-def cg(b: Backend, lin, y, x0, rtol, atol, max_iter, pre: Optional[Preconditioner]) -> Union[SolveResult, List[SolveResult]]:
+def cg(b: Backend, lin, y, x0, rtol, atol, max_iter, pre: Optional[Preconditioner], matrix_offset=None) -> Union[SolveResult, List[SolveResult]]:
     """
     Based on "An Introduction to the Conjugate Gradient Method Without the Agonizing Pain" by Jonathan Richard Shewchuk
     symbols: dx=d, dy=q, step_size=alpha, residual_squared=delta, residual=r, y=b, pre=M
@@ -58,7 +58,7 @@ def cg(b: Backend, lin, y, x0, rtol, atol, max_iter, pre: Optional[Preconditione
     batch_size = b.staticshape(y)[0]
     y = b.to_float(y)
     x = b.copy(b.to_float(x0), only_mutable=True)
-    residual = y - b.linear(lin, x)
+    residual = y - linear(b, lin, x, matrix_offset)
     dx = pre.apply(residual)
     iterations = b.zeros([batch_size], DType(int, 32))
     function_evaluations = b.ones([batch_size], DType(int, 32))
@@ -70,7 +70,7 @@ def cg(b: Backend, lin, y, x0, rtol, atol, max_iter, pre: Optional[Preconditione
         continue_1 = b.to_int32(continue_)
         iterations += continue_1
         with spatial_derivative_evaluation(1):
-            dy = b.linear(lin, dx); function_evaluations += continue_1
+            dy = linear(b, lin, dx, matrix_offset); function_evaluations += continue_1
         dx_dy = b.sum(dx * dy, axis=-1, keepdims=True)
         step_size = b.divide_no_nan(delta, dx_dy)
         step_size *= b.expand_dims(b.to_float(continue_1), -1)  # this is not really necessary but ensures batch-independence
@@ -87,7 +87,7 @@ def cg(b: Backend, lin, y, x0, rtol, atol, max_iter, pre: Optional[Preconditione
     return SolveResult(f"Φ-ML CG ({b.name}) {pre_str(pre)}", x, residual, iterations, function_evaluations, converged, diverged, [""] * batch_size)
 
 
-def cg_adaptive(b, lin, y, x0, rtol, atol, max_iter, pre: Optional[Preconditioner]) -> Union[SolveResult, List[SolveResult]]:
+def cg_adaptive(b, lin, y, x0, rtol, atol, max_iter, pre: Optional[Preconditioner], matrix_offset=None) -> Union[SolveResult, List[SolveResult]]:
     """
     Based on the variant described in "Methods of Conjugate Gradients for Solving Linear Systems" by Magnus R. Hestenes and Eduard Stiefel https://nvlpubs.nist.gov/nistpubs/jres/049/jresv49n6p409_A1b.pdf
     """
@@ -98,8 +98,8 @@ def cg_adaptive(b, lin, y, x0, rtol, atol, max_iter, pre: Optional[Preconditione
     x0 = b.copy(b.to_float(x0), only_mutable=True)
     batch_size = b.staticshape(y)[0]
     x = x0
-    dx = residual = y - b.linear(lin, x)
-    dy = b.linear(lin, dx)
+    dx = residual = y - linear(b, lin, x, matrix_offset)
+    dy = linear(b, lin, dx, matrix_offset)
     iterations = b.zeros([batch_size], DType(int, 32))
     function_evaluations = b.ones([batch_size], DType(int, 32))
     residual_squared = b.sum(residual ** 2, -1, keepdims=True)
@@ -117,7 +117,7 @@ def cg_adaptive(b, lin, y, x0, rtol, atol, max_iter, pre: Optional[Preconditione
         residual_squared = b.sum(residual ** 2, -1, keepdims=True)
         dx = residual - b.divide_no_nan(b.sum(residual * dy, axis=-1, keepdims=True) * dx, dx_dy)
         with spatial_derivative_evaluation(1):
-            dy = b.linear(lin, dx); function_evaluations += continue_1
+            dy = linear(b, lin, dx, matrix_offset); function_evaluations += continue_1
         continue_, converged, diverged = check_progress(iterations, residual_squared)
         return continue_, x, dx, dy, residual, iterations, function_evaluations, converged, diverged
 
@@ -125,7 +125,7 @@ def cg_adaptive(b, lin, y, x0, rtol, atol, max_iter, pre: Optional[Preconditione
     return SolveResult(f"Φ-ML CG-adaptive ({b.name}) {pre_str(pre)}", x, residual, iterations, function_evaluations, converged, diverged, [""] * batch_size)
 
 
-def bicg(b: Backend, lin, y, x0, rtol, atol, max_iter, pre: Optional[Preconditioner], poly_order: int, fix_rank_deficiency=False) -> Union[SolveResult, List[SolveResult]]:
+def bicg(b: Backend, lin, y, x0, rtol, atol, max_iter, pre: Optional[Preconditioner], poly_order: int, matrix_offset=None) -> Union[SolveResult, List[SolveResult]]:
     """ Adapted from [BiCGstab for linear equations involving unsymmetric matrices with complex spectrum](https://dspace.library.uu.nl/bitstream/handle/1874/16827/sleijpen_93_bicgstab.pdf) """
     # Based on "BiCG-stab(L) for linear equations involving asymmetric matrices with complex spectrum" by Gerard L.G. Sleijpen
     if poly_order == 0:
@@ -138,7 +138,7 @@ def bicg(b: Backend, lin, y, x0, rtol, atol, max_iter, pre: Optional[Preconditio
     y = b.to_float(y)
     x = b.copy(b.to_float(x0), only_mutable=True)
     batch_size = b.staticshape(y)[0]
-    r0_tild = residual = y - reg_lin(b, lin, x, fix_rank_deficiency)
+    r0_tild = residual = y - linear(b, lin, x, matrix_offset)
     iterations = b.zeros([batch_size], DType(int, 32))
     function_evaluations = b.ones([batch_size], DType(int, 32))
     residual_squared = b.sum(residual ** 2, -1, keepdims=True)
@@ -173,7 +173,7 @@ def bicg(b: Backend, lin, y, x0, rtol, atol, max_iter, pre: Optional[Preconditio
                 u_hat[i] = r0_hat[i] - u_hat[i]
             put = pre.apply(u_hat[j])
             with spatial_derivative_evaluation(1):
-                u_hat[j + 1] = reg_lin(b, lin, put, fix_rank_deficiency)
+                u_hat[j + 1] = linear(b, lin, put, matrix_offset)
                 function_evaluations += continue_1
             gamma_coeff = b.sum(u_hat[j + 1] * r0_tild, axis=-1, keepdims=True)
             alpha = rho_0 / gamma_coeff  # ToDo produces NaN if pre is perfect
@@ -181,7 +181,7 @@ def bicg(b: Backend, lin, y, x0, rtol, atol, max_iter, pre: Optional[Preconditio
                 r0_hat[i] = r0_hat[i] - alpha * u_hat[i + 1]
             prt = pre.apply(r0_hat[j])
             with spatial_derivative_evaluation(1):
-                r0_hat[j + 1] = reg_lin(b, lin, prt, fix_rank_deficiency)
+                r0_hat[j + 1] = linear(b, lin, prt, matrix_offset)
                 function_evaluations += continue_1
             x = x + alpha * u_hat[0]
         for j in range(1, poly_order + 1):
@@ -271,8 +271,10 @@ def bicg_stab_first_order(b: Backend, lin, y, x0, rtol, atol, max_iter, pre: Opt
     return SolveResult(f"Φ-ML biCG-stab {pre_str(pre)}", x, residual, iterations, function_evaluations, converged, diverged, [""] * batch_size)
 
 
-def scipy_sparse_solve(b: Backend, method: Union[str, Callable], lin, y, x0, rtol, atol, max_iter, pre: Optional[Preconditioner]) -> SolveResult:
+def scipy_sparse_solve(b: Backend, method: Union[str, Callable], lin, y, x0, rtol, atol, max_iter, pre: Optional[Preconditioner], matrix_offset) -> SolveResult:
     assert max_iter.shape[0] == 1, f"Trajectory recording not supported for scipy_spsolve"
+    if matrix_offset is not None:
+        raise NotImplementedError(f"matrix offset not yet supported by sparse scipy solvers")
     if method == 'direct' and pre:
         warnings.warn(f"Preconditioner {pre} was computed but is not used by SciPy direct solve.", RuntimeWarning)
     scipy_solvers = {
@@ -773,9 +775,9 @@ def cluster_coo(indices: np.ndarray, shape: Tuple[int, int], cluster_count: int)
     return ...
 
 
-def reg_lin(b: Backend, lin, vector, regularizer):
-    """Apply linear function with matrix offset to vector"""
+def linear(b: Backend, lin, vector, matrix_offset):
+    """Apply linear function with matrix offset to vector, i.e. `(lin+matrix_offset) @ vector`"""
     result = b.linear(lin, vector)
-    if regularizer is not None:
-        result += b.sum(vector) * regularizer
+    if matrix_offset is not None:
+        result += b.sum(vector) * matrix_offset
     return result

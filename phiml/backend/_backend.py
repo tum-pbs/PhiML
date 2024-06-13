@@ -1414,7 +1414,7 @@ class Backend:
                      atol: Union[ndarray, TensorType],
                      max_iter: ndarray,
                      pre: Optional[Preconditioner],
-                     fix_rank_deficiency=None) -> SolveResult:
+                     matrix_offset: Optional[TensorType]) -> SolveResult:
         """
         Solve the system of linear equations A · x = y.
         This method need not provide a gradient for the operation.
@@ -1438,44 +1438,45 @@ class Backend:
             atol: Absolute tolerance of size (batch,)
             max_iter: Maximum number of iterations of shape (checkpoints, batch).
             pre: Preconditioner, function taking one native tensor like `y` as input and returning a native tensor like `x0`.
+            matrix_offset: Constant value to be added to every matrix entry, explicitly or implicitly. This can be used to stabilize solves for singular matrices.
 
         Returns:
             `SolveResult`
         """
         if method == 'auto':
-            return self.conjugate_gradient_adaptive(lin, y, x0, rtol, atol, max_iter, pre)
+            return self.conjugate_gradient_adaptive(lin, y, x0, rtol, atol, max_iter, pre, matrix_offset)
         elif method.startswith('scipy-'):
             from ._linalg import scipy_sparse_solve
-            result = scipy_sparse_solve(self, method[len('scipy-'):], lin, y, x0, rtol, atol, max_iter, pre)
+            result = scipy_sparse_solve(self, method[len('scipy-'):], lin, y, x0, rtol, atol, max_iter, pre, matrix_offset)
             return SolveResult(result.method, self.as_tensor(result.x), self.as_tensor(result.residual), result.iterations, result.function_evaluations, result.converged, result.diverged, result.message)
         elif method == 'CG':
-            return self.conjugate_gradient(lin, y, x0, rtol, atol, max_iter, pre)
+            return self.conjugate_gradient(lin, y, x0, rtol, atol, max_iter, pre, matrix_offset)
         elif method == 'CG-adaptive':
-            return self.conjugate_gradient_adaptive(lin, y, x0, rtol, atol, max_iter, pre)
+            return self.conjugate_gradient_adaptive(lin, y, x0, rtol, atol, max_iter, pre, matrix_offset)
         elif method in ['biCG', 'biCG-stab(0)']:
-            return self.bi_conjugate_gradient(lin, y, x0, rtol, atol, max_iter, pre, poly_order=0)
+            return self.bi_conjugate_gradient(lin, y, x0, rtol, atol, max_iter, pre, matrix_offset, poly_order=0)
         elif method == 'biCG-stab':
-            return self.bi_conjugate_gradient(lin, y, x0, rtol, atol, max_iter, pre, poly_order=1)
+            return self.bi_conjugate_gradient(lin, y, x0, rtol, atol, max_iter, pre, matrix_offset, poly_order=1)
         elif method.startswith('biCG-stab('):
             order = int(method[len('biCG-stab('):-1])
-            return self.bi_conjugate_gradient(lin, y, x0, rtol, atol, max_iter, pre, poly_order=order, fix_rank_deficiency=fix_rank_deficiency)
+            return self.bi_conjugate_gradient(lin, y, x0, rtol, atol, max_iter, pre, matrix_offset, poly_order=order)
         else:
             raise NotImplementedError(f"Method '{method}' not supported for linear solve.")
 
-    def conjugate_gradient(self, lin, y, x0, rtol, atol, max_iter, pre) -> SolveResult:
+    def conjugate_gradient(self, lin, y, x0, rtol, atol, max_iter, pre, matrix_offset) -> SolveResult:
         """ Standard conjugate gradient algorithm. Signature matches to `Backend.linear_solve()`. """
         from ._linalg import cg
-        return cg(self, lin, y, x0, rtol, atol, max_iter, pre)
+        return cg(self, lin, y, x0, rtol, atol, max_iter, pre, matrix_offset)
 
-    def conjugate_gradient_adaptive(self, lin, y, x0, rtol, atol, max_iter, pre) -> SolveResult:
+    def conjugate_gradient_adaptive(self, lin, y, x0, rtol, atol, max_iter, pre, matrix_offset) -> SolveResult:
         """ Conjugate gradient algorithm with adaptive step size. Signature matches to `Backend.linear_solve()`. """
         from ._linalg import cg_adaptive
-        return cg_adaptive(self, lin, y, x0, rtol, atol, max_iter, pre)
+        return cg_adaptive(self, lin, y, x0, rtol, atol, max_iter, pre, matrix_offset)
 
-    def bi_conjugate_gradient(self, lin, y, x0, rtol, atol, max_iter, pre, poly_order=2, fix_rank_deficiency=None) -> SolveResult:
+    def bi_conjugate_gradient(self, lin, y, x0, rtol, atol, max_iter, pre, matrix_offset, poly_order=2) -> SolveResult:
         """ Generalized stabilized biconjugate gradient algorithm. Signature matches to `Backend.linear_solve()`. """
         from ._linalg import bicg
-        return bicg(self, lin, y, x0, rtol, atol, max_iter, pre, poly_order, fix_rank_deficiency)
+        return bicg(self, lin, y, x0, rtol, atol, max_iter, pre, poly_order, matrix_offset)
 
     def linear(self, lin, vector):
         if callable(lin):
