@@ -37,6 +37,7 @@ class Solve(Generic[X, Y]):
                  preprocess_y: Callable = None,
                  preprocess_y_args: tuple = (),
                  preconditioner: Optional[str] = None,
+                 rank_deficient: bool = False,
                  gradient_solve: Union['Solve[Y, X]', None] = None):
         method = method or 'auto'
         assert isinstance(method, str)
@@ -63,6 +64,7 @@ class Solve(Generic[X, Y]):
         self.suppress: tuple = tuple(suppress)
         """ Error types to suppress; `tuple` of `ConvergenceException` types. For these errors, the solve function will instead return the partial result without raising the error. """
         self.preconditioner = preconditioner
+        self.rank_deficient = rank_deficient
         self._gradient_solve: Solve[Y, X] = gradient_solve
         self.id = str(uuid.uuid4())  # not altered by copy_with(), so that the lookup SolveTape[Solve] works after solve has been copied
 
@@ -510,7 +512,6 @@ def solve_linear(f: Union[Callable[[X], Y], Tensor],
                  solve: Solve[X, Y],
                  *f_args,
                  grad_for_f=False,
-                 fix_rank_deficiency=False,
                  f_kwargs: dict = None,
                  **f_kwargs_) -> X:
     """
@@ -670,8 +671,7 @@ def _linear_solve_forward(y: Tensor,
                           pattern_dims_out: Tuple[str, ...],
                           preconditioner: Optional[Callable],
                           backend: Backend,
-                          is_backprop: bool,
-                          fix_rank_deficiency=False,) -> Any:
+                          is_backprop: bool) -> Any:
     solve = solve.with_defaults('solve')
     ML_LOGGER.debug(f"Performing linear solve {solve} with backend {backend}")
     if solve.preprocess_y is not None:
@@ -692,6 +692,7 @@ def _linear_solve_forward(y: Tensor,
         max_iter = np.expand_dims(np.arange(int(solve.max_iterations)+1), -1)
     else:
         max_iter = reshaped_numpy(solve.max_iterations, [shape(solve.max_iterations).without(batch_dims), batch_dims])
+    matrix_offset = None if not solve.rank_deficient else ... # ToDo determine best value here
     method = solve.method
     if not callable(native_lin_op) and is_sparse(native_lin_op) and y.default_backend.name == 'torch' and preconditioner and not all_available(y):
         warnings.warn(f"Preconditioners are not supported for sparse {method} in {y.default_backend} JIT mode. Disabling preconditioner. Use Jax or TensorFlow to enable preconditioners in JIT mode.", RuntimeWarning)
@@ -700,7 +701,7 @@ def _linear_solve_forward(y: Tensor,
         warnings.warn(f"Preconditioners are not supported for sparse {method} in {y.default_backend} JIT mode. Using preconditioned scipy-{method} solve instead. If you want to use {y.default_backend}, please disable the preconditioner.", RuntimeWarning)
         method = 'scipy-' + method
     t = time.perf_counter()
-    ret = backend.linear_solve(method, native_lin_op, y_native, x0_native, rtol, atol, max_iter, preconditioner, fix_rank_deficiency)
+    ret = backend.linear_solve(method, native_lin_op, y_native, x0_native, rtol, atol, max_iter, preconditioner, matrix_offset)
     t = time.perf_counter() - t
     trj_dims = [batch(trajectory=len(max_iter))] if trj else []
     assert isinstance(ret, SolveResult)
