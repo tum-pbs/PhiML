@@ -849,10 +849,10 @@ class TorchBackend(Backend):
         #     # tile
         #     raise NotImplementedError
 
-    def conjugate_gradient(self, lin, y, x0, rtol, atol, max_iter, pre) -> SolveResult:
-        if callable(lin) or len(max_iter) > 1 or pre:
+    def conjugate_gradient(self, lin, y, x0, rtol, atol, max_iter, pre, matrix_offset) -> SolveResult:
+        if callable(lin) or len(max_iter) > 1 or pre or matrix_offset is not None:
             assert self.is_available(y), f"JIT-compiling conjugate_gradient with PyTorch is not yet supported for arbitrary functions. Build a matrix from the function '{lin}' first."
-            return Backend.conjugate_gradient(self, lin, y, x0, rtol, atol, max_iter, pre)
+            return Backend.conjugate_gradient(self, lin, y, x0, rtol, atol, max_iter, pre, matrix_offset)
         assert isinstance(lin, (torch.Tensor, np.ndarray)), "Batched matrices are not yet supported"
         batch_size = self.staticshape(y)[0]
         y = self.to_float(y)
@@ -865,11 +865,11 @@ class TorchBackend(Backend):
         x, residual, iterations, function_evaluations, converged, diverged = torch_sparse_cg(lin, y, x0, tol_sq, max_iter)
         return SolveResult(f"Φ-ML CG ({'PyTorch*' if self.is_available(y) else 'TorchScript'})", x, residual, iterations, function_evaluations, converged, diverged, [""] * batch_size)
 
-    def conjugate_gradient_adaptive(self, lin, y, x0, rtol, atol, max_iter, pre) -> SolveResult:
-        if callable(lin) or len(max_iter) > 1 or pre:
+    def conjugate_gradient_adaptive(self, lin, y, x0, rtol, atol, max_iter, pre, matrix_offset) -> SolveResult:
+        if callable(lin) or len(max_iter) > 1 or pre or matrix_offset is not None:
             if not self.is_available(y):
                 warnings.warn(f"CG with preconditioners is not optimized for PyTorch and will always run the maximum number of iterations when JIT-compiled (max_iter={max_iter}).", RuntimeWarning)
-            return Backend.conjugate_gradient_adaptive(self, lin, y, x0, rtol, atol, max_iter, pre)
+            return Backend.conjugate_gradient_adaptive(self, lin, y, x0, rtol, atol, max_iter, pre, matrix_offset)
         assert isinstance(lin, torch.Tensor), "Batched matrices are not yet supported"
         batch_size = self.staticshape(y)[0]
         y = self.to_float(y)
@@ -882,10 +882,10 @@ class TorchBackend(Backend):
         x, residual, iterations, function_evaluations, converged, diverged = torch_sparse_cg_adaptive(lin, y, x0, tol_sq, max_iter)
         return SolveResult(f"Φ-ML CG ({'PyTorch*' if self.is_available(y) else 'TorchScript'})", x, residual, iterations, function_evaluations, converged, diverged, [""] * batch_size)
 
-    def bi_conjugate_gradient(self, lin, y, x0, rtol, atol, max_iter, pre, poly_order=2) -> SolveResult:
+    def bi_conjugate_gradient(self, lin, y, x0, rtol, atol, max_iter, pre, matrix_offset, poly_order=2) -> SolveResult:
         if not self.is_available(y):
             warnings.warn(f"Bi-CG is not optimized for PyTorch and will always run the maximum number of iterations when JIT compiled (max_iter={max_iter}).", RuntimeWarning)
-        return Backend.bi_conjugate_gradient(self, lin, y, x0, rtol, atol, max_iter, pre, poly_order)
+        return Backend.bi_conjugate_gradient(self, lin, y, x0, rtol, atol, max_iter, pre, matrix_offset, poly_order)
 
     def matrix_solve_least_squares(self, matrix: TensorType, rhs: TensorType) -> Tuple[TensorType, TensorType, TensorType, TensorType]:
         assert version.parse(torch.__version__) >= version.parse('1.9.0'), "least squares requires PyTorch >= 1.9.0"

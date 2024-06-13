@@ -506,11 +506,11 @@ class NumPyBackend(Backend):
     #             return grads
     #     return gradient
 
-    def linear_solve(self, method: str, lin, y, x0, rtol, atol, max_iter, pre, fix_rank_deficiency=False) -> SolveResult:
+    def linear_solve(self, method: str, lin, y, x0, rtol, atol, max_iter, pre, matrix_offset) -> SolveResult:
         if method in ['direct', 'CG-native', 'GMres', 'biCG', 'biCG-stab', 'CGS', 'lGMres', 'minres', 'QMR', 'GCrotMK'] and max_iter.shape[0] == 1:
             from ._linalg import scipy_sparse_solve
-            return scipy_sparse_solve(self, method, lin, y, x0, rtol, atol, max_iter, pre)
-        return Backend.linear_solve(self, method, lin, y, x0, rtol, atol, max_iter, pre)
+            return scipy_sparse_solve(self, method, lin, y, x0, rtol, atol, max_iter, pre, matrix_offset)
+        return Backend.linear_solve(self, method, lin, y, x0, rtol, atol, max_iter, pre, matrix_offset)
 
     def matrix_solve_least_squares(self, matrix: TensorType, rhs: TensorType) -> TensorType:
         solution, residuals, rank, singular_values = [], [], [], []
