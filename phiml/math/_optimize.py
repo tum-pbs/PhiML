@@ -628,7 +628,7 @@ def solve_linear(f: Union[Callable[[X], Y], Tensor],
             backend_matrix = native_matrix(matrix, choose_backend_t(*y_tensors, matrix))
             pattern_dims_in = dual(matrix).as_channel().names
             pattern_dims_out = non_dual(matrix).names  # batch dims can be sparse or batched matrices
-            result = _linear_solve_forward(y, solve, backend_matrix, pattern_dims_in, pattern_dims_out, preconditioner, backend, is_backprop, fix_rank_deficiency)
+            result = _linear_solve_forward(y, solve, backend_matrix, pattern_dims_in, pattern_dims_out, preconditioner, backend, is_backprop)
             return result  # must return exactly `x` so gradient isn't computed w.r.t. other quantities
 
         _matrix_solve = attach_gradient_solve(_matrix_solve_forward, auxiliary_args=f'is_backprop,solve{",matrix" if matrix.default_backend == NUMPY else ""}', matrix_adjoint=grad_for_f)
