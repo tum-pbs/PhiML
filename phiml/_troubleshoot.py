@@ -3,6 +3,7 @@ from contextlib import contextmanager
 from os.path import dirname
 
 import packaging.version
+from jax.core import Tracer
 
 
 def assert_minimal_config():  # raises AssertionError
@@ -221,6 +222,18 @@ def _check_for_tracers(tensor):
                 print(f"{filename}:{line_number} ({function_name})    {line}")
         else:
             print("Enable debug checks to obtain the stack trace for the Tensor's creation.")
+
+
+def find_jax_tracers():
+    from jax.interpreters.ad import JVPTracer
+    import gc
+    gc.collect()
+    for obj in gc.get_objects():
+        if isinstance(obj, JVPTracer):
+            print(f"Found JVPTracer {obj} at {find_variable_reference(obj)}")
+        elif isinstance(obj, Tracer):
+            print(f"Found JIT Tracer {obj} at {find_variable_reference(obj)}")
+            print(find_variable_reference(obj))
 
 
 def find_variable_reference(obj):
