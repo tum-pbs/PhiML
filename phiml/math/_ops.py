@@ -2056,7 +2056,7 @@ def dot(x: Tensor,
     return broadcast_op(tensor_dot, [x, y])
 
 
-def _backend_op1(x, unbound_method) -> Union[Tensor, PhiTreeNode]:
+def _backend_op1(x, unbound_method, attr_type=value_attributes) -> Union[Tensor, PhiTreeNode]:
     if isinstance(x, Tensor) and x.dtype.kind != object:
         def apply_op(native_tensor):
             backend = choose_backend(native_tensor)
@@ -2066,7 +2066,7 @@ def _backend_op1(x, unbound_method) -> Union[Tensor, PhiTreeNode]:
     elif x is None:
         return None
     elif isinstance(x, (PhiTreeNode, Layout, tuple, list, dict)):
-        return tree_map(_backend_op1, x, unbound_method=unbound_method)
+        return tree_map(_backend_op1, x, unbound_method=unbound_method, attr_type=attr_type)
     else:
         backend = choose_backend(x)
         y = getattr(backend, unbound_method.__name__)(backend.auto_cast(x)[0])
@@ -3146,7 +3146,7 @@ def stop_gradient(x):
     """
     if isinstance(x, Shape):
         return x
-    return _backend_op1(x, Backend.stop_gradient)
+    return _backend_op1(x, Backend.stop_gradient, attr_type=variable_attributes)
 
 
 def pairwise_differences(positions: Tensor,

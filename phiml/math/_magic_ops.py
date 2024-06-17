@@ -767,7 +767,7 @@ def bool_to_int(x: MagicType, bits=32):
         raise ValueError(f"Cannot cast object of type '{type(x).__name__}'")
 
 
-def tree_map(f, tree, **f_kwargs):
+def tree_map(f, tree, attr_type=value_attributes, **f_kwargs):
     """
     Recursively iterates over Layouts, lists, tuples, dicts and the value attributes of PhiTreeNodes.
     Calls `f` on `Tensor` instances and everything else not in the above list.
@@ -775,6 +775,7 @@ def tree_map(f, tree, **f_kwargs):
     Args:
         f: Function mapping `Tensor`s or leaves
         tree: Nested tree or leaf
+        attr_type: Which attributes to use for PhiTreeNodes. Typically, either `value_attributes` or `variable_attributes`.
         **f_kwargs: Keyword arguments for `f`.
 
     Returns:
@@ -792,7 +793,7 @@ def tree_map(f, tree, **f_kwargs):
     elif isinstance(tree, dict):
         return {k: tree_map(f, e, **f_kwargs) for k, e in tree.items()}
     elif isinstance(tree, PhiTreeNode):
-        attrs = {key: getattr(tree, key) for key in value_attributes(tree)}
+        attrs = {key: getattr(tree, key) for key in attr_type(tree)}
         new_attrs = {k: tree_map(f, v, **f_kwargs) for k, v in attrs.items()}
         return copy_with(tree, **new_attrs)
     else:
