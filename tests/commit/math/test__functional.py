@@ -334,3 +334,15 @@ class TestFunctional(TestCase):
                 result, exec_time = fun(tensor(0))
                 print("time taken", 1000_000 * float(exec_time), "result:", result)
 
+    def test_grad_jit(self):
+        @math.jit_compile(auxiliary_args='a')
+        def step(x, a):
+            return x * a
+
+        def loss(a):
+            x = 2
+            for i in range(3):
+                x = step(x, a)
+            return math.l2_loss(x)
+
+        math.assert_close(2916, math.gradient(loss, 'a', get_output=False)(tensor(3.)))
