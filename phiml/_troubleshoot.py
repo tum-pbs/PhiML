@@ -3,7 +3,6 @@ from contextlib import contextmanager
 from os.path import dirname
 
 import packaging.version
-from jax.core import Tracer
 
 
 def assert_minimal_config():  # raises AssertionError
@@ -224,26 +223,55 @@ def _check_for_tracers(tensor):
             print("Enable debug checks to obtain the stack trace for the Tensor's creation.")
 
 
-def find_jax_tracers():
+def find_jax_tracers(root=None, closures=True):
     from jax.interpreters.ad import JVPTracer
+    from jax.core import Tracer
     import gc
     gc.collect()
-    for obj in gc.get_objects():
-        if isinstance(obj, JVPTracer):
-            print(f"Found JVPTracer {obj} at {find_variable_reference(obj)}")
-        elif isinstance(obj, Tracer):
-            print(f"Found JIT Tracer {obj} at {find_variable_reference(obj)}")
-            print(find_variable_reference(obj))
+    if root is None:
+        for obj in gc.get_objects():
+            if isinstance(obj, JVPTracer):
+                print(f"Found JVPTracer {obj} at {find_variable_reference(obj, closures=closures)}")
+            elif isinstance(obj, Tracer):
+                print(f"Found JIT Tracer {obj} at {find_variable_reference(obj, closures=closures)}")
+    else:
+        _find_jax_tracers(root, "", set(), 0)
 
 
-def find_variable_reference(obj):
+def _find_jax_tracers(obj, prefix, indexed: set, depth: int, max_depth=50):
+    if id(obj) in indexed:
+        return None
+    if depth >= max_depth:
+        print(f"max depth reached at {prefix}")
+    indexed.add(id(obj))
+    from jax.interpreters.ad import JVPTracer
+    from jax.core import Tracer
+    if isinstance(obj, (JVPTracer, Tracer)):
+        print(prefix, ":", type(obj).__name__)
+        return
+    if isinstance(obj, (tuple, list)):
+        for i, e in enumerate(obj):
+            _find_jax_tracers(e, prefix + f"[{i}]", indexed, depth+1)
+    elif isinstance(obj, dict):
+        for k, v in obj.items():
+            _find_jax_tracers(v, prefix + f"[{k}]", indexed, depth+1)
+            _find_jax_tracers(k, prefix + f".keys<{k}>", indexed, depth+1)
+    else:
+        if hasattr(obj, '__dict__'):
+            attrs = obj.__dict__
+            for k, v in attrs.items():
+                _find_jax_tracers(v, prefix + f".{k}", indexed, depth+1)
+    return None
+
+
+def find_variable_reference(obj, closures=True):
     gc.collect()
     existing_ids = set(id(o) for o in gc.get_objects())
     indexed = set()
-    return _find_variable_reference(obj, existing_ids, indexed)[0]
+    return _find_variable_reference(obj, existing_ids, indexed, closures)[0]
 
 
-def _find_variable_reference(obj, existing_ids: set, indexed: set):
+def _find_variable_reference(obj, existing_ids: set, indexed: set, closures: bool):
     referrers = gc.get_referrers(obj)
     for ref in reversed(referrers):
         if id(ref) in existing_ids and id(ref) not in indexed:
@@ -251,7 +279,7 @@ def _find_variable_reference(obj, existing_ids: set, indexed: set):
             if isinstance(ref, dict) and '__package__' in ref and '__name__' in ref:
                 return f"{ref['__name__']}", ref
             else:
-                path, parent = _find_variable_reference(ref, existing_ids, indexed)
+                path, parent = _find_variable_reference(ref, existing_ids, indexed, closures)
                 if parent is not None:
                     if isinstance(parent, dict):
                         keys = [k for k, v in parent.items() if v is ref]
@@ -269,5 +297,7 @@ def _find_variable_reference(obj, existing_ids: set, indexed: set):
                                 pass  # failed to get value of property
                         else:
                             name = ".<unknown>"
+                    if not closures and callable(parent) and name == '.__closure__':
+                        return None, None
                     return path + name, ref
     return None, None
