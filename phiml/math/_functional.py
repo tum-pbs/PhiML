@@ -121,20 +121,23 @@ def key_from_args(args: tuple,
                   parameters: Tuple[str, ...],
                   cache=False,
                   aux: Set[str] = (),
-                  attr_type=variable_attributes) -> Tuple[SignatureKey, List[Tensor], tuple, Dict[str, Any]]:
+                  attr_type=variable_attributes) -> Tuple[SignatureKey, List[Tensor], tuple, Dict[str, Any], Dict[str, Any]]:
     kwargs = {**kwargs, **{parameters[i]: v for i, v in enumerate(args)}}
-    aux_kwargs = {}
+    attached_aux_kwargs = {}
+    detached_aux_kwargs = {}
     if aux:
         for param in aux:
             if param in kwargs:
-                aux_kwargs[param] = stop_gradient(kwargs[param])
+                attached_aux_kwargs[param] = kwargs[param]
+                detached_aux_kwargs[param] = stop_gradient(kwargs[param])
                 del kwargs[param]
     tree, tensors = disassemble_tree(kwargs, cache=cache, attr_type=attr_type)
-    tracing = not math.all_available(*tensors)
-    backend = math.choose_backend_t(*tensors)
+    _, aux_tensors = disassemble_tree(detached_aux_kwargs, cache=cache, attr_type=variable_attributes)
+    tracing = not math.all_available(*tensors, *aux_tensors)
+    backend = math.choose_backend_t(*tensors, *aux_tensors)
     natives, shapes, specs = disassemble_tensors(tensors, expand=cache)
-    key = SignatureKey(None, tree, shapes, specs, backend, tracing, aux_kwargs)
-    return key, tensors, natives, kwargs
+    key = SignatureKey(None, tree, shapes, specs, backend, tracing, detached_aux_kwargs)
+    return key, tensors, natives, kwargs, attached_aux_kwargs
 
 
 def function_parameters(f) -> Tuple[str]:
@@ -216,7 +219,7 @@ class JitFunction:
         self._tracing_in_key: SignatureKey = None
         self._buffer_manager = default_determine_config
 
-    def _jit_compile(self, in_key: SignatureKey, buffer_config: Dict[str, int]):
+    def _jit_compile(self, in_key: SignatureKey, buffer_config: Dict[str, int], attached_aux_args: dict):
         def jit_f_native(*natives):
             ML_LOGGER.debug(f"Φ-ML-jit: Tracing '{f_name(self.f)}'")
             _TRACING_JIT.append(self)
@@ -225,7 +228,7 @@ class JitFunction:
                 self._tracing_in_key = in_key
                 in_tensors = assemble_tensors(natives, in_key.specs)
                 kwargs = assemble_tree(in_key.tree, in_tensors)
-                f_output = self.f(**kwargs, **in_key.auxiliary_kwargs)  # Tensor or tuple/list of Tensors
+                f_output = self.f(**kwargs, **attached_aux_args)  # Tensor or tuple/list of Tensors
                 tree, out_tensors = disassemble_tree((f_output, self._extract_tensors), cache=True)
                 result_natives, result_shapes, specs = disassemble_tensors(out_tensors, expand=True)
                 tracers = get_required_buffer_sizes()
@@ -245,7 +248,7 @@ class JitFunction:
 
     def __call__(self, *args, **kwargs):
         try:
-            key, _, natives, _ = key_from_args(args, kwargs, self.f_params, cache=True, aux=self.auxiliary_args)
+            key, _, natives, _, aux_kwargs = key_from_args(args, kwargs, self.f_params, cache=True, aux=self.auxiliary_args)
         except LinearTraceInProgress:
             return self.f(*args, **kwargs)
         if isinstance(self.f, GradientFunction) and key.backend.supports(Backend.jit_compile_grad):
@@ -272,7 +275,7 @@ class JitFunction:
             if self.forget_traces:
                 self.traces.clear()
                 self.recorded_mappings.clear()
-            native_jit_function = self._jit_compile(key, buffer_config)
+            native_jit_function = self._jit_compile(key, buffer_config, aux_kwargs)
             self.traces.setdefault(key, []).append(native_jit_function)
             if len(self.traces) >= 10:
                 warnings.warn(f"""Φ-ML: The jit-compiled function '{f_name(self.f)}' was traced {len(self.traces)} times.
@@ -410,7 +413,7 @@ Multiple linear traces can be avoided by jit-compiling the code that calls the l
 
     def __call__(self, *args: X, **kwargs) -> Y:
         try:
-            key, tensors, natives, x = key_from_args(args, kwargs, self.f_params, cache=False, aux=self.auxiliary_args)
+            key, tensors, natives, x, aux_kwargs = key_from_args(args, kwargs, self.f_params, cache=False, aux=self.auxiliary_args)
         except LinearTraceInProgress:
             return self.f(*args, **kwargs)
         assert tensors, "Linear function requires at least one argument"
@@ -424,7 +427,7 @@ Multiple linear traces can be avoided by jit-compiling the code that calls the l
                 return self.f(*args, **kwargs)
             else:
                 return self.nl_jit(*args, **kwargs)
-        matrix, bias, (out_tree, out_tensors) = self._get_or_trace(key, args, kwargs)
+        matrix, bias, (out_tree, out_tensors) = self._get_or_trace(key, args, aux_kwargs)
         result = matrix @ tensors[0] + bias
         out_tensors = list(out_tensors)
         out_tensors[0] = result
@@ -444,8 +447,8 @@ Multiple linear traces can be avoided by jit-compiling the code that calls the l
         Returns:
             Sparse matrix representation with `values` property and `native()` method.
         """
-        key, *_ = key_from_args(args, kwargs, self.f_params, cache=False, aux=self.auxiliary_args)
-        matrix, bias, *_ = self._get_or_trace(key, args, kwargs)
+        key, *_, aux_kwargs = key_from_args(args, kwargs, self.f_params, cache=False, aux=self.auxiliary_args)
+        matrix, bias, *_ = self._get_or_trace(key, args, aux_kwargs)
         assert math.close(bias, 0), "This is an affine function and cannot be represented by a single matrix. Use sparse_matrix_and_bias() instead."
         return matrix
 
@@ -462,8 +465,8 @@ Multiple linear traces can be avoided by jit-compiling the code that calls the l
             matrix: Sparse matrix representation with `values` property and `native()` method.
             bias: `Tensor`
         """
-        key, *_ = key_from_args(args, kwargs, self.f_params, cache=False, aux=self.auxiliary_args)
-        return self._get_or_trace(key, args, kwargs)[:2]
+        key, *_, aux_kwargs = key_from_args(args, kwargs, self.f_params, cache=False, aux=self.auxiliary_args)
+        return self._get_or_trace(key, args, aux_kwargs)[:2]
 
     def __repr__(self):
         return f"lin({f_name(self.f)})"
@@ -596,7 +599,7 @@ class GradientFunction:
             return in_key.backend.jacobian(f_native, wrt=wrt_natives, get_output=self.get_output, is_f_scalar=self.is_f_scalar)
 
     def __call__(self, *args, **kwargs):
-        key, tensors, natives, kwargs = key_from_args(args, kwargs, self.f_params, cache=True, attr_type=value_attributes)
+        key, tensors, natives, kwargs, _ = key_from_args(args, kwargs, self.f_params, cache=True, attr_type=value_attributes)
         if not key.backend.supports(Backend.jacobian):
             if math.default_backend().supports(Backend.jacobian):
                 warnings.warn(f"Using {math.default_backend()} for gradient computation because {key.backend} does not support jacobian()", RuntimeWarning)
@@ -918,7 +921,7 @@ class CustomGradientFunction:
         return in_key.backend.custom_gradient(forward_native, backward_native, get_external_cache=lambda: self.recorded_mappings[in_key], on_call_skipped=partial(self.recorded_mappings.__setitem__, in_key))
 
     def __call__(self, *args, **kwargs):
-        key, _, natives, _ = key_from_args(args, kwargs, self.f_params, cache=False, aux=self.auxiliary_args, attr_type=value_attributes)
+        key, _, natives, _, _ = key_from_args(args, kwargs, self.f_params, cache=False, aux=self.auxiliary_args, attr_type=value_attributes)
         if not key.backend.supports(Backend.jacobian) and not key.backend.supports(Backend.jacobian):
             return self.f(*args, **kwargs)  # no need to use custom gradient if gradients aren't supported anyway
         elif not key.backend.supports(Backend.custom_gradient):
@@ -1091,7 +1094,8 @@ def trace_check(traced_function, *args, **kwargs) -> Tuple[bool, str]:
     if key in keys:
         return True, ""
     traced_key = next(iter(keys))  # ToDo compare against all
-    cond_equal = key.auxiliary_kwargs == traced_key.auxiliary_kwargs
+    with equality_by_shape_and_value():
+        cond_equal = key.auxiliary_kwargs == traced_key.auxiliary_kwargs
     if isinstance(cond_equal, Tensor):
         cond_equal = cond_equal.all
     if not cond_equal:
