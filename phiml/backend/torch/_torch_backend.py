@@ -1100,9 +1100,11 @@ class JITFunction:
             module = JitModule()
             with warnings.catch_warnings():
                 warnings.simplefilter("ignore", category=TracerWarning)
-                self.traced = torch.jit.trace(module, tuple(args), check_trace=False, strict=False)
+                try:
+                    self.traced = torch.jit.trace(module, tuple(args), check_trace=False, strict=False)
+                finally:
+                    assert CURRENT_JIT_CALLS.pop(-1) == self
             assert self.autograd_function_call_counts == len(self.autograd_function_calls), "Not all custom-gradient functions were called during tracing! Nested custom gradients are not supported."
-            assert CURRENT_JIT_CALLS.pop(-1) == self
         from .. import choose_backend
         return choose_backend(self).call(self.traced, *args, name=f"run jit-compiled '{self.f.__name__}'")
 
