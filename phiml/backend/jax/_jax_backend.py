@@ -630,6 +630,16 @@ class JaxBackend(Backend):
         x = jax.lax.linalg.triangular_solve(matrix, rhs, lower=lower, unit_diagonal=unit_diagonal, left_side=True)
         return x
 
+    def matrix_rank_dense(self, matrix, hermitian=False):
+        try:
+            return jnp.linalg.matrix_rank(matrix)
+        except TypeError as err:
+            if err.args[0] == "array should have 2 or fewer dimensions":  # this is a Jax bug on some distributions/versions
+                warnings.warn("You are using a broken version of JAX. matrix_rank for dense matrices will fall back to NumPy.")
+                return self.as_tensor(NUMPY.matrix_rank_dense(self.numpy(matrix), hermitian=hermitian))
+            else:
+                raise err
+
     def sparse_coo_tensor(self, indices: Union[tuple, list], values, shape: tuple):
         return BCOO((values, indices), shape=shape)
 

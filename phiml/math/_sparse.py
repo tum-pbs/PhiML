@@ -5,12 +5,13 @@ from typing import Callable, Tuple, Union
 
 import numpy as np
 from scipy.sparse import csr_matrix
+from scipy.sparse.linalg import aslinearoperator
 
 from ._magic_ops import concat, pack_dims, expand, rename_dims, stack, unpack_dim, unstack
 from ._shape import Shape, non_batch, merge_shapes, instance, batch, non_instance, shape, channel, spatial, DimFilter, \
-    concat_shapes, EMPTY_SHAPE, dual, non_channel, DEBUG_CHECKS
-from ._tensors import Tensor, TensorStack, NativeTensor, cached, wrap
-from ..backend import choose_backend, NUMPY, Backend
+    concat_shapes, EMPTY_SHAPE, dual, non_channel, DEBUG_CHECKS, primal
+from ._tensors import Tensor, TensorStack, NativeTensor, cached, wrap, reshaped_native, reshaped_tensor
+from ..backend import choose_backend, NUMPY, Backend, get_precision
 from ..backend._dtype import DType
 
 
@@ -1039,6 +1040,39 @@ def dense(x: Tensor) -> Tensor:
         return cached(x)
     elif isinstance(x, (Number, bool)):
         return wrap(x)
+
+
+def matrix_rank(matrix: Tensor) -> Tensor:
+    """
+    Computes the rank of a matrix, i.e. the number of non-zero singular values.
+
+    Args:
+        matrix: Sparse or dense matrix, i.e. `Tensor` with primal and dual dims.
+
+    Returns:
+        Matrix rank.
+    """
+    if is_sparse(matrix):
+        from scipy.sparse.linalg import svds
+        def single_sparse_rank(matrix: Tensor) -> Tensor:
+            scipy_matrix = native_matrix(matrix, NUMPY)
+            if NUMPY.dtype(scipy_matrix).kind not in (float, complex):
+                scipy_matrix = NUMPY.to_float(scipy_matrix)
+            eps = {16: 1e-2, 32: 1e-5, 64: 1e-10}[get_precision()]
+            u, s, vh = svds(scipy_matrix, k=1)
+            rank = np.sum(s > eps)
+            return wrap(rank)
+            # from scipy.linalg.interpolative import estimate_rank
+            # if scipy_matrix.dtype not in (np.float64, np.complex128):
+            #     scipy_matrix = scipy_matrix.astype(np.complex128 if scipy_matrix.dtype.kind == 'c' else np.float64)
+            # rank = estimate_rank(aslinearoperator(scipy_matrix), eps)
+            # return wrap(rank)
+        from phiml.math._ops import broadcast_op
+        return broadcast_op(single_sparse_rank, [matrix], batch(matrix))
+    else:  # dense
+        native = reshaped_native(matrix, [batch, primal, dual], force_expand=True)
+        ranks_native = choose_backend(native).matrix_rank_dense(native)
+        return reshaped_tensor(ranks_native, [batch(matrix)], convert=False)
 
 
 def dot_compressed_dense(compressed: CompressedSparseMatrix, cdims: Shape, dense: Tensor, ddims: Shape):
