@@ -12,10 +12,10 @@ from ..backend._backend import SolveResult, ML_LOGGER, default_backend, convert,
 from ..backend._linalg import IncompleteLU, incomplete_lu_dense, incomplete_lu_coo, coarse_explicit_preconditioner_coo
 from ._shape import EMPTY_SHAPE, Shape, merge_shapes, batch, non_batch, shape, dual, channel, non_dual, instance, spatial
 from ._magic_ops import stack, copy_with, rename_dims, unpack_dim, unstack, expand, value_attributes
-from ._sparse import native_matrix, SparseCoordinateTensor, CompressedSparseMatrix, stored_values, is_sparse
-from ._tensors import Tensor, disassemble_tree, assemble_tree, wrap, cached, NativeTensor, layout
+from ._sparse import native_matrix, SparseCoordinateTensor, CompressedSparseMatrix, stored_values, is_sparse, matrix_rank, _stored_matrix_rank
+from ._tensors import Tensor, disassemble_tree, assemble_tree, wrap, cached, NativeTensor, layout, reshaped_numpy, reshaped_native, reshaped_tensor
 from . import _ops as math
-from ._ops import choose_backend_t, zeros_like, all_available, reshaped_native, reshaped_tensor, to_float, reshaped_numpy
+from ._ops import choose_backend_t, zeros_like, all_available, to_float
 from ._functional import custom_gradient, LinearFunction, f_name, _TRACING_JIT, map_
 
 X = TypeVar('X')

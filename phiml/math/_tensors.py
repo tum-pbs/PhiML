@@ -1,8 +1,8 @@
-import numbers
+from numbers import Number
 import traceback
 import warnings
 from contextlib import contextmanager
-from typing import Union, TypeVar, Sequence
+from typing import Union, TypeVar, Sequence, Any
 
 from dataclasses import dataclass
 from typing import Tuple, Callable, List
@@ -730,7 +730,6 @@ class Tensor:
         elif self.rank == 0:
             return iter([self.native()])
         else:
-            from ._ops import reshaped_native
             native = reshaped_native(self, [self.shape])
             return iter(native)
 
@@ -813,7 +812,7 @@ class Tensor:
         return self
 
 
-TensorOrTree = TypeVar('TensorOrTree', Tensor, PhiTreeNode, numbers.Number, bool, tuple, list, dict)
+TensorOrTree = TypeVar('TensorOrTree', Tensor, PhiTreeNode, Number, bool, tuple, list, dict)
 
 
 class TensorDim(BoundDim):
@@ -997,7 +996,7 @@ class Layout(Tensor):
         if isinstance(native, Shapable) and native is not None and not isinstance(native, (tuple, list, dict)):
             # maybe allow class to configure whether to be unpacked
             return native
-        if isinstance(native, (bool, numbers.Number)):
+        if isinstance(native, (bool, Number)):
             return wrap(native)
         return Layout(native, stack_dim)
 
@@ -1613,7 +1612,7 @@ def tensor(data,
             data = data.sizes
     elif isinstance(data, str) or data is None:
         return layout(data)
-    elif isinstance(data, (numbers.Number, bool)):
+    elif isinstance(data, (Number, bool)):
         assert not shape, f"Trying to create a zero-dimensional Tensor from value '{data}' but shape={shape}"
         if convert:
             data = default_backend().as_tensor(data, convert_external=True)
@@ -2155,6 +2154,161 @@ class Dict(dict):
     def copy(self):
         return Dict(self)
 
+def native(value: Union[Tensor, Number, tuple, list, Any]):
+    """
+    Returns the native tensor representation of `value`.
+    If `value` is a `phiml.math.Tensor`, this is equal to calling `phiml.math.Tensor.native()`.
+    Otherwise, checks that `value` is a valid tensor object and returns it.
+
+    Args:
+        value: `Tensor` or native tensor or tensor-like.
+
+    Returns:
+        Native tensor representation
+
+    Raises:
+        ValueError if the tensor cannot be transposed to match target_shape
+    """
+    if isinstance(value, Tensor):
+        return value.native()
+    else:
+        choose_backend(value)  # check that value is a native tensor
+        return value
+
+
+def numpy_(value: Union[Tensor, Number, tuple, list, Any]):
+    """
+    Converts `value` to a `numpy.ndarray` where value must be a `Tensor`, backend tensor or tensor-like.
+    If `value` is a `phiml.math.Tensor`, this is equal to calling `phiml.math.Tensor.numpy()`.
+
+    *Note*: Using this function breaks the autograd chain. The returned tensor is not differentiable.
+    To get a differentiable tensor, use `Tensor.native()` instead.
+
+    Transposes the underlying tensor to match the name order and adds singleton dimensions for new dimension names.
+    If a dimension of the tensor is not listed in `order`, a `ValueError` is raised.
+
+    If `value` is a NumPy array, it may be returned directly.
+
+    Returns:
+        NumPy representation of `value`
+
+    Raises:
+        ValueError if the tensor cannot be transposed to match target_shape
+    """
+    if isinstance(value, Tensor):
+        return value.numpy()
+    else:
+        backend = choose_backend(value)
+        return backend.numpy(value)
+
+
+def reshaped_native(value: Tensor,
+                    groups: Union[tuple, list],
+                    force_expand: Any = True,
+                    to_numpy=False):
+    """
+    Returns a native representation of `value` where dimensions are laid out according to `groups`.
+
+    See Also:
+        `native()`, `pack_dims()`, `reshaped_tensor()`, `reshaped_numpy()`.
+
+    Args:
+        value: `Tensor`
+        groups: `tuple` or `list` of dimensions to be packed into one native dimension. Each entry must be one of the following:
+
+            * `str`: the name of one dimension that is present on `value`.
+            * `Shape`: Dimensions to be packed. If `force_expand`, missing dimensions are first added, otherwise they are ignored.
+            * Filter function: Packs all dimensions of this type that are present on `value`.
+            * Ellipsis `...`: Packs all remaining dimensions into this slot. Can only be passed once.
+
+        force_expand: `bool` or sequence of dimensions.
+            If `True`, repeats the tensor along missing dimensions.
+            If `False`, puts singleton dimensions where possible.
+            If a sequence of dimensions is provided, only forces the expansion for groups containing those dimensions.
+        to_numpy: If True, converts the native tensor to a `numpy.ndarray`.
+
+    Returns:
+        Native tensor with dimensions matching `groups`.
+    """
+    assert isinstance(value, Tensor), f"value must be a Tensor but got {type(value)}"
+    assert not value._is_tracer, f"Failed accessing native values because tensor {value.shape} is a tracer"
+    assert value.shape.is_uniform, f"Only uniform (homogenous) tensors can be converted to native but got shape {value.shape}"
+    assert isinstance(groups, (tuple, list)), f"groups must be a tuple or list but got {type(value)}"
+    order = []
+    if Ellipsis in groups:
+        ellipsis_dims = value.shape.without([g for g in groups if g is not Ellipsis])
+        groups = [ellipsis_dims if g is Ellipsis else g for g in groups]
+    groups = [group(value) if callable(group) else group for group in groups]
+    for i, group in enumerate(groups):
+        if isinstance(group, Shape):
+            present = value.shape.only(group)
+            if force_expand is True or present.volume > 1 or (force_expand is not False and group.only(force_expand).volume > 1):
+                value = expand(value, group)
+            value = pack_dims(value, group, batch(f"group{i}"))
+            order.append(f"group{i}")
+        else:
+            assert isinstance(group, str), f"Groups must be either single-dim str or Shape but got {group}"
+            assert ',' not in group, f"When packing multiple dimensions, pass a well-defined Shape instead of a comma-separated str. Got {group}"
+            order.append(group)
+    return value.numpy(order) if to_numpy else value.native(order)
+
+
+def reshaped_numpy(value: Tensor, groups: Union[tuple, list], force_expand: Any = True):
+    """
+    Returns the NumPy representation of `value` where dimensions are laid out according to `groups`.
+
+    See Also:
+        `numpy()`, `reshaped_native()`, `pack_dims()`, `reshaped_tensor()`.
+
+    Args:
+        value: `Tensor`
+        groups: Sequence of dimension names as `str` or groups of dimensions to be packed_dim as `Shape`.
+        force_expand: `bool` or sequence of dimensions.
+            If `True`, repeats the tensor along missing dimensions.
+            If `False`, puts singleton dimensions where possible.
+            If a sequence of dimensions is provided, only forces the expansion for groups containing those dimensions.
+
+    Returns:
+        NumPy `ndarray` with dimensions matching `groups`.
+    """
+    return reshaped_native(value, groups, force_expand=force_expand, to_numpy=True)
+
+
+def reshaped_tensor(value: Any,
+                    groups: Union[tuple, list],
+                    check_sizes=False,
+                    convert=True):
+    """
+    Creates a `Tensor` from a native tensor or tensor-like whereby the dimensions of `value` are split according to `groups`.
+
+    See Also:
+        `phiml.math.tensor()`, `reshaped_native()`, `unpack_dim()`.
+
+    Args:
+        value: Native tensor or tensor-like.
+        groups: Sequence of dimension groups to be packed_dim as `tuple[Shape]` or `list[Shape]`.
+        check_sizes: If True, group sizes must match the sizes of `value` exactly. Otherwise, allows singleton dimensions.
+        convert: If True, converts the data to the native format of the current default backend.
+            If False, wraps the data in a `Tensor` but keeps the given data reference if possible.
+
+    Returns:
+        `Tensor` with all dimensions from `groups`
+    """
+    assert all(isinstance(g, Shape) for g in groups), "groups must be a sequence of Shapes"
+    dims = [batch(f'group{i}') for i, group in enumerate(groups)]
+    try:
+        value = tensor(value, *dims, convert=convert)
+    except IncompatibleShapes:
+        raise IncompatibleShapes(f"Cannot reshape native tensor {type(value)} with sizes {value.shape} given groups {groups}")
+    for i, group in enumerate(groups):
+        if value.shape.get_size(f'group{i}') == group.volume:
+            value = unpack_dim(value, f'group{i}', group)
+        elif check_sizes:
+            raise AssertionError(f"Group {group} does not match dimension {i} of value {value.shape}")
+        else:
+            value = unpack_dim(value, f'group{i}', group)
+    return value
+
 
 def to_dict(value: Union[Tensor, Shape]):
     """
@@ -2563,7 +2717,7 @@ def is_scalar(value) -> bool:
     """
     if isinstance(value, Tensor):
         return value.shape.rank == 0
-    elif isinstance(value, numbers.Number):
+    elif isinstance(value, Number):
         return True
     else:
         return len(choose_backend(value).staticshape(value)) == 0
