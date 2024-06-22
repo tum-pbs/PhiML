@@ -1,7 +1,7 @@
 from ._shape import EMPTY_SHAPE, DimFilter, instance, shape, channel
 from ._magic_ops import concat
-from ._ops import mean, ones, reshaped_tensor, reshaped_native
-from ._tensors import Tensor
+from ._ops import mean, ones
+from ._tensors import Tensor, reshaped_tensor, reshaped_native
 
 
 def fit_line_2d(x: Tensor, y: Tensor, point_dim: DimFilter = instance, weights: Tensor = 1.):
