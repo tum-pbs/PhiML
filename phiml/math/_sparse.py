@@ -406,6 +406,11 @@ class SparseCoordinateTensor(Tensor):
         else:
             raise NotImplementedError("concatenating compressed sparse tensors along non-sparse dims not yet supported")
 
+    def _unstack(self, dim: str):
+        assert dim in self._values.shape, f"Can only unstack sparse tensor along value dims but got {dim} for matrix {self._shape}"
+        values = self._values._unstack(dim)
+        return tuple(self._with_values(v) for v in values)
+
     @staticmethod
     def __stack__(values: tuple, dim: Shape, **_kwargs) -> 'Tensor':
         if all(isinstance(v, SparseCoordinateTensor) for v in values) and all([same_sparsity_pattern(v, values[0]) for v in values[1:]]):
@@ -603,6 +608,11 @@ class CompressedSparseMatrix(Tensor):
             return tensors[0]._with_values(cat)
         else:
             raise NotImplementedError("concatenating compressed sparse tensors along non-sparse dims not yet supported")
+
+    def _unstack(self, dim: str):
+        assert dim in self._values.shape, f"Can only unstack sparse tensor along value dims but got {dim} for matrix {self._shape}"
+        values = self._values._unstack(dim)
+        return tuple(self._with_values(v) for v in values)
 
     @staticmethod
     def __stack__(values: tuple, dim: Shape, **_kwargs) -> 'Tensor':
