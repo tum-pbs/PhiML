@@ -107,7 +107,7 @@ class Extrapolation:
         from ._trace import ShiftLinTracer
         if isinstance(value, ShiftLinTracer):
             lower = {dim: -lo for dim, (lo, _) in widths.items()}
-            return value.shift(lower, new_shape=value.shape.after_pad(widths), val_fun=lambda v: ZERO.pad(v, widths, already_padded=already_padded, **kwargs), bias_fun=lambda b: self.pad(b, widths, already_padded=already_padded, **kwargs))
+            return value.shift(lower, new_shape=value.shape.after_pad(widths), val_fun=lambda v: ZERO.pad(v, widths, already_padded=already_padded, **kwargs), bias_fun=lambda b: self.pad(b, widths, already_padded=already_padded, **kwargs), nonzero_edge=False)
         already_padded = {} if already_padded is None else dict(already_padded)
         for dim, width in widths.items():
             assert (w > 0 for w in width), "Negative widths not allowed in Extrapolation.pad(). Use math.pad() instead."
