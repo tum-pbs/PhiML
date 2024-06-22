@@ -304,8 +304,11 @@ class NumPyBackend(Backend):
         return a
 
     def cast(self, x, dtype: DType):
-        if self.is_tensor(x, only_native=True) and from_numpy_dtype(x.dtype) == dtype:
+        is_native = self.is_tensor(x, only_native=True)
+        if is_native and from_numpy_dtype(x.dtype) == dtype:
             return x
+        elif is_native:
+            return x.astype(to_numpy_dtype(dtype))
         else:
             return np.array(x, to_numpy_dtype(dtype))
 
@@ -531,6 +534,9 @@ class NumPyBackend(Backend):
 
     def solve_triangular_sparse(self, matrix, rhs, lower: bool, unit_diagonal: bool):  # needs to be overridden to indicate this is natively implemented
         return spsolve_triangular(matrix, rhs.T, lower=lower, unit_diagonal=unit_diagonal).T
+
+    def matrix_rank_dense(self, matrix, hermitian=False):
+        return np.linalg.matrix_rank(matrix, hermitian=hermitian)
 
 
 NUMPY = NumPyBackend()

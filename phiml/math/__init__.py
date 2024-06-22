@@ -34,7 +34,7 @@ from ._magic_ops import (
 
 from ._tensors import Tensor, wrap, tensor, layout, native, numpy_ as numpy, reshaped_numpy, Dict, to_dict, from_dict, is_scalar, BROADCAST_FORMATTER as f
 
-from ._sparse import dense, get_sparsity, get_format, to_format, is_sparse, sparse_tensor, stored_indices, stored_values, tensor_like
+from ._sparse import dense, get_sparsity, get_format, to_format, is_sparse, sparse_tensor, stored_indices, stored_values, tensor_like, matrix_rank
 
 from .extrapolation import Extrapolation, as_extrapolation
 

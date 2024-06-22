@@ -157,3 +157,20 @@ class TestSparse(TestCase):
             m1 = math.to_format(m, format)
             m2 = m1 * 2 * .5
             math.assert_close(m1, m2)
+
+    def test_matrix_rank(self):
+        for b in BACKENDS:
+            with b:
+                for format in ['dense', 'coo', 'csr', 'csc']:
+                    # --- rank 1 ---
+                    matrix = tensor([[1, 2], [-1, -2]], dual('c'), channel('r'))
+                    matrix = math.to_format(matrix, format)
+                    matrix = stack([matrix, matrix * 2], batch('b'))
+                    ranks = math.matrix_rank(matrix)
+                    math.assert_close(1, ranks)
+                    # --- rank 2 ---
+                    matrix = tensor([[1, 2], [1, 0]], dual('c'), channel('r'))
+                    matrix = math.to_format(matrix, format)
+                    matrix = stack([matrix, matrix * 2], batch('b'))
+                    ranks = math.matrix_rank(matrix)
+                    math.assert_close(2, ranks)
