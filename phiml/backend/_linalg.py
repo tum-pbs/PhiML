@@ -405,7 +405,7 @@ class IncompleteLU(Preconditioner):
     lower_unit_diagonal: bool
     upper: TensorType  # (batch_size, rows, cols)
     upper_unit_diagonal: bool
-    rank_deficiency: int
+    rank_deficiency: np.ndarray
     source: str
 
     def apply_inv_l(self, vec):
