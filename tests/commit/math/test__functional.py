@@ -335,14 +335,17 @@ class TestFunctional(TestCase):
                 print("time taken", 1000_000 * float(exec_time), "result:", result)
 
     def test_grad_jit(self):
-        @math.jit_compile(auxiliary_args='a')
-        def step(x, a):
-            return x * a
+        for b in BACKENDS:
+            if b.supports(Backend.jacobian) and b.supports(Backend.jit_compile):
+                with b:
+                    @math.jit_compile(auxiliary_args='a')
+                    def step(x, a):
+                        return x * a
 
-        def loss(a):
-            x = 2
-            for i in range(3):
-                x = step(x, a)
-            return math.l2_loss(x)
+                    def loss(a):
+                        x = 2
+                        for i in range(3):
+                            x = step(x, a)
+                        return math.l2_loss(x)
 
-        math.assert_close(2916, math.gradient(loss, 'a', get_output=False)(tensor(3.)))
+                    math.assert_close(2916, math.gradient(loss, 'a', get_output=False)(tensor(3.)))
