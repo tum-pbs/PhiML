@@ -37,7 +37,7 @@ class Solve(Generic[X, Y]):
                  preprocess_y: Callable = None,
                  preprocess_y_args: tuple = (),
                  preconditioner: Optional[str] = None,
-                 rank_deficient: bool = False,
+                 rank_deficiency: int = None,
                  gradient_solve: Union['Solve[Y, X]', None] = None):
         method = method or 'auto'
         assert isinstance(method, str)
@@ -64,7 +64,8 @@ class Solve(Generic[X, Y]):
         self.suppress: tuple = tuple(suppress)
         """ Error types to suppress; `tuple` of `ConvergenceException` types. For these errors, the solve function will instead return the partial result without raising the error. """
         self.preconditioner = preconditioner
-        self.rank_deficient = rank_deficient
+        self.rank_deficiency: int = rank_deficiency
+        """Rank deficiency of matrix or linear function. If not specified, will be determined for (implicit or explicit) matrix solves and assumed 0 for function-based solves."""
         self._gradient_solve: Solve[Y, X] = gradient_solve
         self.id = str(uuid.uuid4())  # not altered by copy_with(), so that the lookup SolveTape[Solve] works after solve has been copied
 
@@ -622,7 +623,13 @@ def solve_linear(f: Union[Callable[[X], Y], Tensor],
         else:
             matrix = f
             bias = 0
-        preconditioner = compute_preconditioner(solve.preconditioner, matrix, safe=False, target_backend=NUMPY if solve.method.startswith('scipy-') else backend, solver=solve.method) if solve.preconditioner is not None else None
+        m_rank = _stored_matrix_rank(matrix)
+        if solve.rank_deficiency is None:
+            if m_rank is not None:
+                solve = copy_with(solve, rank_deficiency=dual(matrix).volume - m_rank)
+            else:
+                solve = copy_with(solve, rank_deficiency=0)  # no info or user input, assume not rank-deficient
+        preconditioner = compute_preconditioner(solve.preconditioner, matrix, rank_deficiency=solve.rank_deficiency, target_backend=NUMPY if solve.method.startswith('scipy-') else backend, solver=solve.method) if solve.preconditioner is not None else None
 
         def _matrix_solve_forward(y, solve: Solve, matrix: Tensor, is_backprop=False):
             backend_matrix = native_matrix(matrix, choose_backend_t(*y_tensors, matrix))
@@ -692,7 +699,15 @@ def _linear_solve_forward(y: Tensor,
         max_iter = np.expand_dims(np.arange(int(solve.max_iterations)+1), -1)
     else:
         max_iter = reshaped_numpy(solve.max_iterations, [shape(solve.max_iterations).without(batch_dims), batch_dims])
-    matrix_offset = None if not solve.rank_deficient else ... # ToDo determine best value here
+    matrix_offset = None
+    if solve.rank_deficiency is not None and solve.rank_deficiency > 0:
+        # with x in [0, 1] and matrix entries m in [-a, a], y has: std = N a^2 / 9
+        random_x = NUMPY.random_uniform(x0_native.shape, 0, 1, NUMPY.float_type)
+        random_y = backend.linear(native_lin_op, random_x)
+        random_y_std = backend.mean(abs(random_y), axis=1)
+        avg_entries_per_row = pattern_dims_out.volume  # or use only non-zero values? ~ 2 * pattern_dims_out.rank
+        approx_matrix_vals = backend.sqrt(random_y_std * 9 / avg_entries_per_row)
+        matrix_offset = 0.01 * approx_matrix_vals  # ToDo better equation to use here
     method = solve.method
     if not callable(native_lin_op) and is_sparse(native_lin_op) and y.default_backend.name == 'torch' and preconditioner and not all_available(y):
         warnings.warn(f"Preconditioners are not supported for sparse {method} in {y.default_backend} JIT mode. Disabling preconditioner. Use Jax or TensorFlow to enable preconditioners in JIT mode.", RuntimeWarning)
@@ -764,7 +779,8 @@ def attach_gradient_solve(forward_solve: Callable, auxiliary_args: str, matrix_a
     return solve_with_grad
 
 
-def compute_preconditioner(method: str, matrix: Tensor, safe=False, target_backend: Backend = None, solver: str = None) -> Optional[Preconditioner]:
+def compute_preconditioner(method: str, matrix: Tensor, rank_deficiency: Union[int, Tensor] = 0, target_backend: Backend = None, solver: str = None) -> Optional[Preconditioner]:
+    rank_deficiency: Tensor = wrap(rank_deficiency)
     if method == 'auto':
         target_backend = target_backend or default_backend()
         # is_cpu = target_backend.get_default_device().device_type == 'CPU'
@@ -796,13 +812,13 @@ def compute_preconditioner(method: str, matrix: Tensor, safe=False, target_backe
         else:
             iterations = int(math.ceil(math.sqrt(d * n ** (1 / d))))  # in 1D take sqrt(n), in 2D take sqrt(2*n**1/2)
             ML_LOGGER.debug(f"factor_ilu: auto-selecting iterations={iterations} ({'variable matrix' if _TRACING_JIT else 'eager mode'}) for matrix {matrix}")
-        lower, upper = factor_ilu(matrix, iterations, safe=safe)
+        lower, upper = factor_ilu(matrix, iterations, safe=(rank_deficiency > 0).any)
         b = target_backend if lower.available else lower.default_backend
         native_lower = native_matrix(lower, b)
         native_upper = native_matrix(upper, b)
         native_lower = convert(native_lower, b)
         native_upper = convert(native_upper, b)
-        return IncompleteLU(native_lower, True, native_upper, False, rank_deficiency=0, source=f"iter={iterations}")  # ToDo rank deficiency
+        return IncompleteLU(native_lower, True, native_upper, False, rank_deficiency=rank_deficiency.numpy(), source=f"iter={iterations}")  # ToDo rank deficiency
     elif method == 'cluster':
         return explicit_coarse(matrix, target_backend)
     elif method is None:
