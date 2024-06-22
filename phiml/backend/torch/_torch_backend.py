@@ -49,8 +49,8 @@ class TorchBackend(Backend):
             return True  # this is pretty much required, else we couldn't perform NP+PyTorch operations
         return False
 
-    def is_sparse(self, x) -> bool:
-        return x.is_sparse or x.is_sparse_csr
+    def is_sparse(self, x: torch.Tensor) -> bool:
+        return x.layout in (torch.sparse_coo, torch.sparse_csr, torch.sparse_csc, torch.sparse_bsc, torch.sparse_bsr)
 
     def get_sparse_format(self, x) -> str:
         if x.is_sparse:
@@ -117,8 +117,8 @@ class TorchBackend(Backend):
         else:
             return tensor.cpu().numpy()
 
-    def disassemble(self, x, coalesce=False) -> Tuple[Callable, Sequence[TensorType]]:
-        if x.is_sparse:
+    def disassemble(self, x: torch.Tensor, coalesce=False) -> Tuple[Callable, Sequence[TensorType]]:
+        if x.layout == torch.sparse_coo:
             if coalesce:
                 tensor = x.coalesce()
                 indices = tensor.indices().T
@@ -127,9 +127,14 @@ class TorchBackend(Backend):
                 indices = x._indices().T
                 values = x._values()
             return lambda b, i, v: b.sparse_coo_tensor(i, v, x.shape), (indices, values)
-        elif x.is_sparse_csr:
+        elif x.layout == torch.sparse_csr:
             shape = self.staticshape(x)
             return lambda b, v, i, p: b.csr_matrix(i, p, v, shape), (x.values(), x.col_indices(), x.crow_indices())
+        elif x.layout == torch.sparse_csc:
+            shape = self.staticshape(x)
+            return lambda b, v, p, i: b.csc_matrix(p, i, v, shape), (x.values(), x.ccol_indices(), x.row_indices())
+        elif x.layout in (torch.sparse_bsc, torch.sparse_bsr):
+            raise NotImplementedError
         else:
             return lambda b, t: t, (x,)
 
@@ -213,7 +218,7 @@ class TorchBackend(Backend):
         class NumPyFunction(torch.autograd.Function):
             @staticmethod
             def forward(ctx, *args):
-                args = [a.detach().cpu().numpy() if isinstance(a, torch.Tensor) else a for a in args]
+                args = [self.numpy(a) if self.is_tensor(a, only_native=True) else a for a in args]
                 result = f(*args, **aux_args)
                 return map_structure(lambda t: self.as_tensor(t), result)
             @staticmethod
@@ -811,9 +816,8 @@ class TorchBackend(Backend):
     #         # return matrices
 
     def csc_matrix(self, column_pointers, row_indices, values, shape: tuple):
-        batch_size, nnz, channels = values.shape
         if version.parse(torch.__version__) >= version.parse('1.13.0'):
-            return torch.sparse_csc_tensor(column_pointers, row_indices, values, (batch_size, *shape, channels), device=values.device)
+            return torch.sparse_csc_tensor(column_pointers, row_indices, values, shape, device=values.device)
         else:
             warnings.warn("PyTorch >= 1.13 is required for batched CSC matrices. Visit https://pytorch.org/ to download the latest version.", RuntimeWarning)
             raise NotImplementedError
