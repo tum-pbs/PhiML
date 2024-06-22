@@ -899,6 +899,10 @@ class TorchBackend(Backend):
         x = torch.linalg.solve_triangular(matrix, rhs, upper=not lower, unitriangular=unit_diagonal)
         return x[..., 0]
 
+    def matrix_rank_dense(self, matrix, hermitian=False):
+        matrix, = self.auto_cast(matrix, bool_to_int=True, int_to_float=True)
+        return torch.linalg.matrix_rank(matrix, hermitian=hermitian)
+
     def _prepare_graph_inputs(self, args: tuple, wrt: Union[tuple, list]):
         args = [self.as_tensor(arg, True) if i in wrt else arg for i, arg in enumerate(args)]
         args = [self.to_float(arg) if self.dtype(arg).kind == int and i in wrt else arg for i, arg in enumerate(args)]

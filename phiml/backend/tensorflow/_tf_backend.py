@@ -911,6 +911,10 @@ class TFBackend(Backend):
         result = tf.linalg.triangular_solve(matrix, rhs, lower=lower)
         return result[..., 0]
 
+    def matrix_rank_dense(self, matrix, hermitian=False):
+        matrix, = self.auto_cast(matrix, bool_to_int=True, int_to_float=True)
+        return tf.linalg.matrix_rank(matrix)
+
     def get_diagonal(self, matrices, offset=0):
         with self._device_for(matrices):
             matrices = tf.transpose(matrices, [0, 3, 1, 2])

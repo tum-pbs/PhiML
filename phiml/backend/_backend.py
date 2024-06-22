@@ -1220,7 +1220,7 @@ class Backend:
         """
         raise NotImplementedError(self)
 
-    def sparse_coo_tensor(self, indices: Union[tuple, list], values, shape: tuple):
+    def sparse_coo_tensor(self, indices: TensorType, values: TensorType, shape: tuple):
         """
         Create a sparse matrix in coordinate list (COO) format.
 
@@ -1532,6 +1532,14 @@ class Backend:
         from scipy.sparse.linalg import spsolve_triangular
         np_result = spsolve_triangular(np_matrix, np_rhs.T, lower=lower, unit_diagonal=unit_diagonal).T
         return self.as_tensor(np_result)
+
+    def matrix_rank_dense(self, matrix, hermitian=False) -> TensorType:
+        """
+        Args:
+            matrix: Dense matrix of shape (batch, rows, cols)
+            hermitian: Whether all matrices are guaranteed to be hermitian.
+        """
+        raise NotImplementedError
 
     def stop_gradient(self, value):
         raise NotImplementedError(self)
