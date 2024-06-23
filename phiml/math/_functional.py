@@ -34,7 +34,8 @@ class SignatureKey:
                  backend: Backend,
                  tracing: bool,
                  auxiliary_kwargs: Any = None,
-                 buffer_config: Dict[str, int] = None):
+                 buffer_config: Dict[str, int] = None,
+                 traced_aux: Dict[str, Any] = None):
         if source_function is None:  # this is an input signature
             assert isinstance(shapes, tuple)
         self.source_function = source_function
@@ -46,6 +47,7 @@ class SignatureKey:
         self.auxiliary_kwargs = auxiliary_kwargs
         self.spatial_derivative_order = get_spatial_derivative_order()
         self.buffer_config = buffer_config
+        self.traced_aux = traced_aux
 
     def __repr__(self):
         return f"{self.tree} with shapes {self.shapes}"
@@ -121,7 +123,8 @@ def key_from_args(args: tuple,
                   parameters: Tuple[str, ...],
                   cache=False,
                   aux: Set[str] = (),
-                  attr_type=variable_attributes) -> Tuple[SignatureKey, List[Tensor], tuple, Dict[str, Any], Dict[str, Any]]:
+                  attr_type=variable_attributes,
+                  for_jit=False) -> Tuple[SignatureKey, List[Tensor], tuple, Dict[str, Any], Dict[str, Any]]:
     kwargs = {**kwargs, **{parameters[i]: v for i, v in enumerate(args)}}
     attached_aux_kwargs = {}
     detached_aux_kwargs = {}
@@ -136,7 +139,16 @@ def key_from_args(args: tuple,
     tracing = not math.all_available(*tensors, *aux_tensors)
     backend = math.choose_backend_t(*tensors, *aux_tensors)
     natives, shapes, specs = disassemble_tensors(tensors, expand=cache)
-    key = SignatureKey(None, tree, shapes, specs, backend, tracing, detached_aux_kwargs)
+    if for_jit and backend.name == 'torch':  # for PyTorch, add tracers from aux to natives, but keep aux. PyTorch does not support using tensors with grad inside jit otherwise.
+        _, aux_tensors = disassemble_tree(attached_aux_kwargs, cache=cache, attr_type=variable_attributes)
+        aux_natives, aux_shapes, aux_specs = disassemble_tensors(aux_tensors, expand=False)
+        from torch import Tensor
+        grad_aux_indices = [i for i, n in enumerate(aux_natives) if isinstance(n, Tensor) and n.requires_grad]
+        natives += tuple(aux_natives[i] for i in grad_aux_indices)
+        traced_aux = {'indices': grad_aux_indices, 'shapes': aux_shapes, 'specs': aux_specs}
+    else:
+        traced_aux = None
+    key = SignatureKey(None, tree, shapes, specs, backend, tracing, detached_aux_kwargs, traced_aux=traced_aux)
     return key, tensors, natives, kwargs, attached_aux_kwargs
 
 
@@ -228,7 +240,18 @@ class JitFunction:
                 self._tracing_in_key = in_key
                 in_tensors = assemble_tensors(natives, in_key.specs)
                 kwargs = assemble_tree(in_key.tree, in_tensors)
-                f_output = self.f(**kwargs, **attached_aux_args)  # Tensor or tuple/list of Tensors
+                attached_aux_args_ = attached_aux_args
+                if in_key.traced_aux:
+                    aux_tree, aux_tensors = disassemble_tree(attached_aux_args_, cache=False)
+                    aux_natives, aux_shapes, aux_specs = disassemble_tensors(aux_tensors, expand=False)
+                    aux_natives = list(aux_natives)
+                    indices = in_key.traced_aux['indices']
+                    traced_aux_natives = natives[-len(indices):]
+                    for i, n in zip(indices, traced_aux_natives):
+                        aux_natives[i] = n
+                    aux_tensors = assemble_tensors(aux_natives, aux_specs)
+                    attached_aux_args_ = assemble_tree(aux_tree, aux_tensors)
+                f_output = self.f(**kwargs, **attached_aux_args_)  # Tensor or tuple/list of Tensors
                 tree, out_tensors = disassemble_tree((f_output, self._extract_tensors), cache=True)
                 result_natives, result_shapes, specs = disassemble_tensors(out_tensors, expand=True)
                 tracers = get_required_buffer_sizes()
@@ -248,7 +271,7 @@ class JitFunction:
 
     def __call__(self, *args, **kwargs):
         try:
-            key, _, natives, _, aux_kwargs = key_from_args(args, kwargs, self.f_params, cache=True, aux=self.auxiliary_args)
+            key, _, natives, _, aux_kwargs = key_from_args(args, kwargs, self.f_params, cache=True, aux=self.auxiliary_args, for_jit=True)
         except LinearTraceInProgress:
             return self.f(*args, **kwargs)
         if isinstance(self.f, GradientFunction) and key.backend.supports(Backend.jit_compile_grad):
