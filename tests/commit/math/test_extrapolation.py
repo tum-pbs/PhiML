@@ -269,3 +269,11 @@ class TestExtrapolation(TestCase):
         math.assert_close([0, 2, 3], p.y[0], p.y[2])
         e_1 = extrapolation.map(lambda e: e + ONE, where(t <= 1, 0, 1))
         self.assertEqual(where(t <= 1, 1, 2), e_1)
+
+    def test_slice_mixed_normal(self):
+        boundary = {'x': 0, 'y': (0, {'normal': 0, 'tangential': -1})}
+        boundary = extrapolation.as_extrapolation(boundary)
+        bx = extrapolation.domain_slice(boundary, {'vector': 0}, spatial('x,y'))
+        by = extrapolation.domain_slice(boundary, {'vector': 1}, spatial('x,y'))
+        assert bx == extrapolation.as_extrapolation({'x': 0, 'y': (0, -1)})
+        assert by == extrapolation.ZERO

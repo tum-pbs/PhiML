@@ -1335,6 +1335,9 @@ class _MixedExtrapolation(Extrapolation):
         item = slicing_dict(self, item)
         return combine_sides({b: ext._getitem_with_domain(item, b[:-1], b.endswith('+'), self._dims) for b, ext in self.ext.items()})
 
+    def _getitem_with_domain(self, item: dict, dim: str, upper_edge: bool, all_dims: Sequence[str]) -> 'Extrapolation':
+        return combine_sides({b: ext._getitem_with_domain(item, b[:-1], b.endswith('+'), all_dims) for b, ext in self.ext.items()})
+
     @property
     def _dims(self):
         return tuple(set(b[:-1] if b[-1] in '+-' else b for b in self.ext))
