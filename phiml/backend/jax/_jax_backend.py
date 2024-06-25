@@ -542,7 +542,7 @@ class JaxBackend(Backend):
 
     def scatter(self, base_grid, indices, values, mode: str):
         assert mode in ('add', 'update', 'max', 'min')
-        base_grid, values = self.auto_cast(base_grid, values)
+        base_grid, values = self.auto_cast(base_grid, values, bool_to_int=True)
         batch_size = combined_dim(combined_dim(indices.shape[0], values.shape[0]), base_grid.shape[0])
         spatial_dims = tuple(range(base_grid.ndim - 2))
         dnums = jax.lax.ScatterDimensionNumbers(update_window_dims=(1,),  # channel dim of updates (batch dim removed)

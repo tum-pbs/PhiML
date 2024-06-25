@@ -1951,6 +1951,9 @@ def convert(tensor, backend: Backend = None, use_dlpack=True):
     current_backend = choose_backend(tensor, prefer_default=False)
     if backend.is_tensor(tensor, True) or backend is current_backend:
         return tensor
+    if current_backend.is_sparse(tensor):
+        assemble, parts = current_backend.disassemble(tensor)
+        return assemble(backend, *parts)
     if use_dlpack and current_backend.supports(Backend.to_dlpack) and backend.supports(Backend.from_dlpack):
         capsule = current_backend.to_dlpack(tensor)
         return backend.from_dlpack(capsule)

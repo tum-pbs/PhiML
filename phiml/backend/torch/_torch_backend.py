@@ -784,7 +784,7 @@ class TorchBackend(Backend):
     def sparse_coo_tensor(self, indices, values, shape):
         indices = self.to_int64(indices)
         indices = self.transpose(indices, [1, 0])
-        values = self.to_float(values)
+        values, = self.auto_cast(values)
 
         @torch.jit.script  # the output of torch.sparse_coo_tensor is considered constant
         def sparse_coo_tensor(values, indices, cols: int, rows: int, dtype: torch.dtype) -> torch.sparse.Tensor:
@@ -816,6 +816,9 @@ class TorchBackend(Backend):
     #         # return matrices
 
     def csc_matrix(self, column_pointers, row_indices, values, shape: tuple):
+        column_pointers = self.as_tensor(column_pointers)
+        row_indices = self.as_tensor(row_indices)
+        values = self.as_tensor(values)
         if version.parse(torch.__version__) >= version.parse('1.13.0'):
             return torch.sparse_csc_tensor(column_pointers, row_indices, values, shape, device=values.device)
         else:

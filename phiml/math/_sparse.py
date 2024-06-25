@@ -4,13 +4,14 @@ from numbers import Number
 from typing import Callable, Tuple, Union
 
 import numpy as np
+from phiml.backend._backend import TensorType, TensorOrArray
 from scipy.sparse import csr_matrix
 from scipy.sparse.linalg import aslinearoperator
 
 from ._magic_ops import concat, pack_dims, expand, rename_dims, stack, unpack_dim, unstack
 from ._shape import Shape, non_batch, merge_shapes, instance, batch, non_instance, shape, channel, spatial, DimFilter, \
     concat_shapes, EMPTY_SHAPE, dual, non_channel, DEBUG_CHECKS, primal
-from ._tensors import Tensor, TensorStack, NativeTensor, cached, wrap, reshaped_native, reshaped_tensor, reshaped_numpy
+from ._tensors import Tensor, TensorStack, NativeTensor, cached, wrap, reshaped_native, reshaped_tensor, reshaped_numpy, tensor
 from ..backend import choose_backend, NUMPY, Backend, get_precision
 from ..backend._dtype import DType
 
@@ -93,6 +94,34 @@ def tensor_like(existing_tensor: Tensor, values: Union[Tensor, Number, bool], va
     if not is_sparse(existing_tensor):
         return unpack_dim(values, instance, existing_tensor.shape.non_channel.non_batch)
     raise NotImplementedError
+
+
+def from_sparse_native(native, dims: Shape, indices_constant: bool, convert: bool):
+    """Wrap a native sparse tensor in a `SparseCoordinateTensor` or `CompressedSparseMatrix`."""
+    convert_idx = convert and not indices_constant
+    class SparseTensorFactory(Backend):  # creates sparse matrices from native tensors
+        def sparse_coo_tensor(self, indices: TensorType, values: TensorType, shape: tuple):
+            indices = tensor(indices, instance('items'), channel(index=dims), convert=convert_idx)
+            values = tensor(values, instance('items'), convert=convert)
+            return SparseCoordinateTensor(indices, values, dims, True, False, indices_constant)
+
+        def csr_matrix(self, column_indices: TensorOrArray, row_pointers: TensorOrArray, values: TensorOrArray, shape: Tuple[int, int]):
+            assert dims.rank % 2 == 0
+            column_indices = tensor(column_indices, instance('entries'), convert=convert_idx)
+            row_pointers = tensor(row_pointers, instance('pointers'), convert=convert_idx)
+            values = tensor(values, instance('entries'), convert=convert)
+            return CompressedSparseMatrix(column_indices, row_pointers, values, dims[len(dims)//2:], dims[:len(dims)//2], indices_constant)
+
+        def csc_matrix(self, column_pointers, row_indices, values, shape: Tuple[int, int]):
+            assert dims.rank % 2 == 0
+            row_indices = tensor(row_indices, instance('entries'), convert=convert_idx)
+            column_pointers = tensor(column_pointers, instance('pointers'), convert=convert_idx)
+            values = tensor(values, instance('entries'), convert=convert)
+            return CompressedSparseMatrix(row_indices, column_pointers, values, dims[:len(dims)//2], dims[len(dims)//2:], indices_constant)
+
+    b = choose_backend(native)
+    assemble, parts = b.disassemble(native)
+    return assemble(SparseTensorFactory('', [], None), *parts)
 
 
 class SparseCoordinateTensor(Tensor):

@@ -16,7 +16,7 @@ from ._shape import (Shape,
                      parse_dim_order, shape_stack, merge_shapes, channel, concat_shapes, primal,
                      SUPERSCRIPT, IncompatibleShapes, INSTANCE_DIM, batch, spatial, dual, instance, shape, DimFilter, non_batch, DEBUG_CHECKS)
 from ..backend import NoBackendFound, choose_backend, BACKENDS, get_precision, default_backend, convert as convert_, \
-    Backend, ComputeDevice, OBJECTS
+    Backend, ComputeDevice, OBJECTS, NUMPY
 from ..backend._dtype import DType, combine_types
 from .magic import BoundDim, PhiTreeNode, slicing_dict, Shaped
 from .magic import Shapable
@@ -1557,7 +1557,7 @@ def tensor(data,
         `phiml.math.wrap()` which uses `convert=False`, `layout()`.
 
     Args:
-        data: native tensor, scalar, sequence, Shape or Tensor
+        data: native tensor, sparse COO / CSR / CSC matrix, scalar, sequence, `Shape` or `Tensor`
         shape: Ordered dimensions and types. If sizes are defined, they will be checked against `data`.`
         convert: If True, converts the data to the native format of the current default backend.
             If False, wraps the data in a `Tensor` but keeps the given data reference if possible.
@@ -1650,7 +1650,10 @@ def tensor(data,
                 if s is not None:
                     assert s == size, f"Given shape {shape} does not match data with sizes {sizes}. Consider leaving the sizes undefined."
             shape = shape.with_sizes(sizes, keep_item_names=True)
-        if convert:
+        if backend.is_sparse(data):
+            from ._sparse import from_sparse_native
+            return from_sparse_native(data, shape, indices_constant=backend == NUMPY, convert=convert)
+        elif convert:
             data = convert_(data, use_dlpack=False)
         return NativeTensor(data, shape)
     except NoBackendFound:

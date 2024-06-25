@@ -5,6 +5,7 @@ from phiml.backend._backend import init_installed_backends
 from phiml.math import batch, get_sparsity, expand, wrap, stack, zeros, channel, spatial, ones, instance, tensor, \
     pairwise_distances, dense, assert_close, non_dual, dual, concat
 from phiml.math._sparse import SparseCoordinateTensor, CompressedSparseMatrix
+from scipy.sparse import coo_matrix, csr_matrix, csc_matrix
 
 BACKENDS = init_installed_backends()
 
@@ -174,3 +175,21 @@ class TestSparse(TestCase):
                     matrix = stack([matrix, matrix * 2], batch('b'))
                     ranks = math.matrix_rank(matrix)
                     math.assert_close(2, ranks)
+
+    def test_wrap_sparse_scipy(self):
+        for backend in BACKENDS:
+            with backend:
+                # --- int ---
+                for scipy_type in [coo_matrix, csr_matrix, csc_matrix]:
+                    M = scipy_type([[1, 0, 3], [0, 2, 0]])
+                    t = tensor(M, channel('c') & dual)
+                    math.assert_close([1, 0, 3], math.dense(t).c[0])
+                    self.assertEqual(int, t.dtype.kind)
+                    self.assertEqual(t.default_backend, backend)
+                # --- bool ---
+                for scipy_type in [coo_matrix, csr_matrix, csc_matrix]:
+                    M = scipy_type([[True, False, True], [False, True, False]])
+                    t = tensor(M, channel('c') & dual)
+                    math.assert_close([True, False, True], math.dense(t).c[0])
+                    self.assertEqual(bool, t.dtype.kind)
+                    self.assertEqual(t.default_backend, backend)
