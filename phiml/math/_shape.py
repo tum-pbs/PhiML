@@ -709,6 +709,13 @@ class Shape:
         return result
 
     def __and__(self, other):
+        if other is dual:
+            return concat_shapes(self, self.primal.as_dual())
+        return merge_shapes(self, other)
+
+    def __rand__(self, other):
+        if other is dual:
+            return concat_shapes(self.primal.as_dual(), self)
         return merge_shapes(self, other)
 
     def _expand(self, dim: 'Shape', pos=None) -> 'Shape':

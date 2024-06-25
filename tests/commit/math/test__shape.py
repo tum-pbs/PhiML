@@ -207,3 +207,12 @@ class TestShape(TestCase):
     def test_primitive_shape(self):
         s = non_batch([0, 1])
         self.assertEqual(2, s.size)
+
+    def test_and_dual(self):
+        shape = spatial(x=10, y=8) & channel(vector='x,y')
+        and_dual = shape & dual
+        self.assertEqual(shape.as_dual(), and_dual.dual)
+        self.assertEqual(shape.as_dual(), and_dual[3:])
+        dual_and = dual & shape
+        self.assertEqual(shape.as_dual(), dual_and.dual)
+        self.assertEqual(shape.as_dual(), dual_and[:3])
