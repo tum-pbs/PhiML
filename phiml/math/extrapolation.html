@@ -2,19 +2,22 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
-<meta name="generator" content="pdoc 0.10.0" />
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1">
+<meta name="generator" content="pdoc3 0.11.0">
 <title>phiml.math.extrapolation API documentation</title>
 <meta name="description" content="Extrapolations are used for padding tensors and sampling coordinates lying outside the tensor bounds.
-Standard extrapolations are listed as global …" />
-<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
-<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/typography.min.css" integrity="sha256-7l/o7C8jubJiy74VsKTidCy1yBkRtiUGbVkYBylBqUg=" crossorigin>
-<link rel="stylesheet preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/github.min.css" crossorigin>
-<style>:root{--highlight-color:#fe9}.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}h1:target,h2:target,h3:target,h4:target,h5:target,h6:target{background:var(--highlight-color);padding:.2em 0}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}dt:target .name{background:var(--highlight-color)}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}td{padding:0 .5em}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
-<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
+Standard extrapolations are listed as global …">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/13.0.0/sanitize.min.css" integrity="sha512-y1dtMcuvtTMJc1yPgEqF0ZjQbhnc/bFhyvIyVNb9Zk5mIGtqVaAB1Ttl28su8AvFMOY0EwRbAe+HCLqj6W7/KA==" crossorigin>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/13.0.0/typography.min.css" integrity="sha512-Y1DYSb995BAfxobCkKepB1BqJJTPrOp3zPL74AWFugHHmmdcvO+C48WLrUOlhGMc0QG7AE3f7gmvvcrmX2fDoA==" crossorigin>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/default.min.css" crossorigin>
+<style>:root{--highlight-color:#fe9}.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:1.5em;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:2em 0 .50em 0}h3{font-size:1.4em;margin:1.6em 0 .7em 0}h4{margin:0;font-size:105%}h1:target,h2:target,h3:target,h4:target,h5:target,h6:target{background:var(--highlight-color);padding:.2em 0}a{color:#058;text-decoration:none;transition:color .2s ease-in-out}a:visited{color:#503}a:hover{color:#b62}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900;font-weight:bold}pre code{font-size:.8em;line-height:1.4em;padding:1em;display:block}code{background:#f3f3f3;font-family:"DejaVu Sans Mono",monospace;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}dt:target .name{background:var(--highlight-color)}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}td{padding:0 .5em}.admonition{padding:.1em 1em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul ul{padding-left:1em}.toc > ul > li{margin-top:.5em}}</style>
 <style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
-<script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/highlight.min.js" integrity="sha256-Uv3H6lx7dJmRfRvH8TH6kJD1TSK1aFcwgx+mdg3epi8=" crossorigin></script>
-<script>window.addEventListener('DOMContentLoaded', () => hljs.initHighlighting())</script>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js" integrity="sha512-D9gUyxqja7hBtkWpPWGt9wfbfaMGVt9gnyCvYa+jojwwPHLCzUm5i8rpk7vD7wNee9bA35eYIjobYPaQuKS1MQ==" crossorigin></script>
+<script>window.addEventListener('DOMContentLoaded', () => {
+hljs.configure({languages: ['bash', 'css', 'diff', 'graphql', 'ini', 'javascript', 'json', 'plaintext', 'python', 'python-repl', 'rust', 'shell', 'sql', 'typescript', 'xml', 'yaml']});
+hljs.highlightAll();
+})</script>
 </head>
 <body>
 <main>
@@ -27,1747 +30,6 @@ Standard extrapolations are listed as global …" />
 Standard extrapolations are listed as global variables in this module.</p>
 <p>Extrapolations are an important part of sampled fields such as grids.
 See the documentation at <a href="https://tum-pbs.github.io/PhiML/Fields.html#extrapolations">https://tum-pbs.github.io/PhiML/Fields.html#extrapolations</a> .</p>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">&#34;&#34;&#34;
-Extrapolations are used for padding tensors and sampling coordinates lying outside the tensor bounds.
-Standard extrapolations are listed as global variables in this module.
-
-Extrapolations are an important part of sampled fields such as grids.
-See the documentation at https://tum-pbs.github.io/PhiML/Fields.html#extrapolations .
-&#34;&#34;&#34;
-import warnings
-from abc import ABC
-from numbers import Number
-from typing import Union, Dict, Callable, Tuple, Optional, Hashable, Sequence
-
-from ..backend._backend import get_spatial_derivative_order
-from ..backend import choose_backend
-from ._shape import Shape, channel, spatial, EMPTY_SHAPE, merge_shapes, dual, non_dual, instance
-from ._magic_ops import concat, stack, expand, rename_dims
-from ._tensors import Tensor, NativeTensor, TensorStack, wrap, to_dict as tensor_to_dict, from_dict as tensor_from_dict
-from . import _ops as math  # TODO this executes _ops.py, can we avoid this?
-
-
-class Extrapolation:
-    &#34;&#34;&#34;
-    Extrapolations are used to determine values of grids or other structures outside the sampled bounds.
-    They play a vital role in padding and sampling.
-    &#34;&#34;&#34;
-
-    def __init__(self, pad_rank):
-        &#34;&#34;&#34;
-        Args:
-            pad_rank: low-ranking extrapolations are handled first during mixed-extrapolation padding.
-                The typical order is periodic=1, boundary=2, symmetric=3, reflect=4, constant=5.
-        &#34;&#34;&#34;
-        self.pad_rank = pad_rank
-
-    @property
-    def shape(self):
-        raise NotImplementedError()
-
-    def to_dict(self) -&gt; dict:
-        &#34;&#34;&#34;
-        Serialize this extrapolation to a dictionary that is serializable (JSON-writable).
-        
-        Use `from_dict()` to restore the Extrapolation object.
-        &#34;&#34;&#34;
-        raise NotImplementedError(self.__class__)
-
-    def spatial_gradient(self) -&gt; &#39;Extrapolation&#39;:
-        &#34;&#34;&#34;
-        Returns the extrapolation for the spatial gradient of a tensor/field with this extrapolation.
-
-        Returns:
-            `Extrapolation` or `NotImplemented`
-        &#34;&#34;&#34;
-        raise NotImplementedError(self.__class__)
-
-    def valid_outer_faces(self, dim) -&gt; Tuple[bool, bool]:
-        &#34;&#34;&#34;
-        Use `determines_boundary_values()` instead.
-
-         `(lower: bool, upper: bool)` indicating whether the values sampled at the outer-most faces of a staggered grid with this extrapolation are valid, i.e. need to be stored and are not redundant. &#34;&#34;&#34;
-        return not self.determines_boundary_values((dim, False)), not self.determines_boundary_values((dim, True))
-
-    def determines_boundary_values(self, boundary_key: Union[Tuple[str, bool], str]) -&gt; bool:
-        &#34;&#34;&#34;
-        Tests whether this extrapolation fully determines the values at the boundary faces of the outermost cells or elements.
-        If so, the values need not be stored along with the inside values.
-
-        Override this function instead of `valid_outer_faces()`.
-
-        Args:
-            boundary_key: Hashable object identifying the boundary, e.g. a `str` or `Tuple`.
-
-        Returns:
-            Whether the value is fully determined by the boundary and need not be stored elsewhere.
-        &#34;&#34;&#34;
-        raise NotImplementedError(self.__class__)
-
-    @property
-    def is_flexible(self) -&gt; bool:
-        &#34;&#34;&#34;
-        Whether the outside values are affected by the inside values.
-        Only `True` if there are actual outside values, i.e. PERIODIC is not flexible.
-
-        This property is important for pressure solves to determine whether the total divergence is fixed or can be adjusted during the solve.
-        &#34;&#34;&#34;
-        raise NotImplementedError(self.__class__)
-
-    def pad(self, value: Tensor, widths: dict, already_padded: Optional[dict] = None, **kwargs) -&gt; Tensor:
-        &#34;&#34;&#34;
-        Pads a tensor using values from `self.pad_values()`.
-
-        If `value` is a linear tracer, assume pad_values() to produce constant values, independent of `value`.
-        To change this behavior, override this method.
-
-        Args:
-            value: `Tensor` to be padded
-            widths: `dict` mapping `dim: str -&gt; (lower: int, upper: int)`
-            already_padded: Used when padding a tensor with multiple extrapolations.
-                Contains all widths that have already been padded prior to this call.
-                This causes the shape of `value` to be different from the original tensor passed to `math.pad()`.
-            kwargs: Additional keyword arguments for padding, passed on to `pad_values()`.
-
-        Returns:
-            Padded `Tensor`
-        &#34;&#34;&#34;
-        from ._trace import ShiftLinTracer
-        if isinstance(value, ShiftLinTracer):
-            lower = {dim: -lo for dim, (lo, _) in widths.items()}
-            return value.shift(lower, new_shape=value.shape.after_pad(widths), val_fun=lambda v: ZERO.pad(v, widths, already_padded=already_padded, **kwargs), bias_fun=lambda b: self.pad(b, widths, already_padded=already_padded, **kwargs))
-        already_padded = {} if already_padded is None else dict(already_padded)
-        for dim, width in widths.items():
-            assert (w &gt; 0 for w in width), &#34;Negative widths not allowed in Extrapolation.pad(). Use math.pad() instead.&#34;
-            values = []
-            if width[False] &gt; 0:
-                values.append(self.pad_values(value, width[False], dim, False, already_padded=already_padded, **kwargs))
-            values.append(value)
-            if width[True] &gt; 0:
-                values.append(self.pad_values(value, width[True], dim, True, already_padded=already_padded, **kwargs))
-            value = concat(values, dim)
-            if dim in already_padded:
-                already_padded[dim] = tuple(i+j for i, j in zip(already_padded[dim], width))
-            else:
-                already_padded[dim] = width
-        return value
-
-    def pad_values(self, value: Tensor, width: int, dim: str, upper_edge: bool, already_padded: Optional[dict] = None, **kwargs) -&gt; Tensor:
-        &#34;&#34;&#34;
-        Determines the values with which the given tensor would be padded at the specified using this extrapolation.
-
-        Args:
-            value: `Tensor` to be padded.
-            width: `int &gt; 0`: Number of cells to pad along `dimension`.
-            dim: Dimension name as `str`.
-            upper_edge: `True` for upper edge, `False` for lower edge.
-            already_padded: Used when padding a tensor with multiple extrapolations.
-                Contains all widths that have already been padded prior to this call.
-                This causes the shape of `value` to be different from the original tensor passed to `math.pad()`.
-
-        Returns:
-            `Tensor` that can be concatenated to `value` along `dimension`
-        &#34;&#34;&#34;
-        raise NotImplementedError(self.__class__)
-
-    def sparse_pad_values(self, value: Tensor, connectivity: Tensor, dim: str, **kwargs) -&gt; Tensor:
-        raise NotImplementedError(self.__class__)
-
-    def transform_coordinates(self, coordinates: Tensor, shape: Shape, **kwargs) -&gt; Tensor:
-        &#34;&#34;&#34;
-        If `self.is_copy_pad`, transforms outside coordinates to the index from which the value is copied.
-        
-        Otherwise, the grid tensor is assumed to hold the correct boundary values for this extrapolation at the edge.
-        Coordinates are then snapped to the valid index range.
-        This is the default implementation.
-
-        Args:
-            coordinates: integer coordinates in index space
-            shape: tensor shape
-
-        Returns:
-            Transformed coordinates
-        &#34;&#34;&#34;
-        res = shape[coordinates.shape.get_item_names(&#39;vector&#39;)] if &#39;vector&#39; in coordinates.shape and coordinates.shape.get_item_names(&#39;vector&#39;) else shape.spatial
-        return math.clip(coordinates, 0, math.wrap(res - 1, channel(&#39;vector&#39;)))
-
-    def is_copy_pad(self, dim: str, upper_edge: bool):
-        &#34;&#34;&#34;:return: True if all pad values are copies of existing values in the tensor to be padded&#34;&#34;&#34;
-        return False
-
-    @property
-    def native_grid_sample_mode(self) -&gt; Union[str, None]:
-        return None
-
-    def shortest_distance(self, start: Tensor, end: Tensor, domain_size: Tensor):
-        &#34;&#34;&#34;
-        Computes the shortest distance between two points.
-        Both points are assumed to lie within the domain
-
-        Args:
-            start: Start position.
-            end: End position.
-            domain_size: Domain side lengths as vector.
-
-        Returns:
-            Shortest distance from `start` to `end`.
-        &#34;&#34;&#34;
-        return end - start
-
-    def __getitem__(self, item):
-        return self
-
-    def _getitem_with_domain(self, item: dict, dim: str, upper_edge: bool, all_dims: Sequence[str]):
-        return self[item]
-
-    def __eq__(self, other):
-        raise NotImplementedError(self.__class__)
-
-    def __hash__(self):
-        raise NotImplementedError(self.__class__)  # must be overridden by all subclasses that implement __eq__
-
-    def __ne__(self, other):
-        return not self == other
-
-    def __abs__(self):
-        raise NotImplementedError(self.__class__)
-
-    def __neg__(self):
-        raise NotImplementedError(self.__class__)
-
-    def __add__(self, other):
-        raise NotImplementedError(self.__class__)
-
-    def __radd__(self, other):
-        raise NotImplementedError(self.__class__)
-
-    def __sub__(self, other):
-        raise NotImplementedError(self.__class__)
-
-    def __rsub__(self, other):
-        raise NotImplementedError(self.__class__)
-
-    def __mul__(self, other):
-        raise NotImplementedError(self.__class__)
-
-    def __rmul__(self, other):
-        raise NotImplementedError(self.__class__)
-
-    def __truediv__(self, other):
-        raise NotImplementedError(self.__class__)
-
-    def __rtruediv__(self, other):
-        raise NotImplementedError(self.__class__)
-
-
-class ConstantExtrapolation(Extrapolation):
-    &#34;&#34;&#34;
-    Extrapolate with a constant value.
-    &#34;&#34;&#34;
-
-    def __init__(self, value: Union[Tensor, float]):
-        Extrapolation.__init__(self, 5)
-        self.value = wrap(value)
-        &#34;&#34;&#34; Extrapolation value &#34;&#34;&#34;
-        assert self.value.dtype.kind in (bool, int, float, complex), f&#34;Numeric value required for constant extrapolation but got &#39;{value}&#39;&#34;
-
-    @property
-    def shape(self):
-        return self.value.shape
-
-    def __repr__(self):
-        return repr(self.value)
-
-    def to_dict(self) -&gt; dict:
-        return {&#39;type&#39;: &#39;constant&#39;, &#39;value&#39;: self.value.numpy()}
-
-    def __value_attrs__(self):
-        return &#39;value&#39;,
-
-    def __getitem__(self, item):
-        return ConstantExtrapolation(self.value[item])
-
-    @staticmethod
-    def __stack__(values: tuple, dim: Shape, **kwargs) -&gt; &#39;ConstantExtrapolation&#39;:
-        if all(isinstance(v, ConstantExtrapolation) for v in values):
-            return ConstantExtrapolation(stack([v.value for v in values], dim, **kwargs))
-        else:
-            return NotImplemented
-
-    def spatial_gradient(self):
-        return ZERO
-
-    def determines_boundary_values(self, boundary_key: Union[Tuple[str, bool], str]) -&gt; bool:
-        return True
-
-    @property
-    def is_flexible(self) -&gt; bool:
-        return False
-
-    def pad(self, value: Tensor, widths: dict, already_padded: Optional[dict] = None, **kwargs) -&gt; Tensor:
-        &#34;&#34;&#34;Pads a tensor using constant values.&#34;&#34;&#34;
-        value = value._simplify()
-        if isinstance(value, NativeTensor):
-            pad_value = self._get_pad_value(already_padded)
-            backend = choose_backend(value._native, pad_value.native())
-            for dim in pad_value.shape.non_batch.names:
-                assert dim in value.shape, f&#34;Cannot pad tensor {value.shape} with extrapolation {pad_value.shape} because non-batch dimension &#39;{dim}&#39; is missing.&#34;
-            if pad_value.rank == 0:
-                equal_values = math.all_available(self.value, value) and value._native_shape in self.value.shape and (self.value == value).all
-                if not equal_values:
-                    required_dims = value._shape.only(tuple(widths.keys()))
-                    value = value._cached(required_dims)
-                should_pad_native = any(dim in value._native_shape for dim in widths) and pad_value.shape.volume == 1
-                if should_pad_native:
-                    ordered_pad_widths = order_by_shape(value._native_shape, widths, default=(0, 0))
-                    result_native = backend.pad(value._native, ordered_pad_widths, &#39;constant&#39;, pad_value.native())
-                else:
-                    result_native = value._native
-                if result_native is not NotImplemented:
-                    return NativeTensor(result_native, value._native_shape.after_pad(widths), value._shape.after_pad(widths))
-            return Extrapolation.pad(self, value, widths, already_padded=already_padded, **kwargs)
-        elif isinstance(value, TensorStack):
-            if not value.requires_broadcast:
-                return self.pad(value._contiguous(), widths)
-            inner_widths = {dim: w for dim, w in widths.items() if dim != value._stack_dim.name}
-            tensors = [self[{value._stack_dim.name: i}].pad(t, inner_widths) for i, t in enumerate(value.dimension(value._stack_dim.name))]
-            return TensorStack(tensors, value._stack_dim)
-        else:
-            return Extrapolation.pad(self, value, widths, already_padded=already_padded, **kwargs)
-
-    def pad_values(self, value: Tensor, width: int, dim: str, upper_edge: bool, already_padded: Optional[dict] = None, **kwargs) -&gt; Tensor:
-        shape = value.shape.after_gather({dim: slice(0, width)})
-        pad_value = self._get_pad_value(already_padded)
-        return math.expand(pad_value, shape)
-
-    def _get_pad_value(self, already_padded: Optional[dict]):
-        if get_spatial_derivative_order() == 0:
-            if already_padded:
-                return ZERO.pad(self.value, already_padded)
-            else:
-                return self.value
-        else:
-            return math.wrap(0)
-
-    def sparse_pad_values(self, value: Tensor, connectivity: Tensor, dim: str, **kwargs) -&gt; Tensor:
-        return math.expand(self.value, dual(connectivity) &amp; non_dual(value))
-
-    def __eq__(self, other):
-        return isinstance(other, ConstantExtrapolation) and math.always_close(self.value, other.value, equal_nan=True)
-
-    def __hash__(self):
-        return hash(self.__class__)
-
-    def is_zero(self):
-        return self == ZERO
-
-    def is_one(self):
-        return self == ONE
-
-    @property
-    def native_grid_sample_mode(self) -&gt; Union[str, None]:
-        return &#39;zeros&#39; if self.is_zero() else None
-
-    def __add__(self, other):
-        if isinstance(other, ConstantExtrapolation):
-            return ConstantExtrapolation(self.value + other.value)
-        elif self.is_zero():
-            return other
-        else:
-            return NotImplemented
-
-    __radd__ = __add__
-
-    def __sub__(self, other):
-        if isinstance(other, ConstantExtrapolation):
-            return ConstantExtrapolation(self.value - other.value)
-        elif self.is_zero():
-            return -other
-        else:
-            return NotImplemented
-
-    def __rsub__(self, other):
-        if isinstance(other, ConstantExtrapolation):
-            return ConstantExtrapolation(other.value - self.value)
-        elif self.is_zero():
-            return other
-        else:
-            return NotImplemented
-
-    def __mul__(self, other):
-        if isinstance(other, ConstantExtrapolation):
-            return ConstantExtrapolation(self.value * other.value)
-        elif self.is_one():
-            return other
-        elif self.is_zero():
-            return self
-        else:
-            return NotImplemented
-
-    __rmul__ = __mul__
-
-    def __truediv__(self, other):
-        if isinstance(other, ConstantExtrapolation):
-            return ConstantExtrapolation(self.value / other.value)
-        elif self.is_zero():
-            return self
-        else:
-            return NotImplemented
-
-    def __rtruediv__(self, other):
-        if isinstance(other, ConstantExtrapolation):
-            return ConstantExtrapolation(other.value / self.value)
-        elif self.is_one():
-            return other
-        else:
-            return NotImplemented
-
-    def __lt__(self, other):
-        if isinstance(other, ConstantExtrapolation):
-            return ConstantExtrapolation(self.value &lt; other.value)
-        else:
-            return NotImplemented
-
-    def __gt__(self, other):
-        if isinstance(other, ConstantExtrapolation):
-            return ConstantExtrapolation(self.value &gt; other.value)
-        else:
-            return NotImplemented
-
-    def __abs__(self):
-        return ConstantExtrapolation(abs(self.value))
-
-    def __neg__(self):
-        return ConstantExtrapolation(-self.value)
-
-
-class _CopyExtrapolation(Extrapolation, ABC):
-
-    @property
-    def shape(self):
-        return EMPTY_SHAPE
-
-    def is_copy_pad(self, dim: str, upper_edge: bool):
-        return True
-
-    def to_dict(self) -&gt; dict:
-        return {&#39;type&#39;: repr(self)}
-
-    @property
-    def backend_pad_mode(self) -&gt; Optional[str]:
-        return repr(self)
-
-    @property
-    def native_grid_sample_mode(self) -&gt; Union[str, None]:
-        return str(self)
-
-    def __value_attrs__(self):
-        return ()
-
-    def determines_boundary_values(self, boundary_key: Union[Tuple[str, bool], str]) -&gt; bool:
-        return False
-
-    @property
-    def _is_dim_separable(self):
-        &#34;&#34;&#34;
-        If `True`, the extrapolation values only depend on values of the same row/column.
-        If `False`, collapsed dimensions have to be expanded during padding.
-        &#34;&#34;&#34;
-        return True
-
-    def pad(self, value: Tensor, widths: dict, already_padded: Optional[dict] = None, **kwargs) -&gt; Tensor:
-        value = value._simplify()
-        from ._trace import ShiftLinTracer
-        if isinstance(value, NativeTensor):
-            if not self._is_dim_separable:
-                required_dims = value._shape.only(tuple(widths.keys()))
-                value = value._cached(required_dims)
-            should_pad_native = any(dim in value._native_shape for dim in widths)
-            if should_pad_native:
-                ordered_pad_widths = order_by_shape(value._native_shape, widths, default=(0, 0))
-                result_native = value.default_backend.pad(value._native, ordered_pad_widths, self.backend_pad_mode)
-            else:
-                result_native = value._native
-            if result_native is not NotImplemented:
-                return NativeTensor(result_native, value._native_shape.after_pad(widths), value._shape.after_pad(widths))
-            return Extrapolation.pad(self, value, widths)
-        elif isinstance(value, TensorStack):
-            if not value.requires_broadcast:
-                return self.pad(value._contiguous(), widths)
-            inner_widths = {dim: w for dim, w in widths.items() if dim != value._stack_dim.name}
-            tensors = [self.pad(t, inner_widths) for t in value.dimension(value._stack_dim.name)]
-            return TensorStack(tensors, value._stack_dim)
-        elif isinstance(value, ShiftLinTracer):
-            return self._pad_linear_tracer(value, widths)
-        else:
-            raise NotImplementedError(f&#39;{type(value)} not supported&#39;)
-
-    def _pad_linear_tracer(self, value, widths: dict):
-        raise NotImplementedError(self.__class__)
-
-    def __eq__(self, other):
-        return type(other) == type(self)
-
-    def __hash__(self):
-        return hash(self.__class__)
-
-    def _op(self, other, op):
-        if type(other) == type(self):
-            return self
-        if isinstance(other, ConstantExtrapolation):  # some operations can be handled by ConstantExtrapolation, e.g. * 0
-            op = getattr(other, op.__name__)
-            return op(self)
-        else:
-            return NotImplemented
-
-    def __abs__(self):
-        return self  # assume also applied to values
-
-    def __neg__(self):
-        return self  # assume also applied to values
-
-    def __add__(self, other):
-        return self._op(other, ConstantExtrapolation.__add__)
-
-    def __radd__(self, other):
-        return self._op(other, ConstantExtrapolation.__add__)
-
-    def __mul__(self, other):
-        return self._op(other, ConstantExtrapolation.__mul__)
-
-    def __rmul__(self, other):
-        return self._op(other, ConstantExtrapolation.__mul__)
-
-    def __sub__(self, other):
-        return self._op(other, ConstantExtrapolation.__rsub__)
-
-    def __rsub__(self, other):
-        return self._op(other, ConstantExtrapolation.__sub__)
-
-    def __truediv__(self, other):
-        return self._op(other, ConstantExtrapolation.__rtruediv__)
-
-    def __rtruediv__(self, other):
-        return self._op(other, ConstantExtrapolation.__truediv__)
-
-    def __lt__(self, other):
-        return self._op(other, ConstantExtrapolation.__gt__)
-
-    def __gt__(self, other):
-        return self._op(other, ConstantExtrapolation.__lt__)
-
-
-class _ZeroGradient(_CopyExtrapolation):
-    &#34;&#34;&#34;Uses the closest defined value for points lying outside the defined region.&#34;&#34;&#34;
-
-    _CACHED_LOWER_MASKS = {}
-    _CACHED_UPPER_MASKS = {}
-
-    def __repr__(self):
-        return &#39;zero-gradient&#39;
-
-    @property
-    def backend_pad_mode(self) -&gt; Optional[str]:
-        return &#39;boundary&#39;
-
-    @property
-    def native_grid_sample_mode(self) -&gt; Union[str, None]:
-        return &#39;boundary&#39;
-
-    def spatial_gradient(self):
-        return ZERO
-
-    @property
-    def is_flexible(self) -&gt; bool:
-        return True
-
-    def pad_values(self, value: Tensor, width: int, dim: str, upper_edge: bool, already_padded: Optional[dict] = None, **kwargs) -&gt; Tensor:
-        if upper_edge:
-            edge = value[{dim: slice(-1, None)}]
-        else:
-            edge = value[{dim: slice(1)}]
-        return concat([edge] * width, value.shape[dim])
-
-    def _pad_linear_tracer(self, value: &#39;ShiftLinTracer&#39;, widths: dict) -&gt; &#39;ShiftLinTracer&#39;:
-        &#34;&#34;&#34;
-        *Warning*:
-        This implementation discards corners, i.e. values that lie outside the original tensor in more than one dimension.
-        These are typically sliced off in differential operators. Corners are instead assigned the value 0.
-        To take corners into account, call pad() for each axis individually. This is inefficient with ShiftLinTracer.
-
-        Args:
-          value: ShiftLinTracer:
-          widths: dict: 
-
-        Returns:
-
-        &#34;&#34;&#34;
-        lower = {dim: -lo for dim, (lo, _) in widths.items()}
-        result = value.shift(lower, new_shape=value.shape.after_pad(widths), val_fun=lambda v: ZERO.pad(v, widths), bias_fun=lambda b: ZERO.pad(b, widths))  # inner values  ~half the computation time
-        for bound_dim, (bound_lo, bound_hi) in widths.items():
-            for i in range(bound_lo):  # i=0 means outer
-                # this sets corners to 0
-                lower = {dim: -i if dim == bound_dim else -lo for dim, (lo, _) in widths.items()}
-                mask = self._lower_mask(value.shape.only(tuple(lower)), widths, bound_dim, bound_lo, bound_hi, i)
-                boundary = value.shift(lower, new_shape=result.shape, val_fun=lambda v: self.pad(v, widths) * mask, bias_fun=lambda b: ZERO.pad(b, widths))
-                result += boundary
-            for i in range(bound_hi):
-                lower = {dim: i - lo - hi if dim == bound_dim else -lo for dim, (lo, hi) in widths.items()}
-                mask = self._upper_mask(value.shape.only(tuple(lower)), widths, bound_dim, bound_lo, bound_hi, i)
-                boundary = value.shift(lower, new_shape=result.shape, val_fun=lambda v: self.pad(v, widths) * mask, bias_fun=lambda b: ZERO.pad(b, widths))  # ~ half the computation time
-                result += boundary  # this does basically nothing if value is the identity
-        return result
-
-    def _lower_mask(self, shape, widths, bound_dim, bound_lo, bound_hi, i):
-        # key = (shape, tuple(widths.keys()), tuple(widths.values()), bound_dim, bound_lo, bound_hi, i)
-        # if key in _BoundaryExtrapolation._CACHED_LOWER_MASKS:
-        #     result = math.tensor(_BoundaryExtrapolation._CACHED_LOWER_MASKS[key])
-        #     _BoundaryExtrapolation._CACHED_LOWER_MASKS[key] = result
-        #     return result
-        # else:
-            mask = ZERO.pad(math.zeros(shape), {bound_dim: (bound_lo - i - 1, 0)})
-            mask = ONE.pad(mask, {bound_dim: (1, 0)})
-            mask = ZERO.pad(mask, {dim: (i, bound_hi) if dim == bound_dim else (lo, hi) for dim, (lo, hi) in widths.items()})
-            # _BoundaryExtrapolation._CACHED_LOWER_MASKS[key] = mask
-            return mask
-
-    def _upper_mask(self, shape, widths, bound_dim, bound_lo, bound_hi, i):
-        # key = (shape, tuple(widths.keys()), tuple(widths.values()), bound_dim, bound_lo, bound_hi, i)
-        # if key in _BoundaryExtrapolation._CACHED_UPPER_MASKS:
-        #     result = math.tensor(_BoundaryExtrapolation._CACHED_UPPER_MASKS[key])
-        #     _BoundaryExtrapolation._CACHED_UPPER_MASKS[key] = result
-        #     return result
-        # else:
-            mask = ZERO.pad(math.zeros(shape), {bound_dim: (0, bound_hi - i - 1)})
-            mask = ONE.pad(mask, {bound_dim: (0, 1)})
-            mask = ZERO.pad(mask, {dim: (bound_lo, i) if dim == bound_dim else (lo, hi) for dim, (lo, hi) in widths.items()})
-            # _BoundaryExtrapolation._CACHED_UPPER_MASKS[key] = mask
-            return mask
-
-    def sparse_pad_values(self, value: Tensor, connectivity: Tensor, dim: str, **kwargs) -&gt; Tensor:
-        from ._sparse import stored_indices, is_sparse
-        from ._ops import arange, nonzero, scatter
-        dual_dim = dual(connectivity).name
-        # --- Gather the edge values ---
-        if is_sparse(connectivity):
-            indices = stored_indices(connectivity, invalid=&#39;discard&#39;)
-        else:
-            indices = nonzero(connectivity)
-        primal_dim = [n for n in channel(indices).item_names[0] if not n.startswith(&#39;~&#39;)][0]
-        assert primal_dim not in value.shape, f&#34;sparse_pad_values only implemented for vectors, not matrices&#34;
-        gathered = value[{dual_dim: indices[primal_dim]}]
-        # --- Scatter, but knowing there is only one entry per row &amp; col, we can simply permute ---
-        inv_perm = scatter(dual(connectivity), indices[[dual_dim]], arange(instance(indices)), default=0)
-        return gathered[{instance(gathered).name: inv_perm}]
-
-
-class _PeriodicExtrapolation(_CopyExtrapolation):
-    &#34;&#34;&#34; Periodic extrapolation in n dimensions. &#34;&#34;&#34;
-
-    def __repr__(self):
-        return &#39;periodic&#39;
-
-    def spatial_gradient(self):
-        return self
-
-    def determines_boundary_values(self, boundary_key: Union[Tuple[str, bool], str]) -&gt; bool:
-        if isinstance(boundary_key, tuple):
-            is_upper = boundary_key[1]
-            return is_upper
-        else:
-            raise AssertionError(f&#34;Periodic extrapolation only supported for grids but got boundary key &#39;{boundary_key}&#39;&#34;)
-
-    @property
-    def is_flexible(self) -&gt; bool:
-        return False
-
-    def transform_coordinates(self, coordinates: Tensor, shape: Shape, **kwargs) -&gt; Tensor:
-        return coordinates % shape.spatial
-
-    def pad_values(self, value: Tensor, width: int, dim: str, upper_edge: bool, already_padded: Optional[dict] = None, **kwargs) -&gt; Tensor:
-        if upper_edge:
-            return value[{dim: slice(width)}]
-        else:
-            return value[{dim: slice(-width, None)}]
-
-    def _pad_linear_tracer(self, value: &#39;ShiftLinTracer&#39;, widths: dict) -&gt; &#39;ShiftLinTracer&#39;:
-        if value.shape.get_sizes(tuple(widths.keys())) != value._source.shape.get_sizes(tuple(widths.keys())):
-            raise NotImplementedError(&#34;Periodicity does not match input: %s but input has %s. This can happen when padding an already padded or sliced tensor.&#34; % (value.shape.only(tuple(widths.keys())), value._source.shape.only(tuple(widths.keys()))))
-        lower = {dim: -lo for dim, (lo, _) in widths.items()}
-        return value.shift(lower, new_shape=value.shape.after_pad(widths), val_fun=lambda v: self.pad(v, widths), bias_fun=lambda b: ZERO.pad(b, widths))
-
-    def shortest_distance(self, start: Tensor, end: Tensor, domain_size: Tensor):
-        dx = end - start
-        return (dx + domain_size / 2) % domain_size - domain_size / 2
-
-    def sparse_pad_values(self, value: Tensor, connectivity: Tensor, dim: str, **kwargs) -&gt; Tensor:
-        raise AssertionError(&#34;Periodic extrapolation cannot be used with sparse connectivity. Instead, add periodicity to the connectivity matrix.&#34;)
-
-
-class _SymmetricExtrapolation(_CopyExtrapolation):
-    &#34;&#34;&#34;Mirror with the boundary value occurring twice.&#34;&#34;&#34;
-
-    def __repr__(self):
-        return &#39;symmetric&#39;
-
-    def spatial_gradient(self):
-        return -self
-
-    @property
-    def is_flexible(self) -&gt; bool:
-        return True
-
-    def transform_coordinates(self, coordinates: Tensor, shape: Shape, **kwargs) -&gt; Tensor:
-        coordinates = coordinates % (2 * shape)
-        return ((2 * shape - 1) - abs((2 * shape - 1) - 2 * coordinates)) // 2
-
-    def pad_values(self, value: Tensor, width: int, dim: str, upper_edge: bool, already_padded: Optional[dict] = None, **kwargs) -&gt; Tensor:
-        if upper_edge:
-            return value[{dim: slice(-1, -width-1, -1)}]
-        else:
-            return value[{dim: slice(width-1, None, -1)}]
-
-    def _pad_linear_tracer(self, value: &#39;ShiftLinTracer&#39;, widths: dict) -&gt; &#39;ShiftLinTracer&#39;:
-        &#34;&#34;&#34;
-        *Warning*:
-        This implementation discards corners, i.e. values that lie outside the original tensor in more than one dimension.
-        These are typically sliced off in differential operators. Corners are instead assigned the value 0.
-        To take corners into account, call pad() for each axis individually. This is inefficient with ShiftLinTracer.
-
-        Args:
-          value: ShiftLinTracer:
-          widths: dict:
-
-        Returns:
-
-        &#34;&#34;&#34;
-        lower = {dim: -lo for dim, (lo, _) in widths.items()}
-        result = value.shift(lower, new_shape=value.shape.after_pad(widths), val_fun=lambda v: ZERO.pad(v, widths), bias_fun=lambda b: ZERO.pad(b, widths))  # inner values  ~half the computation time
-        for bound_dim, (bound_lo, bound_hi) in widths.items():
-            for i in range(bound_lo):  # i=0 means outer
-                # this sets corners to 0
-                lower = {dim: bound_lo-1-2*i if dim == bound_dim else -lo for dim, (lo, _) in widths.items()}
-                mask = self._lower_mask(value.shape.only(result.dependent_dims), widths, bound_dim, bound_lo, bound_hi, i)
-                boundary = value.shift(lower, new_shape=result.shape, val_fun=lambda v: self.pad(v, widths) * mask, bias_fun=lambda b: ZERO.pad(b, widths))
-                result += boundary
-            for i in range(bound_hi):
-                lower = {dim: -(bound_hi-1-2*i) - bound_lo - bound_hi if dim == bound_dim else -lo for dim, (lo, hi) in widths.items()}
-                mask = self._upper_mask(value.shape.only(result.dependent_dims), widths, bound_dim, bound_lo, bound_hi, i)
-                boundary = value.shift(lower, new_shape=result.shape, val_fun=lambda v: self.pad(v, widths) * mask, bias_fun=lambda b: ZERO.pad(b, widths))  # ~ half the computation time
-                result += boundary  # this does basically nothing if value is the identity
-        return result
-
-    def _lower_mask(self, shape, widths, bound_dim, bound_lo, bound_hi, i):
-        mask = ZERO.pad(math.zeros(shape), {bound_dim: (bound_lo - i - 1, 0)})
-        mask = ONE.pad(mask, {bound_dim: (1, 0)})
-        mask = ZERO.pad(mask, {dim: (i, bound_hi) if dim == bound_dim else (lo, hi) for dim, (lo, hi) in widths.items()})
-        return mask
-
-    def _upper_mask(self, shape, widths, bound_dim, bound_lo, bound_hi, i):
-        mask = ZERO.pad(math.zeros(shape), {bound_dim: (0, bound_hi - i - 1)})
-        mask = ONE.pad(mask, {bound_dim: (0, 1)})
-        mask = ZERO.pad(mask, {dim: (bound_lo, i) if dim == bound_dim else (lo, hi) for dim, (lo, hi) in widths.items()})
-        return mask
-
-    def sparse_pad_values(self, value: Tensor, connectivity: Tensor, dim: str, **kwargs) -&gt; Tensor:
-        raise NotImplementedError
-
-
-class _AntiSymmetricExtrapolation(_SymmetricExtrapolation):
-    &#34;&#34;&#34;Like _SymmetricExtrapolation but symmetric counterparts are negated for padding&#34;&#34;&#34;
-
-    def __repr__(self):
-        return &#39;antisymmetric&#39;
-
-    def pad_values(self, *args, **kwargs) -&gt; Tensor:
-        return -super().pad_values(*args, **kwargs)
-
-    def _pad_linear_tracer(self, value: &#39;ShiftLinTracer&#39;, widths: dict) -&gt; &#39;ShiftLinTracer&#39;:
-        &#34;&#34;&#34;
-        *Warning*:
-        This implementation discards corners, i.e. values that lie outside the original tensor in more than one dimension.
-        These are typically sliced off in differential operators. Corners are instead assigned the value 0.
-        To take corners into account, call pad() for each axis individually. This is inefficient with ShiftLinTracer.
-
-        Args:
-          value: ShiftLinTracer:
-          widths: dict:
-
-        Returns:
-
-        &#34;&#34;&#34;
-        lower = {dim: -lo for dim, (lo, _) in widths.items()}
-        result = value.shift(lower, new_shape=value.shape.after_pad(widths), val_fun=lambda v: ZERO.pad(v, widths), bias_fun=lambda b: ZERO.pad(b, widths))  # inner values  ~half the computation time
-        for bound_dim, (bound_lo, bound_hi) in widths.items():
-            for i in range(bound_lo):  # i=0 means outer
-                # this sets corners to 0
-                lower = {dim: bound_lo-1-2*i if dim == bound_dim else -lo for dim, (lo, _) in widths.items()}
-                mask = self._lower_mask(value.shape.only(result.dependent_dims), widths, bound_dim, bound_lo, bound_hi, i)
-                boundary = value.shift(lower, new_shape=result.shape, val_fun=lambda v: self.pad(v, widths) * mask, bias_fun=lambda b: ZERO.pad(b, widths))
-                result -= boundary
-            for i in range(bound_hi):
-                lower = {dim: -(bound_hi-1-2*i) - bound_lo - bound_hi if dim == bound_dim else -lo for dim, (lo, hi) in widths.items()}
-                mask = self._upper_mask(value.shape.only(result.dependent_dims), widths, bound_dim, bound_lo, bound_hi, i)
-                boundary = value.shift(lower, new_shape=result.shape, val_fun=lambda v: self.pad(v, widths) * mask, bias_fun=lambda b: ZERO.pad(b, widths))  # ~ half the computation time
-                result -= boundary  # this does basically nothing if value is the identity
-        return result
-
-    def sparse_pad_values(self, value: Tensor, connectivity: Tensor, dim: str, **kwargs) -&gt; Tensor:
-        raise NotImplementedError
-
-
-class _ReflectExtrapolation(_CopyExtrapolation):
-    &#34;&#34;&#34;Mirror of inner elements. The boundary value is not duplicated.&#34;&#34;&#34;
-
-    def __repr__(self):
-        return &#39;reflect&#39;
-
-    def spatial_gradient(self):
-        return -self
-
-    @property
-    def is_flexible(self) -&gt; bool:
-        return True
-
-    def pad_values(self, value: Tensor, width: int, dim: str, upper_edge: bool, already_padded: Optional[dict] = None, **kwargs) -&gt; Tensor:
-        if upper_edge:
-            return value[{dim: slice(-2, -2-width, -1)}]
-        else:
-            return value[{dim: slice(width, 0, -1)}]
-
-    def transform_coordinates(self, coordinates: Tensor, shape: Shape, **kwargs) -&gt; Tensor:
-        coordinates = coordinates % (2 * shape - 2)
-        return (shape - 1) - math.abs_((shape - 1) - coordinates)
-
-    def _pad_linear_tracer(self, value: &#39;ShiftLinTracer&#39;, widths: dict) -&gt; &#39;ShiftLinTracer&#39;:
-        &#34;&#34;&#34;
-        *Warning*:
-        This implementation discards corners, i.e. values that lie outside the original tensor in more than one dimension.
-        These are typically sliced off in differential operators. Corners are instead assigned the value 0.
-        To take corners into account, call pad() for each axis individually. This is inefficient with ShiftLinTracer.
-
-        Args:
-          value: ShiftLinTracer:
-          widths: dict:
-
-        Returns:
-
-        &#34;&#34;&#34;
-        lower = {dim: -lo for dim, (lo, _) in widths.items()}
-        result = value.shift(lower, new_shape=value.shape.after_pad(widths), val_fun=lambda v: ZERO.pad(v, widths), bias_fun=lambda b: ZERO.pad(b, widths))  # inner values  ~half the computation time
-        for bound_dim, (bound_lo, bound_hi) in widths.items():
-            for i in range(bound_lo):  # i=0 means outer
-                # this sets corners to 0
-                lower = {dim: bound_lo-2*i if dim == bound_dim else -lo for dim, (lo, _) in widths.items()}
-                mask = self._lower_mask(value.shape.only(result.dependent_dims), widths, bound_dim, bound_lo, bound_hi, i)
-                boundary = value.shift(lower, new_shape=result.shape, val_fun=lambda v: self.pad(v, widths) * mask, bias_fun=lambda b: ZERO.pad(b, widths))
-                result += boundary
-            for i in range(bound_hi):
-                lower = {dim: -(bound_hi-2*i) - bound_lo - bound_hi if dim == bound_dim else -lo for dim, (lo, hi) in widths.items()}
-                mask = self._upper_mask(value.shape.only(result.dependent_dims), widths, bound_dim, bound_lo, bound_hi, i)
-                boundary = value.shift(lower, new_shape=result.shape, val_fun=lambda v: self.pad(v, widths) * mask, bias_fun=lambda b: ZERO.pad(b, widths))  # ~ half the computation time
-                result += boundary  # this does basically nothing if value is the identity
-        return result
-
-    def _lower_mask(self, shape, widths, bound_dim, bound_lo, bound_hi, i):
-        mask = ZERO.pad(math.zeros(shape), {bound_dim: (bound_lo - i - 1, 0)})
-        mask = ONE.pad(mask, {bound_dim: (1, 0)})
-        mask = ZERO.pad(mask, {dim: (i, bound_hi) if dim == bound_dim else (lo, hi) for dim, (lo, hi) in widths.items()})
-        return mask
-
-    def _upper_mask(self, shape, widths, bound_dim, bound_lo, bound_hi, i):
-        mask = ZERO.pad(math.zeros(shape), {bound_dim: (0, bound_hi - i - 1)})
-        mask = ONE.pad(mask, {bound_dim: (0, 1)})
-        mask = ZERO.pad(mask, {dim: (bound_lo, i) if dim == bound_dim else (lo, hi) for dim, (lo, hi) in widths.items()})
-        return mask
-
-    def sparse_pad_values(self, value: Tensor, connectivity: Tensor, dim: str, **kwargs) -&gt; Tensor:
-        raise NotImplementedError
-
-
-class _AntiReflectExtrapolation(_ReflectExtrapolation):
-    &#34;&#34;&#34;Like _ReflectExtrapolation but symmetric counterparts are negated for padding&#34;&#34;&#34;
-
-    def __repr__(self):
-        return &#39;antireflect&#39;
-
-    def pad_values(self, *args, **kwargs) -&gt; Tensor:
-        return -super().pad_values(*args, **kwargs)
-
-    def _pad_linear_tracer(self, value: &#39;ShiftLinTracer&#39;, widths: dict) -&gt; &#39;ShiftLinTracer&#39;:
-        &#34;&#34;&#34;
-        *Warning*:
-        This implementation discards corners, i.e. values that lie outside the original tensor in more than one dimension.
-        These are typically sliced off in differential operators. Corners are instead assigned the value 0.
-        To take corners into account, call pad() for each axis individually. This is inefficient with ShiftLinTracer.
-
-        Args:
-          value: ShiftLinTracer:
-          widths: dict:
-
-        Returns:
-
-        &#34;&#34;&#34;
-        lower = {dim: -lo for dim, (lo, _) in widths.items()}
-        result = value.shift(lower, new_shape=value.shape.after_pad(widths), val_fun=lambda v: ZERO.pad(v, widths), bias_fun=lambda b: ZERO.pad(b, widths))  # inner values  ~half the computation time
-        for bound_dim, (bound_lo, bound_hi) in widths.items():
-            for i in range(bound_lo):  # i=0 means outer
-                # this sets corners to 0
-                lower = {dim: bound_lo-2*i if dim == bound_dim else -lo for dim, (lo, _) in widths.items()}
-                mask = self._lower_mask(value.shape.only(result.dependent_dims), widths, bound_dim, bound_lo, bound_hi, i)
-                boundary = value.shift(lower, new_shape=result.shape, val_fun=lambda v: self.pad(v, widths) * mask, bias_fun=lambda b: ZERO.pad(b, widths))
-                result -= boundary
-            for i in range(bound_hi):
-                lower = {dim: -(bound_hi-2*i) - bound_lo - bound_hi if dim == bound_dim else -lo for dim, (lo, hi) in widths.items()}
-                mask = self._upper_mask(value.shape.only(result.dependent_dims), widths, bound_dim, bound_lo, bound_hi, i)
-                boundary = value.shift(lower, new_shape=result.shape, val_fun=lambda v: self.pad(v, widths) * mask, bias_fun=lambda b: ZERO.pad(b, widths))  # ~ half the computation time
-                result -= boundary  # this does basically nothing if value is the identity
-        return result
-
-    def sparse_pad_values(self, value: Tensor, connectivity: Tensor, dim: str, **kwargs) -&gt; Tensor:
-        raise NotImplementedError
-
-
-class _SymmetricGradientExtrapolation(Extrapolation):
-
-    def __init__(self):
-        super().__init__(pad_rank=3)
-        warnings.warn(&#39;symmetric-gradient extrapolation is experimental. Use with caution.&#39;, DeprecationWarning)
-
-    @property
-    def shape(self):
-        return EMPTY_SHAPE
-
-    def to_dict(self) -&gt; dict:
-        return {&#39;type&#39;: &#39;symmetric-gradient&#39;}
-
-    def spatial_gradient(self) -&gt; &#39;Extrapolation&#39;:
-        raise NotImplementedError
-
-    def valid_outer_faces(self, dim) -&gt; Tuple[bool, bool]:
-        raise NotImplementedError  # probably return True, True but this hasn&#39;t been used on grids yet
-
-    @property
-    def is_flexible(self) -&gt; bool:
-        return True
-
-    def pad_values(self, value: Tensor, width: int, dim: str, upper_edge: bool, already_padded: Optional[dict] = None, **kwargs) -&gt; Tensor:
-        anti_s = ANTIREFLECT.pad_values(value, width, dim, upper_edge, already_padded=already_padded, **kwargs)
-        edge = value[{dim: -1}] if upper_edge else value[{dim: 0}]
-        return anti_s + 2 * edge
-
-    def sparse_pad_values(self, value: Tensor, connectivity: Tensor, dim: str, **kwargs) -&gt; Tensor:
-        raise NotImplementedError
-
-    def determines_boundary_values(self, boundary_key: Union[Tuple[str, bool], str]) -&gt; bool:
-        raise NotImplementedError
-
-    def __eq__(self, other):
-        return isinstance(other, _SymmetricGradientExtrapolation)
-
-    def __hash__(self):
-        return 209385671
-
-    def __abs__(self):
-        raise NotImplementedError
-
-    def __neg__(self):
-        raise NotImplementedError
-
-    def __add__(self, other):
-        raise NotImplementedError
-
-    def __radd__(self, other):
-        raise NotImplementedError
-
-    def __sub__(self, other):
-        raise NotImplementedError
-
-    def __rsub__(self, other):
-        raise NotImplementedError
-
-    def __mul__(self, other):
-        raise NotImplementedError
-
-    def __rmul__(self, other):
-        raise NotImplementedError
-
-    def __truediv__(self, other):
-        raise NotImplementedError
-
-    def __rtruediv__(self, other):
-        raise NotImplementedError
-
-
-class _NoExtrapolation(Extrapolation):  # singleton
-
-    @property
-    def shape(self):
-        return EMPTY_SHAPE
-
-    def to_dict(self) -&gt; dict:
-        return {&#39;type&#39;: &#39;none&#39;}
-
-    def pad(self, value: Tensor, widths: dict, already_padded: Optional[dict] = None, **kwargs) -&gt; Tensor:
-        return value
-
-    def spatial_gradient(self) -&gt; &#39;Extrapolation&#39;:
-        return self
-
-    def determines_boundary_values(self, boundary_key: Union[Tuple[str, bool], str]) -&gt; bool:
-        return False
-
-    def __value_attrs__(self):
-        return ()
-
-    @property
-    def is_flexible(self) -&gt; bool:
-        raise AssertionError(f&#34;is_flexible not defined by {self.__class__}&#34;)
-
-    def pad_values(self, value: Tensor, width: int, dim: str, upper_edge: bool, already_padded: Optional[dict] = None, **kwargs) -&gt; Tensor:
-        return math.zeros(value.shape._replace_single_size(dim, 0))
-
-    def sparse_pad_values(self, value: Tensor, connectivity: Tensor, dim: str, **kwargs) -&gt; Tensor:
-        raise NotImplementedError
-
-    def __eq__(self, other):
-        return isinstance(other, _NoExtrapolation)
-
-    def __hash__(self):
-        return hash(self.__class__)
-
-    def __repr__(self):
-        return &#34;none&#34;
-
-    def __abs__(self):
-        return self
-
-    def __neg__(self):
-        return self
-
-    def __add__(self, other):
-        return self
-
-    def __radd__(self, other):
-        return self
-
-    def __sub__(self, other):
-        return self
-
-    def __rsub__(self, other):
-        return self
-
-    def __mul__(self, other):
-        return self
-
-    def __rmul__(self, other):
-        return self
-
-    def __truediv__(self, other):
-        return self
-
-    def __rtruediv__(self, other):
-        return self
-
-
-class Undefined(Extrapolation):
-    &#34;&#34;&#34;
-    The extrapolation is unknown and must be replaced before usage.
-    Any access to outside values will raise an AssertionError.
-    &#34;&#34;&#34;
-
-    def __init__(self, derived_from: Extrapolation):
-        super().__init__(-1)
-        self.derived_from = derived_from
-
-    @property
-    def shape(self):
-        return EMPTY_SHAPE
-
-    def to_dict(self) -&gt; dict:
-        return {&#39;type&#39;: &#39;undefined&#39;, &#39;derived_from&#39;: self.derived_from.to_dict()}
-
-    def pad(self, value: Tensor, widths: dict, already_padded: Optional[dict] = None, **kwargs) -&gt; Tensor:
-        for (lo, up) in widths.items():
-            assert lo == 0 and up == 0, &#34;Undefined extrapolation&#34;
-        return value
-
-    def spatial_gradient(self) -&gt; &#39;Extrapolation&#39;:
-        return self
-
-    def determines_boundary_values(self, boundary_key: Union[Tuple[str, bool], str]) -&gt; bool:
-        return self.derived_from.determines_boundary_values(boundary_key)
-
-    @property
-    def is_flexible(self) -&gt; bool:
-        raise AssertionError(&#34;Undefined extrapolation&#34;)
-
-    def pad_values(self, value: Tensor, width: int, dim: str, upper_edge: bool, already_padded: Optional[dict] = None, **kwargs) -&gt; Tensor:
-        raise AssertionError(&#34;Undefined extrapolation&#34;)
-
-    def sparse_pad_values(self, value: Tensor, connectivity: Tensor, dim: str, **kwargs) -&gt; Tensor:
-        raise AssertionError(&#34;Undefined extrapolation&#34;)
-
-    def __eq__(self, other):
-        return isinstance(other, Undefined) and other.derived_from == self.derived_from
-
-    def __hash__(self):
-        return hash(self.__class__) + hash(self.derived_from)
-
-    def __repr__(self):
-        return &#34;undefined&#34;
-
-    def __abs__(self):
-        return self
-
-    def __neg__(self):
-        return self
-
-    def __add__(self, other):
-        return self
-
-    def __radd__(self, other):
-        return self
-
-    def __sub__(self, other):
-        return self
-
-    def __rsub__(self, other):
-        return self
-
-    def __mul__(self, other):
-        return self
-
-    def __rmul__(self, other):
-        return self
-
-    def __truediv__(self, other):
-        return self
-
-    def __rtruediv__(self, other):
-        return self
-
-
-ZERO = ConstantExtrapolation(0)
-&#34;&#34;&#34; Extrapolates with the constant value 0 (Dirichlet boundary condition). &#34;&#34;&#34;
-ONE = ConstantExtrapolation(1)
-&#34;&#34;&#34; Extrapolates with the constant value 1 (Dirichlet boundary condition). &#34;&#34;&#34;
-PERIODIC = _PeriodicExtrapolation(1)
-&#34;&#34;&#34; Extends a grid by tiling it (Periodic boundary condition). &#34;&#34;&#34;
-ZERO_GRADIENT = _ZeroGradient(2)
-&#34;&#34;&#34; Extends a grid with its edge values (Neumann boundary condition). The value of a point lying outside the grid is determined by the closest grid value(s). &#34;&#34;&#34;
-BOUNDARY = ZERO_GRADIENT
-# undocumented, use ZERO_GRADIENT instead
-SYMMETRIC = _SymmetricExtrapolation(3)
-&#34;&#34;&#34; Extends a grid by tiling it. Every other copy of the grid is flipped. Edge values occur twice per seam. &#34;&#34;&#34;
-ANTISYMMETRIC = _AntiSymmetricExtrapolation(3)
-&#34;&#34;&#34; Like SYMMETRIC but extends a grid with the negative value of the corresponding counterpart instead. &#34;&#34;&#34;
-REFLECT = _ReflectExtrapolation(4)
-&#34;&#34;&#34; Like SYMMETRIC but the edge values are not copied and only occur once per seam. &#34;&#34;&#34;
-ANTIREFLECT = _AntiReflectExtrapolation(4)
-&#34;&#34;&#34; Like REFLECT but extends a grid with the negative value of the corresponding counterpart instead. &#34;&#34;&#34;
-SYMMETRIC_GRADIENT = _SymmetricGradientExtrapolation()
-&#34;&#34;&#34; Extrapolates in a continuous manner. The normal component of the spatial gradient is symmetric at the boundaries. The outer-most valid difference is duplicated. &#34;&#34;&#34;
-
-NONE = _NoExtrapolation(-1)
-&#34;&#34;&#34; Raises AssertionError when used to determine outside values. Padding operations will have no effect with this extrapolation. &#34;&#34;&#34;
-
-
-_PRIMITIVES = {  # used by as_boundary() and from_dict()
-    &#39;periodic&#39;: PERIODIC,
-    &#39;zero&#39;: ZERO,
-    &#39;one&#39;: ONE,
-    &#39;zero-gradient&#39;: ZERO_GRADIENT,
-    &#39;∇=0&#39;: ZERO_GRADIENT,
-    &#39;boundary&#39;: ZERO_GRADIENT,  # deprecated
-    &#39;symmetric&#39;: SYMMETRIC,
-    &#39;symmetric-gradient&#39;: SYMMETRIC_GRADIENT,
-    &#39;antisymmetric&#39;: ANTISYMMETRIC,
-    &#39;reflect&#39;: REFLECT,
-    &#39;antireflect&#39;: ANTISYMMETRIC,
-}
-
-
-def as_extrapolation(obj, two_sided=True) -&gt; Extrapolation:
-    &#34;&#34;&#34;
-    Creates an `Extrapolation` from a descriptor object.
-
-    Args:
-        obj: Extrapolation specification, one of the following:
-
-            * `Extrapolation`
-            * Primitive name as `str`: periodic, zero, one, zero-gradient, symmetric, symmetric-gradient, antisymmetric, reflect, antireflect
-            * `dict` containing exactly the keys `&#39;normal&#39;` and `&#39;tangential&#39;`
-            * `dict` mapping spatial dimension names to extrapolations
-
-        two_sided: If `True`, will add two entries `(name, False), (name, True)` for dimension names in `dict` objects.
-
-    Returns:
-        `Extrapolation`
-    &#34;&#34;&#34;
-    if isinstance(obj, Extrapolation):
-        return obj
-    if obj is None:
-        return NONE
-    if isinstance(obj, str):
-        assert obj in _PRIMITIVES, f&#34;Unrecognized extrapolation type: &#39;{obj}&#39;&#34;
-        return _PRIMITIVES[obj]
-    if isinstance(obj, dict):
-        if &#39;normal&#39; in obj or &#39;tangential&#39; in obj:
-            assert &#39;normal&#39; in obj and &#39;tangential&#39; in obj, f&#34;Normal/tangential dict requires both entries &#39;normal&#39; and &#39;tangential&#39; but got {obj}&#34;
-            assert len(obj) == 2, f&#34;Normal/tangential dict must only contain entries &#39;normal&#39; and &#39;tangential&#39; but got {obj}&#34;
-            normal = as_extrapolation(obj[&#39;normal&#39;])
-            tangential = as_extrapolation(obj[&#39;tangential&#39;])
-            return combine_by_direction(normal=normal, tangential=tangential)
-        else:
-            ext = {dim: (as_extrapolation(spec[0]), as_extrapolation(spec[1])) if isinstance(spec, tuple) else as_extrapolation(spec) for dim, spec in obj.items()}
-            return combine_sides(**ext) if two_sided else combine_sides(ext)
-    return ConstantExtrapolation(obj)
-
-
-def combine_sides(boundary_dict: Dict[Hashable, Extrapolation] = None, **extrapolations: Union[Extrapolation, tuple, Number]) -&gt; Extrapolation:
-    &#34;&#34;&#34;
-    Specify extrapolations for each side / face of a box.
-
-    Args:
-        boundary_dict: Extrapolations by hashable boundary key.
-        **extrapolations: map from dim: str -&gt; `Extrapolation` or `tuple` (lower, upper)
-
-    Returns:
-        `Extrapolation`
-    &#34;&#34;&#34;
-    boundary_dict = dict(boundary_dict) if boundary_dict is not None else {}
-    for dim, ext in extrapolations.items():
-        if isinstance(ext, tuple):
-            assert len(ext) == 2, &#34;Tuple must contain exactly two elements, (lower, upper)&#34;
-            lower = as_extrapolation(ext[0])
-            upper = as_extrapolation(ext[1])
-            boundary_dict[(dim, False)] = lower
-            boundary_dict[(dim, True)] = upper
-        else:
-            boundary_dict[(dim, False)] = boundary_dict[(dim, True)] = as_extrapolation(ext)
-    if len(set(boundary_dict.values())) == 1:  # All equal -&gt; return any
-        return next(iter(boundary_dict.values()))
-    else:
-        return _MixedExtrapolation(boundary_dict)
-
-
-class _MixedExtrapolation(Extrapolation):
-    &#34;&#34;&#34;
-    A mixed extrapolation uses different extrapolations for different sides.
-    Each side is identified by a hashable object, such as a `str` or `tuple´.
-    &#34;&#34;&#34;
-
-    def __init__(self, ext_by_boundary: Dict[Hashable, Extrapolation]):
-        &#34;&#34;&#34;
-        Args:
-            ext_by_boundary: key: str -&gt; Extrapolation
-        &#34;&#34;&#34;
-        super().__init__(pad_rank=None)
-        assert all(isinstance(e, Extrapolation) for e in ext_by_boundary.values())
-        assert len(set(ext_by_boundary.values())) &gt;= 2, f&#34;Extrapolation can be simplified: {ext_by_boundary}&#34;
-        self.ext = ext_by_boundary
-
-    @property
-    def shape(self):
-        return merge_shapes(*self.ext.values())
-
-    def to_dict(self) -&gt; dict:
-        return {
-            &#39;type&#39;: &#39;mixed_v2&#39;,
-            &#39;dims&#39;: {k: ext.to_dict() for k, ext in self.ext.items()}
-        }
-
-    def __value_attrs__(self):
-        return &#39;ext&#39;,
-
-    def __eq__(self, other):
-        if not isinstance(other, _MixedExtrapolation):
-            return False
-        return self.ext == other.ext
-
-    def __hash__(self):
-        return hash(frozenset(self.ext.items()))
-
-    def __repr__(self):
-        return repr(self.ext)
-
-    def spatial_gradient(self) -&gt; Extrapolation:
-        return combine_sides({k: ext.spatial_gradient() for k, ext in self.ext.items()})
-
-    def determines_boundary_values(self, boundary_key: Union[Tuple[str, bool], str]) -&gt; bool:
-        return self.ext[boundary_key].determines_boundary_values(boundary_key)
-
-    def is_copy_pad(self, dim: str, upper_edge: bool):
-        return self.ext[(dim, upper_edge)].is_copy_pad(dim, upper_edge)
-
-    @property
-    def is_flexible(self) -&gt; bool:
-        return any([ext.is_flexible for ext in self.ext.values()])
-
-    def pad(self, value: Tensor, widths: dict, already_padded: Optional[dict] = None, **kwargs) -&gt; Tensor:
-        &#34;&#34;&#34;Pads a tensor using multiple extrapolations.&#34;&#34;&#34;
-        extrapolations = set(self.ext.values())
-        extrapolations = tuple(sorted(extrapolations, key=lambda e: e.pad_rank))
-        already_padded = {} if already_padded is None else dict(already_padded)
-        for ext in extrapolations:
-            ext_widths = {dim: (l if self.ext[(dim, False)] == ext else 0, u if self.ext[(dim, True)] == ext else 0) for dim, (l, u) in widths.items()}
-            value = ext.pad(value, ext_widths, already_padded=already_padded, **kwargs)
-            already_padded.update(ext_widths)
-        return value
-
-    def pad_values(self, value: Tensor, width: int, dim: str, upper_edge: bool, already_padded: Optional[dict] = None, **kwargs) -&gt; Tensor:
-        extrap: Extrapolation = self.ext[(dim, upper_edge)]
-        return extrap.pad_values(value, width, dim, upper_edge, already_padded=already_padded, **kwargs)
-
-    def sparse_pad_values(self, value: Tensor, connectivity: Tensor, dim: str, **kwargs) -&gt; Tensor:
-        return self.ext[dim].sparse_pad_values(value, connectivity, dim, **kwargs)
-
-    def transform_coordinates(self, coordinates: Tensor, shape: Shape, **kwargs) -&gt; Tensor:
-        assert len(self.ext) / 2 == len(shape.spatial) == coordinates.vector.size
-        result = []
-        for dim in shape.spatial.unstack():
-            dim_coords = coordinates[[dim.name]]
-            le = self.ext[(dim.name, False)]
-            ue = self.ext[(dim.name, True)]
-            if le == ue:
-                result.append(le.transform_coordinates(dim_coords, dim, **kwargs))
-            else:  # separate boundary for lower and upper face
-                lower = le.transform_coordinates(dim_coords, dim, **kwargs)
-                upper = ue.transform_coordinates(dim_coords, dim, **kwargs)
-                result.append(math.where(dim_coords &lt;= 0, lower, upper))
-        if &#39;vector&#39; in result[0].shape:
-            return concat(result, channel(&#39;vector&#39;))
-        else:
-            return stack(result, channel(&#39;vector&#39;))
-
-    def __getitem__(self, item):
-        if isinstance(item, dict):
-            if all(isinstance(k, tuple) for k in self.ext):
-                all_dims = [dim for dim, _ in self.ext.keys()]
-                return combine_sides({k: ext._getitem_with_domain(item, k[0], k[1], all_dims) for k, ext in self.ext.items()})
-            return combine_sides({k: ext[item] for k, ext in self.ext.items()})
-        else:
-            return self.ext[item]
-
-    def __add__(self, other):
-        return self._op2(other, lambda e1, e2: e1 + e2)
-
-    def __radd__(self, other):
-        return self._op2(other, lambda e1, e2: e2 + e1)
-
-    def __sub__(self, other):
-        return self._op2(other, lambda e1, e2: e1 - e2)
-
-    def __rsub__(self, other):
-        return self._op2(other, lambda e1, e2: e2 - e1)
-
-    def __mul__(self, other):
-        return self._op2(other, lambda e1, e2: e1 * e2)
-
-    def __rmul__(self, other):
-        return self._op2(other, lambda e1, e2: e2 * e1)
-
-    def __truediv__(self, other):
-        return self._op2(other, lambda e1, e2: e1 / e2)
-
-    def __rtruediv__(self, other):
-        return self._op2(other, lambda e1, e2: e2 / e1)
-
-    def _op2(self, other, operator):
-        if isinstance(other, _MixedExtrapolation):
-            assert self.ext.keys() == other.ext.keys()
-            return combine_sides({k: operator(ext, other.ext[k]) for k, ext in self.ext.items()})
-        else:
-            return combine_sides({k: operator(ext, other) for k, ext in self.ext.items()})
-
-    def __abs__(self):
-        return combine_sides({k: abs(ext) for k, ext in self.ext.items()})
-
-    def __neg__(self):
-        return combine_sides({k: -ext for k, ext in self.ext.items()})
-
-
-class _NormalTangentialExtrapolation(Extrapolation):
-
-    def __init__(self, normal: Extrapolation, tangential: Extrapolation):
-        super().__init__(pad_rank=min(normal.pad_rank, tangential.pad_rank))
-        self.normal = normal
-        self.tangential = tangential
-
-    @property
-    def shape(self):
-        return merge_shapes(self.normal, self.tangential)
-
-    def to_dict(self) -&gt; dict:
-        return {
-            &#39;type&#39;: &#39;normal-tangential&#39;,
-            &#39;normal&#39;: self.normal.to_dict(),
-            &#39;tangential&#39;: self.tangential.to_dict(),
-        }
-
-    def __value_attrs__(self):
-        return &#39;normal&#39;, &#39;tangential&#39;
-
-    def __repr__(self):
-        return f&#34;normal={self.normal}, tangential={self.tangential}&#34;
-
-    def spatial_gradient(self) -&gt; &#39;Extrapolation&#39;:
-        return combine_by_direction(self.normal.spatial_gradient(), self.tangential.spatial_gradient())
-
-    def determines_boundary_values(self, boundary_key: Union[Tuple[str, bool], str]) -&gt; bool:
-        return self.normal.determines_boundary_values(boundary_key)
-
-    def sparse_pad_values(self, value: Tensor, connectivity: Tensor, dim: str, **kwargs) -&gt; Tensor:
-        raise NotImplementedError
-
-    def is_copy_pad(self, dim: str, upper_edge: bool):
-        return False  # normal and tangential might copy from different places, so no.
-
-    @property
-    def is_flexible(self) -&gt; bool:
-        return self.normal.is_flexible
-
-    def pad_values(self, value: Tensor, width: int, dim: str, upper_edge: bool, already_padded: Optional[dict] = None, **kwargs) -&gt; Tensor:
-        if &#39;vector&#39; not in value.shape:
-            warnings.warn(f&#39;{self} adding a vector dimension to tensor {value.shape}&#39;)
-            from . import expand
-            value = expand(value, channel(vector=spatial(value).names))
-        assert value.vector.item_names is not None, &#34;item_names must be present when padding with normal-tangential&#34;
-        result = []
-        for component_name, component in zip(value.vector.item_names, value.vector):
-            ext = self.normal if component_name == dim else self.tangential
-            result.append(ext.pad_values(component, width, dim, upper_edge, already_padded=already_padded, **kwargs))
-        from ._magic_ops import stack
-        result = stack(result, value.shape.only(&#39;vector&#39;))
-        return result
-
-    def _getitem_with_domain(self, item: dict, dim: str, upper_edge: bool, all_dims: Sequence[str]):
-        if &#39;vector&#39; not in item:
-            return self
-        component = item[&#39;vector&#39;]
-        assert isinstance(component, str), f&#34;Selecting a component of normal/tangential must be done by dimension name but got {component}&#34;
-        if component == dim:
-            return self.normal
-        else:
-            return self.tangential
-
-    def __eq__(self, other):
-        return isinstance(other, _NormalTangentialExtrapolation) and self.normal == other.normal and self.tangential == other.tangential
-
-    def __hash__(self):
-        return hash(self.normal) + hash(self.tangential)
-
-    def __add__(self, other):
-        return self._op2(other, lambda e1, e2: e1 + e2)
-
-    def __radd__(self, other):
-        return self._op2(other, lambda e1, e2: e2 + e1)
-
-    def __sub__(self, other):
-        return self._op2(other, lambda e1, e2: e1 - e2)
-
-    def __rsub__(self, other):
-        return self._op2(other, lambda e1, e2: e2 - e1)
-
-    def __mul__(self, other):
-        return self._op2(other, lambda e1, e2: e1 * e2)
-
-    def __rmul__(self, other):
-        return self._op2(other, lambda e1, e2: e2 * e1)
-
-    def __truediv__(self, other):
-        return self._op2(other, lambda e1, e2: e1 / e2)
-
-    def __rtruediv__(self, other):
-        return self._op2(other, lambda e1, e2: e2 / e1)
-
-    def _op2(self, other, operator):
-        if isinstance(other, _NormalTangentialExtrapolation):
-            return combine_by_direction(normal=operator(self.normal, other.normal), tangential=operator(self.tangential, other.tangential))
-        else:
-            return combine_by_direction(normal=operator(self.normal, other), tangential=operator(self.tangential, other))
-
-    def __abs__(self):
-        return combine_by_direction(normal=abs(self.normal), tangential=abs(self.tangential))
-
-    def __neg__(self):
-        return combine_by_direction(normal=-self.normal, tangential=-self.tangential)
-
-
-def combine_by_direction(normal: Union[Extrapolation, float, Tensor], tangential: Union[Extrapolation, float, Tensor]) -&gt; Extrapolation:
-    &#34;&#34;&#34;
-    Use a different extrapolation for the normal component of vector-valued tensors.
-
-    Args:
-        normal: Extrapolation for the component that is orthogonal to the boundary.
-        tangential: Extrapolation for the component that is tangential to the boundary.
-
-    Returns:
-        `Extrapolation`
-    &#34;&#34;&#34;
-    normal = as_extrapolation(normal)
-    tangential = as_extrapolation(tangential)
-    return normal if normal == tangential else _NormalTangentialExtrapolation(normal, tangential)
-
-
-def get_normal(ext: Extrapolation) -&gt; Extrapolation:
-    &#34;&#34;&#34;Returns only the extrapolation for the surface normal component.&#34;&#34;&#34;
-    if isinstance(ext, _NormalTangentialExtrapolation):
-        return ext.normal
-    elif isinstance(ext, _MixedExtrapolation):
-        return combine_sides({k: get_normal(ext) for k, ext in ext.ext.items()})
-    else:
-        return ext
-
-
-def get_tangential(ext: Extrapolation) -&gt; Extrapolation:
-    &#34;&#34;&#34;Returns only the extrapolation for components tangential to the boundary surface.&#34;&#34;&#34;
-    if isinstance(ext, _NormalTangentialExtrapolation):
-        return ext.tangential
-    elif isinstance(ext, _MixedExtrapolation):
-        return combine_sides({k: get_tangential(ext) for k, ext in ext.ext.items()})
-    else:
-        return ext
-
-
-class _ConditionalExtrapolation(Extrapolation):
-
-    def __init__(self, mask: Tensor, true_ext: Extrapolation, false_ext: Extrapolation):
-        super().__init__(false_ext.pad_rank)
-        self.mask = mask
-        self.false_ext = false_ext
-        self.true_ext = true_ext
-
-    def to_dict(self) -&gt; dict:
-        return {
-            &#39;type&#39;: &#39;conditional&#39;,
-            &#39;mask&#39;: tensor_to_dict(self.mask),
-            &#39;true&#39;: self.true_ext.to_dict(),
-            &#39;false&#39;: self.false_ext.to_dict(),
-        }
-
-    @property
-    def shape(self):
-        return self.mask.shape &amp; self.true_ext.shape &amp; self.false_ext.shape
-
-    def spatial_gradient(self) -&gt; &#39;Extrapolation&#39;:
-        return where(self.mask, self.true_ext.spatial_gradient(), self.false_ext.spatial_gradient())
-
-    def determines_boundary_values(self, boundary_key: Union[Tuple[str, bool], str]) -&gt; bool:
-        x = self.true_ext.determines_boundary_values(boundary_key)
-        y = self.false_ext.determines_boundary_values(boundary_key)
-        assert x == y, f&#34;determines_boundary_values not defined for incompatible extrapolations true/false: {self.true_ext} / {self.false_ext}&#34;
-        return x
-
-    def sparse_pad_values(self, value: Tensor, connectivity: Tensor, dim: str, **kwargs) -&gt; Tensor:
-        raise NotImplementedError
-
-    @property
-    def is_flexible(self) -&gt; bool:
-        return self.false_ext.is_flexible or self.true_ext.is_flexible
-
-    def pad_values(self, value: Tensor, width: int, dim: str, upper_edge: bool, already_padded: dict = None, **kwargs) -&gt; Tensor:
-        mask = self.mask
-        if already_padded:
-            mask = ZERO_GRADIENT.pad(mask, already_padded)
-        p_false = self.false_ext.pad_values(value, width, dim, upper_edge, **kwargs)
-        p_true = self.true_ext.pad_values(value, width, dim, upper_edge, **kwargs)
-        return math.where(mask, p_true, p_false)
-
-    def pad(self, value: Tensor, widths: dict, already_padded: Optional[dict] = None, **kwargs) -&gt; Tensor:
-        from phiml.math._trace import ShiftLinTracer
-        if isinstance(value, ShiftLinTracer):
-            mask = self.mask
-            if already_padded:
-                mask = ZERO_GRADIENT.pad(mask, already_padded)
-            p_false = self.false_ext.pad(value, widths, **kwargs)
-            p_true = self.true_ext.pad(value, widths, **kwargs)
-            return p_true * mask + p_false * (1 - mask)
-        return Extrapolation.pad(self, value, widths, already_padded=already_padded, **kwargs)
-
-    def __repr__(self):
-        return f&#34;{self.true_ext} or {self.false_ext}&#34;
-
-    def __eq__(self, other):
-        return isinstance(other, _ConditionalExtrapolation) and math.always_close(self.mask, other.mask) and self.true_ext == other.true_ext and self.false_ext == other.false_ext
-
-    def __hash__(self):
-        return hash(self.true_ext) + hash(self.false_ext)
-
-    def __abs__(self):
-        return where(self.mask, abs(self.true_ext), abs(self.false_ext))
-
-    def __neg__(self):
-        return where(self.mask, -self.true_ext, -self.false_ext)
-
-    def _op2(self, other, op: Callable):
-        if isinstance(other, _ConditionalExtrapolation) and math.close(other.mask, self.mask):
-            return where(self.mask, op(self.true_ext, other.true_ext), op(self.false_ext, other.false_ext))
-        return where(self.mask, op(self.true_ext, other), op(self.false_ext, other))
-
-    def __add__(self, other):
-        return self._op2(other, lambda x, y: x + y)
-
-    def __radd__(self, other):
-        return self._op2(other, lambda y, x: x + y)
-
-    def __sub__(self, other):
-        return self._op2(other, lambda x, y: x - y)
-
-    def __rsub__(self, other):
-        return self._op2(other, lambda y, x: x - y)
-
-    def __mul__(self, other):
-        return self._op2(other, lambda x, y: x * y)
-
-    def __rmul__(self, other):
-        return self._op2(other, lambda y, x: x * y)
-
-    def __truediv__(self, other):
-        return self._op2(other, lambda x, y: x / y)
-
-    def __rtruediv__(self, other):
-        return self._op2(other, lambda y, x: x / y)
-
-
-def where(mask: Tensor, true_ext, false_ext) -&gt; Extrapolation:
-    &#34;&#34;&#34;
-    Uses `true_ext` where `mask` is true and `false_ext` where mask is false.
-    If the extrapolations are not consistent in which boundary faces are uniquely determined, the result cannot be used for boundary faces.
-
-    You may also call `math.where()` instead of this function.
-
-    Args:
-        mask: `Tensor` with dimensions matching the tensor that is being padded.
-        true_ext: Extrapolation to use where `mask==True`.
-        false_ext: Extrapolation to use where `mask==False`.
-
-    Returns:
-        `Extrapolation`
-    &#34;&#34;&#34;
-    true_ext = as_extrapolation(true_ext)
-    false_ext = as_extrapolation(false_ext)
-    from phiml.math import always_close
-    if always_close(mask, True):
-        return true_ext
-    elif always_close(mask, False):
-        return false_ext
-    if true_ext == false_ext:
-        return true_ext
-    return _ConditionalExtrapolation(mask, true_ext, false_ext)
-
-
-def from_dict(dictionary: dict) -&gt; Extrapolation:
-    &#34;&#34;&#34;
-    Loads an `Extrapolation` object from a dictionary that was created using `Extrapolation.to_dict()`.
-
-    Args:
-        dictionary: serializable dictionary holding all extrapolation properties
-
-    Returns:
-        Loaded extrapolation
-    &#34;&#34;&#34;
-    etype = dictionary[&#39;type&#39;]
-    if etype in _PRIMITIVES:
-        return _PRIMITIVES[etype]
-    elif etype == &#39;constant&#39;:
-        return ConstantExtrapolation(dictionary[&#39;value&#39;])
-    elif etype == &#39;mixed&#39;:
-        dims: Dict[Hashable, tuple] = dictionary[&#39;dims&#39;]
-        extrapolations = {k: (from_dict(l), from_dict(u)) for k, (l, u) in dims.items()}
-        return combine_sides(**extrapolations)
-    elif etype == &#39;mixed_v2&#39;:
-        dims: Dict[Hashable, dict] = dictionary[&#39;dims&#39;]
-        extrapolations = {k: from_dict(ext) for k, ext in dims.items()}
-        return _MixedExtrapolation(extrapolations)
-    elif etype == &#39;normal-tangential&#39;:
-        normal = from_dict(dictionary[&#39;normal&#39;])
-        tangential = from_dict(dictionary[&#39;tangential&#39;])
-        return _NormalTangentialExtrapolation(normal, tangential)
-    elif etype == &#39;conditional&#39;:
-        mask = tensor_from_dict(dictionary[&#39;mask&#39;])
-        true_ext = from_dict(dictionary[&#39;true&#39;])
-        false_ext = from_dict(dictionary[&#39;false&#39;])
-        return _ConditionalExtrapolation(mask, true_ext, false_ext)
-    elif etype == &#39;none&#39;:
-        return NONE
-    elif etype == &#39;undefined&#39;:
-        derived_from = from_dict(dictionary[&#39;derived_from&#39;])
-        return Undefined(derived_from)
-    else:
-        raise ValueError(dictionary)
-
-
-def order_by_shape(shape: Shape, sequence, default=None) -&gt; Union[tuple, list]:
-    &#34;&#34;&#34;
-    If sequence is a dict with dimension names as keys, orders its values according to this shape.
-
-    Otherwise, the sequence is returned unchanged.
-
-    Args:
-      sequence: Sequence or dict to be ordered
-      default: default value used for dimensions not contained in sequence
-
-    Returns:
-      ordered sequence of values
-    &#34;&#34;&#34;
-    if isinstance(sequence, dict):
-        result = [sequence.get(dim, default) for dim in shape.names]
-        return result
-    elif isinstance(sequence, (tuple, list)):
-        assert len(sequence) == shape.rank
-        return sequence
-    else:  # just a constant
-        return sequence
-
-
-def map(f: Callable[[Extrapolation], Extrapolation], extrapolation):
-    &#34;&#34;&#34;
-    Applies a function to all leaf extrapolations in `extrapolation`.
-    Non-leaves are those created by `combine_sides()` and `combine_by_direction()`.
-
-    The tree will be collapsed if possible.
-
-    Args:
-        f: Function mapping a leaf `Extrapolation` to another `Extrapolation`.
-        extrapolation: Input tree for `f`.
-
-    Returns:
-        `Extrapolation`
-    &#34;&#34;&#34;
-    if isinstance(extrapolation, _MixedExtrapolation):
-        return combine_sides({k: map(f, ext) for k, ext in extrapolation.ext.items()})
-    elif isinstance(extrapolation, _NormalTangentialExtrapolation):
-        return combine_by_direction(map(f, extrapolation.normal), map(f, extrapolation.tangential))
-    elif isinstance(extrapolation, _ConditionalExtrapolation):
-        return where(extrapolation.mask, map(f, extrapolation.true_ext), map(f, extrapolation.false_ext))
-    else:
-        return f(extrapolation)
-
-
-def remove_constant_offset(extrapolation):
-    &#34;&#34;&#34;
-    Removes all constant offsets from an extrapolation.
-    This also includes `NaN` values in constants (unlike `ext - ext`).
-
-    Args:
-        extrapolation: `Extrapolation` object.
-
-    Returns:
-        `Extrapolation` that has no constant offsets
-    &#34;&#34;&#34;
-    def const_to_zero(extrapolation):
-        if isinstance(extrapolation, ConstantExtrapolation):
-            return ZERO
-        else:
-            return extrapolation
-    return map(const_to_zero, extrapolation)</code></pre>
-</details>
 </section>
 <section>
 </section>
@@ -1820,7 +82,7 @@ def remove_constant_offset(extrapolation):
 <h2 class="section-title" id="header-functions">Functions</h2>
 <dl>
 <dt id="phiml.math.extrapolation.as_extrapolation"><code class="name flex">
-<span>def <span class="ident">as_extrapolation</span></span>(<span>obj, two_sided=True) ‑> <a title="phiml.math.extrapolation.Extrapolation" href="#phiml.math.extrapolation.Extrapolation">Extrapolation</a></span>
+<span>def <span class="ident">as_extrapolation</span></span>(<span>obj) ‑> <a title="phiml.math.extrapolation.Extrapolation" href="#phiml.math.extrapolation.Extrapolation">Extrapolation</a></span>
 </code></dt>
 <dd>
 <div class="desc"><p>Creates an <code><a title="phiml.math.extrapolation.Extrapolation" href="#phiml.math.extrapolation.Extrapolation">Extrapolation</a></code> from a descriptor object.</p>
@@ -1836,51 +98,9 @@ def remove_constant_offset(extrapolation):
 <li><code>dict</code> mapping spatial dimension names to extrapolations</li>
 </ul>
 </dd>
-<dt><strong><code>two_sided</code></strong></dt>
-<dd>If <code>True</code>, will add two entries <code>(name, False), (name, True)</code> for dimension names in <code>dict</code> objects.</dd>
 </dl>
 <h2 id="returns">Returns</h2>
 <p><code><a title="phiml.math.extrapolation.Extrapolation" href="#phiml.math.extrapolation.Extrapolation">Extrapolation</a></code></p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def as_extrapolation(obj, two_sided=True) -&gt; Extrapolation:
-    &#34;&#34;&#34;
-    Creates an `Extrapolation` from a descriptor object.
-
-    Args:
-        obj: Extrapolation specification, one of the following:
-
-            * `Extrapolation`
-            * Primitive name as `str`: periodic, zero, one, zero-gradient, symmetric, symmetric-gradient, antisymmetric, reflect, antireflect
-            * `dict` containing exactly the keys `&#39;normal&#39;` and `&#39;tangential&#39;`
-            * `dict` mapping spatial dimension names to extrapolations
-
-        two_sided: If `True`, will add two entries `(name, False), (name, True)` for dimension names in `dict` objects.
-
-    Returns:
-        `Extrapolation`
-    &#34;&#34;&#34;
-    if isinstance(obj, Extrapolation):
-        return obj
-    if obj is None:
-        return NONE
-    if isinstance(obj, str):
-        assert obj in _PRIMITIVES, f&#34;Unrecognized extrapolation type: &#39;{obj}&#39;&#34;
-        return _PRIMITIVES[obj]
-    if isinstance(obj, dict):
-        if &#39;normal&#39; in obj or &#39;tangential&#39; in obj:
-            assert &#39;normal&#39; in obj and &#39;tangential&#39; in obj, f&#34;Normal/tangential dict requires both entries &#39;normal&#39; and &#39;tangential&#39; but got {obj}&#34;
-            assert len(obj) == 2, f&#34;Normal/tangential dict must only contain entries &#39;normal&#39; and &#39;tangential&#39; but got {obj}&#34;
-            normal = as_extrapolation(obj[&#39;normal&#39;])
-            tangential = as_extrapolation(obj[&#39;tangential&#39;])
-            return combine_by_direction(normal=normal, tangential=tangential)
-        else:
-            ext = {dim: (as_extrapolation(spec[0]), as_extrapolation(spec[1])) if isinstance(spec, tuple) else as_extrapolation(spec) for dim, spec in obj.items()}
-            return combine_sides(**ext) if two_sided else combine_sides(ext)
-    return ConstantExtrapolation(obj)</code></pre>
-</details>
 </dd>
 <dt id="phiml.math.extrapolation.combine_by_direction"><code class="name flex">
 <span>def <span class="ident">combine_by_direction</span></span>(<span>normal: Union[<a title="phiml.math.extrapolation.Extrapolation" href="#phiml.math.extrapolation.Extrapolation">Extrapolation</a>, float, phiml.math._tensors.Tensor], tangential: Union[<a title="phiml.math.extrapolation.Extrapolation" href="#phiml.math.extrapolation.Extrapolation">Extrapolation</a>, float, phiml.math._tensors.Tensor]) ‑> <a title="phiml.math.extrapolation.Extrapolation" href="#phiml.math.extrapolation.Extrapolation">Extrapolation</a></span>
@@ -1896,70 +116,39 @@ def remove_constant_offset(extrapolation):
 </dl>
 <h2 id="returns">Returns</h2>
 <p><code><a title="phiml.math.extrapolation.Extrapolation" href="#phiml.math.extrapolation.Extrapolation">Extrapolation</a></code></p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def combine_by_direction(normal: Union[Extrapolation, float, Tensor], tangential: Union[Extrapolation, float, Tensor]) -&gt; Extrapolation:
-    &#34;&#34;&#34;
-    Use a different extrapolation for the normal component of vector-valued tensors.
-
-    Args:
-        normal: Extrapolation for the component that is orthogonal to the boundary.
-        tangential: Extrapolation for the component that is tangential to the boundary.
-
-    Returns:
-        `Extrapolation`
-    &#34;&#34;&#34;
-    normal = as_extrapolation(normal)
-    tangential = as_extrapolation(tangential)
-    return normal if normal == tangential else _NormalTangentialExtrapolation(normal, tangential)</code></pre>
-</details>
 </dd>
 <dt id="phiml.math.extrapolation.combine_sides"><code class="name flex">
-<span>def <span class="ident">combine_sides</span></span>(<span>boundary_dict: Dict[Hashable[], <a title="phiml.math.extrapolation.Extrapolation" href="#phiml.math.extrapolation.Extrapolation">Extrapolation</a>] = None, **extrapolations: Union[<a title="phiml.math.extrapolation.Extrapolation" href="#phiml.math.extrapolation.Extrapolation">Extrapolation</a>, tuple, numbers.Number]) ‑> <a title="phiml.math.extrapolation.Extrapolation" href="#phiml.math.extrapolation.Extrapolation">Extrapolation</a></span>
+<span>def <span class="ident">combine_sides</span></span>(<span>boundary_dict: Dict[str, <a title="phiml.math.extrapolation.Extrapolation" href="#phiml.math.extrapolation.Extrapolation">Extrapolation</a>] = None, **extrapolations: Union[<a title="phiml.math.extrapolation.Extrapolation" href="#phiml.math.extrapolation.Extrapolation">Extrapolation</a>, tuple, numbers.Number]) ‑> <a title="phiml.math.extrapolation.Extrapolation" href="#phiml.math.extrapolation.Extrapolation">Extrapolation</a></span>
 </code></dt>
 <dd>
 <div class="desc"><p>Specify extrapolations for each side / face of a box.</p>
 <h2 id="args">Args</h2>
 <dl>
 <dt><strong><code>boundary_dict</code></strong></dt>
-<dd>Extrapolations by hashable boundary key.</dd>
+<dd>Extrapolations by boundary names.</dd>
 <dt><strong><code>**extrapolations</code></strong></dt>
 <dd>map from dim: str -&gt; <code><a title="phiml.math.extrapolation.Extrapolation" href="#phiml.math.extrapolation.Extrapolation">Extrapolation</a></code> or <code>tuple</code> (lower, upper)</dd>
 </dl>
 <h2 id="returns">Returns</h2>
 <p><code><a title="phiml.math.extrapolation.Extrapolation" href="#phiml.math.extrapolation.Extrapolation">Extrapolation</a></code></p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def combine_sides(boundary_dict: Dict[Hashable, Extrapolation] = None, **extrapolations: Union[Extrapolation, tuple, Number]) -&gt; Extrapolation:
-    &#34;&#34;&#34;
-    Specify extrapolations for each side / face of a box.
-
-    Args:
-        boundary_dict: Extrapolations by hashable boundary key.
-        **extrapolations: map from dim: str -&gt; `Extrapolation` or `tuple` (lower, upper)
-
-    Returns:
-        `Extrapolation`
-    &#34;&#34;&#34;
-    boundary_dict = dict(boundary_dict) if boundary_dict is not None else {}
-    for dim, ext in extrapolations.items():
-        if isinstance(ext, tuple):
-            assert len(ext) == 2, &#34;Tuple must contain exactly two elements, (lower, upper)&#34;
-            lower = as_extrapolation(ext[0])
-            upper = as_extrapolation(ext[1])
-            boundary_dict[(dim, False)] = lower
-            boundary_dict[(dim, True)] = upper
-        else:
-            boundary_dict[(dim, False)] = boundary_dict[(dim, True)] = as_extrapolation(ext)
-    if len(set(boundary_dict.values())) == 1:  # All equal -&gt; return any
-        return next(iter(boundary_dict.values()))
-    else:
-        return _MixedExtrapolation(boundary_dict)</code></pre>
-</details>
+</dd>
+<dt id="phiml.math.extrapolation.domain_slice"><code class="name flex">
+<span>def <span class="ident">domain_slice</span></span>(<span>ext: <a title="phiml.math.extrapolation.Extrapolation" href="#phiml.math.extrapolation.Extrapolation">Extrapolation</a>, item: dict, domain_dims: Union[phiml.math._shape.Shape, tuple, list, str]) ‑> <a title="phiml.math.extrapolation.Extrapolation" href="#phiml.math.extrapolation.Extrapolation">Extrapolation</a></span>
+</code></dt>
+<dd>
+<div class="desc"><p>Slices a domain, similar to <code>ext[item]</code> but with additional information about the domain.
+In some cases, <code>ext[item]</code> will fail, e.g. slicing a normal/tangential extrapolation along <code>vector</code>.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>ext</code></strong></dt>
+<dd><code><a title="phiml.math.extrapolation.Extrapolation" href="#phiml.math.extrapolation.Extrapolation">Extrapolation</a></code></dd>
+<dt><strong><code>item</code></strong></dt>
+<dd>slicing dict</dd>
+<dt><strong><code>domain_dims</code></strong></dt>
+<dd>All spatial dimensions.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<p><code><a title="phiml.math.extrapolation.Extrapolation" href="#phiml.math.extrapolation.Extrapolation">Extrapolation</a></code></p></div>
 </dd>
 <dt id="phiml.math.extrapolation.from_dict"><code class="name flex">
 <span>def <span class="ident">from_dict</span></span>(<span>dictionary: dict) ‑> <a title="phiml.math.extrapolation.Extrapolation" href="#phiml.math.extrapolation.Extrapolation">Extrapolation</a></span>
@@ -1973,88 +162,18 @@ def remove_constant_offset(extrapolation):
 </dl>
 <h2 id="returns">Returns</h2>
 <p>Loaded extrapolation</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def from_dict(dictionary: dict) -&gt; Extrapolation:
-    &#34;&#34;&#34;
-    Loads an `Extrapolation` object from a dictionary that was created using `Extrapolation.to_dict()`.
-
-    Args:
-        dictionary: serializable dictionary holding all extrapolation properties
-
-    Returns:
-        Loaded extrapolation
-    &#34;&#34;&#34;
-    etype = dictionary[&#39;type&#39;]
-    if etype in _PRIMITIVES:
-        return _PRIMITIVES[etype]
-    elif etype == &#39;constant&#39;:
-        return ConstantExtrapolation(dictionary[&#39;value&#39;])
-    elif etype == &#39;mixed&#39;:
-        dims: Dict[Hashable, tuple] = dictionary[&#39;dims&#39;]
-        extrapolations = {k: (from_dict(l), from_dict(u)) for k, (l, u) in dims.items()}
-        return combine_sides(**extrapolations)
-    elif etype == &#39;mixed_v2&#39;:
-        dims: Dict[Hashable, dict] = dictionary[&#39;dims&#39;]
-        extrapolations = {k: from_dict(ext) for k, ext in dims.items()}
-        return _MixedExtrapolation(extrapolations)
-    elif etype == &#39;normal-tangential&#39;:
-        normal = from_dict(dictionary[&#39;normal&#39;])
-        tangential = from_dict(dictionary[&#39;tangential&#39;])
-        return _NormalTangentialExtrapolation(normal, tangential)
-    elif etype == &#39;conditional&#39;:
-        mask = tensor_from_dict(dictionary[&#39;mask&#39;])
-        true_ext = from_dict(dictionary[&#39;true&#39;])
-        false_ext = from_dict(dictionary[&#39;false&#39;])
-        return _ConditionalExtrapolation(mask, true_ext, false_ext)
-    elif etype == &#39;none&#39;:
-        return NONE
-    elif etype == &#39;undefined&#39;:
-        derived_from = from_dict(dictionary[&#39;derived_from&#39;])
-        return Undefined(derived_from)
-    else:
-        raise ValueError(dictionary)</code></pre>
-</details>
 </dd>
 <dt id="phiml.math.extrapolation.get_normal"><code class="name flex">
 <span>def <span class="ident">get_normal</span></span>(<span>ext: <a title="phiml.math.extrapolation.Extrapolation" href="#phiml.math.extrapolation.Extrapolation">Extrapolation</a>) ‑> <a title="phiml.math.extrapolation.Extrapolation" href="#phiml.math.extrapolation.Extrapolation">Extrapolation</a></span>
 </code></dt>
 <dd>
 <div class="desc"><p>Returns only the extrapolation for the surface normal component.</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def get_normal(ext: Extrapolation) -&gt; Extrapolation:
-    &#34;&#34;&#34;Returns only the extrapolation for the surface normal component.&#34;&#34;&#34;
-    if isinstance(ext, _NormalTangentialExtrapolation):
-        return ext.normal
-    elif isinstance(ext, _MixedExtrapolation):
-        return combine_sides({k: get_normal(ext) for k, ext in ext.ext.items()})
-    else:
-        return ext</code></pre>
-</details>
 </dd>
 <dt id="phiml.math.extrapolation.get_tangential"><code class="name flex">
 <span>def <span class="ident">get_tangential</span></span>(<span>ext: <a title="phiml.math.extrapolation.Extrapolation" href="#phiml.math.extrapolation.Extrapolation">Extrapolation</a>) ‑> <a title="phiml.math.extrapolation.Extrapolation" href="#phiml.math.extrapolation.Extrapolation">Extrapolation</a></span>
 </code></dt>
 <dd>
 <div class="desc"><p>Returns only the extrapolation for components tangential to the boundary surface.</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def get_tangential(ext: Extrapolation) -&gt; Extrapolation:
-    &#34;&#34;&#34;Returns only the extrapolation for components tangential to the boundary surface.&#34;&#34;&#34;
-    if isinstance(ext, _NormalTangentialExtrapolation):
-        return ext.tangential
-    elif isinstance(ext, _MixedExtrapolation):
-        return combine_sides({k: get_tangential(ext) for k, ext in ext.ext.items()})
-    else:
-        return ext</code></pre>
-</details>
 </dd>
 <dt id="phiml.math.extrapolation.map"><code class="name flex">
 <span>def <span class="ident">map</span></span>(<span>f: Callable[[<a title="phiml.math.extrapolation.Extrapolation" href="#phiml.math.extrapolation.Extrapolation">Extrapolation</a>], <a title="phiml.math.extrapolation.Extrapolation" href="#phiml.math.extrapolation.Extrapolation">Extrapolation</a>], extrapolation)</span>
@@ -2072,33 +191,6 @@ Non-leaves are those created by <code><a title="phiml.math.extrapolation.combine
 </dl>
 <h2 id="returns">Returns</h2>
 <p><code><a title="phiml.math.extrapolation.Extrapolation" href="#phiml.math.extrapolation.Extrapolation">Extrapolation</a></code></p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def map(f: Callable[[Extrapolation], Extrapolation], extrapolation):
-    &#34;&#34;&#34;
-    Applies a function to all leaf extrapolations in `extrapolation`.
-    Non-leaves are those created by `combine_sides()` and `combine_by_direction()`.
-
-    The tree will be collapsed if possible.
-
-    Args:
-        f: Function mapping a leaf `Extrapolation` to another `Extrapolation`.
-        extrapolation: Input tree for `f`.
-
-    Returns:
-        `Extrapolation`
-    &#34;&#34;&#34;
-    if isinstance(extrapolation, _MixedExtrapolation):
-        return combine_sides({k: map(f, ext) for k, ext in extrapolation.ext.items()})
-    elif isinstance(extrapolation, _NormalTangentialExtrapolation):
-        return combine_by_direction(map(f, extrapolation.normal), map(f, extrapolation.tangential))
-    elif isinstance(extrapolation, _ConditionalExtrapolation):
-        return where(extrapolation.mask, map(f, extrapolation.true_ext), map(f, extrapolation.false_ext))
-    else:
-        return f(extrapolation)</code></pre>
-</details>
 </dd>
 <dt id="phiml.math.extrapolation.order_by_shape"><code class="name flex">
 <span>def <span class="ident">order_by_shape</span></span>(<span>shape: phiml.math._shape.Shape, sequence, default=None) ‑> Union[tuple, list]</span>
@@ -2115,32 +207,6 @@ Non-leaves are those created by <code><a title="phiml.math.extrapolation.combine
 </dl>
 <h2 id="returns">Returns</h2>
 <p>ordered sequence of values</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def order_by_shape(shape: Shape, sequence, default=None) -&gt; Union[tuple, list]:
-    &#34;&#34;&#34;
-    If sequence is a dict with dimension names as keys, orders its values according to this shape.
-
-    Otherwise, the sequence is returned unchanged.
-
-    Args:
-      sequence: Sequence or dict to be ordered
-      default: default value used for dimensions not contained in sequence
-
-    Returns:
-      ordered sequence of values
-    &#34;&#34;&#34;
-    if isinstance(sequence, dict):
-        result = [sequence.get(dim, default) for dim in shape.names]
-        return result
-    elif isinstance(sequence, (tuple, list)):
-        assert len(sequence) == shape.rank
-        return sequence
-    else:  # just a constant
-        return sequence</code></pre>
-</details>
 </dd>
 <dt id="phiml.math.extrapolation.remove_constant_offset"><code class="name flex">
 <span>def <span class="ident">remove_constant_offset</span></span>(<span>extrapolation)</span>
@@ -2155,28 +221,6 @@ This also includes <code>NaN</code> values in constants (unlike <code>ext - ext<
 </dl>
 <h2 id="returns">Returns</h2>
 <p><code><a title="phiml.math.extrapolation.Extrapolation" href="#phiml.math.extrapolation.Extrapolation">Extrapolation</a></code> that has no constant offsets</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def remove_constant_offset(extrapolation):
-    &#34;&#34;&#34;
-    Removes all constant offsets from an extrapolation.
-    This also includes `NaN` values in constants (unlike `ext - ext`).
-
-    Args:
-        extrapolation: `Extrapolation` object.
-
-    Returns:
-        `Extrapolation` that has no constant offsets
-    &#34;&#34;&#34;
-    def const_to_zero(extrapolation):
-        if isinstance(extrapolation, ConstantExtrapolation):
-            return ZERO
-        else:
-            return extrapolation
-    return map(const_to_zero, extrapolation)</code></pre>
-</details>
 </dd>
 <dt id="phiml.math.extrapolation.where"><code class="name flex">
 <span>def <span class="ident">where</span></span>(<span>mask: phiml.math._tensors.Tensor, true_ext, false_ext) ‑> <a title="phiml.math.extrapolation.Extrapolation" href="#phiml.math.extrapolation.Extrapolation">Extrapolation</a></span>
@@ -2196,36 +240,6 @@ If the extrapolations are not consistent in which boundary faces are uniquely de
 </dl>
 <h2 id="returns">Returns</h2>
 <p><code><a title="phiml.math.extrapolation.Extrapolation" href="#phiml.math.extrapolation.Extrapolation">Extrapolation</a></code></p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def where(mask: Tensor, true_ext, false_ext) -&gt; Extrapolation:
-    &#34;&#34;&#34;
-    Uses `true_ext` where `mask` is true and `false_ext` where mask is false.
-    If the extrapolations are not consistent in which boundary faces are uniquely determined, the result cannot be used for boundary faces.
-
-    You may also call `math.where()` instead of this function.
-
-    Args:
-        mask: `Tensor` with dimensions matching the tensor that is being padded.
-        true_ext: Extrapolation to use where `mask==True`.
-        false_ext: Extrapolation to use where `mask==False`.
-
-    Returns:
-        `Extrapolation`
-    &#34;&#34;&#34;
-    true_ext = as_extrapolation(true_ext)
-    false_ext = as_extrapolation(false_ext)
-    from phiml.math import always_close
-    if always_close(mask, True):
-        return true_ext
-    elif always_close(mask, False):
-        return false_ext
-    if true_ext == false_ext:
-        return true_ext
-    return _ConditionalExtrapolation(mask, true_ext, false_ext)</code></pre>
-</details>
 </dd>
 </dl>
 </section>
@@ -2434,7 +448,7 @@ The typical order is periodic=1, boundary=2, symmetric=3, reflect=4, constant=5.
 </ul>
 <h3>Instance variables</h3>
 <dl>
-<dt id="phiml.math.extrapolation.ConstantExtrapolation.native_grid_sample_mode"><code class="name">var <span class="ident">native_grid_sample_mode</span> : Optional[str]</code></dt>
+<dt id="phiml.math.extrapolation.ConstantExtrapolation.native_grid_sample_mode"><code class="name">prop <span class="ident">native_grid_sample_mode</span> : Optional[str]</code></dt>
 <dd>
 <div class="desc"></div>
 <details class="source">
@@ -2446,7 +460,7 @@ def native_grid_sample_mode(self) -&gt; Union[str, None]:
     return &#39;zeros&#39; if self.is_zero() else None</code></pre>
 </details>
 </dd>
-<dt id="phiml.math.extrapolation.ConstantExtrapolation.shape"><code class="name">var <span class="ident">shape</span></code></dt>
+<dt id="phiml.math.extrapolation.ConstantExtrapolation.shape"><code class="name">prop <span class="ident">shape</span></code></dt>
 <dd>
 <div class="desc"></div>
 <details class="source">
@@ -2470,80 +484,18 @@ def shape(self):
 </code></dt>
 <dd>
 <div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def is_one(self):
-    return self == ONE</code></pre>
-</details>
 </dd>
 <dt id="phiml.math.extrapolation.ConstantExtrapolation.is_zero"><code class="name flex">
 <span>def <span class="ident">is_zero</span></span>(<span>self)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def is_zero(self):
-    return self == ZERO</code></pre>
-</details>
 </dd>
 <dt id="phiml.math.extrapolation.ConstantExtrapolation.pad"><code class="name flex">
 <span>def <span class="ident">pad</span></span>(<span>self, value: phiml.math._tensors.Tensor, widths: dict, already_padded: Optional[dict] = None, **kwargs) ‑> phiml.math._tensors.Tensor</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Pads a tensor using constant values.</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def pad(self, value: Tensor, widths: dict, already_padded: Optional[dict] = None, **kwargs) -&gt; Tensor:
-    &#34;&#34;&#34;Pads a tensor using constant values.&#34;&#34;&#34;
-    value = value._simplify()
-    if isinstance(value, NativeTensor):
-        pad_value = self._get_pad_value(already_padded)
-        backend = choose_backend(value._native, pad_value.native())
-        for dim in pad_value.shape.non_batch.names:
-            assert dim in value.shape, f&#34;Cannot pad tensor {value.shape} with extrapolation {pad_value.shape} because non-batch dimension &#39;{dim}&#39; is missing.&#34;
-        if pad_value.rank == 0:
-            equal_values = math.all_available(self.value, value) and value._native_shape in self.value.shape and (self.value == value).all
-            if not equal_values:
-                required_dims = value._shape.only(tuple(widths.keys()))
-                value = value._cached(required_dims)
-            should_pad_native = any(dim in value._native_shape for dim in widths) and pad_value.shape.volume == 1
-            if should_pad_native:
-                ordered_pad_widths = order_by_shape(value._native_shape, widths, default=(0, 0))
-                result_native = backend.pad(value._native, ordered_pad_widths, &#39;constant&#39;, pad_value.native())
-            else:
-                result_native = value._native
-            if result_native is not NotImplemented:
-                return NativeTensor(result_native, value._native_shape.after_pad(widths), value._shape.after_pad(widths))
-        return Extrapolation.pad(self, value, widths, already_padded=already_padded, **kwargs)
-    elif isinstance(value, TensorStack):
-        if not value.requires_broadcast:
-            return self.pad(value._contiguous(), widths)
-        inner_widths = {dim: w for dim, w in widths.items() if dim != value._stack_dim.name}
-        tensors = [self[{value._stack_dim.name: i}].pad(t, inner_widths) for i, t in enumerate(value.dimension(value._stack_dim.name))]
-        return TensorStack(tensors, value._stack_dim)
-    else:
-        return Extrapolation.pad(self, value, widths, already_padded=already_padded, **kwargs)</code></pre>
-</details>
-</dd>
-<dt id="phiml.math.extrapolation.ConstantExtrapolation.sparse_pad_values"><code class="name flex">
-<span>def <span class="ident">sparse_pad_values</span></span>(<span>self, value: phiml.math._tensors.Tensor, connectivity: phiml.math._tensors.Tensor, dim: str, **kwargs) ‑> phiml.math._tensors.Tensor</span>
-</code></dt>
-<dd>
-<div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def sparse_pad_values(self, value: Tensor, connectivity: Tensor, dim: str, **kwargs) -&gt; Tensor:
-    return math.expand(self.value, dual(connectivity) &amp; non_dual(value))</code></pre>
-</details>
 </dd>
 </dl>
 <h3>Inherited members</h3>
@@ -2555,6 +507,7 @@ def shape(self):
 <li><code><a title="phiml.math.extrapolation.Extrapolation.is_flexible" href="#phiml.math.extrapolation.Extrapolation.is_flexible">is_flexible</a></code></li>
 <li><code><a title="phiml.math.extrapolation.Extrapolation.pad_values" href="#phiml.math.extrapolation.Extrapolation.pad_values">pad_values</a></code></li>
 <li><code><a title="phiml.math.extrapolation.Extrapolation.shortest_distance" href="#phiml.math.extrapolation.Extrapolation.shortest_distance">shortest_distance</a></code></li>
+<li><code><a title="phiml.math.extrapolation.Extrapolation.sparse_pad_values" href="#phiml.math.extrapolation.Extrapolation.sparse_pad_values">sparse_pad_values</a></code></li>
 <li><code><a title="phiml.math.extrapolation.Extrapolation.spatial_gradient" href="#phiml.math.extrapolation.Extrapolation.spatial_gradient">spatial_gradient</a></code></li>
 <li><code><a title="phiml.math.extrapolation.Extrapolation.to_dict" href="#phiml.math.extrapolation.Extrapolation.to_dict">to_dict</a></code></li>
 <li><code><a title="phiml.math.extrapolation.Extrapolation.transform_coordinates" href="#phiml.math.extrapolation.Extrapolation.transform_coordinates">transform_coordinates</a></code></li>
@@ -2620,9 +573,9 @@ The typical order is periodic=1, boundary=2, symmetric=3, reflect=4, constant=5.
         Use `determines_boundary_values()` instead.
 
          `(lower: bool, upper: bool)` indicating whether the values sampled at the outer-most faces of a staggered grid with this extrapolation are valid, i.e. need to be stored and are not redundant. &#34;&#34;&#34;
-        return not self.determines_boundary_values((dim, False)), not self.determines_boundary_values((dim, True))
+        return not self.determines_boundary_values(dim+&#39;-&#39;), not self.determines_boundary_values(dim+&#39;+&#39;)
 
-    def determines_boundary_values(self, boundary_key: Union[Tuple[str, bool], str]) -&gt; bool:
+    def determines_boundary_values(self, boundary_key: str) -&gt; bool:
         &#34;&#34;&#34;
         Tests whether this extrapolation fully determines the values at the boundary faces of the outermost cells or elements.
         If so, the values need not be stored along with the inside values.
@@ -2630,7 +583,7 @@ The typical order is periodic=1, boundary=2, symmetric=3, reflect=4, constant=5.
         Override this function instead of `valid_outer_faces()`.
 
         Args:
-            boundary_key: Hashable object identifying the boundary, e.g. a `str` or `Tuple`.
+            boundary_key: Boundary name as `str`.
 
         Returns:
             Whether the value is fully determined by the boundary and need not be stored elsewhere.
@@ -2668,7 +621,7 @@ The typical order is periodic=1, boundary=2, symmetric=3, reflect=4, constant=5.
         from ._trace import ShiftLinTracer
         if isinstance(value, ShiftLinTracer):
             lower = {dim: -lo for dim, (lo, _) in widths.items()}
-            return value.shift(lower, new_shape=value.shape.after_pad(widths), val_fun=lambda v: ZERO.pad(v, widths, already_padded=already_padded, **kwargs), bias_fun=lambda b: self.pad(b, widths, already_padded=already_padded, **kwargs))
+            return value.shift(lower, new_shape=value.shape.after_pad(widths), val_fun=lambda v: ZERO.pad(v, widths, already_padded=already_padded, **kwargs), bias_fun=lambda b: self.pad(b, widths, already_padded=already_padded, **kwargs), nonzero_edge=False)
         already_padded = {} if already_padded is None else dict(already_padded)
         for dim, width in widths.items():
             assert (w &gt; 0 for w in width), &#34;Negative widths not allowed in Extrapolation.pad(). Use math.pad() instead.&#34;
@@ -2703,7 +656,19 @@ The typical order is periodic=1, boundary=2, symmetric=3, reflect=4, constant=5.
         &#34;&#34;&#34;
         raise NotImplementedError(self.__class__)
 
-    def sparse_pad_values(self, value: Tensor, connectivity: Tensor, dim: str, **kwargs) -&gt; Tensor:
+    def sparse_pad_values(self, value: Tensor, connectivity: Tensor, boundary: str, **kwargs) -&gt; Tensor:
+        &#34;&#34;&#34;
+        Determines pad values for boundary nodes of a sparsely connected graph.
+
+        Args:
+            value: `Tensor` to pad. Dense tensor containing an entry for each non-boundary node of the graph, laid out along a dual dim.
+            connectivity: Sliced graph connectivity as sparse matrix. Only the relevant entries along the primal node dim are given.
+            boundary: Boundary name to pad.
+            **kwargs: Additional provided arguments, such as `mesh`.
+
+        Returns:
+            Values with which to pad `value`, laid out along the dual dim of `value`.
+        &#34;&#34;&#34;
         raise NotImplementedError(self.__class__)
 
     def transform_coordinates(self, coordinates: Tensor, shape: Shape, **kwargs) -&gt; Tensor:
@@ -2750,7 +715,7 @@ The typical order is periodic=1, boundary=2, symmetric=3, reflect=4, constant=5.
     def __getitem__(self, item):
         return self
 
-    def _getitem_with_domain(self, item: dict, dim: str, upper_edge: bool, all_dims: Sequence[str]):
+    def _getitem_with_domain(self, item: dict, dim: str, upper_edge: bool, all_dims: Sequence[str]) -&gt; &#39;Extrapolation&#39;:
         return self[item]
 
     def __eq__(self, other):
@@ -2805,7 +770,7 @@ The typical order is periodic=1, boundary=2, symmetric=3, reflect=4, constant=5.
 </ul>
 <h3>Instance variables</h3>
 <dl>
-<dt id="phiml.math.extrapolation.Extrapolation.is_flexible"><code class="name">var <span class="ident">is_flexible</span> : bool</code></dt>
+<dt id="phiml.math.extrapolation.Extrapolation.is_flexible"><code class="name">prop <span class="ident">is_flexible</span> : bool</code></dt>
 <dd>
 <div class="desc"><p>Whether the outside values are affected by the inside values.
 Only <code>True</code> if there are actual outside values, i.e. PERIODIC is not flexible.</p>
@@ -2825,7 +790,7 @@ def is_flexible(self) -&gt; bool:
     raise NotImplementedError(self.__class__)</code></pre>
 </details>
 </dd>
-<dt id="phiml.math.extrapolation.Extrapolation.native_grid_sample_mode"><code class="name">var <span class="ident">native_grid_sample_mode</span> : Optional[str]</code></dt>
+<dt id="phiml.math.extrapolation.Extrapolation.native_grid_sample_mode"><code class="name">prop <span class="ident">native_grid_sample_mode</span> : Optional[str]</code></dt>
 <dd>
 <div class="desc"></div>
 <details class="source">
@@ -2837,7 +802,7 @@ def native_grid_sample_mode(self) -&gt; Union[str, None]:
     return None</code></pre>
 </details>
 </dd>
-<dt id="phiml.math.extrapolation.Extrapolation.shape"><code class="name">var <span class="ident">shape</span></code></dt>
+<dt id="phiml.math.extrapolation.Extrapolation.shape"><code class="name">prop <span class="ident">shape</span></code></dt>
 <dd>
 <div class="desc"></div>
 <details class="source">
@@ -2853,7 +818,7 @@ def shape(self):
 <h3>Methods</h3>
 <dl>
 <dt id="phiml.math.extrapolation.Extrapolation.determines_boundary_values"><code class="name flex">
-<span>def <span class="ident">determines_boundary_values</span></span>(<span>self, boundary_key: Union[Tuple[str, bool], str]) ‑> bool</span>
+<span>def <span class="ident">determines_boundary_values</span></span>(<span>self, boundary_key: str) ‑> bool</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Tests whether this extrapolation fully determines the values at the boundary faces of the outermost cells or elements.
@@ -2862,43 +827,16 @@ If so, the values need not be stored along with the inside values.</p>
 <h2 id="args">Args</h2>
 <dl>
 <dt><strong><code>boundary_key</code></strong></dt>
-<dd>Hashable object identifying the boundary, e.g. a <code>str</code> or <code>Tuple</code>.</dd>
+<dd>Boundary name as <code>str</code>.</dd>
 </dl>
 <h2 id="returns">Returns</h2>
 <p>Whether the value is fully determined by the boundary and need not be stored elsewhere.</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def determines_boundary_values(self, boundary_key: Union[Tuple[str, bool], str]) -&gt; bool:
-    &#34;&#34;&#34;
-    Tests whether this extrapolation fully determines the values at the boundary faces of the outermost cells or elements.
-    If so, the values need not be stored along with the inside values.
-
-    Override this function instead of `valid_outer_faces()`.
-
-    Args:
-        boundary_key: Hashable object identifying the boundary, e.g. a `str` or `Tuple`.
-
-    Returns:
-        Whether the value is fully determined by the boundary and need not be stored elsewhere.
-    &#34;&#34;&#34;
-    raise NotImplementedError(self.__class__)</code></pre>
-</details>
 </dd>
 <dt id="phiml.math.extrapolation.Extrapolation.is_copy_pad"><code class="name flex">
 <span>def <span class="ident">is_copy_pad</span></span>(<span>self, dim: str, upper_edge: bool)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>:return: True if all pad values are copies of existing values in the tensor to be padded</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def is_copy_pad(self, dim: str, upper_edge: bool):
-    &#34;&#34;&#34;:return: True if all pad values are copies of existing values in the tensor to be padded&#34;&#34;&#34;
-    return False</code></pre>
-</details>
 </dd>
 <dt id="phiml.math.extrapolation.Extrapolation.pad"><code class="name flex">
 <span>def <span class="ident">pad</span></span>(<span>self, value: phiml.math._tensors.Tensor, widths: dict, already_padded: Optional[dict] = None, **kwargs) ‑> phiml.math._tensors.Tensor</span>
@@ -2922,48 +860,6 @@ This causes the shape of <code>value</code> to be different from the original te
 </dl>
 <h2 id="returns">Returns</h2>
 <p>Padded <code>Tensor</code></p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def pad(self, value: Tensor, widths: dict, already_padded: Optional[dict] = None, **kwargs) -&gt; Tensor:
-    &#34;&#34;&#34;
-    Pads a tensor using values from `self.pad_values()`.
-
-    If `value` is a linear tracer, assume pad_values() to produce constant values, independent of `value`.
-    To change this behavior, override this method.
-
-    Args:
-        value: `Tensor` to be padded
-        widths: `dict` mapping `dim: str -&gt; (lower: int, upper: int)`
-        already_padded: Used when padding a tensor with multiple extrapolations.
-            Contains all widths that have already been padded prior to this call.
-            This causes the shape of `value` to be different from the original tensor passed to `math.pad()`.
-        kwargs: Additional keyword arguments for padding, passed on to `pad_values()`.
-
-    Returns:
-        Padded `Tensor`
-    &#34;&#34;&#34;
-    from ._trace import ShiftLinTracer
-    if isinstance(value, ShiftLinTracer):
-        lower = {dim: -lo for dim, (lo, _) in widths.items()}
-        return value.shift(lower, new_shape=value.shape.after_pad(widths), val_fun=lambda v: ZERO.pad(v, widths, already_padded=already_padded, **kwargs), bias_fun=lambda b: self.pad(b, widths, already_padded=already_padded, **kwargs))
-    already_padded = {} if already_padded is None else dict(already_padded)
-    for dim, width in widths.items():
-        assert (w &gt; 0 for w in width), &#34;Negative widths not allowed in Extrapolation.pad(). Use math.pad() instead.&#34;
-        values = []
-        if width[False] &gt; 0:
-            values.append(self.pad_values(value, width[False], dim, False, already_padded=already_padded, **kwargs))
-        values.append(value)
-        if width[True] &gt; 0:
-            values.append(self.pad_values(value, width[True], dim, True, already_padded=already_padded, **kwargs))
-        value = concat(values, dim)
-        if dim in already_padded:
-            already_padded[dim] = tuple(i+j for i, j in zip(already_padded[dim], width))
-        else:
-            already_padded[dim] = width
-    return value</code></pre>
-</details>
 </dd>
 <dt id="phiml.math.extrapolation.Extrapolation.pad_values"><code class="name flex">
 <span>def <span class="ident">pad_values</span></span>(<span>self, value: phiml.math._tensors.Tensor, width: int, dim: str, upper_edge: bool, already_padded: Optional[dict] = None, **kwargs) ‑> phiml.math._tensors.Tensor</span>
@@ -2987,28 +883,6 @@ This causes the shape of <code>value</code> to be different from the original te
 </dl>
 <h2 id="returns">Returns</h2>
 <p><code>Tensor</code> that can be concatenated to <code>value</code> along <code>dimension</code></p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def pad_values(self, value: Tensor, width: int, dim: str, upper_edge: bool, already_padded: Optional[dict] = None, **kwargs) -&gt; Tensor:
-    &#34;&#34;&#34;
-    Determines the values with which the given tensor would be padded at the specified using this extrapolation.
-
-    Args:
-        value: `Tensor` to be padded.
-        width: `int &gt; 0`: Number of cells to pad along `dimension`.
-        dim: Dimension name as `str`.
-        upper_edge: `True` for upper edge, `False` for lower edge.
-        already_padded: Used when padding a tensor with multiple extrapolations.
-            Contains all widths that have already been padded prior to this call.
-            This causes the shape of `value` to be different from the original tensor passed to `math.pad()`.
-
-    Returns:
-        `Tensor` that can be concatenated to `value` along `dimension`
-    &#34;&#34;&#34;
-    raise NotImplementedError(self.__class__)</code></pre>
-</details>
 </dd>
 <dt id="phiml.math.extrapolation.Extrapolation.shortest_distance"><code class="name flex">
 <span>def <span class="ident">shortest_distance</span></span>(<span>self, start: phiml.math._tensors.Tensor, end: phiml.math._tensors.Tensor, domain_size: phiml.math._tensors.Tensor)</span>
@@ -3027,38 +901,25 @@ Both points are assumed to lie within the domain</p>
 </dl>
 <h2 id="returns">Returns</h2>
 <p>Shortest distance from <code>start</code> to <code>end</code>.</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def shortest_distance(self, start: Tensor, end: Tensor, domain_size: Tensor):
-    &#34;&#34;&#34;
-    Computes the shortest distance between two points.
-    Both points are assumed to lie within the domain
-
-    Args:
-        start: Start position.
-        end: End position.
-        domain_size: Domain side lengths as vector.
-
-    Returns:
-        Shortest distance from `start` to `end`.
-    &#34;&#34;&#34;
-    return end - start</code></pre>
-</details>
 </dd>
 <dt id="phiml.math.extrapolation.Extrapolation.sparse_pad_values"><code class="name flex">
-<span>def <span class="ident">sparse_pad_values</span></span>(<span>self, value: phiml.math._tensors.Tensor, connectivity: phiml.math._tensors.Tensor, dim: str, **kwargs) ‑> phiml.math._tensors.Tensor</span>
+<span>def <span class="ident">sparse_pad_values</span></span>(<span>self, value: phiml.math._tensors.Tensor, connectivity: phiml.math._tensors.Tensor, boundary: str, **kwargs) ‑> phiml.math._tensors.Tensor</span>
 </code></dt>
 <dd>
-<div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def sparse_pad_values(self, value: Tensor, connectivity: Tensor, dim: str, **kwargs) -&gt; Tensor:
-    raise NotImplementedError(self.__class__)</code></pre>
-</details>
+<div class="desc"><p>Determines pad values for boundary nodes of a sparsely connected graph.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>value</code></strong></dt>
+<dd><code>Tensor</code> to pad. Dense tensor containing an entry for each non-boundary node of the graph, laid out along a dual dim.</dd>
+<dt><strong><code>connectivity</code></strong></dt>
+<dd>Sliced graph connectivity as sparse matrix. Only the relevant entries along the primal node dim are given.</dd>
+<dt><strong><code>boundary</code></strong></dt>
+<dd>Boundary name to pad.</dd>
+<dt><strong><code>**kwargs</code></strong></dt>
+<dd>Additional provided arguments, such as <code>mesh</code>.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<p>Values with which to pad <code>value</code>, laid out along the dual dim of <code>value</code>.</p></div>
 </dd>
 <dt id="phiml.math.extrapolation.Extrapolation.spatial_gradient"><code class="name flex">
 <span>def <span class="ident">spatial_gradient</span></span>(<span>self) ‑> <a title="phiml.math.extrapolation.Extrapolation" href="#phiml.math.extrapolation.Extrapolation">Extrapolation</a></span>
@@ -3067,19 +928,6 @@ Both points are assumed to lie within the domain</p>
 <div class="desc"><p>Returns the extrapolation for the spatial gradient of a tensor/field with this extrapolation.</p>
 <h2 id="returns">Returns</h2>
 <p><code><a title="phiml.math.extrapolation.Extrapolation" href="#phiml.math.extrapolation.Extrapolation">Extrapolation</a></code> or <code>NotImplemented</code></p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def spatial_gradient(self) -&gt; &#39;Extrapolation&#39;:
-    &#34;&#34;&#34;
-    Returns the extrapolation for the spatial gradient of a tensor/field with this extrapolation.
-
-    Returns:
-        `Extrapolation` or `NotImplemented`
-    &#34;&#34;&#34;
-    raise NotImplementedError(self.__class__)</code></pre>
-</details>
 </dd>
 <dt id="phiml.math.extrapolation.Extrapolation.to_dict"><code class="name flex">
 <span>def <span class="ident">to_dict</span></span>(<span>self) ‑> dict</span>
@@ -3087,18 +935,6 @@ Both points are assumed to lie within the domain</p>
 <dd>
 <div class="desc"><p>Serialize this extrapolation to a dictionary that is serializable (JSON-writable).</p>
 <p>Use <code><a title="phiml.math.extrapolation.from_dict" href="#phiml.math.extrapolation.from_dict">from_dict()</a></code> to restore the Extrapolation object.</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def to_dict(self) -&gt; dict:
-    &#34;&#34;&#34;
-    Serialize this extrapolation to a dictionary that is serializable (JSON-writable).
-    
-    Use `from_dict()` to restore the Extrapolation object.
-    &#34;&#34;&#34;
-    raise NotImplementedError(self.__class__)</code></pre>
-</details>
 </dd>
 <dt id="phiml.math.extrapolation.Extrapolation.transform_coordinates"><code class="name flex">
 <span>def <span class="ident">transform_coordinates</span></span>(<span>self, coordinates: phiml.math._tensors.Tensor, shape: phiml.math._shape.Shape, **kwargs) ‑> phiml.math._tensors.Tensor</span>
@@ -3117,28 +953,6 @@ This is the default implementation.</p>
 </dl>
 <h2 id="returns">Returns</h2>
 <p>Transformed coordinates</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def transform_coordinates(self, coordinates: Tensor, shape: Shape, **kwargs) -&gt; Tensor:
-    &#34;&#34;&#34;
-    If `self.is_copy_pad`, transforms outside coordinates to the index from which the value is copied.
-    
-    Otherwise, the grid tensor is assumed to hold the correct boundary values for this extrapolation at the edge.
-    Coordinates are then snapped to the valid index range.
-    This is the default implementation.
-
-    Args:
-        coordinates: integer coordinates in index space
-        shape: tensor shape
-
-    Returns:
-        Transformed coordinates
-    &#34;&#34;&#34;
-    res = shape[coordinates.shape.get_item_names(&#39;vector&#39;)] if &#39;vector&#39; in coordinates.shape and coordinates.shape.get_item_names(&#39;vector&#39;) else shape.spatial
-    return math.clip(coordinates, 0, math.wrap(res - 1, channel(&#39;vector&#39;)))</code></pre>
-</details>
 </dd>
 <dt id="phiml.math.extrapolation.Extrapolation.valid_outer_faces"><code class="name flex">
 <span>def <span class="ident">valid_outer_faces</span></span>(<span>self, dim) ‑> Tuple[bool, bool]</span>
@@ -3146,17 +960,6 @@ This is the default implementation.</p>
 <dd>
 <div class="desc"><p>Use <code>determines_boundary_values()</code> instead.</p>
 <p><code>(lower: bool, upper: bool)</code> indicating whether the values sampled at the outer-most faces of a staggered grid with this extrapolation are valid, i.e. need to be stored and are not redundant.</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def valid_outer_faces(self, dim) -&gt; Tuple[bool, bool]:
-    &#34;&#34;&#34;
-    Use `determines_boundary_values()` instead.
-
-     `(lower: bool, upper: bool)` indicating whether the values sampled at the outer-most faces of a staggered grid with this extrapolation are valid, i.e. need to be stored and are not redundant. &#34;&#34;&#34;
-    return not self.determines_boundary_values((dim, False)), not self.determines_boundary_values((dim, True))</code></pre>
-</details>
 </dd>
 </dl>
 </dd>
@@ -3260,7 +1063,7 @@ The typical order is periodic=1, boundary=2, symmetric=3, reflect=4, constant=5.
 </ul>
 <h3>Instance variables</h3>
 <dl>
-<dt id="phiml.math.extrapolation.Undefined.shape"><code class="name">var <span class="ident">shape</span></code></dt>
+<dt id="phiml.math.extrapolation.Undefined.shape"><code class="name">prop <span class="ident">shape</span></code></dt>
 <dd>
 <div class="desc"></div>
 <details class="source">
@@ -3270,22 +1073,6 @@ The typical order is periodic=1, boundary=2, symmetric=3, reflect=4, constant=5.
 <pre><code class="python">@property
 def shape(self):
     return EMPTY_SHAPE</code></pre>
-</details>
-</dd>
-</dl>
-<h3>Methods</h3>
-<dl>
-<dt id="phiml.math.extrapolation.Undefined.sparse_pad_values"><code class="name flex">
-<span>def <span class="ident">sparse_pad_values</span></span>(<span>self, value: phiml.math._tensors.Tensor, connectivity: phiml.math._tensors.Tensor, dim: str, **kwargs) ‑> phiml.math._tensors.Tensor</span>
-</code></dt>
-<dd>
-<div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def sparse_pad_values(self, value: Tensor, connectivity: Tensor, dim: str, **kwargs) -&gt; Tensor:
-    raise AssertionError(&#34;Undefined extrapolation&#34;)</code></pre>
 </details>
 </dd>
 </dl>
@@ -3299,6 +1086,7 @@ def shape(self):
 <li><code><a title="phiml.math.extrapolation.Extrapolation.pad" href="#phiml.math.extrapolation.Extrapolation.pad">pad</a></code></li>
 <li><code><a title="phiml.math.extrapolation.Extrapolation.pad_values" href="#phiml.math.extrapolation.Extrapolation.pad_values">pad_values</a></code></li>
 <li><code><a title="phiml.math.extrapolation.Extrapolation.shortest_distance" href="#phiml.math.extrapolation.Extrapolation.shortest_distance">shortest_distance</a></code></li>
+<li><code><a title="phiml.math.extrapolation.Extrapolation.sparse_pad_values" href="#phiml.math.extrapolation.Extrapolation.sparse_pad_values">sparse_pad_values</a></code></li>
 <li><code><a title="phiml.math.extrapolation.Extrapolation.spatial_gradient" href="#phiml.math.extrapolation.Extrapolation.spatial_gradient">spatial_gradient</a></code></li>
 <li><code><a title="phiml.math.extrapolation.Extrapolation.to_dict" href="#phiml.math.extrapolation.Extrapolation.to_dict">to_dict</a></code></li>
 <li><code><a title="phiml.math.extrapolation.Extrapolation.transform_coordinates" href="#phiml.math.extrapolation.Extrapolation.transform_coordinates">transform_coordinates</a></code></li>
@@ -3311,7 +1099,6 @@ def shape(self):
 </section>
 </article>
 <nav id="sidebar">
-<h1>Index</h1>
 <div class="toc">
 <ul></ul>
 </div>
@@ -3340,6 +1127,7 @@ def shape(self):
 <li><code><a title="phiml.math.extrapolation.as_extrapolation" href="#phiml.math.extrapolation.as_extrapolation">as_extrapolation</a></code></li>
 <li><code><a title="phiml.math.extrapolation.combine_by_direction" href="#phiml.math.extrapolation.combine_by_direction">combine_by_direction</a></code></li>
 <li><code><a title="phiml.math.extrapolation.combine_sides" href="#phiml.math.extrapolation.combine_sides">combine_sides</a></code></li>
+<li><code><a title="phiml.math.extrapolation.domain_slice" href="#phiml.math.extrapolation.domain_slice">domain_slice</a></code></li>
 <li><code><a title="phiml.math.extrapolation.from_dict" href="#phiml.math.extrapolation.from_dict">from_dict</a></code></li>
 <li><code><a title="phiml.math.extrapolation.get_normal" href="#phiml.math.extrapolation.get_normal">get_normal</a></code></li>
 <li><code><a title="phiml.math.extrapolation.get_tangential" href="#phiml.math.extrapolation.get_tangential">get_tangential</a></code></li>
@@ -3359,7 +1147,6 @@ def shape(self):
 <li><code><a title="phiml.math.extrapolation.ConstantExtrapolation.native_grid_sample_mode" href="#phiml.math.extrapolation.ConstantExtrapolation.native_grid_sample_mode">native_grid_sample_mode</a></code></li>
 <li><code><a title="phiml.math.extrapolation.ConstantExtrapolation.pad" href="#phiml.math.extrapolation.ConstantExtrapolation.pad">pad</a></code></li>
 <li><code><a title="phiml.math.extrapolation.ConstantExtrapolation.shape" href="#phiml.math.extrapolation.ConstantExtrapolation.shape">shape</a></code></li>
-<li><code><a title="phiml.math.extrapolation.ConstantExtrapolation.sparse_pad_values" href="#phiml.math.extrapolation.ConstantExtrapolation.sparse_pad_values">sparse_pad_values</a></code></li>
 <li><code><a title="phiml.math.extrapolation.ConstantExtrapolation.value" href="#phiml.math.extrapolation.ConstantExtrapolation.value">value</a></code></li>
 </ul>
 </li>
@@ -3385,7 +1172,6 @@ def shape(self):
 <h4><code><a title="phiml.math.extrapolation.Undefined" href="#phiml.math.extrapolation.Undefined">Undefined</a></code></h4>
 <ul class="">
 <li><code><a title="phiml.math.extrapolation.Undefined.shape" href="#phiml.math.extrapolation.Undefined.shape">shape</a></code></li>
-<li><code><a title="phiml.math.extrapolation.Undefined.sparse_pad_values" href="#phiml.math.extrapolation.Undefined.sparse_pad_values">sparse_pad_values</a></code></li>
 </ul>
 </li>
 </ul>
@@ -3394,7 +1180,7 @@ def shape(self):
 </nav>
 </main>
 <footer id="footer">
-<p>Generated by <a href="https://pdoc3.github.io/pdoc" title="pdoc: Python API documentation generator"><cite>pdoc</cite> 0.10.0</a>.</p>
+<p>Generated by <a href="https://pdoc3.github.io/pdoc" title="pdoc: Python API documentation generator"><cite>pdoc</cite> 0.11.0</a>.</p>
 </footer>
 </body>
 </html>

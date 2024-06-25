@@ -2,18 +2,21 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
-<meta name="generator" content="pdoc 0.10.0" />
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1">
+<meta name="generator" content="pdoc3 0.11.0">
 <title>phiml.backend API documentation</title>
-<meta name="description" content="Low-level library wrappers for delegating vector operations." />
-<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
-<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/typography.min.css" integrity="sha256-7l/o7C8jubJiy74VsKTidCy1yBkRtiUGbVkYBylBqUg=" crossorigin>
-<link rel="stylesheet preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/github.min.css" crossorigin>
-<style>:root{--highlight-color:#fe9}.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}h1:target,h2:target,h3:target,h4:target,h5:target,h6:target{background:var(--highlight-color);padding:.2em 0}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}dt:target .name{background:var(--highlight-color)}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}td{padding:0 .5em}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
-<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
+<meta name="description" content="Low-level library wrappers for delegating vector operations.">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/13.0.0/sanitize.min.css" integrity="sha512-y1dtMcuvtTMJc1yPgEqF0ZjQbhnc/bFhyvIyVNb9Zk5mIGtqVaAB1Ttl28su8AvFMOY0EwRbAe+HCLqj6W7/KA==" crossorigin>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/13.0.0/typography.min.css" integrity="sha512-Y1DYSb995BAfxobCkKepB1BqJJTPrOp3zPL74AWFugHHmmdcvO+C48WLrUOlhGMc0QG7AE3f7gmvvcrmX2fDoA==" crossorigin>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/default.min.css" crossorigin>
+<style>:root{--highlight-color:#fe9}.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:1.5em;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:2em 0 .50em 0}h3{font-size:1.4em;margin:1.6em 0 .7em 0}h4{margin:0;font-size:105%}h1:target,h2:target,h3:target,h4:target,h5:target,h6:target{background:var(--highlight-color);padding:.2em 0}a{color:#058;text-decoration:none;transition:color .2s ease-in-out}a:visited{color:#503}a:hover{color:#b62}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900;font-weight:bold}pre code{font-size:.8em;line-height:1.4em;padding:1em;display:block}code{background:#f3f3f3;font-family:"DejaVu Sans Mono",monospace;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}dt:target .name{background:var(--highlight-color)}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}td{padding:0 .5em}.admonition{padding:.1em 1em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul ul{padding-left:1em}.toc > ul > li{margin-top:.5em}}</style>
 <style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
-<script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/highlight.min.js" integrity="sha256-Uv3H6lx7dJmRfRvH8TH6kJD1TSK1aFcwgx+mdg3epi8=" crossorigin></script>
-<script>window.addEventListener('DOMContentLoaded', () => hljs.initHighlighting())</script>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js" integrity="sha512-D9gUyxqja7hBtkWpPWGt9wfbfaMGVt9gnyCvYa+jojwwPHLCzUm5i8rpk7vD7wNee9bA35eYIjobYPaQuKS1MQ==" crossorigin></script>
+<script>window.addEventListener('DOMContentLoaded', () => {
+hljs.configure({languages: ['bash', 'css', 'diff', 'graphql', 'ini', 'javascript', 'json', 'plaintext', 'python', 'python-repl', 'rust', 'shell', 'sql', 'typescript', 'xml', 'yaml']});
+hljs.highlightAll();
+})</script>
 </head>
 <body>
 <main>
@@ -23,52 +26,6 @@
 </header>
 <section id="section-intro">
 <p>Low-level library wrappers for delegating vector operations.</p>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">&#34;&#34;&#34;
-Low-level library wrappers for delegating vector operations.
-&#34;&#34;&#34;
-import warnings
-
-from ._backend import (
-    Backend, choose_backend, NoBackendFound,
-    ComputeDevice,
-    default_backend, set_global_default_backend, BACKENDS, context_backend, _DEFAULT,
-    get_precision, precision, set_global_precision,
-    convert,
-    ML_LOGGER,
-)
-from ._profile import Profile, get_current_profile, profile, profile_function
-
-try:
-    import numpy as _np
-    _NP_AVAILABLE = True
-except ImportError:
-    _NP_AVAILABLE = False
-    warnings.warn(&#34;NumPy is not installed.&#34;, ImportWarning)
-
-if _NP_AVAILABLE:
-    from ._numpy_backend import NUMPY as _NUMPY
-    NUMPY = _NUMPY
-    &#34;&#34;&#34;Default backend for NumPy arrays and SciPy objects.&#34;&#34;&#34;
-    BACKENDS.append(NUMPY)
-    _DEFAULT.append(NUMPY)
-
-from ._object import ObjectBackend as _ObjectBackend
-OBJECTS = _ObjectBackend()
-&#34;&#34;&#34;Backend for Python objects.&#34;&#34;&#34;
-BACKENDS.append(OBJECTS)
-
-__all__ = [key for key in globals().keys() if not key.startswith(&#39;_&#39;)]
-
-__pdoc__ = {
-    &#39;ComputeDevice.__init__&#39;: False,
-    &#39;NoBackendFound.__init__&#39;: False,
-    &#39;Profile.__init__&#39;: False,
-}</code></pre>
-</details>
 </section>
 <section>
 <h2 class="section-title" id="header-submodules">Sub-modules</h2>
@@ -114,46 +71,6 @@ __pdoc__ = {
 </dl>
 <h2 id="returns">Returns</h2>
 <p>The selected <code><a title="phiml.backend.Backend" href="#phiml.backend.Backend">Backend</a></code></p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def choose_backend(*values, prefer_default=False) -&gt; Backend:
-    &#34;&#34;&#34;
-    Selects a suitable backend to handle the given values.
-
-    This function is used by most math functions operating on `Tensor` objects to delegate the actual computations.
-
-    Backends need to be registered to be available, e.g. via `init()` or `use()`.
-
-    Args:
-        *values:
-        prefer_default: Whether to always select the default backend if it can work with `values`, see `default_backend()`.
-
-    Returns:
-        The selected `Backend`
-    &#34;&#34;&#34;
-    # --- Default Backend has priority ---
-    if _is_applicable(_DEFAULT[-1], values) and (prefer_default or _is_specific(_DEFAULT[-1], values)):
-        return _DEFAULT[-1]
-    # --- Filter out non-applicable ---
-    backends = [backend for backend in BACKENDS if _is_applicable(backend, values)]
-    if len(backends) == 0:
-        unknown_values = [v for v in values if all([not _is_applicable(b, [v]) for b in BACKENDS])]
-        if unknown_values:
-            module_name = type(unknown_values[0]).__module__.partition(&#39;.&#39;)[0]
-            if init_backend(module_name):
-                return choose_backend(*values, prefer_default)
-            else:
-                raise NoBackendFound(f&#34;Not a native tensor {[type(v).__name__ for v in unknown_values]}&#34;)
-        else:
-            raise NoBackendFound(f&#34;Could not resolve backend for native types {[type(v).__name__ for v in values]}&#34;)
-    # --- Native tensors? ---
-    for backend in backends:
-        if _is_specific(backend, values):
-            return backend
-    return backends[0]</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.context_backend"><code class="name flex">
 <span>def <span class="ident">context_backend</span></span>(<span>) ‑> Optional[phiml.backend._backend.Backend]</span>
@@ -163,20 +80,6 @@ __pdoc__ = {
 If called outside a backend context, returns <code>None</code>.</p>
 <h2 id="returns">Returns</h2>
 <p><code><a title="phiml.backend.Backend" href="#phiml.backend.Backend">Backend</a></code> or <code>None</code></p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def context_backend() -&gt; Union[Backend, None]:
-    &#34;&#34;&#34;
-    Returns the backend set by the inner-most surrounding `with backend:` block.
-    If called outside a backend context, returns `None`.
-
-    Returns:
-        `Backend` or `None`
-    &#34;&#34;&#34;
-    return _DEFAULT[-1] if len(_DEFAULT) &gt; 1 else None</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.convert"><code class="name flex">
 <span>def <span class="ident">convert</span></span>(<span>tensor, backend: phiml.backend._backend.Backend = None, use_dlpack=True)</span>
@@ -196,40 +99,6 @@ Else, intermediately converts <code>tensor</code> to a NumPy array.</p>
 </dl>
 <h2 id="returns">Returns</h2>
 <p>Tensor belonging to <code>backend</code>.</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def convert(tensor, backend: Backend = None, use_dlpack=True):
-    &#34;&#34;&#34;
-    Convert a Tensor to the native format of `backend`.
-    If the target backend can operate natively on `tensor`, returns `tensor`.
-
-    If both backends support *DLPack* and `use_dlpack=True`, uses zero-copy conversion using the DLPack library.
-    Else, intermediately converts `tensor` to a NumPy array.
-
-    *Warning*: This operation breaks the automatic differentiation chain.
-
-    Args:
-        tensor: Native tensor belonging to any registered backend.
-        backend: Target backend. If `None`, uses the current default backend, see `default_backend()`.
-
-    Returns:
-        Tensor belonging to `backend`.
-    &#34;&#34;&#34;
-    backend = backend or default_backend()
-    if not isinstance(backend, Backend):
-        backend = get_backend(backend)
-    current_backend = choose_backend(tensor, prefer_default=False)
-    if backend.is_tensor(tensor, True) or backend is current_backend:
-        return tensor
-    if use_dlpack and current_backend.supports(Backend.to_dlpack) and backend.supports(Backend.from_dlpack):
-        capsule = current_backend.to_dlpack(tensor)
-        return backend.from_dlpack(capsule)
-    else:
-        nparray = current_backend.numpy(tensor)
-        return backend.as_tensor(nparray)</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.default_backend"><code class="name flex">
 <span>def <span class="ident">default_backend</span></span>(<span>) ‑> phiml.backend._backend.Backend</span>
@@ -239,35 +108,12 @@ Else, intermediately converts <code>tensor</code> to a NumPy array.</p>
 <p>The default backend can be set globally using <code><a title="phiml.backend.set_global_default_backend" href="#phiml.backend.set_global_default_backend">set_global_default_backend()</a></code> and locally using <code>with backend:</code>.</p>
 <h2 id="returns">Returns</h2>
 <p>current default <code><a title="phiml.backend.Backend" href="#phiml.backend.Backend">Backend</a></code></p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def default_backend() -&gt; Backend:
-    &#34;&#34;&#34;
-    The default backend is preferred by `choose_backend()`.
-
-    The default backend can be set globally using `set_global_default_backend()` and locally using `with backend:`.
-
-    Returns:
-        current default `Backend`
-    &#34;&#34;&#34;
-    return _DEFAULT[-1]</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.get_current_profile"><code class="name flex">
 <span>def <span class="ident">get_current_profile</span></span>(<span>) ‑> Optional[phiml.backend._profile.Profile]</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Returns the currently active <code><a title="phiml.backend.Profile" href="#phiml.backend.Profile">Profile</a></code> if one is active. Otherwise returns <code>None</code>.</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def get_current_profile() -&gt; Optional[Profile]:
-    &#34;&#34;&#34; Returns the currently active `Profile` if one is active. Otherwise returns `None`.  &#34;&#34;&#34;
-    return _PROFILE[-1] if _PROFILE else None</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.get_precision"><code class="name flex">
 <span>def <span class="ident">get_precision</span></span>(<span>) ‑> int</span>
@@ -278,22 +124,6 @@ The precision can be set globally using <code><a title="phiml.backend.set_global
 <p>Any Backend method may convert floating point values to this precision, even if the input had a different precision.</p>
 <h2 id="returns">Returns</h2>
 <p>16 for half, 32 for single, 64 for double</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def get_precision() -&gt; int:
-    &#34;&#34;&#34;
-    Gets the current target floating point precision in bits.
-    The precision can be set globally using `set_global_precision()` or locally using `with precision(p):`.
-
-    Any Backend method may convert floating point values to this precision, even if the input had a different precision.
-
-    Returns:
-        16 for half, 32 for single, 64 for double
-    &#34;&#34;&#34;
-    return _PRECISION[-1]</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.precision"><code class="name flex">
 <span>def <span class="ident">precision</span></span>(<span>floating_point_bits: int)</span>
@@ -307,28 +137,6 @@ The precision can be set globally using <code><a title="phiml.backend.set_global
 <dt><strong><code>floating_point_bits</code></strong></dt>
 <dd>16 for half, 32 for single, 64 for double</dd>
 </dl></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">@contextmanager
-def precision(floating_point_bits: int):
-    &#34;&#34;&#34;
-    Sets the floating point precision for the local context.
-
-    Usage: `with precision(p):`
-
-    This overrides the global setting, see `set_global_precision()`.
-
-    Args:
-        floating_point_bits: 16 for half, 32 for single, 64 for double
-    &#34;&#34;&#34;
-    _PRECISION.append(floating_point_bits)
-    try:
-        yield None
-    finally:
-        _PRECISION.pop(-1)</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.profile"><code class="name flex">
 <span>def <span class="ident">profile</span></span>(<span>backends=None, trace=True, subtract_trace_time=True, save: Optional[str] = None) ‑> phiml.backend._profile.Profile</span>
@@ -349,35 +157,6 @@ Creates a <code><a title="phiml.backend.Profile" href="#phiml.backend.Profile">P
 </dl>
 <h2 id="returns">Returns</h2>
 <p>Created <code><a title="phiml.backend.Profile" href="#phiml.backend.Profile">Profile</a></code></p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">@contextmanager
-def profile(backends=None, trace=True, subtract_trace_time=True, save: Union[str, None] = None) -&gt; Profile:
-    &#34;&#34;&#34;
-    To be used in `with` statements, `with math.backend.profile() as prof: ...`.
-    Creates a `Profile` for the code executed within the context by tracking calls to the `backends` and optionally tracing the call.
-
-    Args:
-        backends: List of backends to profile, `None` to profile all.
-        trace: Whether to perform a full stack trace for each backend call. If true, groups backend calls by function.
-        subtract_trace_time: If True, subtracts the time it took to trace the call stack from the event times
-        save: (Optional) File path to save the profile to. This will call `Profile.save()`.
-
-    Returns:
-        Created `Profile`
-    &#34;&#34;&#34;
-    backends = BACKENDS if backends is None else backends
-    prof = Profile(trace, backends, subtract_trace_time)
-    restore_data = _start_profiling(prof, backends)
-    try:
-        yield prof
-    finally:
-        _stop_profiling(prof, *restore_data)
-        if save is not None:
-            prof.save(save)</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.profile_function"><code class="name flex">
 <span>def <span class="ident">profile_function</span></span>(<span>fun: Callable, args: Union[tuple, list] = (), kwargs: Optional[dict] = None, backends=None, trace=True, subtract_trace_time=True, retime=True, warmup=1, call_count=1) ‑> phiml.backend._profile.Profile</span>
@@ -410,53 +189,6 @@ See <code><a title="phiml.backend.Profile.retime" href="#phiml.backend.Profile.r
 </dl>
 <h2 id="returns">Returns</h2>
 <p>Created <code><a title="phiml.backend.Profile" href="#phiml.backend.Profile">Profile</a></code> for <code>fun</code>.</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def profile_function(fun: Callable,
-                     args: Union[tuple, list] = (),
-                     kwargs: Union[dict, None] = None,
-                     backends=None,
-                     trace=True,
-                     subtract_trace_time=True,
-                     retime=True,
-                     warmup=1,
-                     call_count=1) -&gt; Profile:
-    &#34;&#34;&#34;
-    Creates a `Profile` for the function `fun(*args, **kwargs)`.
-
-    Args:
-        fun: Function to be profiled. In case `retime=True`, this function must perform the same operations each time it is called.
-            Use `warmup&gt;0` to ensure that internal caching does not interfere with the operations.
-        args: Arguments to be passed to `fun`.
-        kwargs: Keyword arguments to be passed to `fun`.
-        backends: List of backends to profile, `None` to profile all.
-        trace: Whether to perform a full stack trace for each backend call. If true, groups backend calls by function.
-        subtract_trace_time: If True, subtracts the time it took to trace the call stack from the event times. Has no effect if `retime=True`.
-        retime: If true, calls `fun` another time without tracing the calls and updates the profile.
-            This gives a much better indication of the true timing.
-            See `Profile.retime()`.
-        warmup: Number of times to call `fun` before profiling it.
-        call_count: How often to call the function (excluding retime and warmup). The times will be averaged over multiple runs if `call_count &gt; 1`.
-
-    Returns:
-        Created `Profile` for `fun`.
-    &#34;&#34;&#34;
-    kwargs = kwargs if isinstance(kwargs, dict) else {}
-    for _ in range(warmup):
-        fun(*args, **kwargs)
-    with profile(backends=backends, trace=trace, subtract_trace_time=subtract_trace_time) as prof:
-        fun(*args, **kwargs)
-    if retime:
-        with prof.retime():
-            fun(*args, **kwargs)
-    if call_count &gt; 1:
-        with prof._accumulate_average(call_count):
-            for _ in range(call_count - 1):
-                fun(*args, **kwargs)
-    return prof</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.set_global_default_backend"><code class="name flex">
 <span>def <span class="ident">set_global_default_backend</span></span>(<span>backend: Union[str, phiml.backend._backend.Backend]) ‑> phiml.backend._backend.Backend</span>
@@ -473,38 +205,6 @@ Possible names are <code>'torch'</code>, <code>'tensorflow'</code>, <code>'jax'<
 </dl>
 <h2 id="returns">Returns</h2>
 <p>The chosen backend as a `Backend´ instance.</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def set_global_default_backend(backend: Union[str, Backend]) -&gt; Backend:
-    &#34;&#34;&#34;
-    Sets the given backend as default.
-    This setting can be overridden using `with backend:`.
-
-    See `default_backend()`, `choose_backend()`.
-
-    Args:
-        backend: `Backend` or backend name to set as default.
-            Possible names are `&#39;torch&#39;`, `&#39;tensorflow&#39;`, `&#39;jax&#39;`, `&#39;numpy&#39;`.
-
-    Returns:
-        The chosen backend as a `Backend´ instance.
-    &#34;&#34;&#34;
-    if isinstance(backend, ModuleType):
-        backend = str(backend)
-    if isinstance(backend, str):
-        init_backend(backend)
-        matches = [b for b in BACKENDS if b.name == backend.lower()]
-        if not matches:
-            raise ValueError(f&#34;Illegal backend: &#39;{backend}&#39;&#34;)
-        backend = matches[0]
-    assert isinstance(backend, Backend), backend
-    if _DEFAULT[0] is not backend:
-        _DEFAULT[0] = backend
-        ML_LOGGER.info(f&#34;Φ-ML&#39;s default backend is now {backend}&#34;)
-    return backend</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.set_global_precision"><code class="name flex">
 <span>def <span class="ident">set_global_precision</span></span>(<span>floating_point_bits: int)</span>
@@ -520,25 +220,6 @@ The output of math operations has the same precision as its inputs.</p>
 <dt><strong><code>floating_point_bits</code></strong></dt>
 <dd>one of (16, 32, 64, None)</dd>
 </dl></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def set_global_precision(floating_point_bits: int):
-    &#34;&#34;&#34;
-    Sets the floating point precision of DYNAMIC_BACKEND which affects all registered backends.
-
-    If `floating_point_bits` is an integer, all floating point tensors created henceforth will be of the corresponding data type, float16, float32 or float64.
-    Operations may also convert floating point values to this precision, even if the input had a different precision.
-
-    If `floating_point_bits` is None, new tensors will default to float32 unless specified otherwise.
-    The output of math operations has the same precision as its inputs.
-
-    Args:
-      floating_point_bits: one of (16, 32, 64, None)
-    &#34;&#34;&#34;
-    _PRECISION[0] = floating_point_bits</code></pre>
-</details>
 </dd>
 </dl>
 </section>
@@ -1700,7 +1381,7 @@ The methods of <code><a title="phiml.backend.Backend" href="#phiml.backend.Backe
         &#34;&#34;&#34;
         raise NotImplementedError(self)
 
-    def sparse_coo_tensor(self, indices: Union[tuple, list], values, shape: tuple):
+    def sparse_coo_tensor(self, indices: TensorType, values: TensorType, shape: tuple):
         &#34;&#34;&#34;
         Create a sparse matrix in coordinate list (COO) format.
 
@@ -1835,15 +1516,15 @@ The methods of <code><a title="phiml.backend.Backend" href="#phiml.backend.Backe
         Returns:
             indices: (batch, nnz, 2)
         &#34;&#34;&#34;
-        batch_size = self.staticshape(column_indices)[0]
+        batch_size, index_count = self.staticshape(column_indices)
         repeats = row_pointers[:, 1:] - row_pointers[:, :-1]
         row_count = self.shape(repeats)[-1]
-        row_indices = [self.repeat(self.range(row_count, dtype=self.dtype(column_indices)), repeats[b], -1) for b in range(batch_size)]
+        row_indices = [self.repeat(self.range(row_count, dtype=self.dtype(column_indices)), repeats[b], -1, new_length=index_count) for b in range(batch_size)]
         return self.stack([self.stack(row_indices), column_indices], axis=-1)
 
-    def csr_to_dense(self, column_indices, row_pointers, values, shape: Tuple[int, int]):
+    def csr_to_dense(self, column_indices, row_pointers, values, shape: Tuple[int, int], contains_duplicates=False):
         indices = self.csr_to_coo(column_indices, row_pointers)
-        return self.coo_to_dense(indices, values, shape, contains_duplicates=False)
+        return self.coo_to_dense(indices, values, shape, contains_duplicates=contains_duplicates)
 
     def csc_matrix(self, column_pointers, row_indices, values, shape: Tuple[int, int]):
         &#34;&#34;&#34;
@@ -1893,7 +1574,8 @@ The methods of <code><a title="phiml.backend.Backend" href="#phiml.backend.Backe
                      rtol: Union[ndarray, TensorType],
                      atol: Union[ndarray, TensorType],
                      max_iter: ndarray,
-                     pre: Optional[Preconditioner]) -&gt; SolveResult:
+                     pre: Optional[Preconditioner],
+                     matrix_offset: Optional[TensorType]) -&gt; SolveResult:
         &#34;&#34;&#34;
         Solve the system of linear equations A · x = y.
         This method need not provide a gradient for the operation.
@@ -1917,44 +1599,45 @@ The methods of <code><a title="phiml.backend.Backend" href="#phiml.backend.Backe
             atol: Absolute tolerance of size (batch,)
             max_iter: Maximum number of iterations of shape (checkpoints, batch).
             pre: Preconditioner, function taking one native tensor like `y` as input and returning a native tensor like `x0`.
+            matrix_offset: Constant value to be added to every matrix entry, explicitly or implicitly. This can be used to stabilize solves for singular matrices.
 
         Returns:
             `SolveResult`
         &#34;&#34;&#34;
         if method == &#39;auto&#39;:
-            return self.conjugate_gradient_adaptive(lin, y, x0, rtol, atol, max_iter, pre)
+            return self.conjugate_gradient_adaptive(lin, y, x0, rtol, atol, max_iter, pre, matrix_offset)
         elif method.startswith(&#39;scipy-&#39;):
             from ._linalg import scipy_sparse_solve
-            result = scipy_sparse_solve(self, method[len(&#39;scipy-&#39;):], lin, y, x0, rtol, atol, max_iter, pre)
+            result = scipy_sparse_solve(self, method[len(&#39;scipy-&#39;):], lin, y, x0, rtol, atol, max_iter, pre, matrix_offset)
             return SolveResult(result.method, self.as_tensor(result.x), self.as_tensor(result.residual), result.iterations, result.function_evaluations, result.converged, result.diverged, result.message)
         elif method == &#39;CG&#39;:
-            return self.conjugate_gradient(lin, y, x0, rtol, atol, max_iter, pre)
+            return self.conjugate_gradient(lin, y, x0, rtol, atol, max_iter, pre, matrix_offset)
         elif method == &#39;CG-adaptive&#39;:
-            return self.conjugate_gradient_adaptive(lin, y, x0, rtol, atol, max_iter, pre)
+            return self.conjugate_gradient_adaptive(lin, y, x0, rtol, atol, max_iter, pre, matrix_offset)
         elif method in [&#39;biCG&#39;, &#39;biCG-stab(0)&#39;]:
-            return self.bi_conjugate_gradient(lin, y, x0, rtol, atol, max_iter, pre, poly_order=0)
+            return self.bi_conjugate_gradient(lin, y, x0, rtol, atol, max_iter, pre, matrix_offset, poly_order=0)
         elif method == &#39;biCG-stab&#39;:
-            return self.bi_conjugate_gradient(lin, y, x0, rtol, atol, max_iter, pre, poly_order=1)
+            return self.bi_conjugate_gradient(lin, y, x0, rtol, atol, max_iter, pre, matrix_offset, poly_order=1)
         elif method.startswith(&#39;biCG-stab(&#39;):
             order = int(method[len(&#39;biCG-stab(&#39;):-1])
-            return self.bi_conjugate_gradient(lin, y, x0, rtol, atol, max_iter, pre, poly_order=order)
+            return self.bi_conjugate_gradient(lin, y, x0, rtol, atol, max_iter, pre, matrix_offset, poly_order=order)
         else:
             raise NotImplementedError(f&#34;Method &#39;{method}&#39; not supported for linear solve.&#34;)
 
-    def conjugate_gradient(self, lin, y, x0, rtol, atol, max_iter, pre) -&gt; SolveResult:
+    def conjugate_gradient(self, lin, y, x0, rtol, atol, max_iter, pre, matrix_offset) -&gt; SolveResult:
         &#34;&#34;&#34; Standard conjugate gradient algorithm. Signature matches to `Backend.linear_solve()`. &#34;&#34;&#34;
         from ._linalg import cg
-        return cg(self, lin, y, x0, rtol, atol, max_iter, pre)
+        return cg(self, lin, y, x0, rtol, atol, max_iter, pre, matrix_offset)
 
-    def conjugate_gradient_adaptive(self, lin, y, x0, rtol, atol, max_iter, pre) -&gt; SolveResult:
+    def conjugate_gradient_adaptive(self, lin, y, x0, rtol, atol, max_iter, pre, matrix_offset) -&gt; SolveResult:
         &#34;&#34;&#34; Conjugate gradient algorithm with adaptive step size. Signature matches to `Backend.linear_solve()`. &#34;&#34;&#34;
         from ._linalg import cg_adaptive
-        return cg_adaptive(self, lin, y, x0, rtol, atol, max_iter, pre)
+        return cg_adaptive(self, lin, y, x0, rtol, atol, max_iter, pre, matrix_offset)
 
-    def bi_conjugate_gradient(self, lin, y, x0, rtol, atol, max_iter, pre, poly_order=2) -&gt; SolveResult:
+    def bi_conjugate_gradient(self, lin, y, x0, rtol, atol, max_iter, pre, matrix_offset, poly_order=2) -&gt; SolveResult:
         &#34;&#34;&#34; Generalized stabilized biconjugate gradient algorithm. Signature matches to `Backend.linear_solve()`. &#34;&#34;&#34;
         from ._linalg import bicg
-        return bicg(self, lin, y, x0, rtol, atol, max_iter, pre, poly_order)
+        return bicg(self, lin, y, x0, rtol, atol, max_iter, pre, poly_order, matrix_offset)
 
     def linear(self, lin, vector):
         if callable(lin):
@@ -2010,6 +1693,14 @@ The methods of <code><a title="phiml.backend.Backend" href="#phiml.backend.Backe
         from scipy.sparse.linalg import spsolve_triangular
         np_result = spsolve_triangular(np_matrix, np_rhs.T, lower=lower, unit_diagonal=unit_diagonal).T
         return self.as_tensor(np_result)
+
+    def matrix_rank_dense(self, matrix, hermitian=False) -&gt; TensorType:
+        &#34;&#34;&#34;
+        Args:
+            matrix: Dense matrix of shape (batch, rows, cols)
+            hermitian: Whether all matrices are guaranteed to be hermitian.
+        &#34;&#34;&#34;
+        raise NotImplementedError
 
     def stop_gradient(self, value):
         raise NotImplementedError(self)
@@ -2154,7 +1845,7 @@ The methods of <code><a title="phiml.backend.Backend" href="#phiml.backend.Backe
 </ul>
 <h3>Instance variables</h3>
 <dl>
-<dt id="phiml.backend.Backend.as_registered"><code class="name">var <span class="ident">as_registered</span> : phiml.backend._backend.Backend</code></dt>
+<dt id="phiml.backend.Backend.as_registered"><code class="name">prop <span class="ident">as_registered</span> : <a title="phiml.backend.Backend" href="#phiml.backend.Backend">Backend</a></code></dt>
 <dd>
 <div class="desc"></div>
 <details class="source">
@@ -2172,7 +1863,7 @@ def as_registered(self) -&gt; &#39;Backend&#39;:
     return self.as_registered</code></pre>
 </details>
 </dd>
-<dt id="phiml.backend.Backend.complex_type"><code class="name">var <span class="ident">complex_type</span> : phiml.backend._dtype.DType</code></dt>
+<dt id="phiml.backend.Backend.complex_type"><code class="name">prop <span class="ident">complex_type</span> : phiml.backend._dtype.DType</code></dt>
 <dd>
 <div class="desc"></div>
 <details class="source">
@@ -2184,7 +1875,7 @@ def complex_type(self) -&gt; DType:
     return DType(complex, max(64, self.precision))</code></pre>
 </details>
 </dd>
-<dt id="phiml.backend.Backend.float_type"><code class="name">var <span class="ident">float_type</span> : phiml.backend._dtype.DType</code></dt>
+<dt id="phiml.backend.Backend.float_type"><code class="name">prop <span class="ident">float_type</span> : phiml.backend._dtype.DType</code></dt>
 <dd>
 <div class="desc"></div>
 <details class="source">
@@ -2196,7 +1887,7 @@ def float_type(self) -&gt; DType:
     return DType(float, self.precision)</code></pre>
 </details>
 </dd>
-<dt id="phiml.backend.Backend.name"><code class="name">var <span class="ident">name</span> : str</code></dt>
+<dt id="phiml.backend.Backend.name"><code class="name">prop <span class="ident">name</span> : str</code></dt>
 <dd>
 <div class="desc"></div>
 <details class="source">
@@ -2208,7 +1899,7 @@ def name(self) -&gt; str:
     return self._name</code></pre>
 </details>
 </dd>
-<dt id="phiml.backend.Backend.precision"><code class="name">var <span class="ident">precision</span> : int</code></dt>
+<dt id="phiml.backend.Backend.precision"><code class="name">prop <span class="ident">precision</span> : int</code></dt>
 <dd>
 <div class="desc"><p>Short for math.backend.get_precision()</p></div>
 <details class="source">
@@ -2229,40 +1920,18 @@ def precision(self) -&gt; int:
 </code></dt>
 <dd>
 <div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def abs(self, x):
-    raise NotImplementedError(self)</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.Backend.add"><code class="name flex">
 <span>def <span class="ident">add</span></span>(<span>self, a, b)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def add(self, a, b):
-    a, b = self.auto_cast(a, b, bool_to_int=True)
-    return a + b</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.Backend.all"><code class="name flex">
 <span>def <span class="ident">all</span></span>(<span>self, boolean_tensor, axis=None, keepdims=False)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def all(self, boolean_tensor, axis=None, keepdims=False):
-    raise NotImplementedError(self)</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.Backend.allocate_on_device"><code class="name flex">
 <span>def <span class="ident">allocate_on_device</span></span>(<span>self, tensor: ~TensorType, device: phiml.backend._backend.ComputeDevice) ‑> ~TensorType</span>
@@ -2276,177 +1945,78 @@ def precision(self) -&gt; int:
 <dt><strong><code>device</code></strong></dt>
 <dd>Target device, associated with this backend.</dd>
 </dl></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def allocate_on_device(self, tensor: TensorType, device: ComputeDevice) -&gt; TensorType:
-    &#34;&#34;&#34;
-    Moves `tensor` to `device`. May copy the tensor if it is already on the device.
-
-    Args:
-        tensor: Existing tensor native to this backend.
-        device: Target device, associated with this backend.
-    &#34;&#34;&#34;
-    raise NotImplementedError(self.__class__)</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.Backend.and_"><code class="name flex">
 <span>def <span class="ident">and_</span></span>(<span>self, a, b)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def and_(self, a, b):
-    a, b = self.auto_cast(a, b)
-    return a &amp; b</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.Backend.any"><code class="name flex">
 <span>def <span class="ident">any</span></span>(<span>self, boolean_tensor, axis=None, keepdims=False)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def any(self, boolean_tensor, axis=None, keepdims=False):
-    raise NotImplementedError(self)</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.Backend.arccos"><code class="name flex">
 <span>def <span class="ident">arccos</span></span>(<span>self, x)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def arccos(self, x):
-    raise NotImplementedError(self)</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.Backend.arccosh"><code class="name flex">
 <span>def <span class="ident">arccosh</span></span>(<span>self, x)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def arccosh(self, x):
-    raise NotImplementedError(self)</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.Backend.arcsin"><code class="name flex">
 <span>def <span class="ident">arcsin</span></span>(<span>self, x)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def arcsin(self, x):
-    raise NotImplementedError(self)</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.Backend.arcsinh"><code class="name flex">
 <span>def <span class="ident">arcsinh</span></span>(<span>self, x)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def arcsinh(self, x):
-    raise NotImplementedError(self)</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.Backend.arctan"><code class="name flex">
 <span>def <span class="ident">arctan</span></span>(<span>self, x)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def arctan(self, x):
-    raise NotImplementedError(self)</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.Backend.arctan2"><code class="name flex">
 <span>def <span class="ident">arctan2</span></span>(<span>self, y, x)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def arctan2(self, y, x):
-    raise NotImplementedError(self)</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.Backend.arctanh"><code class="name flex">
 <span>def <span class="ident">arctanh</span></span>(<span>self, x)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def arctanh(self, x):
-    raise NotImplementedError(self)</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.Backend.argmax"><code class="name flex">
 <span>def <span class="ident">argmax</span></span>(<span>self, x, axis: int, keepdims=False)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def argmax(self, x, axis: int, keepdims=False):
-    raise NotImplementedError(self)</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.Backend.argmin"><code class="name flex">
 <span>def <span class="ident">argmin</span></span>(<span>self, x, axis: int, keepdims=False)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def argmin(self, x, axis: int, keepdims=False):
-    raise NotImplementedError(self)</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.Backend.argsort"><code class="name flex">
 <span>def <span class="ident">argsort</span></span>(<span>self, x, axis=-1)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def argsort(self, x, axis=-1):
-    raise NotImplementedError(self)</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.Backend.as_tensor"><code class="name flex">
 <span>def <span class="ident">as_tensor</span></span>(<span>self, x, convert_external=True)</span>
@@ -2465,28 +2035,6 @@ If x is a Python number (numbers.Number instance), <code>convert_numbers</code> 
 </dl>
 <h2 id="returns">Returns</h2>
 <p>tensor representation of <code>x</code></p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def as_tensor(self, x, convert_external=True):
-    &#34;&#34;&#34;
-    Converts a tensor-like object to the native tensor representation of this backend.
-    If x is a native tensor of this backend, it is returned without modification.
-    If x is a Python number (numbers.Number instance), `convert_numbers` decides whether to convert it unless the backend cannot handle Python numbers.
-    
-    *Note:* There may be objects that are considered tensors by this backend but are not native and thus, will be converted by this method.
-
-    Args:
-      x: tensor-like, e.g. list, tuple, Python number, tensor
-      convert_external: if False and `x` is a Python number that is understood by this backend, this method returns the number as-is. This can help prevent type clashes like int32 vs int64. (Default value = True)
-
-    Returns:
-      tensor representation of `x`
-
-    &#34;&#34;&#34;
-    raise NotImplementedError(self.__class__)</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.Backend.auto_cast"><code class="name flex">
 <span>def <span class="ident">auto_cast</span></span>(<span>self, *tensors, bool_to_int=False, int_to_float=False) ‑> list</span>
@@ -2504,65 +2052,18 @@ Backends can override this method to prevent unnecessary casting.</p>
 </dl>
 <h2 id="returns">Returns</h2>
 <p>tensors cast to a common data type</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def auto_cast(self, *tensors, bool_to_int=False, int_to_float=False) -&gt; list:
-    &#34;&#34;&#34;
-    Determins the appropriate values type resulting from operations involving the tensors as input.
-    
-    This method is called by the default implementations of basic operators.
-    Backends can override this method to prevent unnecessary casting.
-
-    Args:
-        *tensors: tensors to cast and to consider when determining the common data type
-        bool_to_int: Whether to convert boolean values to integers if all values are boolean.
-
-    Returns:
-        tensors cast to a common data type
-    &#34;&#34;&#34;
-    dtypes = [self.dtype(t) for t in tensors]
-    result_type = self.combine_types(*dtypes)
-    if result_type.kind == bool and bool_to_int:
-        result_type = DType(int, 32)
-    if result_type.kind == int and int_to_float:
-        result_type = DType(float, self.precision)
-    if result_type.kind in (int, float, complex, bool):  # do not cast everything to string!
-        tensors = [self.cast(t, result_type) for t in tensors]
-    return tensors</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.Backend.batch_gather"><code class="name flex">
 <span>def <span class="ident">batch_gather</span></span>(<span>self, tensor, batches)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def batch_gather(self, tensor, batches):
-    if isinstance(batches, int):
-        batches = [batches]
-    return tensor[batches, ...]</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.Backend.batched_bincount"><code class="name flex">
 <span>def <span class="ident">batched_bincount</span></span>(<span>self, x, weights: Optional[~TensorType], bins: int)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def batched_bincount(self, x, weights: Optional[TensorType], bins: int):
-    if weights is None:
-        return self.vectorized_call(self.bincount, x, weights=None, bins=bins)
-    else:
-        return self.vectorized_call(self.bincount, x, weights, bins=bins)</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.Backend.batched_gather_1d"><code class="name flex">
 <span>def <span class="ident">batched_gather_1d</span></span>(<span>self, values, indices)</span>
@@ -2577,21 +2078,6 @@ Backends can override this method to prevent unnecessary casting.</p>
 </dl>
 <h2 id="returns">Returns</h2>
 <p>(batch, indices)</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def batched_gather_1d(self, values, indices):
-    &#34;&#34;&#34;
-    Args:
-        values: (batch, spatial)
-        indices: (batch, indices)
-
-    Returns:
-        (batch, indices)
-    &#34;&#34;&#34;
-    return self.batched_gather_nd(values[:, :, None], indices[:, :, None])[..., 0]</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.Backend.batched_gather_nd"><code class="name flex">
 <span>def <span class="ident">batched_gather_nd</span></span>(<span>self, values, indices)</span>
@@ -2608,39 +2094,12 @@ The first dimension of <code>values</code> and <code>indices</code> is the batch
 </dl>
 <h2 id="returns">Returns</h2>
 <p>Gathered values as tensor of shape (batch, any&hellip;, channel)</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def batched_gather_nd(self, values, indices):
-    &#34;&#34;&#34;
-    Gathers values from the tensor `values` at locations `indices`.
-    The first dimension of `values` and `indices` is the batch dimension which must be either equal for both or one for either.
-
-    Args:
-        values: tensor of shape (batch, spatial..., channel)
-        indices: int tensor of shape (batch, any..., multi_index) where the size of multi_index is values.rank - 2.
-
-    Returns:
-        Gathered values as tensor of shape (batch, any..., channel)
-    &#34;&#34;&#34;
-    raise NotImplementedError(self)</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.Backend.bi_conjugate_gradient"><code class="name flex">
-<span>def <span class="ident">bi_conjugate_gradient</span></span>(<span>self, lin, y, x0, rtol, atol, max_iter, pre, poly_order=2) ‑> phiml.backend._backend.SolveResult</span>
+<span>def <span class="ident">bi_conjugate_gradient</span></span>(<span>self, lin, y, x0, rtol, atol, max_iter, pre, matrix_offset, poly_order=2) ‑> phiml.backend._backend.SolveResult</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Generalized stabilized biconjugate gradient algorithm. Signature matches to <code><a title="phiml.backend.Backend.linear_solve" href="#phiml.backend.Backend.linear_solve">Backend.linear_solve()</a></code>.</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def bi_conjugate_gradient(self, lin, y, x0, rtol, atol, max_iter, pre, poly_order=2) -&gt; SolveResult:
-    &#34;&#34;&#34; Generalized stabilized biconjugate gradient algorithm. Signature matches to `Backend.linear_solve()`. &#34;&#34;&#34;
-    from ._linalg import bicg
-    return bicg(self, lin, y, x0, rtol, atol, max_iter, pre, poly_order)</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.Backend.bincount"><code class="name flex">
 <span>def <span class="ident">bincount</span></span>(<span>self, x, weights: Optional[~TensorType], bins: int, x_sorted=False)</span>
@@ -2659,36 +2118,12 @@ The first dimension of <code>values</code> and <code>indices</code> is the batch
 </dl>
 <h2 id="returns">Returns</h2>
 <p>bin_counts</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def bincount(self, x, weights: Optional[TensorType], bins: int, x_sorted=False):
-    &#34;&#34;&#34;
-    Args:
-        x: Bin indices, 1D int tensor.
-        weights: Weights corresponding to `x`, 1D tensor. All weights are 1 if `weights=None`.
-        bins: Number of bins.
-        x_sorted: Whether `x` is sorted from lowest to highest bin.
-
-    Returns:
-        bin_counts
-    &#34;&#34;&#34;
-    raise NotImplementedError(self)</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.Backend.block_until_ready"><code class="name flex">
 <span>def <span class="ident">block_until_ready</span></span>(<span>self, values)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def block_until_ready(self, values):
-    pass</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.Backend.boolean_mask"><code class="name flex">
 <span>def <span class="ident">boolean_mask</span></span>(<span>self, x, mask, axis=0, new_length=None, fill_value=0)</span>
@@ -2707,21 +2142,6 @@ The first dimension of <code>values</code> and <code>indices</code> is the batch
 <dt><strong><code>fill_value</code></strong></dt>
 <dd>If <code>new_length</code> is larger than the filtered result, the remaining values will be set to <code>fill_value</code>.</dd>
 </dl></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def boolean_mask(self, x, mask, axis=0, new_length=None, fill_value=0):
-    &#34;&#34;&#34;
-    Args:
-        x: tensor with any number of dimensions
-        mask: 1D mask tensor
-        axis: Axis index &gt;= 0
-        new_length: Maximum size of the output along `axis`. This must be set when jit-compiling with Jax.
-        fill_value: If `new_length` is larger than the filtered result, the remaining values will be set to `fill_value`.
-    &#34;&#34;&#34;
-    raise NotImplementedError(self)</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.Backend.call"><code class="name flex">
 <span>def <span class="ident">call</span></span>(<span>self, f: Callable, *args, name=None)</span>
@@ -2731,129 +2151,54 @@ The first dimension of <code>values</code> and <code>indices</code> is the batch
 This method may be used to register internal calls with the profiler.</p>
 <h2 id="usage">Usage</h2>
 <p>choose_backend(key).call(custom_function, *args)</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def call(self, f: Callable, *args, name=None):
-    &#34;&#34;&#34;
-    Calls `f(*args)` and returns the result.
-    This method may be used to register internal calls with the profiler.
-
-    Usage:
-
-        choose_backend(key).call(custom_function, *args)
-    &#34;&#34;&#34;
-    return f(*args)</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.Backend.cast"><code class="name flex">
 <span>def <span class="ident">cast</span></span>(<span>self, x, dtype: phiml.backend._dtype.DType)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def cast(self, x, dtype: DType):
-    raise NotImplementedError(self)</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.Backend.ceil"><code class="name flex">
 <span>def <span class="ident">ceil</span></span>(<span>self, x)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def ceil(self, x):
-    raise NotImplementedError(self)</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.Backend.clip"><code class="name flex">
 <span>def <span class="ident">clip</span></span>(<span>self, x, minimum, maximum)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def clip(self, x, minimum, maximum):
-    raise NotImplementedError(self)</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.Backend.combine_types"><code class="name flex">
 <span>def <span class="ident">combine_types</span></span>(<span>self, *dtypes: phiml.backend._dtype.DType) ‑> phiml.backend._dtype.DType</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def combine_types(self, *dtypes: DType) -&gt; DType:
-    return combine_types(*dtypes, fp_precision=self.precision)</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.Backend.concat"><code class="name flex">
 <span>def <span class="ident">concat</span></span>(<span>self, values, axis)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def concat(self, values, axis):
-    raise NotImplementedError(self)</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.Backend.conj"><code class="name flex">
 <span>def <span class="ident">conj</span></span>(<span>self, x)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def conj(self, x):
-    raise NotImplementedError(self)</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.Backend.conjugate_gradient"><code class="name flex">
-<span>def <span class="ident">conjugate_gradient</span></span>(<span>self, lin, y, x0, rtol, atol, max_iter, pre) ‑> phiml.backend._backend.SolveResult</span>
+<span>def <span class="ident">conjugate_gradient</span></span>(<span>self, lin, y, x0, rtol, atol, max_iter, pre, matrix_offset) ‑> phiml.backend._backend.SolveResult</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Standard conjugate gradient algorithm. Signature matches to <code><a title="phiml.backend.Backend.linear_solve" href="#phiml.backend.Backend.linear_solve">Backend.linear_solve()</a></code>.</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def conjugate_gradient(self, lin, y, x0, rtol, atol, max_iter, pre) -&gt; SolveResult:
-    &#34;&#34;&#34; Standard conjugate gradient algorithm. Signature matches to `Backend.linear_solve()`. &#34;&#34;&#34;
-    from ._linalg import cg
-    return cg(self, lin, y, x0, rtol, atol, max_iter, pre)</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.Backend.conjugate_gradient_adaptive"><code class="name flex">
-<span>def <span class="ident">conjugate_gradient_adaptive</span></span>(<span>self, lin, y, x0, rtol, atol, max_iter, pre) ‑> phiml.backend._backend.SolveResult</span>
+<span>def <span class="ident">conjugate_gradient_adaptive</span></span>(<span>self, lin, y, x0, rtol, atol, max_iter, pre, matrix_offset) ‑> phiml.backend._backend.SolveResult</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Conjugate gradient algorithm with adaptive step size. Signature matches to <code><a title="phiml.backend.Backend.linear_solve" href="#phiml.backend.Backend.linear_solve">Backend.linear_solve()</a></code>.</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def conjugate_gradient_adaptive(self, lin, y, x0, rtol, atol, max_iter, pre) -&gt; SolveResult:
-    &#34;&#34;&#34; Conjugate gradient algorithm with adaptive step size. Signature matches to `Backend.linear_solve()`. &#34;&#34;&#34;
-    from ._linalg import cg_adaptive
-    return cg_adaptive(self, lin, y, x0, rtol, atol, max_iter, pre)</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.Backend.conv"><code class="name flex">
 <span>def <span class="ident">conv</span></span>(<span>self, value, kernel, zero_padding=True)</span>
@@ -2873,101 +2218,36 @@ Higher dimensions may not be supported.</p>
 </dl>
 <h2 id="returns">Returns</h2>
 <p>Convolution result as tensor of shape (batch_size, out_channel, spatial&hellip;)</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def conv(self, value, kernel, zero_padding=True):
-    &#34;&#34;&#34;
-    Convolve value with kernel.
-    Depending on the tensor rank, the convolution is either 1D (rank=3), 2D (rank=4) or 3D (rank=5).
-    Higher dimensions may not be supported.
-
-    Args:
-        value: tensor of shape (batch_size, in_channel, spatial...)
-        kernel: tensor of shape (batch_size or 1, out_channel, in_channel, spatial...)
-        zero_padding: If True, pads the edges of `value` with zeros so that the result has the same shape as `value`.
-
-    Returns:
-        Convolution result as tensor of shape (batch_size, out_channel, spatial...)
-    &#34;&#34;&#34;
-    raise NotImplementedError(self)</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.Backend.coo_to_dense"><code class="name flex">
 <span>def <span class="ident">coo_to_dense</span></span>(<span>self, indices, values, shape, contains_duplicates: bool)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def coo_to_dense(self, indices, values, shape, contains_duplicates: bool):
-    batch_size, nnz, channel_count = self.staticshape(values)
-    base = self.zeros((batch_size, *shape, channel_count), dtype=self.dtype(values))
-    result = self.scatter(base, indices, values, mode=&#39;add&#39; if contains_duplicates else &#39;update&#39;)
-    return result</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.Backend.copy"><code class="name flex">
 <span>def <span class="ident">copy</span></span>(<span>self, tensor, only_mutable=False)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def copy(self, tensor, only_mutable=False):
-    raise NotImplementedError(self.__class__)</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.Backend.copy_leaves"><code class="name flex">
 <span>def <span class="ident">copy_leaves</span></span>(<span>self, tree, only_mutable=False)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def copy_leaves(self, tree, only_mutable=False):
-    if isinstance(tree, tuple):
-        return tuple([self.copy_leaves(e, only_mutable) for e in tree])
-    elif isinstance(tree, list):
-        return [self.copy_leaves(e, only_mutable) for e in tree]
-    elif isinstance(tree, dict):
-        return {k: self.copy_leaves(e, only_mutable) for k, e in tree.items()}
-    else:
-        return self.copy(tree, only_mutable=only_mutable)</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.Backend.cos"><code class="name flex">
 <span>def <span class="ident">cos</span></span>(<span>self, x)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def cos(self, x):
-    raise NotImplementedError(self)</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.Backend.cosh"><code class="name flex">
 <span>def <span class="ident">cosh</span></span>(<span>self, x)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def cosh(self, x):
-    raise NotImplementedError(self)</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.Backend.csc_matrix"><code class="name flex">
 <span>def <span class="ident">csc_matrix</span></span>(<span>self, column_pointers, row_indices, values, shape: Tuple[int, int])</span>
@@ -2990,30 +2270,6 @@ Higher dimensions may not be supported.</p>
 </dl>
 <h2 id="returns">Returns</h2>
 <p>Native representation of the sparse matrix</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def csc_matrix(self, column_pointers, row_indices, values, shape: Tuple[int, int]):
-    &#34;&#34;&#34;
-    Create a sparse matrix in compressed sparse column (CSC) format.
-
-    Optional feature.
-
-    See Also:
-        `Backend.sparse_coo_tensor()`, `Backend.csr_matrix()`.
-
-    Args:
-        column_pointers: Indices in `values` where any column starts, 1D tensor of length `cols + 1`
-        row_indices: Row indices corresponding to `values`.
-        values: Non-zero values, 1D tensor
-        shape: Shape of the full matrix
-
-    Returns:
-        Native representation of the sparse matrix
-    &#34;&#34;&#34;
-    raise NotImplementedError(self)</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.Backend.csc_matrix_batched"><code class="name flex">
 <span>def <span class="ident">csc_matrix_batched</span></span>(<span>self, column_pointers, row_indices, values, shape: Tuple[int, int])</span>
@@ -3030,20 +2286,6 @@ Higher dimensions may not be supported.</p>
 <dt><strong><code>shape</code></strong></dt>
 <dd>tuple of two ints representing the dense shape, (cols, rows)</dd>
 </dl></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def csc_matrix_batched(self, column_pointers, row_indices, values, shape: Tuple[int, int]):
-    &#34;&#34;&#34;
-    Args:
-        column_pointers: Indices in `values` where any row starts, shape (batch_size, cols+1)
-        row_indices: Row indices corresponding to `values`, shape (batch_size, nnz)
-        values: Non-zero values, shape (batch_size, nnz, channels)
-        shape: tuple of two ints representing the dense shape, (cols, rows)
-    &#34;&#34;&#34;
-    raise NotImplementedError(self)</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.Backend.csr_matrix"><code class="name flex">
 <span>def <span class="ident">csr_matrix</span></span>(<span>self, column_indices: Union[~TensorType, numpy.ndarray], row_pointers: Union[~TensorType, numpy.ndarray], values: Union[~TensorType, numpy.ndarray], shape: Tuple[int, int])</span>
@@ -3066,30 +2308,6 @@ Higher dimensions may not be supported.</p>
 </dl>
 <h2 id="returns">Returns</h2>
 <p>Native representation of the sparse matrix</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def csr_matrix(self, column_indices: TensorOrArray, row_pointers: TensorOrArray, values: TensorOrArray, shape: Tuple[int, int]):
-    &#34;&#34;&#34;
-    Create a sparse matrix in compressed sparse row (CSR) format.
-
-    Optional feature.
-
-    See Also:
-        `Backend.sparse_coo_tensor()`, `Backend.csc_matrix()`.
-
-    Args:
-        column_indices: Column indices corresponding to `values`, 1D tensor
-        row_pointers: Indices in `values` where any row starts, 1D tensor of length `rows + 1`
-        values: Non-zero values, 1D tensor
-        shape: Shape of the full matrix
-
-    Returns:
-        Native representation of the sparse matrix
-    &#34;&#34;&#34;
-    raise NotImplementedError(self)</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.Backend.csr_matrix_batched"><code class="name flex">
 <span>def <span class="ident">csr_matrix_batched</span></span>(<span>self, column_indices, row_pointers, values, shape: Tuple[int, int])</span>
@@ -3106,20 +2324,6 @@ Higher dimensions may not be supported.</p>
 <dt><strong><code>shape</code></strong></dt>
 <dd>tuple of two ints representing the dense shape, (cols, rows)</dd>
 </dl></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def csr_matrix_batched(self, column_indices, row_pointers, values, shape: Tuple[int, int]):
-    &#34;&#34;&#34;
-    Args:
-        column_indices: Column indices corresponding to `values`, shape (batch_size, nnz)
-        row_pointers: Indices in `values` where any row starts, shape (batch_size, rows+1)
-        values: Non-zero values, shape (batch_size, nnz, channels)
-        shape: tuple of two ints representing the dense shape, (cols, rows)
-    &#34;&#34;&#34;
-    raise NotImplementedError(self)</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.Backend.csr_to_coo"><code class="name flex">
 <span>def <span class="ident">csr_to_coo</span></span>(<span>self, column_indices, row_pointers)</span>
@@ -3138,54 +2342,18 @@ Higher dimensions may not be supported.</p>
 <dt><code>indices</code></dt>
 <dd>(batch, nnz, 2)</dd>
 </dl></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def csr_to_coo(self, column_indices, row_pointers):
-    &#34;&#34;&#34;
-    Convert a batch of compressed sparse matrices to sparse coordinate matrices.
-
-    Args:
-        column_indices: (batch, nnz)
-        row_pointers: (batch, rows + 1)
-
-    Returns:
-        indices: (batch, nnz, 2)
-    &#34;&#34;&#34;
-    batch_size = self.staticshape(column_indices)[0]
-    repeats = row_pointers[:, 1:] - row_pointers[:, :-1]
-    row_count = self.shape(repeats)[-1]
-    row_indices = [self.repeat(self.range(row_count, dtype=self.dtype(column_indices)), repeats[b], -1) for b in range(batch_size)]
-    return self.stack([self.stack(row_indices), column_indices], axis=-1)</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.Backend.csr_to_dense"><code class="name flex">
-<span>def <span class="ident">csr_to_dense</span></span>(<span>self, column_indices, row_pointers, values, shape: Tuple[int, int])</span>
+<span>def <span class="ident">csr_to_dense</span></span>(<span>self, column_indices, row_pointers, values, shape: Tuple[int, int], contains_duplicates=False)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def csr_to_dense(self, column_indices, row_pointers, values, shape: Tuple[int, int]):
-    indices = self.csr_to_coo(column_indices, row_pointers)
-    return self.coo_to_dense(indices, values, shape, contains_duplicates=False)</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.Backend.cumsum"><code class="name flex">
 <span>def <span class="ident">cumsum</span></span>(<span>self, x, axis: int)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def cumsum(self, x, axis: int):
-    raise NotImplementedError(self)</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.Backend.custom_gradient"><code class="name flex">
 <span>def <span class="ident">custom_gradient</span></span>(<span>self, f: Callable, gradient: Callable, get_external_cache: Callable = None, on_call_skipped: Callable = None) ‑> Callable</span>
@@ -3201,40 +2369,12 @@ Higher dimensions may not be supported.</p>
 </dl>
 <h2 id="returns">Returns</h2>
 <p>Function with similar signature and return values as <code>f</code>. However, the returned function does not support keyword arguments.</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def custom_gradient(self, f: Callable, gradient: Callable, get_external_cache: Callable = None, on_call_skipped: Callable = None) -&gt; Callable:
-    &#34;&#34;&#34;
-    Creates a function based on `f` that uses a custom gradient for backprop.
-
-    Args:
-        f: Forward function.
-        gradient: Function for backprop. Will be called as `gradient(*d_out)` to compute the gradient of `f`.
-
-    Returns:
-        Function with similar signature and return values as `f`. However, the returned function does not support keyword arguments.
-    &#34;&#34;&#34;
-    return NotImplemented</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.Backend.determine_size"><code class="name flex">
 <span>def <span class="ident">determine_size</span></span>(<span>self, tensors, axis)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def determine_size(self, tensors, axis):
-    sizes = [self.staticshape(t)[axis] for t in tensors]
-    non_singleton_sizes = [b for b in sizes if b != 1]
-    size = non_singleton_sizes[0] if non_singleton_sizes else 1
-    assert all([b in (1, size) for b in sizes])
-    return size</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.Backend.disassemble"><code class="name flex">
 <span>def <span class="ident">disassemble</span></span>(<span>self, x) ‑> Tuple[Callable, Sequence[~TensorType]]</span>
@@ -3253,148 +2393,60 @@ Higher dimensions may not be supported.</p>
 <dt><code>constituents</code></dt>
 <dd>Tensors contained in <code>x</code>.</dd>
 </dl></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def disassemble(self, x) -&gt; Tuple[Callable, Sequence[TensorType]]:
-    &#34;&#34;&#34;
-    Disassemble a (sparse) tensor into its individual constituents, such as values and indices.
-
-    Args:
-        x: Tensor
-
-    Returns:
-        assemble: Function `assemble(backend, *constituents)` that reassembles `x` from the constituents.
-        constituents: Tensors contained in `x`.
-    &#34;&#34;&#34;
-    raise NotImplementedError(self.__class__)</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.Backend.div"><code class="name flex">
 <span>def <span class="ident">div</span></span>(<span>self, numerator, denominator)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def div(self, numerator, denominator):
-    numerator, denominator = self.auto_cast(numerator, denominator)
-    return numerator / denominator</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.Backend.divide_no_nan"><code class="name flex">
 <span>def <span class="ident">divide_no_nan</span></span>(<span>self, x, y)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Computes x/y but returns 0 if y=0.</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def divide_no_nan(self, x, y):
-    &#34;&#34;&#34; Computes x/y but returns 0 if y=0. &#34;&#34;&#34;
-    raise NotImplementedError(self)</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.Backend.dtype"><code class="name flex">
 <span>def <span class="ident">dtype</span></span>(<span>self, array) ‑> phiml.backend._dtype.DType</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def dtype(self, array) -&gt; DType:
-    raise NotImplementedError(self)</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.Backend.einsum"><code class="name flex">
 <span>def <span class="ident">einsum</span></span>(<span>self, equation, *tensors)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def einsum(self, equation, *tensors):
-    raise NotImplementedError(self)</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.Backend.equal"><code class="name flex">
 <span>def <span class="ident">equal</span></span>(<span>self, x, y)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Element-wise equality check</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def equal(self, x, y):
-    &#34;&#34;&#34; Element-wise equality check &#34;&#34;&#34;
-    raise NotImplementedError(self)</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.Backend.erf"><code class="name flex">
 <span>def <span class="ident">erf</span></span>(<span>self, x)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def erf(self, x):
-    raise NotImplementedError(self)</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.Backend.exp"><code class="name flex">
 <span>def <span class="ident">exp</span></span>(<span>self, x)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def exp(self, x):
-    raise NotImplementedError(self)</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.Backend.expand_dims"><code class="name flex">
 <span>def <span class="ident">expand_dims</span></span>(<span>self, a, axis=0, number=1)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def expand_dims(self, a, axis=0, number=1):
-    raise NotImplementedError(self)</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.Backend.factorial"><code class="name flex">
 <span>def <span class="ident">factorial</span></span>(<span>self, x: ~TensorType) ‑> ~TensorType</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def factorial(self, x: TensorType) -&gt; TensorType:
-    if self.dtype(x).kind == int:
-        max_factorial = {32: 12, 64: 19}[self.dtype(x).bits]
-        factorial_list = [numpy.math.factorial(i) for i in range(max_factorial+1)]
-        return self.gather(self.cast(self.as_tensor(factorial_list), self.dtype(x)), x, 0)
-    else:
-        return self.exp(self.log_gamma(self.to_float(x) + 1))</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.Backend.fft"><code class="name flex">
 <span>def <span class="ident">fft</span></span>(<span>self, x, axes: Union[tuple, list])</span>
@@ -3410,118 +2462,48 @@ Higher dimensions may not be supported.</p>
 </dl>
 <h2 id="returns">Returns</h2>
 <p>Complex tensor <code>k</code></p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def fft(self, x, axes: Union[tuple, list]):
-    &#34;&#34;&#34;
-    Computes the n-dimensional FFT along all but the first and last dimensions.
-
-    Args:
-      x: tensor of dimension 3 or higher
-      axes: Along which axes to perform the FFT
-
-    Returns:
-        Complex tensor `k`
-    &#34;&#34;&#34;
-    raise NotImplementedError(self)</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.Backend.flatten"><code class="name flex">
 <span>def <span class="ident">flatten</span></span>(<span>self, x)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def flatten(self, x):
-    return self.reshape(x, (-1,))</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.Backend.flip"><code class="name flex">
 <span>def <span class="ident">flip</span></span>(<span>self, value, axes: Union[tuple, list])</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def flip(self, value, axes: Union[tuple, list]):
-    slices = tuple(slice(None, None, -1 if i in axes else None) for i in range(self.ndims(value)))
-    return value[slices]</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.Backend.floor"><code class="name flex">
 <span>def <span class="ident">floor</span></span>(<span>self, x)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def floor(self, x):
-    raise NotImplementedError(self)</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.Backend.floordiv"><code class="name flex">
 <span>def <span class="ident">floordiv</span></span>(<span>self, a, b)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def floordiv(self, a, b):
-    a, b = self.auto_cast(a, b)
-    return a // b</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.Backend.from_dlpack"><code class="name flex">
 <span>def <span class="ident">from_dlpack</span></span>(<span>self, capsule)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def from_dlpack(self, capsule):
-    raise NotImplementedError(self.__class__)</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.Backend.gamma_inc_l"><code class="name flex">
 <span>def <span class="ident">gamma_inc_l</span></span>(<span>self, a, x)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Regularized lower incomplete gamma function.</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def gamma_inc_l(self, a, x):
-    &#34;&#34;&#34;Regularized lower incomplete gamma function.&#34;&#34;&#34;
-    raise NotImplementedError(self)</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.Backend.gamma_inc_u"><code class="name flex">
 <span>def <span class="ident">gamma_inc_u</span></span>(<span>self, a, x)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Regularized upper incomplete gamma function.</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def gamma_inc_u(self, a, x):
-    &#34;&#34;&#34;Regularized upper incomplete gamma function.&#34;&#34;&#34;
-    raise NotImplementedError(self)</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.Backend.gather"><code class="name flex">
 <span>def <span class="ident">gather</span></span>(<span>self, values, indices, axis: int)</span>
@@ -3539,50 +2521,18 @@ Higher dimensions may not be supported.</p>
 </dl>
 <h2 id="returns">Returns</h2>
 <p>tensor, with size along <code>axis</code> being the length of <code>indices</code></p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def gather(self, values, indices, axis: int):
-    &#34;&#34;&#34;
-    Gathers values from the tensor `values` at locations `indices`.
-
-    Args:
-        values: tensor
-        indices: 1D tensor
-        axis: Axis along which to gather slices
-
-    Returns:
-        tensor, with size along `axis` being the length of `indices`
-    &#34;&#34;&#34;
-    raise NotImplementedError(self)</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.Backend.gather_1d"><code class="name flex">
 <span>def <span class="ident">gather_1d</span></span>(<span>self, values, indices)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def gather_1d(self, values, indices):
-    return self.gather(values, indices, 0)</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.Backend.gather_by_component_indices"><code class="name flex">
 <span>def <span class="ident">gather_by_component_indices</span></span>(<span>self, values, *component_indices)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def gather_by_component_indices(self, values, *component_indices):
-    return values[component_indices]</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.Backend.gather_nd"><code class="name flex">
 <span>def <span class="ident">gather_nd</span></span>(<span>self, values, indices)</span>
@@ -3597,64 +2547,24 @@ Higher dimensions may not be supported.</p>
 </dl>
 <h2 id="returns">Returns</h2>
 <p>(indices, channels)</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def gather_nd(self, values, indices):
-    &#34;&#34;&#34;
-    Args:
-        values: (spatial, channels)
-        indices: (indices, multi_index)
-
-    Returns:
-        (indices, channels)
-    &#34;&#34;&#34;
-    return self.batched_gather_nd(values[None, :, :], indices[None, :, :])[0, :, :]</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.Backend.get_default_device"><code class="name flex">
 <span>def <span class="ident">get_default_device</span></span>(<span>self) ‑> phiml.backend._backend.ComputeDevice</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def get_default_device(self) -&gt; ComputeDevice:
-    return self._default_device</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.Backend.get_device"><code class="name flex">
 <span>def <span class="ident">get_device</span></span>(<span>self, tensor: ~TensorType) ‑> phiml.backend._backend.ComputeDevice</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Returns the device <code>tensor</code> is located on.</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def get_device(self, tensor: TensorType) -&gt; ComputeDevice:
-    &#34;&#34;&#34; Returns the device `tensor` is located on. &#34;&#34;&#34;
-    raise NotImplementedError(self.__class__)</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.Backend.get_device_by_ref"><code class="name flex">
 <span>def <span class="ident">get_device_by_ref</span></span>(<span>self, ref)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def get_device_by_ref(self, ref):
-    for device in self._devices:
-        if device.ref == ref:
-            return device
-    raise KeyError(f&#34;{self.name} has no device with ref &#39;{ref}&#39;. Available: {[d.ref for d in self._devices]}&#34;)</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.Backend.get_diagonal"><code class="name flex">
 <span>def <span class="ident">get_diagonal</span></span>(<span>self, matrices, offset=0)</span>
@@ -3672,64 +2582,24 @@ Higher dimensions may not be supported.</p>
 <dt><code>diagonal</code></dt>
 <dd>(batch, max(rows,cols), channels)</dd>
 </dl></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def get_diagonal(self, matrices, offset=0):
-    &#34;&#34;&#34;
-
-    Args:
-        matrices: (batch, rows, cols, channels)
-        offset: 0=diagonal, positive=above diagonal, negative=below diagonal
-
-    Returns:
-        diagonal: (batch, max(rows,cols), channels)
-    &#34;&#34;&#34;
-    raise NotImplementedError(self)</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.Backend.get_sparse_format"><code class="name flex">
 <span>def <span class="ident">get_sparse_format</span></span>(<span>self, x) ‑> str</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Returns lower-case format string, such as 'coo', 'csr', 'csc'</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def get_sparse_format(self, x) -&gt; str:
-    &#34;&#34;&#34;Returns lower-case format string, such as &#39;coo&#39;, &#39;csr&#39;, &#39;csc&#39; &#34;&#34;&#34;
-    raise NotImplementedError(self.__class__)</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.Backend.greater_or_equal"><code class="name flex">
 <span>def <span class="ident">greater_or_equal</span></span>(<span>self, x, y)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def greater_or_equal(self, x, y):
-    x, y = self.auto_cast(x, y)
-    return x &gt;= y</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.Backend.greater_than"><code class="name flex">
 <span>def <span class="ident">greater_than</span></span>(<span>self, x, y)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def greater_than(self, x, y):
-    x, y = self.auto_cast(x, y)
-    return x &gt; y</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.Backend.grid_sample"><code class="name flex">
 <span>def <span class="ident">grid_sample</span></span>(<span>self, grid, coordinates, extrapolation: str)</span>
@@ -3750,27 +2620,6 @@ One of <code>('undefined', 'zeros', 'boundary', 'periodic', 'symmetric', 'reflec
 </dl>
 <h2 id="returns">Returns</h2>
 <p>sampled values with linear interpolation</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def grid_sample(self, grid, coordinates, extrapolation: str):
-    &#34;&#34;&#34;
-    Interpolates a regular grid at the specified coordinates.
-
-    Args:
-        grid: Tensor of shape (batch, spatial..., channel)
-        coordinates: Tensor of floating grid indices of shape (batch, instance..., vector).
-            The last dimension must match `spatial_dims`.
-            The first grid point of dimension i lies at position 0, the last at values.shape[i]-1.
-        extrapolation: Values to use for coordinates outside the grid.
-            One of `(&#39;undefined&#39;, &#39;zeros&#39;, &#39;boundary&#39;, &#39;periodic&#39;, &#39;symmetric&#39;, &#39;reflect&#39;)`.
-
-    Returns:
-        sampled values with linear interpolation
-    &#34;&#34;&#34;
-    return NotImplemented</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.Backend.hessian"><code class="name flex">
 <span>def <span class="ident">hessian</span></span>(<span>self, f: Callable, wrt: Union[tuple, list], get_output: bool, get_gradient: bool) ‑> tuple</span>
@@ -3790,28 +2639,6 @@ get_gradient:</p>
 <h2 id="returns">Returns</h2>
 <p>Function returning <code>(f(x), g(x), H(x))</code> or less depending on <code>get_output</code> and <code>get_gradient</code>.
 The result is always a <code>tuple</code> holding at most these three items.</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def hessian(self, f: Callable, wrt: Union[tuple, list], get_output: bool, get_gradient: bool) -&gt; tuple:
-    &#34;&#34;&#34;
-    First dimension of all inputs/outputs of `f` is assumed to be a batch dimension.
-    Element-wise Hessians will be computed along the batch dimension.
-    All other dimensions are parameter dimensions and will appear twice in the Hessian matrices.
-
-    Args:
-        f: Function whose first output is a scalar float or complex value.
-        wrt:
-        get_output:
-        get_gradient:
-
-    Returns:
-        Function returning `(f(x), g(x), H(x))` or less depending on `get_output` and `get_gradient`.
-        The result is always a `tuple` holding at most these three items.
-    &#34;&#34;&#34;
-    raise NotImplementedError(self)</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.Backend.histogram1d"><code class="name flex">
 <span>def <span class="ident">histogram1d</span></span>(<span>self, values, weights, bin_edges)</span>
@@ -3828,22 +2655,6 @@ The result is always a <code>tuple</code> holding at most these three items.</p>
 </dl>
 <h2 id="returns">Returns</h2>
 <p>(batch, edges) with dtype matching weights</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def histogram1d(self, values, weights, bin_edges):
-    &#34;&#34;&#34;
-    Args:
-        values: (batch, values)
-        bin_edges: (batch, edges)
-        weights: (batch, values)
-
-    Returns:
-        (batch, edges) with dtype matching weights
-    &#34;&#34;&#34;
-    raise NotImplementedError(self)</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.Backend.ifft"><code class="name flex">
 <span>def <span class="ident">ifft</span></span>(<span>self, k, axes: Union[tuple, list])</span>
@@ -3859,36 +2670,12 @@ The result is always a <code>tuple</code> holding at most these three items.</p>
 </dl>
 <h2 id="returns">Returns</h2>
 <p>Complex tensor <code>x</code></p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def ifft(self, k, axes: Union[tuple, list]):
-    &#34;&#34;&#34;
-    Computes the n-dimensional inverse FFT along all but the first and last dimensions.
-
-    Args:
-      k: tensor of dimension 3 or higher
-      axes: Along which axes to perform the inverse FFT
-
-    Returns:
-        Complex tensor `x`
-    &#34;&#34;&#34;
-    raise NotImplementedError(self)</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.Backend.imag"><code class="name flex">
 <span>def <span class="ident">imag</span></span>(<span>self, x)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def imag(self, x):
-    raise NotImplementedError(self)</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.Backend.indexed_segment_sum"><code class="name flex">
 <span>def <span class="ident">indexed_segment_sum</span></span>(<span>self, x, indices, axis: int)</span>
@@ -3905,37 +2692,12 @@ The result is always a <code>tuple</code> holding at most these three items.</p>
 </dl>
 <h2 id="returns">Returns</h2>
 <p>Tensor with <code>len(indices)</code> elements along <code>axis</code>. (batch, &hellip;, indices, &hellip;)</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def indexed_segment_sum(self, x, indices, axis: int):
-    &#34;&#34;&#34;
-    Args:
-        x: Values to sum. Segments are laid out contiguously along `axis`. (batch, ...)
-        indices: should start with 0 along `axis`. (batch, indices)
-        axis: Axis along which to sum
-
-    Returns:
-        Tensor with `len(indices)` elements along `axis`. (batch, ..., indices, ...)
-    &#34;&#34;&#34;
-    raise NotImplementedError(self)</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.Backend.invert"><code class="name flex">
 <span>def <span class="ident">invert</span></span>(<span>self, x)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def invert(self, x):
-    if isinstance(x, bool):
-        return not x
-    return ~x</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.Backend.is_available"><code class="name flex">
 <span>def <span class="ident">is_available</span></span>(<span>self, tensor) ‑> bool</span>
@@ -3951,26 +2713,6 @@ If true, <code>numpy(tensor)</code> must return a valid NumPy representation of 
 </dl>
 <h2 id="returns">Returns</h2>
 <p>bool</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def is_available(self, tensor) -&gt; bool:
-    &#34;&#34;&#34;
-    Tests if the value of the tensor is known and can be read at this point.
-    If true, `numpy(tensor)` must return a valid NumPy representation of the value.
-    
-    Tensors are typically available when the backend operates in eager mode.
-
-    Args:
-      tensor: backend-compatible tensor
-
-    Returns:
-      bool
-
-    &#34;&#34;&#34;
-    raise NotImplementedError(self.__class__)</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.Backend.is_module"><code class="name flex">
 <span>def <span class="ident">is_module</span></span>(<span>self, obj) ‑> bool</span>
@@ -3985,23 +2727,6 @@ If <code>True</code>, this backend will be chosen for operations involving <code
 <dt><strong><code>obj</code></strong></dt>
 <dd>Object to test.</dd>
 </dl></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def is_module(self, obj) -&gt; bool:
-    &#34;&#34;&#34;
-    Tests if `obj` is of a type that is specific to this backend, e.g. a neural network.
-    If `True`, this backend will be chosen for operations involving `obj`.
-
-    See Also:
-        `Backend.is_tensor()`.
-
-    Args:
-        obj: Object to test.
-    &#34;&#34;&#34;
-    raise NotImplementedError(self.__class__)</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.Backend.is_sparse"><code class="name flex">
 <span>def <span class="ident">is_sparse</span></span>(<span>self, x) ‑> bool</span>
@@ -4012,17 +2737,6 @@ If <code>True</code>, this backend will be chosen for operations involving <code
 <dt><strong><code>x</code></strong></dt>
 <dd>Tensor native to this <code><a title="phiml.backend.Backend" href="#phiml.backend.Backend">Backend</a></code>.</dd>
 </dl></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def is_sparse(self, x) -&gt; bool:
-    &#34;&#34;&#34;
-    Args:
-        x: Tensor native to this `Backend`.
-    &#34;&#34;&#34;
-    raise NotImplementedError(self.__class__)</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.Backend.is_tensor"><code class="name flex">
 <span>def <span class="ident">is_tensor</span></span>(<span>self, x, only_native=False)</span>
@@ -4045,69 +2759,24 @@ An object is considered a tensor (nativer or otherwise) by a backend if it is no
 <dt><code>bool</code></dt>
 <dd>whether <code>x</code> is considered a tensor by this backend</dd>
 </dl></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def is_tensor(self, x, only_native=False):
-    &#34;&#34;&#34;
-    An object is considered a native tensor by a backend if no internal conversion is required by backend methods.
-    An object is considered a tensor (nativer or otherwise) by a backend if it is not a struct (e.g. tuple, list) and all methods of the backend accept it as a tensor argument.
-
-    If `True`, this backend will be chosen for operations involving `x`.
-
-    See Also:
-        `Backend.is_module()`.
-
-    Args:
-      x: object to check
-      only_native: If True, only accepts true native tensor representations, not Python numbers or others that are also supported as tensors (Default value = False)
-
-    Returns:
-      bool: whether `x` is considered a tensor by this backend
-
-    &#34;&#34;&#34;
-    raise NotImplementedError(self.__class__)</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.Backend.isfinite"><code class="name flex">
 <span>def <span class="ident">isfinite</span></span>(<span>self, x)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def isfinite(self, x):
-    raise NotImplementedError(self)</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.Backend.isinf"><code class="name flex">
 <span>def <span class="ident">isinf</span></span>(<span>self, x)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def isinf(self, x):
-    raise NotImplementedError(self)</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.Backend.isnan"><code class="name flex">
 <span>def <span class="ident">isnan</span></span>(<span>self, x)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def isnan(self, x):
-    raise NotImplementedError(self)</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.Backend.jacobian"><code class="name flex">
 <span>def <span class="ident">jacobian</span></span>(<span>self, f: Callable, wrt: Union[tuple, list], get_output: bool, is_f_scalar: bool)</span>
@@ -4128,90 +2797,33 @@ An object is considered a tensor (nativer or otherwise) by a backend if it is no
 <p>A function <code>g</code> with the same arguments as <code>f</code>.
 If <code>get_output=True</code>, <code>g</code> returns a <code>tuple</code>containing the outputs of <code>f</code> followed by the gradients.
 The gradients retain the dimensions of <code>reduced_loss</code> in order as outer (first) dimensions.</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def jacobian(self, f: Callable, wrt: Union[tuple, list], get_output: bool, is_f_scalar: bool):
-    &#34;&#34;&#34;
-    Args:
-        f: Function to differentiate. Returns a tuple containing `(reduced_loss, output)`
-        wrt: Argument indices for which to compute the gradient.
-        get_output: Whether the derivative function should return the output of `f` in addition to the gradient.
-        is_f_scalar: Whether `f` is guaranteed to return a scalar output.
-
-    Returns:
-        A function `g` with the same arguments as `f`.
-        If `get_output=True`, `g` returns a `tuple`containing the outputs of `f` followed by the gradients.
-        The gradients retain the dimensions of `reduced_loss` in order as outer (first) dimensions.
-    &#34;&#34;&#34;
-    raise NotImplementedError(self)</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.Backend.jit_compile"><code class="name flex">
 <span>def <span class="ident">jit_compile</span></span>(<span>self, f: Callable) ‑> Callable</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def jit_compile(self, f: Callable) -&gt; Callable:
-    raise NotImplementedError(self.__class__)</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.Backend.jit_compile_grad"><code class="name flex">
 <span>def <span class="ident">jit_compile_grad</span></span>(<span>self, f: Callable, wrt: Union[tuple, list], get_output: bool, is_f_scalar: bool)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def jit_compile_grad(self, f: Callable, wrt: Union[tuple, list], get_output: bool, is_f_scalar: bool):
-    raise NotImplementedError(self.__class__)</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.Backend.jit_compile_hessian"><code class="name flex">
 <span>def <span class="ident">jit_compile_hessian</span></span>(<span>self, f: Callable, wrt: Union[tuple, list], get_output: bool, get_gradient: bool)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def jit_compile_hessian(self, f: Callable, wrt: Union[tuple, list], get_output: bool, get_gradient: bool):
-    raise NotImplementedError(self.__class__)</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.Backend.linear"><code class="name flex">
 <span>def <span class="ident">linear</span></span>(<span>self, lin, vector)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def linear(self, lin, vector):
-    if callable(lin):
-        return lin(vector)
-    elif isinstance(lin, (tuple, list)):
-        for lin_i in lin:
-            lin_shape = self.staticshape(lin_i)
-            assert len(lin_shape) == 2
-        return self.stack([self.mul_matrix_batched_vector(m, v) for m, v in zip(lin, self.unstack(vector))])
-    else:
-        lin_shape = self.staticshape(lin)
-        assert len(lin_shape) == 2, f&#34;A must be a matrix but got shape {lin_shape}&#34;
-        return self.mul_matrix_batched_vector(lin, vector)</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.Backend.linear_solve"><code class="name flex">
-<span>def <span class="ident">linear_solve</span></span>(<span>self, method: str, lin: Union[Callable, ~TensorType], y: ~TensorType, x0: ~TensorType, rtol: Union[~TensorType, numpy.ndarray], atol: Union[~TensorType, numpy.ndarray], max_iter: numpy.ndarray, pre: Optional[phiml.backend._backend.Preconditioner]) ‑> phiml.backend._backend.SolveResult</span>
+<span>def <span class="ident">linear_solve</span></span>(<span>self, method: str, lin: Union[Callable, ~TensorType], y: ~TensorType, x0: ~TensorType, rtol: Union[~TensorType, numpy.ndarray], atol: Union[~TensorType, numpy.ndarray], max_iter: numpy.ndarray, pre: Optional[phiml.backend._backend.Preconditioner], matrix_offset: Optional[~TensorType]) ‑> phiml.backend._backend.SolveResult</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Solve the system of linear equations A · x = y.
@@ -4244,95 +2856,23 @@ This method need not provide a gradient for the operation.</p>
 <dd>Maximum number of iterations of shape (checkpoints, batch).</dd>
 <dt><strong><code>pre</code></strong></dt>
 <dd>Preconditioner, function taking one native tensor like <code>y</code> as input and returning a native tensor like <code>x0</code>.</dd>
+<dt><strong><code>matrix_offset</code></strong></dt>
+<dd>Constant value to be added to every matrix entry, explicitly or implicitly. This can be used to stabilize solves for singular matrices.</dd>
 </dl>
 <h2 id="returns">Returns</h2>
 <p><code>SolveResult</code></p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def linear_solve(self,
-                 method: str,
-                 lin: Union[Callable, TensorType],
-                 y: TensorType,
-                 x0: TensorType,
-                 rtol: Union[ndarray, TensorType],
-                 atol: Union[ndarray, TensorType],
-                 max_iter: ndarray,
-                 pre: Optional[Preconditioner]) -&gt; SolveResult:
-    &#34;&#34;&#34;
-    Solve the system of linear equations A · x = y.
-    This method need not provide a gradient for the operation.
-
-    Args:
-        method: Which algorithm to use. One of:
-            * &#39;auto&#39;
-            * &#39;CG&#39;
-            * &#39;CG-adaptive&#39;
-            * &#39;biCG-stab&#39; or &#39;biCG-stab(1)&#39;
-            * &#39;biCG-stab(n)&#39;
-            * &#39;scipy-direct&#39;
-            * &#39;scipy-CG&#39;, &#39;scipy-GMres&#39;, &#39;scipy-biCG&#39;, &#39;scipy-biCG-stab&#39;, &#39;scipy-CGS&#39;, &#39;scipy-QMR&#39;, &#39;scipy-GCrotMK&#39;
-        lin: Linear operation. One of
-            * sparse/dense matrix valid for all instances
-            * tuple/list of sparse/dense matrices for varying matrices along batch, must have the same nonzero locations.
-            * linear function A(x), must be called on all instances in parallel
-        y: target result of A * x. 2nd order tensor (batch, vector) or list of vectors.
-        x0: Initial guess of size (batch, parameters)
-        rtol: Relative tolerance of size (batch,)
-        atol: Absolute tolerance of size (batch,)
-        max_iter: Maximum number of iterations of shape (checkpoints, batch).
-        pre: Preconditioner, function taking one native tensor like `y` as input and returning a native tensor like `x0`.
-
-    Returns:
-        `SolveResult`
-    &#34;&#34;&#34;
-    if method == &#39;auto&#39;:
-        return self.conjugate_gradient_adaptive(lin, y, x0, rtol, atol, max_iter, pre)
-    elif method.startswith(&#39;scipy-&#39;):
-        from ._linalg import scipy_sparse_solve
-        result = scipy_sparse_solve(self, method[len(&#39;scipy-&#39;):], lin, y, x0, rtol, atol, max_iter, pre)
-        return SolveResult(result.method, self.as_tensor(result.x), self.as_tensor(result.residual), result.iterations, result.function_evaluations, result.converged, result.diverged, result.message)
-    elif method == &#39;CG&#39;:
-        return self.conjugate_gradient(lin, y, x0, rtol, atol, max_iter, pre)
-    elif method == &#39;CG-adaptive&#39;:
-        return self.conjugate_gradient_adaptive(lin, y, x0, rtol, atol, max_iter, pre)
-    elif method in [&#39;biCG&#39;, &#39;biCG-stab(0)&#39;]:
-        return self.bi_conjugate_gradient(lin, y, x0, rtol, atol, max_iter, pre, poly_order=0)
-    elif method == &#39;biCG-stab&#39;:
-        return self.bi_conjugate_gradient(lin, y, x0, rtol, atol, max_iter, pre, poly_order=1)
-    elif method.startswith(&#39;biCG-stab(&#39;):
-        order = int(method[len(&#39;biCG-stab(&#39;):-1])
-        return self.bi_conjugate_gradient(lin, y, x0, rtol, atol, max_iter, pre, poly_order=order)
-    else:
-        raise NotImplementedError(f&#34;Method &#39;{method}&#39; not supported for linear solve.&#34;)</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.Backend.linspace"><code class="name flex">
 <span>def <span class="ident">linspace</span></span>(<span>self, start, stop, number)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def linspace(self, start, stop, number):
-    raise NotImplementedError(self)</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.Backend.linspace_without_last"><code class="name flex">
 <span>def <span class="ident">linspace_without_last</span></span>(<span>self, start, stop, number)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def linspace_without_last(self, start, stop, number):
-    return self.linspace(start, stop, number+1)[:-1]</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.Backend.list_devices"><code class="name flex">
 <span>def <span class="ident">list_devices</span></span>(<span>self, device_type: Optional[str] = None) ‑> List[phiml.backend._backend.ComputeDevice]</span>
@@ -4355,89 +2895,42 @@ This method need not provide a gradient for the operation.</p>
 </dl>
 <h2 id="returns">Returns</h2>
 <p><code>list</code> of all currently available devices.</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def list_devices(self, device_type: Union[str, None] = None) -&gt; List[ComputeDevice]:
-    &#34;&#34;&#34;
-    Fetches information about all available compute devices this backend can use.
-
-    Implementations:
-
-    * NumPy: [`os.cpu_count`](https://docs.python.org/3/library/os.html#os.cpu_count)
-    * PyTorch: [`torch.cuda.get_device_properties`](https://pytorch.org/docs/stable/cuda.html#torch.cuda.get_device_properties)
-    * TensorFlow: `tensorflow.python.client.device_lib.list_local_devices`
-    * Jax: [`jax.devices`](https://jax.readthedocs.io/en/latest/jax.html#jax.devices)
-
-    See Also:
-        `Backend.set_default_device()`.
-
-    Args:
-        device_type: (optional) Return only devices of this type, e.g. `&#39;GPU&#39;` or `&#39;CPU&#39;`. See `ComputeDevice.device_type`.
-
-    Returns:
-        `list` of all currently available devices.
-    &#34;&#34;&#34;
-    if device_type is None:
-        return list(self._devices)
-    else:
-        assert device_type in (&#39;CPU&#39;, &#39;GPU&#39;, &#39;TPU&#39;), &#34;Device&#34;
-        return [d for d in self._devices if d.device_type == device_type]</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.Backend.log"><code class="name flex">
 <span>def <span class="ident">log</span></span>(<span>self, x)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Natural logarithm</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def log(self, x):
-    &#34;&#34;&#34; Natural logarithm &#34;&#34;&#34;
-    raise NotImplementedError(self)</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.Backend.log10"><code class="name flex">
 <span>def <span class="ident">log10</span></span>(<span>self, x)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def log10(self, x):
-    raise NotImplementedError(self)</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.Backend.log2"><code class="name flex">
 <span>def <span class="ident">log2</span></span>(<span>self, x)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def log2(self, x):
-    raise NotImplementedError(self)</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.Backend.log_gamma"><code class="name flex">
 <span>def <span class="ident">log_gamma</span></span>(<span>self, x)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def log_gamma(self, x):
-    raise NotImplementedError(self)</code></pre>
-</details>
+</dd>
+<dt id="phiml.backend.Backend.matrix_rank_dense"><code class="name flex">
+<span>def <span class="ident">matrix_rank_dense</span></span>(<span>self, matrix, hermitian=False) ‑> ~TensorType</span>
+</code></dt>
+<dd>
+<div class="desc"><h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>matrix</code></strong></dt>
+<dd>Dense matrix of shape (batch, rows, cols)</dd>
+<dt><strong><code>hermitian</code></strong></dt>
+<dd>Whether all matrices are guaranteed to be hermitian.</dd>
+</dl></div>
 </dd>
 <dt id="phiml.backend.Backend.matrix_solve_least_squares"><code class="name flex">
 <span>def <span class="ident">matrix_solve_least_squares</span></span>(<span>self, matrix: ~TensorType, rhs: ~TensorType) ‑> Tuple[~TensorType, ~TensorType, ~TensorType, ~TensorType]</span>
@@ -4461,150 +2954,60 @@ This method need not provide a gradient for the operation.</p>
 <dt><code>singular_values</code></dt>
 <dd>Optional, can be <code>None</code></dd>
 </dl></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def matrix_solve_least_squares(self, matrix: TensorType, rhs: TensorType) -&gt; Tuple[TensorType, TensorType, TensorType, TensorType]:
-    &#34;&#34;&#34;
-    Args:
-        matrix: Shape (batch, vec, constraints)
-        rhs: Shape (batch, vec, batch_per_matrix)
-
-    Returns:
-        solution: Solution vector of Shape (batch, constraints, batch_per_matrix)
-        residuals: Optional, can be `None`
-        rank: Optional, can be `None`
-        singular_values: Optional, can be `None`
-    &#34;&#34;&#34;
-    raise NotImplementedError(self)</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.Backend.max"><code class="name flex">
 <span>def <span class="ident">max</span></span>(<span>self, x, axis=None, keepdims=False)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def max(self, x, axis=None, keepdims=False):
-    raise NotImplementedError(self)</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.Backend.maximum"><code class="name flex">
 <span>def <span class="ident">maximum</span></span>(<span>self, a, b)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def maximum(self, a, b):
-    raise NotImplementedError(self)</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.Backend.mean"><code class="name flex">
 <span>def <span class="ident">mean</span></span>(<span>self, value, axis=None, keepdims=False)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def mean(self, value, axis=None, keepdims=False):
-    raise NotImplementedError(self)</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.Backend.meshgrid"><code class="name flex">
 <span>def <span class="ident">meshgrid</span></span>(<span>self, *coordinates)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def meshgrid(self, *coordinates):
-    raise NotImplementedError(self)</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.Backend.min"><code class="name flex">
 <span>def <span class="ident">min</span></span>(<span>self, x, axis=None, keepdims=False)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def min(self, x, axis=None, keepdims=False):
-    raise NotImplementedError(self)</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.Backend.minimize"><code class="name flex">
 <span>def <span class="ident">minimize</span></span>(<span>self, method: str, f, x0, atol, max_iter, trj: bool)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def minimize(self, method: str, f, x0, atol, max_iter, trj: bool):
-    if method == &#39;auto&#39;:
-        method = &#39;L-BFGS-B&#39;
-    if method == &#39;GD&#39;:
-        from ._minimize import gradient_descent
-        return gradient_descent(self, f, x0, atol, max_iter, trj)
-    else:
-        from ._minimize import scipy_minimize
-        return scipy_minimize(self, method, f, x0, atol, max_iter, trj)</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.Backend.minimum"><code class="name flex">
 <span>def <span class="ident">minimum</span></span>(<span>self, a, b)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def minimum(self, a, b):
-    raise NotImplementedError(self)</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.Backend.mod"><code class="name flex">
 <span>def <span class="ident">mod</span></span>(<span>self, dividend, divisor)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def mod(self, dividend, divisor):
-    dividend, divisor = self.auto_cast(dividend, divisor)
-    return dividend % divisor</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.Backend.mul"><code class="name flex">
 <span>def <span class="ident">mul</span></span>(<span>self, a, b)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def mul(self, a, b):
-    a, b = self.auto_cast(a, b)
-    return a * b</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.Backend.mul_coo_dense"><code class="name flex">
 <span>def <span class="ident">mul_coo_dense</span></span>(<span>self, indices, values, shape, dense)</span>
@@ -4626,37 +3029,6 @@ This is the fallback if CSR multiplication is not supported.</p>
 </dl>
 <h2 id="returns">Returns</h2>
 <p>(batch, dense_rows=sparse_cols, channels, dense_cols)</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def mul_coo_dense(self, indices, values, shape, dense):
-    &#34;&#34;&#34;
-    Multiply a batch of sparse coordinate matrices by a batch of dense matrices.
-    Every backend should implement this feature.
-    This is the fallback if CSR multiplication is not supported.
-
-    Args:
-        indices: (batch, nnz, ndims)
-        values: (batch, nnz, channels)
-        shape: Shape of the full matrix, tuple of length ndims (sparse_rows, sparse_cols)
-        dense: (batch, dense_rows=sparse_cols, channels, dense_cols)
-
-    Returns:
-        (batch, dense_rows=sparse_cols, channels, dense_cols)
-    &#34;&#34;&#34;
-    values, dense = self.auto_cast(values, dense)
-    batch_size, nnz, channel_count = self.staticshape(values)
-    batch_size_d, dense_rows, channel_count_d, dense_cols = self.staticshape(dense)
-    assert batch_size_d == batch_size
-    assert dense_rows == shape[1]
-    assert channel_count == channel_count_d
-    dense_formatted = self.reshape(dense, (batch_size, dense_rows, channel_count * dense_cols))
-    dense_gathered = self.batched_gather_nd(dense_formatted, indices[:, :, 1:2])
-    base_grid = self.zeros((batch_size, shape[0], channel_count * dense_cols), self.dtype(dense))
-    result = self.scatter(base_grid, indices[:, :, 0:1], values * dense_gathered, mode=&#39;add&#39;)
-    return self.reshape(result, (batch_size, shape[0], channel_count, dense_cols))</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.Backend.mul_csr_dense"><code class="name flex">
 <span>def <span class="ident">mul_csr_dense</span></span>(<span>self, column_indices, row_pointers, values, shape: Tuple[int, int], dense)</span>
@@ -4681,56 +3053,12 @@ This is the fallback if CSR multiplication is not supported.</p>
 </dl>
 <h2 id="returns">Returns</h2>
 <p>(batch, dense_rows=sparse_cols, channels, dense_cols)</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def mul_csr_dense(self, column_indices, row_pointers, values, shape: Tuple[int, int], dense):
-    &#34;&#34;&#34;
-    Multiply a batch of compressed sparse row matrices by a batch of dense matrices.
-
-    Optional feature.
-
-    See Also:
-        `Backend.sparse_coo_tensor()`, `Backend.csc_matrix()`.
-
-    Args:
-        column_indices: (batch, nnz)
-        row_pointers: (batch, rows + 1)
-        values: (batch, nnz, channels)
-        shape: Shape of the full matrix (cols, rows)
-        dense: (batch, dense_rows=sparse_cols, channels, dense_cols)
-
-    Returns:
-        (batch, dense_rows=sparse_cols, channels, dense_cols)
-    &#34;&#34;&#34;
-    # if not self.supports(Backend.indexed_segment_sum):
-    native_coo_indices = self.csr_to_coo(column_indices, row_pointers)
-    return self.mul_coo_dense(native_coo_indices, values, shape, dense)
-    # values, dense = self.auto_cast(values, dense)
-    # batch_size, nnz, channel_count = self.staticshape(values)
-    # _, dense_rows, _, dense_cols = self.staticshape(dense)
-    # assert dense_cols == 1
-    # dense_formatted = self.reshape(dense, (batch_size, dense_rows, channel_count * dense_cols))
-    # dense_gathered = self.batched_gather_nd(dense_formatted, self.expand_dims(column_indices, -1))  # (batch, nnz, channels*rhs_cols)
-    # dense_gathered = self.reshape(dense_gathered, (batch_size, nnz, channel_count, dense_cols))
-    # values = self.reshape(values, (batch_size, nnz, channel_count, 1))
-    # result = self.indexed_segment_sum(values * dense_gathered, row_pointers[:, :-1], 1)
-    # return self.reshape(result, (batch_size, channel_count, rhs_rows, rhs_cols))</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.Backend.mul_matrix_batched_vector"><code class="name flex">
 <span>def <span class="ident">mul_matrix_batched_vector</span></span>(<span>self, A, b)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def mul_matrix_batched_vector(self, A, b):
-    raise NotImplementedError(self)</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.Backend.multi_slice"><code class="name flex">
 <span>def <span class="ident">multi_slice</span></span>(<span>self, tensor, slices: tuple)</span>
@@ -4743,44 +3071,18 @@ This is the fallback if CSR multiplication is not supported.</p>
 <dt><strong><code>slices</code></strong></dt>
 <dd><code>tuple</code> of <code>slice</code>, <code>int</code>, or scalar integer tensors</dd>
 </dl></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def multi_slice(self, tensor, slices: tuple):
-    &#34;&#34;&#34;
-    Args:
-        tensor: value to slice
-        slices: `tuple` of `slice`, `int`, or scalar integer tensors
-    &#34;&#34;&#34;
-    return tensor[slices]</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.Backend.ndims"><code class="name flex">
 <span>def <span class="ident">ndims</span></span>(<span>self, tensor)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def ndims(self, tensor):
-    return len(self.staticshape(tensor))</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.Backend.nn_library"><code class="name flex">
 <span>def <span class="ident">nn_library</span></span>(<span>self)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def nn_library(self):
-    raise NotImplementedError(self)</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.Backend.nonzero"><code class="name flex">
 <span>def <span class="ident">nonzero</span></span>(<span>self, values, length=None, fill_value=-1)</span>
@@ -4795,34 +3097,12 @@ This is the fallback if CSR multiplication is not supported.</p>
 </dl>
 <h2 id="returns">Returns</h2>
 <p>non-zero multi-indices as tensor of shape (nnz/length, vector)</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def nonzero(self, values, length=None, fill_value=-1):
-    &#34;&#34;&#34;
-    Args:
-        values: Tensor with only spatial dimensions
-        length: (Optional) Length of the resulting array. If specified, the result array will be padded with `fill_value` or trimmed.
-
-    Returns:
-        non-zero multi-indices as tensor of shape (nnz/length, vector)
-    &#34;&#34;&#34;
-    raise NotImplementedError(self)</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.Backend.not_equal"><code class="name flex">
 <span>def <span class="ident">not_equal</span></span>(<span>self, x, y)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def not_equal(self, x, y):
-    return ~self.equal(x, y)</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.Backend.numpy"><code class="name flex">
 <span>def <span class="ident">numpy</span></span>(<span>self, tensor) ‑> numpy.ndarray</span>
@@ -4839,27 +3119,6 @@ Use <code>is_available(tensor)</code> to check if the value can be represented a
 </dl>
 <h2 id="returns">Returns</h2>
 <p>NumPy representation of the values stored in the tensor</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def numpy(self, tensor) -&gt; numpy.ndarray:
-    &#34;&#34;&#34;
-    Returns a NumPy representation of the given tensor.
-    If `tensor` is already a NumPy array, it is returned without modification.
-    
-    This method raises an error if the value of the tensor is not known at this point, e.g. because it represents a node in a graph.
-    Use `is_available(tensor)` to check if the value can be represented as a NumPy array.
-
-    Args:
-        tensor: backend-compatible tensor or sparse tensor
-
-    Returns:
-      NumPy representation of the values stored in the tensor
-
-    &#34;&#34;&#34;
-    raise NotImplementedError(self.__class__)</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.Backend.numpy_call"><code class="name flex">
 <span>def <span class="ident">numpy_call</span></span>(<span>self, f, output_shapes, output_dtypes, *args, **aux_args)</span>
@@ -4881,66 +3140,24 @@ Use <code>is_available(tensor)</code> to check if the value can be represented a
 </dl>
 <h2 id="returns">Returns</h2>
 <p>Returned arrays of <code>f</code> converted to tensors.</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def numpy_call(self, f, output_shapes, output_dtypes, *args, **aux_args):
-    &#34;&#34;&#34;
-    This call can be used in jit-compiled code but is not differentiable.
-
-    Args:
-        f: Function operating on numpy arrays.
-        output_shapes: Single shape `tuple` or tuple of shapes declaring the shapes of the tensors returned by `f`.
-        output_dtypes: Single `DType` or tuple of DTypes declaring the dtypes of the tensors returned by `f`.
-        *args: Tensor arguments to be converted to NumPy arrays and then passed to `f`.
-        **aux_args: Keyword arguments to be passed to `f` without conversion.
-
-    Returns:
-        Returned arrays of `f` converted to tensors.
-    &#34;&#34;&#34;
-    raise NotImplementedError(self.__class__)</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.Backend.ones"><code class="name flex">
 <span>def <span class="ident">ones</span></span>(<span>self, shape, dtype: phiml.backend._dtype.DType = None)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def ones(self, shape, dtype: DType = None):
-    raise NotImplementedError(self)</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.Backend.ones_like"><code class="name flex">
 <span>def <span class="ident">ones_like</span></span>(<span>self, tensor)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def ones_like(self, tensor):
-    raise NotImplementedError(self)</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.Backend.or_"><code class="name flex">
 <span>def <span class="ident">or_</span></span>(<span>self, a, b)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def or_(self, a, b):
-    a, b = self.auto_cast(a, b)
-    return a | b</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.Backend.pad"><code class="name flex">
 <span>def <span class="ident">pad</span></span>(<span>self, value, pad_width, mode: str = 'constant', constant_values=0)</span>
@@ -4964,90 +3181,30 @@ Use <code>is_available(tensor)</code> to check if the value can be represented a
 </dl>
 <h2 id="returns">Returns</h2>
 <p>padded tensor or <code>NotImplemented</code></p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def pad(self, value, pad_width, mode: str = &#39;constant&#39;, constant_values=0):
-    &#34;&#34;&#34;
-    Pad a tensor with values as specified by `mode` and `constant_values`.
-    
-    If the mode is not supported, returns NotImplemented.
-
-    Args:
-        value: tensor
-        pad_width: 2D tensor specifying the number of values padded to the edges of each axis in the form [[axis 0 lower, axis 0 upper], ...] including batch and component axes.
-        mode: constant&#39;, &#39;boundary&#39;, &#39;periodic&#39;, &#39;symmetric&#39;, &#39;reflect&#39;
-        constant_values: Scalar value used for out-of-bounds points if mode=&#39;constant&#39;. Must be a Python primitive type or scalar tensor.
-        mode: str:  (Default value = &#39;constant&#39;)
-
-    Returns:
-        padded tensor or `NotImplemented`
-
-    &#34;&#34;&#34;
-    raise NotImplementedError(self)</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.Backend.pad_to"><code class="name flex">
 <span>def <span class="ident">pad_to</span></span>(<span>self, x, axis, new_size, fill_value)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def pad_to(self, x, axis, new_size, fill_value):
-    shape = self.staticshape(x)
-    current = shape[axis]
-    if new_size &gt; current:
-        pad_width = [(0, new_size - current) if i == axis else (0, 0) for i in range(len(shape))]
-        return self.pad(x, pad_width, mode=&#39;constant&#39;, constant_values=fill_value)
-    elif new_size &lt; current:
-        return x[tuple([slice(new_size) if i == axis else slice(None) for i in range(len(shape))])]
-    else:
-        return x</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.Backend.pow"><code class="name flex">
 <span>def <span class="ident">pow</span></span>(<span>self, base, exp)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def pow(self, base, exp):
-    base, exp = self.auto_cast(base, exp)
-    return base ** exp</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.Backend.prefers_channels_last"><code class="name flex">
 <span>def <span class="ident">prefers_channels_last</span></span>(<span>self) ‑> bool</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def prefers_channels_last(self) -&gt; bool:
-    raise NotImplementedError(self.__class__)</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.Backend.prod"><code class="name flex">
 <span>def <span class="ident">prod</span></span>(<span>self, value, axis=None)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def prod(self, value, axis=None):
-    raise NotImplementedError(self)</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.Backend.quantile"><code class="name flex">
 <span>def <span class="ident">quantile</span></span>(<span>self, x, quantiles)</span>
@@ -5063,64 +3220,24 @@ Use <code>is_available(tensor)</code> to check if the value can be represented a
 </dl>
 <h2 id="returns">Returns</h2>
 <p>Tensor with shape (quantiles, *x.shape[:-1])</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def quantile(self, x, quantiles):
-    &#34;&#34;&#34;
-    Reduces the last / inner axis of x.
-
-    Args:
-        x: Tensor
-        quantiles: List or 1D tensor of quantiles to compute.
-
-    Returns:
-        Tensor with shape (quantiles, *x.shape[:-1])
-    &#34;&#34;&#34;
-    raise NotImplementedError(self)</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.Backend.random_normal"><code class="name flex">
 <span>def <span class="ident">random_normal</span></span>(<span>self, shape, dtype: phiml.backend._dtype.DType)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Float tensor of selected precision containing random values sampled from a normal distribution with mean 0 and std 1.</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def random_normal(self, shape, dtype: DType):
-    &#34;&#34;&#34; Float tensor of selected precision containing random values sampled from a normal distribution with mean 0 and std 1. &#34;&#34;&#34;
-    raise NotImplementedError(self)</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.Backend.random_uniform"><code class="name flex">
 <span>def <span class="ident">random_uniform</span></span>(<span>self, shape, low, high, dtype: Optional[phiml.backend._dtype.DType])</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Float tensor of selected precision containing random values in the range [0, 1)</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def random_uniform(self, shape, low, high, dtype: Union[DType, None]):
-    &#34;&#34;&#34; Float tensor of selected precision containing random values in the range [0, 1) &#34;&#34;&#34;
-    raise NotImplementedError(self)</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.Backend.range"><code class="name flex">
 <span>def <span class="ident">range</span></span>(<span>self, start, limit=None, delta=1, dtype: phiml.backend._dtype.DType = int32)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def range(self, start, limit=None, delta=1, dtype: DType = DType(int, 32)):
-    raise NotImplementedError(self)</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.Backend.ravel_multi_index"><code class="name flex">
 <span>def <span class="ident">ravel_multi_index</span></span>(<span>self, multi_index, shape, mode: Union[str, int] = 'undefined')</span>
@@ -5137,47 +3254,12 @@ Use <code>is_available(tensor)</code> to check if the value can be represented a
 </dl>
 <h2 id="returns">Returns</h2>
 <p>Integer tensor of shape (batch&hellip;) of same dtype as <code>multi_index</code>.</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def ravel_multi_index(self, multi_index, shape, mode: Union[str, int] = &#39;undefined&#39;):
-    &#34;&#34;&#34;
-    Args:
-        multi_index: (batch..., index_dim)
-        shape: 1D tensor or tuple/list
-        mode: `&#39;undefined&#39;`, `&#39;periodic&#39;`, `&#39;clamp&#39;` or an `int` to use for all invalid indices.
-
-    Returns:
-        Integer tensor of shape (batch...) of same dtype as `multi_index`.
-    &#34;&#34;&#34;
-    strides = [self.ones((), self.dtype(multi_index))]
-    for size in reversed(shape[1:]):
-        strides.append(strides[-1] * size)
-    strides = self.stack(strides[::-1])
-    if mode == &#39;periodic&#39;:
-        multi_index %= self.as_tensor(shape)
-    elif mode == &#39;clamp&#39;:
-        multi_index = self.clip(multi_index, 0, self.as_tensor(shape) - 1)
-    result = self.sum(multi_index * strides, -1)
-    if isinstance(mode, int):
-        inside = self.all((0 &lt;= multi_index) &amp; (multi_index &lt; self.as_tensor(shape)), -1)
-        result = self.where(inside, result, mode)
-    return result</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.Backend.real"><code class="name flex">
 <span>def <span class="ident">real</span></span>(<span>self, x)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def real(self, x):
-    raise NotImplementedError(self)</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.Backend.repeat"><code class="name flex">
 <span>def <span class="ident">repeat</span></span>(<span>self, x, repeats, axis: int, new_length=None)</span>
@@ -5197,64 +3279,24 @@ Use <code>is_available(tensor)</code> to check if the value can be represented a
 </dl>
 <h2 id="returns">Returns</h2>
 <p>repeated Tensor</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def repeat(self, x, repeats, axis: int, new_length=None):
-    &#34;&#34;&#34;
-    Repeats the elements along `axis` `repeats` times.
-
-    Args:
-        x: Tensor
-        repeats: How often to repeat each element. 1D tensor of length x.shape[axis]
-        axis: Which axis to repeat elements along
-        new_length: Set the length of `axis` after repeating. This is required for jit compilation with Jax.
-
-    Returns:
-        repeated Tensor
-    &#34;&#34;&#34;
-    raise NotImplementedError(self)</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.Backend.requires_fixed_shapes_when_tracing"><code class="name flex">
 <span>def <span class="ident">requires_fixed_shapes_when_tracing</span></span>(<span>self) ‑> bool</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def requires_fixed_shapes_when_tracing(self) -&gt; bool:
-    return False</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.Backend.reshape"><code class="name flex">
 <span>def <span class="ident">reshape</span></span>(<span>self, value, shape)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def reshape(self, value, shape):
-    raise NotImplementedError(self)</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.Backend.round"><code class="name flex">
 <span>def <span class="ident">round</span></span>(<span>self, x)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def round(self, x):
-    raise NotImplementedError(self)</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.Backend.scatter"><code class="name flex">
 <span>def <span class="ident">scatter</span></span>(<span>self, base_grid, indices, values, mode: str)</span>
@@ -5274,25 +3316,6 @@ Use <code>is_available(tensor)</code> to check if the value can be represented a
 </dl>
 <h2 id="returns">Returns</h2>
 <p>Copy of base_grid with values at <code>indices</code> updated by <code>values</code>.</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def scatter(self, base_grid, indices, values, mode: str):
-    &#34;&#34;&#34;
-    Batched n-dimensional scatter.
-
-    Args:
-        base_grid: Tensor into which scatter values are inserted at indices. Tensor of shape (batch_size, spatial..., channels)
-        indices: Tensor of shape (batch_size or 1, update_count, index_vector)
-        values: Values to scatter at indices. Tensor of shape (batch_size or 1, update_count or 1, channels or 1)
-        mode: One of (&#39;update&#39;, &#39;add&#39;, &#39;max&#39;, &#39;min&#39;)
-
-    Returns:
-        Copy of base_grid with values at `indices` updated by `values`.
-    &#34;&#34;&#34;
-    raise NotImplementedError(self)</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.Backend.scatter_1d_scalar"><code class="name flex">
 <span>def <span class="ident">scatter_1d_scalar</span></span>(<span>self, base_grid, indices, values, mode: str)</span>
@@ -5309,20 +3332,6 @@ Use <code>is_available(tensor)</code> to check if the value can be represented a
 <dt><strong><code>mode</code></strong></dt>
 <dd>One of ('update', 'add')</dd>
 </dl></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def scatter_1d_scalar(self, base_grid, indices, values, mode: str):
-    &#34;&#34;&#34;
-    Args:
-        base_grid: (spatial,)
-        indices: (update_count,)
-        values: (update_count or 1,)
-        mode: One of (&#39;update&#39;, &#39;add&#39;)
-    &#34;&#34;&#34;
-    return self.scatter(base_grid[None, :, None], indices[None, :, None], values[None, :, None], mode=mode)[0, :, 0]</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.Backend.scatter_nd"><code class="name flex">
 <span>def <span class="ident">scatter_nd</span></span>(<span>self, base_grid, indices, values, mode: str)</span>
@@ -5340,22 +3349,6 @@ Use <code>is_available(tensor)</code> to check if the value can be represented a
 <dt><strong><code>mode</code></strong></dt>
 <dd>One of ('update', 'add')</dd>
 </dl></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def scatter_nd(self, base_grid, indices, values, mode: str):
-    &#34;&#34;&#34;
-    Non-batched scatter.
-
-    Args:
-        base_grid: (spatial..., channels)
-        indices: (update_count, index_vector)
-        values: (update_count or 1, channels or 1)
-        mode: One of (&#39;update&#39;, &#39;add&#39;)
-    &#34;&#34;&#34;
-    return self.scatter(base_grid[None, ...], indices[None, ...], values[None, ...], mode=mode)[0, ...]</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.Backend.scatter_nd_scalar"><code class="name flex">
 <span>def <span class="ident">scatter_nd_scalar</span></span>(<span>self, base_grid, indices, values, mode: str)</span>
@@ -5372,46 +3365,18 @@ Use <code>is_available(tensor)</code> to check if the value can be represented a
 <dt><strong><code>mode</code></strong></dt>
 <dd>One of ('update', 'add')</dd>
 </dl></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def scatter_nd_scalar(self, base_grid, indices, values, mode: str):
-    &#34;&#34;&#34;
-    Args:
-        base_grid: (spatial...,)
-        indices: (update_count, index_vector)
-        values: (update_count or 1,)
-        mode: One of (&#39;update&#39;, &#39;add&#39;)
-    &#34;&#34;&#34;
-    return self.scatter(base_grid[None, ..., None], indices[None, ...], values[None, :, None], mode=mode)[0, ..., 0]</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.Backend.searchsorted"><code class="name flex">
 <span>def <span class="ident">searchsorted</span></span>(<span>self, sorted_sequence, search_values, side: str, dtype=int32)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def searchsorted(self, sorted_sequence, search_values, side: str, dtype=DType(int, 32)):
-    raise NotImplementedError(self)</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.Backend.seed"><code class="name flex">
 <span>def <span class="ident">seed</span></span>(<span>self, seed: int)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def seed(self, seed: int):
-    raise NotImplementedError(self.__class__)</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.Backend.set_default_device"><code class="name flex">
 <span>def <span class="ident">set_default_device</span></span>(<span>self, device: Union[phiml.backend._backend.ComputeDevice, str]) ‑> bool</span>
@@ -5428,34 +3393,6 @@ This function will do nothing if the target device type is not available.</p>
 </dl>
 <h2 id="returns">Returns</h2>
 <p><code>bool</code> whether the device was successfully set.</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def set_default_device(self, device: Union[ComputeDevice, str]) -&gt; bool:
-    &#34;&#34;&#34;
-    Sets the device new tensors will be allocated on.
-    This function will do nothing if the target device type is not available.
-
-    See Also:
-        `Backend.list_devices()`, `Backend.get_default_device()`.
-
-    Args:
-        device: `ComputeDevice` or device type as `str`, such as `&#39;CPU&#39;` or `&#39;GPU&#39;`.
-
-    Returns:
-        `bool` whether the device was successfully set.
-    &#34;&#34;&#34;
-    if isinstance(device, str):
-        devices = self.list_devices(device)
-        if not devices:
-            warnings.warn(f&#34;{self.name}: Cannot select &#39;{device}&#39; because no device of this type is available.&#34;, RuntimeWarning)
-            return False
-        device = devices[0]
-    assert device.backend is self, f&#34;Cannot set default device to {device.name} for backend {self.name} because the devices belongs to backend {device.backend.name}&#34;
-    self._default_device = device
-    return True</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.Backend.shape"><code class="name flex">
 <span>def <span class="ident">shape</span></span>(<span>self, tensor)</span>
@@ -5473,150 +3410,60 @@ For non-eager tensors, undefined dimensions should return a placeholder value re
 </dl>
 <h2 id="returns">Returns</h2>
 <p>Shape of <code>tensor</code></p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def shape(self, tensor):
-    &#34;&#34;&#34;
-    Returns the shape of a tensor.
-    The shape is iterable and implements `len()`.
-    For non-eager tensors, undefined dimensions should return a placeholder value representing the size.
-
-    See Also:
-        `Backend.staticshape()`.
-
-    Args:
-        tensor: Native tensor compatible with this backend.
-
-    Returns:
-        Shape of `tensor`
-    &#34;&#34;&#34;
-    raise NotImplementedError(self)</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.Backend.shift_bits_left"><code class="name flex">
 <span>def <span class="ident">shift_bits_left</span></span>(<span>self, a, b)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def shift_bits_left(self, a, b):
-    a, b = self.auto_cast(a, b)
-    return a &lt;&lt; b</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.Backend.shift_bits_right"><code class="name flex">
 <span>def <span class="ident">shift_bits_right</span></span>(<span>self, a, b)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def shift_bits_right(self, a, b):
-    a, b = self.auto_cast(a, b)
-    return a &gt;&gt; b</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.Backend.sigmoid"><code class="name flex">
 <span>def <span class="ident">sigmoid</span></span>(<span>self, x)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def sigmoid(self, x):
-    return 1 / (1 + self.exp(-x))</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.Backend.sign"><code class="name flex">
 <span>def <span class="ident">sign</span></span>(<span>self, x)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def sign(self, x):
-    raise NotImplementedError(self)</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.Backend.sin"><code class="name flex">
 <span>def <span class="ident">sin</span></span>(<span>self, x)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def sin(self, x):
-    raise NotImplementedError(self)</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.Backend.sinh"><code class="name flex">
 <span>def <span class="ident">sinh</span></span>(<span>self, x)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def sinh(self, x):
-    raise NotImplementedError(self)</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.Backend.size"><code class="name flex">
 <span>def <span class="ident">size</span></span>(<span>self, array)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def size(self, array):
-    return self.prod(self.shape(array))</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.Backend.softplus"><code class="name flex">
 <span>def <span class="ident">softplus</span></span>(<span>self, x)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def softplus(self, x):
-    raise NotImplementedError(self)</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.Backend.solve_triangular"><code class="name flex">
 <span>def <span class="ident">solve_triangular</span></span>(<span>self, matrix, rhs, lower: bool, unit_diagonal: bool)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Performs a sparse or dense triangular solve, depending on the format of <code>matrix</code>.</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def solve_triangular(self, matrix, rhs, lower: bool, unit_diagonal: bool):
-    &#34;&#34;&#34;Performs a sparse or dense triangular solve, depending on the format of `matrix`.&#34;&#34;&#34;
-    if self.is_sparse(matrix):
-        return self.solve_triangular_sparse(matrix, rhs, lower, unit_diagonal)
-    else:
-        return self.solve_triangular_dense(matrix, rhs, lower, unit_diagonal)</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.Backend.solve_triangular_dense"><code class="name flex">
 <span>def <span class="ident">solve_triangular_dense</span></span>(<span>self, matrix, rhs, lower: bool, unit_diagonal: bool)</span>
@@ -5633,57 +3480,21 @@ For non-eager tensors, undefined dimensions should return a placeholder value re
 unit_diagonal:</p>
 <h2 id="returns">Returns</h2>
 <p>(batch_size, cols)</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def solve_triangular_dense(self, matrix, rhs, lower: bool, unit_diagonal: bool):
-    &#34;&#34;&#34;
-    Args:
-        matrix: (batch_size, rows, cols)
-        rhs: (batch_size, cols)
-        lower:
-        unit_diagonal:
-
-    Returns:
-        (batch_size, cols)
-    &#34;&#34;&#34;
-    raise NotImplementedError(self)</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.Backend.solve_triangular_sparse"><code class="name flex">
 <span>def <span class="ident">solve_triangular_sparse</span></span>(<span>self, matrix, rhs, lower: bool, unit_diagonal: bool)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def solve_triangular_sparse(self, matrix, rhs, lower: bool, unit_diagonal: bool):
-    raise NotImplementedError(f&#34;sparse triangular solves are not supported by {self.name}. Try using a SciPy solver instead, such as &#39;scipy-CG&#39; or &#39;scipy-biCG-stab&#39;.&#34;)
-    np_matrix = self.numpy(matrix)
-    np_rhs = self.numpy(rhs)
-    from scipy.sparse.linalg import spsolve_triangular
-    np_result = spsolve_triangular(np_matrix, np_rhs.T, lower=lower, unit_diagonal=unit_diagonal).T
-    return self.as_tensor(np_result)</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.Backend.sort"><code class="name flex">
 <span>def <span class="ident">sort</span></span>(<span>self, x, axis=-1)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def sort(self, x, axis=-1):
-    raise NotImplementedError(self)</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.Backend.sparse_coo_tensor"><code class="name flex">
-<span>def <span class="ident">sparse_coo_tensor</span></span>(<span>self, indices: Union[tuple, list], values, shape: tuple)</span>
+<span>def <span class="ident">sparse_coo_tensor</span></span>(<span>self, indices: ~TensorType, values: ~TensorType, shape: tuple)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Create a sparse matrix in coordinate list (COO) format.</p>
@@ -5701,29 +3512,6 @@ unit_diagonal:</p>
 </dl>
 <h2 id="returns">Returns</h2>
 <p>Native representation of the sparse matrix</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def sparse_coo_tensor(self, indices: Union[tuple, list], values, shape: tuple):
-    &#34;&#34;&#34;
-    Create a sparse matrix in coordinate list (COO) format.
-
-    Optional feature.
-
-    See Also:
-        `Backend.csr_matrix()`, `Backend.csc_matrix()`.
-
-    Args:
-        indices: 2D tensor of shape `(nnz, dims)`.
-        values: 1D values tensor matching `indices`
-        shape: Shape of the sparse matrix
-
-    Returns:
-        Native representation of the sparse matrix
-    &#34;&#34;&#34;
-    raise NotImplementedError(self)</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.Backend.sparse_coo_tensor_batched"><code class="name flex">
 <span>def <span class="ident">sparse_coo_tensor_batched</span></span>(<span>self, indices: Union[tuple, list], values, shape: tuple)</span>
@@ -5738,66 +3526,24 @@ unit_diagonal:</p>
 <dt><strong><code>shape</code></strong></dt>
 <dd>tuple of two ints representing the dense shape, (dims&hellip;)</dd>
 </dl></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def sparse_coo_tensor_batched(self, indices: Union[tuple, list], values, shape: tuple):
-    &#34;&#34;&#34;
-    Args:
-        indices: shape (batch_size, dims, nnz)
-        values: Values tensor matching `indices`, shape (batch_size, nnz)
-        shape: tuple of two ints representing the dense shape, (dims...)
-    &#34;&#34;&#34;
-    raise NotImplementedError(self)</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.Backend.sqrt"><code class="name flex">
 <span>def <span class="ident">sqrt</span></span>(<span>self, x)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def sqrt(self, x):
-    raise NotImplementedError(self)</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.Backend.stack"><code class="name flex">
 <span>def <span class="ident">stack</span></span>(<span>self, values, axis=0)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def stack(self, values, axis=0):
-    raise NotImplementedError(self)</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.Backend.stack_leaves"><code class="name flex">
 <span>def <span class="ident">stack_leaves</span></span>(<span>self, trees: Union[tuple, list], axis=0)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def stack_leaves(self, trees: Union[tuple, list], axis=0):
-    tree0 = trees[0]
-    if isinstance(tree0, tuple):
-        return tuple([self.stack_leaves([tree[i] for tree in trees], axis=axis) for i in range(len(tree0))])
-    elif isinstance(tree0, list):
-        return [self.stack_leaves([tree[i] for tree in trees], axis=axis) for i in range(len(tree0))]
-    elif isinstance(tree0, dict):
-        return {k: self.stack_leaves([tree[k] for tree in trees], axis=axis) for k in tree0}
-    else:
-        return self.stack(trees, axis=axis)</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.Backend.staticshape"><code class="name flex">
 <span>def <span class="ident">staticshape</span></span>(<span>self, tensor) ‑> tuple</span>
@@ -5815,99 +3561,36 @@ For placeholder tensors, unknown dimensions are represented as <code>None</code>
 </dl>
 <h2 id="returns">Returns</h2>
 <p><code>tuple</code> of sizes. Each size is an <code>int</code> if the size is defined, else <code>None</code>.</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def staticshape(self, tensor) -&gt; tuple:
-    &#34;&#34;&#34;
-    Evaluates the static shape of a native tensor.
-    If the tensor is eager, the shape is a `tuple[int]`.
-    For placeholder tensors, unknown dimensions are represented as `None`.
-
-    See Also:
-        `Backend.shape()`.
-
-    Args:
-        tensor: Native tensor compatible with this backend.
-
-    Returns:
-        `tuple` of sizes. Each size is an `int` if the size is defined, else `None`.
-    &#34;&#34;&#34;
-    raise NotImplementedError(self)</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.Backend.std"><code class="name flex">
 <span>def <span class="ident">std</span></span>(<span>self, x, axis=None, keepdims=False)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def std(self, x, axis=None, keepdims=False):
-    raise NotImplementedError(self)</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.Backend.stop_gradient"><code class="name flex">
 <span>def <span class="ident">stop_gradient</span></span>(<span>self, value)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def stop_gradient(self, value):
-    raise NotImplementedError(self)</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.Backend.stop_gradient_tree"><code class="name flex">
 <span>def <span class="ident">stop_gradient_tree</span></span>(<span>self, tree)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def stop_gradient_tree(self, tree):
-    if isinstance(tree, tuple):
-        return tuple([self.stop_gradient_tree(v) for v in tree])
-    if isinstance(tree, list):
-        return [self.stop_gradient_tree(v) for v in tree]
-    if isinstance(tree, dict):
-        return {k: self.stop_gradient_tree(v) for k, v in tree.items()}
-    return self.stop_gradient(tree)</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.Backend.sub"><code class="name flex">
 <span>def <span class="ident">sub</span></span>(<span>self, a, b)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def sub(self, a, b):
-    a, b = self.auto_cast(a, b, bool_to_int=True)
-    return a - b</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.Backend.sum"><code class="name flex">
 <span>def <span class="ident">sum</span></span>(<span>self, value, axis=None, keepdims=False)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def sum(self, value, axis=None, keepdims=False):
-    raise NotImplementedError(self)</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.Backend.supports"><code class="name flex">
 <span>def <span class="ident">supports</span></span>(<span>self, feature: Union[str, Callable]) ‑> bool</span>
@@ -5927,73 +3610,24 @@ Features correspond to a method of this backend that must be implemented if the 
 </dl>
 <h2 id="returns">Returns</h2>
 <p>Whether the feature is supported.</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def supports(self, feature: Union[str, Callable]) -&gt; bool:
-    &#34;&#34;&#34;
-    Tests if this backend supports the given feature.
-    Features correspond to a method of this backend that must be implemented if the feature is supported.
-
-    Possible features:
-
-    * `sparse_coo_tensor`
-    * `gradients
-
-    Args:
-        feature: `str` or unbound Backend method, e.g. `Backend.sparse_coo_tensor`
-
-    Returns:
-        Whether the feature is supported.
-    &#34;&#34;&#34;
-    feature = feature if isinstance(feature, str) else feature.__name__
-    if not hasattr(Backend, feature):
-        raise ValueError(f&#34;Not a valid feature: &#39;{feature}&#39;&#34;)
-    backend_fun = getattr(Backend, feature)
-    impl_fun = getattr(self.__class__, feature)
-    return impl_fun is not backend_fun</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.Backend.tan"><code class="name flex">
 <span>def <span class="ident">tan</span></span>(<span>self, x)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def tan(self, x):
-    raise NotImplementedError(self)</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.Backend.tanh"><code class="name flex">
 <span>def <span class="ident">tanh</span></span>(<span>self, x)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def tanh(self, x):
-    raise NotImplementedError(self)</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.Backend.tensordot"><code class="name flex">
 <span>def <span class="ident">tensordot</span></span>(<span>self, a, a_axes: Union[tuple, list], b, b_axes: Union[tuple, list])</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Multiply-sum-reduce a_axes of a with b_axes of b.</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def tensordot(self, a, a_axes: Union[tuple, list], b, b_axes: Union[tuple, list]):
-    &#34;&#34;&#34; Multiply-sum-reduce a_axes of a with b_axes of b. &#34;&#34;&#34;
-    raise NotImplementedError(self)</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.Backend.tile"><code class="name flex">
 <span>def <span class="ident">tile</span></span>(<span>self, value, multiples)</span>
@@ -6010,69 +3644,24 @@ If <code>multiples</code> has more dimensions than <code>value</code>, these dim
 </dl>
 <h2 id="returns">Returns</h2>
 <p>tiled tensor</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def tile(self, value, multiples):
-    &#34;&#34;&#34;
-    Repeats the full tensor along each axis the number of times given by multiples.
-    If `multiples` has more dimensions than `value`, these dimensions are added to `value` as outer dimensions.
-
-    Args:
-        value: tensor
-        multiples: tuple or list of integers
-
-    Returns:
-        tiled tensor
-    &#34;&#34;&#34;
-    raise NotImplementedError(self)</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.Backend.tile_to"><code class="name flex">
 <span>def <span class="ident">tile_to</span></span>(<span>self, x, axis, size)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def tile_to(self, x, axis, size):
-    current_size = self.staticshape(x)[axis]
-    if current_size == size:
-        return x
-    assert size &gt; current_size
-    assert size % current_size == 0
-    multiples = [size // current_size if i == axis else 1 for i in range(self.ndims(x))]
-    return self.tile(x, multiples)</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.Backend.to_complex"><code class="name flex">
 <span>def <span class="ident">to_complex</span></span>(<span>self, x)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def to_complex(self, x):
-    return self.cast(x, DType(complex, max(64, self.precision * 2)))</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.Backend.to_dlpack"><code class="name flex">
 <span>def <span class="ident">to_dlpack</span></span>(<span>self, tensor)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def to_dlpack(self, tensor):
-    raise NotImplementedError(self.__class__)</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.Backend.to_float"><code class="name flex">
 <span>def <span class="ident">to_float</span></span>(<span>self, x)</span>
@@ -6090,69 +3679,24 @@ If <code>multiples</code> has more dimensions than <code>value</code>, these dim
 </dl>
 <h2 id="returns">Returns</h2>
 <p>Values of <code>x</code> as float tensor</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def to_float(self, x):
-    &#34;&#34;&#34;
-    Converts a tensor to floating point values with precision equal to the currently set default precision.
-
-    See Also:
-        `Backend.precision()`.
-
-    If `x` is mutable and of the correct floating type, returns a copy of `x`.
-
-    To convert float tensors to the backend precision but leave non-float tensors untouched, use `Backend.as_tensor()`.
-
-    Args:
-        x: tensor of bool, int or float
-
-    Returns:
-        Values of `x` as float tensor
-    &#34;&#34;&#34;
-    return self.cast(x, self.float_type)</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.Backend.to_int32"><code class="name flex">
 <span>def <span class="ident">to_int32</span></span>(<span>self, x)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def to_int32(self, x):
-    return self.cast(x, DType(int, 32))</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.Backend.to_int64"><code class="name flex">
 <span>def <span class="ident">to_int64</span></span>(<span>self, x)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def to_int64(self, x):
-    return self.cast(x, DType(int, 64))</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.Backend.transpose"><code class="name flex">
 <span>def <span class="ident">transpose</span></span>(<span>self, tensor, axes)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Transposes the dimensions of <code>tensor</code> given the new axes order. The tensor will be cast to the default precision in the process.</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def transpose(self, tensor, axes):
-    &#34;&#34;&#34; Transposes the dimensions of `tensor` given the new axes order. The tensor will be cast to the default precision in the process. &#34;&#34;&#34;
-    raise NotImplementedError(self.__class__)</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.Backend.unique"><code class="name flex">
 <span>def <span class="ident">unique</span></span>(<span>self, x: ~TensorType, return_inverse: bool, return_counts: bool, axis: int) ‑> Tuple[~TensorType, ...]</span>
@@ -6178,82 +3722,24 @@ If <code>multiples</code> has more dimensions than <code>value</code>, these dim
 <dt><code>unique_counts</code></dt>
 <dd>Number of occurrences of each unique slices</dd>
 </dl></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def unique(self, x: TensorType, return_inverse: bool, return_counts: bool, axis: int) -&gt; Tuple[TensorType, ...]:
-    &#34;&#34;&#34;
-    Args:
-        x: n-dimensional int array. Will compare `axis`-slices of `x` for multidimensional `x`.
-        return_inverse: Whether to return the inverse
-        return_counts: Whether to return the counts.
-        axis: Axis along which slices of `x` should be compared.
-
-    Returns:
-        unique_slices: Sorted unique slices of `x`
-        unique_inverse: (optional) index of the unique slice for each slice of `x`
-        unique_counts: Number of occurrences of each unique slices
-    &#34;&#34;&#34;
-    raise NotImplementedError(self)</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.Backend.unravel_index"><code class="name flex">
 <span>def <span class="ident">unravel_index</span></span>(<span>self, flat_index, shape)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def unravel_index(self, flat_index, shape):
-    strides = [1]
-    for size in reversed(shape[1:]):
-        strides.append(strides[-1] * size)
-    strides = strides[::-1]
-    result = []
-    for i in range(len(shape)):
-        result.append(flat_index // strides[i] % shape[i])
-    return self.stack(result, -1)</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.Backend.unstack"><code class="name flex">
 <span>def <span class="ident">unstack</span></span>(<span>self, tensor, axis=0, keepdims=False) ‑> tuple</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def unstack(self, tensor, axis=0, keepdims=False) -&gt; tuple:
-    if axis &lt; 0:
-        axis += len(tensor.shape)
-    if axis &gt;= len(tensor.shape) or axis &lt; 0:
-        raise ValueError(&#34;Illegal axis value&#34;)
-    result = []
-    for slice_idx in range(tensor.shape[axis]):
-        if keepdims:
-            component = tensor[tuple([slice(slice_idx, slice_idx + 1) if d == axis else slice(None) for d in range(len(tensor.shape))])]
-        else:
-            component = tensor[tuple([slice_idx if d == axis else slice(None) for d in range(len(tensor.shape))])]
-        result.append(component)
-    return tuple(result)</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.Backend.variable"><code class="name flex">
 <span>def <span class="ident">variable</span></span>(<span>self, value)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def variable(self, value):
-    return NotImplemented</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.Backend.vectorized_call"><code class="name flex">
 <span>def <span class="ident">vectorized_call</span></span>(<span>self, f, *args, output_dtypes=None, **aux_args)</span>
@@ -6271,38 +3757,12 @@ All tensors in <code>args</code> must have the same size or <code>1</code> in th
 <dt><strong><code>**aux_args</code></strong></dt>
 <dd>Non-vectorized keyword arguments to be passed to <code>f</code>.</dd>
 </dl></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def vectorized_call(self, f, *args, output_dtypes=None, **aux_args):
-    &#34;&#34;&#34;
-    Args:
-        f: Function with only positional tensor argument, returning one or multiple tensors.
-        *args: Batched inputs for `f`. The first dimension of all `args` is vectorized.
-            All tensors in `args` must have the same size or `1` in their first dimension.
-        output_dtypes: Single `DType` or tuple of DTypes declaring the dtypes of the tensors returned by `f`.
-        **aux_args: Non-vectorized keyword arguments to be passed to `f`.
-    &#34;&#34;&#34;
-    batch_dim = self.determine_size(args, 0)
-    result = []
-    for b in range(batch_dim):
-        result.append(f(*[t[min(b, self.staticshape(t)[0] - 1)] for t in args], **aux_args))
-    return self.stack(result)</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.Backend.where"><code class="name flex">
 <span>def <span class="ident">where</span></span>(<span>self, condition, x=None, y=None)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def where(self, condition, x=None, y=None):
-    raise NotImplementedError(self)</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.Backend.while_loop"><code class="name flex">
 <span>def <span class="ident">while_loop</span></span>(<span>self, loop: Callable, values: tuple, max_iter: Union[int, Tuple[int, ...], List[int]])</span>
@@ -6328,90 +3788,24 @@ return values
 If <code>max_iter</code> is a sequence, stacks the variables after each entry in <code>max_iter</code>, adding an outer dimension of size <code>&lt;= len(max_iter)</code>.
 If the condition is fulfilled before the maximum max_iter is reached, the loop may be broken or not, depending on the implementation.
 If the loop is broken, the values returned by the last loop are expected to be constant and filled.</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def while_loop(self, loop: Callable, values: tuple, max_iter: Union[int, Tuple[int, ...], List[int]]):
-    &#34;&#34;&#34;
-    If `max_iter is None`, runs
-
-    ```python
-    while any(values[0]):
-        values = loop(*values)
-    return values
-    ```
-
-    This operation does not support backpropagation.
-
-    Args:
-        loop: Loop function, must return a `tuple` with entries equal to `values` in shape and data type.
-        values: Initial values of loop variables.
-        max_iter: Maximum number of iterations to run, single `int` or sequence of integers.
-    Returns:
-        Loop variables upon loop completion if `max_iter` is a single integer.
-        If `max_iter` is a sequence, stacks the variables after each entry in `max_iter`, adding an outer dimension of size `&lt;= len(max_iter)`.
-        If the condition is fulfilled before the maximum max_iter is reached, the loop may be broken or not, depending on the implementation.
-        If the loop is broken, the values returned by the last loop are expected to be constant and filled.
-    &#34;&#34;&#34;
-    values = self.stop_gradient_tree(values)
-    if isinstance(max_iter, (tuple, list)):
-        trj = [self.copy_leaves(values, only_mutable=True)] if 0 in max_iter else []
-        for i in range(1, max(max_iter) + 1):
-            values = loop(*values)
-            if i in max_iter:
-                trj.append(self.copy_leaves(values, only_mutable=True))
-            if not self.any(values[0]):
-                break
-        trj.extend([trj[-1]] * (len(max_iter) - len(trj)))  # fill trj with final values
-        return self.stop_gradient_tree(self.stack_leaves(trj))
-    else:
-        for i in range(1, max_iter + 1):
-            if not self.any(values[0]):
-                break
-            values = loop(*values)
-        return self.stop_gradient_tree(values)</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.Backend.xor"><code class="name flex">
 <span>def <span class="ident">xor</span></span>(<span>self, a, b)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def xor(self, a, b):
-    a, b = self.auto_cast(a, b)
-    return a ^ b</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.Backend.zeros"><code class="name flex">
 <span>def <span class="ident">zeros</span></span>(<span>self, shape, dtype: phiml.backend._dtype.DType = None)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def zeros(self, shape, dtype: DType = None):
-    raise NotImplementedError(self)</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.Backend.zeros_like"><code class="name flex">
 <span>def <span class="ident">zeros_like</span></span>(<span>self, tensor)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def zeros_like(self, tensor):
-    raise NotImplementedError(self)</code></pre>
-</details>
 </dd>
 </dl>
 </dd>
@@ -6688,7 +4082,7 @@ If the loop is broken, the values returned by the last loop are expected to be c
 </details>
 <h3>Instance variables</h3>
 <dl>
-<dt id="phiml.backend.Profile.duration"><code class="name">var <span class="ident">duration</span> : float</code></dt>
+<dt id="phiml.backend.Profile.duration"><code class="name">prop <span class="ident">duration</span> : float</code></dt>
 <dd>
 <div class="desc"><p>Total time passed from creation of the profile to the end of the last operation.</p></div>
 <details class="source">
@@ -6709,14 +4103,6 @@ def duration(self) -&gt; float:
 </code></dt>
 <dd>
 <div class="desc"><p>Stores an external message in this profile. External messages are printed in <code><a title="phiml.backend.Profile.print" href="#phiml.backend.Profile.print">Profile.print()</a></code>.</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def add_external_message(self, message: str):
-    &#34;&#34;&#34; Stores an external message in this profile. External messages are printed in `Profile.print()`. &#34;&#34;&#34;
-    self._messages.append(message)</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.Profile.print"><code class="name flex">
 <span>def <span class="ident">print</span></span>(<span>self, min_duration=0.001, code_col=80, code_len=50)</span>
@@ -6732,27 +4118,6 @@ def duration(self) -&gt; float:
 <dt><strong><code>code_len</code></strong></dt>
 <dd>Formatting option for cropping the context code</dd>
 </dl></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def print(self, min_duration=1e-3, code_col=80, code_len=50):
-    &#34;&#34;&#34;
-    Prints this profile to the console.
-
-    Args:
-        min_duration: Hides elements with less time spent on backend calls than `min_duration` (seconds)
-        code_col: Formatting option for where the context code is printed.
-        code_len: Formatting option for cropping the context code
-    &#34;&#34;&#34;
-    print(f&#34;Profile: {self.duration:.4f} seconds total. Skipping elements shorter than {1000 * min_duration:.2f} ms&#34;)
-    if self._messages:
-        print(&#34;External profiling:&#34;)
-        for message in self._messages:
-            print(f&#34;  {message}&#34;)
-        print()
-    self._root.print(min_duration=min_duration, code_col=code_col, code_len=code_len)</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.Profile.retime"><code class="name flex">
 <span>def <span class="ident">retime</span></span>(<span>self)</span>
@@ -6764,31 +4129,6 @@ This gives a much better indication of the true timing.
 The code within the <code>with</code> block must perform the same operations as the code that created this profile.</p>
 <p><em>Warning:</em> Internal caching may reduce the number of operations after the first time a function is called.
 To prevent this, run the function before profiling it, see <code>warmup</code> in <code><a title="phiml.backend.profile_function" href="#phiml.backend.profile_function">profile_function()</a></code>.</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">@contextmanager
-def retime(self):
-    &#34;&#34;&#34;
-    To be used in `with` statements, `with prof.retime(): ...`.
-
-    Updates this profile by running the same operations again but without tracing.
-    This gives a much better indication of the true timing.
-    The code within the `with` block must perform the same operations as the code that created this profile.
-
-    *Warning:* Internal caching may reduce the number of operations after the first time a function is called.
-    To prevent this, run the function before profiling it, see `warmup` in `profile_function()`.
-    &#34;&#34;&#34;
-    self._retime_index = 0
-    restore_data = _start_profiling(self, self._backends)
-    try:
-        yield None
-    finally:
-        _stop_profiling(self, *restore_data)
-        assert self._retime_index == 0, f&#34;Number of calls during retime did not match original profile, originally {len(self._backend_calls)}, now {self._retime_index}, &#34;
-        self._retime_index = -1</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.Profile.save"><code class="name flex">
 <span>def <span class="ident">save</span></span>(<span>self, json_file: str)</span>
@@ -6802,35 +4142,6 @@ def retime(self):
 <dt><strong><code>json_file</code></strong></dt>
 <dd>filename</dd>
 </dl></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def save(self, json_file: str):
-    &#34;&#34;&#34;
-    Saves this profile to disc using the *trace event format* described at
-    https://docs.google.com/document/d/1CvAClvFfyA5R-PhYUmn5OOQtYMH4h6I0nSsKchNAySU/edit
-
-    This file can be viewed with external applications such as Google chrome.
-
-    Args:
-        json_file: filename
-    &#34;&#34;&#34;
-    data = [
-        {&#39;name&#39;: &#34;process_name&#34;, &#39;ph&#39;: &#39;M&#39;, &#39;pid&#39;: 0, &#39;tid&#39;: 0, &#34;args&#34;: {&#34;name&#34;: &#34;0 Python calls&#34;}},
-        {&#39;name&#39;: &#34;process_name&#34;, &#39;ph&#39;: &#39;M&#39;, &#39;pid&#39;: 1, &#39;tid&#39;: 1, &#34;args&#34;: {&#34;name&#34;: &#34;1 Operations&#34;}},
-    ] + [
-        {&#39;name&#39;: &#34;thread_name&#34;, &#39;ph&#39;: &#39;M&#39;, &#39;pid&#39;: 1, &#39;tid&#39;: i + 1, &#34;args&#34;: {&#34;name&#34;: backend.name}}
-        for i, backend in enumerate(self._backends)
-    ]
-    if self._trace:
-        if len(self._root._children) &gt; 0:
-            data.extend(self._root.trace_json_events())
-    else:
-        data.extend(sum([call.trace_json_events(()) for call in self._backend_calls], []))
-    with open(json_file, &#39;w&#39;) as file:
-        json.dump(data, file)</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.Profile.save_trace"><code class="name flex">
 <span>def <span class="ident">save_trace</span></span>(<span>self, json_file: str)</span>
@@ -6844,35 +4155,6 @@ def retime(self):
 <dt><strong><code>json_file</code></strong></dt>
 <dd>filename</dd>
 </dl></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def save(self, json_file: str):
-    &#34;&#34;&#34;
-    Saves this profile to disc using the *trace event format* described at
-    https://docs.google.com/document/d/1CvAClvFfyA5R-PhYUmn5OOQtYMH4h6I0nSsKchNAySU/edit
-
-    This file can be viewed with external applications such as Google chrome.
-
-    Args:
-        json_file: filename
-    &#34;&#34;&#34;
-    data = [
-        {&#39;name&#39;: &#34;process_name&#34;, &#39;ph&#39;: &#39;M&#39;, &#39;pid&#39;: 0, &#39;tid&#39;: 0, &#34;args&#34;: {&#34;name&#34;: &#34;0 Python calls&#34;}},
-        {&#39;name&#39;: &#34;process_name&#34;, &#39;ph&#39;: &#39;M&#39;, &#39;pid&#39;: 1, &#39;tid&#39;: 1, &#34;args&#34;: {&#34;name&#34;: &#34;1 Operations&#34;}},
-    ] + [
-        {&#39;name&#39;: &#34;thread_name&#34;, &#39;ph&#39;: &#39;M&#39;, &#39;pid&#39;: 1, &#39;tid&#39;: i + 1, &#34;args&#34;: {&#34;name&#34;: backend.name}}
-        for i, backend in enumerate(self._backends)
-    ]
-    if self._trace:
-        if len(self._root._children) &gt; 0:
-            data.extend(self._root.trace_json_events())
-    else:
-        data.extend(sum([call.trace_json_events(()) for call in self._backend_calls], []))
-    with open(json_file, &#39;w&#39;) as file:
-        json.dump(data, file)</code></pre>
-</details>
 </dd>
 </dl>
 </dd>
@@ -6880,7 +4162,6 @@ def retime(self):
 </section>
 </article>
 <nav id="sidebar">
-<h1>Index</h1>
 <div class="toc">
 <ul></ul>
 </div>
@@ -7031,6 +4312,7 @@ def retime(self):
 <li><code><a title="phiml.backend.Backend.log10" href="#phiml.backend.Backend.log10">log10</a></code></li>
 <li><code><a title="phiml.backend.Backend.log2" href="#phiml.backend.Backend.log2">log2</a></code></li>
 <li><code><a title="phiml.backend.Backend.log_gamma" href="#phiml.backend.Backend.log_gamma">log_gamma</a></code></li>
+<li><code><a title="phiml.backend.Backend.matrix_rank_dense" href="#phiml.backend.Backend.matrix_rank_dense">matrix_rank_dense</a></code></li>
 <li><code><a title="phiml.backend.Backend.matrix_solve_least_squares" href="#phiml.backend.Backend.matrix_solve_least_squares">matrix_solve_least_squares</a></code></li>
 <li><code><a title="phiml.backend.Backend.max" href="#phiml.backend.Backend.max">max</a></code></li>
 <li><code><a title="phiml.backend.Backend.maximum" href="#phiml.backend.Backend.maximum">maximum</a></code></li>
@@ -7158,7 +4440,7 @@ def retime(self):
 </nav>
 </main>
 <footer id="footer">
-<p>Generated by <a href="https://pdoc3.github.io/pdoc" title="pdoc: Python API documentation generator"><cite>pdoc</cite> 0.10.0</a>.</p>
+<p>Generated by <a href="https://pdoc3.github.io/pdoc" title="pdoc: Python API documentation generator"><cite>pdoc</cite> 0.11.0</a>.</p>
 </footer>
 </body>
 </html>

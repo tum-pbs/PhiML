@@ -2,18 +2,21 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
-<meta name="generator" content="pdoc 0.10.0" />
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1">
+<meta name="generator" content="pdoc3 0.11.0">
 <title>phiml.backend.jax API documentation</title>
-<meta name="description" content="" />
-<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
-<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/typography.min.css" integrity="sha256-7l/o7C8jubJiy74VsKTidCy1yBkRtiUGbVkYBylBqUg=" crossorigin>
-<link rel="stylesheet preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/github.min.css" crossorigin>
-<style>:root{--highlight-color:#fe9}.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}h1:target,h2:target,h3:target,h4:target,h5:target,h6:target{background:var(--highlight-color);padding:.2em 0}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}dt:target .name{background:var(--highlight-color)}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}td{padding:0 .5em}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
-<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
+<meta name="description" content="">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/13.0.0/sanitize.min.css" integrity="sha512-y1dtMcuvtTMJc1yPgEqF0ZjQbhnc/bFhyvIyVNb9Zk5mIGtqVaAB1Ttl28su8AvFMOY0EwRbAe+HCLqj6W7/KA==" crossorigin>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/13.0.0/typography.min.css" integrity="sha512-Y1DYSb995BAfxobCkKepB1BqJJTPrOp3zPL74AWFugHHmmdcvO+C48WLrUOlhGMc0QG7AE3f7gmvvcrmX2fDoA==" crossorigin>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/default.min.css" crossorigin>
+<style>:root{--highlight-color:#fe9}.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:1.5em;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:2em 0 .50em 0}h3{font-size:1.4em;margin:1.6em 0 .7em 0}h4{margin:0;font-size:105%}h1:target,h2:target,h3:target,h4:target,h5:target,h6:target{background:var(--highlight-color);padding:.2em 0}a{color:#058;text-decoration:none;transition:color .2s ease-in-out}a:visited{color:#503}a:hover{color:#b62}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900;font-weight:bold}pre code{font-size:.8em;line-height:1.4em;padding:1em;display:block}code{background:#f3f3f3;font-family:"DejaVu Sans Mono",monospace;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}dt:target .name{background:var(--highlight-color)}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}td{padding:0 .5em}.admonition{padding:.1em 1em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul ul{padding-left:1em}.toc > ul > li{margin-top:.5em}}</style>
 <style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
-<script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/highlight.min.js" integrity="sha256-Uv3H6lx7dJmRfRvH8TH6kJD1TSK1aFcwgx+mdg3epi8=" crossorigin></script>
-<script>window.addEventListener('DOMContentLoaded', () => hljs.initHighlighting())</script>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js" integrity="sha512-D9gUyxqja7hBtkWpPWGt9wfbfaMGVt9gnyCvYa+jojwwPHLCzUm5i8rpk7vD7wNee9bA35eYIjobYPaQuKS1MQ==" crossorigin></script>
+<script>window.addEventListener('DOMContentLoaded', () => {
+hljs.configure({languages: ['bash', 'css', 'diff', 'graphql', 'ini', 'javascript', 'json', 'plaintext', 'python', 'python-repl', 'rust', 'shell', 'sql', 'typescript', 'xml', 'yaml']});
+hljs.highlightAll();
+})</script>
 </head>
 <body>
 <main>
@@ -22,17 +25,6 @@
 <h1 class="title">Module <code>phiml.backend.jax</code></h1>
 </header>
 <section id="section-intro">
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">from ._jax_backend import JaxBackend
-&#34;&#34;&#34;Backend for Jax operations.&#34;&#34;&#34;
-
-JAX = JaxBackend()
-
-__all__ = [key for key in globals().keys() if not key.startswith(&#39;_&#39;)]</code></pre>
-</details>
 </section>
 <section>
 <h2 class="section-title" id="header-submodules">Sub-modules</h2>
@@ -156,9 +148,13 @@ The methods of <code>Backend</code> form a comprehensive list of available opera
         return format_names.get(type(x), &#39;dense&#39;)
 
     def is_available(self, tensor):
+        if isinstance(tensor, JVPTracer):
+            tensor = tensor.primal
         return not isinstance(tensor, Tracer)
 
     def numpy(self, tensor):
+        if isinstance(tensor, JVPTracer):
+            tensor = tensor.primal
         if self.is_sparse(tensor):
             assemble, parts = self.disassemble(tensor)
             return assemble(NUMPY, *[self.numpy(t) for t in parts])
@@ -193,7 +189,11 @@ The methods of <code>Backend</code> form a comprehensive list of available opera
         return jnp.array(tensor, copy=True)
 
     def get_device(self, tensor: TensorType) -&gt; ComputeDevice:
-        return self.get_device_by_ref(tensor.device())
+        if hasattr(tensor, &#39;devices&#39;):
+            return self.get_device_by_ref(next(iter(tensor.devices())))
+        if hasattr(tensor, &#39;device&#39;):
+            return self.get_device_by_ref(tensor.device())
+        raise AssertionError(f&#34;tensor {type(tensor)} has no device attribute&#34;)
 
     def allocate_on_device(self, tensor: TensorType, device: ComputeDevice) -&gt; TensorType:
         return jax.device_put(tensor, device.ref)
@@ -259,6 +259,11 @@ The methods of <code>Backend</code> form a comprehensive list of available opera
         return vec_f(*args)
 
     def numpy_call(self, f, output_shapes, output_dtypes, *args, **aux_args):
+        if all([self.is_available(arg) for arg in args]):
+            args = [self.numpy(arg) for arg in args]
+            output = f(*args, **aux_args)
+            result = map_structure(self.as_tensor, output)
+            return result
         @dataclasses.dataclass
         class OutputTensor:
             shape: Tuple[int]
@@ -488,6 +493,7 @@ The methods of <code>Backend</code> form a comprehensive list of available opera
         assert kernel.shape[0] in (1, value.shape[0])
         assert value.shape[1] == kernel.shape[2], f&#34;value has {value.shape[1]} channels but kernel has {kernel.shape[2]}&#34;
         assert value.ndim + 1 == kernel.ndim
+        value, kernel = self.auto_cast(value, kernel, bool_to_int=True)
         # AutoDiff may require jax.lax.conv_general_dilated
         result = []
         for b in range(value.shape[0]):
@@ -533,12 +539,16 @@ The methods of <code>Backend</code> form a comprehensive list of available opera
     def batched_gather_nd(self, values, indices):
         values = self.as_tensor(values)
         indices = self.as_tensor(indices)
-        # batch_size = combined_dim(values.shape[0], indices.shape[0])
         assert indices.shape[-1] == self.ndims(values) - 2
-        def unbatched_gather_nd(b_values, b_indices):
-            b_indices = self.unstack(b_indices, -1)
-            return b_values[b_indices]
-        return self.vectorized_call(unbatched_gather_nd, values, indices)
+        batch_size = combined_dim(values.shape[0], indices.shape[0])
+        indices_list = [indices[..., i] for i in range(indices.shape[-1])]
+        batch_range = self.expand_dims(np.arange(batch_size), -1, number=self.ndims(indices) - 2)
+        slices = (batch_range, *indices_list)
+        return values[slices]
+
+    def batched_gather_1d(self, values, indices):
+        batch_size = combined_dim(values.shape[0], indices.shape[0])
+        return values[np.arange(batch_size)[:, None], indices]
 
     def repeat(self, x, repeats, axis: int, new_length=None):
         return jnp.repeat(x, self.as_tensor(repeats), axis, total_repeat_length=new_length)
@@ -657,6 +667,16 @@ The methods of <code>Backend</code> form a comprehensive list of available opera
         x = jax.lax.linalg.triangular_solve(matrix, rhs, lower=lower, unit_diagonal=unit_diagonal, left_side=True)
         return x
 
+    def matrix_rank_dense(self, matrix, hermitian=False):
+        try:
+            return jnp.linalg.matrix_rank(matrix)
+        except TypeError as err:
+            if err.args[0] == &#34;array should have 2 or fewer dimensions&#34;:  # this is a Jax bug on some distributions/versions
+                warnings.warn(&#34;You are using a broken version of JAX. matrix_rank for dense matrices will fall back to NumPy.&#34;)
+                return self.as_tensor(NUMPY.matrix_rank_dense(self.numpy(matrix), hermitian=hermitian))
+            else:
+                raise err
+
     def sparse_coo_tensor(self, indices: Union[tuple, list], values, shape: tuple):
         return BCOO((values, indices), shape=shape)</code></pre>
 </details>
@@ -706,41 +726,18 @@ The methods of <code>Backend</code> form a comprehensive list of available opera
 </code></dt>
 <dd>
 <div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">@_wraps(np.absolute, module=&#39;numpy&#39;)
-@partial(jit, inline=True)
-def absolute(x: ArrayLike, /) -&gt; Array:
-  check_arraylike(&#39;absolute&#39;, x)
-  dt = dtypes.dtype(x)
-  return lax.asarray(x) if dt == np.bool_ or dtypes.issubdtype(dt, np.unsignedinteger) else lax.abs(x)</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.jax.JaxBackend.arccos"><code class="name flex">
 <span>def <span class="ident">arccos</span></span>(<span>x, /)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">fn = lambda x, /: lax_fn(*promote_args_inexact(numpy_fn.__name__, x))</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.jax.JaxBackend.arcsin"><code class="name flex">
 <span>def <span class="ident">arcsin</span></span>(<span>x, /)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">fn = lambda x, /: lax_fn(*promote_args_inexact(numpy_fn.__name__, x))</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.jax.JaxBackend.argmax"><code class="name flex">
 <span>def <span class="ident">argmax</span></span>(<span>a, axis=None, out=None, *, keepdims=&lt;no value&gt;)</span>
@@ -825,101 +822,6 @@ array([4, 3])
 &gt;&gt;&gt; res.shape
 (2, 1, 4)
 </code></pre></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">@array_function_dispatch(_argmax_dispatcher)
-def argmax(a, axis=None, out=None, *, keepdims=np._NoValue):
-    &#34;&#34;&#34;
-    Returns the indices of the maximum values along an axis.
-
-    Parameters
-    ----------
-    a : array_like
-        Input array.
-    axis : int, optional
-        By default, the index is into the flattened array, otherwise
-        along the specified axis.
-    out : array, optional
-        If provided, the result will be inserted into this array. It should
-        be of the appropriate shape and dtype.
-    keepdims : bool, optional
-        If this is set to True, the axes which are reduced are left
-        in the result as dimensions with size one. With this option,
-        the result will broadcast correctly against the array.
-
-        .. versionadded:: 1.22.0
-
-    Returns
-    -------
-    index_array : ndarray of ints
-        Array of indices into the array. It has the same shape as `a.shape`
-        with the dimension along `axis` removed. If `keepdims` is set to True,
-        then the size of `axis` will be 1 with the resulting array having same
-        shape as `a.shape`.
-
-    See Also
-    --------
-    ndarray.argmax, argmin
-    amax : The maximum value along a given axis.
-    unravel_index : Convert a flat index into an index tuple.
-    take_along_axis : Apply ``np.expand_dims(index_array, axis)``
-                      from argmax to an array as if by calling max.
-
-    Notes
-    -----
-    In case of multiple occurrences of the maximum values, the indices
-    corresponding to the first occurrence are returned.
-
-    Examples
-    --------
-    &gt;&gt;&gt; a = np.arange(6).reshape(2,3) + 10
-    &gt;&gt;&gt; a
-    array([[10, 11, 12],
-           [13, 14, 15]])
-    &gt;&gt;&gt; np.argmax(a)
-    5
-    &gt;&gt;&gt; np.argmax(a, axis=0)
-    array([1, 1, 1])
-    &gt;&gt;&gt; np.argmax(a, axis=1)
-    array([2, 2])
-
-    Indexes of the maximal elements of a N-dimensional array:
-
-    &gt;&gt;&gt; ind = np.unravel_index(np.argmax(a, axis=None), a.shape)
-    &gt;&gt;&gt; ind
-    (1, 2)
-    &gt;&gt;&gt; a[ind]
-    15
-
-    &gt;&gt;&gt; b = np.arange(6)
-    &gt;&gt;&gt; b[1] = 5
-    &gt;&gt;&gt; b
-    array([0, 5, 2, 3, 4, 5])
-    &gt;&gt;&gt; np.argmax(b)  # Only the first occurrence is returned.
-    1
-
-    &gt;&gt;&gt; x = np.array([[4,2,3], [1,0,3]])
-    &gt;&gt;&gt; index_array = np.argmax(x, axis=-1)
-    &gt;&gt;&gt; # Same as np.amax(x, axis=-1, keepdims=True)
-    &gt;&gt;&gt; np.take_along_axis(x, np.expand_dims(index_array, axis=-1), axis=-1)
-    array([[4],
-           [3]])
-    &gt;&gt;&gt; # Same as np.amax(x, axis=-1)
-    &gt;&gt;&gt; np.take_along_axis(x, np.expand_dims(index_array, axis=-1), axis=-1).squeeze(axis=-1)
-    array([4, 3])
-
-    Setting `keepdims` to `True`,
-
-    &gt;&gt;&gt; x = np.arange(24).reshape((2, 3, 4))
-    &gt;&gt;&gt; res = np.argmax(x, axis=1, keepdims=True)
-    &gt;&gt;&gt; res.shape
-    (2, 1, 4)
-    &#34;&#34;&#34;
-    kwds = {&#39;keepdims&#39;: keepdims} if keepdims is not np._NoValue else {}
-    return _wrapfunc(a, &#39;argmax&#39;, axis=axis, out=out, **kwds)</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.jax.JaxBackend.argmin"><code class="name flex">
 <span>def <span class="ident">argmin</span></span>(<span>a, axis=None, out=None, *, keepdims=&lt;no value&gt;)</span>
@@ -1004,138 +906,18 @@ array([2, 0])
 &gt;&gt;&gt; res.shape
 (2, 1, 4)
 </code></pre></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">@array_function_dispatch(_argmin_dispatcher)
-def argmin(a, axis=None, out=None, *, keepdims=np._NoValue):
-    &#34;&#34;&#34;
-    Returns the indices of the minimum values along an axis.
-
-    Parameters
-    ----------
-    a : array_like
-        Input array.
-    axis : int, optional
-        By default, the index is into the flattened array, otherwise
-        along the specified axis.
-    out : array, optional
-        If provided, the result will be inserted into this array. It should
-        be of the appropriate shape and dtype.
-    keepdims : bool, optional
-        If this is set to True, the axes which are reduced are left
-        in the result as dimensions with size one. With this option,
-        the result will broadcast correctly against the array.
-
-        .. versionadded:: 1.22.0
-
-    Returns
-    -------
-    index_array : ndarray of ints
-        Array of indices into the array. It has the same shape as `a.shape`
-        with the dimension along `axis` removed. If `keepdims` is set to True,
-        then the size of `axis` will be 1 with the resulting array having same
-        shape as `a.shape`.
-
-    See Also
-    --------
-    ndarray.argmin, argmax
-    amin : The minimum value along a given axis.
-    unravel_index : Convert a flat index into an index tuple.
-    take_along_axis : Apply ``np.expand_dims(index_array, axis)``
-                      from argmin to an array as if by calling min.
-
-    Notes
-    -----
-    In case of multiple occurrences of the minimum values, the indices
-    corresponding to the first occurrence are returned.
-
-    Examples
-    --------
-    &gt;&gt;&gt; a = np.arange(6).reshape(2,3) + 10
-    &gt;&gt;&gt; a
-    array([[10, 11, 12],
-           [13, 14, 15]])
-    &gt;&gt;&gt; np.argmin(a)
-    0
-    &gt;&gt;&gt; np.argmin(a, axis=0)
-    array([0, 0, 0])
-    &gt;&gt;&gt; np.argmin(a, axis=1)
-    array([0, 0])
-
-    Indices of the minimum elements of a N-dimensional array:
-
-    &gt;&gt;&gt; ind = np.unravel_index(np.argmin(a, axis=None), a.shape)
-    &gt;&gt;&gt; ind
-    (0, 0)
-    &gt;&gt;&gt; a[ind]
-    10
-
-    &gt;&gt;&gt; b = np.arange(6) + 10
-    &gt;&gt;&gt; b[4] = 10
-    &gt;&gt;&gt; b
-    array([10, 11, 12, 13, 10, 15])
-    &gt;&gt;&gt; np.argmin(b)  # Only the first occurrence is returned.
-    0
-
-    &gt;&gt;&gt; x = np.array([[4,2,3], [1,0,3]])
-    &gt;&gt;&gt; index_array = np.argmin(x, axis=-1)
-    &gt;&gt;&gt; # Same as np.amin(x, axis=-1, keepdims=True)
-    &gt;&gt;&gt; np.take_along_axis(x, np.expand_dims(index_array, axis=-1), axis=-1)
-    array([[2],
-           [0]])
-    &gt;&gt;&gt; # Same as np.amax(x, axis=-1)
-    &gt;&gt;&gt; np.take_along_axis(x, np.expand_dims(index_array, axis=-1), axis=-1).squeeze(axis=-1)
-    array([2, 0])
-
-    Setting `keepdims` to `True`,
-
-    &gt;&gt;&gt; x = np.arange(24).reshape((2, 3, 4))
-    &gt;&gt;&gt; res = np.argmin(x, axis=1, keepdims=True)
-    &gt;&gt;&gt; res.shape
-    (2, 1, 4)
-    &#34;&#34;&#34;
-    kwds = {&#39;keepdims&#39;: keepdims} if keepdims is not np._NoValue else {}
-    return _wrapfunc(a, &#39;argmin&#39;, axis=axis, out=out, **kwds)</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.jax.JaxBackend.ceil"><code class="name flex">
 <span>def <span class="ident">ceil</span></span>(<span>x, /)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">fn = lambda x, /: lax_fn(*promote_args_inexact(numpy_fn.__name__, x))</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.jax.JaxBackend.clip"><code class="name flex">
 <span>def <span class="ident">clip</span></span>(<span>a: Union[jax.Array, numpy.ndarray, numpy.bool_, numpy.number, bool, int, float, complex], a_min: Union[jax.Array, numpy.ndarray, numpy.bool_, numpy.number, bool, int, float, complex, None] = None, a_max: Union[jax.Array, numpy.ndarray, numpy.bool_, numpy.number, bool, int, float, complex, None] = None, out: None = None) ‑> jax.Array</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">@util._wraps(np.clip, skip_params=[&#39;out&#39;])
-@jit
-def clip(a: ArrayLike, a_min: Optional[ArrayLike] = None,
-         a_max: Optional[ArrayLike] = None, out: None = None) -&gt; Array:
-  util.check_arraylike(&#34;clip&#34;, a)
-  if out is not None:
-    raise NotImplementedError(&#34;The &#39;out&#39; argument to jnp.clip is not supported.&#34;)
-  if a_min is None and a_max is None:
-    raise ValueError(&#34;At most one of a_min and a_max may be None&#34;)
-  if a_min is not None:
-    a = ufuncs.maximum(a_min, a)
-  if a_max is not None:
-    a = ufuncs.minimum(a_max, a)
-  return asarray(a)</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.jax.JaxBackend.concat"><code class="name flex">
 <span>def <span class="ident">concat</span></span>(<span>arrays: Union[numpy.ndarray, jax.Array, Sequence[Union[jax.Array, numpy.ndarray, numpy.bool_, numpy.number, bool, int, float, complex]]], axis: Optional[int] = 0, dtype: Union[Any, str, numpy.dtype, jax._src.SupportsDType, None] = None) ‑> jax.Array</span>
@@ -1160,64 +942,18 @@ provided together with <code>out</code>.</dd>
 <dt><strong><code>res</code></strong> :&ensp;<code>ndarray</code></dt>
 <dd>The concatenated array.</dd>
 </dl></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">@util._wraps(np.concatenate)
-def concatenate(arrays: Union[np.ndarray, Array, Sequence[ArrayLike]],
-                axis: Optional[int] = 0, dtype: Optional[DTypeLike] = None) -&gt; Array:
-  if isinstance(arrays, (np.ndarray, Array)):
-    return _concatenate_array(arrays, axis, dtype=dtype)
-  util.check_arraylike(&#34;concatenate&#34;, *arrays)
-  if not len(arrays):
-    raise ValueError(&#34;Need at least one array to concatenate.&#34;)
-  if ndim(arrays[0]) == 0:
-    raise ValueError(&#34;Zero-dimensional arrays cannot be concatenated.&#34;)
-  if axis is None:
-    return concatenate([ravel(a) for a in arrays], axis=0, dtype=dtype)
-  axis = _canonicalize_axis(axis, ndim(arrays[0]))
-  if dtype is None:
-    arrays_out = util.promote_dtypes(*arrays)
-  else:
-    arrays_out = [asarray(arr, dtype=dtype) for arr in arrays]
-  # lax.concatenate can be slow to compile for wide concatenations, so form a
-  # tree of concatenations as a workaround especially for op-by-op mode.
-  # (https://github.com/google/jax/issues/653).
-  k = 16
-  while len(arrays_out) &gt; 1:
-    arrays_out = [lax.concatenate(arrays_out[i:i+k], axis)
-                  for i in range(0, len(arrays_out), k)]
-  return arrays_out[0]</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.jax.JaxBackend.conj"><code class="name flex">
 <span>def <span class="ident">conj</span></span>(<span>x: Union[jax.Array, numpy.ndarray, numpy.bool_, numpy.number, bool, int, float, complex], /) ‑> jax.Array</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">@_wraps(np.conjugate, module=&#39;numpy&#39;)
-@partial(jit, inline=True)
-def conjugate(x: ArrayLike, /) -&gt; Array:
-  check_arraylike(&#34;conjugate&#34;, x)
-  return lax.conj(x) if np.iscomplexobj(x) else lax.asarray(x)</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.jax.JaxBackend.cos"><code class="name flex">
 <span>def <span class="ident">cos</span></span>(<span>x, /)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">fn = lambda x, /: lax_fn(*promote_args_inexact(numpy_fn.__name__, x))</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.jax.JaxBackend.cumsum"><code class="name flex">
 <span>def <span class="ident">cumsum</span></span>(<span>a: Union[jax.Array, numpy.ndarray, numpy.bool_, numpy.number, bool, int, float, complex], axis: Union[None, int, Sequence[int]] = None, dtype: Union[Any, str, numpy.dtype, jax._src.SupportsDType] = None, out: None = None) ‑> jax.Array</span>
@@ -1248,15 +984,6 @@ A new array holding the result is returned unless <code>out</code> is
 specified, in which case a reference to <code>out</code> is returned. The
 result has the same size as <code>a</code>, and the same shape as <code>a</code> if
 <code>axis</code> is not None or <code>a</code> is a 1-d array.</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">@_wraps(np_reduction, skip_params=[&#39;out&#39;])
-def cumulative_reduction(a: ArrayLike, axis: Axis = None,
-                         dtype: DTypeLike = None, out: None = None) -&gt; Array:
-  return _cumulative_reduction(a, _ensure_optional_axes(axis), dtype, out)</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.jax.JaxBackend.einsum"><code class="name flex">
 <span>def <span class="ident">einsum</span></span>(<span>subscripts, /, *operands, out: None = None, optimize: str = 'optimal', precision: Union[None, str, jax._src.lax.lax.Precision, Tuple[str, str], Tuple[jax._src.lax.lax.Precision, jax._src.lax.lax.Precision]] = None, preferred_element_type: Union[Any, str, numpy.dtype, jax._src.SupportsDType, None] = None) ‑> jax.Array</span>
@@ -1302,65 +1029,12 @@ function. See <code>np.einsum_path</code> for more details. Defaults to False.</
 <dt><strong><code>output</code></strong> :&ensp;<code>ndarray</code></dt>
 <dd>The calculation based on the Einstein summation convention.</dd>
 </dl></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">@util._wraps(np.einsum, lax_description=_EINSUM_DOC, skip_params=[&#39;out&#39;])
-def einsum(
-    subscripts, /,
-    *operands,
-    out: None = None,
-    optimize: str = &#34;optimal&#34;,
-    precision: PrecisionLike = None,
-    preferred_element_type: Optional[DTypeLike] = None,
-    _use_xeinsum: bool = False,
-    _dot_general: Callable[..., Array] = lax.dot_general,
-) -&gt; Array:
-  operands = (subscripts, *operands)
-  if out is not None:
-    raise NotImplementedError(&#34;The &#39;out&#39; argument to jnp.einsum is not supported.&#34;)
-
-  spec = operands[0] if isinstance(operands[0], str) else None
-
-  if (_use_xeinsum or spec is not None and &#39;{&#39; in spec):
-    return jax.named_call(lax.xeinsum, name=spec)(*operands)
-
-  optimize = &#39;optimal&#39; if optimize is True else optimize
-  # using einsum_call=True here is an internal api for opt_einsum
-
-  # Allow handling of shape polymorphism
-  non_constant_dim_types = {
-      type(d) for op in operands if not isinstance(op, str)
-      for d in np.shape(op) if not core.is_constant_dim(d)
-  }
-  if not non_constant_dim_types:
-    contract_path = opt_einsum.contract_path
-  else:
-    ty = next(iter(non_constant_dim_types))
-    contract_path = _poly_einsum_handlers.get(ty, _default_poly_einsum_handler)
-  operands, contractions = contract_path(
-        *operands, einsum_call=True, use_blas=True, optimize=optimize)
-
-  contractions = tuple((a, frozenset(b), c) for a, b, c, *_ in contractions)
-
-  _einsum_computation = jax.named_call(
-      _einsum, name=spec) if spec is not None else _einsum
-  return _einsum_computation(operands, contractions, precision,  # type: ignore[operator]
-                             preferred_element_type, _dot_general)</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.jax.JaxBackend.equal"><code class="name flex">
 <span>def <span class="ident">equal</span></span>(<span>x1, x2, /)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">fn = lambda x1, x2, /: lax_fn(*promote_args(numpy_fn.__name__, x1, x2))</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.jax.JaxBackend.erf"><code class="name flex">
 <span>def <span class="ident">erf</span></span>(<span>x: Union[jax.Array, numpy.ndarray, numpy.bool_, numpy.number, bool, int, float, complex]) ‑> jax.Array</span>
@@ -1389,28 +1063,12 @@ Graphs, and Mathematical Tables. New York: Dover,
 1972. <a href="http://www.math.sfu.ca/~cbm/aands/page_297.htm">http://www.math.sfu.ca/~cbm/aands/page_297.htm</a>
 .. [3] Steven G. Johnson, Faddeeva W function implementation.
 <a href="http://ab-initio.mit.edu/Faddeeva">http://ab-initio.mit.edu/Faddeeva</a></p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">@_wraps(osp_special.erf, module=&#39;scipy.special&#39;, skip_params=[&#34;out&#34;],
-        lax_description=&#34;Note that the JAX version does not support complex inputs.&#34;)
-def erf(x: ArrayLike) -&gt; Array:
-  x, = promote_args_inexact(&#34;erf&#34;, x)
-  return lax.erf(x)</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.jax.JaxBackend.exp"><code class="name flex">
 <span>def <span class="ident">exp</span></span>(<span>x, /)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">fn = lambda x, /: lax_fn(*promote_args_inexact(numpy_fn.__name__, x))</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.jax.JaxBackend.flip"><code class="name flex">
 <span>def <span class="ident">flip</span></span>(<span>m: Union[jax.Array, numpy.ndarray, numpy.bool_, numpy.number, bool, int, float, complex], axis: Union[int, Tuple[int, ...], None] = None) ‑> jax.Array</span>
@@ -1447,233 +1105,78 @@ None and tuples of axes are supported</p>
 Since a view is
 returned, this operation is done in constant time.</dd>
 </dl></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">@util._wraps(np.flip, lax_description=_ARRAY_VIEW_DOC)
-def flip(m: ArrayLike, axis: Optional[Union[int, Tuple[int, ...]]] = None) -&gt; Array:
-  util.check_arraylike(&#34;flip&#34;, m)
-  return _flip(asarray(m), reductions._ensure_optional_axes(axis))</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.jax.JaxBackend.floor"><code class="name flex">
 <span>def <span class="ident">floor</span></span>(<span>x, /)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">fn = lambda x, /: lax_fn(*promote_args_inexact(numpy_fn.__name__, x))</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.jax.JaxBackend.imag"><code class="name flex">
 <span>def <span class="ident">imag</span></span>(<span>val: Union[jax.Array, numpy.ndarray, numpy.bool_, numpy.number, bool, int, float, complex], /) ‑> jax.Array</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">@_wraps(np.imag)
-@partial(jit, inline=True)
-def imag(val: ArrayLike, /) -&gt; Array:
-  check_arraylike(&#34;imag&#34;, val)
-  return lax.imag(val) if np.iscomplexobj(val) else lax.full_like(val, 0)</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.jax.JaxBackend.isfinite"><code class="name flex">
 <span>def <span class="ident">isfinite</span></span>(<span>x: Union[jax.Array, numpy.ndarray, numpy.bool_, numpy.number, bool, int, float, complex], /) ‑> jax.Array</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">@_wraps(np.isfinite, module=&#39;numpy&#39;)
-@jit
-def isfinite(x: ArrayLike, /) -&gt; Array:
-  check_arraylike(&#34;isfinite&#34;, x)
-  dtype = dtypes.dtype(x)
-  if dtypes.issubdtype(dtype, np.floating):
-    return lax.is_finite(x)
-  elif dtypes.issubdtype(dtype, np.complexfloating):
-    return lax.bitwise_and(lax.is_finite(real(x)), lax.is_finite(imag(x)))
-  else:
-    return lax.full_like(x, True, dtype=np.bool_)</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.jax.JaxBackend.isinf"><code class="name flex">
 <span>def <span class="ident">isinf</span></span>(<span>x: Union[jax.Array, numpy.ndarray, numpy.bool_, numpy.number, bool, int, float, complex], /) ‑> jax.Array</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">@_wraps(np.isinf, module=&#39;numpy&#39;)
-@jit
-def isinf(x: ArrayLike, /) -&gt; Array:
-  check_arraylike(&#34;isinf&#34;, x)
-  dtype = dtypes.dtype(x)
-  if dtypes.issubdtype(dtype, np.floating):
-    return lax.eq(lax.abs(x), _constant_like(x, np.inf))
-  elif dtypes.issubdtype(dtype, np.complexfloating):
-    re = lax.real(x)
-    im = lax.imag(x)
-    return lax.bitwise_or(lax.eq(lax.abs(re), _constant_like(re, np.inf)),
-                          lax.eq(lax.abs(im), _constant_like(im, np.inf)))
-  else:
-    return lax.full_like(x, False, dtype=np.bool_)</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.jax.JaxBackend.isnan"><code class="name flex">
 <span>def <span class="ident">isnan</span></span>(<span>x: Union[jax.Array, numpy.ndarray, numpy.bool_, numpy.number, bool, int, float, complex], /) ‑> jax.Array</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">@_wraps(np.isnan, module=&#39;numpy&#39;)
-@jit
-def isnan(x: ArrayLike, /) -&gt; Array:
-  check_arraylike(&#34;isnan&#34;, x)
-  return lax.ne(x, x)</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.jax.JaxBackend.log"><code class="name flex">
 <span>def <span class="ident">log</span></span>(<span>x, /)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">fn = lambda x, /: lax_fn(*promote_args_inexact(numpy_fn.__name__, x))</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.jax.JaxBackend.log10"><code class="name flex">
 <span>def <span class="ident">log10</span></span>(<span>x: Union[jax.Array, numpy.ndarray, numpy.bool_, numpy.number, bool, int, float, complex], /) ‑> jax.Array</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">@_wraps(np.log10, module=&#39;numpy&#39;)
-@partial(jit, inline=True)
-def log10(x: ArrayLike, /) -&gt; Array:
-  x, = promote_args_inexact(&#34;log10&#34;, x)
-  return lax.div(lax.log(x), lax.log(_constant_like(x, 10)))</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.jax.JaxBackend.log2"><code class="name flex">
 <span>def <span class="ident">log2</span></span>(<span>x: Union[jax.Array, numpy.ndarray, numpy.bool_, numpy.number, bool, int, float, complex], /) ‑> jax.Array</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">@_wraps(np.log2, module=&#39;numpy&#39;)
-@partial(jit, inline=True)
-def log2(x: ArrayLike, /) -&gt; Array:
-  x, = promote_args_inexact(&#34;log2&#34;, x)
-  return lax.div(lax.log(x), lax.log(_constant_like(x, 2)))</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.jax.JaxBackend.maximum"><code class="name flex">
 <span>def <span class="ident">maximum</span></span>(<span>x1, x2, /)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">fn = lambda x1, x2, /: lax_fn(*promote_args(numpy_fn.__name__, x1, x2))</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.jax.JaxBackend.minimum"><code class="name flex">
 <span>def <span class="ident">minimum</span></span>(<span>x1, x2, /)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">fn = lambda x1, x2, /: lax_fn(*promote_args(numpy_fn.__name__, x1, x2))</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.jax.JaxBackend.real"><code class="name flex">
 <span>def <span class="ident">real</span></span>(<span>val: Union[jax.Array, numpy.ndarray, numpy.bool_, numpy.number, bool, int, float, complex], /) ‑> jax.Array</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">@_wraps(np.real)
-@partial(jit, inline=True)
-def real(val: ArrayLike, /) -&gt; Array:
-  check_arraylike(&#34;real&#34;, val)
-  return lax.real(val) if np.iscomplexobj(val) else lax.asarray(val)</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.jax.JaxBackend.round"><code class="name flex">
 <span>def <span class="ident">round</span></span>(<span>a: Union[jax.Array, numpy.ndarray, numpy.bool_, numpy.number, bool, int, float, complex], decimals: int = 0, out: None = None) ‑> jax.Array</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">@util._wraps(np.around, skip_params=[&#39;out&#39;])
-@partial(jit, static_argnames=(&#39;decimals&#39;,))
-def round(a: ArrayLike, decimals: int = 0, out: None = None) -&gt; Array:
-  util.check_arraylike(&#34;round&#34;, a)
-  decimals = core.concrete_or_error(operator.index, decimals, &#34;&#39;decimals&#39; argument of jnp.round&#34;)
-  if out is not None:
-    raise NotImplementedError(&#34;The &#39;out&#39; argument to jnp.round is not supported.&#34;)
-  dtype = _dtype(a)
-  if issubdtype(dtype, integer):
-    if decimals &lt; 0:
-      raise NotImplementedError(
-        &#34;integer np.round not implemented for decimals &lt; 0&#34;)
-    return asarray(a)  # no-op on integer types
-
-  def _round_float(x: ArrayLike) -&gt; Array:
-    if decimals == 0:
-      return lax.round(x, lax.RoundingMethod.TO_NEAREST_EVEN)
-
-    # TODO(phawkins): the strategy of rescaling the value isn&#39;t necessarily a
-    # good one since we may be left with an incorrectly rounded value at the
-    # end due to precision problems. As a workaround for float16, convert to
-    # float32,
-    x = lax.convert_element_type(x, np.float32) if dtype == np.float16 else x
-    factor = _lax_const(x, 10 ** decimals)
-    out = lax.div(lax.round(lax.mul(x, factor),
-                            lax.RoundingMethod.TO_NEAREST_EVEN), factor)
-    return lax.convert_element_type(out, dtype) if dtype == np.float16 else out
-
-  if issubdtype(dtype, complexfloating):
-    return lax.complex(_round_float(lax.real(a)), _round_float(lax.imag(a)))
-  else:
-    return _round_float(a)</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.jax.JaxBackend.shape"><code class="name flex">
 <span>def <span class="ident">shape</span></span>(<span>a)</span>
@@ -1715,90 +1218,18 @@ corresponding array dimensions.</dd>
 &gt;&gt;&gt; a.shape
 (3,)
 </code></pre></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">@array_function_dispatch(_shape_dispatcher)
-def shape(a):
-    &#34;&#34;&#34;
-    Return the shape of an array.
-
-    Parameters
-    ----------
-    a : array_like
-        Input array.
-
-    Returns
-    -------
-    shape : tuple of ints
-        The elements of the shape tuple give the lengths of the
-        corresponding array dimensions.
-
-    See Also
-    --------
-    len : ``len(a)`` is equivalent to ``np.shape(a)[0]`` for N-D arrays with
-          ``N&gt;=1``.
-    ndarray.shape : Equivalent array method.
-
-    Examples
-    --------
-    &gt;&gt;&gt; np.shape(np.eye(3))
-    (3, 3)
-    &gt;&gt;&gt; np.shape([[1, 3]])
-    (1, 2)
-    &gt;&gt;&gt; np.shape([0])
-    (1,)
-    &gt;&gt;&gt; np.shape(0)
-    ()
-
-    &gt;&gt;&gt; a = np.array([(1, 2), (3, 4), (5, 6)],
-    ...              dtype=[(&#39;x&#39;, &#39;i4&#39;), (&#39;y&#39;, &#39;i4&#39;)])
-    &gt;&gt;&gt; np.shape(a)
-    (3,)
-    &gt;&gt;&gt; a.shape
-    (3,)
-
-    &#34;&#34;&#34;
-    try:
-        result = a.shape
-    except AttributeError:
-        result = asarray(a).shape
-    return result</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.jax.JaxBackend.sign"><code class="name flex">
 <span>def <span class="ident">sign</span></span>(<span>x: Union[jax.Array, numpy.ndarray, numpy.bool_, numpy.number, bool, int, float, complex], /) ‑> jax.Array</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">@_wraps(np.sign, module=&#39;numpy&#39;)
-@jit
-def sign(x: ArrayLike, /) -&gt; Array:
-  check_arraylike(&#39;sign&#39;, x)
-  dtype = dtypes.dtype(x)
-  if dtypes.issubdtype(dtype, np.complexfloating):
-    re = lax.real(x)
-    return lax.complex(
-      lax.sign(_where(re != 0, re, lax.imag(x))), _constant_like(re, 0))
-  return lax.sign(x)</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.jax.JaxBackend.sin"><code class="name flex">
 <span>def <span class="ident">sin</span></span>(<span>x, /)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">fn = lambda x, /: lax_fn(*promote_args_inexact(numpy_fn.__name__, x))</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.jax.JaxBackend.softplus"><code class="name flex">
 <span>def <span class="ident">softplus</span></span>(<span>x: Any) ‑> Any</span>
@@ -1809,36 +1240,12 @@ def sign(x: ArrayLike, /) -&gt; Array:
 <p>[ \mathrm{softplus}(x) = \log(1 + e^x) ]</p>
 <h2 id="args">Args</h2>
 <p>x : input array</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">@jax.jit
-def softplus(x: Array) -&gt; Array:
-  r&#34;&#34;&#34;Softplus activation function.
-
-  Computes the element-wise function
-
-  .. math::
-    \mathrm{softplus}(x) = \log(1 + e^x)
-
-  Args:
-    x : input array
-  &#34;&#34;&#34;
-  return jnp.logaddexp(x, 0)</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.jax.JaxBackend.sqrt"><code class="name flex">
 <span>def <span class="ident">sqrt</span></span>(<span>x, /)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">fn = lambda x, /: lax_fn(*promote_args_inexact(numpy_fn.__name__, x))</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.jax.JaxBackend.stack"><code class="name flex">
 <span>def <span class="ident">stack</span></span>(<span>arrays: Union[numpy.ndarray, jax.Array, Sequence[Union[jax.Array, numpy.ndarray, numpy.bool_, numpy.number, bool, int, float, complex]]], axis: int = 0, out: None = None, dtype: Union[Any, str, numpy.dtype, jax._src.SupportsDType, None] = None) ‑> jax.Array</span>
@@ -1868,31 +1275,6 @@ provided together with <code>out</code>.</dd>
 <dt><strong><code>stacked</code></strong> :&ensp;<code>ndarray</code></dt>
 <dd>The stacked array has one more dimension than the input arrays.</dd>
 </dl></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">@util._wraps(np.stack, skip_params=[&#39;out&#39;])
-def stack(arrays: Union[np.ndarray, Array, Sequence[ArrayLike]],
-          axis: int = 0, out: None = None, dtype: Optional[DTypeLike] = None) -&gt; Array:
-  if not len(arrays):
-    raise ValueError(&#34;Need at least one array to stack.&#34;)
-  if out is not None:
-    raise NotImplementedError(&#34;The &#39;out&#39; argument to jnp.stack is not supported.&#34;)
-  if isinstance(arrays, (np.ndarray, Array)):
-    axis = _canonicalize_axis(axis, arrays.ndim)
-    return concatenate(expand_dims(arrays, axis + 1), axis=axis, dtype=dtype)
-  else:
-    util.check_arraylike(&#34;stack&#34;, *arrays)
-    shape0 = shape(arrays[0])
-    axis = _canonicalize_axis(axis, len(shape0) + 1)
-    new_arrays = []
-    for a in arrays:
-      if shape(a) != shape0:
-        raise ValueError(&#34;All input arrays must have the same shape.&#34;)
-      new_arrays.append(expand_dims(a, axis))
-    return concatenate(new_arrays, axis=axis, dtype=dtype)</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.jax.JaxBackend.staticshape"><code class="name flex">
 <span>def <span class="ident">staticshape</span></span>(<span>a)</span>
@@ -1934,57 +1316,6 @@ corresponding array dimensions.</dd>
 &gt;&gt;&gt; a.shape
 (3,)
 </code></pre></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">@array_function_dispatch(_shape_dispatcher)
-def shape(a):
-    &#34;&#34;&#34;
-    Return the shape of an array.
-
-    Parameters
-    ----------
-    a : array_like
-        Input array.
-
-    Returns
-    -------
-    shape : tuple of ints
-        The elements of the shape tuple give the lengths of the
-        corresponding array dimensions.
-
-    See Also
-    --------
-    len : ``len(a)`` is equivalent to ``np.shape(a)[0]`` for N-D arrays with
-          ``N&gt;=1``.
-    ndarray.shape : Equivalent array method.
-
-    Examples
-    --------
-    &gt;&gt;&gt; np.shape(np.eye(3))
-    (3, 3)
-    &gt;&gt;&gt; np.shape([[1, 3]])
-    (1, 2)
-    &gt;&gt;&gt; np.shape([0])
-    (1,)
-    &gt;&gt;&gt; np.shape(0)
-    ()
-
-    &gt;&gt;&gt; a = np.array([(1, 2), (3, 4), (5, 6)],
-    ...              dtype=[(&#39;x&#39;, &#39;i4&#39;), (&#39;y&#39;, &#39;i4&#39;)])
-    &gt;&gt;&gt; np.shape(a)
-    (3,)
-    &gt;&gt;&gt; a.shape
-    (3,)
-
-    &#34;&#34;&#34;
-    try:
-        result = a.shape
-    except AttributeError:
-        result = asarray(a).shape
-    return result</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.jax.JaxBackend.stop_gradient"><code class="name flex">
 <span>def <span class="ident">stop_gradient</span></span>(<span>x: ~T) ‑> ~T</span>
@@ -2006,53 +1337,12 @@ Array(2., dtype=float32, weak_type=True)
 &gt;&gt;&gt; jax.grad(jax.grad(lambda x: jax.lax.stop_gradient(x)**2))(3.)
 Array(0., dtype=float32, weak_type=True)
 </code></pre></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def stop_gradient(x: T) -&gt; T:
-  &#34;&#34;&#34;Stops gradient computation.
-
-  Operationally ``stop_gradient`` is the identity function, that is, it returns
-  argument `x` unchanged. However, ``stop_gradient`` prevents the flow of
-  gradients during forward or reverse-mode automatic differentiation. If there
-  are multiple nested gradient computations, ``stop_gradient`` stops gradients
-  for all of them.
-
-  For example:
-
-  &gt;&gt;&gt; jax.grad(lambda x: x**2)(3.)
-  Array(6., dtype=float32, weak_type=True)
-  &gt;&gt;&gt; jax.grad(lambda x: jax.lax.stop_gradient(x)**2)(3.)
-  Array(0., dtype=float32, weak_type=True)
-  &gt;&gt;&gt; jax.grad(jax.grad(lambda x: x**2))(3.)
-  Array(2., dtype=float32, weak_type=True)
-  &gt;&gt;&gt; jax.grad(jax.grad(lambda x: jax.lax.stop_gradient(x)**2))(3.)
-  Array(0., dtype=float32, weak_type=True)
-  &#34;&#34;&#34;
-  def stop(x):
-    # only bind primitive on inexact dtypes, to avoid some staging
-    if core.has_opaque_dtype(x):
-      return x
-    elif (dtypes.issubdtype(_dtype(x), np.floating) or
-        dtypes.issubdtype(_dtype(x), np.complexfloating)):
-      return ad_util.stop_gradient_p.bind(x)
-    else:
-      return x
-  return tree_map(stop, x)</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.jax.JaxBackend.tan"><code class="name flex">
 <span>def <span class="ident">tan</span></span>(<span>x, /)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">fn = lambda x, /: lax_fn(*promote_args_inexact(numpy_fn.__name__, x))</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.jax.JaxBackend.tile"><code class="name flex">
 <span>def <span class="ident">tile</span></span>(<span>A: Union[jax.Array, numpy.ndarray, numpy.bool_, numpy.number, bool, int, float, complex], reps: Union[int, Any, Sequence[Union[int, Any]]]) ‑> jax.Array</span>
@@ -2085,27 +1375,6 @@ recommended to use numpy's broadcasting operations and functions.</p>
 <dt><strong><code>c</code></strong> :&ensp;<code>ndarray</code></dt>
 <dd>The tiled output array.</dd>
 </dl></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">@util._wraps(np.tile)
-def tile(A: ArrayLike, reps: Union[DimSize, Sequence[DimSize]]) -&gt; Array:
-  util.check_arraylike(&#34;tile&#34;, A)
-  try:
-    iter(reps)  # type: ignore[arg-type]
-  except TypeError:
-    reps_tup: Tuple[DimSize, ...] = (reps,)
-  else:
-    reps_tup = tuple(reps)  # type: ignore[assignment,arg-type]
-  reps_tup = tuple(operator.index(rep) if core.is_constant_dim(rep) else rep
-                   for rep in reps_tup)
-  A_shape = (1,) * (len(reps_tup) - ndim(A)) + shape(A)
-  reps_tup = (1,) * (len(A_shape) - len(reps_tup)) + reps_tup
-  result = broadcast_to(reshape(A, [j for i in A_shape for j in [1, i]]),
-                        [k for pair in zip(reps_tup, A_shape) for k in pair])
-  return reshape(result, tuple(np.multiply(A_shape, reps_tup)))</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.jax.JaxBackend.transpose"><code class="name flex">
 <span>def <span class="ident">transpose</span></span>(<span>a: Union[jax.Array, numpy.ndarray, numpy.bool_, numpy.number, bool, int, float, complex], axes: Optional[Sequence[int]] = None) ‑> jax.Array</span>
@@ -2141,17 +1410,6 @@ which reverses the order of the axes.</dd>
 <dt><strong><code>p</code></strong> :&ensp;<code>ndarray</code></dt>
 <dd><code>a</code> with its axes permuted. A view is returned whenever possible.</dd>
 </dl></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">@util._wraps(np.transpose, lax_description=_ARRAY_VIEW_DOC)
-def transpose(a: ArrayLike, axes: Optional[Sequence[int]] = None) -&gt; Array:
-  util.check_arraylike(&#34;transpose&#34;, a)
-  axes_ = list(range(ndim(a))[::-1]) if axes is None else axes
-  axes_ = [_canonicalize_axis(i, ndim(a)) for i in axes_]
-  return lax.transpose(a, axes_)</code></pre>
-</details>
 </dd>
 </dl>
 <h3>Methods</h3>
@@ -2161,15 +1419,6 @@ def transpose(a: ArrayLike, axes: Optional[Sequence[int]] = None) -&gt; Array:
 </code></dt>
 <dd>
 <div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def all(self, boolean_tensor, axis=None, keepdims=False):
-    if isinstance(boolean_tensor, (tuple, list)):
-        boolean_tensor = jnp.stack(boolean_tensor)
-    return jnp.all(boolean_tensor, axis=axis, keepdims=keepdims)</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.jax.JaxBackend.allocate_on_device"><code class="name flex">
 <span>def <span class="ident">allocate_on_device</span></span>(<span>self, tensor: ~TensorType, device: phiml.backend._backend.ComputeDevice) ‑> ~TensorType</span>
@@ -2183,41 +1432,18 @@ def transpose(a: ArrayLike, axes: Optional[Sequence[int]] = None) -&gt; Array:
 <dt><strong><code>device</code></strong></dt>
 <dd>Target device, associated with this backend.</dd>
 </dl></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def allocate_on_device(self, tensor: TensorType, device: ComputeDevice) -&gt; TensorType:
-    return jax.device_put(tensor, device.ref)</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.jax.JaxBackend.any"><code class="name flex">
 <span>def <span class="ident">any</span></span>(<span>self, boolean_tensor, axis=None, keepdims=False)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def any(self, boolean_tensor, axis=None, keepdims=False):
-    if isinstance(boolean_tensor, (tuple, list)):
-        boolean_tensor = jnp.stack(boolean_tensor)
-    return jnp.any(boolean_tensor, axis=axis, keepdims=keepdims)</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.jax.JaxBackend.argsort"><code class="name flex">
 <span>def <span class="ident">argsort</span></span>(<span>self, x, axis=-1)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def argsort(self, x, axis=-1):
-    return jnp.argsort(x, axis)</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.jax.JaxBackend.as_tensor"><code class="name flex">
 <span>def <span class="ident">as_tensor</span></span>(<span>self, x, convert_external=True)</span>
@@ -2236,24 +1462,20 @@ If x is a Python number (numbers.Number instance), <code>convert_numbers</code> 
 </dl>
 <h2 id="returns">Returns</h2>
 <p>tensor representation of <code>x</code></p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def as_tensor(self, x, convert_external=True):
-    self._check_float64()
-    if self.is_tensor(x, only_native=convert_external):
-        array = x
-    else:
-        array = jnp.array(x)
-    # --- Enforce Precision ---
-    if not isinstance(array, numbers.Number):
-        if self.dtype(array).kind == float:
-            array = self.to_float(array)
-        elif self.dtype(array).kind == complex:
-            array = self.to_complex(array)
-    return array</code></pre>
-</details>
+</dd>
+<dt id="phiml.backend.jax.JaxBackend.batched_gather_1d"><code class="name flex">
+<span>def <span class="ident">batched_gather_1d</span></span>(<span>self, values, indices)</span>
+</code></dt>
+<dd>
+<div class="desc"><h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>values</code></strong></dt>
+<dd>(batch, spatial)</dd>
+<dt><strong><code>indices</code></strong></dt>
+<dd>(batch, indices)</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<p>(batch, indices)</p></div>
 </dd>
 <dt id="phiml.backend.jax.JaxBackend.batched_gather_nd"><code class="name flex">
 <span>def <span class="ident">batched_gather_nd</span></span>(<span>self, values, indices)</span>
@@ -2270,20 +1492,6 @@ The first dimension of <code>values</code> and <code>indices</code> is the batch
 </dl>
 <h2 id="returns">Returns</h2>
 <p>Gathered values as tensor of shape (batch, any&hellip;, channel)</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def batched_gather_nd(self, values, indices):
-    values = self.as_tensor(values)
-    indices = self.as_tensor(indices)
-    # batch_size = combined_dim(values.shape[0], indices.shape[0])
-    assert indices.shape[-1] == self.ndims(values) - 2
-    def unbatched_gather_nd(b_values, b_indices):
-        b_indices = self.unstack(b_indices, -1)
-        return b_values[b_indices]
-    return self.vectorized_call(unbatched_gather_nd, values, indices)</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.jax.JaxBackend.bincount"><code class="name flex">
 <span>def <span class="ident">bincount</span></span>(<span>self, x, weights: Optional[~TensorType], bins: int, x_sorted=False)</span>
@@ -2302,33 +1510,12 @@ The first dimension of <code>values</code> and <code>indices</code> is the batch
 </dl>
 <h2 id="returns">Returns</h2>
 <p>bin_counts</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def bincount(self, x, weights: Optional[TensorType], bins: int, x_sorted=False):
-    if x_sorted:
-        return jax.ops.segment_sum(weights or 1, x, bins, indices_are_sorted=True)
-    else:
-        return jnp.bincount(x, weights=weights, minlength=bins, length=bins)</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.jax.JaxBackend.block_until_ready"><code class="name flex">
 <span>def <span class="ident">block_until_ready</span></span>(<span>self, values)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def block_until_ready(self, values):
-    if hasattr(values, &#39;block_until_ready&#39;):
-        values.block_until_ready()
-    if isinstance(values, (tuple, list)):
-        for v in values:
-            self.block_until_ready(v)</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.jax.JaxBackend.boolean_mask"><code class="name flex">
 <span>def <span class="ident">boolean_mask</span></span>(<span>self, x, mask, axis=0, new_length=None, fill_value=0)</span>
@@ -2347,37 +1534,12 @@ The first dimension of <code>values</code> and <code>indices</code> is the batch
 <dt><strong><code>fill_value</code></strong></dt>
 <dd>If <code>new_length</code> is larger than the filtered result, the remaining values will be set to <code>fill_value</code>.</dd>
 </dl></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def boolean_mask(self, x, mask, axis=0, new_length=None, fill_value=0):
-    if new_length is None:
-        slices = [mask if i == axis else slice(None) for i in range(len(x.shape))]
-        return x[tuple(slices)]
-    else:
-        indices = jnp.argwhere(mask, size=new_length, fill_value=-1)[..., 0]
-        valid = indices &gt;= 0
-        valid = valid[tuple([slice(None) if i == axis else None for i in range(len(x.shape))])]
-        result = self.gather(x, jnp.maximum(0, indices), axis)
-        return jnp.where(valid, result, fill_value)</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.jax.JaxBackend.cast"><code class="name flex">
 <span>def <span class="ident">cast</span></span>(<span>self, x, dtype: phiml.backend._dtype.DType)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def cast(self, x, dtype: DType):
-    if self.is_tensor(x, only_native=True) and from_numpy_dtype(x.dtype) == dtype:
-        return x
-    else:
-        return jnp.array(x, to_numpy_dtype(dtype))</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.jax.JaxBackend.conv"><code class="name flex">
 <span>def <span class="ident">conv</span></span>(<span>self, value, kernel, zero_padding=True)</span>
@@ -2397,40 +1559,12 @@ Higher dimensions may not be supported.</p>
 </dl>
 <h2 id="returns">Returns</h2>
 <p>Convolution result as tensor of shape (batch_size, out_channel, spatial&hellip;)</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def conv(self, value, kernel, zero_padding=True):
-    assert kernel.shape[0] in (1, value.shape[0])
-    assert value.shape[1] == kernel.shape[2], f&#34;value has {value.shape[1]} channels but kernel has {kernel.shape[2]}&#34;
-    assert value.ndim + 1 == kernel.ndim
-    # AutoDiff may require jax.lax.conv_general_dilated
-    result = []
-    for b in range(value.shape[0]):
-        b_kernel = kernel[min(b, kernel.shape[0] - 1)]
-        result_b = []
-        for o in range(kernel.shape[1]):
-            result_b.append(0)
-            for i in range(value.shape[1]):
-                # result.at[b, o, ...].set(scipy.signal.correlate(value[b, i, ...], b_kernel[o, i, ...], mode=&#39;same&#39; if zero_padding else &#39;valid&#39;))
-                result_b[-1] += scipy.signal.correlate(value[b, i, ...], b_kernel[o, i, ...], mode=&#39;same&#39; if zero_padding else &#39;valid&#39;)
-        result.append(jnp.stack(result_b, 0))
-    return jnp.stack(result, 0)</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.jax.JaxBackend.copy"><code class="name flex">
 <span>def <span class="ident">copy</span></span>(<span>self, tensor, only_mutable=False)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def copy(self, tensor, only_mutable=False):
-    return jnp.array(tensor, copy=True)</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.jax.JaxBackend.custom_gradient"><code class="name flex">
 <span>def <span class="ident">custom_gradient</span></span>(<span>self, f: Callable, gradient: Callable, get_external_cache: Callable = None, on_call_skipped: Callable = None) ‑> Callable</span>
@@ -2446,25 +1580,6 @@ Higher dimensions may not be supported.</p>
 </dl>
 <h2 id="returns">Returns</h2>
 <p>Function with similar signature and return values as <code>f</code>. However, the returned function does not support keyword arguments.</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def custom_gradient(self, f: Callable, gradient: Callable, get_external_cache: Callable = None, on_call_skipped: Callable = None) -&gt; Callable:
-    jax_fun = jax.custom_vjp(f)  # custom vector-Jacobian product (reverse-mode differentiation)
-
-    def forward(*x):
-        y = f(*x)
-        return y, (x, y)
-
-    def backward(x_y, dy):
-        x, y = x_y
-        dx = gradient(x, y, dy)
-        return tuple(dx)
-
-    jax_fun.defvjp(forward, backward)
-    return jax_fun</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.jax.JaxBackend.disassemble"><code class="name flex">
 <span>def <span class="ident">disassemble</span></span>(<span>self, x) ‑> Tuple[Callable, Sequence[~TensorType]]</span>
@@ -2483,79 +1598,24 @@ Higher dimensions may not be supported.</p>
 <dt><code>constituents</code></dt>
 <dd>Tensors contained in <code>x</code>.</dd>
 </dl></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def disassemble(self, x) -&gt; Tuple[Callable, Sequence[TensorType]]:
-    if self.is_sparse(x):
-        if isinstance(x, COO):
-            raise NotImplementedError
-            # return lambda b, i, v: b.sparse_coo_tensor(i, v, x.shape), (np.stack([x.row, x.col], -1), x.data)
-        if isinstance(x, BCOO):
-            return lambda b, i, v: b.sparse_coo_tensor(i, v, x.shape), (x.indices, x.data)
-        if isinstance(x, CSR):
-            raise NotImplementedError
-            # return lambda b, v, i, p: b.csr_matrix(i, p, v, x.shape), (x.data, x.indices, x.indptr)
-        elif isinstance(x, CSC):
-            raise NotImplementedError
-            # return lambda b, v, i, p: b.csc_matrix(p, i, v, x.shape), (x.data, x.indices, x.indptr)
-        raise NotImplementedError
-    else:
-        return lambda b, t: t, (x,)</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.jax.JaxBackend.divide_no_nan"><code class="name flex">
 <span>def <span class="ident">divide_no_nan</span></span>(<span>self, x, y)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Computes x/y but returns 0 if y=0.</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def divide_no_nan(self, x, y):
-    return jnp.where(y == 0, 0, x / y)
-    # jnp.nan_to_num(x / y, copy=True, nan=0) covers up NaNs from before</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.jax.JaxBackend.dtype"><code class="name flex">
 <span>def <span class="ident">dtype</span></span>(<span>self, array) ‑> phiml.backend._dtype.DType</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def dtype(self, array) -&gt; DType:
-    if isinstance(array, bool):
-        return DType(bool)
-    if isinstance(array, int):
-        return DType(int, 32)
-    if isinstance(array, float):
-        return DType(float, 64)
-    if isinstance(array, complex):
-        return DType(complex, 128)
-    if not isinstance(array, jnp.ndarray):
-        array = jnp.array(array)
-    return from_numpy_dtype(array.dtype)</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.jax.JaxBackend.expand_dims"><code class="name flex">
 <span>def <span class="ident">expand_dims</span></span>(<span>self, a, axis=0, number=1)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def expand_dims(self, a, axis=0, number=1):
-    for _i in range(number):
-        a = jnp.expand_dims(a, axis)
-    return a</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.jax.JaxBackend.fft"><code class="name flex">
 <span>def <span class="ident">fft</span></span>(<span>self, x, axes: Union[tuple, list])</span>
@@ -2571,61 +1631,24 @@ Higher dimensions may not be supported.</p>
 </dl>
 <h2 id="returns">Returns</h2>
 <p>Complex tensor <code>k</code></p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def fft(self, x, axes: Union[tuple, list]):
-    x = self.to_complex(x)
-    if not axes:
-        return x
-    if len(axes) == 1:
-        return jnp.fft.fft(x, axis=axes[0]).astype(x.dtype)
-    elif len(axes) == 2:
-        return jnp.fft.fft2(x, axes=axes).astype(x.dtype)
-    else:
-        return jnp.fft.fftn(x, axes=axes).astype(x.dtype)</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.jax.JaxBackend.from_dlpack"><code class="name flex">
 <span>def <span class="ident">from_dlpack</span></span>(<span>self, capsule)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def from_dlpack(self, capsule):
-    from jax import dlpack
-    return dlpack.from_dlpack(capsule)</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.jax.JaxBackend.gamma_inc_l"><code class="name flex">
 <span>def <span class="ident">gamma_inc_l</span></span>(<span>self, a, x)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Regularized lower incomplete gamma function.</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def gamma_inc_l(self, a, x):
-    return scipy.special.gammainc(a, x)</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.jax.JaxBackend.gamma_inc_u"><code class="name flex">
 <span>def <span class="ident">gamma_inc_u</span></span>(<span>self, a, x)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Regularized upper incomplete gamma function.</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def gamma_inc_u(self, a, x):
-    return scipy.special.gammaincc(a, x)</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.jax.JaxBackend.gather"><code class="name flex">
 <span>def <span class="ident">gather</span></span>(<span>self, values, indices, axis: int)</span>
@@ -2643,27 +1666,12 @@ Higher dimensions may not be supported.</p>
 </dl>
 <h2 id="returns">Returns</h2>
 <p>tensor, with size along <code>axis</code> being the length of <code>indices</code></p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def gather(self, values, indices, axis: int):
-    slices = [indices if i == axis else slice(None) for i in range(self.ndims(values))]
-    return values[tuple(slices)]</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.jax.JaxBackend.get_device"><code class="name flex">
 <span>def <span class="ident">get_device</span></span>(<span>self, tensor: ~TensorType) ‑> phiml.backend._backend.ComputeDevice</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Returns the device <code>tensor</code> is located on.</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def get_device(self, tensor: TensorType) -&gt; ComputeDevice:
-    return self.get_device_by_ref(tensor.device())</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.jax.JaxBackend.get_diagonal"><code class="name flex">
 <span>def <span class="ident">get_diagonal</span></span>(<span>self, matrices, offset=0)</span>
@@ -2681,33 +1689,12 @@ Higher dimensions may not be supported.</p>
 <dt><code>diagonal</code></dt>
 <dd>(batch, max(rows,cols), channels)</dd>
 </dl></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def get_diagonal(self, matrices, offset=0):
-    result = jnp.diagonal(matrices, offset=offset, axis1=1, axis2=2)
-    return jnp.transpose(result, [0, 2, 1])</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.jax.JaxBackend.get_sparse_format"><code class="name flex">
 <span>def <span class="ident">get_sparse_format</span></span>(<span>self, x) ‑> str</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Returns lower-case format string, such as 'coo', 'csr', 'csc'</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def get_sparse_format(self, x) -&gt; str:
-    format_names = {
-        COO: &#39;coo&#39;,
-        BCOO: &#39;coo&#39;,
-        CSR: &#39;csr&#39;,
-        CSC: &#39;csc&#39;,
-    }
-    return format_names.get(type(x), &#39;dense&#39;)</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.jax.JaxBackend.histogram1d"><code class="name flex">
 <span>def <span class="ident">histogram1d</span></span>(<span>self, values, weights, bin_edges)</span>
@@ -2724,16 +1711,6 @@ Higher dimensions may not be supported.</p>
 </dl>
 <h2 id="returns">Returns</h2>
 <p>(batch, edges) with dtype matching weights</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def histogram1d(self, values, weights, bin_edges):
-    def unbatched_hist(values, weights, bin_edges):
-        hist, _ = jnp.histogram(values, bin_edges, weights=weights)
-        return hist
-    return jax.vmap(unbatched_hist)(values, weights, bin_edges)</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.jax.JaxBackend.ifft"><code class="name flex">
 <span>def <span class="ident">ifft</span></span>(<span>self, k, axes: Union[tuple, list])</span>
@@ -2749,20 +1726,6 @@ Higher dimensions may not be supported.</p>
 </dl>
 <h2 id="returns">Returns</h2>
 <p>Complex tensor <code>x</code></p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def ifft(self, k, axes: Union[tuple, list]):
-    if not axes:
-        return k
-    if len(axes) == 1:
-        return jnp.fft.ifft(k, axis=axes[0]).astype(k.dtype)
-    elif len(axes) == 2:
-        return jnp.fft.ifft2(k, axes=axes).astype(k.dtype)
-    else:
-        return jnp.fft.ifftn(k, axes=axes).astype(k.dtype)</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.jax.JaxBackend.is_available"><code class="name flex">
 <span>def <span class="ident">is_available</span></span>(<span>self, tensor)</span>
@@ -2778,13 +1741,6 @@ If true, <code>numpy(tensor)</code> must return a valid NumPy representation of 
 </dl>
 <h2 id="returns">Returns</h2>
 <p>bool</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def is_available(self, tensor):
-    return not isinstance(tensor, Tracer)</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.jax.JaxBackend.is_module"><code class="name flex">
 <span>def <span class="ident">is_module</span></span>(<span>self, obj)</span>
@@ -2799,13 +1755,6 @@ If <code>True</code>, this backend will be chosen for operations involving <code
 <dt><strong><code>obj</code></strong></dt>
 <dd>Object to test.</dd>
 </dl></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def is_module(self, obj):
-    return False</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.jax.JaxBackend.is_sparse"><code class="name flex">
 <span>def <span class="ident">is_sparse</span></span>(<span>self, x) ‑> bool</span>
@@ -2816,13 +1765,6 @@ If <code>True</code>, this backend will be chosen for operations involving <code
 <dt><strong><code>x</code></strong></dt>
 <dd>Tensor native to this <code>Backend</code>.</dd>
 </dl></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def is_sparse(self, x) -&gt; bool:
-    return isinstance(x, (COO, BCOO, CSR, CSC))</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.jax.JaxBackend.is_tensor"><code class="name flex">
 <span>def <span class="ident">is_tensor</span></span>(<span>self, x, only_native=False)</span>
@@ -2845,31 +1787,6 @@ An object is considered a tensor (nativer or otherwise) by a backend if it is no
 <dt><code>bool</code></dt>
 <dd>whether <code>x</code> is considered a tensor by this backend</dd>
 </dl></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def is_tensor(self, x, only_native=False):
-    if isinstance(x, jnp.ndarray) and not isinstance(x, np.ndarray):  # NumPy arrays inherit from Jax arrays
-        return True
-    if isinstance(x, jnp.bool_) and not isinstance(x, np.bool_):
-        return True
-    if self.is_sparse(x):
-        return True
-    # --- Above considered native ---
-    if only_native:
-        return False
-    # --- Non-native types ---
-    if isinstance(x, np.ndarray):
-        return True
-    if isinstance(x, np.bool_):
-        return True
-    if isinstance(x, (numbers.Number, bool)):
-        return True
-    if isinstance(x, (tuple, list)):
-        return all([self.is_tensor(item, False) for item in x])
-    return False</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.jax.JaxBackend.jacobian"><code class="name flex">
 <span>def <span class="ident">jacobian</span></span>(<span>self, f, wrt: Union[tuple, list], get_output: bool, is_f_scalar: bool)</span>
@@ -2890,93 +1807,42 @@ An object is considered a tensor (nativer or otherwise) by a backend if it is no
 <p>A function <code>g</code> with the same arguments as <code>f</code>.
 If <code>get_output=True</code>, <code>g</code> returns a <code>tuple</code>containing the outputs of <code>f</code> followed by the gradients.
 The gradients retain the dimensions of <code>reduced_loss</code> in order as outer (first) dimensions.</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def jacobian(self, f, wrt: Union[tuple, list], get_output: bool, is_f_scalar: bool):
-    if get_output:
-        jax_grad_f = jax.value_and_grad(f, argnums=wrt, has_aux=True)
-        @wraps(f)
-        def unwrap_outputs(*args):
-            args = [self.to_float(arg) if self.dtype(arg).kind in (bool, int) and i in wrt else arg for i, arg in enumerate(args)]
-            (_, output_tuple), grads = jax_grad_f(*args)
-            return (*output_tuple, *[jnp.conjugate(g) for g in grads])
-        return unwrap_outputs
-    else:
-        @wraps(f)
-        def nonaux_f(*args):
-            loss, output = f(*args)
-            return loss
-        jax_grad = jax.grad(nonaux_f, argnums=wrt, has_aux=False)
-        @wraps(f)
-        def call_jax_grad(*args):
-            args = [self.to_float(arg) if self.dtype(arg).kind in (bool, int) and i in wrt else arg for i, arg in enumerate(args)]
-            grads = jax_grad(*args)
-            return tuple([jnp.conjugate(g) for g in grads])
-        return call_jax_grad</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.jax.JaxBackend.jit_compile"><code class="name flex">
 <span>def <span class="ident">jit_compile</span></span>(<span>self, f: Callable) ‑> Callable</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def jit_compile(self, f: Callable) -&gt; Callable:
-    def run_jit_f(*args):
-        # print(jax.make_jaxpr(f)(*args))
-        ML_LOGGER.debug(f&#34;JaxBackend: running jit-compiled &#39;{f.__name__}&#39; with shapes {[self.shape(arg) for arg in args]} and dtypes {[self.dtype(arg) for arg in args]}&#34;)
-        return self.as_registered.call(jit_f, *args, name=f&#34;run jit-compiled &#39;{f.__name__}&#39;&#34;)
-
-    run_jit_f.__name__ = f&#34;Jax-Jit({f.__name__})&#34;
-    jit_f = jax.jit(f, device=self._default_device.ref)
-    return run_jit_f</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.jax.JaxBackend.linspace"><code class="name flex">
 <span>def <span class="ident">linspace</span></span>(<span>self, start, stop, number)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def linspace(self, start, stop, number):
-    self._check_float64()
-    return jax.device_put(jnp.linspace(start, stop, number, dtype=to_numpy_dtype(self.float_type)), self._default_device.ref)</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.jax.JaxBackend.linspace_without_last"><code class="name flex">
 <span>def <span class="ident">linspace_without_last</span></span>(<span>self, start, stop, number)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def linspace_without_last(self, start, stop, number):
-    self._check_float64()
-    return jax.device_put(jnp.linspace(start, stop, number, endpoint=False, dtype=to_numpy_dtype(self.float_type)), self._default_device.ref)</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.jax.JaxBackend.log_gamma"><code class="name flex">
 <span>def <span class="ident">log_gamma</span></span>(<span>self, x)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def log_gamma(self, x):
-    return jax.lax.lgamma(self.to_float(x))</code></pre>
-</details>
+</dd>
+<dt id="phiml.backend.jax.JaxBackend.matrix_rank_dense"><code class="name flex">
+<span>def <span class="ident">matrix_rank_dense</span></span>(<span>self, matrix, hermitian=False)</span>
+</code></dt>
+<dd>
+<div class="desc"><h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>matrix</code></strong></dt>
+<dd>Dense matrix of shape (batch, rows, cols)</dd>
+<dt><strong><code>hermitian</code></strong></dt>
+<dd>Whether all matrices are guaranteed to be hermitian.</dd>
+</dl></div>
 </dd>
 <dt id="phiml.backend.jax.JaxBackend.matrix_solve_least_squares"><code class="name flex">
 <span>def <span class="ident">matrix_solve_least_squares</span></span>(<span>self, matrix: ~TensorType, rhs: ~TensorType) ‑> Tuple[~TensorType, ~TensorType, ~TensorType, ~TensorType]</span>
@@ -3000,116 +1866,48 @@ The gradients retain the dimensions of <code>reduced_loss</code> in order as out
 <dt><code>singular_values</code></dt>
 <dd>Optional, can be <code>None</code></dd>
 </dl></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def matrix_solve_least_squares(self, matrix: TensorType, rhs: TensorType) -&gt; Tuple[TensorType, TensorType, TensorType, TensorType]:
-    solution, residuals, rank, singular_values = lstsq_batched(matrix, rhs)
-    return solution, residuals, rank, singular_values</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.jax.JaxBackend.max"><code class="name flex">
 <span>def <span class="ident">max</span></span>(<span>self, x, axis=None, keepdims=False)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def max(self, x, axis=None, keepdims=False):
-    return jnp.max(x, axis, keepdims=keepdims)</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.jax.JaxBackend.mean"><code class="name flex">
 <span>def <span class="ident">mean</span></span>(<span>self, value, axis=None, keepdims=False)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def mean(self, value, axis=None, keepdims=False):
-    return jnp.mean(value, axis, keepdims=keepdims)</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.jax.JaxBackend.meshgrid"><code class="name flex">
 <span>def <span class="ident">meshgrid</span></span>(<span>self, *coordinates)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def meshgrid(self, *coordinates):
-    self._check_float64()
-    coordinates = [self.as_tensor(c) for c in coordinates]
-    return [jax.device_put(c, self._default_device.ref) for c in jnp.meshgrid(*coordinates, indexing=&#39;ij&#39;)]</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.jax.JaxBackend.min"><code class="name flex">
 <span>def <span class="ident">min</span></span>(<span>self, x, axis=None, keepdims=False)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def min(self, x, axis=None, keepdims=False):
-    return jnp.min(x, axis, keepdims=keepdims)</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.jax.JaxBackend.mul"><code class="name flex">
 <span>def <span class="ident">mul</span></span>(<span>self, a, b)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def mul(self, a, b):
-    # if scipy.sparse.issparse(a):  # TODO sparse?
-    #     return a.multiply(b)
-    # elif scipy.sparse.issparse(b):
-    #     return b.multiply(a)
-    # else:
-        return Backend.mul(self, a, b)</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.jax.JaxBackend.mul_matrix_batched_vector"><code class="name flex">
 <span>def <span class="ident">mul_matrix_batched_vector</span></span>(<span>self, A, b)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def mul_matrix_batched_vector(self, A, b):
-    from jax.experimental.sparse import BCOO
-    if isinstance(A, BCOO):
-        return(A @ b.T).T
-    return jnp.stack([A.dot(b[i]) for i in range(b.shape[0])])</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.jax.JaxBackend.nn_library"><code class="name flex">
 <span>def <span class="ident">nn_library</span></span>(<span>self)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def nn_library(self):
-    from . import stax_nets
-    return stax_nets</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.jax.JaxBackend.nonzero"><code class="name flex">
 <span>def <span class="ident">nonzero</span></span>(<span>self, values, length=None, fill_value=-1)</span>
@@ -3124,14 +1922,6 @@ The gradients retain the dimensions of <code>reduced_loss</code> in order as out
 </dl>
 <h2 id="returns">Returns</h2>
 <p>non-zero multi-indices as tensor of shape (nnz/length, vector)</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def nonzero(self, values, length=None, fill_value=-1):
-    result = jnp.nonzero(values, size=length, fill_value=fill_value)
-    return jnp.stack(result, -1)</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.jax.JaxBackend.numpy"><code class="name flex">
 <span>def <span class="ident">numpy</span></span>(<span>self, tensor)</span>
@@ -3148,16 +1938,6 @@ Use <code>is_available(tensor)</code> to check if the value can be represented a
 </dl>
 <h2 id="returns">Returns</h2>
 <p>NumPy representation of the values stored in the tensor</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def numpy(self, tensor):
-    if self.is_sparse(tensor):
-        assemble, parts = self.disassemble(tensor)
-        return assemble(NUMPY, *[self.numpy(t) for t in parts])
-    return np.array(tensor)</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.jax.JaxBackend.numpy_call"><code class="name flex">
 <span>def <span class="ident">numpy_call</span></span>(<span>self, f, output_shapes, output_dtypes, *args, **aux_args)</span>
@@ -3179,56 +1959,18 @@ Use <code>is_available(tensor)</code> to check if the value can be represented a
 </dl>
 <h2 id="returns">Returns</h2>
 <p>Returned arrays of <code>f</code> converted to tensors.</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def numpy_call(self, f, output_shapes, output_dtypes, *args, **aux_args):
-    @dataclasses.dataclass
-    class OutputTensor:
-        shape: Tuple[int]
-        dtype: np.dtype
-    output_specs = map_structure(lambda t, s: OutputTensor(s, to_numpy_dtype(t)), output_dtypes, output_shapes)
-    if hasattr(jax, &#39;pure_callback&#39;):
-        def aux_f(*args):
-            return f(*args, **aux_args)
-        return jax.pure_callback(aux_f, output_specs, *args)
-    else:
-        def aux_f(args):
-            if isinstance(args, tuple):
-                return f(*args, **aux_args)
-            else:
-                return f(args, **aux_args)
-        from jax.experimental.host_callback import call
-        return call(aux_f, args, result_shape=output_specs)</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.jax.JaxBackend.ones"><code class="name flex">
 <span>def <span class="ident">ones</span></span>(<span>self, shape, dtype: phiml.backend._dtype.DType = None)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def ones(self, shape, dtype: DType = None):
-    self._check_float64()
-    return jax.device_put(jnp.ones(shape, dtype=to_numpy_dtype(dtype or self.float_type)), self._default_device.ref)</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.jax.JaxBackend.ones_like"><code class="name flex">
 <span>def <span class="ident">ones_like</span></span>(<span>self, tensor)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def ones_like(self, tensor):
-    return jax.device_put(jnp.ones_like(tensor), self._default_device.ref)</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.jax.JaxBackend.pad"><code class="name flex">
 <span>def <span class="ident">pad</span></span>(<span>self, value, pad_width, mode='constant', constant_values=0)</span>
@@ -3252,50 +1994,18 @@ Use <code>is_available(tensor)</code> to check if the value can be represented a
 </dl>
 <h2 id="returns">Returns</h2>
 <p>padded tensor or <code>NotImplemented</code></p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def pad(self, value, pad_width, mode=&#39;constant&#39;, constant_values=0):
-    assert mode in (&#39;constant&#39;, &#39;symmetric&#39;, &#39;periodic&#39;, &#39;reflect&#39;, &#39;boundary&#39;), mode
-    if mode == &#39;constant&#39;:
-        constant_values = jnp.array(constant_values, dtype=value.dtype)
-        return jnp.pad(value, pad_width, &#39;constant&#39;, constant_values=constant_values)
-    else:
-        if mode in (&#39;periodic&#39;, &#39;boundary&#39;):
-            mode = {&#39;periodic&#39;: &#39;wrap&#39;, &#39;boundary&#39;: &#39;edge&#39;}[mode]
-        return jnp.pad(value, pad_width, mode)</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.jax.JaxBackend.prefers_channels_last"><code class="name flex">
 <span>def <span class="ident">prefers_channels_last</span></span>(<span>self) ‑> bool</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def prefers_channels_last(self) -&gt; bool:
-    return True</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.jax.JaxBackend.prod"><code class="name flex">
 <span>def <span class="ident">prod</span></span>(<span>self, value, axis=None)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def prod(self, value, axis=None):
-    if not isinstance(value, jnp.ndarray):
-        value = jnp.array(value)
-    if value.dtype == bool:
-        return jnp.all(value, axis=axis)
-    return jnp.prod(value, axis=axis)</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.jax.JaxBackend.quantile"><code class="name flex">
 <span>def <span class="ident">quantile</span></span>(<span>self, x, quantiles)</span>
@@ -3311,74 +2021,24 @@ Use <code>is_available(tensor)</code> to check if the value can be represented a
 </dl>
 <h2 id="returns">Returns</h2>
 <p>Tensor with shape (quantiles, *x.shape[:-1])</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def quantile(self, x, quantiles):
-    return jnp.quantile(x, quantiles, axis=-1)</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.jax.JaxBackend.random_normal"><code class="name flex">
 <span>def <span class="ident">random_normal</span></span>(<span>self, shape, dtype: phiml.backend._dtype.DType)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Float tensor of selected precision containing random values sampled from a normal distribution with mean 0 and std 1.</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def random_normal(self, shape, dtype: DType):
-    self._check_float64()
-    self.rnd_key, subkey = jax.random.split(self.rnd_key)
-    dtype = dtype or self.float_type
-    return jax.device_put(random.normal(subkey, shape, dtype=to_numpy_dtype(dtype)), self._default_device.ref)</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.jax.JaxBackend.random_uniform"><code class="name flex">
 <span>def <span class="ident">random_uniform</span></span>(<span>self, shape, low, high, dtype: Optional[phiml.backend._dtype.DType])</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Float tensor of selected precision containing random values in the range [0, 1)</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def random_uniform(self, shape, low, high, dtype: Union[DType, None]):
-    self._check_float64()
-    self.rnd_key, subkey = jax.random.split(self.rnd_key)
-
-    dtype = dtype or self.float_type
-    jdt = to_numpy_dtype(dtype)
-    if dtype.kind == float:
-        tensor = random.uniform(subkey, shape, minval=low, maxval=high, dtype=jdt)
-    elif dtype.kind == complex:
-        real = random.uniform(subkey, shape, minval=low.real, maxval=high.real, dtype=to_numpy_dtype(DType(float, dtype.precision)))
-        imag = random.uniform(subkey, shape, minval=low.imag, maxval=high.imag, dtype=to_numpy_dtype(DType(float, dtype.precision)))
-        return real + 1j * imag
-    elif dtype.kind == int:
-        tensor = random.randint(subkey, shape, low, high, dtype=jdt)
-        if tensor.dtype != jdt:
-            warnings.warn(f&#34;Jax failed to sample random integers with dtype {dtype}, returned {tensor.dtype} instead.&#34;, RuntimeWarning)
-    else:
-        raise ValueError(dtype)
-    return jax.device_put(tensor, self._default_device.ref)</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.jax.JaxBackend.range"><code class="name flex">
 <span>def <span class="ident">range</span></span>(<span>self, start, limit=None, delta=1, dtype: phiml.backend._dtype.DType = int32)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def range(self, start, limit=None, delta=1, dtype: DType = DType(int, 32)):
-    if limit is None:
-        start, limit = 0, start
-    return jnp.arange(start, limit, delta, to_numpy_dtype(dtype))</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.jax.JaxBackend.ravel_multi_index"><code class="name flex">
 <span>def <span class="ident">ravel_multi_index</span></span>(<span>self, multi_index, shape, mode: Union[str, int] = 'undefined')</span>
@@ -3395,21 +2055,6 @@ Use <code>is_available(tensor)</code> to check if the value can be represented a
 </dl>
 <h2 id="returns">Returns</h2>
 <p>Integer tensor of shape (batch&hellip;) of same dtype as <code>multi_index</code>.</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def ravel_multi_index(self, multi_index, shape, mode: Union[str, int] = &#39;undefined&#39;):
-    if not self.is_available(shape):
-        return Backend.ravel_multi_index(self, multi_index, shape, mode)
-    mode = mode if isinstance(mode, int) else {&#39;undefined&#39;: &#39;clip&#39;, &#39;periodic&#39;: &#39;wrap&#39;, &#39;clamp&#39;: &#39;clip&#39;}[mode]
-    idx_first = jnp.transpose(multi_index, (self.ndims(multi_index)-1,) + tuple(range(self.ndims(multi_index)-1)))
-    result = jnp.ravel_multi_index(idx_first, shape, mode=&#39;wrap&#39; if isinstance(mode, int) else mode)
-    if isinstance(mode, int):
-        outside = self.any((multi_index &lt; 0) | (multi_index &gt;= jnp.asarray(shape, dtype=multi_index.dtype)), -1)
-        result = self.where(outside, mode, result)
-    return result</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.jax.JaxBackend.repeat"><code class="name flex">
 <span>def <span class="ident">repeat</span></span>(<span>self, x, repeats, axis: int, new_length=None)</span>
@@ -3429,39 +2074,18 @@ Use <code>is_available(tensor)</code> to check if the value can be represented a
 </dl>
 <h2 id="returns">Returns</h2>
 <p>repeated Tensor</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def repeat(self, x, repeats, axis: int, new_length=None):
-    return jnp.repeat(x, self.as_tensor(repeats), axis, total_repeat_length=new_length)</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.jax.JaxBackend.requires_fixed_shapes_when_tracing"><code class="name flex">
 <span>def <span class="ident">requires_fixed_shapes_when_tracing</span></span>(<span>self) ‑> bool</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def requires_fixed_shapes_when_tracing(self) -&gt; bool:
-    return True</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.jax.JaxBackend.reshape"><code class="name flex">
 <span>def <span class="ident">reshape</span></span>(<span>self, value, shape)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def reshape(self, value, shape):
-    return jnp.reshape(value, shape)</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.jax.JaxBackend.scatter"><code class="name flex">
 <span>def <span class="ident">scatter</span></span>(<span>self, base_grid, indices, values, mode: str)</span>
@@ -3481,56 +2105,18 @@ Use <code>is_available(tensor)</code> to check if the value can be represented a
 </dl>
 <h2 id="returns">Returns</h2>
 <p>Copy of base_grid with values at <code>indices</code> updated by <code>values</code>.</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def scatter(self, base_grid, indices, values, mode: str):
-    assert mode in (&#39;add&#39;, &#39;update&#39;, &#39;max&#39;, &#39;min&#39;)
-    base_grid, values = self.auto_cast(base_grid, values)
-    batch_size = combined_dim(combined_dim(indices.shape[0], values.shape[0]), base_grid.shape[0])
-    spatial_dims = tuple(range(base_grid.ndim - 2))
-    dnums = jax.lax.ScatterDimensionNumbers(update_window_dims=(1,),  # channel dim of updates (batch dim removed)
-                                            inserted_window_dims=spatial_dims,  # no idea what this does but spatial_dims seems to work
-                                            scatter_dims_to_operand_dims=spatial_dims)  # spatial dims of base_grid (batch dim removed)
-    scatter = {&#39;add&#39;: jax.lax.scatter_add, &#39;update&#39;: jax.lax.scatter, &#39;max&#39;: jax.lax.scatter_max, &#39;min&#39;: jax.lax.scatter_min}[mode]
-    def scatter_single(base_grid, indices, values):
-        return scatter(base_grid, indices, values, dnums)
-    if self.staticshape(indices)[0] == 1:
-        indices = self.tile(indices, [batch_size, 1, 1])
-    if self.staticshape(values)[0] == 1:
-        values = self.tile(values, [batch_size, 1, 1])
-    return self.vectorized_call(scatter_single, base_grid, indices, values)</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.jax.JaxBackend.searchsorted"><code class="name flex">
 <span>def <span class="ident">searchsorted</span></span>(<span>self, sorted_sequence, search_values, side: str, dtype=int32)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def searchsorted(self, sorted_sequence, search_values, side: str, dtype=DType(int, 32)):
-    if self.ndims(sorted_sequence) == 1:
-        return jnp.searchsorted(sorted_sequence, search_values, side=side).astype(to_numpy_dtype(dtype))
-    else:
-        return jax.vmap(partial(self.searchsorted, side=side, dtype=dtype))(sorted_sequence, search_values)</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.jax.JaxBackend.seed"><code class="name flex">
 <span>def <span class="ident">seed</span></span>(<span>self, seed: int)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def seed(self, seed: int):
-    self.rnd_key = jax.random.PRNGKey(seed)</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.jax.JaxBackend.solve_triangular_dense"><code class="name flex">
 <span>def <span class="ident">solve_triangular_dense</span></span>(<span>self, matrix, rhs, lower: bool, unit_diagonal: bool)</span>
@@ -3547,28 +2133,12 @@ Use <code>is_available(tensor)</code> to check if the value can be represented a
 unit_diagonal:</p>
 <h2 id="returns">Returns</h2>
 <p>(batch_size, cols)</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def solve_triangular_dense(self, matrix, rhs, lower: bool, unit_diagonal: bool):
-    matrix, rhs = self.auto_cast(matrix, rhs, int_to_float=True, bool_to_int=True)
-    x = jax.lax.linalg.triangular_solve(matrix, rhs, lower=lower, unit_diagonal=unit_diagonal, left_side=True)
-    return x</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.jax.JaxBackend.sort"><code class="name flex">
 <span>def <span class="ident">sort</span></span>(<span>self, x, axis=-1)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def sort(self, x, axis=-1):
-    return jnp.sort(x, axis)</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.jax.JaxBackend.sparse_coo_tensor"><code class="name flex">
 <span>def <span class="ident">sparse_coo_tensor</span></span>(<span>self, indices: Union[tuple, list], values, shape: tuple)</span>
@@ -3589,69 +2159,30 @@ unit_diagonal:</p>
 </dl>
 <h2 id="returns">Returns</h2>
 <p>Native representation of the sparse matrix</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def sparse_coo_tensor(self, indices: Union[tuple, list], values, shape: tuple):
-    return BCOO((values, indices), shape=shape)</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.jax.JaxBackend.std"><code class="name flex">
 <span>def <span class="ident">std</span></span>(<span>self, x, axis=None, keepdims=False)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def std(self, x, axis=None, keepdims=False):
-    return jnp.std(x, axis, keepdims=keepdims)</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.jax.JaxBackend.sum"><code class="name flex">
 <span>def <span class="ident">sum</span></span>(<span>self, value, axis=None, keepdims=False)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def sum(self, value, axis=None, keepdims=False):
-    if isinstance(value, (tuple, list)):
-        assert axis == 0
-        return sum(value[1:], value[0])
-    return jnp.sum(value, axis=axis, keepdims=keepdims)</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.jax.JaxBackend.tensordot"><code class="name flex">
 <span>def <span class="ident">tensordot</span></span>(<span>self, a, a_axes: Union[tuple, list], b, b_axes: Union[tuple, list])</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Multiply-sum-reduce a_axes of a with b_axes of b.</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def tensordot(self, a, a_axes: Union[tuple, list], b, b_axes: Union[tuple, list]):
-    return jnp.tensordot(a, b, (a_axes, b_axes))</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.jax.JaxBackend.to_dlpack"><code class="name flex">
 <span>def <span class="ident">to_dlpack</span></span>(<span>self, tensor)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def to_dlpack(self, tensor):
-    from jax import dlpack
-    return dlpack.to_dlpack(tensor)</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.jax.JaxBackend.unique"><code class="name flex">
 <span>def <span class="ident">unique</span></span>(<span>self, x: ~TensorType, return_inverse: bool, return_counts: bool, axis: int) ‑> Tuple[~TensorType, ...]</span>
@@ -3677,26 +2208,12 @@ unit_diagonal:</p>
 <dt><code>unique_counts</code></dt>
 <dd>Number of occurrences of each unique slices</dd>
 </dl></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def unique(self, x: TensorType, return_inverse: bool, return_counts: bool, axis: int) -&gt; Tuple[TensorType, ...]:
-    return jnp.unique(x, return_inverse=return_inverse, return_counts=return_counts, axis=axis)</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.jax.JaxBackend.unravel_index"><code class="name flex">
 <span>def <span class="ident">unravel_index</span></span>(<span>self, flat_index, shape)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def unravel_index(self, flat_index, shape):
-    return jnp.stack(jnp.unravel_index(flat_index, shape), -1)</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.jax.JaxBackend.vectorized_call"><code class="name flex">
 <span>def <span class="ident">vectorized_call</span></span>(<span>self, f, *args, output_dtypes=None, **aux_args)</span>
@@ -3714,33 +2231,12 @@ All tensors in <code>args</code> must have the same size or <code>1</code> in th
 <dt><strong><code>**aux_args</code></strong></dt>
 <dd>Non-vectorized keyword arguments to be passed to <code>f</code>.</dd>
 </dl></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def vectorized_call(self, f, *args, output_dtypes=None, **aux_args):
-    batch_size = self.determine_size(args, 0)
-    args = [self.tile_to(t, 0, batch_size) for t in args]
-    def f_positional(*args):
-        return f(*args, **aux_args)
-    vec_f = jax.vmap(f_positional, 0, 0)
-    return vec_f(*args)</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.jax.JaxBackend.where"><code class="name flex">
 <span>def <span class="ident">where</span></span>(<span>self, condition, x=None, y=None)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def where(self, condition, x=None, y=None):
-    if x is None or y is None:
-        return jnp.argwhere(condition)
-    return jnp.where(condition, x, y)</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.jax.JaxBackend.while_loop"><code class="name flex">
 <span>def <span class="ident">while_loop</span></span>(<span>self, loop: Callable, values: tuple, max_iter: Union[int, Tuple[int, ...], List[int]])</span>
@@ -3766,58 +2262,18 @@ return values
 If <code>max_iter</code> is a sequence, stacks the variables after each entry in <code>max_iter</code>, adding an outer dimension of size <code>&lt;= len(max_iter)</code>.
 If the condition is fulfilled before the maximum max_iter is reached, the loop may be broken or not, depending on the implementation.
 If the loop is broken, the values returned by the last loop are expected to be constant and filled.</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def while_loop(self, loop: Callable, values: tuple, max_iter: Union[int, Tuple[int, ...], List[int]]):
-    if all(self.is_available(t) for t in values):
-        return self.stop_gradient_tree(Backend.while_loop(self, loop, values, max_iter))
-    if isinstance(max_iter, (tuple, list)):  # stack traced trajectory, unroll until max_iter
-        values = self.stop_gradient_tree(values)
-        trj = [values] if 0 in max_iter else []
-        for i in range(1, max(max_iter) + 1):
-            values = loop(*values)
-            if i in max_iter:
-                trj.append(values)  # values are not mutable so no need to copy
-        return self.stop_gradient_tree(self.stack_leaves(trj))
-    else:
-        if max_iter is None:
-            cond = lambda vals: jnp.any(vals[0])
-            body = lambda vals: loop(*vals)
-            return jax.lax.while_loop(cond, body, values)
-        else:
-            cond = lambda vals: jnp.any(vals[1][0]) &amp; (vals[0] &lt; max_iter)
-            body = lambda vals: (vals[0] + 1, loop(*vals[1]))
-            return jax.lax.while_loop(cond, body, (self.as_tensor(0), values))[1]</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.jax.JaxBackend.zeros"><code class="name flex">
 <span>def <span class="ident">zeros</span></span>(<span>self, shape, dtype: phiml.backend._dtype.DType = None)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def zeros(self, shape, dtype: DType = None):
-    self._check_float64()
-    return jax.device_put(jnp.zeros(shape, dtype=to_numpy_dtype(dtype or self.float_type)), self._default_device.ref)</code></pre>
-</details>
 </dd>
 <dt id="phiml.backend.jax.JaxBackend.zeros_like"><code class="name flex">
 <span>def <span class="ident">zeros_like</span></span>(<span>self, tensor)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def zeros_like(self, tensor):
-    return jax.device_put(jnp.zeros_like(tensor), self._default_device.ref)</code></pre>
-</details>
 </dd>
 </dl>
 </dd>
@@ -3825,7 +2281,6 @@ If the loop is broken, the values returned by the last loop are expected to be c
 </section>
 </article>
 <nav id="sidebar">
-<h1>Index</h1>
 <div class="toc">
 <ul></ul>
 </div>
@@ -3860,6 +2315,7 @@ If the loop is broken, the values returned by the last loop are expected to be c
 <li><code><a title="phiml.backend.jax.JaxBackend.argmin" href="#phiml.backend.jax.JaxBackend.argmin">argmin</a></code></li>
 <li><code><a title="phiml.backend.jax.JaxBackend.argsort" href="#phiml.backend.jax.JaxBackend.argsort">argsort</a></code></li>
 <li><code><a title="phiml.backend.jax.JaxBackend.as_tensor" href="#phiml.backend.jax.JaxBackend.as_tensor">as_tensor</a></code></li>
+<li><code><a title="phiml.backend.jax.JaxBackend.batched_gather_1d" href="#phiml.backend.jax.JaxBackend.batched_gather_1d">batched_gather_1d</a></code></li>
 <li><code><a title="phiml.backend.jax.JaxBackend.batched_gather_nd" href="#phiml.backend.jax.JaxBackend.batched_gather_nd">batched_gather_nd</a></code></li>
 <li><code><a title="phiml.backend.jax.JaxBackend.bincount" href="#phiml.backend.jax.JaxBackend.bincount">bincount</a></code></li>
 <li><code><a title="phiml.backend.jax.JaxBackend.block_until_ready" href="#phiml.backend.jax.JaxBackend.block_until_ready">block_until_ready</a></code></li>
@@ -3911,6 +2367,7 @@ If the loop is broken, the values returned by the last loop are expected to be c
 <li><code><a title="phiml.backend.jax.JaxBackend.log10" href="#phiml.backend.jax.JaxBackend.log10">log10</a></code></li>
 <li><code><a title="phiml.backend.jax.JaxBackend.log2" href="#phiml.backend.jax.JaxBackend.log2">log2</a></code></li>
 <li><code><a title="phiml.backend.jax.JaxBackend.log_gamma" href="#phiml.backend.jax.JaxBackend.log_gamma">log_gamma</a></code></li>
+<li><code><a title="phiml.backend.jax.JaxBackend.matrix_rank_dense" href="#phiml.backend.jax.JaxBackend.matrix_rank_dense">matrix_rank_dense</a></code></li>
 <li><code><a title="phiml.backend.jax.JaxBackend.matrix_solve_least_squares" href="#phiml.backend.jax.JaxBackend.matrix_solve_least_squares">matrix_solve_least_squares</a></code></li>
 <li><code><a title="phiml.backend.jax.JaxBackend.max" href="#phiml.backend.jax.JaxBackend.max">max</a></code></li>
 <li><code><a title="phiml.backend.jax.JaxBackend.maximum" href="#phiml.backend.jax.JaxBackend.maximum">maximum</a></code></li>
@@ -3977,7 +2434,7 @@ If the loop is broken, the values returned by the last loop are expected to be c
 </nav>
 </main>
 <footer id="footer">
-<p>Generated by <a href="https://pdoc3.github.io/pdoc" title="pdoc: Python API documentation generator"><cite>pdoc</cite> 0.10.0</a>.</p>
+<p>Generated by <a href="https://pdoc3.github.io/pdoc" title="pdoc: Python API documentation generator"><cite>pdoc</cite> 0.11.0</a>.</p>
 </footer>
 </body>
 </html>
