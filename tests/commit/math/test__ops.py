@@ -6,7 +6,7 @@ from phiml import math
 from phiml.backend import Backend
 from phiml.backend._backend import init_installed_backends
 from phiml.math import extrapolation, spatial, channel, instance, batch, DType, IncompatibleShapes, NAN, vec, \
-    non_spatial, wrap, assert_close, PI, tensor
+    non_spatial, wrap, assert_close, PI, tensor, stack
 
 BACKENDS = init_installed_backends()
 
@@ -42,6 +42,19 @@ class TestOps(TestCase):
         self.assertFalse(math.equal('a', 'b'))
         with math.precision(64):
             self.assertFalse(math.equal(1., 1.000000001))
+
+    def test_close(self):
+        # --- non-uniform ---
+        c = math.close(0, stack([(1, 0), (1, 0, 1), (0, 0)], batch('stack')), reduce='vector')
+        math.assert_close([False, False, True], c)
+        c = math.close(0, stack([(1, 0), (1, 0, 1), (0, 0)], batch('stack')))
+        self.assertEqual(False, c)
+        # --- batched tolerance ---
+        tol = wrap([0, 1], batch('b'))
+        c = math.close(0, 0.1, abs_tolerance=tol, reduce=None)
+        math.assert_close([False, True], c)
+        c = math.close(0, 0.1, abs_tolerance=tol)
+        self.assertEqual(False, c)
 
     def test_always_close(self):
         @math.jit_compile

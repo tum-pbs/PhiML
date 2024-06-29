@@ -9,7 +9,7 @@ import numpy as np
 from ..backend import default_backend, choose_backend, Backend, get_precision, convert as b_convert, BACKENDS, NoBackendFound, ComputeDevice, NUMPY
 from ..backend._dtype import DType, combine_types
 from .magic import PhiTreeNode
-from ._magic_ops import expand, pack_dims, unpack_dim, cast, value_attributes, bool_to_int, tree_map, concat, stack, unstack, rename_dims
+from ._magic_ops import expand, pack_dims, unpack_dim, cast, value_attributes, bool_to_int, tree_map, concat, stack, unstack, rename_dims, slice_
 from ._shape import (Shape, EMPTY_SHAPE,
                      spatial, batch, channel, instance, merge_shapes, parse_dim_order, concat_shapes,
                      IncompatibleShapes, DimFilter, non_batch, dual, non_channel, shape, shape as get_shape)
@@ -1053,7 +1053,7 @@ def broadcast_op(operation: Callable,
             gathered = [t[i] if isinstance(t, tuple) else t for t in unstacked]
             result_unstacked.append(broadcast_op(operation, gathered, iter_dims=set(iter_dims) - {dim}))
         if not no_return:
-            return TensorStack(result_unstacked, Shape((size,), (dim,), (dim_type,), (item_names,)))
+            return stack(result_unstacked, Shape((size,), (dim,), (dim_type,), (item_names,)))
 
 
 def where(condition: Union[Tensor, float, int],
@@ -2775,7 +2775,7 @@ def always_close(t1: Union[Number, Tensor, bool], t2: Union[Number, Tensor, bool
         return t1 is t2
 
 
-def close(*tensors, rel_tolerance=1e-5, abs_tolerance=0, equal_nan=False) -> bool:
+def close(*tensors, rel_tolerance: Union[float, Tensor] = 1e-5, abs_tolerance: Union[float, Tensor] = 0, equal_nan=False, reduce=shape) -> bool:
     """
     Checks whether all tensors have equal values within the specified tolerance.
     
@@ -2803,10 +2803,10 @@ def close(*tensors, rel_tolerance=1e-5, abs_tolerance=0, equal_nan=False) -> boo
     if all(t is tensors[0] for t in tensors):
         return True
     tensors = [wrap(t) for t in tensors]
+    c = True
     for other in tensors[1:]:
-        if not _close(tensors[0], other, rel_tolerance=rel_tolerance, abs_tolerance=abs_tolerance, equal_nan=equal_nan):
-            return False
-    return True
+        c &= _close(tensors[0], other, rel_tolerance=rel_tolerance, abs_tolerance=abs_tolerance, equal_nan=equal_nan, reduce=reduce)
+    return c
 
 
 def equal(*objects, equal_nan=False) -> bool:
@@ -2838,13 +2838,19 @@ def equal(*objects, equal_nan=False) -> bool:
     return close(*tensors, rel_tolerance=0, abs_tolerance=0, equal_nan=equal_nan)
 
 
-def _close(tensor1: Tensor, tensor2: Tensor, rel_tolerance=1e-5, abs_tolerance=0, equal_nan=False):
+def _close(tensor1: Tensor, tensor2: Tensor, rel_tolerance: Union[float, Tensor] = 1e-5, abs_tolerance: Union[float, Tensor] = 0, equal_nan=False, reduce=shape):
+    reduce = tensor1.shape.only(reduce).names + tensor2.shape.only(reduce).names + shape(rel_tolerance).only(reduce).names + shape(abs_tolerance).only(reduce).names
+    non_reduced = tensor1.shape.without(reduce) & tensor2.shape.without(reduce) & shape(rel_tolerance).without(reduce) & shape(abs_tolerance).without(reduce)
+    if non_reduced:
+        return broadcast_op(_close, [tensor1, tensor2, wrap(rel_tolerance), wrap(abs_tolerance), wrap(equal_nan)], non_reduced)
     if tensor2 is tensor1:
         return True
-    if tensor1.shape.is_non_uniform or tensor2.shape.is_non_uniform:
-        non_uniform_dims = tensor2.shape.shape.without('dims') & tensor1.shape.shape.without('dims')
-        inner_close = [_close(t1, t2) for t1, t2 in zip(unstack(tensor1, non_uniform_dims), unstack(tensor2, non_uniform_dims))]
-        return all(inner_close)
+    iter_dims = tensor1.shape.non_uniform_shape & tensor2.shape.non_uniform_shape & shape(rel_tolerance) & shape(abs_tolerance)
+    if iter_dims:
+        for i in iter_dims.meshgrid():
+            if not _close(tensor1[i], tensor2[i], slice_(rel_tolerance, i), slice_(abs_tolerance, i)):
+                return False
+        return True
     if is_sparse(tensor1) or is_sparse(tensor2):
         if not is_sparse(tensor1) or not is_sparse(tensor2):
             tensor1 = dense(tensor1)
@@ -2863,7 +2869,7 @@ def _close(tensor1: Tensor, tensor2: Tensor, rel_tolerance=1e-5, abs_tolerance=0
     new_shape, (native1, native2) = broadcastable_native_tensors(tensor1, tensor2)
     np1 = choose_backend(native1).numpy(native1)
     np2 = choose_backend(native2).numpy(native2)
-    return np.allclose(np1, np2, rel_tolerance, abs_tolerance, equal_nan=equal_nan)
+    return np.allclose(np1, np2, float(rel_tolerance), float(abs_tolerance), equal_nan=bool(equal_nan))
 
 
 def assert_close(*values,
