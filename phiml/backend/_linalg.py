@@ -782,5 +782,5 @@ def linear(b: Backend, lin, vector, matrix_offset):
     """Apply linear function with matrix offset to vector, i.e. `(lin+matrix_offset) @ vector`"""
     result = b.linear(lin, vector)
     if matrix_offset is not None:
-        result += b.sum(vector) * matrix_offset
+        result += b.sum(vector, 1, keepdims=True) * matrix_offset[:, None]
     return result
