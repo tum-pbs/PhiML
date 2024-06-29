@@ -3,6 +3,7 @@ from typing import Callable, Dict, Set, Tuple, Union, Any, Optional, Sequence, L
 
 import numpy
 import numpy as np
+from phiml.backend import get_precision
 from scipy.sparse import csr_matrix
 
 from ..backend import choose_backend, NUMPY, Backend
@@ -209,6 +210,19 @@ class ShiftLinTracer(Tensor):
         return self._upgrade_gather()._scatter(base, indices)
 
     def min_rank_deficiency(self) -> Tensor:
+        trimming_dict = {}
+        for dim in pattern_dim_names(self):
+            shifts = [shift.get_size(dim) if dim in shift else 0 for shift in self.val]
+            lo = -min(shifts)
+            hi = -max(shifts) or None
+            trimming_dict[dim] = slice(lo, hi)
+        trimmed_vals = [v[trimming_dict] for v in self.val.values()]
+        stencil_sum = sum(trimmed_vals)
+        stencil_abs = sum([abs(v) for v in trimmed_vals])
+        eps = {16: 1e-2, 32: 1e-5, 64: 1e-10}[get_precision()]
+        balanced_stencil = math.close(0, stencil_sum, rel_tolerance=0, abs_tolerance=eps * float(math.mean(stencil_abs)))
+        if not balanced_stencil:
+            return wrap(0)
         deficiency = 0
         for shift, nonzero in self._nz_edge.items():
             if shift and nonzero:
