@@ -220,14 +220,12 @@ class ShiftLinTracer(Tensor):
         stencil_sum = sum(trimmed_vals)
         stencil_abs = sum([abs(v) for v in trimmed_vals])
         eps = {16: 1e-2, 32: 1e-5, 64: 1e-10}[get_precision()]
-        balanced_stencil = math.close(0, stencil_sum, rel_tolerance=0, abs_tolerance=eps * float(math.mean(stencil_abs)))
-        if not balanced_stencil:
-            return wrap(0)
+        balanced_stencil = math.close(0, stencil_sum, rel_tolerance=0, abs_tolerance=eps * math.mean(stencil_abs), reduce=pattern_dim_names(self))
         deficiency = 0
         for shift, nonzero in self._nz_edge.items():
             if shift and nonzero:
                 deficiency += 1
-        return wrap(deficiency)
+        return math.where(balanced_stencil, deficiency, 0)
 
 
 def simplify_add(val: dict, nz_edge: dict) -> Tuple[Dict[Shape, Tensor], Dict[Shape, bool]]:
