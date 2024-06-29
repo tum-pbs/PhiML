@@ -541,7 +541,7 @@ class JaxBackend(Backend):
         return jnp.all(boolean_tensor, axis=axis, keepdims=keepdims)
 
     def scatter(self, base_grid, indices, values, mode: str):
-        assert mode in ('add', 'update', 'max', 'min')
+        out_kind = self.combine_types(self.dtype(base_grid), self.dtype(values)).kind
         base_grid, values = self.auto_cast(base_grid, values, bool_to_int=True)
         batch_size = combined_dim(combined_dim(indices.shape[0], values.shape[0]), base_grid.shape[0])
         spatial_dims = tuple(range(base_grid.ndim - 2))
@@ -555,7 +555,11 @@ class JaxBackend(Backend):
             indices = self.tile(indices, [batch_size, 1, 1])
         if self.staticshape(values)[0] == 1:
             values = self.tile(values, [batch_size, 1, 1])
-        return self.vectorized_call(scatter_single, base_grid, indices, values)
+        result = self.vectorized_call(scatter_single, base_grid, indices, values)
+        if self.dtype(result).kind != out_kind:
+            if out_kind == bool:
+                result = self.cast(result, DType(bool))
+        return result
 
     def histogram1d(self, values, weights, bin_edges):
         def unbatched_hist(values, weights, bin_edges):

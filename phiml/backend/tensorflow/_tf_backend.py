@@ -609,14 +609,19 @@ class TFBackend(Backend):
             return tf.searchsorted(sorted_sequence, search_values, side=side, out_type=to_numpy_dtype(dtype))
 
     def scatter(self, base_grid, indices, values, mode: str):
+        out_kind = self.combine_types(self.dtype(base_grid), self.dtype(values)).kind
         with self._device_for(base_grid, indices, values):
-            base_grid, values = self.auto_cast(base_grid, values)
+            base_grid, values = self.auto_cast(base_grid, values, bool_to_int=mode == 'add')
             indices = self.as_tensor(indices)
-            batch_size = combined_dim(combined_dim(indices.shape[0], values.shape[0]), base_grid.shape[0])
+            _batch_size = combined_dim(combined_dim(indices.shape[0], values.shape[0]), base_grid.shape[0])
             scatter = {'add': tf.tensor_scatter_nd_add, 'update': tf.tensor_scatter_nd_update, 'max': tf.tensor_scatter_nd_max, 'min': tf.tensor_scatter_nd_min}[mode]
             def scatter_single(b_grid, b_indices, b_values):
                 return scatter(b_grid, b_indices, b_values)
-            return self.vectorized_call(scatter_single, base_grid, indices, values, output_dtypes=self.dtype(base_grid))
+            result = self.vectorized_call(scatter_single, base_grid, indices, values, output_dtypes=self.dtype(base_grid))
+            if self.dtype(result).kind != out_kind:
+                if out_kind == bool:
+                    result = self.cast(result, DType(bool))
+            return result
 
     def histogram1d(self, values, weights, bin_edges):
         with self._device_for(values, weights, bin_edges):

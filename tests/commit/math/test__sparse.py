@@ -183,13 +183,17 @@ class TestSparse(TestCase):
                 for scipy_type in [coo_matrix, csr_matrix, csc_matrix]:
                     M = scipy_type([[1, 0, 3], [0, 2, 0]])
                     t = tensor(M, channel('c') & dual)
-                    math.assert_close([1, 0, 3], math.dense(t).c[0])
-                    self.assertEqual(int, t.dtype.kind)
+                    d = math.dense(t)
+                    math.assert_close([1, 0, 3], d.c[0])
+                    self.assertEqual(int, t.dtype.kind, msg=backend.name)
+                    self.assertEqual(int, d.dtype.kind, msg=backend.name)
                     self.assertEqual(t.default_backend, backend)
                 # --- bool ---
                 for scipy_type in [coo_matrix, csr_matrix, csc_matrix]:
                     M = scipy_type([[True, False, True], [False, True, False]])
                     t = tensor(M, channel('c') & dual)
-                    math.assert_close([True, False, True], math.dense(t).c[0])
-                    self.assertEqual(bool, t.dtype.kind)
+                    d = math.dense(t)
+                    math.assert_close([True, False, True], d.c[0])
+                    self.assertEqual(bool, t.dtype.kind, msg=backend.name)
+                    self.assertEqual(bool, d.dtype.kind, msg=backend.name)
                     self.assertEqual(t.default_backend, backend)
