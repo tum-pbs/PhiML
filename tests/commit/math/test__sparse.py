@@ -4,7 +4,7 @@ from phiml import math
 from phiml.backend._backend import init_installed_backends
 from phiml.math import batch, get_sparsity, expand, wrap, stack, zeros, channel, spatial, ones, instance, tensor, \
     pairwise_distances, dense, assert_close, non_dual, dual, concat
-from phiml.math._sparse import SparseCoordinateTensor, CompressedSparseMatrix
+from phiml.math._sparse import SparseCoordinateTensor, CompressedSparseMatrix, CompactSparseTensor
 from scipy.sparse import coo_matrix, csr_matrix, csc_matrix
 
 BACKENDS = init_installed_backends()
@@ -197,3 +197,13 @@ class TestSparse(TestCase):
                     self.assertEqual(bool, t.dtype.kind, msg=backend.name)
                     self.assertEqual(bool, d.dtype.kind, msg=backend.name)
                     self.assertEqual(t.default_backend, backend)
+
+    def test_compact(self):
+        indices = wrap([(0, 2), (1, 2)], instance('row'), dual('col'))
+        values = wrap([(1, 2), (3, 4)], instance('row'), dual('col'))
+        matrix = CompactSparseTensor(indices, values, dual(col=3), True)
+        self.assertEqual('compact-cols', math.get_format(matrix))
+        true = wrap([[1, 0, 2], [0, 3, 4]], instance('row'), dual('col'))
+        math.assert_close(true, matrix, math.dense(matrix))
+        for format in ['coo', 'dense', 'csr', 'csc']:
+            math.assert_close(true, math.to_format(matrix, format), msg=format)
