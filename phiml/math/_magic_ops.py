@@ -283,7 +283,7 @@ def concat(values: Union[tuple, list], dim: Union[str, Shape], expand_values=Fal
             assert dim in shape(v), f"concat dim '{dim}' must be present in the shapes of all values bot got value {type(v).__name__} with shape {shape(v)}"
         for v in values[1:]:
             assert set(non_batch(v).names) == set(non_batch(values[0]).names), f"Concatenated values must have the same non-batch dimensions but got {non_batch(values[0])} and {non_batch(v)}"
-        all_batch_dims = merge_shapes(*[shape(v).batch for v in values])
+        all_batch_dims = merge_shapes(*[shape(v).batch.without(dim) for v in values])
         values = [expand(v, all_batch_dims) for v in values]
     # --- First try __concat__ ---
     for v in values:
