@@ -2455,7 +2455,8 @@ def scatter(base_grid: Union[Tensor, Shape],
             mode: Union[str, Callable] = 'update',
             outside_handling: str = 'discard',
             indices_gradient=False,
-            default=None):
+            default=None,
+            treat_as_batch=None):
     """
     Scatters `values` into `base_grid` at `indices`.
     instance dimensions of `indices` and/or `values` are reduced during scattering.
@@ -2494,6 +2495,9 @@ def scatter(base_grid: Union[Tensor, Shape],
         default: Default value to use for bins into which no value is scattered.
             By default, `NaN` is used for the modes `update` and `mean`, `0` for `sum`, `inf` for min and `-inf` for max.
             This will upgrade the data type to `float` if necessary.
+        treat_as_batch: Dimensions which should be treated like dims by this operation.
+            This can be used for scattering vectors along instance dims into a grid.
+            Normally, instance dims on `values` and `indices` would not be matched to `base_grid` but when treated as batch, they will be.
 
     Returns:
         Copy of `base_grid` with updated values at `indices`.
@@ -2550,6 +2554,7 @@ def scatter(base_grid: Union[Tensor, Shape],
         assert channel(indices).volume == indexed_dims.rank
     values = wrap(values)
     batches = values.shape.non_channel.non_instance & indices.shape.non_channel.non_instance
+    batches &= values.shape.only(treat_as_batch) & indices.shape.only(treat_as_batch)
     channels = grid_shape.without(indexed_dims).without(batches) & values.shape.channel
     # --- Set up grid ---
     if isinstance(base_grid, Shape):
