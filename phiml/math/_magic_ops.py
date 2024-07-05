@@ -191,10 +191,10 @@ def stack(values: Union[tuple, list, dict], dim: Union[Shape, str], expand_value
             if attributes and all(all_attributes(v) == attributes for v in values):
                 new_attrs = {}
                 for a in attributes:
-                    assert all(dim not in shape(getattr(v, a)) for v in values), f"Cannot stack attribute {a} because one values contains the stack dimension {dim}."
+                    assert all([dim not in shape(getattr(v, a)) for v in values]), f"Cannot stack attribute {a} because one value already contains the stack dim {dim}."
                     a_values = [getattr(v, a) for v in values]
                     if all(v is a_values[0] for v in a_values[1:]):
-                        new_attrs[a] = expand(a_values[0], dim, **kwargs)
+                        new_attrs[a] = expand(a_values[0], dim, **kwargs) if a_values[0] is not None else a_values[0]
                     else:
                         new_attrs[a] = stack(a_values, dim, expand_values=expand_values, **kwargs)
                 return copy_with(values[0], **new_attrs)
