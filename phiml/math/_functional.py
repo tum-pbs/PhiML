@@ -1308,7 +1308,7 @@ def iterate(map_function: Callable,
         raise ValueError(f"iterations must be an int or Shape but got {type(iterations)}")
 
 
-def map_(function, *args, dims: DimFilter = shape, range=range, unwrap_scalars=True, **kwargs) -> Union[None, Tensor, Tuple[Optional[Tensor]]]:
+def map_(function: Callable[..., Y], *args, dims: DimFilter = shape, range=range, unwrap_scalars=True, **kwargs) -> Union[None, Tensor, Y]:
     """
     Calls `function` on slices of the arguments and returns the stacked result.
 
