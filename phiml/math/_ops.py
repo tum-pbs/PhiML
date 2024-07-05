@@ -745,8 +745,7 @@ def stack_tensors(values: Union[tuple, list], dim: Shape):
     def inner_stack(*values):
         if len(values) > 1 or not isinstance(values[0], NativeTensor):
             if all(isinstance(t, SparseCoordinateTensor) for t in values):
-                if all(values[0]._indices is t._indices for t in values):
-                    return values[0]._with_values(stack_tensors([v._values for v in values], dim))
+                raise AssertionError("should have called SparseCoordinateTensor.__stack__()")
             return TensorStack(values, dim)
         else:
             value: NativeTensor = values[0]
