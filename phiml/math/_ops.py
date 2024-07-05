@@ -2277,13 +2277,23 @@ def safe_div(x: Union[Number, Tensor], y: Union[Number, Tensor]):
                       op_name='divide_no_nan')
 
 
-def maximum(x: Union[Tensor, float], y: Union[Tensor, float]):
+def maximum(x: Union[Tensor, float], y: Union[Tensor, float], allow_none=False):
     """ Computes the element-wise maximum of `x` and `y`. """
+    if allow_none:
+        if x is None:
+            return y
+        elif y is None:
+            return x
     return custom_op2(x, y, maximum, lambda x_, y_: choose_backend(x_, y_).maximum(x_, y_), op_name='maximum')
 
 
-def minimum(x: Union[Tensor, float], y: Union[Tensor, float]):
+def minimum(x: Union[Tensor, float], y: Union[Tensor, float], allow_none=False):
     """ Computes the element-wise minimum of `x` and `y`. """
+    if allow_none:
+        if x is None:
+            return y
+        elif y is None:
+            return x
     return custom_op2(x, y, minimum, lambda x_, y_: choose_backend(x_, y_).minimum(x_, y_), op_name='minimum')
 
 
