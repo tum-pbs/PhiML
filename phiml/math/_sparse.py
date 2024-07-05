@@ -1,7 +1,7 @@
 import warnings
 from functools import partial
 from numbers import Number
-from typing import Callable, Tuple, Union
+from typing import Callable, Tuple, Union, Optional
 
 import numpy as np
 from phiml.backend._backend import TensorType, TensorOrArray
@@ -16,8 +16,8 @@ from ..backend import choose_backend, NUMPY, Backend, get_precision
 from ..backend._dtype import DType
 
 
-def sparse_tensor(indices: Tensor,
-                  values: Tensor,
+def sparse_tensor(indices: Optional[Tensor],
+                  values: Optional[Tensor],
                   dense_shape: Shape,
                   can_contain_double_entries=True,
                   indices_sorted=False,
@@ -35,6 +35,8 @@ def sparse_tensor(indices: Tensor,
             * One channel dimension.
               Its item names must match the dimension names of `dense_shape` but the order can be arbitrary.
             * Any number of batch dimensions
+
+            You may pass `None` to create a sparse tensor with no entries.
 
         values: `Tensor` containing the stored values at positions given by `indices`. It has the following dimensions:
 
@@ -58,6 +60,14 @@ def sparse_tensor(indices: Tensor,
     if indices_constant is None:
         indices_constant = indices.default_backend.name == 'numpy'
     assert isinstance(indices_constant, bool)
+    if indices is None:
+        from ._ops import ones
+        indices = ones(instance(entries=0), channel(idx=dense_shape.name_list), dtype=int)
+        can_contain_double_entries = False
+        indices_constant = True
+    if values is None:
+        from ._ops import ones
+        values = ones(instance(indices))
     coo = SparseCoordinateTensor(indices, values, dense_shape, can_contain_double_entries, indices_sorted, indices_constant)
     return to_format(coo, format)
 
@@ -1023,8 +1033,7 @@ class CompactSparseTensor(Tensor):
 
     @staticmethod
     def __stack__(values: tuple, dim: Shape, **_kwargs) -> 'Tensor':
-        raise NotImplementedError
-        if all(isinstance(v, SparseCoordinateTensor) for v in values) and all([same_sparsity_pattern(v, values[0]) for v in values[1:]]):
+        if all(isinstance(v, CompactSparseTensor) for v in values) and all([same_sparsity_pattern(v, values[0]) for v in values[1:]]):
             stacked = stack([v._values for v in values], dim, **_kwargs)
             ranks = stack([v._matrix_rank for v in values], dim, **_kwargs)
             return values[0]._with_values(stacked, ranks)
@@ -1295,6 +1304,8 @@ def same_sparsity_pattern(t1: Tensor, t2: Tensor, allow_const=False):
     if isinstance(t1, CompressedSparseMatrix):
         return always_close(t1._indices, t2._indices) and always_close(t1._pointers, t2._pointers)
     if isinstance(t1, SparseCoordinateTensor):
+        return always_close(t1._indices, t2._indices, rel_tolerance=0)
+    if isinstance(t1, CompactSparseTensor):
         return always_close(t1._indices, t2._indices, rel_tolerance=0)
     raise NotImplementedError
 
