@@ -1,5 +1,5 @@
 from collections import namedtuple
-from typing import Callable, Dict, Set, Tuple, Union, Any, Optional, Sequence, List
+from typing import Callable, Dict, Set, Tuple, Union, Any, Optional, Sequence, List, Collection
 
 import numpy
 import numpy as np
@@ -11,7 +11,7 @@ from ._ops import choose_backend_t, concat_tensor, scatter, zeros_like
 from ._shape import Shape, parse_dim_order, merge_shapes, spatial, instance, batch, concat_shapes, EMPTY_SHAPE, dual, channel, non_batch, primal, non_channel, DEBUG_CHECKS
 from ._magic_ops import stack, expand, rename_dims, unpack_dim, unstack, value_attributes
 from ._tensors import Tensor, wrap, disassemble_tree, disassemble_tensors, assemble_tree, TensorStack, may_vary_along, \
-    discard_constant_dims, variable_shape, NativeTensor
+    discard_constant_dims, variable_shape, NativeTensor, equality_by_shape_and_value
 from ._sparse import SparseCoordinateTensor, is_sparse, sparse_dims, same_sparsity_pattern, sparse_tensor, stored_indices, stored_values, add_sparse_batch_dim
 from . import _ops as math
 from ..backend._dtype import combine_types
@@ -27,7 +27,7 @@ class ShiftLinTracer(Tensor):
     Dimensions not contained in any `val` Tensor are treated as independent (batch dimensions).
     """
 
-    def __init__(self, source: TracerSource, values_by_shift: dict, shape: Shape, bias: Tensor, renamed: Dict[str, str], nz_edge):
+    def __init__(self, source: TracerSource, values_by_shift: dict, shape: Shape, bias: Tensor, renamed: Dict[str, str], nz_edge, simplify=True):
         """
         Args:
             source: placeholder tensor
@@ -42,9 +42,15 @@ class ShiftLinTracer(Tensor):
         super().__init__()
         assert isinstance(source, TracerSource)
         assert isinstance(renamed, dict)
+        assert isinstance(bias, Tensor)
+        assert not bias._is_tracer, f"bias cannot be a linear tracer"
         self._source = source
         assert set(values_by_shift) == set(nz_edge), f"nonzero-edge labels {nz_edge} don't match values {set(values_by_shift)}"
-        self.val, self._nz_edge = simplify_add(values_by_shift, nz_edge)
+        if simplify:
+            self.val, self._nz_edge = simplify_add(values_by_shift, nz_edge)
+        else:
+            self.val = values_by_shift
+            self._nz_edge = nz_edge
         for shift_, v in self.val.items():
             assert shift_.only(sorted(shift_.names), reorder=True) == shift_
             assert v.shape.only(shape, reorder=True) == shape.only(v.shape), f"Tracer with shape {shape} must have matching values but got {v.shape}"  # values must match shape
@@ -79,6 +85,8 @@ class ShiftLinTracer(Tensor):
     def _getitem(self, selection: dict):
         starts = {dim: (item.start or 0) if isinstance(item, slice) else item for dim, item in selection.items()}
         new_shape = math.zeros(self._shape)[selection].shape
+        if all(s == 0 for s in starts.values()):  # no shift needed
+            return ShiftLinTracer(self._source, self.val, new_shape, self._bias, self._renamed, self._nz_edge, simplify=False)
         return self.shift(starts, new_shape, lambda v: v[selection], lambda b: b[selection], nonzero_edge=False)
 
     def shift(self, shifts: Dict[str, int],
@@ -109,7 +117,7 @@ class ShiftLinTracer(Tensor):
                 if dim not in values.shape:
                     values = math.expand(values, self._shape.only(dim))  # dim order may be scrambled
                 if delta:
-                    shift = shift._replace_single_size(dim, shift.get_size(dim) + delta) if dim in shift else shift._expand(spatial(**{dim: delta}))
+                    shift = shift._replace_single_size(dim, shift.get_size(dim) + delta) if dim in shift else shift._expand(self.shape[dim].with_size(delta))
             shift = shift.only(sorted(shift.names), reorder=True)
             val[shift] = val_fun(values)
             nz_edge[shift] = nze or nonzero_edge
@@ -144,8 +152,9 @@ class ShiftLinTracer(Tensor):
         assert op_symbol in '+-*/', f"Unsupported operation encountered while tracing linear function: {native_function}"
         zeros_for_missing_self = op_name not in ['add', 'radd', 'rsub']  # perform `operator` where `self == 0`
         zeros_for_missing_other = op_name not in ['add', 'radd', 'sub']  # perform `operator` where `other == 0`
-
-        if isinstance(other, ShiftLinTracer):
+        if isinstance(other, Tensor) and other._is_tracer:
+            if not isinstance(other, ShiftLinTracer):
+                raise NotImplementedError
             assert self._source is other._source, "Multiple linear tracers are not yet supported."
             assert set(self._shape) == set(other._shape), f"Tracers have different shapes: {self._shape} and {other._shape}"
             values = {}
@@ -191,6 +200,36 @@ class ShiftLinTracer(Tensor):
 
     def _spec_dict(self) -> dict:
         raise LinearTraceInProgress(self)
+
+    @staticmethod
+    def __stack__(values: tuple, dim: Shape, **_kwargs) -> 'Tensor':
+        def same_shifts(s1: Collection[Shape], s2: Collection[Shape]):
+            s1 = set(frozenset(shift) for shift in s1)
+            s2 = set(frozenset(shift) for shift in s2)
+            return s1 == s2
+        if all(isinstance(v, ShiftLinTracer) for v in values):
+            # if shifts along other dims match and along `dim` are in the correct order -> stack values
+            shifts = values[0].val
+            stacked = [[v] for shift, v in shifts.items()]
+            nz_edge = [[values[0]._nz_edge[shift]] for shift in shifts]
+            plus_one = dim.with_size(1)
+            for i, v in enumerate(values[1:]):
+                shifts = [shift + plus_one for shift in shifts]
+                if len(v.val) != len(shifts) or not same_shifts(shifts, v.val):  # does not match
+                    return Tensor.__stack__(values, dim, **_kwargs)
+                for i, shift in enumerate(shifts):
+                    for shift2, data in v.val.items():
+                        if set(shift2) == set(shift):
+                            stacked[i].append(data)
+                            nz_edge[i].append(v._nz_edge[shift2])
+                            break
+                    else:
+                        raise AssertionError
+            stacked = {shift: stack(vals, dim) for shift, vals in zip(values[0].val, stacked)}
+            bias = stack([v._bias for v in values], dim, expand_values=True, **_kwargs)
+            nz_edge = {shift: any(nz) for shift, nz in zip(values[0].val, nz_edge)}
+            return ShiftLinTracer(values[0]._source, stacked, values[0].shape & dim, bias, values[0]._renamed, nz_edge)
+        return Tensor.__stack__(values, dim, **_kwargs)
 
     def _matmul(self, self_dims: Shape, matrix: Tensor, matrix_dims: Shape) -> Tensor:
         if is_sparse(matrix):
@@ -251,6 +290,8 @@ class GatherLinTracer(Tensor):
     def __init__(self, source: TracerSource, diag, bias: Tensor, shape: Shape, selection: Optional[Tensor], renamed: Dict[str, str]):
         super().__init__()
         assert isinstance(diag, Tensor)
+        assert isinstance(bias, Tensor)
+        assert not bias._is_tracer, f"bias cannot be a linear tracer"
         assert bias.shape in shape
         assert selection is None or selection.dtype.kind == int
         assert diag.shape in shape
