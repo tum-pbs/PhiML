@@ -19,6 +19,36 @@ from ..backend._dtype import combine_types
 TracerSource = namedtuple('TracerSource', ['shape', 'dtype', 'name', 'index'])
 
 
+class Shift:
+    def __init__(self, by_dim: Dict[str, int]):
+        self.by_dim = {dim: shift for dim, shift in by_dim.items() if shift != 0}
+        self._hash = hash(tuple(sorted(self.by_dim.items())))
+
+    def __repr__(self):
+        if not self.by_dim:
+            return "self"
+        return ", ".join(f"{dim}{amount:+}" for dim, amount in self.by_dim.items())
+
+    def __eq__(self, other):
+        return isinstance(other, Shift) and self.by_dim == other.by_dim
+
+    def __hash__(self):
+        return self._hash
+
+    def __getitem__(self, item):
+        if isinstance(item, Shape):
+            item = item.name
+        assert isinstance(item, str)
+        return self.by_dim.get(item, 0)
+
+    def __add__(self, other):
+        d1 = self.by_dim
+        d2 = other.by_dim if isinstance(other, Shift) else other
+        all_dims = set(d1.keys()).union(d2.keys())
+        result = {dim: d1.get(dim, 0) + d2.get(dim, 0) for dim in all_dims}
+        return Shift(result)
+
+
 class ShiftLinTracer(Tensor):
     """
     Tracer object for linear and affine functions.
@@ -27,11 +57,17 @@ class ShiftLinTracer(Tensor):
     Dimensions not contained in any `val` Tensor are treated as independent (batch dimensions).
     """
 
-    def __init__(self, source: TracerSource, values_by_shift: dict, shape: Shape, bias: Tensor, renamed: Dict[str, str], nz_edge, simplify=True):
+    def __init__(self,
+                 source: TracerSource,
+                 values_by_shift: Dict[Shift, Tensor],
+                 shape: Shape,
+                 bias: Tensor,
+                 renamed: Dict[str, str],
+                 nz_edge: Dict[Shift, bool]):
         """
         Args:
             source: placeholder tensor
-            values_by_shift: `dict` mapping relative shifts (`Shape`) to value Tensors.
+            values_by_shift: `dict` mapping relative shifts (`frozendict`) to value Tensors.
                 Shape keys only contain non-zero shift dims. Missing dims are interpreted as independent.
             shape: shape of this tensor
             bias: Constant Tensor to be added to the multiplication output, A*x + b.
@@ -40,20 +76,19 @@ class ShiftLinTracer(Tensor):
                 However, the bias can be subtracted from the solution vector when solving a linear system, allowing this function to be solved with regular linear system solvers.
         """
         super().__init__()
-        assert isinstance(source, TracerSource)
-        assert isinstance(renamed, dict)
-        assert isinstance(bias, Tensor)
-        assert not bias._is_tracer, f"bias cannot be a linear tracer"
+        if DEBUG_CHECKS:
+            assert isinstance(source, TracerSource)
+            assert isinstance(renamed, dict)
+            assert isinstance(bias, Tensor)
+            assert all(isinstance(shift, Shift) for shift in values_by_shift)
+            assert all(isinstance(shift, Shift) for shift in nz_edge)
+            assert not bias._is_tracer, f"bias cannot be a linear tracer"
+            assert set(values_by_shift) == set(nz_edge), f"nonzero-edge labels {nz_edge} don't match values {set(values_by_shift)}"
+            for shift_, v in values_by_shift.items():
+                assert v.shape.only(shape, reorder=True) == shape.only(v.shape), f"Tracer with shape {shape} must have matching values but got {v.shape}"  # values must match shape
         self._source = source
-        assert set(values_by_shift) == set(nz_edge), f"nonzero-edge labels {nz_edge} don't match values {set(values_by_shift)}"
-        if simplify:
-            self.val, self._nz_edge = simplify_add(values_by_shift, nz_edge)
-        else:
-            self.val = values_by_shift
-            self._nz_edge = nz_edge
-        for shift_, v in self.val.items():
-            assert shift_.only(sorted(shift_.names), reorder=True) == shift_
-            assert v.shape.only(shape, reorder=True) == shape.only(v.shape), f"Tracer with shape {shape} must have matching values but got {v.shape}"  # values must match shape
+        self.val = values_by_shift
+        self._nz_edge = nz_edge
         self._bias = bias
         self._shape = shape
         self._renamed = renamed  # new_name -> old_name
@@ -85,8 +120,6 @@ class ShiftLinTracer(Tensor):
     def _getitem(self, selection: dict):
         starts = {dim: (item.start or 0) if isinstance(item, slice) else item for dim, item in selection.items()}
         new_shape = math.zeros(self._shape)[selection].shape
-        if all(s == 0 for s in starts.values()):  # no shift needed
-            return ShiftLinTracer(self._source, self.val, new_shape, self._bias, self._renamed, self._nz_edge, simplify=False)
         return self.shift(starts, new_shape, lambda v: v[selection], lambda b: b[selection], nonzero_edge=False)
 
     def shift(self, shifts: Dict[str, int],
@@ -111,14 +144,13 @@ class ShiftLinTracer(Tensor):
         val = {}
         nz_edge = {}
         for shift, values in self.val.items():
-            assert isinstance(shift, Shape)
+            assert isinstance(shift, Shift)
             nze = self._nz_edge[shift]
             for dim, delta in reversed(tuple(shifts.items())):
                 if dim not in values.shape:
                     values = math.expand(values, self._shape.only(dim))  # dim order may be scrambled
                 if delta:
-                    shift = shift._replace_single_size(dim, shift.get_size(dim) + delta) if dim in shift else shift._expand(self.shape[dim].with_size(delta))
-            shift = shift.only(sorted(shift.names), reorder=True)
+                    shift += {dim: delta}
             val[shift] = val_fun(values)
             nz_edge[shift] = nze or nonzero_edge
         bias = expand(self._bias, self.shape)
@@ -203,28 +235,19 @@ class ShiftLinTracer(Tensor):
 
     @staticmethod
     def __stack__(values: tuple, dim: Shape, **_kwargs) -> 'Tensor':
-        def same_shifts(s1: Collection[Shape], s2: Collection[Shape]):
-            s1 = set(frozenset(shift) for shift in s1)
-            s2 = set(frozenset(shift) for shift in s2)
-            return s1 == s2
         if all(isinstance(v, ShiftLinTracer) for v in values):
             # if shifts along other dims match and along `dim` are in the correct order -> stack values
             shifts = values[0].val
             stacked = [[v] for shift, v in shifts.items()]
             nz_edge = [[values[0]._nz_edge[shift]] for shift in shifts]
-            plus_one = dim.with_size(1)
+            plus_one = Shift({dim.name: 1})
             for i, v in enumerate(values[1:]):
                 shifts = [shift + plus_one for shift in shifts]
-                if len(v.val) != len(shifts) or not same_shifts(shifts, v.val):  # does not match
+                if len(shifts) != len(v.val) or set(shifts) != set(v.val):
                     return Tensor.__stack__(values, dim, **_kwargs)
                 for i, shift in enumerate(shifts):
-                    for shift2, data in v.val.items():
-                        if set(shift2) == set(shift):
-                            stacked[i].append(data)
-                            nz_edge[i].append(v._nz_edge[shift2])
-                            break
-                    else:
-                        raise AssertionError
+                    stacked[i].append(v.val[shift])
+                    nz_edge[i].append(v._nz_edge[shift])
             stacked = {shift: stack(vals, dim) for shift, vals in zip(values[0].val, stacked)}
             bias = stack([v._bias for v in values], dim, expand_values=True, **_kwargs)
             nz_edge = {shift: any(nz) for shift, nz in zip(values[0].val, nz_edge)}
@@ -251,7 +274,7 @@ class ShiftLinTracer(Tensor):
     def min_rank_deficiency(self) -> Tensor:
         trimming_dict = {}
         for dim in pattern_dim_names(self):
-            shifts = [shift.get_size(dim) if dim in shift else 0 for shift in self.val]
+            shifts = [shift[dim] for shift in self.val]
             lo = -min(shifts)
             hi = -max(shifts) or None
             trimming_dict[dim] = slice(lo, hi)
@@ -265,21 +288,6 @@ class ShiftLinTracer(Tensor):
             if shift and nonzero:
                 deficiency += 1
         return math.where(balanced_stencil, deficiency, 0)
-
-
-def simplify_add(val: dict, nz_edge: dict) -> Tuple[Dict[Shape, Tensor], Dict[Shape, bool]]:
-    out_val = {}
-    out_edge = {}
-    for o_shift, values in val.items():
-        shift = o_shift[[i for i, size in enumerate(o_shift.sizes) if size != 0]]  # discard zeros
-        nze = nz_edge[o_shift] and bool(shift)
-        if shift in out_val:
-            out_val[shift] += values
-            out_edge[shift] = out_edge[shift] or nze
-        else:
-            out_val[shift] = values
-            out_edge[shift] = nze
-    return out_val, out_edge
 
 
 class GatherLinTracer(Tensor):
@@ -687,7 +695,7 @@ def matrix_from_function(f: Callable,
     # --- Trace function ---
     with NUMPY:
         src = TracerSource(tensors[0].shape, tensors[0].dtype, tuple(trace_args.keys())[0], 0)
-        tracer = ShiftLinTracer(src, {EMPTY_SHAPE: math.ones()}, tensors[0].shape, bias=math.zeros(dtype=tensors[0].dtype), renamed={d: d for d in tensors[0].shape.names}, nz_edge={EMPTY_SHAPE: False})
+        tracer = ShiftLinTracer(src, {Shift({}): math.ones()}, tensors[0].shape, bias=math.zeros(dtype=tensors[0].dtype), renamed={d: d for d in tensors[0].shape.names}, nz_edge={Shift({}): False})
         x_kwargs = assemble_tree(tree, [tracer] + tensors[1:], attr_type=value_attributes)
         result = f(**x_kwargs, **aux_args)
     out_tree, result_tensors = disassemble_tree(result, cache=False, attr_type=value_attributes)
@@ -742,8 +750,8 @@ def tracer_to_coo(tracer: Tensor, sparsify_batch: bool, separate_independent: bo
     out_shape_original = rename_dims(out_shape, [*tracer._out_name_to_original.keys()], [*tracer._out_name_to_original.values()])
     batch_val = merge_shapes(*tracer.val.values()).without(out_shape)
     if non_batch(out_shape).is_empty:
-        assert len(tracer.val) == 1 and non_batch(tracer.val[EMPTY_SHAPE]) == EMPTY_SHAPE
-        return tracer.val[EMPTY_SHAPE], tracer._bias
+        assert len(tracer.val) == 1 and not non_batch(tracer.val[Shift({})])
+        return tracer.val[Shift({})], tracer._bias
     out_indices = []
     src_indices = []
     values = []
@@ -752,11 +760,11 @@ def tracer_to_coo(tracer: Tensor, sparsify_batch: bool, separate_independent: bo
             native_shift_values = math.reshaped_native(shift_val, [batch_val, *out_shape])
             mask = np.sum(abs(native_shift_values), 0)  # only 0 where no batch entry has a non-zero value
             out_idx = numpy.nonzero(mask)
-            src_idx = [(component + shift_.get_size(dim) if dim in shift_ else component) % typed_src_shape.get_size(dim) for component, dim in zip(out_idx, out_shape_original)]
+            src_idx = [(component + shift_[dim]) % typed_src_shape.get_size(dim) for component, dim in zip(out_idx, out_shape_original)]
             values.append(native_shift_values[(slice(None), *out_idx)])
         else:  # add full stencil tensor
             out_idx = np.unravel_index(np.arange(out_shape.volume), out_shape.sizes) if out_shape else 0
-            src_idx = [(component + shift_.get_size(dim) if dim in shift_ else component) % typed_src_shape.get_size(dim) for component, dim in zip(out_idx, out_shape_original)]
+            src_idx = [(component + shift_[dim]) % typed_src_shape.get_size(dim) for component, dim in zip(out_idx, out_shape_original)]
             values.append(math.reshaped_native(shift_val, [batch_val, out_shape]))
         out_indices.append(out_idx)
         src_idx_all = []
@@ -845,7 +853,7 @@ def pattern_dim_names(tracer) -> Set[str]:
     These dimensions must be part of the sparse matrix and cannot be parallelized.
     """
     if isinstance(tracer, ShiftLinTracer):
-        return set(sum([offset.names for offset in tracer.val], ()))
+        return set().union(*[shift.by_dim.keys() for shift in tracer.val])
     raise NotImplementedError
     # elif isinstance(tracer, GatherLinTracer):
         # return set(dependent_src_dims(tracer).names)
