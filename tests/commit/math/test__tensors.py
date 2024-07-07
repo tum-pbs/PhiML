@@ -9,7 +9,7 @@ from phiml.backend._backend import init_installed_backends
 from phiml.math import channel, batch, DType, vec, stack, expand
 from phiml.math._shape import shape_stack, spatial, instance
 from phiml.math._tensors import wrap, tensor, cached, disassemble_tensors, assemble_tensors, \
-    Layout, equality_by_ref
+    Layout, equality_by_ref, equality_by_shape_and_value
 from phiml.math.magic import PhiTreeNode
 
 BACKENDS = init_installed_backends()
@@ -142,9 +142,10 @@ class TestTensors(TestCase):
         t0 = math.ones(batch(batch=10) & spatial(x=4, y=3) & channel(vector=2))
         tensors = math.unstack(t0, 'vector')
         stacked = math.stack(tensors, channel('channel'))
-        self.assertEqual(tensors, stacked.channel.unstack())
-        assert tensors[0] is stacked.channel[0]
-        assert tensors[1] is stacked.channel[1:2].channel.unstack()[0]
+        with equality_by_shape_and_value():
+            self.assertEqual(tensors, stacked.channel.unstack())
+            self.assertEqual(tensors[0], stacked.channel[0])
+            self.assertEqual(tensors[1], stacked.channel[1:2].channel.unstack()[0])
         self.assertEqual(4, len(stacked.x.unstack()))
 
     def test_shape_math(self):
@@ -633,7 +634,7 @@ class TestTensors(TestCase):
         i = math.linspace(0, 1, instance(particles=10))
         t = math.expand(vec(x=0, y=1), channel(c=2))
         result = t + (0, i)
-        self.assertEqual(instance(particles=10) & channel(vector='x,y', c=2), result.shape)
+        self.assertEqual(set(instance(particles=10) & channel(vector='x,y', c=2)), set(result.shape))
 
     def test_tensor_expand_vararg(self):
         dims = [spatial(x=4, y=3), channel(vector='x,y')]

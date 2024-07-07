@@ -741,18 +741,29 @@ def stack_tensors(values: Union[tuple, list], dim: Shape):
         return values[0]
     values = [wrap(v) for v in values]
     values = cast_same(*values)
-
-    def inner_stack(*values):
-        if len(values) > 1 or not isinstance(values[0], NativeTensor):
-            if all(isinstance(t, SparseCoordinateTensor) for t in values):
-                raise AssertionError("should have called SparseCoordinateTensor.__stack__()")
-            return TensorStack(values, dim)
-        else:
-            value: NativeTensor = values[0]
-            return NativeTensor(value._native, value._native_shape, value.shape & dim.with_size(1))
-
-    result = broadcast_op(inner_stack, values)
-    return result
+    # --- sparse to dense ---
+    if any(isinstance(t, (SparseCoordinateTensor, CompressedSparseMatrix)) for t in values) and not all(isinstance(t, (SparseCoordinateTensor, CompressedSparseMatrix)) for t in values):
+        values = [dense(v) for v in values]
+    # --- trivial case ---
+    if len(values) == 1 and isinstance(values[0], NativeTensor):
+        return NativeTensor(values[0]._native, values[0]._native_shape, values[0].shape & dim.with_size(1))
+    # --- not directly stackable ---
+    non_stackable = broadcast_dims(*values)
+    if non_stackable:
+        return TensorStack(values, dim)
+    if any(v._is_tracer for v in values):
+        return TensorStack(values, dim)
+    broadcast_shape = merge_shapes(*[v.shape for v in values], allow_varying_sizes=True)
+    if not broadcast_shape.well_defined:
+        return TensorStack(values, dim)
+    # --- uniform stack ---
+    native_shapes = [variable_shape(v) for v in values]
+    native_broadcast_shape = merge_shapes(*native_shapes)
+    natives = [reshaped_native(NativeTensor(v._native, v._native_shape, v._native_shape), [*native_broadcast_shape], force_expand=True) for v in values]
+    native_shape = native_broadcast_shape._expand(dim)
+    native_stacked = choose_backend(*natives).stack(natives, axis=native_shape.index(dim))
+    expanded_shape = merge_shapes(*[v.shape for v in values])._expand(dim)
+    return NativeTensor(native_stacked, native_shape, expanded_shape)
 
 
 def concat_tensor(values: Union[tuple, list], dim: str) -> Tensor:
@@ -916,7 +927,7 @@ def _closest_grid_values(grid: Tensor,
         else:
             values_left = left_right(is_hi_by_axis_left, ax_idx + 1)
             values_right = left_right(is_hi_by_axis_right, ax_idx + 1)
-        return stack_tensors([values_left, values_right], channel(f"{stack_dim_prefix}{dim_names[ax_idx]}"))
+        return stack_tensors([values_left, values_right], channel(**{f"{stack_dim_prefix}{dim_names[ax_idx]}": 2}))
 
     result = left_right(np.array([False] * dims.rank), 0)
     return result
@@ -1190,7 +1201,7 @@ def reduce_(f, value, dims, require_all_dims_present=False, required_kind: type 
         return value
     if isinstance(value, (tuple, list)):
         values = [wrap(v) for v in value]
-        value = stack_tensors(values, instance('0'))
+        value = stack_tensors(values, instance(**{'0': len(values)}))
         dims = value.shape.only(dims)
         assert '0' in dims, "When passing a sequence of tensors to be reduced, the sequence dimension '0' must be reduced."
     elif isinstance(value, Layout):
