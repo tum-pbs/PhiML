@@ -1348,6 +1348,8 @@ class Shape:
         return self._op2(other, lambda s, o: o + s, 0)
 
     def __sub__(self, other):
+        if isinstance(other, (str, Shape, tuple, list, set)) or callable(other):
+            return self.without(other)
         return self._op2(other, lambda s, o: s - o, 0)
 
     def __rsub__(self, other):
