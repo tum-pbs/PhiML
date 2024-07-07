@@ -1188,33 +1188,32 @@ def nonzero_slices(x: Tensor):
 def reduce_(f, value, dims, require_all_dims_present=False, required_kind: type = None):
     if not dims:
         return value
-    else:
-        if isinstance(value, (tuple, list)):
-            values = [wrap(v) for v in value]
-            value = stack_tensors(values, instance('0'))
-            dims = value.shape.only(dims)
-            assert '0' in dims, "When passing a sequence of tensors to be reduced, the sequence dimension '0' must be reduced."
-        elif isinstance(value, Layout):
-            if value.shape.without(value._stack_dim).only(dims):  # reduce some inner
-                def inner_reduce(v):
-                    if required_kind is not None:
-                        if isinstance(v, Tensor):
-                            v = cast(v, required_kind)
-                        else:
-                            v = required_kind(v)
-                    return f(wrap(v), shape(v).only(dims))
-
-                value = tree_map(inner_reduce, value)
-            if value._stack_dim.without(dims).is_empty:  # reduce all outer
-                values = value._as_list()
-                dims = batch('_flat_layout')
-                value = wrap(values, dims)
-        else:
-            value = wrap(value)
+    if isinstance(value, (tuple, list)):
+        values = [wrap(v) for v in value]
+        value = stack_tensors(values, instance('0'))
         dims = value.shape.only(dims)
-        if require_all_dims_present and any(d not in value.shape for d in dims):
-            raise ValueError(f"Cannot sum dimensions {dims} because tensor {value.shape} is missing at least one of them")
-        return f(value._simplify(), dims)
+        assert '0' in dims, "When passing a sequence of tensors to be reduced, the sequence dimension '0' must be reduced."
+    elif isinstance(value, Layout):
+        if value.shape.without(value._stack_dim).only(dims):  # reduce some inner
+            def inner_reduce(v):
+                if required_kind is not None:
+                    if isinstance(v, Tensor):
+                        v = cast(v, required_kind)
+                    else:
+                        v = required_kind(v)
+                return f(wrap(v), shape(v).only(dims))
+
+            value = tree_map(inner_reduce, value)
+        if value._stack_dim.without(dims).is_empty:  # reduce all outer
+            values = value._as_list()
+            dims = batch('_flat_layout')
+            value = wrap(values, dims)
+    else:
+        value = wrap(value)
+    dims = value.shape.only(dims)
+    if require_all_dims_present and any(d not in value.shape for d in dims):
+        raise ValueError(f"Cannot sum dimensions {dims} because tensor {value.shape} is missing at least one of them")
+    return f(value._simplify(), dims)
 
 
 def sum_(value: Union[Tensor, list, tuple, Number, bool], dim: DimFilter = non_batch) -> Tensor:
@@ -1249,6 +1248,10 @@ def _sum(value: Tensor, dims: Shape) -> Tensor:
         return functools.reduce(lambda x, y: x + y, reduced_inners) if value._stack_dim in dims else TensorStack(reduced_inners, value._stack_dim)
     elif is_sparse(value):
         return sparse_sum(value, dims)
+    elif value._is_tracer:
+        if dims.volume == 1:
+            return value[{dims.name: 0}]
+        raise NotImplementedError
     else:
         raise ValueError(type(value))
 
