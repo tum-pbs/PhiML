@@ -834,37 +834,9 @@ class TensorDim(BoundDim):
         warnings.warn("Use Tensor.dim.size instead of len(Tensor.dim). len() only supports with integer sizes.", DeprecationWarning)
         return self.size
 
-    def as_batch(self, name: str = None):
-        """ Returns a shallow copy of the `Tensor` where the type of this dimension is *batch*. """
-        return self._as(BATCH_DIM, name)
-
-    def as_spatial(self, name: str = None):
-        """ Returns a shallow copy of the `Tensor` where the type of this dimension is *spatial*. """
-        return self._as(SPATIAL_DIM, name)
-
-    def as_channel(self, name: str = None):
-        """ Returns a shallow copy of the `Tensor` where the type of this dimension is *channel*. """
-        return self._as(CHANNEL_DIM, name)
-
-    def as_instance(self, name: str = None):
-        """ Returns a shallow copy of the `Tensor` where the type of this dimension is *instance*. """
-        return self._as(INSTANCE_DIM, name)
-
-    def as_type(self, dim_type: Union[Callable, str]):
-        return self._as(dim_type('d').type if callable(dim_type) else dim_type, None)
-
-    def _as(self, dim_type: str, name: Union[str, None]):
-        if not self.exists:
-            return self.tensor
-        shape = self.tensor.shape
-        new_types = list(shape.types)
-        new_types[shape.index(self.name)] = dim_type
-        new_names = shape.names
-        if name is not None:
-            new_names = list(new_names)
-            new_names[shape.index(self.name)] = name
-        new_shape = Shape(shape.sizes, tuple(new_names), tuple(new_types), shape.item_names)
-        return self.tensor._with_shape_replaced(new_shape)
+    @property
+    def dual(self):
+        return TensorDim(self.tensor, '~' + self.name)
 
     @property
     def index(self):

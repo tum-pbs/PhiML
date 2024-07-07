@@ -545,6 +545,10 @@ class Shape:
         """Returns a copy of this `Shape` with all dimensions of type *dual*."""
         return dual(**self.untyped_dict)
 
+    def as_type(self, new_type: Callable):
+        """Returns a copy of this `Shape` with all dimensions of the given type, either `batch`, `dual`, `spatial`, `instance`, or `channel` ."""
+        return new_type(**self.untyped_dict)
+
     def _more_dual(self):
         return Shape(self.sizes, tuple('~' + n for n in self.names), (DUAL_DIM,) * len(self.names), self.item_names)
 

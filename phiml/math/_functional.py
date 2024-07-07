@@ -9,8 +9,8 @@ from typing import Tuple, Callable, Dict, Generic, List, TypeVar, Any, Set, Unio
 import numpy as np
 
 from . import _ops as math, all_available, stop_gradient
-from ._magic_ops import stack, slice_, value_attributes, find_differences
-from ._shape import EMPTY_SHAPE, Shape, spatial, instance, batch, channel, merge_shapes, DimFilter, shape
+from ._magic_ops import stack, slice_, value_attributes, find_differences, rename_dims
+from ._shape import EMPTY_SHAPE, Shape, spatial, instance, batch, channel, merge_shapes, DimFilter, shape, dual
 from ._sparse import SparseCoordinateTensor
 from ._tensors import Tensor, disassemble_tree, assemble_tree, disassemble_tensors, assemble_tensors, variable_attributes, wrap, specs_equal, equality_by_shape_and_value, object_dims
 from ._trace import ShiftLinTracer, matrix_from_function, LinearTraceInProgress
@@ -1154,28 +1154,29 @@ def map_types(f: Callable, dims: Union[Shape, tuple, list, str, Callable], dim_t
         Function with signature matching `f`.
     """
 
-    def forward_retype(obj, input_types: Shape):
+    def forward_retype(obj, input_types: Dict[str, Callable]):
         tree, tensors = disassemble_tree(obj, cache=False)
         retyped = []
         for t in tensors:
-            for dim in t.shape.only(dims):
-                t = t.dimension(dim).as_type(dim_type)
-                input_types = math.merge_shapes(input_types, dim.with_size(None))
-            retyped.append(t)
+            originals = t.shape.only(dims)
+            new_dims = originals.as_type(dim_type)
+            for o, n in zip(originals, new_dims):
+                input_types[n.name] = o.dim_type
+            retyped.append(rename_dims(t, originals, new_dims))
         return assemble_tree(tree, retyped), input_types
 
-    def reverse_retype(obj, input_types: Shape):
+    def reverse_retype(obj, input_types: Dict[str, Callable]):
         tree, tensors = disassemble_tree(obj, cache=False)
         retyped = []
         for t in tensors:
-            for dim in t.shape.only(input_types.names):
-                t = t.dimension(dim).as_type(input_types.get_type(dim))
-            retyped.append(t)
+            output = t.shape.only(set(input_types))
+            to_dims = [o.as_type(input_types[o.name]) for o in output]
+            retyped.append(rename_dims(t, output, to_dims))
         return assemble_tree(tree, retyped)
 
     @wraps(f)
     def retyped_f(*args, **kwargs):
-        input_types = EMPTY_SHAPE
+        input_types = {}
         retyped_args = []
         for arg in args:
             retyped_arg, input_types = forward_retype(arg, input_types)
@@ -1200,6 +1201,11 @@ def map_i2b(f: Callable) -> Callable:
 def map_c2b(f: Callable) -> Callable:
     """ Map channel dimensions to batch dimensions. Short for `map_types(f, instance, batch)`. """
     return map_types(f, channel, batch)
+
+
+def map_d2c(f: Callable) -> Callable:
+    """ Map dual dimensions to channel dimensions. Short for `map_types(f, instance, batch)`. """
+    return map_types(f, dual, channel)
 
 
 def broadcast(function=None, dims=shape, range=range, unwrap_scalars=True):

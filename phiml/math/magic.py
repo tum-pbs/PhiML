@@ -597,6 +597,8 @@ class BoundDim:
         from ._magic_ops import rename_dims
         return rename_dims(self.obj, self.name, new_dim, **kwargs)
 
+    as_type = retype
+
     def as_batch(self, name: str = None):
         """ Returns a shallow copy of the `Tensor` where the type of this dimension is *batch*. """
         if not self.exists:
