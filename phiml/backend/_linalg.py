@@ -58,12 +58,15 @@ def cg(b: Backend, lin, y, x0, rtol, atol, max_iter, pre: Optional[Preconditione
     batch_size = b.staticshape(y)[0]
     y = b.to_float(y)
     x = b.copy(b.to_float(x0), only_mutable=True)
-    residual = y - linear(b, lin, x, matrix_offset)
+    y0, y0_tol = linear(b, lin, x, matrix_offset, get_without_offset=True)
+    residual, residual_tol = y - y0, y - y0_tol
     dx = pre.apply(residual)
+    dx_tol = pre.apply(residual_tol)
+    delta0 = b.sum(residual * dx, -1, keepdims=True)
+    delta0_tol = b.sum(residual_tol * dx_tol, -1, keepdims=True)
+    check_progress = stop_on_l2(b, abs(delta0_tol), rtol, atol, max_iter)
     iterations = b.zeros([batch_size], DType(int, 32))
     function_evaluations = b.ones([batch_size], DType(int, 32))
-    delta0 = b.sum(residual * dx, -1, keepdims=True)
-    check_progress = stop_on_l2(b, abs(delta0), rtol, atol, max_iter)
     continue_, converged, diverged = check_progress(iterations, delta0)
 
     def cg_loop_body(continue_, x, dx, delta, residual, iterations, function_evaluations, _converged, _diverged):
@@ -778,9 +781,9 @@ def cluster_coo(indices: np.ndarray, shape: Tuple[int, int], cluster_count: int)
     return ...
 
 
-def linear(b: Backend, lin, vector, matrix_offset):
+def linear(b: Backend, lin, vector, matrix_offset, get_without_offset=False):
     """Apply linear function with matrix offset to vector, i.e. `(lin+matrix_offset) @ vector`"""
-    result = b.linear(lin, vector)
+    result = result_wo_offset = b.linear(lin, vector)
     if matrix_offset is not None:
         result += b.sum(vector, 1, keepdims=True) * matrix_offset[:, None]
-    return result
+    return (result, result_wo_offset) if get_without_offset else result
