@@ -1356,14 +1356,6 @@ class Shape:
     def _op2(self, other, fun, default: int):
         if isinstance(other, int):
             return Shape(tuple([fun(s, other) for s in self.sizes]), self.names, self.types, (None,) * self.rank)
-        elif isinstance(other, Shape):
-            merged = self.without_sizes() & other.without_sizes()
-            sizes = ()
-            for dim in merged.names:
-                self_val = self.get_size(dim) if dim in self else default
-                other_val = other.get_size(dim) if dim in other else default
-                sizes += (fun(self_val, other_val),)
-            return merged.with_sizes(sizes)
         else:
             return NotImplemented
 
