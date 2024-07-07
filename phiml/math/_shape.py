@@ -730,7 +730,13 @@ class Shape:
             if len(same_type_dims) > 0:
                 pos = self.index(same_type_dims.names[0])
             else:
-                pos = {BATCH_DIM: 0, INSTANCE_DIM: self.batch_rank, SPATIAL_DIM: self.batch.rank + self.instance_rank, CHANNEL_DIM: self.rank + 1}[dim.type]
+                pos = {
+                    BATCH_DIM: 0,
+                    DUAL_DIM: self.batch_rank,
+                    INSTANCE_DIM: self.batch_rank + self.dual_rank,
+                    SPATIAL_DIM: self.batch.rank + self.dual_rank + self.instance_rank,
+                    CHANNEL_DIM: self.rank + 1
+                }[dim.type]
         elif pos < 0:
             pos += self.rank + 1
         sizes = list(self.sizes)
