@@ -198,7 +198,7 @@ class TestSparse(TestCase):
                     self.assertEqual(bool, d.dtype.kind, msg=backend.name)
                     self.assertEqual(t.default_backend, backend)
 
-    def test_compact(self):
+    def test_compact_convert(self):
         indices = wrap([(0, 2), (1, 2)], instance('row'), dual('col'))
         values = wrap([(1, 2), (3, 4)], instance('row'), dual('col'))
         matrix = CompactSparseTensor(indices, values, dual(col=3), True)
@@ -207,3 +207,27 @@ class TestSparse(TestCase):
         math.assert_close(true, matrix, math.dense(matrix))
         for format in ['coo', 'dense', 'csr', 'csc']:
             math.assert_close(true, math.to_format(matrix, format), msg=format)
+
+    def test_compact_matmul(self):
+        indices = wrap([(0, 2), (1, 2)], instance('row'), dual('col'))
+        values = wrap([(1, 2), (3, 4)], instance('row'), dual('col'))
+        matrix = CompactSparseTensor(indices, values, dual(col=3), True)
+        # --- matmul ---
+        b = wrap([1, 1, 1], channel('col'))
+        math.assert_close([3, 7], matrix @ b)
+        b = wrap([2, 3, 4], channel('col'))
+        math.assert_close([10, 25], matrix @ b)
+
+    def test_compact_reduce(self):
+        indices = wrap([(0, 2), (1, 2)], instance('row'), dual('col'))
+        values = wrap([(1, 2), (3, 4)], instance('row'), dual('col'))
+        matrix = CompactSparseTensor(indices, values, dual(col=3), True)
+        # --- reduce ---
+        math.assert_close([3, 7], math.sum(matrix, '~col'))
+        math.assert_close([2, 4], math.max(matrix, '~col'))
+        math.assert_close([1, 3], math.min(matrix, '~col'))
+        math.assert_close([1.5, 3.5], math.mean(matrix, '~col'))
+        math.assert_close(10, math.sum(matrix, '~col,row'))
+        math.assert_close(1, math.min(matrix, '~col,row'))
+        math.assert_close(4, math.max(matrix, '~col,row'))
+        math.assert_close(2.5, math.mean(matrix, '~col,row'))

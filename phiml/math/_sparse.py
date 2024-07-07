@@ -1164,6 +1164,8 @@ def sparse_dims(x: Tensor) -> Shape:
         return x._dense_shape
     elif isinstance(x, CompressedSparseMatrix):
         return concat_shapes(x._compressed_dims, x._uncompressed_dims)
+    elif isinstance(x, CompactSparseTensor):
+        return x._compressed_dims
     else:
         return EMPTY_SHAPE
 
@@ -1423,6 +1425,15 @@ def dot_coordinate_dense(sparse: SparseCoordinateTensor, sdims: Shape, dense: Te
     return result
 
 
+def dot_compact_dense(compact: CompactSparseTensor, cdims, dense: Tensor, ddims: Shape):
+    gather_dims = ddims[cdims.indices(compact._compact_dims)]
+    indices = expand(compact._indices, channel(_idx=gather_dims))
+    dense_gathered = dense[indices]
+    from ._ops import dot
+    result_values = dot(compact._values, cdims, dense_gathered, cdims)
+    return result_values
+
+
 def dot_sparse_sparse(a: Tensor, a_dims: Shape, b: Tensor, b_dims: Shape):
     b = to_format(b, 'coo')
     assert a_dims.rank == b_dims.rank
@@ -1485,30 +1496,28 @@ def native_matrix(value: Tensor, target_backend: Backend):
 
 
 def sparse_dot(x: Tensor, x_dims: Shape, y: Tensor, y_dims: Shape):
-    if is_sparse(x) and is_sparse(y) and x_dims in x._values.shape.non_instance and y_dims in y._values.shape.non_instance:
+    if is_sparse(x) and is_sparse(y) and x_dims in x._values.shape.non_instance and y_dims in y._values.shape.non_instance:  # value-only dot
         if same_sparsity_pattern(x, y):
             from ._ops import dot
             new_values = dot(x._values, x_dims, y._values, y_dims)
             return x._with_values(new_values)
-        raise NotImplementedError
+        raise NotImplementedError("Value-only dot between sparse matrices is only supported if they have the same non-zero positions.")
+    # --- swap -> matrix first to simplify checks ---
+    if is_sparse(y) and not is_sparse(x):
+        x, x_dims, y, y_dims = y, y_dims, x, x_dims
+    # --- by matrix type ---
     if isinstance(x, CompressedSparseMatrix):
-        if isinstance(y, (CompressedSparseMatrix, SparseCoordinateTensor)):
-            if x_dims.only(sparse_dims(x)) and y_dims.only(sparse_dims(y)):
-                return dot_sparse_sparse(x, x_dims, y, y_dims)
-            raise NotImplementedError
-        return dot_compressed_dense(x, x_dims, y, y_dims)
-    elif isinstance(y, CompressedSparseMatrix):
-        if isinstance(x, (CompressedSparseMatrix, SparseCoordinateTensor)):
+        if not is_sparse(y):
+            return dot_compressed_dense(x, x_dims, y, y_dims)
+        elif x_dims.only(sparse_dims(x)) and y_dims.only(sparse_dims(y)):
             return dot_sparse_sparse(x, x_dims, y, y_dims)
-        return dot_compressed_dense(y, y_dims, x, x_dims)
-    if isinstance(x, SparseCoordinateTensor):
-        if isinstance(y, (CompressedSparseMatrix, SparseCoordinateTensor)):
-            return dot_sparse_sparse(x, x_dims, y, y_dims)
-        return dot_coordinate_dense(x, x_dims, y, y_dims)
-    elif isinstance(y, SparseCoordinateTensor):
-        if isinstance(x, (CompressedSparseMatrix, SparseCoordinateTensor)):
-            return dot_sparse_sparse(x, x_dims, y, y_dims)
-        return dot_coordinate_dense(y, y_dims, x, x_dims)
+    elif isinstance(x, SparseCoordinateTensor):
+        if not is_sparse(y):
+            return dot_coordinate_dense(x, x_dims, y, y_dims)
+        return dot_sparse_sparse(x, x_dims, y, y_dims)
+    elif isinstance(x, CompactSparseTensor):
+        if not is_sparse(y):
+            return dot_compact_dense(x, x_dims, y, y_dims)
     raise NotImplementedError
 
 
@@ -1585,10 +1594,12 @@ def with_sparsified_dim(indices: Tensor, values: Tensor, dims: Shape):
 
 
 def sparse_reduce(value: Tensor, dims: Shape, mode: str):
-    from ._ops import _sum, _max, _min, _mean, scatter, dot, ones
-    reduce = {'add': _sum, 'max': _max, 'min': _min, 'mean': _mean}[mode]
+    from ._ops import _sum, _max, _min, mean, scatter, dot, ones
+    reduce = {'add': _sum, 'max': _max, 'min': _min, 'mean': mean}[mode]
     if value.sparse_dims in dims:  # reduce all sparse dims
-        return reduce(value._values, dims.without(value.sparse_dims) & instance(value._values))
+        if isinstance(value, (SparseCoordinateTensor, CompressedSparseMatrix)):
+            dims = dims.without(value.sparse_dims) & instance(value._values)
+        return reduce(value._values, dims)
     value_only_dims = dims.only(value._values.shape).without(value.sparse_dims)
     if value_only_dims:
         value = value._with_values(reduce(value._values, value_only_dims))

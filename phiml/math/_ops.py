@@ -1222,7 +1222,7 @@ def sum_(value: Union[Tensor, list, tuple, Number, bool], dim: DimFilter = non_b
     Sums `values` along the specified dimensions.
 
     Args:
-        value: `Tensor` or `list` / `tuple` of Tensors.
+        value: (Sparse) `Tensor` or `list` / `tuple` of Tensors.
         dim: Dimension or dimensions to be reduced. One of
 
             * `None` to reduce all non-batch dimensions
@@ -1247,7 +1247,7 @@ def _sum(value: Tensor, dims: Shape) -> Tensor:
     elif isinstance(value, TensorStack):
         reduced_inners = [_sum(t, dims.without(value._stack_dim)) for t in value._tensors]
         return functools.reduce(lambda x, y: x + y, reduced_inners) if value._stack_dim in dims else TensorStack(reduced_inners, value._stack_dim)
-    elif isinstance(value, (CompressedSparseMatrix, SparseCoordinateTensor)):
+    elif is_sparse(value):
         return sparse_sum(value, dims)
     else:
         raise ValueError(type(value))
@@ -1290,7 +1290,7 @@ def mean(value: Union[Tensor, list, tuple, Number, bool], dim: DimFilter = non_b
     Computes the mean over `values` along the specified dimensions.
 
     Args:
-        value: `Tensor` or `list` / `tuple` of Tensors.
+        value: (Sparse) `Tensor` or `list` / `tuple` of Tensors.
         dim: Dimension or dimensions to be reduced. One of
 
             * `None` to reduce all non-batch dimensions
@@ -1318,7 +1318,7 @@ def _mean(value: Tensor, dims: Shape) -> Tensor:
             return total / dims.volume
         else:  # keep stack_dim
             return TensorStack([_mean(t, dims.without(value._stack_dim)) for t in value._tensors], value._stack_dim)
-    elif isinstance(value, (SparseCoordinateTensor, CompressedSparseMatrix)):
+    elif is_sparse(value):
         return sparse_mean(value, dims)
     else:
         raise ValueError(type(value))
@@ -1438,7 +1438,7 @@ def max_(value: Union[Tensor, list, tuple, Number, bool], dim: DimFilter = non_b
     Determines the maximum value of `values` along the specified dimensions.
 
     Args:
-        value: `Tensor` or `list` / `tuple` of Tensors.
+        value: (Sparse) `Tensor` or `list` / `tuple` of Tensors.
         dim: Dimension or dimensions to be reduced. One of
 
             * `None` to reduce all non-batch dimensions
@@ -1461,7 +1461,7 @@ def _max(value: Tensor, dims: Shape) -> Tensor:
     elif isinstance(value, TensorStack):
         reduced_inners = [_max(t, dims.without(value._stack_dim)) for t in value._tensors]
         return functools.reduce(lambda x, y: maximum(x, y), reduced_inners) if value._stack_dim in dims else TensorStack(reduced_inners, value._stack_dim)
-    elif isinstance(value, (SparseCoordinateTensor, CompressedSparseMatrix)):
+    elif is_sparse(value):
         return sparse_max(value, dims)
     raise ValueError(type(value))
 
@@ -1471,7 +1471,7 @@ def min_(value: Union[Tensor, list, tuple, Number, bool], dim: DimFilter = non_b
     Determines the minimum value of `values` along the specified dimensions.
 
     Args:
-        value: `Tensor` or `list` / `tuple` of Tensors.
+        value: (Sparse) `Tensor` or `list` / `tuple` of Tensors.
         dim: Dimension or dimensions to be reduced. One of
 
             * `None` to reduce all non-batch dimensions
@@ -1494,7 +1494,7 @@ def _min(value: Tensor, dims: Shape) -> Tensor:
     elif isinstance(value, TensorStack):
         reduced_inners = [_min(t, dims.without(value._stack_dim)) for t in value._tensors]
         return functools.reduce(lambda x, y: minimum(x, y), reduced_inners) if value._stack_dim in dims else TensorStack(reduced_inners, value._stack_dim)
-    elif isinstance(value, (SparseCoordinateTensor, CompressedSparseMatrix)):
+    elif is_sparse(value):
         return sparse_min(value, dims)
     raise ValueError(type(value))
 
