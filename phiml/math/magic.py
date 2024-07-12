@@ -603,31 +603,31 @@ class BoundDim:
         """ Returns a shallow copy of the `Tensor` where the type of this dimension is *batch*. """
         if not self.exists:
             return self.obj
-        return self.retype(batch) if name is None else self.replace(batch(name=self.item_names or self.size))
+        return self.retype(batch) if name is None else self.replace(batch(**{name: self.item_names or self.size}))
 
     def as_spatial(self, name: str = None):
         """ Returns a shallow copy of the `Tensor` where the type of this dimension is *spatial*. """
         if not self.exists:
             return self.obj
-        return self.retype(spatial) if name is None else self.replace(spatial(name=self.item_names or self.size))
+        return self.retype(spatial) if name is None else self.replace(spatial(**{name: self.item_names or self.size}))
 
     def as_channel(self, name: str = None):
         """ Returns a shallow copy of the `Tensor` where the type of this dimension is *channel*. """
         if not self.exists:
             return self.obj
-        return self.retype(channel) if name is None else self.replace(channel(name=self.item_names or self.size))
+        return self.retype(channel) if name is None else self.replace(channel(**{name: self.item_names or self.size}))
 
     def as_instance(self, name: str = None):
         """ Returns a shallow copy of the `Tensor` where the type of this dimension is *instance*. """
         if not self.exists:
             return self.obj
-        return self.retype(instance) if name is None else self.replace(instance(name=self.item_names or self.size))
+        return self.retype(instance) if name is None else self.replace(instance(**{name: self.item_names or self.size}))
 
     def as_dual(self, name: str = None):
         """ Returns a shallow copy of the `Tensor` where the type of this dimension is *instance*. """
         if not self.exists:
             return self.obj
-        return self.retype(dual) if name is None else self.replace(dual(name=self.item_names or self.size))
+        return self.retype(dual) if name is None else self.replace(dual(**{name: self.item_names or self.size}))
 
     def replace(self, dim: Shape, **kwargs):
         """
