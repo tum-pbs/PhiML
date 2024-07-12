@@ -626,7 +626,10 @@ def solve_linear(f: Union[Callable[[X], Y], Tensor],
         m_rank = _stored_matrix_rank(matrix)
         if solve.rank_deficiency is None:
             if m_rank is not None:
-                solve = copy_with(solve, rank_deficiency=dual(matrix).volume - m_rank)
+                estimated_deficiency = dual(matrix).volume - m_rank
+                if (estimated_deficiency > 0).any:
+                    warnings.warn("Possible rank deficiency detected. Matrix might be singular which can lead to convergence problems. Please specify using Solve(rank_deficiency=...).")
+                solve = copy_with(solve, rank_deficiency=0)
             else:
                 solve = copy_with(solve, rank_deficiency=0)  # no info or user input, assume not rank-deficient
         preconditioner = compute_preconditioner(solve.preconditioner, matrix, rank_deficiency=solve.rank_deficiency, target_backend=NUMPY if solve.method.startswith('scipy-') else backend, solver=solve.method) if solve.preconditioner is not None else None
