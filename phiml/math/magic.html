@@ -300,35 +300,37 @@ This supports the following operations:</p>
         from ._magic_ops import rename_dims
         return rename_dims(self.obj, self.name, new_dim, **kwargs)
 
+    as_type = retype
+
     def as_batch(self, name: str = None):
         &#34;&#34;&#34; Returns a shallow copy of the `Tensor` where the type of this dimension is *batch*. &#34;&#34;&#34;
         if not self.exists:
             return self.obj
-        return self.retype(batch) if name is None else self.replace(batch(name=self.item_names or self.size))
+        return self.retype(batch) if name is None else self.replace(batch(**{name: self.item_names or self.size}))
 
     def as_spatial(self, name: str = None):
         &#34;&#34;&#34; Returns a shallow copy of the `Tensor` where the type of this dimension is *spatial*. &#34;&#34;&#34;
         if not self.exists:
             return self.obj
-        return self.retype(spatial) if name is None else self.replace(spatial(name=self.item_names or self.size))
+        return self.retype(spatial) if name is None else self.replace(spatial(**{name: self.item_names or self.size}))
 
     def as_channel(self, name: str = None):
         &#34;&#34;&#34; Returns a shallow copy of the `Tensor` where the type of this dimension is *channel*. &#34;&#34;&#34;
         if not self.exists:
             return self.obj
-        return self.retype(channel) if name is None else self.replace(channel(name=self.item_names or self.size))
+        return self.retype(channel) if name is None else self.replace(channel(**{name: self.item_names or self.size}))
 
     def as_instance(self, name: str = None):
         &#34;&#34;&#34; Returns a shallow copy of the `Tensor` where the type of this dimension is *instance*. &#34;&#34;&#34;
         if not self.exists:
             return self.obj
-        return self.retype(instance) if name is None else self.replace(instance(name=self.item_names or self.size))
+        return self.retype(instance) if name is None else self.replace(instance(**{name: self.item_names or self.size}))
 
     def as_dual(self, name: str = None):
         &#34;&#34;&#34; Returns a shallow copy of the `Tensor` where the type of this dimension is *instance*. &#34;&#34;&#34;
         if not self.exists:
             return self.obj
-        return self.retype(dual) if name is None else self.replace(dual(name=self.item_names or self.size))
+        return self.retype(dual) if name is None else self.replace(dual(**{name: self.item_names or self.size}))
 
     def replace(self, dim: Shape, **kwargs):
         &#34;&#34;&#34;
@@ -485,6 +487,14 @@ def size(self):
 </code></dt>
 <dd>
 <div class="desc"><p>Returns a shallow copy of the <code>Tensor</code> where the type of this dimension is <em>spatial</em>.</p></div>
+</dd>
+<dt id="phiml.math.magic.BoundDim.as_type"><code class="name flex">
+<span>def <span class="ident">as_type</span></span>(<span>self, dim_type: Callable, **kwargs)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Returns a shallow copy of the <code>Tensor</code> where this dimension has the specified type.</p>
+<p>See Also:
+<code><a title="phiml.math.rename_dims" href="index.html#phiml.math.rename_dims">rename_dims()</a></code></p></div>
 </dd>
 <dt id="phiml.math.magic.BoundDim.keys"><code class="name flex">
 <span>def <span class="ident">keys</span></span>(<span>self)</span>
@@ -1259,6 +1269,7 @@ Un-stacking along multiple dimensions is equal to first packing the dimensions a
 <li><code><a title="phiml.math.magic.BoundDim.as_dual" href="#phiml.math.magic.BoundDim.as_dual">as_dual</a></code></li>
 <li><code><a title="phiml.math.magic.BoundDim.as_instance" href="#phiml.math.magic.BoundDim.as_instance">as_instance</a></code></li>
 <li><code><a title="phiml.math.magic.BoundDim.as_spatial" href="#phiml.math.magic.BoundDim.as_spatial">as_spatial</a></code></li>
+<li><code><a title="phiml.math.magic.BoundDim.as_type" href="#phiml.math.magic.BoundDim.as_type">as_type</a></code></li>
 <li><code><a title="phiml.math.magic.BoundDim.dual" href="#phiml.math.magic.BoundDim.dual">dual</a></code></li>
 <li><code><a title="phiml.math.magic.BoundDim.exists" href="#phiml.math.magic.BoundDim.exists">exists</a></code></li>
 <li><code><a title="phiml.math.magic.BoundDim.item_names" href="#phiml.math.magic.BoundDim.item_names">item_names</a></code></li>
