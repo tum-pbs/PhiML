@@ -120,13 +120,6 @@ class CudaCommand(distutils.cmd.Command):
         print(f"Compilation complete. See {logfile_path} for details.")
 
 
-try:
-    with open(join(dirname(__file__), 'docs/Package_Info.md'), mode='r', encoding='utf-8') as readme:
-        long_description = readme.read()
-except FileNotFoundError:
-    long_description = ""
-    pass
-
 with open(join(dirname(__file__), 'phiml', 'VERSION'), 'r') as version_file:
     version = version_file.read()
 
@@ -145,8 +138,8 @@ setup(
         'tf_cuda': CudaCommand,
     },
     description='Unified API for machine learning',
-    long_description=long_description,
-    long_description_content_type='text/markdown',
+    long_description_content_type="text/x-rst",
+    long_description="""Due to a PyPI issue, the description cannot be displayed. Please visit the homepage at https://github.com/tum-pbs/PhiML""",
     keywords=['Machine Learning', 'Deep Learning', 'Math', 'Linear systems', 'Sparse', 'Tensor', 'Named dimensions'],
     license='MIT',
     author='Philipp Holl',

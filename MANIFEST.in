@@ -1,3 +1,2 @@
 include phiml/VERSION
-include documentation/Package_Info.md
 recursive-include phiml/backend/tf/cuda/build *
