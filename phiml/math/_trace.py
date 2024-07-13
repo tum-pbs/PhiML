@@ -279,10 +279,13 @@ class ShiftLinTracer(Tensor):
             hi = -max(shifts) or None
             trimming_dict[dim] = slice(lo, hi)
         trimmed_vals = [v[trimming_dict] for v in self.val.values()]
-        stencil_sum = sum(trimmed_vals)
-        stencil_abs = sum([abs(v) for v in trimmed_vals])
-        eps = {16: 1e-2, 32: 1e-5, 64: 1e-10}[get_precision()]
-        balanced_stencil = math.close(0, stencil_sum, rel_tolerance=0, abs_tolerance=eps * math.mean(stencil_abs), reduce=pattern_dim_names(self))
+        if all(v.available for v in trimmed_vals):
+            stencil_sum = sum(trimmed_vals)
+            stencil_abs = sum([abs(v) for v in trimmed_vals])
+            eps = {16: 1e-2, 32: 1e-5, 64: 1e-10}[get_precision()]
+            balanced_stencil = math.close(0, stencil_sum, rel_tolerance=0, abs_tolerance=eps * math.mean(stencil_abs), reduce=pattern_dim_names(self))
+        else:
+            balanced_stencil = True  # cannot be determined here because values can vary. Assume could be rank-deficient to print warning
         deficiency = 0
         for shift, nonzero in self._nz_edge.items():
             if shift and nonzero:
