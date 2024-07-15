@@ -34,7 +34,7 @@ def get_parameters(net: nn.Module, wrap=True) -> dict:
         elif name.endswith('.bias'):
             uml_tensor = math.wrap(param, math.channel('output'))
         else:
-            raise NotImplementedError
+            uml_tensor = math.wrap(param, math.channel(",".join([f"d{i}" for i in range(param.ndim)])))
         result[name] = uml_tensor
     return result
 
