@@ -373,7 +373,7 @@ def minimize(f: Callable[[X], Y], solve: Solve[X, Y]) -> X:
     x0_nest, x0_tensors = disassemble_tree(solve.x0, cache=True, attr_type=value_attributes)
     x0_tensors = [to_float(t) for t in x0_tensors]
     backend = choose_backend_t(*x0_tensors, prefer_default=True)
-    batch_dims = merge_shapes(*[t.shape for t in x0_tensors]).batch
+    batch_dims = merge_shapes(*[batch(t) for t in x0_tensors])
     x0_natives = []
     x0_native_shapes = []
     for t in x0_tensors:
