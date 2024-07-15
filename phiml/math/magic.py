@@ -740,7 +740,7 @@ class _BoundDims:
         raise SyntaxError(f"{self} cannot be converted to bool. The property you want to access likely does not exist.")
 
 
-def slicing_dict(obj, item) -> dict:
+def slicing_dict(obj, item, existing_only=True) -> dict:
     """
     Creates a slicing `dict` from `item` where `item` is an arbitrary value passed to `__getitem__()`.
 
@@ -749,6 +749,7 @@ def slicing_dict(obj, item) -> dict:
     Args:
         obj: Object to be sliced.
         item: Slices.
+        existing_only: Whether to include dims in the slicing dict which are present on `obj`.
 
     Returns:
         `dict` mapping dimension names to slices.
@@ -765,7 +766,10 @@ def slicing_dict(obj, item) -> dict:
                 return key.name
             else:
                 raise ValueError(f"Illegal slicing dim: {key}. Only str and single-dim Shape and filters are allowed. While trying to slice {obj} by {item}")
-        return {valid_key(k): v for k, v in item.items()}
+        result = {valid_key(k): v for k, v in item.items()}
+        if existing_only:
+            result = {dim: v for dim, v in result.items() if dim in shape(obj)}
+        return result
     elif isinstance(item, tuple):
         if item[0] == Ellipsis:
             assert len(item) - 1 == shape(obj).channel_rank
