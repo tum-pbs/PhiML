@@ -1898,6 +1898,8 @@ def assemble_tree(obj: PhiTreeNodeType, values: List[Tensor], attr_type=variable
         return tuple([assemble_tree(item, values, attr_type) for item in obj])
     elif isinstance(obj, dict):
         return {name: assemble_tree(val, values, attr_type) for name, val in obj.items()}
+    elif isinstance(obj, Tensor):
+        return obj
     elif isinstance(obj, PhiTreeNode):
         attributes = attr_type(obj)
         values = {a: assemble_tree(getattr(obj, a), values, attr_type) for a in attributes}
