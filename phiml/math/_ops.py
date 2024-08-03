@@ -2449,6 +2449,8 @@ def gather(values, indices: Tensor, dims: Union[DimFilter, None] = None):
             return values._gather(indices)
         else:
             return sparse_gather(values, indices)
+    if is_sparse(indices):
+        raise NotImplementedError
     broadcast = broadcast_dims(values, indices)
     treat_as_batch = non_channel(indices).non_instance.only(values.shape).without(dims)
     batch_ = ((values.shape.batch & indices.shape.batch).without(dims) & treat_as_batch).without(broadcast)

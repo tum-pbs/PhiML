@@ -843,7 +843,7 @@ class CompactSparseTensor(Tensor):
 
     @property
     def sparse_dims(self):
-        return self._compressed_dims
+        return self._compressed_dims & self._uncompressed_dims
 
     @property
     def _is_tracer(self) -> bool:
@@ -1637,6 +1637,16 @@ def sparse_reduce(value: Tensor, dims: Shape, mode: str):
                 value = pack_dims(value, keep_sparse, channel('_not_summed'))
                 summed = sparse_reduce(value, dims, mode)
                 return unpack_dim(summed, '_not_summed', keep_sparse)
+    elif isinstance(value, CompactSparseTensor):
+        if value._uncompressed_dims in dims:
+            r_shape = value.shape.without(value._uncompressed_dims)
+            indices = expand(rename_dims(value._indices, dual, instance), channel(idx=r_shape.name_list))
+            values = rename_dims(value._values, dual, instance)
+            result = scatter(r_shape, indices, values, mode='add')
+            value = result
+        elif value._compact_dims in dims:
+            value = reduce(value._values, dims)
+        return value
     raise ValueError(value)
 
 
@@ -1679,12 +1689,20 @@ def sum_equal_entries(matrix: Tensor, flatten_entries=True):
 
 
 def sparse_gather(matrix: Tensor, indices: Tensor):
+    indexed = channel(indices).item_names[0]
     if isinstance(matrix, CompressedSparseMatrix):
-        indexed = channel(indices).item_names[0]
         if matrix._uncompressed_dims.only(indexed):
             matrix = matrix.decompress()
         else:  # gathering variable-length slices of the values tensor
             matrix = matrix.decompress()  # maybe there is a more efficient way of doing this, but we'd have to rebuild the pointers anyway
+    elif isinstance(matrix, CompactSparseTensor):
+        if matrix._compressed_dims.only(indexed):
+            matrix = to_format(matrix, 'coo')
+        elif matrix._uncompressed_dims.only(indexed):
+            u_indices = indices[matrix._uncompressed_dims.only(indexed).name_list]
+            r_indices = matrix._indices[u_indices]
+            r_values = matrix._values[u_indices]
+            return CompactSparseTensor(r_indices, r_values, matrix._compressed_dims, matrix._indices_constant, matrix._matrix_rank)
     if isinstance(matrix, SparseCoordinateTensor):
         b = matrix._indices.default_backend
         matrix = sum_equal_entries(matrix, flatten_entries=True)
@@ -1717,4 +1735,4 @@ def sparse_gather(matrix: Tensor, indices: Tensor):
         gathered_values = matrix._values[lookup]
         dense_shape = matrix._dense_shape.without(channel(indices).item_names[0]) & non_channel(indices)
         return SparseCoordinateTensor(gathered_indices, gathered_values, dense_shape, can_contain_double_entries=False, indices_sorted=False, indices_constant=matrix._indices_constant)
-    raise NotImplementedError
+    raise NotImplementedError(type(matrix))
