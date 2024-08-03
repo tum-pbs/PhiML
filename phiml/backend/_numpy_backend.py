@@ -150,7 +150,7 @@ class NumPyBackend(Backend):
         output = f(*args, **aux_args)
         if isinstance(output_dtypes, DType):
             assert output.shape == output_shapes
-            assert self.dtype(output) == output_dtypes
+            assert self.dtype(output) == output_dtypes, f"{self.dtype(output)} != {output_dtypes}"
         else:
             assert len(output) == len(output_dtypes) == len(output_shapes)
             for i, (o, d, s) in enumerate(zip(output, output_dtypes, output_shapes)):

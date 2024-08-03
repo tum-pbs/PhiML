@@ -536,7 +536,7 @@ class BoundDim:
             Sequence of item names or indices.
         """
         if not self.exists:
-            raise SyntaxError(f"Cannot get keys of nonexistent dimension {self}")
+            raise SyntaxError(f"Cannot get item names of nonexistent dim '{self.name}'. shape={shape(self.obj)}")
         if self.item_names is not None:
             return self.item_names
         else:
