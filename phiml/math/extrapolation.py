@@ -641,7 +641,7 @@ class _ZeroGradient(_CopyExtrapolation):
         assert primal_dim not in value.shape, f"sparse_pad_values only implemented for vectors, not matrices"
         gathered = value[{dual_dim: indices[primal_dim]}]
         # --- Scatter, but knowing there is only one entry per row & col, we can simply permute ---
-        inv_perm = scatter(dual(connectivity), indices[[dual_dim]], arange(instance(indices)), default=0)
+        inv_perm = scatter(dual(connectivity), indices[[dual_dim]], arange(instance(indices)), default=0, outside_handling='undefined')
         return gathered[{instance(gathered).name: inv_perm}]
 
 

@@ -2600,7 +2600,7 @@ def scatter(base_grid: Union[Tensor, Shape],
         indices = clip(indices, 0, tensor(indexed_dims, channel(indices)) - 1)
     elif outside_handling == 'discard':
         indices_linear = pack_dims(indices, instance, instance(_scatter_instance=1))
-        indices_inside = min_((round_(indices_linear) >= 0) & (round_(indices_linear) < tensor(indexed_dims, channel(indices_linear))), channel)
+        indices_inside = min_((round_(indices_linear) >= 0) & (round_(indices_linear) < wrap(indexed_dims, channel(indices_linear))), channel)
         indices_linear = boolean_mask(indices_linear, '_scatter_instance', indices_inside)
         if instance(values).rank > 0:
             values_linear = pack_dims(values, instance, instance(_scatter_instance=1))
