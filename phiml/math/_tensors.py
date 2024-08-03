@@ -14,7 +14,7 @@ from ._magic_ops import PhiTreeNodeType, variable_attributes, copy_with, stack, 
 from ._shape import (Shape,
                      CHANNEL_DIM, BATCH_DIM, SPATIAL_DIM, EMPTY_SHAPE,
                      parse_dim_order, shape_stack, merge_shapes, channel, concat_shapes, primal,
-                     SUPERSCRIPT, IncompatibleShapes, INSTANCE_DIM, batch, spatial, dual, instance, shape, DimFilter, non_batch, DEBUG_CHECKS)
+                     SUPERSCRIPT, IncompatibleShapes, INSTANCE_DIM, batch, spatial, dual, instance, shape, DimFilter, non_batch, DEBUG_CHECKS, parse_shape_spec)
 from ..backend import NoBackendFound, choose_backend, BACKENDS, get_precision, default_backend, convert as convert_, \
     Backend, ComputeDevice, OBJECTS, NUMPY
 from ..backend._dtype import DType, combine_types
@@ -1498,7 +1498,7 @@ class TensorStack(Tensor):
 
 
 def tensor(data,
-           *shape: Shape,
+           *shape: Union[Shape,str],
            convert: bool = True,
            default_list_dim=channel('vector')) -> Tensor:  # TODO assume convert_unsupported, add convert_external=False for constants
     """
@@ -1557,6 +1557,7 @@ def tensor(data,
         >>> tensor(numpy.random.randn(10))
         (vectorᶜ=10) float64 -0.128 ± 1.197 (-2e+00...2e+00)
     """
+    shape = [parse_shape_spec(s) if isinstance(s, str) else s for s in shape]
     assert all(isinstance(s, Shape) for s in shape), f"Cannot create tensor because shape needs to be one or multiple Shape instances but got {shape}"
     shape = None if len(shape) == 0 else concat_shapes(*shape)
     if isinstance(data, Tensor):
@@ -1632,7 +1633,7 @@ def tensor(data,
         raise ValueError(f"{type(data)} is not supported. Only (Tensor, tuple, list, np.ndarray, native tensors) are allowed.\nCurrent backends: {BACKENDS}")
 
 
-def wrap(data, *shape: Shape, default_list_dim=channel('vector')) -> Tensor:
+def wrap(data, *shape: Union[Shape,str], default_list_dim=channel('vector')) -> Tensor:
     """ Short for `phiml.math.tensor()` with `convert=False`. """
     return tensor(data, *shape, convert=False, default_list_dim=default_list_dim)
 
@@ -2233,7 +2234,6 @@ def reshaped_native(value: Tensor,
     if Ellipsis in groups:
         ellipsis_dims = value.shape.without([g for g in groups if g is not Ellipsis])
         groups = [ellipsis_dims if g is Ellipsis else g for g in groups]
-    groups = [group(value) if callable(group) else group for group in groups]
     for i, group in enumerate(groups):
         if isinstance(group, Shape):
             present = value.shape.only(group)

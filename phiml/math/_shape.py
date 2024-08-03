@@ -14,6 +14,7 @@ DUAL_DIM = 'dual'
 
 SUPERSCRIPT = {SPATIAL_DIM: "ˢ", CHANNEL_DIM: "ᶜ", INSTANCE_DIM: "ⁱ", BATCH_DIM: "ᵇ", DUAL_DIM: "ᵈ", None: "⁻"}  # ᵃᵇᶜᵈᵉᶠᵍʰⁱʲᵏˡᵐⁿᵒᵖʳˢᵗᵘᵛʷˣʸᶻ
 CHAR = {SPATIAL_DIM: "s", CHANNEL_DIM: "c", INSTANCE_DIM: "i", BATCH_DIM: "b", DUAL_DIM: "d", None: "-"}  # ᵃᵇᶜᵈᵉᶠᵍʰⁱʲᵏˡᵐⁿᵒᵖʳˢᵗᵘᵛʷˣʸᶻ
+INV_CHAR = {v: k for k, v in CHAR.items()}
 
 DEBUG_CHECKS = []
 
@@ -1794,7 +1795,49 @@ def auto(spec: Union[str, Shape], default_type=None) -> Shape:
             assert isinstance(default_type, str), f"default_type must be a dimension generator or str but got {type(default_type)}"
             dim_type = default_type
     return _construct_shape(dim_type, dim_name)
-        
+
+
+class InvalidShapeSpec(ValueError):
+    pass
+
+
+def parse_shape_spec(input_string) -> Shape:
+    pattern_with_name_and_type = re.compile(r'(\w+):(\w+)=\(([^)]*)\)')
+    pattern_with_type = re.compile(r'(\w+):(\w+)')
+    pattern_with_name = re.compile(r'(\w+)=\(([^)]*)\)')
+    pattern_default = re.compile(r'\(([^)]*)\)')
+    results = []
+    pos = 0
+    while pos < len(input_string):
+        if match := pattern_with_name_and_type.match(input_string, pos):
+            name, type_, values = match.groups()
+            results.append({'name': name, 'type': type_, 'values': values.split(',')})
+            pos = match.end() + 1
+        elif match := pattern_with_type.match(input_string, pos):
+            name, type_ = match.groups()
+            # Check if the next character is an equal sign followed by parentheses
+            next_char_pos = pos + len(match.group())
+            if next_char_pos < len(input_string) and input_string[next_char_pos] == '=':
+                raise ValueError(f"Invalid format at position {pos}: values must be inside parentheses")
+            results.append({'name': name, 'type': type_})
+            pos = match.end() + 1
+        elif match := pattern_with_name.match(input_string, pos):
+            name, values = match.groups()
+            results.append({'name': name, 'type': 'c', 'values': values.split(',')})
+            pos = match.end() + 1
+        elif match := pattern_default.match(input_string, pos):
+            values = match.group(1)
+            results.append({'name': 'vector', 'type': 'c', 'values': values.split(',')})
+            pos = match.end() + 1
+        else:
+            raise InvalidShapeSpec(input_string, f"Failed to parse from index {pos}: '{input_string[pos:]}'. Dims must be specified as name:type or name:type=(item_names...). Names and types may only be omitted if component names are given.")
+    names = [r['name'] for r in results]
+    types = [r['type'] for r in results]
+    types = [INV_CHAR[t] if len(t) == 1 else t for t in types]
+    item_names = [r.get('values', None) for r in results]
+    item_names = [tuple(items) if items is not None else None for items in item_names]
+    sizes = [len(items) if items is not None else None for items in item_names]
+    return Shape(tuple(sizes), tuple(names), tuple(types), tuple(item_names))
 
 
 DIM_FUNCTIONS = {BATCH_DIM: batch, SPATIAL_DIM: spatial, INSTANCE_DIM: instance, CHANNEL_DIM: channel, DUAL_DIM: dual}
