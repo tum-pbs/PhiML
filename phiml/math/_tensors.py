@@ -2199,6 +2199,8 @@ def reshaped_native(value: Tensor,
             * Ellipsis `...`: Packs all remaining dimensions into this slot. Can only be passed once.
             * `None` or `()`: Adds a singleton dimension.
 
+            Collections of or comma-separated dims may also be used but only if all dims are present on `value`.
+
         force_expand: `bool` or sequence of dimensions.
             If `True`, repeats the tensor along missing dimensions.
             If `False`, puts singleton dimensions where possible.
@@ -2212,7 +2214,21 @@ def reshaped_native(value: Tensor,
     assert not value._is_tracer, f"Failed accessing native values because tensor {value.shape} is a tracer"
     assert value.shape.is_uniform, f"Only uniform (homogenous) tensors can be converted to native but got shape {value.shape}"
     assert isinstance(groups, (tuple, list)), f"groups must be a tuple or list but got {type(value)}"
-    groups = [EMPTY_SHAPE if g is None or (isinstance(g, tuple) and len(g) == 0) else g for g in groups]
+    def process_group(g):
+        if g is None or (isinstance(g, tuple) and len(g) == 0):
+            return EMPTY_SHAPE
+        if isinstance(g, Shape):
+            return g
+        if g is Ellipsis:
+            return g
+        if callable(g):
+            return g(value)
+        g = parse_dim_order(g)
+        if len(g) > 1:
+            for name in g:
+                assert name in value.shape, f"When specifying a group by dim names, all dims must be present but {name} is not part of {value.shape}"
+        return value.shape.only(g)
+    groups = [process_group(g) for g in groups]
     order = []
     if Ellipsis in groups:
         ellipsis_dims = value.shape.without([g for g in groups if g is not Ellipsis])
