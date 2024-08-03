@@ -1016,16 +1016,18 @@ def find_closest(vectors: Tensor, query: Tensor, method='kd', index_dim=channel(
 
             * `'dense'`: compute the pair-wise distances between all vectors and query points, then return the index of the smallest distance for each query point.
             * `'kd'` (default): Build a k-d tree from `vectors` and use it to query all points in `query`. The tree will be cached if this call is jit-compiled and `vectors` is constant.
-        index_dim: Dimension along which components should be listed.
+        index_dim: Dimension along which components should be listed as `Shape`.
+            Pass `None` to get 1D indices as scalars.
 
     Returns:
         Index tensor `idx` so that the closest points to `query` are `vectors[idx]`.
     """
     assert not dual(vectors), f"vectors cannot have dual dims"
+    index_dim = None if index_dim is None else index_dim.with_size(non_batch(vectors).non_channel.names)
     if method == 'dense':
         dist = vec_squared(query - vectors)
         idx = math.argmin(dist, non_batch(vectors).non_channel)
-        return rename_dims(idx, '_index', index_dim.with_size(non_batch(vectors).non_channel.names))
+        return rename_dims(idx, '_index', index_dim) if index_dim is not None else idx._index[0]
     # --- k-d tree ---
     from scipy.spatial import KDTree
     native_query = reshaped_native(query, [batch(vectors), query.shape.without(batch(vectors)).non_channel, channel(query)])
@@ -1041,4 +1043,4 @@ def find_closest(vectors: Tensor, query: Tensor, method='kd', index_dim=channel(
             return np.stack([KDTree(np_vectors[i]).query(np_query[i])[1] for i in range(batch(vectors).volume)])
         native_idx = b.numpy_call(perform_query, (batch(vectors).volume, query.shape.without(batch(vectors)).non_channel.volume), DType(int, 64), native_vectors, native_query)
     native_multi_idx = choose_backend(native_idx).unravel_index(native_idx, vectors.shape.non_batch.non_channel.sizes)
-    return reshaped_tensor(native_multi_idx, [batch(vectors), query.shape.without(batch(vectors)).non_channel, index_dim.with_size(non_batch(vectors).non_channel.names)])
+    return reshaped_tensor(native_multi_idx, [batch(vectors), query.shape.without(batch(vectors)).non_channel, index_dim or math.EMPTY_SHAPE])
