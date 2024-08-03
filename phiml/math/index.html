@@ -1412,7 +1412,8 @@ This is implemented using a k-d tree built from <code>vectors</code>.</p>
 </ul>
 </dd>
 <dt><strong><code>index_dim</code></strong></dt>
-<dd>Dimension along which components should be listed.</dd>
+<dd>Dimension along which components should be listed as <code><a title="phiml.math.Shape" href="#phiml.math.Shape">Shape</a></code>.
+Pass <code>None</code> to get 1D indices as scalars.</dd>
 </dl>
 <h2 id="returns">Returns</h2>
 <p>Index tensor <code>idx</code> so that the closest points to <code>query</code> are <code>vectors[idx]</code>.</p></div>
@@ -3489,6 +3490,7 @@ Adding batch dimensions must always work without keyword arguments.</dd>
 <li>Ellipsis <code>&hellip;</code>: Packs all remaining dimensions into this slot. Can only be passed once.</li>
 <li><code>None</code> or <code>()</code>: Adds a singleton dimension.</li>
 </ul>
+<p>Collections of or comma-separated dims may also be used but only if all dims are present on <code>value</code>.</p>
 </dd>
 <dt><strong><code>force_expand</code></strong></dt>
 <dd><code>bool</code> or sequence of dimensions.
@@ -4260,7 +4262,7 @@ Internally, invalid indices may be stored for performance reasons.</dd>
 <div class="desc"><p>Computes <em>tanh(x)</em> of the <code><a title="phiml.math.Tensor" href="#phiml.math.Tensor">Tensor</a></code> or <code><a title="phiml.math.magic.PhiTreeNode" href="magic.html#phiml.math.magic.PhiTreeNode">PhiTreeNode</a></code> <code>x</code>.</p></div>
 </dd>
 <dt id="phiml.math.tensor"><code class="name flex">
-<span>def <span class="ident">tensor</span></span>(<span>data, *shape: phiml.math._shape.Shape, convert: bool = True, default_list_dim=(vectorᶜ=None)) ‑> phiml.math._tensors.Tensor</span>
+<span>def <span class="ident">tensor</span></span>(<span>data, *shape: Union[str, phiml.math._shape.Shape], convert: bool = True, default_list_dim=(vectorᶜ=None)) ‑> phiml.math._tensors.Tensor</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Create a Tensor from the specified <code>data</code>.
@@ -4697,7 +4699,7 @@ To get the indices of True / non-zero values, use :func:<code><a title="phiml.ma
 <p><code><a title="phiml.math.Tensor" href="#phiml.math.Tensor">Tensor</a></code> containing dimensions of all inputs.</p></div>
 </dd>
 <dt id="phiml.math.wrap"><code class="name flex">
-<span>def <span class="ident">wrap</span></span>(<span>data, *shape: phiml.math._shape.Shape, default_list_dim=(vectorᶜ=None)) ‑> phiml.math._tensors.Tensor</span>
+<span>def <span class="ident">wrap</span></span>(<span>data, *shape: Union[str, phiml.math._shape.Shape], default_list_dim=(vectorᶜ=None)) ‑> phiml.math._tensors.Tensor</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Short for <code><a title="phiml.math.tensor" href="#phiml.math.tensor">tensor()</a></code> with <code>convert=False</code>.</p></div>

@@ -47,7 +47,7 @@ To check whether <code>len(obj)</code> can be performed, you check <code>isinsta
 <h2 class="section-title" id="header-functions">Functions</h2>
 <dl>
 <dt id="phiml.math.magic.slicing_dict"><code class="name flex">
-<span>def <span class="ident">slicing_dict</span></span>(<span>obj, item) ‑> dict</span>
+<span>def <span class="ident">slicing_dict</span></span>(<span>obj, item, existing_only=True) ‑> dict</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Creates a slicing <code>dict</code> from <code>item</code> where <code>item</code> is an arbitrary value passed to <code>__getitem__()</code>.</p>
@@ -58,6 +58,8 @@ To check whether <code>len(obj)</code> can be performed, you check <code>isinsta
 <dd>Object to be sliced.</dd>
 <dt><strong><code>item</code></strong></dt>
 <dd>Slices.</dd>
+<dt><strong><code>existing_only</code></strong></dt>
+<dd>Whether to include dims in the slicing dict which are present on <code>obj</code>.</dd>
 </dl>
 <h2 id="returns">Returns</h2>
 <p><code>dict</code> mapping dimension names to slices.</p></div>
@@ -239,7 +241,7 @@ This supports the following operations:</p>
             Sequence of item names or indices.
         &#34;&#34;&#34;
         if not self.exists:
-            raise SyntaxError(f&#34;Cannot get keys of nonexistent dimension {self}&#34;)
+            raise SyntaxError(f&#34;Cannot get item names of nonexistent dim &#39;{self.name}&#39;. shape={shape(self.obj)}&#34;)
         if self.item_names is not None:
             return self.item_names
         else:
