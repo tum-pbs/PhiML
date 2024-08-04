@@ -70,7 +70,7 @@ class NumPyBackend(Backend):
     round = staticmethod(np.round)
     ceil = np.ceil
     floor = np.floor
-    log_gamma = np.math.lgamma
+    log_gamma = np.math.lgamma if hasattr(np, 'math') else scipy.special.loggamma
     gamma_inc_l = scipy.special.gammainc
     gamma_inc_u = scipy.special.gammaincc
     shape = staticmethod(np.shape)
