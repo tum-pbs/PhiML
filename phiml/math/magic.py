@@ -783,6 +783,10 @@ def slicing_dict(obj, item, existing_only=True) -> dict:
         else:
             raise AssertionError(f"Cannot slice {obj}[{item}]. Use a dict or the special slicing syntax value.dim[slice] instead. See https://tum-pbs.github.io/PhiML/Introduction.html#Slicing")
     else:
+        from ._tensors import Tensor
+        if isinstance(item, Tensor) and item.dtype.kind == bool:  # boolean mask
+            mask_dim = item.shape.non_batch or item.shape
+            return {mask_dim.name: item}
         if shape(obj).channel_rank == 1:
             return {channel(obj).name: item}
         elif non_batch(obj).rank == 1:
