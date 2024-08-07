@@ -466,6 +466,11 @@ def i2b(value):
     return rename_dims(value, instance, batch)
 
 
+def d2i(value):
+    """ Change the type of all *dual* dimensions of `value` to *instance* dimensions. See `rename_dims`. """
+    return rename_dims(value, dual, instance)
+
+
 def pack_dims(value, dims: DimFilter, packed_dim: Shape, pos: Optional[int] = None, **kwargs):
     """
     Compresses multiple dimensions into a single dimension by concatenating the elements.
