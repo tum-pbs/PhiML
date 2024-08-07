@@ -928,74 +928,89 @@ class CompactSparseTensor(Tensor):
         return self._with_values(self._values._op1(native_function))
 
     def _op2(self, other, operator: Callable, native_function: Callable, op_name: str = 'unknown', op_symbol: str = '?') -> 'Tensor':
-        raise NotImplementedError
         other_shape = shape(other)
-        affects_only_values = self._dense_shape.isdisjoint(other_shape)
+        affects_only_values = self._compressed_dims.isdisjoint(other_shape)
         if affects_only_values:
             return self._with_values(operator(self._values, other))
-        if isinstance(other, CompressedSparseMatrix):
-            other = other.decompress()
-        if isinstance(other, SparseCoordinateTensor):
-            if same_sparsity_pattern(self, other):
-                return self._with_values(operator(self._values, other._values))
-            else:
-                if op_name not in ['add', 'radd', 'sub', 'rsub']:
-                    same_sparsity_pattern(self, other)  # debug checkpoint
-                    raise AssertionError(f"Operation '{op_symbol}' ({op_name}) requires sparse matrices with the same sparsity pattern.")
-                all_sparse_dims = sparse_dims(other) & sparse_dims(self)
-                self_indices = pack_dims(self._indices, instance, instance('sp_entries'))
-                other_indices = pack_dims(other._indices, instance, instance('sp_entries'))
-                self_values = pack_dims(self._values, instance(self._indices), instance('sp_entries'))
-                other_values = pack_dims(other._values, instance(other._indices), instance('sp_entries'))
-                self_indices, self_values = with_sparsified_dim(self_indices, self_values, all_sparse_dims)
-                other_indices, other_values = with_sparsified_dim(other_indices, other_values, all_sparse_dims)
-                indices = concat([self_indices, other_indices], 'sp_entries')
-                if op_symbol == '+':
-                    values = concat([self_values, other_values], instance(self_values), expand_values=True)
-                elif op_name == 'sub':
-                    values = concat([self_values, -other_values], instance(self_values), expand_values=True)
-                else:  # op_name == 'rsub':
-                    values = concat([-self_values, other_values], instance(self_values), expand_values=True)
-                return SparseCoordinateTensor(indices, values, self._dense_shape & other._dense_shape, can_contain_double_entries=True, indices_sorted=False, indices_constant=self._indices_constant)
-        else:  # other is dense
-            if self._dense_shape in other.shape:  # all dims dense -> convert to dense
-                return dense(self)._op2(other, operator, native_function, op_name, op_symbol)
-            else:  # only some dims dense -> stay sparse
-                dense_dims = self._dense_shape.only(other.shape)
-                other_values = other[self._indices.sparse_idx[dense_dims.name_list]]
-                values = operator(self._values, other_values)
-                return self._with_values(values)
+        elif isinstance(other, (CompressedSparseMatrix, CompactSparseTensor)):
+            raise NotImplementedError
+            # if same_sparsity_pattern(self, other):
+            #     result = operator(self._values, other._values)
+            #     if self._uncompressed_offset is not None:
+            #         from ._ops import where
+            #         result = where(self._valid_mask(), result, 0)
+            #     return self._with_values(result)
+            # elif op_symbol == '+':
+            #     raise NotImplementedError("Compressed addition not yet implemented")
+            # else:
+            #     # convert to COO, then perform operation
+            #     raise NotImplementedError
+        elif self._uncompressed_dims in other_shape and self._compressed_dims.isdisjoint(other_shape):
+            from ._ops import gather, boolean_mask, clip, where
+            if self._uncompressed_offset is None:
+                other_values = gather(other, self._indices, self._uncompressed_dims)
+                return self._with_values(operator(self._values, other_values))
+            # if bake_slice:
+            #     baked = self._bake_slice()
+            #     other_values = gather(other, baked._indices, self._uncompressed_dims)
+            #     return baked._with_values(operator(baked._values, other_values))
+            indices = clip(self._indices - self._uncompressed_offset, 0, self._uncompressed_dims.volume - 1)
+            other_values = gather(other, indices, self._uncompressed_dims)
+            return self._with_values(where(self._valid_mask(), operator(self._values, other_values), 0))
+        elif self._compressed_dims in other_shape and self._uncompressed_dims.isdisjoint(other_shape):
+            from ._ops import gather, boolean_mask, clip, where
+            other_values = gather(other, self._indices, self._compressed_dims)
+            result_values = operator(self._values, other_values)
+            return self._with_values(result_values)
+        else:
+            raise NotImplementedError
 
     def _getitem(self, selection: dict) -> 'Tensor':
         raise NotImplementedError
         batch_selection = {dim: selection[dim] for dim in self._shape.without(self.sparse_dims).only(tuple(selection)).names}
-        indices = self._indices[{dim: sel for dim, sel in batch_selection.items() if dim != 'sparse_idx'}]
+        indices = self._indices[batch_selection]
         values = self._values[batch_selection]
-        if self._dense_shape.only(tuple(selection)):
-            keep = expand(True, instance(self._indices))
-            for dim, sel in selection.items():
-                dim_indices = self._indices[dim]
-                if isinstance(sel, int):
-                    item_names = list(channel(indices).item_names[0])
-                    item_names.remove(dim)
-                    indices = indices[item_names]
-                    sel = slice(sel, sel + 1)
-                elif isinstance(sel, str):
-                    raise NotImplementedError
-                assert isinstance(sel, slice)
-                assert sel.step in (None, 1), f"Only step size 1 supported for sparse indexing but got {sel.step}"
-                start = sel.start or 0
-                stop = self._dense_shape[dim].size if sel.stop is None else sel.stop
-                keep &= (start <= dim_indices) & (dim_indices < stop)
-                from . import vec
-                indices -= vec('sparse_idx', **{d: start if d == dim else 0 for d in indices.sparse_idx.item_names})
-            from ._ops import boolean_mask
-            indices = boolean_mask(indices, instance(indices), keep)
-            values = boolean_mask(values, instance(indices), keep)
-            dense_shape = self._dense_shape.after_gather(selection)
-            return CompactSparseTensor(indices, values, dense_shape, self._indices_constant)
-        else:
-            return CompactSparseTensor(indices, values, self._dense_shape, self._indices_constant, self._matrix_rank[batch_selection])
+        m_rank = self._matrix_rank[batch_selection]
+        uncompressed = self._uncompressed_dims
+        compressed = self._compressed_dims
+        if compressed.only(tuple(selection)):
+            if compressed.rank > 1:
+                raise NotImplementedError
+            ptr_sel = selection[compressed.name]
+            if isinstance(ptr_sel, int):
+                raise NotImplementedError(f"Slicing with int not yet supported for sparse tensors. Use a range instead, e.g. [{ptr_sel}:{ptr_sel + 1}] instead of [{ptr_sel}]")
+            elif isinstance(ptr_sel, slice):
+                assert ptr_sel.step in (None, 1), f"Only step size 1 supported for sparse indexing but got {ptr_sel.step}"
+                if batch(indices):
+                    raise NotImplementedError("Slicing not yet supported for batched sparse tensors")
+                start = ptr_sel.start or 0
+                stop = compressed.volume if ptr_sel.stop is None else ptr_sel.stop
+                pointers = pointers[start:stop + 1]
+                indices = indices[{instance(indices).name: slice(int(pointers[0]), int(pointers[-1]))}]
+                values = values[{instance(values).name: slice(int(pointers[0]), int(pointers[-1]))}]
+                m_rank = -1
+                pointers -= pointers[0]
+                compressed = compressed.after_gather({compressed.name: ptr_sel})
+            else:
+                raise NotImplementedError
+        if uncompressed.only(tuple(selection)):
+            if self._uncompressed_dims.rank > 1:
+                raise NotImplementedError
+            ind_sel = selection[uncompressed.name]
+            if isinstance(ind_sel, int):
+                raise NotImplementedError(f"Slicing with int not yet supported for sparse tensors. Use a range instead, e.g. [{ind_sel}:{ind_sel + 1}] instead of [{ind_sel}]")
+            elif isinstance(ind_sel, slice):
+                assert ind_sel.step in (None, 1), f"Only step size 1 supported for sparse indexing but got {ind_sel.step}"
+                start = ind_sel.start or 0
+                stop = uncompressed.volume if ind_sel.stop is None else ind_sel.stop
+                keep = (start <= indices) & (indices < stop)
+                from ._ops import where
+                values = where(keep, values, 0)
+                m_rank = -1
+                uncompressed_offset = start
+                uncompressed = uncompressed.after_gather({uncompressed.name: ind_sel})
+            else:
+                raise NotImplementedError
 
     def __concat__(self, tensors: tuple, dim: str, **kwargs) -> 'SparseCoordinateTensor':
         raise NotImplementedError
@@ -1640,9 +1655,9 @@ def sparse_reduce(value: Tensor, dims: Shape, mode: str):
     elif isinstance(value, CompactSparseTensor):
         if value._uncompressed_dims in dims:
             r_shape = value.shape.without(value._uncompressed_dims)
-            indices = expand(rename_dims(value._indices, dual, instance), channel(idx=r_shape.name_list))
+            indices = expand(rename_dims(value._indices, dual, instance), channel(idx=value._compressed_dims.name_list))
             values = rename_dims(value._values, dual, instance)
-            result = scatter(r_shape, indices, values, mode='add')
+            result = scatter(r_shape, indices, values, mode=mode)
             value = result
         elif value._compact_dims in dims:
             value = reduce(value._values, dims)
