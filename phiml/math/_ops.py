@@ -1299,7 +1299,7 @@ def _prod(value: Tensor, dims: Shape) -> Tensor:
         raise ValueError(type(value))
 
 
-def mean(value: Union[Tensor, list, tuple, Number, bool], dim: DimFilter = non_batch) -> Tensor:
+def mean(value: Union[Tensor, list, tuple, Number, bool], dim: DimFilter = non_batch, weight: Union[Tensor, list, tuple] = None) -> Tensor:
     """
     Computes the mean over `values` along the specified dimensions.
 
@@ -1314,9 +1314,19 @@ def mean(value: Union[Tensor, list, tuple, Number, bool], dim: DimFilter = non_b
             * `batch`, `instance`, `spatial`, `channel` to select dimensions by type
             * `'0'` when `isinstance(value, (tuple, list))` to add up the sequence of Tensors
 
+        weight: Optionally perform a weighted mean operation. Must broadcast to `value`.
+
     Returns:
         `Tensor` without the reduced dimensions.
     """
+    if weight is not None:
+        if isinstance(value, (tuple, list)):
+            assert isinstance(weight, (tuple, list)), f"When computing mean over tuples or lists, the weight must also be a tuple or list"
+            value = stack_tensors([wrap(v) for v in value], instance(**{'0': len(value)}))
+            weight = stack_tensors([wrap(w) for w in weight], instance(**{'0': len(weight)}))
+            dim = value.shape.only(dim)
+            assert '0' in dim, "When passing a sequence of tensors to be reduced, the sequence dimension '0' must be reduced."
+        return sum_(value * weight, dim) / sum_(weight, dim)
     return reduce_(_mean, value, dim)
 
 
@@ -1407,7 +1417,7 @@ def _any(value: Tensor, dims: Shape) -> Tensor:
     elif isinstance(value, TensorStack):
         reduced_inners = [_any(t, dims.without(value._stack_dim)) for t in value._tensors]
         return functools.reduce(lambda x, y: x | y, reduced_inners) if value._stack_dim in dims else TensorStack(reduced_inners, value._stack_dim)
-    elif isinstance(value, (CompressedSparseMatrix, SparseCoordinateTensor)):
+    elif is_sparse(value):
         return sparse_sum(to_int32(value), dims) > 0
     else:
         raise ValueError(type(value))
@@ -1441,7 +1451,7 @@ def _all(value: Tensor, dims: Shape) -> Tensor:
     elif isinstance(value, TensorStack):
         reduced_inners = [_all(t, dims.without(value._stack_dim)) for t in value._tensors]
         return functools.reduce(lambda x, y: x & y, reduced_inners) if value._stack_dim in dims else TensorStack(reduced_inners, value._stack_dim)
-    elif isinstance(value, (SparseCoordinateTensor, CompressedSparseMatrix)):
+    elif is_sparse(value):
         if sparse_dims(value) in dims:
             return _all(value._values, dims.without(sparse_dims(value)) & instance(value._values))
     raise ValueError(type(value))
@@ -2478,7 +2488,7 @@ def scatter(base_grid: Union[Tensor, Shape],
             indices: Union[Tensor, dict],
             values: Union[Tensor, float],
             mode: Union[str, Callable] = 'update',
-            outside_handling: str = 'discard',
+            outside_handling: str = 'check',
             indices_gradient=False,
             default=None,
             treat_as_batch=None):
@@ -2513,8 +2523,9 @@ def scatter(base_grid: Union[Tensor, Shape],
             The corresponding functions are the built-in `sum`, `max´, `min`, as well as the reduce functions in `phiml.math`.
         outside_handling: Defines how indices lying outside the bounds of `base_grid` are handled.
 
-            * `'discard'`: outside indices are ignored.
-            * `'clamp'`: outside indices are projected onto the closest point inside the grid.
+            * `'check'`: Raise an error if any index is out of bounds.
+            * `'discard'`: Outside indices are ignored.
+            * `'clamp'`: Outside indices are projected onto the closest point inside the grid.
             * `'undefined'`: All points are expected to lie inside the grid. Otherwise an error may be thrown or an undefined tensor may be returned.
         indices_gradient: Whether to allow the gradient of this operation to be backpropagated through `indices`.
         default: Default value to use for bins into which no value is scattered.
@@ -2545,7 +2556,7 @@ def scatter(base_grid: Union[Tensor, Shape],
         i_result = scatter(not_base_grid, indices, not_values, 'add', outside_handling, indices_gradient, False)
         return ~cast(i_result, bool)
     assert mode in ('update', 'add', 'mean', 'max', 'min'), f"Invalid scatter mode: '{mode}'"
-    assert outside_handling in ('discard', 'clamp', 'undefined')
+    assert outside_handling in ('discard', 'clamp', 'undefined', 'check')
     assert isinstance(indices_gradient, bool)
     if isinstance(indices, dict):  # update a slice
         if len(indices) == 1 and isinstance(next(iter(indices.values())), (str, int, slice)):  # update a range
@@ -2596,8 +2607,14 @@ def scatter(base_grid: Union[Tensor, Shape],
         else:
             assert mode == 'add'  # initialize with zeros
     # --- Handle outside indices ---
-    if outside_handling == 'clamp':
-        indices = clip(indices, 0, tensor(indexed_dims, channel(indices)) - 1)
+    limit = tensor(indexed_dims, channel(indices)) - 1
+    if outside_handling == 'check':
+        from ._functional import when_available
+        def check(indices):
+            assert_close(True, (indices > 0) & (indices) < limit)
+        when_available(check, indices)
+    elif outside_handling == 'clamp':
+        indices = clip(indices, 0, limit)
     elif outside_handling == 'discard':
         indices_linear = pack_dims(indices, instance, instance(_scatter_instance=1))
         indices_inside = min_((round_(indices_linear) >= 0) & (round_(indices_linear) < wrap(indexed_dims, channel(indices_linear))), channel)
