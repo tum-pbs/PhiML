@@ -538,5 +538,11 @@ class NumPyBackend(Backend):
     def matrix_rank_dense(self, matrix, hermitian=False):
         return np.linalg.matrix_rank(matrix, hermitian=hermitian)
 
+    def eigvals(self, matrix: TensorType) -> TensorType:
+        return numpy.linalg.eigvals(matrix)
+
+    def eig(self, matrix: TensorType) -> TensorType:
+        return numpy.linalg.eig(matrix)
+
 
 NUMPY = NumPyBackend()

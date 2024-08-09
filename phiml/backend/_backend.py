@@ -1539,7 +1539,29 @@ class Backend:
             matrix: Dense matrix of shape (batch, rows, cols)
             hermitian: Whether all matrices are guaranteed to be hermitian.
         """
-        raise NotImplementedError
+        raise NotImplementedError(self)
+
+    def eigvals(self, matrix: TensorType) -> TensorType:
+        """
+        Args:
+            matrix: (batch..., n, n)
+
+        Returns:
+            eigenvalues as (batch..., n,)
+        """
+        raise NotImplementedError(self)
+
+    def eig(self, matrix: TensorType) -> TensorType:
+        """
+
+        Args:
+            matrix: (batch..., n, n)
+
+        Returns:
+            eigenvalues: (batch..., n,)
+            eigenvectors: (batch..., n, n)
+        """
+        raise NotImplementedError(self)
 
     def stop_gradient(self, value):
         raise NotImplementedError(self)

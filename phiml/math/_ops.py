@@ -12,7 +12,7 @@ from .magic import PhiTreeNode
 from ._magic_ops import expand, pack_dims, unpack_dim, cast, value_attributes, bool_to_int, tree_map, concat, stack, unstack, rename_dims, slice_
 from ._shape import (Shape, EMPTY_SHAPE,
                      spatial, batch, channel, instance, merge_shapes, parse_dim_order, concat_shapes,
-                     IncompatibleShapes, DimFilter, non_batch, dual, non_channel, shape, shape as get_shape)
+                     IncompatibleShapes, DimFilter, non_batch, dual, non_channel, shape, shape as get_shape, primal)
 from . import extrapolation as e_
 from ._tensors import (Tensor, wrap, tensor, broadcastable_native_tensors, NativeTensor, TensorStack,
                        custom_op2, compatible_tensor, variable_attributes, disassemble_tree, assemble_tree,
@@ -3237,3 +3237,28 @@ def map_pairs(map_function: Callable, values: Tensor, connections: Tensor):
     target = values[{origin_dim: indices[neighbors_dim]}]
     result = map_function(origin, target)
     return tensor_like(connections, result, value_order='as existing')
+
+
+def eigenvalues(matrix: Tensor, eigen_dim=channel('eigenvalues')):
+    """
+    Computes the eigenvalues of a square matrix.
+    The matrix columns are listed along dual dimensions and the rows are listed along the corresponding non-dual dimensions.
+    Row dims are matched by name if possible, else all primal dims are used.
+
+    Args:
+        matrix: Square matrix. Must have at least one dual dim and corresponding non-dual dim.
+        eigen_dim: Dimension along which eigenvalues should be listed.
+
+    Returns:
+        `Tensor` listing the eigenvalues along `eigen_dim`.
+    """
+    cols = dual(matrix)
+    assert cols, f"Matrix must have at least one dual dim listing the columns"
+    rows = matrix.shape.only(cols.as_batch().name_list)
+    if not rows:
+        rows = primal(matrix)
+    assert rows.volume == cols.volume, f"Matrix rows {rows} don't match cols {cols}"
+    batch_dims = matrix.shape.without(cols).without(rows)
+    native_matrix = reshaped_native(matrix, [*batch_dims, rows, cols])
+    native_result = matrix.default_backend.eigvals(native_matrix)
+    return reshaped_tensor(native_result, [*batch_dims, eigen_dim], convert=False)

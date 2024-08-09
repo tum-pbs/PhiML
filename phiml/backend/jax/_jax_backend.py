@@ -644,6 +644,12 @@ class JaxBackend(Backend):
             else:
                 raise err
 
+    def eigvals(self, matrix: TensorType) -> TensorType:
+        return jnp.linalg.eigvals(matrix)
+
+    def eig(self, matrix: TensorType) -> TensorType:
+        return jnp.linalg.eig(matrix)
+
     def sparse_coo_tensor(self, indices: Union[tuple, list], values, shape: tuple):
         return BCOO((values, indices), shape=shape)
 

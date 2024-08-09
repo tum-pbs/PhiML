@@ -6,6 +6,7 @@ import keras
 import numpy as np
 import os
 import tensorflow as tf
+import torch.linalg
 from tensorflow.python.client import device_lib
 from tensorflow.python.framework.errors_impl import NotFoundError
 
@@ -919,6 +920,12 @@ class TFBackend(Backend):
     def matrix_rank_dense(self, matrix, hermitian=False):
         matrix, = self.auto_cast(matrix, bool_to_int=True, int_to_float=True)
         return tf.linalg.matrix_rank(matrix)
+
+    def eigvals(self, matrix: TensorType) -> TensorType:
+        return tf.linalg.eigval(matrix)
+
+    def eig(self, matrix: TensorType) -> TensorType:
+        return tf.linalg.eig(matrix)
 
     def get_diagonal(self, matrices, offset=0):
         with self._device_for(matrices):
