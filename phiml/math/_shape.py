@@ -1493,9 +1493,11 @@ def shape(obj, allow_unshaped=False) -> Shape:
     Returns:
         `Shape`
     """
-    from .magic import PhiTreeNode, Shaped
+    from .magic import PhiTreeNode, Shaped, BoundDim
     if isinstance(obj, Shape):
         return obj
+    elif isinstance(obj, BoundDim):
+        return shape(obj.obj)[obj.name]
     elif hasattr(obj, '__shape__'):
         return obj.__shape__()
     elif hasattr(obj, 'shape') and isinstance(obj.shape, Shape):

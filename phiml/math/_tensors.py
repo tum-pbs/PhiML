@@ -18,7 +18,7 @@ from ._shape import (Shape,
 from ..backend import NoBackendFound, choose_backend, BACKENDS, get_precision, default_backend, convert as convert_, \
     Backend, ComputeDevice, OBJECTS, NUMPY
 from ..backend._dtype import DType, combine_types
-from .magic import BoundDim, PhiTreeNode, slicing_dict, Shaped
+from .magic import BoundDim, PhiTreeNode, slicing_dict, Shaped, _BoundDims
 from .magic import Shapable
 
 
@@ -1558,7 +1558,6 @@ def tensor(data,
         (vectorᶜ=10) float64 -0.128 ± 1.197 (-2e+00...2e+00)
     """
     shape = [parse_shape_spec(s) if isinstance(s, str) else s for s in shape]
-    assert all(isinstance(s, Shape) for s in shape), f"Cannot create tensor because shape needs to be one or multiple Shape instances but got {shape}"
     shape = None if len(shape) == 0 else concat_shapes(*shape)
     if isinstance(data, Tensor):
         if convert:
