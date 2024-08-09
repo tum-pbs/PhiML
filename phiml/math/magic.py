@@ -787,7 +787,12 @@ def slicing_dict(obj, item, existing_only=True) -> dict:
         if isinstance(item, Tensor) and item.dtype.kind == bool:  # boolean mask
             mask_dim = item.shape.non_batch or item.shape
             return {mask_dim.name: item}
-        if shape(obj).channel_rank == 1:
+        elif isinstance(item, Tensor) and item.dtype.kind == int and channel(item):  # gather
+            if channel(item).size > 1:
+                raise NotImplementedError("Gathering multiple dims using data[indices] not supported yet.")
+            assert channel(item).item_names[0], f"When gathering using data[indices], indices Tensor must declare the indexed dimension as the item name of its channel dim but got {item.shape}"
+            return {channel(item).item_names[0][0]: item}
+        elif shape(obj).channel_rank == 1:
             return {channel(obj).name: item}
         elif non_batch(obj).rank == 1:
             return {non_batch(obj).name: item}
