@@ -389,6 +389,18 @@ class Tensor:
         assert self.dtype.kind == int, f"Only int tensors can be converted to index but dtype is {self.dtype}"
         return int(self.native())
 
+    def __contains__(self, item):
+        if isinstance(item, Shape):
+            return item in self.shape
+        elif isinstance(item, BoundDim):
+            return item.name in self.shape
+        elif isinstance(item, _BoundDims):
+            return item.dims in self.shape
+        elif isinstance(item, str):
+            assert self.dtype.kind != object, "str in Tensor not allowed for object-type Tensors"
+            return item in self.shape
+        raise ValueError(f"'dim in Tensor' requires dim to be a Shape or str but got {item}")
+
     def __repr__(self):
         return format_tensor(self, PrintOptions())
 
