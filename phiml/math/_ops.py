@@ -1479,6 +1479,8 @@ def max_(value: Union[Tensor, list, tuple, Number, bool], dim: DimFilter = non_b
 
 
 def _max(value: Tensor, dims: Shape) -> Tensor:
+    if value.shape.volume == 0:
+        return zeros(value.shape.without(dims), dtype=value.dtype)
     if isinstance(value, NativeTensor):
         result = value.default_backend.max(value.native(value.shape), value.shape.indices(dims))
         return NativeTensor(result, value.shape.without(dims))
@@ -1512,6 +1514,8 @@ def min_(value: Union[Tensor, list, tuple, Number, bool], dim: DimFilter = non_b
 
 
 def _min(value: Tensor, dims: Shape) -> Tensor:
+    if value.shape.volume == 0:
+        return zeros(value.shape.without(dims), dtype=value.dtype)
     if isinstance(value, NativeTensor):
         result = value.default_backend.min(value.native(value.shape), value.shape.indices(dims))
         return NativeTensor(result, value.shape.without(dims))
