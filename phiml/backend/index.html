@@ -1700,7 +1700,29 @@ The methods of <code><a title="phiml.backend.Backend" href="#phiml.backend.Backe
             matrix: Dense matrix of shape (batch, rows, cols)
             hermitian: Whether all matrices are guaranteed to be hermitian.
         &#34;&#34;&#34;
-        raise NotImplementedError
+        raise NotImplementedError(self)
+
+    def eigvals(self, matrix: TensorType) -&gt; TensorType:
+        &#34;&#34;&#34;
+        Args:
+            matrix: (batch..., n, n)
+
+        Returns:
+            eigenvalues as (batch..., n,)
+        &#34;&#34;&#34;
+        raise NotImplementedError(self)
+
+    def eig(self, matrix: TensorType) -&gt; TensorType:
+        &#34;&#34;&#34;
+
+        Args:
+            matrix: (batch..., n, n)
+
+        Returns:
+            eigenvalues: (batch..., n,)
+            eigenvectors: (batch..., n, n)
+        &#34;&#34;&#34;
+        raise NotImplementedError(self)
 
     def stop_gradient(self, value):
         raise NotImplementedError(self)
@@ -2411,6 +2433,35 @@ Higher dimensions may not be supported.</p>
 </code></dt>
 <dd>
 <div class="desc"></div>
+</dd>
+<dt id="phiml.backend.Backend.eig"><code class="name flex">
+<span>def <span class="ident">eig</span></span>(<span>self, matrix: ~TensorType) ‑> ~TensorType</span>
+</code></dt>
+<dd>
+<div class="desc"><h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>matrix</code></strong></dt>
+<dd>(batch&hellip;, n, n)</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>eigenvalues</code></dt>
+<dd>(batch&hellip;, n,)</dd>
+<dt><code>eigenvectors</code></dt>
+<dd>(batch&hellip;, n, n)</dd>
+</dl></div>
+</dd>
+<dt id="phiml.backend.Backend.eigvals"><code class="name flex">
+<span>def <span class="ident">eigvals</span></span>(<span>self, matrix: ~TensorType) ‑> ~TensorType</span>
+</code></dt>
+<dd>
+<div class="desc"><h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>matrix</code></strong></dt>
+<dd>(batch&hellip;, n, n)</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<p>eigenvalues as (batch&hellip;, n,)</p></div>
 </dd>
 <dt id="phiml.backend.Backend.einsum"><code class="name flex">
 <span>def <span class="ident">einsum</span></span>(<span>self, equation, *tensors)</span>
@@ -4259,6 +4310,8 @@ To prevent this, run the function before profiling it, see <code>warmup</code> i
 <li><code><a title="phiml.backend.Backend.div" href="#phiml.backend.Backend.div">div</a></code></li>
 <li><code><a title="phiml.backend.Backend.divide_no_nan" href="#phiml.backend.Backend.divide_no_nan">divide_no_nan</a></code></li>
 <li><code><a title="phiml.backend.Backend.dtype" href="#phiml.backend.Backend.dtype">dtype</a></code></li>
+<li><code><a title="phiml.backend.Backend.eig" href="#phiml.backend.Backend.eig">eig</a></code></li>
+<li><code><a title="phiml.backend.Backend.eigvals" href="#phiml.backend.Backend.eigvals">eigvals</a></code></li>
 <li><code><a title="phiml.backend.Backend.einsum" href="#phiml.backend.Backend.einsum">einsum</a></code></li>
 <li><code><a title="phiml.backend.Backend.equal" href="#phiml.backend.Backend.equal">equal</a></code></li>
 <li><code><a title="phiml.backend.Backend.erf" href="#phiml.backend.Backend.erf">erf</a></code></li>

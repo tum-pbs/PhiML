@@ -681,6 +681,12 @@ The methods of <code>Backend</code> form a comprehensive list of available opera
             else:
                 raise err
 
+    def eigvals(self, matrix: TensorType) -&gt; TensorType:
+        return jnp.linalg.eigvals(matrix)
+
+    def eig(self, matrix: TensorType) -&gt; TensorType:
+        return jnp.linalg.eig(matrix)
+
     def sparse_coo_tensor(self, indices: Union[tuple, list], values, shape: tuple):
         return BCOO((values, indices), shape=shape)</code></pre>
 </details>
@@ -1615,6 +1621,35 @@ Higher dimensions may not be supported.</p>
 <dd>
 <div class="desc"></div>
 </dd>
+<dt id="phiml.backend.jax.JaxBackend.eig"><code class="name flex">
+<span>def <span class="ident">eig</span></span>(<span>self, matrix: ~TensorType) ‑> ~TensorType</span>
+</code></dt>
+<dd>
+<div class="desc"><h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>matrix</code></strong></dt>
+<dd>(batch&hellip;, n, n)</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>eigenvalues</code></dt>
+<dd>(batch&hellip;, n,)</dd>
+<dt><code>eigenvectors</code></dt>
+<dd>(batch&hellip;, n, n)</dd>
+</dl></div>
+</dd>
+<dt id="phiml.backend.jax.JaxBackend.eigvals"><code class="name flex">
+<span>def <span class="ident">eigvals</span></span>(<span>self, matrix: ~TensorType) ‑> ~TensorType</span>
+</code></dt>
+<dd>
+<div class="desc"><h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>matrix</code></strong></dt>
+<dd>(batch&hellip;, n, n)</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<p>eigenvalues as (batch&hellip;, n,)</p></div>
+</dd>
 <dt id="phiml.backend.jax.JaxBackend.expand_dims"><code class="name flex">
 <span>def <span class="ident">expand_dims</span></span>(<span>self, a, axis=0, number=1)</span>
 </code></dt>
@@ -2338,6 +2373,8 @@ If the loop is broken, the values returned by the last loop are expected to be c
 <li><code><a title="phiml.backend.jax.JaxBackend.disassemble" href="#phiml.backend.jax.JaxBackend.disassemble">disassemble</a></code></li>
 <li><code><a title="phiml.backend.jax.JaxBackend.divide_no_nan" href="#phiml.backend.jax.JaxBackend.divide_no_nan">divide_no_nan</a></code></li>
 <li><code><a title="phiml.backend.jax.JaxBackend.dtype" href="#phiml.backend.jax.JaxBackend.dtype">dtype</a></code></li>
+<li><code><a title="phiml.backend.jax.JaxBackend.eig" href="#phiml.backend.jax.JaxBackend.eig">eig</a></code></li>
+<li><code><a title="phiml.backend.jax.JaxBackend.eigvals" href="#phiml.backend.jax.JaxBackend.eigvals">eigvals</a></code></li>
 <li><code><a title="phiml.backend.jax.JaxBackend.einsum" href="#phiml.backend.jax.JaxBackend.einsum">einsum</a></code></li>
 <li><code><a title="phiml.backend.jax.JaxBackend.equal" href="#phiml.backend.jax.JaxBackend.equal">equal</a></code></li>
 <li><code><a title="phiml.backend.jax.JaxBackend.erf" href="#phiml.backend.jax.JaxBackend.erf">erf</a></code></li>

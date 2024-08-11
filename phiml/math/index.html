@@ -117,7 +117,7 @@ from ._magic_ops import (
     slice_ as slice, unstack,
     stack, concat, expand,
     rename_dims, rename_dims as replace_dims, pack_dims, unpack_dim, flatten,
-    b2i, c2b, c2d, i2b, s2b, si2d,
+    b2i, c2b, c2d, i2b, s2b, si2d, d2i,
     copy_with, replace, find_differences
 )
 
@@ -158,6 +158,7 @@ from ._ops import (
     close, always_close, assert_close, equal,
     stop_gradient,
     pairwise_differences, pairwise_differences as pairwise_distances, map_pairs,
+    eigenvalues,
 )
 
 from ._nd import (
@@ -1081,6 +1082,12 @@ and <code>output_dict</code> contains only those parameters for which a gradient
 <h2 id="returns">Returns</h2>
 <p>Function with similar signature and return values as <code><a title="phiml.math.f" href="#phiml.math.f">f</a></code>. However, the returned function does not support keyword arguments.</p></div>
 </dd>
+<dt id="phiml.math.d2i"><code class="name flex">
+<span>def <span class="ident">d2i</span></span>(<span>value)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Change the type of all <em>dual</em> dimensions of <code>value</code> to <em>instance</em> dimensions. See <code><a title="phiml.math.rename_dims" href="#phiml.math.rename_dims">rename_dims()</a></code>.</p></div>
+</dd>
 <dt id="phiml.math.degrees_to_radians"><code class="name flex">
 <span>def <span class="ident">degrees_to_radians</span></span>(<span>deg: ~TensorOrTree) ‑> ~TensorOrTree</span>
 </code></dt>
@@ -1223,6 +1230,23 @@ Undefined sizes are automatically filled in by <code><a title="phiml.math.tensor
 </dl>
 <h2 id="returns">Returns</h2>
 <p><code><a title="phiml.math.Shape" href="#phiml.math.Shape">Shape</a></code> containing only dimensions of type dual.</p></div>
+</dd>
+<dt id="phiml.math.eigenvalues"><code class="name flex">
+<span>def <span class="ident">eigenvalues</span></span>(<span>matrix: phiml.math._tensors.Tensor, eigen_dim=(eigenvaluesᶜ=None))</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Computes the eigenvalues of a square matrix.
+The matrix columns are listed along dual dimensions and the rows are listed along the corresponding non-dual dimensions.
+Row dims are matched by name if possible, else all primal dims are used.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>matrix</code></strong></dt>
+<dd>Square matrix. Must have at least one dual dim and corresponding non-dual dim.</dd>
+<dt><strong><code>eigen_dim</code></strong></dt>
+<dd>Dimension along which eigenvalues should be listed.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<p><code><a title="phiml.math.Tensor" href="#phiml.math.Tensor">Tensor</a></code> listing the eigenvalues along <code>eigen_dim</code>.</p></div>
 </dd>
 <dt id="phiml.math.enable_debug_checks"><code class="name flex">
 <span>def <span class="ident">enable_debug_checks</span></span>(<span>)</span>
@@ -2516,7 +2540,7 @@ The tolerances used depend on the current precision.</p>
 <div class="desc"><p>Computes the element-wise maximum of <code>x</code> and <code>y</code>.</p></div>
 </dd>
 <dt id="phiml.math.mean"><code class="name flex">
-<span>def <span class="ident">mean</span></span>(<span>value: Union[phiml.math._tensors.Tensor, list, tuple, numbers.Number, bool], dim: Union[str, tuple, list, set, ForwardRef('<a title="phiml.math.Shape" href="#phiml.math.Shape">Shape</a>'), Callable] = &lt;function non_batch&gt;) ‑> phiml.math._tensors.Tensor</span>
+<span>def <span class="ident">mean</span></span>(<span>value: Union[phiml.math._tensors.Tensor, list, tuple, numbers.Number, bool], dim: Union[str, tuple, list, set, ForwardRef('<a title="phiml.math.Shape" href="#phiml.math.Shape">Shape</a>'), Callable] = &lt;function non_batch&gt;, weight: Union[phiml.math._tensors.Tensor, list, tuple] = None) ‑> phiml.math._tensors.Tensor</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Computes the mean over <code>values</code> along the specified dimensions.</p>
@@ -2536,6 +2560,8 @@ The tolerances used depend on the current precision.</p>
 <li><code>'0'</code> when <code>isinstance(value, (tuple, list))</code> to add up the sequence of Tensors</li>
 </ul>
 </dd>
+<dt><strong><code>weight</code></strong></dt>
+<dd>Optionally perform a weighted mean operation. Must broadcast to <code>value</code>.</dd>
 </dl>
 <h2 id="returns">Returns</h2>
 <p><code><a title="phiml.math.Tensor" href="#phiml.math.Tensor">Tensor</a></code> without the reduced dimensions.</p></div>
@@ -3647,7 +3673,7 @@ The order of dims must be equal to <code>start</code> and <code>grid.shape.spati
 <p>Sub-grid as <code><a title="phiml.math.Tensor" href="#phiml.math.Tensor">Tensor</a></code></p></div>
 </dd>
 <dt id="phiml.math.scatter"><code class="name flex">
-<span>def <span class="ident">scatter</span></span>(<span>base_grid: Union[phiml.math._tensors.Tensor, phiml.math._shape.Shape], indices: Union[phiml.math._tensors.Tensor, dict], values: Union[float, phiml.math._tensors.Tensor], mode: Union[str, Callable] = 'update', outside_handling: str = 'discard', indices_gradient=False, default=None, treat_as_batch=None)</span>
+<span>def <span class="ident">scatter</span></span>(<span>base_grid: Union[phiml.math._tensors.Tensor, phiml.math._shape.Shape], indices: Union[phiml.math._tensors.Tensor, dict], values: Union[float, phiml.math._tensors.Tensor], mode: Union[str, Callable] = 'update', outside_handling: str = 'check', indices_gradient=False, default=None, treat_as_batch=None)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Scatters <code>values</code> into <code>base_grid</code> at <code>indices</code>.
@@ -3686,8 +3712,9 @@ The corresponding functions are the built-in <code><a title="phiml.math.sum" hre
 <dd>
 <p>Defines how indices lying outside the bounds of <code>base_grid</code> are handled.</p>
 <ul>
-<li><code>'discard'</code>: outside indices are ignored.</li>
-<li><code>'clamp'</code>: outside indices are projected onto the closest point inside the grid.</li>
+<li><code>'check'</code>: Raise an error if any index is out of bounds.</li>
+<li><code>'discard'</code>: Outside indices are ignored.</li>
+<li><code>'clamp'</code>: Outside indices are projected onto the closest point inside the grid.</li>
 <li><code>'undefined'</code>: All points are expected to lie inside the grid. Otherwise an error may be thrown or an undefined tensor may be returned.</li>
 </ul>
 </dd>
@@ -8747,6 +8774,18 @@ When backed by an editable native tensor, e.g. a <code>numpy.ndarray</code>, do 
         assert self.dtype.kind == int, f&#34;Only int tensors can be converted to index but dtype is {self.dtype}&#34;
         return int(self.native())
 
+    def __contains__(self, item):
+        if isinstance(item, Shape):
+            return item in self.shape
+        elif isinstance(item, BoundDim):
+            return item.name in self.shape
+        elif isinstance(item, _BoundDims):
+            return item.dims in self.shape
+        elif isinstance(item, str):
+            assert self.dtype.kind != object, &#34;str in Tensor not allowed for object-type Tensors&#34;
+            return item in self.shape
+        raise ValueError(f&#34;&#39;dim in Tensor&#39; requires dim to be a Shape or str but got {item}&#34;)
+
     def __repr__(self):
         return format_tensor(self, PrintOptions())
 
@@ -9653,6 +9692,7 @@ If a dimension of the tensor is not listed in <code>order</code>, a <code>ValueE
 <li><code><a title="phiml.math.cross_product" href="#phiml.math.cross_product">cross_product</a></code></li>
 <li><code><a title="phiml.math.cumulative_sum" href="#phiml.math.cumulative_sum">cumulative_sum</a></code></li>
 <li><code><a title="phiml.math.custom_gradient" href="#phiml.math.custom_gradient">custom_gradient</a></code></li>
+<li><code><a title="phiml.math.d2i" href="#phiml.math.d2i">d2i</a></code></li>
 <li><code><a title="phiml.math.degrees_to_radians" href="#phiml.math.degrees_to_radians">degrees_to_radians</a></code></li>
 <li><code><a title="phiml.math.dense" href="#phiml.math.dense">dense</a></code></li>
 <li><code><a title="phiml.math.dim_mask" href="#phiml.math.dim_mask">dim_mask</a></code></li>
@@ -9660,6 +9700,7 @@ If a dimension of the tensor is not listed in <code>order</code>, a <code>ValueE
 <li><code><a title="phiml.math.downsample2x" href="#phiml.math.downsample2x">downsample2x</a></code></li>
 <li><code><a title="phiml.math.dtype" href="#phiml.math.dtype">dtype</a></code></li>
 <li><code><a title="phiml.math.dual" href="#phiml.math.dual">dual</a></code></li>
+<li><code><a title="phiml.math.eigenvalues" href="#phiml.math.eigenvalues">eigenvalues</a></code></li>
 <li><code><a title="phiml.math.enable_debug_checks" href="#phiml.math.enable_debug_checks">enable_debug_checks</a></code></li>
 <li><code><a title="phiml.math.equal" href="#phiml.math.equal">equal</a></code></li>
 <li><code><a title="phiml.math.erf" href="#phiml.math.erf">erf</a></code></li>
