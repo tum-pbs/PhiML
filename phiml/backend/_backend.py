@@ -13,6 +13,8 @@ import numpy
 import numpy as np
 from numpy import ndarray
 
+import scipy
+
 from ._dtype import DType, combine_types
 
 
@@ -751,7 +753,7 @@ class Backend:
     def factorial(self, x: TensorType) -> TensorType:
         if self.dtype(x).kind == int:
             max_factorial = {32: 12, 64: 19}[self.dtype(x).bits]
-            factorial_list = [numpy.math.factorial(i) for i in range(max_factorial+1)]
+            factorial_list = [scipy.special.factorial(i) for i in range(max_factorial+1)]
             return self.gather(self.cast(self.as_tensor(factorial_list), self.dtype(x)), x, 0)
         else:
             return self.exp(self.log_gamma(self.to_float(x) + 1))
