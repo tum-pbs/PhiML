@@ -14,6 +14,7 @@ import numpy as np
 from numpy import ndarray
 
 import scipy
+import scipy.special
 
 from ._dtype import DType, combine_types
 
@@ -71,8 +72,9 @@ class ComputeDevice:
         """ Backend that this device belongs to. Different backends represent the same device with different objects. """
 
     def __repr__(self):
-        mem = f"{(self.memory / 1024 ** 2):.0f} MB" if self.memory > 0 else "memory: n/a"
-        pro = f"{self.processor_count} processors" if self.processor_count > 0 else "processors: n/a"
+        mem = f"{(self.memory / 1024 ** 2)                 :.0f} MB" if self.memory > 0 else "memory: n/a"
+        pro = f"{
+            self.processor_count} processors" if self.processor_count > 0 else "processors: n/a"
         ref = f" '{self.ref}'" if isinstance(self.ref, str) else ""
         descr = self.description.replace('\n', '  ')
         if len(descr) > 30:
@@ -103,6 +105,8 @@ class Backend:
         self._name = name
         self._devices = tuple(devices)
         self._default_device = default_device
+        self.factorial_func = np.math.factorial if hasattr(
+            np, 'math') else scipy.special.factorial
 
     def __enter__(self):
         _DEFAULT.append(self)
@@ -159,7 +163,8 @@ class Backend:
             if self.name in backend.name:
                 return backend
         if not init_backend(self.name):
-            raise RuntimeError(f"Backend '{self}' is not registered. Registered backends are: {BACKENDS}")
+            raise RuntimeError(
+                f"Backend '{self}' is not registered. Registered backends are: {BACKENDS}")
         return self.as_registered
 
     def nn_library(self):
@@ -175,7 +180,7 @@ class Backend:
     def auto_cast(self, *tensors, bool_to_int=False, int_to_float=False) -> list:
         """
         Determins the appropriate values type resulting from operations involving the tensors as input.
-        
+
         This method is called by the default implementations of basic operators.
         Backends can override this method to prevent unnecessary casting.
 
@@ -192,7 +197,8 @@ class Backend:
             result_type = DType(int, 32)
         if result_type.kind == int and int_to_float:
             result_type = DType(float, self.precision)
-        if result_type.kind in (int, float, complex, bool):  # do not cast everything to string!
+        # do not cast everything to string!
+        if result_type.kind in (int, float, complex, bool):
             tensors = [self.cast(t, result_type) for t in tensors]
         return tensors
 
@@ -248,10 +254,12 @@ class Backend:
         if isinstance(device, str):
             devices = self.list_devices(device)
             if not devices:
-                warnings.warn(f"{self.name}: Cannot select '{device}' because no device of this type is available.", RuntimeWarning)
+                warnings.warn(f"{self.name}: Cannot select '{
+                              device}' because no device of this type is available.", RuntimeWarning)
                 return False
             device = devices[0]
-        assert device.backend is self, f"Cannot set default device to {device.name} for backend {self.name} because the devices belongs to backend {device.backend.name}"
+        assert device.backend is self, f"Cannot set default device to {device.name} for backend {
+            self.name} because the devices belongs to backend {device.backend.name}"
         self._default_device = device
         return True
 
@@ -263,7 +271,8 @@ class Backend:
         for device in self._devices:
             if device.ref == ref:
                 return device
-        raise KeyError(f"{self.name} has no device with ref '{ref}'. Available: {[d.ref for d in self._devices]}")
+        raise KeyError(f"{self.name} has no device with ref '{
+                       ref}'. Available: {[d.ref for d in self._devices]}")
 
     def allocate_on_device(self, tensor: TensorType, device: ComputeDevice) -> TensorType:
         """
@@ -340,7 +349,7 @@ class Backend:
         Converts a tensor-like object to the native tensor representation of this backend.
         If x is a native tensor of this backend, it is returned without modification.
         If x is a Python number (numbers.Number instance), `convert_numbers` decides whether to convert it unless the backend cannot handle Python numbers.
-        
+
         *Note:* There may be objects that are considered tensors by this backend but are not native and thus, will be converted by this method.
 
         Args:
@@ -357,7 +366,7 @@ class Backend:
         """
         Tests if the value of the tensor is known and can be read at this point.
         If true, `numpy(tensor)` must return a valid NumPy representation of the value.
-        
+
         Tensors are typically available when the backend operates in eager mode.
 
         Args:
@@ -373,7 +382,7 @@ class Backend:
         """
         Returns a NumPy representation of the given tensor.
         If `tensor` is already a NumPy array, it is returned without modification.
-        
+
         This method raises an error if the value of the tensor is not known at this point, e.g. because it represents a node in a graph.
         Use `is_available(tensor)` to check if the value can be represented as a NumPy array.
 
@@ -431,7 +440,8 @@ class Backend:
         batch_dim = self.determine_size(args, 0)
         result = []
         for b in range(batch_dim):
-            result.append(f(*[t[min(b, self.staticshape(t)[0] - 1)] for t in args], **aux_args))
+            result.append(f(*[t[min(b, self.staticshape(t)[0] - 1)]
+                          for t in args], **aux_args))
         return self.stack(result)
 
     def numpy_call(self, f, output_shapes, output_dtypes, *args, **aux_args):
@@ -463,7 +473,8 @@ class Backend:
             return x
         assert size > current_size
         assert size % current_size == 0
-        multiples = [size // current_size if i == axis else 1 for i in range(self.ndims(x))]
+        multiples = [size // current_size if i ==
+                     axis else 1 for i in range(self.ndims(x))]
         return self.tile(x, multiples)
 
     def jit_compile(self, f: Callable) -> Callable:
@@ -553,7 +564,7 @@ class Backend:
     def pad(self, value, pad_width, mode: str = 'constant', constant_values=0):
         """
         Pad a tensor with values as specified by `mode` and `constant_values`.
-        
+
         If the mode is not supported, returns NotImplemented.
 
         Args:
@@ -573,7 +584,8 @@ class Backend:
         shape = self.staticshape(x)
         current = shape[axis]
         if new_size > current:
-            pad_width = [(0, new_size - current) if i == axis else (0, 0) for i in range(len(shape))]
+            pad_width = [(0, new_size - current) if i == axis else (0, 0)
+                         for i in range(len(shape))]
             return self.pad(x, pad_width, mode='constant', constant_values=fill_value)
         elif new_size < current:
             return x[tuple([slice(new_size) if i == axis else slice(None) for i in range(len(shape))])]
@@ -584,7 +596,8 @@ class Backend:
         raise NotImplementedError(self)
 
     def flip(self, value, axes: Union[tuple, list]):
-        slices = tuple(slice(None, None, -1 if i in axes else None) for i in range(self.ndims(value)))
+        slices = tuple(slice(None, None, -1 if i in axes else None)
+                       for i in range(self.ndims(value)))
         return value[slices]
 
     def sum(self, value, axis=None, keepdims=False):
@@ -675,14 +688,16 @@ class Backend:
         """
         values = self.stop_gradient_tree(values)
         if isinstance(max_iter, (tuple, list)):
-            trj = [self.copy_leaves(values, only_mutable=True)] if 0 in max_iter else []
+            trj = [self.copy_leaves(values, only_mutable=True)
+                   ] if 0 in max_iter else []
             for i in range(1, max(max_iter) + 1):
                 values = loop(*values)
                 if i in max_iter:
                     trj.append(self.copy_leaves(values, only_mutable=True))
                 if not self.any(values[0]):
                     break
-            trj.extend([trj[-1]] * (len(max_iter) - len(trj)))  # fill trj with final values
+            # fill trj with final values
+            trj.extend([trj[-1]] * (len(max_iter) - len(trj)))
             return self.stop_gradient_tree(self.stack_leaves(trj))
         else:
             for i in range(1, max_iter + 1):
@@ -753,7 +768,8 @@ class Backend:
     def factorial(self, x: TensorType) -> TensorType:
         if self.dtype(x).kind == int:
             max_factorial = {32: 12, 64: 19}[self.dtype(x).bits]
-            factorial_list = [scipy.special.factorial(i) for i in range(max_factorial+1)]
+            factorial_list = [self.fuctorial_func(
+                i) for i in range(max_factorial+1)]
             return self.gather(self.cast(self.as_tensor(factorial_list), self.dtype(x)), x, 0)
         else:
             return self.exp(self.log_gamma(self.to_float(x) + 1))
@@ -872,7 +888,8 @@ class Backend:
             multi_index = self.clip(multi_index, 0, self.as_tensor(shape) - 1)
         result = self.sum(multi_index * strides, -1)
         if isinstance(mode, int):
-            inside = self.all((0 <= multi_index) & (multi_index < self.as_tensor(shape)), -1)
+            inside = self.all((0 <= multi_index) & (
+                multi_index < self.as_tensor(shape)), -1)
             result = self.where(inside, result, mode)
         return result
 
@@ -1267,20 +1284,27 @@ class Backend:
         """
         values, dense = self.auto_cast(values, dense)
         batch_size, nnz, channel_count = self.staticshape(values)
-        batch_size_d, dense_rows, channel_count_d, dense_cols = self.staticshape(dense)
+        batch_size_d, dense_rows, channel_count_d, dense_cols = self.staticshape(
+            dense)
         assert batch_size_d == batch_size
         assert dense_rows == shape[1]
         assert channel_count == channel_count_d
-        dense_formatted = self.reshape(dense, (batch_size, dense_rows, channel_count * dense_cols))
-        dense_gathered = self.batched_gather_nd(dense_formatted, indices[:, :, 1:2])
-        base_grid = self.zeros((batch_size, shape[0], channel_count * dense_cols), self.dtype(dense))
-        result = self.scatter(base_grid, indices[:, :, 0:1], values * dense_gathered, mode='add')
+        dense_formatted = self.reshape(
+            dense, (batch_size, dense_rows, channel_count * dense_cols))
+        dense_gathered = self.batched_gather_nd(
+            dense_formatted, indices[:, :, 1:2])
+        base_grid = self.zeros(
+            (batch_size, shape[0], channel_count * dense_cols), self.dtype(dense))
+        result = self.scatter(
+            base_grid, indices[:, :, 0:1], values * dense_gathered, mode='add')
         return self.reshape(result, (batch_size, shape[0], channel_count, dense_cols))
 
     def coo_to_dense(self, indices, values, shape, contains_duplicates: bool):
         batch_size, nnz, channel_count = self.staticshape(values)
-        base = self.zeros((batch_size, *shape, channel_count), dtype=self.dtype(values))
-        result = self.scatter(base, indices, values, mode='add' if contains_duplicates else 'update')
+        base = self.zeros((batch_size, *shape, channel_count),
+                          dtype=self.dtype(values))
+        result = self.scatter(base, indices, values,
+                              mode='add' if contains_duplicates else 'update')
         return result
 
     def csr_matrix(self, column_indices: TensorOrArray, row_pointers: TensorOrArray, values: TensorOrArray, shape: Tuple[int, int]):
@@ -1360,7 +1384,8 @@ class Backend:
         batch_size, index_count = self.staticshape(column_indices)
         repeats = row_pointers[:, 1:] - row_pointers[:, :-1]
         row_count = self.shape(repeats)[-1]
-        row_indices = [self.repeat(self.range(row_count, dtype=self.dtype(column_indices)), repeats[b], -1, new_length=index_count) for b in range(batch_size)]
+        row_indices = [self.repeat(self.range(row_count, dtype=self.dtype(
+            column_indices)), repeats[b], -1, new_length=index_count) for b in range(batch_size)]
         return self.stack([self.stack(row_indices), column_indices], axis=-1)
 
     def csr_to_dense(self, column_indices, row_pointers, values, shape: Tuple[int, int], contains_duplicates=False):
@@ -1449,7 +1474,8 @@ class Backend:
             return self.conjugate_gradient_adaptive(lin, y, x0, rtol, atol, max_iter, pre, matrix_offset)
         elif method.startswith('scipy-'):
             from ._linalg import scipy_sparse_solve
-            result = scipy_sparse_solve(self, method[len('scipy-'):], lin, y, x0, rtol, atol, max_iter, pre, matrix_offset)
+            result = scipy_sparse_solve(self, method[len(
+                'scipy-'):], lin, y, x0, rtol, atol, max_iter, pre, matrix_offset)
             return SolveResult(result.method, self.as_tensor(result.x), self.as_tensor(result.residual), result.iterations, result.function_evaluations, result.converged, result.diverged, result.message)
         elif method == 'CG':
             return self.conjugate_gradient(lin, y, x0, rtol, atol, max_iter, pre, matrix_offset)
@@ -1463,7 +1489,8 @@ class Backend:
             order = int(method[len('biCG-stab('):-1])
             return self.bi_conjugate_gradient(lin, y, x0, rtol, atol, max_iter, pre, matrix_offset, poly_order=order)
         else:
-            raise NotImplementedError(f"Method '{method}' not supported for linear solve.")
+            raise NotImplementedError(
+                f"Method '{method}' not supported for linear solve.")
 
     def conjugate_gradient(self, lin, y, x0, rtol, atol, max_iter, pre, matrix_offset) -> SolveResult:
         """ Standard conjugate gradient algorithm. Signature matches to `Backend.linear_solve()`. """
@@ -1490,7 +1517,8 @@ class Backend:
             return self.stack([self.mul_matrix_batched_vector(m, v) for m, v in zip(lin, self.unstack(vector))])
         else:
             lin_shape = self.staticshape(lin)
-            assert len(lin_shape) == 2, f"A must be a matrix but got shape {lin_shape}"
+            assert len(lin_shape) == 2, f"A must be a matrix but got shape {
+                lin_shape}"
             return self.mul_matrix_batched_vector(lin, vector)
 
     def matrix_solve_least_squares(self, matrix: TensorType, rhs: TensorType) -> Tuple[TensorType, TensorType, TensorType, TensorType]:
@@ -1528,11 +1556,13 @@ class Backend:
         raise NotImplementedError(self)
 
     def solve_triangular_sparse(self, matrix, rhs, lower: bool, unit_diagonal: bool):
-        raise NotImplementedError(f"sparse triangular solves are not supported by {self.name}. Try using a SciPy solver instead, such as 'scipy-CG' or 'scipy-biCG-stab'.")
+        raise NotImplementedError(f"sparse triangular solves are not supported by {
+                                  self.name}. Try using a SciPy solver instead, such as 'scipy-CG' or 'scipy-biCG-stab'.")
         np_matrix = self.numpy(matrix)
         np_rhs = self.numpy(rhs)
         from scipy.sparse.linalg import spsolve_triangular
-        np_result = spsolve_triangular(np_matrix, np_rhs.T, lower=lower, unit_diagonal=unit_diagonal).T
+        np_result = spsolve_triangular(
+            np_matrix, np_rhs.T, lower=lower, unit_diagonal=unit_diagonal).T
         return self.as_tensor(np_result)
 
     def matrix_rank_dense(self, matrix, hermitian=False) -> TensorType:
@@ -1624,9 +1654,11 @@ class Backend:
         result = []
         for slice_idx in range(tensor.shape[axis]):
             if keepdims:
-                component = tensor[tuple([slice(slice_idx, slice_idx + 1) if d == axis else slice(None) for d in range(len(tensor.shape))])]
+                component = tensor[tuple([slice(
+                    slice_idx, slice_idx + 1) if d == axis else slice(None) for d in range(len(tensor.shape))])]
             else:
-                component = tensor[tuple([slice_idx if d == axis else slice(None) for d in range(len(tensor.shape))])]
+                component = tensor[tuple([slice_idx if d == axis else slice(
+                    None) for d in range(len(tensor.shape))])]
             result.append(component)
         return tuple(result)
 
@@ -1724,17 +1756,21 @@ def choose_backend(*values, prefer_default=False) -> Backend:
     if _is_applicable(_DEFAULT[-1], values) and (prefer_default or _is_specific(_DEFAULT[-1], values)):
         return _DEFAULT[-1]
     # --- Filter out non-applicable ---
-    backends = [backend for backend in BACKENDS if _is_applicable(backend, values)]
+    backends = [
+        backend for backend in BACKENDS if _is_applicable(backend, values)]
     if len(backends) == 0:
-        unknown_values = [v for v in values if all([not _is_applicable(b, [v]) for b in BACKENDS])]
+        unknown_values = [v for v in values if all(
+            [not _is_applicable(b, [v]) for b in BACKENDS])]
         if unknown_values:
             module_name = type(unknown_values[0]).__module__.partition('.')[0]
             if init_backend(module_name):
                 return choose_backend(*values, prefer_default)
             else:
-                raise NoBackendFound(f"Not a native tensor {[type(v).__name__ for v in unknown_values]}")
+                raise NoBackendFound(f"Not a native tensor {
+                                     [type(v).__name__ for v in unknown_values]}")
         else:
-            raise NoBackendFound(f"Could not resolve backend for native types {[type(v).__name__ for v in values]}")
+            raise NoBackendFound(f"Could not resolve backend for native types {
+                                 [type(v).__name__ for v in values]}")
     # --- Native tensors? ---
     for backend in backends:
         if _is_specific(backend, values):
@@ -2011,7 +2047,8 @@ def combined_dim(dim1, dim2, type_str: str = 'batch'):
         return dim2
     if dim2 is None or dim2 == 1:
         return dim1
-    assert dim1 == dim2, f"Incompatible {type_str} dimensions: x0 {dim1}, y {dim2}"
+    assert dim1 == dim2, f"Incompatible {
+        type_str} dimensions: x0 {dim1}, y {dim2}"
     return dim1
 
 
@@ -2062,9 +2099,11 @@ def get_functional_derivative_order():
     return _FUNCTIONAL_DERIVATIVE_CONTEXT[-1]
 
 
-ML_LOGGER = logging.getLogger('Φ-ML')  # used for warnings and debug messages by all internal Φ-ML functions
+# used for warnings and debug messages by all internal Φ-ML functions
+ML_LOGGER = logging.getLogger('Φ-ML')
 _LOG_CONSOLE_HANDLER = logging.StreamHandler(sys.stdout)
-_LOG_CONSOLE_HANDLER.setFormatter(logging.Formatter("%(message)s (%(levelname)s), %(asctime)sn\n"))
+_LOG_CONSOLE_HANDLER.setFormatter(logging.Formatter(
+    "%(message)s (%(levelname)s), %(asctime)sn\n"))
 _LOG_CONSOLE_HANDLER.setLevel(logging.NOTSET)
 ML_LOGGER.addHandler(_LOG_CONSOLE_HANDLER)
 
@@ -2073,7 +2112,8 @@ def disassemble_dataclass(data):
     if data is None:
         return lambda *_: None, ()
     fields = dataclasses.fields(data)
-    tensor_fields = [f.name for f in fields if not isinstance(getattr(data, f.name), (str, Number))]
+    tensor_fields = [f.name for f in fields if not isinstance(
+        getattr(data, f.name), (str, Number))]
     values = [getattr(data, n) for n in tensor_fields]
     assemblers = []
     tensors = []
@@ -2083,11 +2123,13 @@ def disassemble_dataclass(data):
         assemblers.append(assemble)
         indices.append(len(tensors))
         tensors.extend(tensor_list)
+
     def assemble(b: Backend, *args):
         re_values = {}
         for i, (start, end) in enumerate(zip(indices, indices[1:] + [len(tensors)])):
             value = assemblers[i](b, *args[start:end])
             re_values[tensor_fields[i]] = value
-        all_values = {f.name: re_values[f.name] if f.name in tensor_fields else getattr(data, f.name) for f in fields}
+        all_values = {f.name: re_values[f.name] if f.name in tensor_fields else getattr(
+            data, f.name) for f in fields}
         return type(data)(**all_values)
     return assemble, tensors
