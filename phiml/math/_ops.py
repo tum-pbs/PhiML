@@ -2414,7 +2414,7 @@ def boolean_mask(x, dim: DimFilter, mask: Tensor):
     return broadcast_op(uniform_boolean_mask, [x, mask], iter_dims=mask.shape.without(dim))
 
 
-def gather(values, indices: Tensor, dims: Union[DimFilter, None] = None):
+def gather(values, indices: Tensor, dims: Union[DimFilter, None] = None, pref_index_dim='index'):
     """
     Gathers the entries of `values` at positions described by `indices`.
     All non-channel dimensions of `indices` that are part of `values` but not indexed are treated as batch dimensions.
@@ -2430,16 +2430,21 @@ def gather(values, indices: Tensor, dims: Union[DimFilter, None] = None):
         dims: (Optional) Dimensions indexed by `indices`.
             Alternatively, the dimensions can be specified as the item names of the channel dimension of `indices`.
             If `None` and no index item names are specified, will default to all spatial dimensions or all instance dimensions, depending on which ones are present (but not both).
+        pref_index_dim: In case `indices` has multiple channel dims, use this dim as the index, treating the others as batch.
+            Has no effect if `indices` only has one channel dim.
 
     Returns:
         `Tensor` with combined batch dimensions, channel dimensions of `values` and spatial/instance dimensions of `indices`.
     """
     if not isinstance(values, Tensor):
         return tree_map(lambda v: gather(v, indices, dims), values)
-    assert channel(indices).rank < 2, f"indices can at most have one channel dimension but got {indices.shape}"
+    index_dim = channel(indices)
+    if index_dim.rank >= 2:
+        assert pref_index_dim in index_dim, f"When indices has multiple channel dims, pref_index_dim must select one of them but got {pref_index_dim} which is not in {index_dim}"
+        index_dim = index_dim.only(pref_index_dim)
     if dims is None:
-        if channel(indices) and channel(indices).item_names[0]:
-            dims = channel(indices).item_names[0]
+        if index_dim and index_dim.item_names[0]:
+            dims = index_dim.item_names[0]
         else:  # Fallback to spatial / instance
             assert values.shape.instance.is_empty or values.shape.spatial.is_empty, f"Specify gather dimensions for values with both instance and spatial dimensions. Got {values.shape}"
             dims = values.shape.instance if values.shape.spatial.is_empty else values.shape.spatial
@@ -2447,45 +2452,42 @@ def gather(values, indices: Tensor, dims: Union[DimFilter, None] = None):
     dims = parse_dim_order(dims)
     assert dims, f"No indexing dimensions for tensor {values.shape} given indices {indices.shape}"
     if dims not in values.shape:
-        return expand(values, non_channel(indices))
+        return expand(values, indices.shape - index_dim)
     if len(dims) > 1:
-        assert channel(indices).rank > 0, f"indices must have a channel dimension listing the indexed dims {dims} but got {indices.shape}. You can create it via vec({', '.join([d+'=...' for d in dims])}) or channel(index='{','.join(dims)}'). If you have raveled indices, use unpack_dim(indices, channel, values.shape['{','.join(dims)}'])."
-        assert channel(indices).rank == 1, f"indices must have a single channel dimension listing the indexed dims {dims} but got {indices.shape}."
-    assert channel(indices).volume == len(dims), f"channel dim of indices must have size equal to the number of indexed dims {dims} but got {channel(indices)} which has {channel(indices).volume} entries"
+        assert index_dim.rank == 1, f"indices must have a single channel dimension listing the indexed dims {dims} but got {indices.shape}."
+    assert index_dim.volume == len(dims), f"channel dim of indices must have size equal to the number of indexed dims {dims} but got {index_dim} which has {index_dim.volume} entries"
     if indices.dtype.kind == bool:
         indices = to_int32(indices)
     if values._is_tracer or is_sparse(values):
-        if not channel(indices):
+        if not index_dim:
             indices = expand(indices, channel(gather=dims))
-        if not channel(indices).item_names[0]:
-            indices = indices._with_shape_replaced(indices.shape.with_dim_size(channel(indices), dims))
+        if not index_dim.item_names[0]:
+            indices = indices._with_shape_replaced(indices.shape.with_dim_size(index_dim, dims))
         if values._is_tracer:
             return values._gather(indices)
-        else:
-            return sparse_gather(values, indices)
+        if is_sparse(values):
+            return sparse_gather(values, indices, index_dim)
     if is_sparse(indices):
         raise NotImplementedError
     broadcast = broadcast_dims(values, indices)
-    treat_as_batch = non_channel(indices).non_instance.only(values.shape).without(dims)
-    batch_ = ((values.shape.batch & indices.shape.batch).without(dims) & treat_as_batch).without(broadcast)
-    channel_ = values.shape.without(dims).without(batch_).without(broadcast)
-
-    def uniform_gather(values, indices):
-        index_list_dims = indices.shape.non_channel.without(batch_)
+    treat_as_batch = indices.shape.non_instance.only(values.shape) - dims - index_dim
+    batch_ = ((values.shape.batch & indices.shape.batch).without(dims) & treat_as_batch) - broadcast
+    channel_ = values.shape - dims - batch_ - broadcast
+    def uniform_gather(values: Tensor, indices: Tensor):
+        index_list_dims = indices.shape - index_dim - batch_
         squeeze_index_list = False
         if not index_list_dims:
             index_list_dims = instance(_single_index=1)
             squeeze_index_list = True
         native_values = reshaped_native(values, [batch_, *dims, channel_])
-        native_indices = reshaped_native(indices, [batch_, *index_list_dims, channel(indices)])
+        native_indices = reshaped_native(indices, [batch_, *index_list_dims, index_dim])
         backend = choose_backend(native_values, native_indices)
         native_result = backend.batched_gather_nd(native_values, native_indices)
         result = reshaped_tensor(native_result, [batch_, *index_list_dims, channel_], convert=False)
         if squeeze_index_list:
             result = result[{'_single_index': 0}]
         return result
-
-    return broadcast_op(uniform_gather, [values, indices], )
+    return broadcast_op(uniform_gather, [values, indices], iter_dims=broadcast)
 
 
 def scatter(base_grid: Union[Tensor, Shape],

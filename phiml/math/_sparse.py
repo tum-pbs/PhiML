@@ -387,6 +387,7 @@ class SparseCoordinateTensor(Tensor):
                 return dense(self)._op2(other, operator, native_function, op_name, op_symbol)
             else:  # only some dims dense -> stay sparse
                 dense_dims = self._dense_shape.only(other.shape)
+                assert instance(other).without(self._dense_shape).is_empty, f"Instance dims cannot be added to sparse tensors from sparse-dense operations but got {other.shape} for sparse tensor {self.shape}"
                 other_values = other[self._indices.sparse_idx[dense_dims.name_list]]
                 values = operator(self._values, other_values)
                 return self._with_values(values)
@@ -1703,8 +1704,17 @@ def sum_equal_entries(matrix: Tensor, flatten_entries=True):
     return SparseCoordinateTensor(indices, values, matrix._dense_shape, False, True, matrix._indices_constant, matrix._matrix_rank)
 
 
-def sparse_gather(matrix: Tensor, indices: Tensor):
-    indexed = channel(indices).item_names[0]
+def sparse_gather(matrix: Tensor, indices: Tensor, index_dim: Shape):
+    indexed = index_dim.item_names[0]
+    if sparse_dims(matrix).isdisjoint(indexed):  # index values only
+        from ._ops import gather
+        from ._functional import map_i2b
+        if is_sparse(indices) and same_sparsity_pattern(matrix, indices):
+            values = map_i2b(gather)(matrix._values, indices._values, pref_index_dim=index_dim)
+            return matrix._with_values(values)
+        elif is_sparse(indices):
+            raise NotImplementedError("indexing sparse by sparse only supports identical sparsity patterns")
+        return matrix._with_values(map_i2b(gather)(matrix._values, indices, pref_index_dim=index_dim))
     if isinstance(matrix, CompressedSparseMatrix):
         if matrix._uncompressed_dims.only(indexed):
             matrix = matrix.decompress()
@@ -1722,7 +1732,7 @@ def sparse_gather(matrix: Tensor, indices: Tensor):
         b = matrix._indices.default_backend
         matrix = sum_equal_entries(matrix, flatten_entries=True)
         placeholders = np.arange(1, instance(matrix._values).volume + 1)  # start indexing at 1 since 0 might get removed
-        row_dims = matrix._dense_shape.only(channel(indices).item_names[0], reorder=True)
+        row_dims = matrix._dense_shape.only(index_dim.item_names[0], reorder=True)
         col_dims = matrix._dense_shape.without(row_dims)
         row_indices = matrix._indices[row_dims.name_list]
         col_indices = matrix._indices[col_dims.name_list]
@@ -1730,7 +1740,7 @@ def sparse_gather(matrix: Tensor, indices: Tensor):
         np_rows = NUMPY.ravel_multi_index(reshaped_numpy(row_indices, [instance, channel]), row_dims.sizes)
         np_cols = NUMPY.ravel_multi_index(reshaped_numpy(col_indices, [instance, channel]), col_dims.sizes)
         scipy_mat = csr_matrix((placeholders, (np_rows, np_cols)), shape=(row_dims.volume, col_dims.volume))
-        if channel(indices).size > 1 or row_dims.rank > 1:
+        if row_dims.rank > 1:
             raise NotImplementedError  # ravel indices
         else:
             lin_indices = reshaped_numpy(unstack(indices, channel)[0], [shape])
@@ -1739,15 +1749,15 @@ def sparse_gather(matrix: Tensor, indices: Tensor):
         lookup = expand(wrap(lookup, instance('sp_entries')), channel(sparse_idx=instance(col_indices).name))
         # --- Perform resulting gather on tensors ---
         gathered_cols = col_indices[lookup]
-        if non_channel(indices).non_batch:
+        if non_batch(indices) - index_dim:
             row_count_out = row_counts[lin_indices]  # row count for each i in indices
             rows = b.repeat(b.range(len(lin_indices)), row_count_out, 0)
-            rows = b.unravel_index(rows, non_channel(indices).non_batch.sizes)
-            rows = wrap(rows, instance('sp_entries'), channel(sparse_idx=non_channel(indices).names))
+            rows = b.unravel_index(rows, non_batch(indices).without(index_dim).sizes)
+            rows = wrap(rows, instance('sp_entries'), channel(sparse_idx=indices.shape.without(index_dim).names))
             gathered_indices = concat([rows, gathered_cols], 'sparse_idx')
         else:
             gathered_indices = gathered_cols
         gathered_values = matrix._values[lookup]
-        dense_shape = matrix._dense_shape.without(channel(indices).item_names[0]) & non_channel(indices)
+        dense_shape = matrix._dense_shape.without(index_dim.item_names[0]) & indices.shape.without(index_dim)
         return SparseCoordinateTensor(gathered_indices, gathered_values, dense_shape, can_contain_double_entries=False, indices_sorted=False, indices_constant=matrix._indices_constant)
     raise NotImplementedError(type(matrix))
