@@ -1701,7 +1701,7 @@ def argmax(x: Tensor, dim: DimFilter, index_dim=channel('index')):
     dims = x.shape.only(dim)
     keep = x.shape.without(dims)
     assert dims, f"argmax requires dim to be present on data but {dim} does not exist on {x.shape}"
-    if isinstance(x, (SparseCoordinateTensor, CompressedSparseMatrix)):
+    if is_sparse(x):
         if dims in sparse_dims(x):
             max_val = max_(x, dim)
             is_max = x == max_val
@@ -1714,7 +1714,7 @@ def argmax(x: Tensor, dim: DimFilter, index_dim=channel('index')):
                 result = scatter(result_shape, scatter_idx, scatter_val, mode='update', default=-1)
             else:  # all sparse dims are reduced
                 result = scatter_val.true_values[0]
-            return rename_dims(result, channel(scatter_val), index_dim)
+            return rename_dims(result, channel(scatter_val), index_dim.with_sizes(dims.name_list))
         else:
             raise NotImplementedError
     v_native = reshaped_native(x, [keep, dims])
@@ -1741,7 +1741,7 @@ def argmin(x: Tensor, dim: DimFilter, index_dim=channel('index')):
     dims = x.shape.only(dim)
     keep = x.shape.without(dims)
     assert dims, f"argmin requires dim to be present on data but {dim} does not exist on {x.shape}"
-    if isinstance(x, (SparseCoordinateTensor, CompressedSparseMatrix)):
+    if is_sparse(x):
         if dims in sparse_dims(x):
             min_val = min_(x, dim)
             is_min = x == min_val
@@ -1754,7 +1754,7 @@ def argmin(x: Tensor, dim: DimFilter, index_dim=channel('index')):
                 result = scatter(result_shape, scatter_idx, scatter_val, mode='update', default=-1)
             else:  # all sparse dims are reduced
                 result = scatter_val.true_values[0]
-            return rename_dims(result, channel(scatter_val), index_dim)
+            return rename_dims(result, channel(scatter_val), index_dim.with_sizes(dims.name_list))
         else:
             raise NotImplementedError
     v_native = reshaped_native(x, [keep, dims])
