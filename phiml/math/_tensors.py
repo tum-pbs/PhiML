@@ -2259,7 +2259,7 @@ def reshaped_native(value: Tensor,
     return value.numpy(order) if to_numpy else value.native(order)
 
 
-def reshaped_numpy(value: Tensor, groups: Union[tuple, list], force_expand: Any = True):
+def reshaped_numpy(value: Tensor, groups: Union[tuple, list], force_expand: Any = True) -> np.ndarray:
     """
     Returns the NumPy representation of `value` where dimensions are laid out according to `groups`.
 
