@@ -2398,8 +2398,9 @@ def boolean_mask(x, dim: DimFilter, mask: Tensor):
     assert dim, f"mask dimension '{original_dim}' must be present on the mask {mask.shape}"
     assert dim.rank == 1, f"boolean mask only supports 1D selection"
     if is_sparse(x):
-        indices = nonzero(mask)
-        return x[{dim.name: indices}]
+        indices = nonzero(mask, list_dim=instance('_boolean_mask'))
+        result = x[indices]
+        return rename_dims(result, '_boolean_mask', mask.shape.non_channel)
     if not isinstance(x, Tensor) or is_sparse(x):
         keep_slices = nonzero_slices(mask)
         x_slices = [x[s] for s in keep_slices]
