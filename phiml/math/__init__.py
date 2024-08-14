@@ -69,6 +69,7 @@ from ._ops import (
     close, always_close, assert_close, equal,
     stop_gradient,
     pairwise_differences, pairwise_differences as pairwise_distances, map_pairs,
+    with_diagonal,
     eigenvalues,
 )
 

@@ -3241,6 +3241,41 @@ def map_pairs(map_function: Callable, values: Tensor, connections: Tensor):
     return tensor_like(connections, result, value_order='as existing')
 
 
+def with_diagonal(matrix: Tensor, values: Union[float, Tensor], check_square=True):
+    """
+    Create a copy of `matrix`, replacing the diagonal elements.
+    If `matrix` is sparse, diagonal zeros (and possibly other explicitly stored zeros) will be dropped from the sparse matrix.
+
+    This function currently only supports sparse COO,CSR,CSC SciPy matrices.
+
+    Args:
+        matrix: `Tensor` with at least one dual dim.
+        values: Diagonal values
+        check_square: If `True` allow this function only for square matrices.
+
+    Returns:
+        `Tensor`
+    """
+    col_dims = matrix.shape.dual
+    row_dims = matrix.shape.only(col_dims.as_channel())
+    if not row_dims:
+        row_dims = primal(matrix)
+    if not row_dims:
+        row_dims = batch(matrix)
+    if check_square:
+        assert row_dims.volume == col_dims.volume, f"matrix is not square (check_square=True). rows={row_dims}, cols={col_dims}"
+    if is_sparse(matrix):
+        assert matrix.default_backend.name == 'numpy', f"with_diagonal currently only supports SciPy matrices"
+        scipy_matrix = matrix.native()
+        values = wrap(values).native()
+        scipy_matrix.setdiag(values)
+        if close(0, values):
+            scipy_matrix.eliminate_zeros()
+        return wrap(scipy_matrix, row_dims, col_dims)
+    else:
+        raise NotImplementedError("with_diagonal currently only supports sparse matrices")
+
+
 def eigenvalues(matrix: Tensor, eigen_dim=channel('eigenvalues')):
     """
     Computes the eigenvalues of a square matrix.
