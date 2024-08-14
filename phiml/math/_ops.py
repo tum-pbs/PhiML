@@ -2468,7 +2468,8 @@ def gather(values, indices: Tensor, dims: Union[DimFilter, None] = None, pref_in
         indices = to_int32(indices)
     if values._is_tracer or is_sparse(values):
         if not index_dim:
-            indices = expand(indices, channel(gather=dims))
+            index_dim = channel(gather=dims)
+            indices = expand(indices, index_dim)
         if not index_dim.item_names[0]:
             indices = indices._with_shape_replaced(indices.shape.with_dim_size(index_dim, dims))
         if values._is_tracer:
