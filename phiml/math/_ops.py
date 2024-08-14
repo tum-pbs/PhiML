@@ -2621,7 +2621,7 @@ def scatter(base_grid: Union[Tensor, Shape],
     if outside_handling == 'check':
         from ._functional import when_available
         def check(indices):
-            assert_close(True, (indices > 0) & (indices) < limit)
+            assert_close(True, (indices >= 0) & (indices < (limit+1)))
         when_available(check, indices)
     elif outside_handling == 'clamp':
         indices = clip(indices, 0, limit)
