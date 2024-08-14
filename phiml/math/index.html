@@ -158,6 +158,7 @@ from ._ops import (
     close, always_close, assert_close, equal,
     stop_gradient,
     pairwise_differences, pairwise_differences as pairwise_distances, map_pairs,
+    with_diagonal,
     eigenvalues,
 )
 
@@ -1712,7 +1713,7 @@ Setting this to zero may cause infinities or NaN values during backpropagation.<
 <p><code><a title="phiml.math.Tensor" href="#phiml.math.Tensor">Tensor</a></code> or <code><a title="phiml.math.Shape" href="#phiml.math.Shape">Shape</a></code>.</p></div>
 </dd>
 <dt id="phiml.math.gather"><code class="name flex">
-<span>def <span class="ident">gather</span></span>(<span>values, indices: phiml.math._tensors.Tensor, dims: Union[str, tuple, list, set, ForwardRef('<a title="phiml.math.Shape" href="#phiml.math.Shape">Shape</a>'), Callable, None] = None)</span>
+<span>def <span class="ident">gather</span></span>(<span>values, indices: phiml.math._tensors.Tensor, dims: Union[str, tuple, list, set, ForwardRef('<a title="phiml.math.Shape" href="#phiml.math.Shape">Shape</a>'), Callable, None] = None, pref_index_dim='index')</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Gathers the entries of <code>values</code> at positions described by <code>indices</code>.
@@ -1731,6 +1732,9 @@ This channel dimension should list the dimension names to index as item names un
 <dd>(Optional) Dimensions indexed by <code>indices</code>.
 Alternatively, the dimensions can be specified as the item names of the channel dimension of <code>indices</code>.
 If <code>None</code> and no index item names are specified, will default to all spatial dimensions or all instance dimensions, depending on which ones are present (but not both).</dd>
+<dt><strong><code>pref_index_dim</code></strong></dt>
+<dd>In case <code>indices</code> has multiple channel dims, use this dim as the index, treating the others as batch.
+Has no effect if <code>indices</code> only has one channel dim.</dd>
 </dl>
 <h2 id="returns">Returns</h2>
 <p><code><a title="phiml.math.Tensor" href="#phiml.math.Tensor">Tensor</a></code> with combined batch dimensions, channel dimensions of <code>values</code> and spatial/instance dimensions of <code>indices</code>.</p></div>
@@ -3530,7 +3534,7 @@ If a sequence of dimensions is provided, only forces the expansion for groups co
 <p>Native tensor with dimensions matching <code>groups</code>.</p></div>
 </dd>
 <dt id="phiml.math.reshaped_numpy"><code class="name flex">
-<span>def <span class="ident">reshaped_numpy</span></span>(<span>value: phiml.math._tensors.Tensor, groups: Union[tuple, list], force_expand: Any = True)</span>
+<span>def <span class="ident">reshaped_numpy</span></span>(<span>value: phiml.math._tensors.Tensor, groups: Union[tuple, list], force_expand: Any = True) ‑> numpy.ndarray</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Returns the NumPy representation of <code>value</code> where dimensions are laid out according to <code>groups</code>.</p>
@@ -4724,6 +4728,25 @@ To get the indices of True / non-zero values, use :func:<code><a title="phiml.ma
 </dl>
 <h2 id="returns">Returns</h2>
 <p><code><a title="phiml.math.Tensor" href="#phiml.math.Tensor">Tensor</a></code> containing dimensions of all inputs.</p></div>
+</dd>
+<dt id="phiml.math.with_diagonal"><code class="name flex">
+<span>def <span class="ident">with_diagonal</span></span>(<span>matrix: phiml.math._tensors.Tensor, values: Union[float, phiml.math._tensors.Tensor], check_square=True)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Create a copy of <code>matrix</code>, replacing the diagonal elements.
+If <code>matrix</code> is sparse, diagonal zeros (and possibly other explicitly stored zeros) will be dropped from the sparse matrix.</p>
+<p>This function currently only supports sparse COO,CSR,CSC SciPy matrices.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>matrix</code></strong></dt>
+<dd><code><a title="phiml.math.Tensor" href="#phiml.math.Tensor">Tensor</a></code> with at least one dual dim.</dd>
+<dt><strong><code>values</code></strong></dt>
+<dd>Diagonal values</dd>
+<dt><strong><code>check_square</code></strong></dt>
+<dd>If <code>True</code> allow this function only for square matrices.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<p><code><a title="phiml.math.Tensor" href="#phiml.math.Tensor">Tensor</a></code></p></div>
 </dd>
 <dt id="phiml.math.wrap"><code class="name flex">
 <span>def <span class="ident">wrap</span></span>(<span>data, *shape: Union[str, phiml.math._shape.Shape], default_list_dim=(vectorᶜ=None)) ‑> phiml.math._tensors.Tensor</span>
@@ -9872,6 +9895,7 @@ If a dimension of the tensor is not listed in <code>order</code>, a <code>ValueE
 <li><code><a title="phiml.math.vec_squared" href="#phiml.math.vec_squared">vec_squared</a></code></li>
 <li><code><a title="phiml.math.when_available" href="#phiml.math.when_available">when_available</a></code></li>
 <li><code><a title="phiml.math.where" href="#phiml.math.where">where</a></code></li>
+<li><code><a title="phiml.math.with_diagonal" href="#phiml.math.with_diagonal">with_diagonal</a></code></li>
 <li><code><a title="phiml.math.wrap" href="#phiml.math.wrap">wrap</a></code></li>
 <li><code><a title="phiml.math.zeros" href="#phiml.math.zeros">zeros</a></code></li>
 <li><code><a title="phiml.math.zeros_like" href="#phiml.math.zeros_like">zeros_like</a></code></li>
