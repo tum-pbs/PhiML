@@ -2470,10 +2470,11 @@ def gather(values, indices: Tensor, dims: Union[DimFilter, None] = None, pref_in
             return values._gather(indices)
         if is_sparse(values):
             return sparse_gather(values, indices, index_dim)
-    if is_sparse(indices):
-        raise NotImplementedError
+    elif is_sparse(indices):  # only indices sparse -> gather on sparse pattern
+        gathered = gather(values, indices._values, dims=dims, pref_index_dim=index_dim)
+        return indices._with_values(gathered)
     broadcast = broadcast_dims(values, indices)
-    treat_as_batch = indices.shape.non_instance.only(values.shape) - dims - index_dim
+    treat_as_batch = indices.shape.only(values.shape) - dims - index_dim
     batch_ = ((values.shape.batch & indices.shape.batch).without(dims) & treat_as_batch) - broadcast
     channel_ = values.shape - dims - batch_ - broadcast
     def uniform_gather(values: Tensor, indices: Tensor):
