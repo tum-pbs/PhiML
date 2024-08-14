@@ -1715,6 +1715,8 @@ def argmax(x: Tensor, dim: DimFilter, index_dim=channel('index')):
             else:  # all sparse dims are reduced
                 result = scatter_val.true_values[0]
             return rename_dims(result, channel(scatter_val), index_dim.with_sizes(dims.name_list))
+        elif dims.isdisjoint(sparse_dims(x)):  # only argmax across values dim
+            return x._with_values(argmax(x._values, dims))
         else:
             raise NotImplementedError
     v_native = reshaped_native(x, [keep, dims])
@@ -1755,6 +1757,8 @@ def argmin(x: Tensor, dim: DimFilter, index_dim=channel('index')):
             else:  # all sparse dims are reduced
                 result = scatter_val.true_values[0]
             return rename_dims(result, channel(scatter_val), index_dim.with_sizes(dims.name_list))
+        elif dims.isdisjoint(sparse_dims(x)):  # only argmin across values dim
+            return x._with_values(argmin(x._values, dims))
         else:
             raise NotImplementedError
     v_native = reshaped_native(x, [keep, dims])
