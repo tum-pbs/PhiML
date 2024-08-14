@@ -1714,7 +1714,11 @@ def sparse_gather(matrix: Tensor, indices: Tensor, index_dim: Shape):
             return matrix._with_values(values)
         elif is_sparse(indices):
             raise NotImplementedError("indexing sparse by sparse only supports identical sparsity patterns")
-        return matrix._with_values(map_i2b(gather)(matrix._values, indices, pref_index_dim=index_dim))
+        if indexed in instance(matrix._values):
+            pass  # handle it below
+            # return matrix._with_values(gather(matrix._values, indices, pref_index_dim=index_dim))
+        else:
+            return matrix._with_values(map_i2b(gather)(matrix._values, indices, pref_index_dim=index_dim))
     if isinstance(matrix, CompressedSparseMatrix):
         if matrix._uncompressed_dims.only(indexed):
             matrix = matrix.decompress()
@@ -1744,20 +1748,27 @@ def sparse_gather(matrix: Tensor, indices: Tensor, index_dim: Shape):
             raise NotImplementedError  # ravel indices
         else:
             lin_indices = reshaped_numpy(unstack(indices, channel)[0], [shape])
-        row_counts = scipy_mat.getnnz(axis=1)  # how many elements per matrix row
-        lookup = scipy_mat[lin_indices, :].data - 1
-        lookup = expand(wrap(lookup, instance('sp_entries')), channel(sparse_idx=instance(col_indices).name))
-        # --- Perform resulting gather on tensors ---
-        gathered_cols = col_indices[lookup]
-        if non_batch(indices) - index_dim:
-            row_count_out = row_counts[lin_indices]  # row count for each i in indices
-            rows = b.repeat(b.range(len(lin_indices)), row_count_out, 0)
-            rows = b.unravel_index(rows, non_batch(indices).without(index_dim).sizes)
-            rows = wrap(rows, instance('sp_entries'), channel(sparse_idx=indices.shape.without(index_dim).names))
-            gathered_indices = concat([rows, gathered_cols], 'sparse_idx')
-        else:
-            gathered_indices = gathered_cols
-        gathered_values = matrix._values[lookup]
+        # --- check whether reduces dim ---
         dense_shape = matrix._dense_shape.without(index_dim.item_names[0]) & indices.shape.without(index_dim)
+        new_row_dims = indices.shape.without(index_dim).without(matrix.shape)
+        if not new_row_dims:
+            lookup = scipy_mat[lin_indices, np.arange(scipy_mat.shape[1])].A1 - 1
+            lookup = expand(wrap(lookup, instance('sp_entries')), channel(sparse_idx=instance(col_indices).name))
+            gathered_indices = col_indices[lookup]
+        else:
+            row_counts = scipy_mat.getnnz(axis=1)  # how many elements per matrix row
+            lookup = scipy_mat[lin_indices, :].data - 1
+            lookup = expand(wrap(lookup, instance('sp_entries')), channel(sparse_idx=instance(col_indices).name))
+            # --- Perform resulting gather on tensors ---
+            gathered_cols = col_indices[lookup]
+            if non_batch(indices) - index_dim:
+                row_count_out = row_counts[lin_indices]  # row count for each i in indices
+                rows = b.repeat(b.range(len(lin_indices)), row_count_out, 0)
+                rows = b.unravel_index(rows, non_batch(indices).without(index_dim).sizes)
+                rows = wrap(rows, instance('sp_entries'), channel(sparse_idx=indices.shape.without(index_dim).names))
+                gathered_indices = concat([rows, gathered_cols], 'sparse_idx')
+            else:
+                gathered_indices = gathered_cols
+        gathered_values = matrix._values[lookup]
         return SparseCoordinateTensor(gathered_indices, gathered_values, dense_shape, can_contain_double_entries=False, indices_sorted=False, indices_constant=matrix._indices_constant)
     raise NotImplementedError(type(matrix))
