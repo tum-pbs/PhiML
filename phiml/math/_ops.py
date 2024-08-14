@@ -19,8 +19,8 @@ from ._tensors import (Tensor, wrap, tensor, broadcastable_native_tensors, Nativ
                        is_scalar, Layout, expand_tensor, TensorOrTree, cached, variable_shape,
                        reshaped_native, reshaped_tensor)
 from ._sparse import (CompressedSparseMatrix, dense, SparseCoordinateTensor, get_format, to_format, stored_indices,
-    tensor_like, sparse_dims, same_sparsity_pattern, is_sparse, sparse_dot, sparse_sum, sparse_gather, sparse_max,
-    sparse_min, dense_dims, sparse_mean)
+                      tensor_like, sparse_dims, same_sparsity_pattern, is_sparse, sparse_dot, sparse_sum, sparse_gather, sparse_max,
+                      sparse_min, dense_dims, sparse_mean, stored_values)
 
 
 def choose_backend_t(*values, prefer_default=False) -> Backend:
@@ -2984,8 +2984,8 @@ def _assert_close(tensor1: Tensor, tensor2: Tensor, rel_tolerance: float, abs_to
         tensor2._assert_close(tensor1, rel_tolerance, abs_tolerance, msg, verbose)
     elif is_sparse(tensor1):
         if is_sparse(tensor2) and type(tensor2) == type(tensor1):
-            _assert_close(tensor1._values, tensor2._values, rel_tolerance, abs_tolerance, msg, verbose)
-            _assert_close(tensor1._indices, tensor2._indices, 0, 0, msg, verbose)
+            _assert_close(stored_values(tensor1), stored_values(tensor2), rel_tolerance, abs_tolerance, msg, verbose)
+            _assert_close(stored_indices(tensor1), stored_indices(tensor2), 0, 0, msg, verbose)
             if isinstance(tensor2, CompressedSparseMatrix) and isinstance(tensor1, CompressedSparseMatrix):
                 _assert_close(tensor1._pointers, tensor2._pointers, 0, 0, msg, verbose)
         else:
