@@ -1246,6 +1246,7 @@ class _MixedExtrapolation(Extrapolation):
         """
         super().__init__(pad_rank=None)
         assert all(isinstance(e, Extrapolation) for e in ext_by_boundary.values())
+        assert all(not isinstance(e, _MixedExtrapolation) for e in ext_by_boundary.values()), f"Nested mixed extrapolations not supported"
         assert all(isinstance(k, str) for k in ext_by_boundary.keys())
         assert len(set(ext_by_boundary.values())) >= 2, f"Extrapolation can be simplified: {ext_by_boundary}"
         self.ext = ext_by_boundary
@@ -1336,7 +1337,10 @@ class _MixedExtrapolation(Extrapolation):
         return combine_sides({b: ext._getitem_with_domain(item, b[:-1], b.endswith('+'), self._dims) for b, ext in self.ext.items()})
 
     def _getitem_with_domain(self, item: dict, dim: str, upper_edge: bool, all_dims: Sequence[str]) -> 'Extrapolation':
-        return combine_sides({b: ext._getitem_with_domain(item, b[:-1], b.endswith('+'), all_dims) for b, ext in self.ext.items()})
+        for b, ext in self.ext.items():
+            if b in [dim, dim+('+' if upper_edge else '-')]:
+                return ext._getitem_with_domain(item, b[:-1], b.endswith('+'), all_dims)
+        raise KeyError((dim, upper_edge))
 
     @property
     def _dims(self):
