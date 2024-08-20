@@ -1626,13 +1626,13 @@ def tensor(data,
                 return layout(data, shape or default_list_dim)
     try:
         backend = choose_backend(data)
+        sizes = backend.staticshape(data)
         if shape is None:
             assert backend.ndims(data) <= 1, "Specify dimension names for tensors with more than 1 dimension"
             shape = default_list_dim if backend.ndims(data) == 1 else EMPTY_SHAPE
-            shape = shape.with_sizes(backend.staticshape(data))
-        else:
+            shape = shape.with_sizes(sizes)
+        elif 0 not in sizes:
             # fill in sizes or check them
-            sizes = backend.staticshape(data)
             if len(sizes) != len(shape):
                 raise IncompatibleShapes(f"Rank of given shape {shape} does not match data with sizes {sizes}")
             for size, s in zip(sizes, shape.sizes):
@@ -1644,6 +1644,9 @@ def tensor(data,
             return from_sparse_native(data, shape, indices_constant=backend == NUMPY, convert=convert)
         elif convert:
             data = convert_(data, use_dlpack=False)
+        if 0 in sizes:
+            present_shape = shape[:len(sizes)].with_sizes(sizes)
+            return NativeTensor(data, present_shape, shape.with_sizes(shape.undefined.with_sizes(0)).with_sizes(present_shape))
         return NativeTensor(data, shape)
     except NoBackendFound:
         raise ValueError(f"{type(data)} is not supported. Only (Tensor, tuple, list, np.ndarray, native tensors) are allowed.\nCurrent backends: {BACKENDS}")
