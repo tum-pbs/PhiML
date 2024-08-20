@@ -529,6 +529,11 @@ class Tensor:
             for d in unpacked_dims:
                 new_shape = new_shape._expand(d, pos=i)
                 i += 1
+            if not new_shape.well_defined:
+                assert new_shape.undefined.rank <= 1, f"At most one dim can have an undefined size to be inferred during un-packing but got {new_shape}"
+                missing = self.shape.volume / new_shape.defined.volume
+                sizes = [missing if s is None else s for s in new_shape.sizes]
+                new_shape = new_shape.with_sizes(sizes)
             native_reshaped = choose_backend(native).reshape(native, new_shape.sizes)
             return NativeTensor(native_reshaped, new_shape)
         else:
