@@ -1467,6 +1467,7 @@ def dot_sparse_sparse(a: Tensor, a_dims: Shape, b: Tensor, b_dims: Shape):
 
 
 def native_matrix(value: Tensor, target_backend: Backend):
+    from ..backend import convert
     target_backend = target_backend or value.default_backend
     cols = dual(value)
     rows = non_batch(value).non_dual
@@ -1476,6 +1477,9 @@ def native_matrix(value: Tensor, target_backend: Backend):
     if isinstance(value, CompressedSparseMatrix):
         assert not non_instance(value._values), f"native_matrix does not support vector-valued matrices. Vector dims: {non_batch(value).without(sparse_dims(value))}"
         ind_batch, channels, indices, pointers, values, shape = value._native_csr_components()
+        indices = convert(indices, b)
+        pointers = convert(pointers, b)
+        values = convert(values, b)
         if dual(value._uncompressed_dims):  # CSR
             assert not dual(value._compressed_dims), "Dual dimensions on both compressed and uncompressed dimensions"
             if ind_batch.volume > 1 or channels.volume > 1:
@@ -1497,6 +1501,8 @@ def native_matrix(value: Tensor, target_backend: Backend):
         value = value.to_coo()
     if isinstance(value, SparseCoordinateTensor):  # COO
         ind_batch, channels, indices, values, shape = value._native_coo_components(dual, matrix=True)
+        indices = convert(indices, b)
+        values = convert(values, b)
         if ind_batch.volume > 1 or channels.volume > 1:
             return b.sparse_coo_tensor_batched(indices, values, shape)
         else:
