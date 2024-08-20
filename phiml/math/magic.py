@@ -782,24 +782,29 @@ def slicing_dict(obj, item, existing_only=True) -> dict:
             return {channel(obj).name: item}
         else:
             raise AssertionError(f"Cannot slice {obj}[{item}]. Use a dict or the special slicing syntax value.dim[slice] instead. See https://tum-pbs.github.io/PhiML/Introduction.html#Slicing")
+    from ._tensors import Tensor
+    if isinstance(item, Tensor) and item.dtype.kind == bool:  # boolean mask
+        mask_dim = item.shape.non_batch or item.shape
+        return {mask_dim.name: item}
+    elif isinstance(item, Tensor) and item.dtype.kind == int and channel(item):  # gather
+        if channel(item).size > 1:
+            raise NotImplementedError("Gathering multiple dims using data[indices] not supported yet.")
+        assert channel(item).item_names[0], f"When gathering using data[indices], indices Tensor must declare the indexed dimension as the item name of its channel dim but got {item.shape}"
+        return {channel(item).item_names[0][0]: item}
+    elif isinstance(item, str):
+        item_names = set([s.strip() for s in item.split(",")])
+        for dim in shape(obj):
+            if dim.item_names[0] and item_names.issubset(dim.item_names[0]):
+                return {dim.name: item}
+        class_name = "Tensor" if isinstance(obj, Tensor) else type(obj).__name__
+        raise AssertionError(f"Failed to slice {class_name}['{item}'] because item names are not present on any dim: {shape(obj)}")
+    elif shape(obj).channel_rank == 1:
+        return {channel(obj).name: item}
+    elif non_batch(obj).rank == 1:
+        return {non_batch(obj).name: item}
     else:
-        from ._tensors import Tensor
-        if isinstance(item, Tensor) and item.dtype.kind == bool:  # boolean mask
-            mask_dim = item.shape.non_batch or item.shape
-            return {mask_dim.name: item}
-        elif isinstance(item, Tensor) and item.dtype.kind == int and channel(item):  # gather
-            if channel(item).size > 1:
-                raise NotImplementedError("Gathering multiple dims using data[indices] not supported yet.")
-            assert channel(item).item_names[0], f"When gathering using data[indices], indices Tensor must declare the indexed dimension as the item name of its channel dim but got {item.shape}"
-            return {channel(item).item_names[0][0]: item}
-        elif shape(obj).channel_rank == 1:
-            return {channel(obj).name: item}
-        elif non_batch(obj).rank == 1:
-            return {non_batch(obj).name: item}
-        else:
-            from ._tensors import Tensor
-            class_name = "Tensor" if isinstance(obj, Tensor) else type(obj).__name__
-            raise AssertionError(f"Slicing {class_name}[{type(item).__name__}] is only supported for 1D values (excluding batch dimensions) but shape is {shape(obj)}")
+        class_name = "Tensor" if isinstance(obj, Tensor) else type(obj).__name__
+        raise AssertionError(f"Slicing {class_name}[{type(item).__name__}] is only supported for 1D values (excluding batch dimensions) but shape is {shape(obj)}")
 
 
 class OtherMagicFunctions:
