@@ -901,6 +901,14 @@ class Shape:
         return True
 
     @property
+    def defined(self):
+        return self[[i for i, size in enumerate(self.sizes) if size is not None]]
+
+    @property
+    def undefined(self):
+        return self[[i for i, size in enumerate(self.sizes) if size is None]]
+
+    @property
     def shape(self) -> 'Shape':
         """
         Higher-order `Shape`.
