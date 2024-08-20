@@ -519,8 +519,7 @@ def pack_dims(value, dims: DimFilter, packed_dim: Shape, pos: Optional[int] = No
             return result
     # --- Next try Tree Node ---
     if isinstance(value, PhiTreeNode):
-        new_attributes = {a: pack_dims(getattr(value, a), dims, packed_dim, pos=pos, **kwargs) for a in all_attributes(value)}
-        return copy_with(value, **new_attributes)
+        return tree_map(pack_dims, value, attr_type=all_attributes, dims=dims, packed_dim=packed_dim, pos=pos, **kwargs)
     # --- Fallback: unstack and stack ---
     if shape(value).only(dims).volume > 8:
         warnings.warn(f"pack_dims() default implementation is slow on large dimensions ({shape(value).only(dims)}). Please implement __pack_dims__() for {type(value).__name__} as defined in phiml.math.magic", RuntimeWarning, stacklevel=2)
