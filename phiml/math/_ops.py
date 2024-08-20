@@ -1199,9 +1199,18 @@ def nonzero_slices(x: Tensor):
 def reduce_(f, value, dims, require_all_dims_present=False, required_kind: type = None):
     if not dims:
         return value
+    is_tree = not isinstance(value, Tensor)
+    if isinstance(value, (tuple, list)) and all(isinstance(v, Tensor) for v in value):
+        dims = merge_shapes(batch('0'), *value).only(dims)
+        is_tree = '0' not in dims
+    if is_tree:
+        reduce_outer = isinstance(dims, (Shape, tuple, list, str)) and '0' in parse_dim_order(dims)
+        if reduce_outer:
+            value = stack(value, batch('0'))
+        return tree_map(lambda v: reduce_(f, v, dims, require_all_dims_present, required_kind), value, attr_type=variable_attributes)
     if isinstance(value, (tuple, list)):
         values = [wrap(v) for v in value]
-        value = stack_tensors(values, instance(**{'0': len(values)}))
+        value = stack_tensors(values, batch(**{'0': len(values)}))
         dims = value.shape.only(dims)
         assert '0' in dims, "When passing a sequence of tensors to be reduced, the sequence dimension '0' must be reduced."
     elif isinstance(value, Layout):
@@ -1227,7 +1236,7 @@ def reduce_(f, value, dims, require_all_dims_present=False, required_kind: type 
     return f(value._simplify(), dims)
 
 
-def sum_(value: Union[Tensor, list, tuple, Number, bool], dim: DimFilter = non_batch) -> Tensor:
+def sum_(value, dim: DimFilter = non_batch) -> Tensor:
     """
     Sums `values` along the specified dimensions.
 
@@ -1267,7 +1276,7 @@ def _sum(value: Tensor, dims: Shape) -> Tensor:
         raise ValueError(type(value))
 
 
-def prod(value: Union[Tensor, list, tuple, Number, bool], dim: DimFilter = non_batch) -> Tensor:
+def prod(value, dim: DimFilter = non_batch) -> Tensor:
     """
     Multiplies `values` along the specified dimensions.
 
@@ -1299,7 +1308,7 @@ def _prod(value: Tensor, dims: Shape) -> Tensor:
         raise ValueError(type(value))
 
 
-def mean(value: Union[Tensor, list, tuple, Number, bool], dim: DimFilter = non_batch, weight: Union[Tensor, list, tuple] = None) -> Tensor:
+def mean(value, dim: DimFilter = non_batch, weight: Union[Tensor, list, tuple] = None) -> Tensor:
     """
     Computes the mean over `values` along the specified dimensions.
 
@@ -1348,7 +1357,7 @@ def _mean(value: Tensor, dims: Shape) -> Tensor:
         raise ValueError(type(value))
 
 
-def std(value: Union[Tensor, list, tuple, Number, bool], dim: DimFilter = non_batch) -> Tensor:
+def std(value, dim: DimFilter = non_batch) -> Tensor:
     """
     Computes the standard deviation over `values` along the specified dimensions.
 
@@ -1389,12 +1398,12 @@ def _std(value: Tensor, dims: Shape) -> Tensor:
             return sqrt(variance)
 
 
-def any_(boolean_tensor: Union[Tensor, list, tuple], dim: DimFilter = non_batch) -> Tensor:
+def any_(boolean_value, dim: DimFilter = non_batch) -> Tensor:
     """
     Tests whether any entry of `boolean_tensor` is `True` along the specified dimensions.
 
     Args:
-        boolean_tensor: `Tensor` or `list` / `tuple` of Tensors.
+        boolean_value: `Tensor` or `list` / `tuple` of Tensors.
         dim: Dimension or dimensions to be reduced. One of
 
             * `None` to reduce all non-batch dimensions
@@ -1407,7 +1416,7 @@ def any_(boolean_tensor: Union[Tensor, list, tuple], dim: DimFilter = non_batch)
     Returns:
         `Tensor` without the reduced dimensions.
     """
-    return reduce_(_any, boolean_tensor, dim, required_kind=bool)
+    return reduce_(_any, boolean_value, dim, required_kind=bool)
 
 
 def _any(value: Tensor, dims: Shape) -> Tensor:
@@ -1423,12 +1432,12 @@ def _any(value: Tensor, dims: Shape) -> Tensor:
         raise ValueError(type(value))
 
 
-def all_(boolean_tensor: Union[Tensor, list, tuple, Number, bool], dim: DimFilter = non_batch) -> Tensor:
+def all_(boolean_value, dim: DimFilter = non_batch) -> Tensor:
     """
     Tests whether all entries of `boolean_tensor` are `True` along the specified dimensions.
 
     Args:
-        boolean_tensor: `Tensor` or `list` / `tuple` of Tensors.
+        boolean_value: `Tensor` or `list` / `tuple` of Tensors.
         dim: Dimension or dimensions to be reduced. One of
 
             * `None` to reduce all non-batch dimensions
@@ -1441,7 +1450,7 @@ def all_(boolean_tensor: Union[Tensor, list, tuple, Number, bool], dim: DimFilte
     Returns:
         `Tensor` without the reduced dimensions.
     """
-    return reduce_(_all, boolean_tensor, dim, required_kind=bool)
+    return reduce_(_all, boolean_value, dim, required_kind=bool)
 
 
 def _all(value: Tensor, dims: Shape) -> Tensor:
@@ -1457,7 +1466,7 @@ def _all(value: Tensor, dims: Shape) -> Tensor:
     raise ValueError(type(value))
 
 
-def max_(value: Union[Tensor, list, tuple, Number, bool], dim: DimFilter = non_batch) -> Tensor:
+def max_(value: TensorOrTree, dim: DimFilter = non_batch) -> TensorOrTree:
     """
     Determines the maximum value of `values` along the specified dimensions.
 
@@ -1492,7 +1501,7 @@ def _max(value: Tensor, dims: Shape) -> Tensor:
     raise ValueError(type(value))
 
 
-def min_(value: Union[Tensor, list, tuple, Number, bool], dim: DimFilter = non_batch) -> Tensor:
+def min_(value, dim: DimFilter = non_batch) -> Tensor:
     """
     Determines the minimum value of `values` along the specified dimensions.
 
