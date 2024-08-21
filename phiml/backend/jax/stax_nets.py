@@ -12,7 +12,7 @@ import jax
 import jax.numpy as jnp
 import numpy
 import numpy as np
-from jax import random
+from jax import random, tree_flatten
 from packaging import version
 
 if version.parse(jax.__version__) >= version.parse(
@@ -84,21 +84,22 @@ class JaxOptimizer:
                     result = loss_function_non_jit(*args, **kwargs)
                     net._tracers = None
                     return result
-
                 gradient_function = math.gradient(loss_depending_on_net)
                 current_state = OptimizerState(packed_current_state, self._state.tree_def, self._state.subtree_defs)
                 current_params = self._get_params(current_state)
                 value, grads = gradient_function(current_params, *loss_args, **loss_kwargs)
                 next_state = self._update(self._step_i, grads[0], self._state)
                 return next_state.packed_state, value
-
             if isinstance(loss_function, JitFunction):
                 update = math.jit_compile(update)
             self._update_function_cache[loss_function] = update
-
-        next_packed_state, loss_output = self._update_function_cache[loss_function](self._state.packed_state,
-                                                                                    *loss_args, **loss_kwargs)
+        xs, _ = tree_flatten(net.parameters)
+        ms = [m for x, m, v in self._state.packed_state]
+        vs = [v for x, m, v in self._state.packed_state]
+        packed_state = [(x, m, v) for x, m, v in zip(xs, ms, vs)]
+        next_packed_state, loss_output = self._update_function_cache[loss_function](packed_state, *loss_args, **loss_kwargs)
         self._state = OptimizerState(next_packed_state, self._state.tree_def, self._state.subtree_defs)
+        net.parameters = self.get_network_parameters()
         return loss_output
 
 
@@ -160,13 +161,11 @@ def _recursive_add_parameters(param, wrap: bool, prefix: tuple, result: dict):
 
 
 def save_state(obj: Union[StaxNet, JaxOptimizer], path: str):
+    if not path.endswith('.npz'):
+        path += '.npz'
     if isinstance(obj, StaxNet):
-        if not path.endswith('.npy'):
-            path += '.npy'
-        numpy.save(path, obj.parameters)
+        numpy.savez(path, x=np.array(obj.parameters, dtype=object), allow_pickle=True)
     elif isinstance(obj, JaxOptimizer):
-        if not path.endswith('.npz'):
-            path += '.npz'
         ms = [np.asarray(m) for x, m, v in obj._state.packed_state]
         vs = [np.asarray(v) for x, m, v in obj._state.packed_state]
         np.savez(path, m=np.array(ms, dtype=object), v=np.array(vs, dtype=object), allow_pickle=True)
@@ -175,14 +174,13 @@ def save_state(obj: Union[StaxNet, JaxOptimizer], path: str):
 
 
 def load_state(obj: Union[StaxNet, JaxOptimizer], path: str):
+    if not path.endswith('.npz'):
+        path += '.npz'
     if isinstance(obj, StaxNet):
-        if not path.endswith('.npy'):
-            path += '.npy'
-        state = numpy.load(path, allow_pickle=True)
-        obj.parameters = tuple([tuple(layer) for layer in state])
+        data = numpy.load(path, allow_pickle=True)
+        x = data['x']
+        obj.parameters = tuple([tuple(layer) for layer in x])
     else:
-        if not path.endswith('.npz'):
-            path += '.npz'
         xs = [x for x, m, v in obj._state.packed_state]
         data = np.load(path, allow_pickle=True)
         ms, vs = data['m'], data['v']
@@ -193,9 +191,7 @@ def load_state(obj: Union[StaxNet, JaxOptimizer], path: str):
 
 
 def update_weights(net: StaxNet, optimizer: JaxOptimizer, loss_function: Callable, *loss_args, **loss_kwargs):
-    loss_output = optimizer.update(net, loss_function, net.parameters, loss_args, loss_kwargs)
-    net.parameters = optimizer.get_network_parameters()
-    return loss_output
+    return optimizer.update(net, loss_function, net.parameters, loss_args, loss_kwargs)
 
 
 def adam(net: StaxNet, learning_rate: float = 1e-3, betas=(0.9, 0.999), epsilon=1e-07):
