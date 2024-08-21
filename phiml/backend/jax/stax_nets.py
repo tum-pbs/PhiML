@@ -10,7 +10,6 @@ from typing import Callable, Union, Sequence
 
 import jax
 import jax.numpy as jnp
-import keras
 import numpy
 import numpy as np
 from jax import random
@@ -620,7 +619,6 @@ def Dense_resnet_block(in_channels: int,
                        mid_channels: int,
                        batch_norm: bool = False,
                        activation: Union[str, Callable] = 'ReLU'):
-    inputs = keras.Input(shape=(in_channels,))
     activation = ACTIVATIONS[activation] if isinstance(activation, str) else activation
     init_fn, apply_fn = {}, {}
     init_fn['dense1'], apply_fn['dense1'] = stax.serial(stax.Dense(mid_channels), stax.BatchNorm(axis=(0,)), activation)
