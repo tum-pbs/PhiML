@@ -1199,7 +1199,7 @@ def nonzero_slices(x: Tensor):
 def reduce_(f, value, dims, require_all_dims_present=False, required_kind: type = None):
     if not dims:
         return value
-    is_tree = not isinstance(value, Tensor)
+    is_tree = not isinstance(value, Tensor) and isinstance(value, PhiTreeNode)
     if isinstance(value, (tuple, list)) and all(isinstance(v, Tensor) for v in value):
         dims = merge_shapes(batch('0'), *value).only(dims)
         is_tree = '0' not in dims
