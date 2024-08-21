@@ -6,7 +6,6 @@ import keras
 import numpy as np
 import os
 import tensorflow as tf
-import torch.linalg
 from tensorflow.python.client import device_lib
 from tensorflow.python.framework.errors_impl import NotFoundError
 
