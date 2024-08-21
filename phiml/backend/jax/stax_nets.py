@@ -12,7 +12,7 @@ import jax
 import jax.numpy as jnp
 import numpy
 import numpy as np
-from jax import random, tree_flatten
+from jax import random, tree_flatten, tree_unflatten
 from packaging import version
 
 if version.parse(jax.__version__) >= version.parse(
@@ -94,9 +94,7 @@ class JaxOptimizer:
                 update = math.jit_compile(update)
             self._update_function_cache[loss_function] = update
         xs, _ = tree_flatten(net.parameters)
-        ms = [m for x, m, v in self._state.packed_state]
-        vs = [v for x, m, v in self._state.packed_state]
-        packed_state = [(x, m, v) for x, m, v in zip(xs, ms, vs)]
+        packed_state = [(x, *pt[1:]) if isinstance(pt, (tuple, list)) else (x,) for x, pt in zip(xs, self._state.packed_state)]
         next_packed_state, loss_output = self._update_function_cache[loss_function](packed_state, *loss_args, **loss_kwargs)
         self._state = OptimizerState(next_packed_state, self._state.tree_def, self._state.subtree_defs)
         net.parameters = self.get_network_parameters()
@@ -166,9 +164,8 @@ def save_state(obj: Union[StaxNet, JaxOptimizer], path: str):
     if isinstance(obj, StaxNet):
         numpy.savez(path, x=np.array(obj.parameters, dtype=object), allow_pickle=True)
     elif isinstance(obj, JaxOptimizer):
-        ms = [np.asarray(m) for x, m, v in obj._state.packed_state]
-        vs = [np.asarray(v) for x, m, v in obj._state.packed_state]
-        np.savez(path, m=np.array(ms, dtype=object), v=np.array(vs, dtype=object), allow_pickle=True)
+        data = [[np.asarray(t) for t in pt[1:]] if isinstance(pt, (tuple, list)) else [] for pt in obj._state.packed_state]
+        np.savez(path, state=np.array(data, dtype=object), allow_pickle=True)
     else:
         raise ValueError(f"obj must be a network or optimizer but got {type(obj)}")
 
@@ -178,15 +175,14 @@ def load_state(obj: Union[StaxNet, JaxOptimizer], path: str):
         path += '.npz'
     if isinstance(obj, StaxNet):
         data = numpy.load(path, allow_pickle=True)
-        x = data['x']
-        obj.parameters = tuple([tuple(layer) for layer in x])
+        x = data['x'].tolist()
+        x_flat, tree = tree_flatten(x)
+        x_flat = [jnp.array(f) for f in x_flat]
+        obj.parameters = tree_unflatten(tree, x_flat)
     else:
-        xs = [x for x, m, v in obj._state.packed_state]
-        data = np.load(path, allow_pickle=True)
-        ms, vs = data['m'], data['v']
-        ms = [jnp.array(m) for m in ms]
-        vs = [jnp.array(v) for v in vs]
-        packed_state = [(x, m, v) for x, m, v in zip(xs, ms, vs)]
+        xs, tree_def = tree_flatten(obj.get_network_parameters())
+        state = np.load(path, allow_pickle=True)['state'].tolist()
+        packed_state = [(x, *pt) for x, pt in zip(xs, state)]
         obj._state = OptimizerState(packed_state, obj._state.tree_def, obj._state.subtree_defs)
 
 
