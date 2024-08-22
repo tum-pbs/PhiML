@@ -749,7 +749,7 @@ def stack_tensors(values: Union[tuple, list], dim: Shape):
         return NativeTensor(values[0]._native, values[0]._native_shape, values[0].shape & dim.with_size(1))
     # --- not directly stackable ---
     non_stackable = broadcast_dims(*values)
-    if non_stackable:
+    if non_stackable or any(is_sparse(v) for v in values):  # stackable sparse would have been handled by __stack__() before calling this function
         return TensorStack(values, dim)
     if any(v._is_tracer for v in values):
         return TensorStack(values, dim)
