@@ -934,18 +934,14 @@ class CompactSparseTensor(Tensor):
         if affects_only_values:
             return self._with_values(operator(self._values, other))
         elif isinstance(other, (CompressedSparseMatrix, CompactSparseTensor)):
-            raise NotImplementedError
-            # if same_sparsity_pattern(self, other):
-            #     result = operator(self._values, other._values)
-            #     if self._uncompressed_offset is not None:
-            #         from ._ops import where
-            #         result = where(self._valid_mask(), result, 0)
-            #     return self._with_values(result)
-            # elif op_symbol == '+':
-            #     raise NotImplementedError("Compressed addition not yet implemented")
-            # else:
-            #     # convert to COO, then perform operation
-            #     raise NotImplementedError
+            if same_sparsity_pattern(self, other):
+                result = operator(self._values, other._values)
+                return self._with_values(result)
+            elif op_symbol == '+':
+                raise NotImplementedError("Compressed addition not yet implemented")
+            else:
+                # convert to COO, then perform operation
+                raise NotImplementedError
         elif self._uncompressed_dims in other_shape and self._compressed_dims.isdisjoint(other_shape):
             from ._ops import gather, boolean_mask, clip, where
             if self._uncompressed_offset is None:
@@ -967,7 +963,6 @@ class CompactSparseTensor(Tensor):
             raise NotImplementedError
 
     def _getitem(self, selection: dict) -> 'Tensor':
-        raise NotImplementedError
         batch_selection = {dim: selection[dim] for dim in self._shape.without(self.sparse_dims).only(tuple(selection)).names}
         indices = self._indices[batch_selection]
         values = self._values[batch_selection]
@@ -975,43 +970,46 @@ class CompactSparseTensor(Tensor):
         uncompressed = self._uncompressed_dims
         compressed = self._compressed_dims
         if compressed.only(tuple(selection)):
-            if compressed.rank > 1:
-                raise NotImplementedError
-            ptr_sel = selection[compressed.name]
-            if isinstance(ptr_sel, int):
-                raise NotImplementedError(f"Slicing with int not yet supported for sparse tensors. Use a range instead, e.g. [{ptr_sel}:{ptr_sel + 1}] instead of [{ptr_sel}]")
-            elif isinstance(ptr_sel, slice):
-                assert ptr_sel.step in (None, 1), f"Only step size 1 supported for sparse indexing but got {ptr_sel.step}"
-                if batch(indices):
-                    raise NotImplementedError("Slicing not yet supported for batched sparse tensors")
-                start = ptr_sel.start or 0
-                stop = compressed.volume if ptr_sel.stop is None else ptr_sel.stop
-                pointers = pointers[start:stop + 1]
-                indices = indices[{instance(indices).name: slice(int(pointers[0]), int(pointers[-1]))}]
-                values = values[{instance(values).name: slice(int(pointers[0]), int(pointers[-1]))}]
-                m_rank = -1
-                pointers -= pointers[0]
-                compressed = compressed.after_gather({compressed.name: ptr_sel})
-            else:
-                raise NotImplementedError
+            raise NotImplementedError
+            # if compressed.rank > 1:
+            #     raise NotImplementedError
+            # ptr_sel = selection[compressed.name]
+            # if isinstance(ptr_sel, int):
+            #     raise NotImplementedError(f"Slicing with int not yet supported for sparse tensors. Use a range instead, e.g. [{ptr_sel}:{ptr_sel + 1}] instead of [{ptr_sel}]")
+            # elif isinstance(ptr_sel, slice):
+            #     assert ptr_sel.step in (None, 1), f"Only step size 1 supported for sparse indexing but got {ptr_sel.step}"
+            #     if batch(indices):
+            #         raise NotImplementedError("Slicing not yet supported for batched sparse tensors")
+            #     start = ptr_sel.start or 0
+            #     stop = compressed.volume if ptr_sel.stop is None else ptr_sel.stop
+            #     pointers = pointers[start:stop + 1]
+            #     indices = indices[{instance(indices).name: slice(int(pointers[0]), int(pointers[-1]))}]
+            #     values = values[{instance(values).name: slice(int(pointers[0]), int(pointers[-1]))}]
+            #     m_rank = -1
+            #     pointers -= pointers[0]
+            #     compressed = compressed.after_gather({compressed.name: ptr_sel})
+            # else:
+            #     raise NotImplementedError
         if uncompressed.only(tuple(selection)):
-            if self._uncompressed_dims.rank > 1:
-                raise NotImplementedError
-            ind_sel = selection[uncompressed.name]
-            if isinstance(ind_sel, int):
-                raise NotImplementedError(f"Slicing with int not yet supported for sparse tensors. Use a range instead, e.g. [{ind_sel}:{ind_sel + 1}] instead of [{ind_sel}]")
-            elif isinstance(ind_sel, slice):
-                assert ind_sel.step in (None, 1), f"Only step size 1 supported for sparse indexing but got {ind_sel.step}"
-                start = ind_sel.start or 0
-                stop = uncompressed.volume if ind_sel.stop is None else ind_sel.stop
-                keep = (start <= indices) & (indices < stop)
-                from ._ops import where
-                values = where(keep, values, 0)
-                m_rank = -1
-                uncompressed_offset = start
-                uncompressed = uncompressed.after_gather({uncompressed.name: ind_sel})
-            else:
-                raise NotImplementedError
+            raise NotImplementedError
+            # if self._uncompressed_dims.rank > 1:
+            #     raise NotImplementedError
+            # ind_sel = selection[uncompressed.name]
+            # if isinstance(ind_sel, int):
+            #     raise NotImplementedError(f"Slicing with int not yet supported for sparse tensors. Use a range instead, e.g. [{ind_sel}:{ind_sel + 1}] instead of [{ind_sel}]")
+            # elif isinstance(ind_sel, slice):
+            #     assert ind_sel.step in (None, 1), f"Only step size 1 supported for sparse indexing but got {ind_sel.step}"
+            #     start = ind_sel.start or 0
+            #     stop = uncompressed.volume if ind_sel.stop is None else ind_sel.stop
+            #     keep = (start <= indices) & (indices < stop)
+            #     from ._ops import where
+            #     values = where(keep, values, 0)
+            #     m_rank = -1
+            #     uncompressed_offset = start
+            #     uncompressed = uncompressed.after_gather({uncompressed.name: ind_sel})
+            # else:
+            #     raise NotImplementedError
+        return CompactSparseTensor(indices, values, compressed, self._indices_constant, m_rank)
 
     def __concat__(self, tensors: tuple, dim: str, **kwargs) -> 'SparseCoordinateTensor':
         raise NotImplementedError
