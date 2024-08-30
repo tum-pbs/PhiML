@@ -916,6 +916,9 @@ class TorchBackend(Backend):
     def eig(self, matrix: TensorType) -> TensorType:
         return torch.linalg.eig(matrix)
 
+    def svd(self, matrix: TensorType, full_matrices=True) -> Tuple[TensorType, TensorType, TensorType]:
+        return torch.linalg.svd(matrix, full_matrices=full_matrices)
+
     def _prepare_graph_inputs(self, args: tuple, wrt: Union[tuple, list]):
         args = [self.as_tensor(arg, True) if i in wrt else arg for i, arg in enumerate(args)]
         args = [self.to_float(arg) if self.dtype(arg).kind == int and i in wrt else arg for i, arg in enumerate(args)]

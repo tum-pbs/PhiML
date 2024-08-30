@@ -544,5 +544,9 @@ class NumPyBackend(Backend):
     def eig(self, matrix: TensorType) -> TensorType:
         return numpy.linalg.eig(matrix)
 
+    def svd(self, matrix: TensorType, full_matrices=True) -> Tuple[TensorType, TensorType, TensorType]:
+        result = np.linalg.svd(matrix, full_matrices=full_matrices)
+        return result[0], result[1], result[2]
+
 
 NUMPY = NumPyBackend()

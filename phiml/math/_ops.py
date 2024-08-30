@@ -3318,3 +3318,49 @@ def eigenvalues(matrix: Tensor, eigen_dim=channel('eigenvalues')):
     native_matrix = reshaped_native(matrix, [*batch_dims, rows, cols])
     native_result = matrix.default_backend.eigvals(native_matrix)
     return reshaped_tensor(native_result, [*batch_dims, eigen_dim], convert=False)
+
+
+def svd(x: Tensor, feature_dim: DimFilter = channel, list_dim: DimFilter = None, latent_dim=channel('singular'), full_matrices=False):
+    """
+    Singular value decomposition.
+
+    The original matrix is approximated by `(latent_to_value * singular.T) @ latents` or `latent_to_value @ (singular * latents)`.
+
+    **Warning:** Even for well-defined SVDs, different backend use different sign conventions, causing results to differ.
+
+    Args:
+        x: Matrix containing `feature_dim` and `list_dim`.
+        feature_dim: Dimensions that list the features (columns).
+        list_dim: Dimensions that list the data points (rows).
+        latent_dim: Latent dimension. If a size is specified, truncates the SVD to this size.
+        full_matrices: If `True`, return full-sized (square) matrices for latent_by_example and latent_to_value. These may not match the singular values.
+
+    Returns:
+        latents: Latent vectors of each item listed. `Tensor` with `list_dim` and `latent_dim`.
+        singular: List of singular values. `Tensor` with `latent_dim`
+        latent_to_value: Matrix which can compute the features from a latent vector. `Tensor` with `latent_dim` and `feature_dim`.
+    """
+    feature_dim = x.shape.only(feature_dim)
+    if list_dim is not None:
+        list_dim = x.shape.only(list_dim)
+    else:
+        if non_batch(x) - feature_dim:
+            list_dim = non_batch(x) - feature_dim
+        else:
+            list_dim = x.shape - feature_dim
+    assert feature_dim, f"No valid feature dim specified: {feature_dim} for data {x}"
+    assert list_dim, f"No valid list dim specified: {list_dim} for data {x}"
+    batch_dims = x.shape - feature_dim - list_dim
+    native = reshaped_native(x, [batch_dims, list_dim, feature_dim])
+    u, s, v = x.default_backend.svd(native, full_matrices=full_matrices)
+    truncate = latent_dim.size
+    if truncate is not None:
+        if s.shape[1] < truncate:
+            warnings.warn(f"Trying to truncate SVD but there are too few values: {s.shape[1]} < {truncate}")
+        u = u[:, :, :truncate]
+        s = s[:, :truncate]
+        v = v[:, :truncate, :]
+    latent_by_example = reshaped_tensor(u, [batch_dims, list_dim, latent_dim])
+    singular_values = reshaped_tensor(s, [batch_dims, latent_dim])
+    latent_to_value = reshaped_tensor(v, [batch_dims, latent_dim.as_dual(), feature_dim])
+    return latent_by_example, singular_values, latent_to_value

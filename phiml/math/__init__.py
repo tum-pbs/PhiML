@@ -70,7 +70,7 @@ from ._ops import (
     stop_gradient,
     pairwise_differences, pairwise_differences as pairwise_distances, map_pairs,
     with_diagonal,
-    eigenvalues,
+    eigenvalues, svd,
 )
 
 from ._nd import (

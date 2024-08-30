@@ -1554,9 +1554,19 @@ class Backend:
 
     def eig(self, matrix: TensorType) -> TensorType:
         """
-
         Args:
             matrix: (batch..., n, n)
+
+        Returns:
+            eigenvalues: (batch..., n,)
+            eigenvectors: (batch..., n, n)
+        """
+        raise NotImplementedError(self)
+
+    def svd(self, matrix: TensorType, full_matrices=True) -> Tuple[TensorType, TensorType, TensorType]:
+        """
+        Args:
+            matrix: (batch..., m, n)
 
         Returns:
             eigenvalues: (batch..., n,)
