@@ -494,6 +494,22 @@ class Shape:
         return self[[i for i, t in enumerate(self.types) if t in [DUAL_DIM, BATCH_DIM]]]
 
     @property
+    def transposed(self):
+        if self.channel_rank > 0:
+            replacement = {DUAL_DIM: CHANNEL_DIM, CHANNEL_DIM: DUAL_DIM}
+        elif self.instance_rank > 0:
+            replacement = {DUAL_DIM: INSTANCE_DIM, INSTANCE_DIM: DUAL_DIM}
+        elif self.spatial_rank > 0:
+            replacement = {DUAL_DIM: SPATIAL_DIM, SPATIAL_DIM: DUAL_DIM}
+        elif self.dual_rank > 0:
+            warnings.warn(f"Transposing {self} is ill-defined because there are not primal dims. Replacing dual dims by channel dims.", SyntaxWarning)
+            replacement = {DUAL_DIM: CHANNEL_DIM}
+        else:
+            raise ValueError(f"Cannot transpose shape {self} as it has no channel or instance or spatial dims.")
+        types = tuple([replacement.get(t, t) for t in self.types])
+        return Shape(self.sizes, self.names, types, self.item_names)
+
+    @property
     def non_singleton(self) -> 'Shape':
         """
         Filters this shape, returning only non-singleton dimensions as a new `Shape` object.
