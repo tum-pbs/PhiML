@@ -2688,6 +2688,31 @@ def scatter(base_grid: Union[Tensor, Shape],
     return result
 
 
+def ravel_index(index: Tensor, resolution: Shape, dim=channel, mode='undefined') -> Tensor:
+    """
+    Computes a scalar index from a vector index.
+
+    Args:
+        index: `Tensor` with one channel dim.
+        resolution: `Shape`
+        mode: `'undefined'`, `'periodic'`, `'clamp'` or an `int` to use for all invalid indices.
+
+    Returns:
+        `Tensor`
+    """
+    index_dim = index.shape.only(dim)
+    assert index_dim.rank == 1, f"index must have exaclty one index dim but got {index_dim}"
+    nat_idx = reshaped_native(index, [..., index_dim])
+    if index_dim.item_names[0]:
+        sizes = [resolution.get_size(dim) for dim in index_dim.item_names[0]]
+    else:
+        assert resolution.rank == index_dim.size
+        sizes = resolution.sizes
+    nat_result = index.default_backend.ravel_multi_index(nat_idx, sizes, mode)
+    return reshaped_tensor(nat_result, [index.shape - index_dim])
+
+
+
 def histogram(values: Tensor, bins: Shape or Tensor = spatial(bins=30), weights=1, same_bins: DimFilter = None):
     """
     Compute a histogram of a distribution of values.
