@@ -507,7 +507,7 @@ class Shape:
         else:
             raise ValueError(f"Cannot transpose shape {self} as it has no channel or instance or spatial dims.")
         types = tuple([replacement.get(t, t) for t in self.types])
-        return Shape(self.sizes, self.names, types, self.item_names)
+        return self._with_types(types)
 
     @property
     def non_singleton(self) -> 'Shape':
@@ -1183,17 +1183,21 @@ class Shape:
         to_remove = dims[-(len(dims) - len(new)):]
         return replaced.without(to_remove)
 
-    def _with_types(self, types: Union['Shape', str]):
+    def _with_types(self, types: Union['Shape', str, Tuple[str], List[str]]):
         """
         Only for internal use.
         Note: This method does not rename dimensions to comply with type requirements (e.g. ~ for dual dims).
         """
         if isinstance(types, Shape):
-            return Shape(self.sizes, self.names, tuple([types.get_type(name) if name in types else self_type for name, self_type in zip(self.names, self.types)]), self.item_names)
+            types = tuple([types.get_type(name) if name in types else self_type for name, self_type in zip(self.names, self.types)])
         elif isinstance(types, str):
-            return Shape(self.sizes, self.names, (types,) * self.rank, self.item_names)
+            types = (types,) * self.rank
+        elif isinstance(types, (tuple, list)):
+            types = tuple(types)
         else:
             raise ValueError(types)
+        names = tuple([_apply_prefix(name, t) for name, t in zip(self.names, types)])
+        return Shape(self.sizes, names, types, self.item_names)
 
     def _with_item_names(self, item_names: tuple):
         return Shape(self.sizes, self.names, self.types, item_names)
@@ -1867,6 +1871,7 @@ def parse_shape_spec(input_string) -> Shape:
 
 
 DIM_FUNCTIONS = {BATCH_DIM: batch, SPATIAL_DIM: spatial, INSTANCE_DIM: instance, CHANNEL_DIM: channel, DUAL_DIM: dual}
+TYPE_BY_FUNCTION = {v: k for k, v in DIM_FUNCTIONS.items()}
 
 
 def merge_shapes(*objs: Union[Shape, Any], order=(batch, dual, instance, spatial, channel), allow_varying_sizes=False):
