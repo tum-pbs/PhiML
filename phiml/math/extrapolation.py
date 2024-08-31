@@ -293,7 +293,7 @@ class ConstantExtrapolation(Extrapolation):
         value = value._simplify()
         if isinstance(value, NativeTensor):
             pad_value = self._get_pad_value(already_padded)
-            backend = choose_backend(value._native, pad_value.native())
+            backend = choose_backend(value._native, *pad_value._natives())
             for dim in pad_value.shape.non_batch.names:
                 assert dim in value.shape, f"Cannot pad tensor {value.shape} with extrapolation {pad_value.shape} because non-batch dimension '{dim}' is missing."
             if pad_value.rank == 0:
