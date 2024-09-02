@@ -9,7 +9,7 @@ import dataclasses
 from . import channel
 from ..backend import choose_backend, NoBackendFound
 from ..backend._dtype import DType
-from ._shape import Shape, DimFilter, batch, instance, shape, non_batch, merge_shapes, concat_shapes, spatial, parse_dim_order, dual, auto
+from ._shape import Shape, DimFilter, batch, instance, shape, non_batch, merge_shapes, concat_shapes, spatial, parse_dim_order, dual, auto, shape_stack
 from .magic import Sliceable, Shaped, Shapable, PhiTreeNode
 
 
@@ -149,8 +149,7 @@ def stack(values: Union[tuple, list, dict], dim: Union[Shape, str], expand_value
     assert len(values) > 0, f"stack() got empty sequence {values}"
     if not dim:
         assert len(values) == 1, f"Only one element can be passed as `values` if no dim is passed but got {values}"
-        from ._tensors import wrap
-        return next(iter(values.values())) if isinstance(values, dict) else values[0]  # this may not be wrappable
+        return next(iter(values.values())) if isinstance(values, dict) else values[0]
     if not isinstance(dim, Shape):
         dim = auto(dim)
     values_ = tuple(values.values()) if isinstance(values, dict) else values

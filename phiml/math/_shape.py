@@ -1403,6 +1403,10 @@ class Shape:
     def __hash__(self):
         return hash(self.names)
 
+    @staticmethod
+    def __stack__(values, dim: 'Shape', **kwargs):
+        return shape_stack(dim, *values)
+
 
 EMPTY_SHAPE = Shape((), (), (), ())
 """ Empty shape, `()` """
