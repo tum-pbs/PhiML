@@ -524,18 +524,24 @@ class Tensor:
     def __unpack_dim__(self, dim: str, unpacked_dims: Shape, **kwargs) -> 'Tensor':
         if self.shape.is_uniform:
             native = self.native(self.shape.names)
-            new_shape = self.shape.without(dim)
-            i = self.shape.index(dim)
-            for d in unpacked_dims:
-                new_shape = new_shape._expand(d, pos=i)
-                i += 1
+            new_shape = self.shape.replace(dim, unpacked_dims)
             if not new_shape.well_defined:
                 assert new_shape.undefined.rank <= 1, f"At most one dim can have an undefined size to be inferred during un-packing but got {new_shape}"
                 missing = self.shape.volume / new_shape.defined.volume
                 sizes = [missing if s is None else s for s in new_shape.sizes]
                 new_shape = new_shape.with_sizes(sizes)
-            native_reshaped = choose_backend(native).reshape(native, new_shape.sizes)
-            return NativeTensor(native_reshaped, new_shape)
+            if new_shape.is_uniform:
+                native_reshaped = choose_backend(native).reshape(native, new_shape.sizes)
+                return NativeTensor(native_reshaped, new_shape)
+            else:
+                split_dim = new_shape.non_uniform_shape[-1]
+                i = 0
+                result = []
+                for idx in split_dim.meshgrid():
+                    s = new_shape.after_gather(idx).get_size(new_shape.non_uniform.name)
+                    result.append(self[{dim: slice(i, i + s)}])
+                    i += s
+                return stack(result, split_dim)
         else:
             tensors = self._tensors
             if dim == self._stack_dim.name:
