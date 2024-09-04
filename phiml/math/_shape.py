@@ -1836,32 +1836,45 @@ class InvalidShapeSpec(ValueError):
 
 
 def parse_shape_spec(input_string) -> Shape:
-    pattern_with_name_and_type = re.compile(r'(\w+):(\w+)=\(([^)]*)\)')
-    pattern_with_type = re.compile(r'(\w+):(\w+)')
-    pattern_with_name = re.compile(r'(\w+)=\(([^)]*)\)')
-    pattern_default = re.compile(r'\(([^)]*)\)')
+    name_type_items = re.compile(r'(~?)(\w+):(\w+)=\(([^)]*)\)')
+    name_type = re.compile(r'(~?)(\w+):(\w+)')
+    name_items = re.compile(r'(~?)(\w+)=\(([^)]*)\)')
+    items = re.compile(r'(~?)\(([^)]*)\)')
+    dual_name = re.compile(r'(~\w+)')
     results = []
     pos = 0
     while pos < len(input_string):
-        if match := pattern_with_name_and_type.match(input_string, pos):
-            name, type_, values = match.groups()
-            results.append({'name': name, 'type': type_, 'values': values.split(',')})
+        if match := name_type_items.match(input_string, pos):
+            tilde, name, type_, values = match.groups()
+            if tilde and type_ not in ('d', 'dual'):
+                raise InvalidShapeSpec(input_string, f"Dimension names starting with ~ must be of type dual. Failed at index {pos}: {input_string[pos:]}")
+            elif not tilde and type_ in ('d', 'dual'):
+                raise InvalidShapeSpec(input_string, f"Dual dims must start with ~. Failed at index {pos}: {input_string[pos:]}")
+            results.append({'name': '~' + name if tilde else name, 'type': type_, 'values': values.split(',')})
             pos = match.end() + 1
-        elif match := pattern_with_type.match(input_string, pos):
-            name, type_ = match.groups()
+        elif match := name_type.match(input_string, pos):
+            tilde, name, type_ = match.groups()
+            if tilde and type_ not in ('d', 'dual'):
+                raise InvalidShapeSpec(input_string, f"Dimension names starting with ~ must be of type dual. Failed at index {pos}: {input_string[pos:]}")
+            elif not tilde and type_ in ('d', 'dual'):
+                raise InvalidShapeSpec(input_string, f"Dual dims must start with ~. Failed at index {pos}: {input_string[pos:]}")
             # Check if the next character is an equal sign followed by parentheses
             next_char_pos = pos + len(match.group())
             if next_char_pos < len(input_string) and input_string[next_char_pos] == '=':
                 raise ValueError(f"Invalid format at position {pos}: values must be inside parentheses")
-            results.append({'name': name, 'type': type_})
+            results.append({'name': '~' + name if tilde else name, 'type': type_})
             pos = match.end() + 1
-        elif match := pattern_with_name.match(input_string, pos):
-            name, values = match.groups()
-            results.append({'name': name, 'type': 'c', 'values': values.split(',')})
+        elif match := name_items.match(input_string, pos):
+            tilde, name, values = match.groups()
+            results.append({'name': '~' + name if tilde else name, 'type': 'd' if tilde else 'c', 'values': values.split(',')})
             pos = match.end() + 1
-        elif match := pattern_default.match(input_string, pos):
-            values = match.group(1)
-            results.append({'name': 'vector', 'type': 'c', 'values': values.split(',')})
+        elif match := items.match(input_string, pos):
+            tilde, values = match.groups()
+            results.append({'name': '~vector' if tilde else 'vector', 'type': 'd' if tilde else 'c', 'values': values.split(',')})
+            pos = match.end() + 1
+        elif match := dual_name.match(input_string, pos):
+            name, = match.groups()
+            results.append({'name': name, 'type': 'd'})
             pos = match.end() + 1
         else:
             raise InvalidShapeSpec(input_string, f"Failed to parse from index {pos}: '{input_string[pos:]}'. Dims must be specified as name:type or name:type=(item_names...). Names and types may only be omitted if component names are given.")
