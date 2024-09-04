@@ -201,7 +201,7 @@ class UNet(nn.Module):
             self.add_module('inc', DoubleConv(d, in_channels, filters[0], filters[0], batch_norm, activation, periodic, down_kernel_size))
         for i in range(1, self._levels):
             self.add_module(f'down{i}', Down(d, filters[i - 1], filters[i], batch_norm, activation, periodic, use_res_blocks, down_kernel_size))
-            self.add_module(f'up{i}', Up(d, filters[i] + filters[i - 1], filters[i - 1], batch_norm, activation, periodic, use_res_blocks, up_kernel_size))
+            self.add_module(f'up{i}', Up(d, filters[-i] + filters[-i - 1], filters[-i - 1], batch_norm, activation, periodic, use_res_blocks, up_kernel_size))
         self.add_module('outc', CONV[d](filters[0], out_channels, kernel_size=1))
 
     def forward(self, x):
