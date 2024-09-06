@@ -56,8 +56,23 @@ class TestNetworks(TestCase):
                 return math.l2_loss(pred)
 
             for i in range(2):
-                nn.update_weights(net, optimizer, loss_function, math.random_uniform(math.batch(batch=10), math.spatial(x=8, y=8)))
-                nn.update_weights(net_res, optimizer_2, loss_function_res, math.random_uniform(math.batch(batch=10), math.spatial(x=8, y=8)))
+                print(nn.update_weights(net, optimizer, loss_function, math.random_uniform(math.batch(batch=10), math.spatial(x=8, y=8))))
+                print(nn.update_weights(net_res, optimizer_2, loss_function_res, math.random_uniform(math.batch(batch=10), math.spatial(x=8, y=8))))
+
+    def test_optimize_res_net(self):
+        for lib in LIBRARIES:
+            nn.use(lib)
+            net = nn.res_net(1, 1, [16, 16, 16])
+            optimizer = nn.adam(net, 1e-3)
+
+            def loss_function(x):
+                print("Running loss_function")
+                assert isinstance(x, math.Tensor)
+                pred = math.native_call(net, x)
+                return math.l2_loss(pred)
+
+            for i in range(200):
+                print(nn.update_weights(net, optimizer, loss_function, math.random_uniform(math.batch(batch=10), math.spatial(x=8, y=8))))
 
     def test_optimize_u_net_jit(self):
         for lib in LIBRARIES:
