@@ -17,18 +17,20 @@ from ..backend._dtype import DType
 
 
 def sparse_tensor(indices: Optional[Tensor],
-                  values: Optional[Tensor],
+                  values: Union[Tensor, Number],
                   dense_shape: Shape,
                   can_contain_double_entries=True,
                   indices_sorted=False,
-                  format='coo',
+                  format=None,
                   indices_constant: bool = True) -> Tensor:
     """
     Construct a sparse tensor that stores `values` at the corresponding `indices` and is 0 everywhere else.
     In addition to the sparse dimensions indexed by `indices`, the tensor inherits all batch and channel dimensions from `values`.
 
     Args:
-        indices: `Tensor` encoding the positions of stored values. It has the following dimensions:
+        indices: `Tensor` encoding the positions of stored values. It can either list the individual stored indices (COO format) or encode only part of the index while containing other dimensions directly (compact format).
+
+            For COO, it has the following dimensions:
 
             * One instance dimension exactly matching the instance dimension on `values`.
               It enumerates the positions of stored entries.
@@ -53,10 +55,12 @@ def sparse_tensor(indices: Optional[Tensor],
         indices_constant: Whether the positions of the non-zero values are fixed.
             If `True`, JIT compilation will not create a placeholder for `indices`.
         format: Sparse format in which to store the data, such as `'coo'` or `'csr'`. See `phiml.math.get_format`.
+            If `None`, uses the format in which the indices were given.
 
     Returns:
         Sparse `Tensor` with the specified `format`.
     """
+    assert values is not None, f"values must be a number of Tensor but got None. Pass values=1 for unit values."
     if indices_constant is None:
         indices_constant = indices.default_backend.name == 'numpy'
     assert isinstance(indices_constant, bool)
@@ -65,11 +69,15 @@ def sparse_tensor(indices: Optional[Tensor],
         indices = ones(instance(entries=0), channel(idx=dense_shape.name_list), dtype=int)
         can_contain_double_entries = False
         indices_constant = True
-    if values is None:
-        from ._ops import ones
-        values = ones(instance(indices))
-    coo = SparseCoordinateTensor(indices, values, dense_shape, can_contain_double_entries, indices_sorted, indices_constant)
-    return to_format(coo, format)
+    # --- type of sparse tensor ---
+    if dense_shape in indices:  # compact
+        compressed = concat_shapes([dim for dim in dense_shape if dim.size > indices.shape.get_size(dim)])
+        values = expand(1, non_batch(indices))
+        sparse = CompactSparseTensor(indices, values, compressed, indices_constant)
+    else:
+        values = expand(values, instance(indices))
+        sparse = SparseCoordinateTensor(indices, values, dense_shape, can_contain_double_entries, indices_sorted, indices_constant)
+    return to_format(sparse, format) if format is not None else sparse
 
 
 def tensor_like(existing_tensor: Tensor, values: Union[Tensor, Number, bool], value_order: str = None):

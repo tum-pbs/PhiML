@@ -231,3 +231,9 @@ class TestSparse(TestCase):
         math.assert_close(1, math.min(matrix, '~col,row'))
         math.assert_close(4, math.max(matrix, '~col,row'))
         math.assert_close(2.5, math.mean(matrix, '~col,row'))
+
+    def test_create_compact(self):
+        indices = wrap([[0], [1]], spatial('row'), dual('col'))
+        mat = math.sparse_tensor(indices, 1, spatial(row=2) & dual(col=2))
+        self.assertEqual('compact-cols', math.get_format(mat))
+        math.assert_close([[1, 0], [0, 1]], mat)

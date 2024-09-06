@@ -741,7 +741,6 @@ class Shape:
 
     def _expand(self, dim: 'Shape', pos=None) -> 'Shape':
         """**Deprecated.** Use `phiml.math.merge_shapes()` or `phiml.math.concat_shapes()` instead. """
-        warnings.warn("Shape.expand() is deprecated. Use merge_shapes() or concat_shapes() instead.", DeprecationWarning)
         if not dim:
             return self
         assert dim.name not in self, f"Cannot expand shape {self} by {dim} because dimension already exists."
