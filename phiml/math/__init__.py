@@ -43,7 +43,7 @@ from ._ops import (
     reshaped_native, reshaped_tensor, copy, native_call,
     print_ as print,
     slice_off,
-    zeros, ones, fftfreq, random_normal, random_uniform, meshgrid, linspace, arange as range, range_tensor,  # creation operators (use default backend)
+    zeros, ones, fftfreq, random_normal, random_normal as randn, random_uniform, random_uniform as rand, meshgrid, linspace, arange as range, range_tensor,  # creation operators (use default backend)
     zeros_like, ones_like,
     pad,
     transpose,  # reshape operations
@@ -75,7 +75,7 @@ from ._ops import (
 
 from ._nd import (
     shift, index_shift,
-    vec, const_vec, vec_length, vec_squared, vec_normalize, cross_product, rotate_vector, rotation_matrix, rotation_angles, dim_mask,
+    vec, const_vec, vec_length, vec_length as length, vec_squared, vec_normalize, cross_product, rotate_vector, rotation_matrix, rotation_angles, dim_mask,
     normalize_to, clip_length,
     l1_loss, l2_loss, frequency_loss,
     spatial_gradient, laplace,
