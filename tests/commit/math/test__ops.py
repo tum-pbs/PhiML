@@ -6,7 +6,7 @@ from phiml import math
 from phiml.backend import Backend
 from phiml.backend._backend import init_installed_backends
 from phiml.math import extrapolation, spatial, channel, instance, batch, DType, IncompatibleShapes, NAN, vec, \
-    non_spatial, wrap, assert_close, PI, tensor, stack
+    non_spatial, wrap, assert_close, PI, tensor, stack, dual
 
 BACKENDS = init_installed_backends()
 
@@ -1078,3 +1078,10 @@ class TestOps(TestCase):
                 points = vec(x=(0, 0.99))
                 diff = math.pairwise_differences(points, 0.1, format=format, domain=(0, 1), periodic=True, method=method)
                 math.assert_close([[0, 0.01], [0.01, 0]], math.vec_length(diff))
+
+    def test_svd(self):
+        for b in BACKENDS:
+            with b:
+                mat = math.randn(channel(c=3), dual(d=2))
+                lat, s, conv = math.svd(mat)
+                math.assert_close(mat, conv @ (lat * s))

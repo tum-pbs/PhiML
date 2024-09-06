@@ -908,23 +908,33 @@ class TFBackend(Backend):
         return solution, None, None, None
 
     def solve_triangular_dense(self, matrix, rhs, lower: bool, unit_diagonal: bool):
-        matrix, rhs = self.auto_cast(matrix, rhs, int_to_float=True, bool_to_int=True)
-        rhs = self.expand_dims(rhs, -1)
-        if unit_diagonal:
-            diag = np.diag(np.ones((self.staticshape(matrix)[-1],)))
-            matrix = self.where(diag, diag, matrix)
-        result = tf.linalg.triangular_solve(matrix, rhs, lower=lower)
-        return result[..., 0]
+        with self._device_for(matrix, rhs):
+            matrix, rhs = self.auto_cast(matrix, rhs, int_to_float=True, bool_to_int=True)
+            rhs = self.expand_dims(rhs, -1)
+            if unit_diagonal:
+                diag = np.diag(np.ones((self.staticshape(matrix)[-1],)))
+                matrix = self.where(diag, diag, matrix)
+            result = tf.linalg.triangular_solve(matrix, rhs, lower=lower)
+            return result[..., 0]
 
     def matrix_rank_dense(self, matrix, hermitian=False):
-        matrix, = self.auto_cast(matrix, bool_to_int=True, int_to_float=True)
-        return tf.linalg.matrix_rank(matrix)
+        with self._device_for(matrix):
+            matrix, = self.auto_cast(matrix, bool_to_int=True, int_to_float=True)
+            return tf.linalg.matrix_rank(matrix)
 
     def eigvals(self, matrix: TensorType) -> TensorType:
-        return tf.linalg.eigval(matrix)
+        with self._device_for(matrix):
+            return tf.linalg.eigval(matrix)
 
     def eig(self, matrix: TensorType) -> TensorType:
-        return tf.linalg.eig(matrix)
+        with self._device_for(matrix):
+            return tf.linalg.eig(matrix)
+
+    def svd(self, matrix: TensorType, full_matrices=True) -> Tuple[TensorType, TensorType, TensorType]:
+        with self._device_for(matrix):
+            s, u, v = tf.linalg.svd(matrix, full_matrices=full_matrices)
+            vh = tf.einsum('...ij -> ...ji', v)  # tf.transpose(v, perm=[*range(v.ndim-2), -1, -2]) doesn't work
+            return u, s, vh
 
     def get_diagonal(self, matrices, offset=0):
         with self._device_for(matrices):
