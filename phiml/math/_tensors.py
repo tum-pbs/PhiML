@@ -45,16 +45,19 @@ class Tensor:
         if DEBUG_CHECKS:
             self._init_stack = traceback.extract_stack()
 
-    def native(self, order: Union[str, tuple, list, Shape] = None, singleton_for_const=False):
+    def native(self, order: Union[str, tuple, list, Shape] = None, force_expand=True, to_numpy=False):
         """
         Returns a native tensor object with the dimensions ordered according to `order`.
         
         Transposes the underlying tensor to match the name order and adds singleton dimensions for new dimension names.
         If a dimension of the tensor is not listed in `order`, a `ValueError` is raised.
 
+        Additionally, groups of dimensions can be specified to pack dims, see `phiml.math.reshaped_native()`.
+
         Args:
             order: (Optional) Order of dimension names as comma-separated string, list or `Shape`.
-            singleton_for_const: If `True`, dimensions along which values are guaranteed to be constant will not be expanded to their true size but returned as singleton dimensions.
+            force_expand: If `False`, dimensions along which values are guaranteed to be constant will not be expanded to their true size but returned as singleton dimensions.
+            to_numpy: Whether to convert the tensor to a NumPy `ndarray`.
 
         Returns:
             Native tensor representation, such as PyTorch tensor or NumPy array.
@@ -62,9 +65,20 @@ class Tensor:
         Raises:
             ValueError if the tensor cannot be transposed to match target_shape
         """
+        if isinstance(order, (tuple, list)):
+            return reshaped_native(self, order, force_expand=force_expand, to_numpy=to_numpy)
+        elif order is None:
+            assert self.rank <= 1, f"When calling Tensor.native() or Tensor.numpy(), the dimension order must be specified for Tensors with more than one dimension, e.g. '{','.join(self._shape.names)}'. The listed default dimension order can vary depending on the chosen backend. Consider using math.reshaped_native(Tensor) instead."
+            order = self._shape.names
+        else:
+            order = parse_dim_order(order)
+        native = self._transposed_native(order, force_expand)
+        return choose_backend(native).numpy(native) if to_numpy else native
+
+    def _transposed_native(self, order: Sequence[str], force_expand: bool):
         raise NotImplementedError(self.__class__)
 
-    def numpy(self, order: Union[str, tuple, list, Shape] = None) -> np.ndarray:
+    def numpy(self, order: Union[str, tuple, list, Shape] = None, force_expand=True) -> np.ndarray:
         """
         Converts this tensor to a `numpy.ndarray` with dimensions ordered according to `order`.
         
@@ -88,8 +102,7 @@ class Tensor:
         Raises:
             ValueError if the tensor cannot be transposed to match target_shape
         """
-        native = self.native(order=order)
-        return choose_backend(native).numpy(native)
+        return self.native(order, force_expand, to_numpy=True)
 
     def __array__(self, dtype=None):  # NumPy conversion
         if self.rank > 1:
@@ -554,7 +567,7 @@ class Tensor:
     def __pack_dims__(self, dims: Tuple[str, ...], packed_dim: Shape, pos: Union[int, None], **kwargs) -> 'Tensor':
         order = self.shape._order_group(dims)
         if self.shape.is_uniform:
-            native = self.native(order)
+            native = self._transposed_native(order, force_expand=True)
             if pos is None:
                 pos = min(self.shape.indices(dims))
             new_shape = self.shape.without(dims)._expand(packed_dim.with_sizes([self.shape.only(dims).volume]), pos)
@@ -973,15 +986,12 @@ class Layout(Tensor):
     def default_backend(self):
         return None
 
-    def native(self, order: Union[str, tuple, list, Shape] = None, singleton_for_const=False):
+    def native(self, order: Union[str, tuple, list, Shape] = None, force_expand=True, to_numpy=False):
         if order is not None:
             order = parse_dim_order(order)
             assert order == self._stack_dim.names, "Layout.native() does not allow for changing the dimension order"
-        return self._obj
-
-    def numpy(self, order: Union[str, tuple, list, Shape] = None) -> np.ndarray:
-        native = self.native(order=order)
-        return numpy.asarray(native)
+        native = self._obj
+        return numpy.asarray(native) if to_numpy else native
 
     def _getitem(self, selection: dict) -> 'Tensor':
         selection_list = [selection.get(dim, None) for dim in self._stack_dim.names]
@@ -1203,13 +1213,7 @@ class NativeTensor(Tensor):
         self._shape = expanded_shape
         self._native_shape = native_shape
 
-    def native(self, order: Union[str, tuple, list, Shape] = None, singleton_for_const=False):
-        if order is None:
-            assert self.rank <= 1, f"When calling Tensor.native() or Tensor.numpy(), the dimension order must be specified for Tensors with more than one dimension, e.g. '{','.join(self._shape.names)}'. The listed default dimension order can vary depending on the chosen backend. Consider using math.reshaped_native(Tensor) instead."
-            order = self._shape.names
-        else:
-            order = parse_dim_order(order)
-        assert isinstance(order, tuple)  # should not be necessary
+    def _transposed_native(self, order: Sequence[str], force_expand: bool):
         assert all([n in order for n in self._native_shape.names]), f"order must list all essential dimensions but got {order} for tensor {self.shape}"
         backend = self.default_backend
         if order == self._native_shape.names:
@@ -1228,7 +1232,7 @@ class NativeTensor(Tensor):
         # --- Expand ---
         slices = [slice(None) if dim in self._native_shape else None for dim in order]
         expanded = transposed[tuple(slices)]
-        if not singleton_for_const:
+        if force_expand:
             multiples = [self._shape.get_size(dim) if dim in self._shape and dim not in self._native_shape else 1 for dim in order]
             expanded = backend.tile(expanded, multiples)
         return expanded
@@ -1330,7 +1334,7 @@ class NativeTensor(Tensor):
         if not isinstance(other_tensor, NativeTensor):
             other_tensor = NativeTensor(other_tensor.native(other_tensor.shape), other_tensor.shape, other_tensor.shape)
         broadcast_shape = self._native_shape & other_tensor._native_shape
-        natives = [t.native(order=broadcast_shape, singleton_for_const=True) if t.rank > 0 else t.native() for t in [self, other_tensor]]
+        natives = [t.native(order=broadcast_shape, force_expand=False) if t.rank > 0 else t.native() for t in [self, other_tensor]]
         if switch_args:
             natives = natives[::-1]
         result_tensor = native_function(*natives)
@@ -1418,20 +1422,16 @@ class TensorStack(Tensor):
     def shape(self):
         return self._shape
 
-    def native(self, order: Union[str, tuple, list, Shape] = None, singleton_for_const=False):
-        if order is None:
-            assert self.rank <= 1, f"When calling Tensor.native() or Tensor.numpy(), the dimension order must be specified for Tensors with more than one dimension, e.g. '{','.join(self._shape.names)}'. The listed default dimension order can vary depending on the chosen backend. Consider using math.reshaped_native(Tensor) instead."
-        else:
-            order = parse_dim_order(order)
+    def _transposed_native(self, order: tuple, force_expand: bool):
         # Is only the stack dimension shifted?
-        if order is not None and self._shape.without(self._stack_dim).names == tuple(filter(lambda name: name != self._stack_dim.name, order)):
+        if self._shape.without(self._stack_dim).names == tuple(filter(lambda name: name != self._stack_dim.name, order)):
             inner_order = [dim for dim in order if dim != self._stack_dim.name]
             natives = [t.native(inner_order) for t in self._tensors]
             assert self._stack_dim.name in order, f"Dimension {self._stack_dim} missing from 'order'. Got {order} but tensor has shape {self.shape}."
             native = choose_backend(*natives).stack(natives, axis=order.index(self._stack_dim.name))
             return native
         assert not self.shape.is_non_uniform, f"Cannot convert non-uniform tensor with shape {self.shape} to native tensor."
-        return self._contiguous().native(order=order)
+        return self._contiguous()._transposed_native(order=order, force_expand=force_expand)
 
     def _with_shape_replaced(self, new_shape: Shape):
         new_stack_dim = new_shape[self._shape.index(self._stack_dim.name)]
@@ -2276,7 +2276,8 @@ def reshaped_native(value: Tensor,
             assert isinstance(group, str), f"Groups must be either single-dim str or Shape but got {group}"
             assert ',' not in group, f"When packing multiple dimensions, pass a well-defined Shape instead of a comma-separated str. Got {group}"
             order.append(group)
-    return value.numpy(order) if to_numpy else value.native(order)
+    native = value._transposed_native(order, force_expand=force_expand)
+    return choose_backend(native).numpy(native) if to_numpy else native
 
 
 def reshaped_numpy(value: Tensor, groups: Union[tuple, list], force_expand: Any = True) -> np.ndarray:

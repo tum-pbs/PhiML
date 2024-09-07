@@ -194,9 +194,9 @@ class SparseCoordinateTensor(Tensor):
     def sparsity_batch(self):
         return batch(self._indices)
 
-    def native(self, order: Union[str, tuple, list, Shape] = None, singleton_for_const=False):
+    def native(self, order: Union[str, tuple, list, Shape] = None, force_expand=True, to_numpy=False):
         assert order is None, f"sparse matrices are always ordered (primal, dual). For custom ordering, use math.dense(tensor).native() instead."
-        return native_matrix(self, self.default_backend)
+        return native_matrix(self, NUMPY if to_numpy else self.default_backend)
 
     @property
     def _is_tracer(self) -> bool:
@@ -808,9 +808,9 @@ class CompressedSparseMatrix(Tensor):
             self._uncompressed_indices_perm = None
         return SparseCoordinateTensor(self._uncompressed_indices, self._values, self._compressed_dims & self._uncompressed_dims, False, False, self._indices_constant, self._matrix_rank)
 
-    def native(self, order: Union[str, tuple, list, Shape] = None, singleton_for_const=False):
+    def native(self, order: Union[str, tuple, list, Shape] = None, force_expand=True, to_numpy=False):
         assert order is None, f"sparse matrices are always ordered (primal, dual). For custom ordering, use math.dense(tensor).native() instead."
-        return native_matrix(self, self.default_backend)
+        return native_matrix(self, NUMPY if to_numpy else self.default_backend)
 
     def __pack_dims__(self, dims: Tuple[str, ...], packed_dim: Shape, pos: Union[int, None], **kwargs) -> 'Tensor':
         assert all(d in self._shape for d in dims)
@@ -873,9 +873,9 @@ class CompactSparseTensor(Tensor):
         else:
             return self._values._natives() + self._indices._natives()
 
-    def native(self, order: Union[str, tuple, list, Shape] = None, singleton_for_const=False):
+    def native(self, order: Union[str, tuple, list, Shape] = None, force_expand=True, to_numpy=False):
         assert order is None, f"sparse matrices are always ordered (primal, dual). For custom ordering, use math.dense(tensor).native() instead."
-        return native_matrix(self, self.default_backend)
+        return native_matrix(self, NUMPY if to_numpy else self.default_backend)
 
     def _spec_dict(self) -> dict:
         return {'type': CompactSparseTensor,
