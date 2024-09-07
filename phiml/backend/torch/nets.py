@@ -207,6 +207,8 @@ class UNet(nn.Module):
     def forward(self, x):
         register_module_call(self)
         x = TORCH.as_tensor(x)
+        for size in x.shape[2:]:
+            assert size % 2 ** (self._levels-1) == 0, f"All spatial dims must be divisible by {2 ** (self._levels-1)} for U-Nets with {self._levels} levels but got {x.shape}. Please pad the input."
         x = self.inc(x)
         xs = [x]
         for i in range(1, self._levels):
