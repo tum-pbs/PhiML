@@ -209,7 +209,7 @@ in_spatial : spatial dimensions of the input feature map, dtype : int</p>
 
     def __init__(self, initialize: Callable, update: Callable, get_params: Callable):
         self._initialize, self._update, self._get_params = initialize, update, get_params  # Stax functions
-        self._state = None
+        self._state = None  # List[Tuple[T,T,T]]: (parameter, m, v)
         self._step_i = 0
         self._update_function_cache = {}
 
@@ -234,21 +234,20 @@ in_spatial : spatial dimensions of the input feature map, dtype : int</p>
                     result = loss_function_non_jit(*args, **kwargs)
                     net._tracers = None
                     return result
-
                 gradient_function = math.gradient(loss_depending_on_net)
                 current_state = OptimizerState(packed_current_state, self._state.tree_def, self._state.subtree_defs)
                 current_params = self._get_params(current_state)
                 value, grads = gradient_function(current_params, *loss_args, **loss_kwargs)
                 next_state = self._update(self._step_i, grads[0], self._state)
                 return next_state.packed_state, value
-
             if isinstance(loss_function, JitFunction):
                 update = math.jit_compile(update)
             self._update_function_cache[loss_function] = update
-
-        next_packed_state, loss_output = self._update_function_cache[loss_function](self._state.packed_state,
-                                                                                    *loss_args, **loss_kwargs)
+        xs, _ = tree_flatten(net.parameters)
+        packed_state = [(x, *pt[1:]) if isinstance(pt, (tuple, list)) else (x,) for x, pt in zip(xs, self._state.packed_state)]
+        next_packed_state, loss_output = self._update_function_cache[loss_function](packed_state, *loss_args, **loss_kwargs)
         self._state = OptimizerState(next_packed_state, self._state.tree_def, self._state.subtree_defs)
+        net.parameters = self.get_network_parameters()
         return loss_output</code></pre>
 </details>
 <h3>Methods</h3>

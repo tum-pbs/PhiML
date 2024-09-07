@@ -687,6 +687,10 @@ The methods of <code>Backend</code> form a comprehensive list of available opera
     def eig(self, matrix: TensorType) -&gt; TensorType:
         return jnp.linalg.eig(matrix)
 
+    def svd(self, matrix: TensorType, full_matrices=True) -&gt; Tuple[TensorType, TensorType, TensorType]:
+        result = jnp.linalg.svd(matrix, full_matrices=full_matrices)
+        return result[0], result[1], result[2]
+
     def sparse_coo_tensor(self, indices: Union[tuple, list], values, shape: tuple):
         return BCOO((values, indices), shape=shape)</code></pre>
 </details>
@@ -2211,6 +2215,23 @@ unit_diagonal:</p>
 <dd>
 <div class="desc"></div>
 </dd>
+<dt id="phiml.backend.jax.JaxBackend.svd"><code class="name flex">
+<span>def <span class="ident">svd</span></span>(<span>self, matrix: ~TensorType, full_matrices=True) ‑> Tuple[~TensorType, ~TensorType, ~TensorType]</span>
+</code></dt>
+<dd>
+<div class="desc"><h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>matrix</code></strong></dt>
+<dd>(batch&hellip;, m, n)</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>eigenvalues</code></dt>
+<dd>(batch&hellip;, n,)</dd>
+<dt><code>eigenvectors</code></dt>
+<dd>(batch&hellip;, n, n)</dd>
+</dl></div>
+</dd>
 <dt id="phiml.backend.jax.JaxBackend.tensordot"><code class="name flex">
 <span>def <span class="ident">tensordot</span></span>(<span>self, a, a_axes: Union[tuple, list], b, b_axes: Union[tuple, list])</span>
 </code></dt>
@@ -2454,6 +2475,7 @@ If the loop is broken, the values returned by the last loop are expected to be c
 <li><code><a title="phiml.backend.jax.JaxBackend.std" href="#phiml.backend.jax.JaxBackend.std">std</a></code></li>
 <li><code><a title="phiml.backend.jax.JaxBackend.stop_gradient" href="#phiml.backend.jax.JaxBackend.stop_gradient">stop_gradient</a></code></li>
 <li><code><a title="phiml.backend.jax.JaxBackend.sum" href="#phiml.backend.jax.JaxBackend.sum">sum</a></code></li>
+<li><code><a title="phiml.backend.jax.JaxBackend.svd" href="#phiml.backend.jax.JaxBackend.svd">svd</a></code></li>
 <li><code><a title="phiml.backend.jax.JaxBackend.tan" href="#phiml.backend.jax.JaxBackend.tan">tan</a></code></li>
 <li><code><a title="phiml.backend.jax.JaxBackend.tanh" href="#phiml.backend.jax.JaxBackend.tanh">tanh</a></code></li>
 <li><code><a title="phiml.backend.jax.JaxBackend.tensordot" href="#phiml.backend.jax.JaxBackend.tensordot">tensordot</a></code></li>

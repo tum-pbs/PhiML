@@ -1715,9 +1715,19 @@ The methods of <code><a title="phiml.backend.Backend" href="#phiml.backend.Backe
 
     def eig(self, matrix: TensorType) -&gt; TensorType:
         &#34;&#34;&#34;
-
         Args:
             matrix: (batch..., n, n)
+
+        Returns:
+            eigenvalues: (batch..., n,)
+            eigenvectors: (batch..., n, n)
+        &#34;&#34;&#34;
+        raise NotImplementedError(self)
+
+    def svd(self, matrix: TensorType, full_matrices=True) -&gt; Tuple[TensorType, TensorType, TensorType]:
+        &#34;&#34;&#34;
+        Args:
+            matrix: (batch..., m, n)
 
         Returns:
             eigenvalues: (batch..., n,)
@@ -3663,6 +3673,23 @@ Features correspond to a method of this backend that must be implemented if the 
 <h2 id="returns">Returns</h2>
 <p>Whether the feature is supported.</p></div>
 </dd>
+<dt id="phiml.backend.Backend.svd"><code class="name flex">
+<span>def <span class="ident">svd</span></span>(<span>self, matrix: ~TensorType, full_matrices=True) ‑> Tuple[~TensorType, ~TensorType, ~TensorType]</span>
+</code></dt>
+<dd>
+<div class="desc"><h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>matrix</code></strong></dt>
+<dd>(batch&hellip;, m, n)</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>eigenvalues</code></dt>
+<dd>(batch&hellip;, n,)</dd>
+<dt><code>eigenvectors</code></dt>
+<dd>(batch&hellip;, n, n)</dd>
+</dl></div>
+</dd>
 <dt id="phiml.backend.Backend.tan"><code class="name flex">
 <span>def <span class="ident">tan</span></span>(<span>self, x)</span>
 </code></dt>
@@ -4439,6 +4466,7 @@ To prevent this, run the function before profiling it, see <code>warmup</code> i
 <li><code><a title="phiml.backend.Backend.sub" href="#phiml.backend.Backend.sub">sub</a></code></li>
 <li><code><a title="phiml.backend.Backend.sum" href="#phiml.backend.Backend.sum">sum</a></code></li>
 <li><code><a title="phiml.backend.Backend.supports" href="#phiml.backend.Backend.supports">supports</a></code></li>
+<li><code><a title="phiml.backend.Backend.svd" href="#phiml.backend.Backend.svd">svd</a></code></li>
 <li><code><a title="phiml.backend.Backend.tan" href="#phiml.backend.Backend.tan">tan</a></code></li>
 <li><code><a title="phiml.backend.Backend.tanh" href="#phiml.backend.Backend.tanh">tanh</a></code></li>
 <li><code><a title="phiml.backend.Backend.tensordot" href="#phiml.backend.Backend.tensordot">tensordot</a></code></li>
