@@ -1374,6 +1374,8 @@ class Shape:
         return (max(indices) - min(indices)) == len(dims) - 1
 
     def __add__(self, other):
+        if isinstance(other, Shape) and self.isdisjoint(other):
+            return concat_shapes(self, other)
         return self._op2(other, lambda s, o: s + o, 0)
 
     def __radd__(self, other):
