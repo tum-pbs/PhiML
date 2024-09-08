@@ -909,6 +909,12 @@ class CompactSparseTensor(Tensor):
         values = pack_dims(self._values, [*self._compact_dims.names, *self._uncompressed_dims.names], instance('entries'))
         return SparseCoordinateTensor(indices, values, self._compressed_dims & self._uncompressed_dims, False, True, self._indices_constant, self._matrix_rank)
 
+    def to_cs(self):
+        from ._ops import arange
+        pointers = arange(instance(pointers=self._uncompressed_dims.volume + 1)) * self._indices.shape.only(self._compressed_dims).volume
+        indices = pack_dims(self._indices, self._uncompressed_dims + self._compressed_dims, instance('entries'))
+        values = pack_dims(self._values, self._uncompressed_dims + self._compressed_dims, instance('entries'))
+        return CompressedSparseMatrix(indices, pointers, values, self._compressed_dims, self._uncompressed_dims, self._indices_constant, m_rank=self._matrix_rank)
 
     def __pack_dims__(self, dims: Tuple[str, ...], packed_dim: Shape, pos: Union[int, None], **kwargs) -> 'Tensor':
         raise NotImplementedError
@@ -1162,6 +1168,10 @@ def to_format(x: Tensor, format: str):
     elif isinstance(x, CompactSparseTensor):
         if format == 'coo':
             return x.to_coo()
+        elif format == 'csr' and dual(x._compressed_dims):
+            return x.to_cs()
+        elif format == 'csc' and primal(x._compressed_dims):
+            return x.to_cs()
         else:
             return to_format(x.to_coo(), format)
     else:  # dense to sparse
