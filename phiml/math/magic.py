@@ -76,12 +76,12 @@ class Shaped(metaclass=_ShapedType):
 
 class _SliceableType(type):
     def __instancecheck__(self, instance):
-        if isinstance(instance, str):
+        if isinstance(instance, (str, Shape)):
             return False
         return isinstance(instance, Shaped) and (hasattr(instance, '__getitem__') or isinstance(instance, PhiTreeNode))
 
     def __subclasscheck__(self, subclass):
-        if subclass == str:
+        if subclass in (str, Shape):
             return False
         return hasattr(subclass, '__getitem__')
 
