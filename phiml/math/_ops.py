@@ -12,7 +12,7 @@ from .magic import PhiTreeNode
 from ._magic_ops import expand, pack_dims, unpack_dim, cast, value_attributes, bool_to_int, tree_map, concat, stack, unstack, rename_dims, slice_
 from ._shape import (Shape, EMPTY_SHAPE,
                      spatial, batch, channel, instance, merge_shapes, parse_dim_order, concat_shapes,
-                     IncompatibleShapes, DimFilter, non_batch, dual, non_channel, shape, shape as get_shape, primal)
+                     IncompatibleShapes, DimFilter, non_batch, dual, shape, shape as get_shape, primal, auto)
 from . import extrapolation as e_
 from ._tensors import (Tensor, wrap, tensor, broadcastable_native_tensors, NativeTensor, TensorStack,
                        custom_op2, compatible_tensor, variable_attributes, disassemble_tree, assemble_tree,
@@ -1161,7 +1161,7 @@ def nonzero(value: Tensor, list_dim: Union[Shape, str] = instance('nonzero'), in
     if value.shape.channel_rank > 0:
         value = sum_(abs(value), value.shape.channel)
     if isinstance(list_dim, str):
-        list_dim = instance(list_dim)
+        list_dim = auto(list_dim, instance)
     def unbatched_nonzero(value: Tensor):
         if isinstance(value, CompressedSparseMatrix):
             value = value.decompress()

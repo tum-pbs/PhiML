@@ -9,7 +9,7 @@ import dataclasses
 from . import channel
 from ..backend import choose_backend, NoBackendFound
 from ..backend._dtype import DType
-from ._shape import Shape, DimFilter, batch, instance, shape, non_batch, merge_shapes, concat_shapes, spatial, parse_dim_order, dual, auto, shape_stack
+from ._shape import Shape, DimFilter, batch, instance, shape, non_batch, merge_shapes, concat_shapes, spatial, parse_dim_order, dual, auto, shape_stack, parse_shape_spec
 from .magic import Sliceable, Shaped, Shapable, PhiTreeNode
 
 
@@ -318,7 +318,7 @@ def concat(values: Union[tuple, list], dim: Union[str, Shape], expand_values=Fal
         raise MagicNotImplemented(f"concat: No value implemented __concat__ and slices could not be stacked. values = {[type(v) for v in values]}")
 
 
-def expand(value, *dims: Shape, **kwargs):
+def expand(value, *dims: Union[Shape, str], **kwargs):
     """
     Adds dimensions to a `Tensor` or tensor-like object by implicitly repeating the tensor values along the new dimensions.
     If `value` already contains any of the new dimensions, a size and type check is performed for these instead.
@@ -344,7 +344,7 @@ def expand(value, *dims: Shape, **kwargs):
     Returns:
         Same type as `value`.
     """
-    dims = concat_shapes(*dims)
+    dims = concat_shapes(*[d if isinstance(d, Shape) else parse_shape_spec(d) for d in dims])
     combined = merge_shapes(value, dims)  # check that existing sizes match
     if not dims.without(shape(value)):  # no new dims to add
         if set(dims) == set(shape(value).only(dims)):  # sizes and item names might differ, though
@@ -470,7 +470,7 @@ def d2i(value):
     return rename_dims(value, dual, instance)
 
 
-def pack_dims(value, dims: DimFilter, packed_dim: Shape, pos: Optional[int] = None, **kwargs):
+def pack_dims(value, dims: DimFilter, packed_dim: Union[Shape, str], pos: Optional[int] = None, **kwargs):
     """
     Compresses multiple dimensions into a single dimension by concatenating the elements.
     Elements along the new dimensions are laid out according to the order of `dims`.
@@ -505,6 +505,7 @@ def pack_dims(value, dims: DimFilter, packed_dim: Shape, pos: Optional[int] = No
         return value
     assert isinstance(value, Shapable) and isinstance(value, Sliceable) and isinstance(value, Shaped), f"value must be Shapable but got {type(value)}"
     dims = shape(value).only(dims, reorder=True)
+    packed_dim = auto(packed_dim) if isinstance(packed_dim, str) else packed_dim
     if packed_dim in shape(value):
         assert packed_dim in dims, f"Cannot pack dims into new dimension {packed_dim} because it already exists on value {value} and is not packed."
     if len(dims) == 0 or all(dim not in shape(value) for dim in dims):
