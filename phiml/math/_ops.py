@@ -705,16 +705,31 @@ def arange(dim: Shape, start_or_stop: Union[int, None] = None, stop: Union[int, 
     Returns:
         `Tensor`
     """
+    assert dim.primal.rank <= 1, f"dim can have at most one primal dimension"
+    if dim.primal.rank == 0:
+        assert dim.rank == 1, f"When no primal dimension is specified, dim must have rank 1"
+        range_dim = dim
+    else:
+        range_dim = dim.primal
     if start_or_stop is None:
         assert stop is None, "start_or_stop must be specified when stop is given."
-        assert isinstance(dim.size, int), "When start_or_stop is not specified, dim.size must be an integer."
-        start, stop = 0, dim.size
+        assert dim.well_defined, "When start_or_stop is not specified, all sizes of dim must be specified."
+        start, stop = 0, (dim.primal.size if dim.primal else dim.size)
     elif stop is None:
         start, stop = 0, start_or_stop
     else:
         start = start_or_stop
-    native = choose_backend(start, stop, prefer_default=True).range(start, stop, step, DType(int, 32))
-    return NativeTensor(native, dim.with_sizes(len(native)))
+    start, stop, step = wrap(start), wrap(stop), wrap(step)
+    assert range_dim not in start and range_dim not in stop and range_dim not in step, f"range dim {range_dim} must not be present in either start, stop, or step"
+    def batched_range(dims: Shape, start: Tensor, stop: Tensor, step: Tensor):
+        batches = (dims - range_dim) & start.shape & stop.shape & step.shape
+        if batches:
+            b0 = batches.non_uniform[0] if batches.is_non_uniform else batches
+            ranges = [batched_range(dims.after_gather(i), start[i], stop[i], step[i]) for i in b0.meshgrid()]
+            return stack(ranges, b0)
+        native = choose_backend_t(start, stop, prefer_default=True).range(start.native(), stop.native(), step.native(), DType(int, 32))
+        return NativeTensor(native, range_dim.with_size(len(native)))
+    return batched_range(dim, start, stop, step)
 
 
 def range_tensor(*shape: Shape):

@@ -444,6 +444,8 @@ class TestOps(TestCase):
             with backend:
                 assert_close(math.range(spatial('x'), 1, 5), [1, 2, 3, 4], msg=backend.name)
                 assert_close(math.range(spatial('x'), 1), [0], msg=backend.name)
+        # --- non-uniform ---
+        math.assert_close([1, 2], math.range(instance(i=3), math.range(spatial('x'), 1, 3)).i.size)
 
     def test_boolean_mask_1d(self):
         for backend in BACKENDS:
