@@ -1341,9 +1341,9 @@ def map_(function: Callable[..., Y], *args, dims: DimFilter = shape, range=range
     extra_args = [v for v in args if not isinstance(v, Shapable)]
     extra_kwargs = {k: v for k, v in kwargs.items() if not isinstance(v, Shapable)}
     if dims is object:
-        dims_ = merge_shapes(*[object_dims(a) for a in sliceable_args], *sliceable_kwargs.values(), allow_varying_sizes=True)
+        dims_ = merge_shapes(*[object_dims(a) for a in sliceable_args], *[object_dims(a) for a in sliceable_kwargs.values()], allow_varying_sizes=True)
     else:
-        dims_ = merge_shapes(*[shape(a) for a in sliceable_args], *sliceable_kwargs.values(), allow_varying_sizes=True).only(dims)
+        dims_ = merge_shapes(*sliceable_args, *sliceable_kwargs.values(), allow_varying_sizes=True).only(dims)
     assert dims_.well_defined, f"All arguments must have consistent sizes for all mapped dimensions. Trying to map along {dims} but some have varying sizes (marked as None)."
     assert dims_.volume > 0, f"map dims must have volume > 0 but got {dims_}"
     results = []
