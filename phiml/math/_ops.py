@@ -3391,6 +3391,7 @@ def svd(x: Tensor, feature_dim: DimFilter = channel, list_dim: DimFilter = None,
     assert feature_dim, f"No valid feature dim specified: {feature_dim} for data {x}"
     assert list_dim, f"No valid list dim specified: {list_dim} for data {x}"
     batch_dims = x.shape - feature_dim - list_dim
+    latent_dim = auto(latent_dim, channel) if isinstance(latent_dim, str) else latent_dim
     native = reshaped_native(x, [batch_dims, list_dim, feature_dim])
     u, s, v = x.default_backend.svd(native, full_matrices=full_matrices)
     truncate = latent_dim.size

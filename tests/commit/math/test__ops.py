@@ -1087,3 +1087,16 @@ class TestOps(TestCase):
                 mat = math.randn(channel(c=3), dual(d=2))
                 lat, s, conv = math.svd(mat)
                 math.assert_close(mat, conv @ (lat * s))
+        # --- non-uniform list ---
+        matrix = stack([
+            math.random_normal(instance(voxels=3), spatial(x=2, y=2)),
+            math.random_normal(instance(voxels=5), spatial(x=2, y=2)),
+        ], batch('example'))
+        latents, s, v = math.svd(matrix, 'x,y', 'example,voxels', 'singular')
+        self.assertIn('example', latents.shape)
+        self.assertIn('voxels', latents.shape)
+        self.assertIn('singular', latents.shape)
+        self.assertIn('singular', s.shape)
+        self.assertIn('~singular', v.shape)
+        self.assertIn('x', v.shape)
+        self.assertIn('y', v.shape)
