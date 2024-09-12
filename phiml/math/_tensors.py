@@ -552,7 +552,8 @@ class Tensor:
                 result = []
                 for idx in split_dim.meshgrid():
                     s = new_shape.after_gather(idx).get_size(new_shape.non_uniform.name)
-                    result.append(self[{dim: slice(i, i + s)}])
+                    sliced = self[{dim: slice(i, i + s)}]
+                    result.append(sliced._with_shape_replaced(sliced.shape.replace(dim, unpacked_dims - split_dim)))
                     i += s
                 return stack(result, split_dim)
         else:
@@ -2244,7 +2245,6 @@ def reshaped_native(value: Tensor,
     """
     assert isinstance(value, Tensor), f"value must be a Tensor but got {value} {type(value)}"
     assert not value._is_tracer, f"Failed accessing native values because tensor {value.shape} is a tracer"
-    assert value.shape.is_uniform, f"Only uniform (homogenous) tensors can be converted to native but got shape {value.shape}"
     assert isinstance(groups, (tuple, list)), f"groups must be a tuple or list but got {type(value)}"
     def process_group(g):
         if g is None or (isinstance(g, tuple) and len(g) == 0):
@@ -2322,18 +2322,20 @@ def reshaped_tensor(value: Any,
         `Tensor` with all dimensions from `groups`
     """
     assert all(isinstance(g, Shape) for g in groups), "groups must be a sequence of Shapes"
-    dims = [batch(f'group{i}') for i, group in enumerate(groups)]
+    v_shape = choose_backend(value).staticshape(value)
+    dims = [batch(f'group{i}') if group.rank != 1 else (group if check_sizes else group.with_size(v_shape[i])) for i, group in enumerate(groups)]
     try:
         value = tensor(value, *dims, convert=convert)
     except IncompatibleShapes:
         raise IncompatibleShapes(f"Cannot reshape native tensor {type(value)} with sizes {value.shape} given groups {groups}")
     for i, group in enumerate(groups):
-        if value.shape.get_size(f'group{i}') == group.volume:
-            value = unpack_dim(value, f'group{i}', group)
-        elif check_sizes:
-            raise AssertionError(f"Group {group} does not match dimension {i} of value {value.shape}")
-        else:
-            value = unpack_dim(value, f'group{i}', group)
+        if group.rank != 1:
+            if value.shape.get_size(f'group{i}') == group.volume:
+                value = unpack_dim(value, f'group{i}', group)
+            elif check_sizes:
+                raise AssertionError(f"Group {group} does not match dimension {i} of value {value.shape}")
+            else:
+                value = unpack_dim(value, f'group{i}', group)
     return value
 
 
