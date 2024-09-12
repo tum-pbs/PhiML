@@ -343,6 +343,17 @@ class TestOps(TestCase):
                 assert_close(x_, [(0, 1, 3, 6), (-1, -3, -6, -10)], msg=backend.name)
                 y_ = math.cumulative_sum(t_, t.shape[0])
                 assert_close(y_, [(0, 1, 2, 3), (-1, -1, -1, -1)], msg=backend.name)
+        # --- multi-dim ---
+        t = wrap([[1, 2], [3, 4]], 'y,x')
+        math.assert_close(wrap([[1, 2], [4, 6]], 'y,x'), math.cumulative_sum(t, 'y'))
+        math.assert_close(wrap([[0, 0], [1, 2], [4, 6]], 'y,x'), math.cumulative_sum(t, 'y', include_0=True))
+        math.assert_close(wrap([[0, 0], [1, 2]], 'y,x'), math.cumulative_sum(t, 'y', include_0=True, include_sum=False))
+        math.assert_close(wrap([[1, 2]], 'y,x'), math.cumulative_sum(t, 'y', include_0=False, include_sum=False))
+        math.assert_close(wrap([[1, 3], [3, 7]], 'y,x'), math.cumulative_sum(t, 'x'))
+        math.assert_close(wrap([[0, 1, 3], [0, 3, 7]], 'y,x'), math.cumulative_sum(t, 'x', include_0=True))
+        math.assert_close(wrap([[1, 3], [6, 10]], 'y,x'), math.cumulative_sum(t, 'y,x'))
+        math.assert_close(wrap([[1, 6], [4, 10]], 'y,x'), math.cumulative_sum(t, 'x,y'))
+        math.assert_close(wrap([[0, 1], [3, 6]], 'y,x'), math.cumulative_sum(t, 'y,x', include_sum=False, include_0=True))
 
     def test_quantile(self):
         for backend in BACKENDS:

@@ -539,7 +539,7 @@ def sort(x: Tensor, dim: DimFilter = non_batch) -> Tensor:
     return NativeTensor(sorted_native, v_shape, x_shape)
 
 
-def cumulative_sum(x: Tensor, dim: DimFilter):
+def cumulative_sum(x: Tensor, dim: DimFilter, include_0=False, include_sum=True, index_dim: Union[str, Shape, None] = None):
     """
     Performs a cumulative sum of `x` along `dim`.
 
@@ -552,16 +552,32 @@ def cumulative_sum(x: Tensor, dim: DimFilter):
 
     Args:
         x: `Tensor`
-        dim: Dimension along which to sum, as `str` or `Shape`.
+        dim: Dimension along which to sum, as `str` or `Shape`. If multiple dims are passed, `x` the cumulative sum will be computed on the flattened array.
+        include_0: If `True`, adds a 0 to the result before the first value.
+        include_sum: If `False`, the total sum will be sliced off the result.
+        index_dim: If given, adds an index dimension for `dim`.
 
     Returns:
         `Tensor` with the same shape as `x`.
     """
-    dim = x.shape.only(dim)
-    assert len(dim) == 1, f"dim must be a single dimension but got {dim}"
-    native_x = x.native(x.shape)
-    native_result = choose_backend(native_x).cumsum(native_x, x.shape.index(dim))
-    return NativeTensor(native_result, x.shape)
+    dim = x.shape.only(dim, reorder=True)
+    assert dim.rank >= 1, f"dim must contain at least one dimension."
+    assert dim.rank == 1 or include_0 + include_sum == 1, f"When summing over multiple flattened dims, exaclty one of (include_0, include_sum) must be True but got include_0={include_0}, include_sum={include_sum}"
+    native_x = reshaped_native(x, [x.shape - dim, dim])
+    b = choose_backend(native_x)
+    native_result = b.cumsum(native_x, 1)
+    if include_0:
+        native_result = b.pad(native_result, ((0, 0), (1, 0)))
+    if not include_sum:
+        native_result = native_result[:, :-1]
+    result = reshaped_tensor(native_result, [x.shape - dim, dim + (include_0 + include_sum) - 1])
+    if index_dim is not None:
+        assert dim.rank == 1, f"multi-dimensional indices not yet supported"
+        if isinstance(index_dim, str):
+            index_dim = auto(index_dim, channel)
+        index_dim = index_dim.with_size(dim.name_list)
+        result = expand(result, index_dim)
+    return result
 
 
 def fftfreq(resolution: Shape, dx: Union[Tensor, float] = 1, dtype: DType = None):
