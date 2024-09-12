@@ -1030,17 +1030,21 @@ def find_closest(vectors: Tensor, query: Tensor, method='kd', index_dim=channel(
         return rename_dims(idx, '_index', index_dim) if index_dim is not None else idx._index[0]
     # --- k-d tree ---
     from scipy.spatial import KDTree
-    native_query = reshaped_native(query, [batch(vectors), query.shape.without(batch(vectors)).non_channel, channel(query)])
-    if vectors.available:
-        kd_trees = [KDTree(reshaped_numpy(vectors[b], [vectors.shape.non_channel.non_batch, channel])) for b in batch(vectors).meshgrid()]
-        def perform_query(np_query):
-            return np.stack([kd_tree.query(np_query[i])[1] for i, kd_tree in enumerate(kd_trees)])
-        native_idx = query.default_backend.numpy_call(perform_query, (batch(vectors).volume, query.shape.without(batch(vectors)).non_channel.volume), DType(int, 64), native_query)
-    else:
-        b = choose_backend_t(vectors, query)
-        native_vectors = reshaped_native(vectors, [batch, ..., channel])
-        def perform_query(np_vectors, np_query):
-            return np.stack([KDTree(np_vectors[i]).query(np_query[i])[1] for i in range(batch(vectors).volume)])
-        native_idx = b.numpy_call(perform_query, (batch(vectors).volume, query.shape.without(batch(vectors)).non_channel.volume), DType(int, 64), native_vectors, native_query)
-    native_multi_idx = choose_backend(native_idx).unravel_index(native_idx, vectors.shape.non_batch.non_channel.sizes)
-    return reshaped_tensor(native_multi_idx, [batch(vectors), query.shape.without(batch(vectors)).non_channel, index_dim or math.EMPTY_SHAPE])
+    result = []
+    for i in batch(vectors).meshgrid():
+        query_i = query[i]
+        native_query = reshaped_native(query_i, [..., channel])
+        if vectors.available:
+            kd_tree = KDTree(reshaped_numpy(vectors[i], [..., channel]))
+            def perform_query(np_query):
+                return kd_tree.query(np_query)[1]
+            native_idx = query.default_backend.numpy_call(perform_query, (query_i.shape.non_channel.volume,), DType(int, 64), native_query)
+        else:
+            b = choose_backend_t(vectors, query)
+            native_vectors = reshaped_native(vectors[i], [..., channel])
+            def perform_query(np_vectors, np_query):
+                return KDTree(np_vectors).query(np_query)[1]
+            native_idx = b.numpy_call(perform_query, (query.shape.without(batch(vectors)).non_channel.volume,), DType(int, 64), native_vectors, native_query)
+        native_multi_idx = choose_backend(native_idx).unravel_index(native_idx, vectors.shape.non_batch.non_channel.sizes)
+        result.append(reshaped_tensor(native_multi_idx, [query_i.shape.non_channel, index_dim or math.EMPTY_SHAPE]))
+    return stack(result, batch(vectors))
