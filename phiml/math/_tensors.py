@@ -14,7 +14,7 @@ from ._magic_ops import PhiTreeNodeType, variable_attributes, copy_with, stack, 
 from ._shape import (Shape,
                      CHANNEL_DIM, BATCH_DIM, SPATIAL_DIM, EMPTY_SHAPE,
                      parse_dim_order, shape_stack, merge_shapes, channel, concat_shapes, primal,
-                     SUPERSCRIPT, IncompatibleShapes, INSTANCE_DIM, batch, spatial, dual, instance, shape, DimFilter, non_batch, DEBUG_CHECKS, parse_shape_spec)
+                     SUPERSCRIPT, IncompatibleShapes, INSTANCE_DIM, batch, spatial, dual, instance, shape, shape as shape_, DimFilter, non_batch, DEBUG_CHECKS, parse_shape_spec)
 from ..backend import NoBackendFound, choose_backend, BACKENDS, get_precision, default_backend, convert as convert_, \
     Backend, ComputeDevice, OBJECTS, NUMPY
 from ..backend._dtype import DType, combine_types
@@ -214,9 +214,11 @@ class Tensor:
         raise NotImplementedError(self.__class__)
 
     @property
-    def default_backend(self) -> Backend:
+    def backend(self) -> Backend:
         from ._ops import choose_backend_t
         return choose_backend_t(self)
+
+    default_backend = backend
 
     def _with_shape_replaced(self, new_shape: Shape):
         raise NotImplementedError(self.__class__)
@@ -617,6 +619,10 @@ class Tensor:
     @property
     def T(self):
         return self._with_shape_replaced(self.shape.transposed)
+
+    def map(self, function: Callable, dims=shape_, range=range, unwrap_scalars=True, **kwargs):
+        from ._functional import map_
+        return map_(function, self, dims=dims, range=range, unwrap_scalars=unwrap_scalars, **kwargs)
 
     def __getattr__(self, name):
         if name.startswith('__'):  # called by hasattr in magic ops
