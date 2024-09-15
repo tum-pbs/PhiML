@@ -17,7 +17,7 @@ from . import extrapolation as e_
 from ._tensors import (Tensor, wrap, tensor, broadcastable_native_tensors, NativeTensor, TensorStack,
                        custom_op2, compatible_tensor, variable_attributes, disassemble_tree, assemble_tree,
                        is_scalar, Layout, expand_tensor, TensorOrTree, cached, variable_shape,
-                       reshaped_native, reshaped_tensor)
+                       reshaped_native, reshaped_tensor, discard_constant_dims)
 from ._sparse import (CompressedSparseMatrix, dense, SparseCoordinateTensor, get_format, to_format, stored_indices,
                       tensor_like, sparse_dims, same_sparsity_pattern, is_sparse, sparse_dot, sparse_sum, sparse_gather, sparse_max,
                       sparse_min, dense_dims, sparse_mean, stored_values)
@@ -790,7 +790,7 @@ def stack_tensors(values: Union[tuple, list], dim: Shape):
     # --- uniform stack ---
     native_shapes = [variable_shape(v) for v in values]
     native_broadcast_shape = merge_shapes(*native_shapes)
-    natives = [reshaped_native(NativeTensor(v._native, v._native_shape, v._native_shape), [*native_broadcast_shape], force_expand=True) for v in values]
+    natives = [reshaped_native(discard_constant_dims(v), [*native_broadcast_shape], force_expand=True) for v in values]
     native_shape = native_broadcast_shape._expand(dim)
     native_stacked = choose_backend(*natives).stack(natives, axis=native_shape.index(dim))
     expanded_shape = merge_shapes(*[v.shape for v in values])._expand(dim)
