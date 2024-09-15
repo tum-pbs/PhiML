@@ -340,9 +340,9 @@ class TestOps(TestCase):
             with backend:
                 t_ = math.tensor(t)
                 x_ = math.cumulative_sum(t_, 'x')
-                assert_close(x_, [(0, 1, 3, 6), (-1, -3, -6, -10)], msg=backend.name)
+                assert_close(wrap([(0, 1, 3, 6), (-1, -3, -6, -10)], 'y,x'), x_, msg=backend.name)
                 y_ = math.cumulative_sum(t_, t.shape[0])
-                assert_close(y_, [(0, 1, 2, 3), (-1, -1, -1, -1)], msg=backend.name)
+                assert_close(wrap([(0, 1, 2, 3), (-1, -1, -1, -1)], 'y,x'), y_, msg=backend.name)
         # --- multi-dim ---
         t = wrap([[1, 2], [3, 4]], 'y,x')
         math.assert_close(wrap([[1, 2], [4, 6]], 'y,x'), math.cumulative_sum(t, 'y'))
