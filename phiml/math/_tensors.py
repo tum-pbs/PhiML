@@ -538,7 +538,7 @@ class Tensor:
 
     def __unpack_dim__(self, dim: str, unpacked_dims: Shape, **kwargs) -> 'Tensor':
         if self.shape.is_uniform:
-            native = self.native(self.shape.names)
+            native = self._transposed_native(self.shape.names, True)
             new_shape = self.shape.replace(dim, unpacked_dims)
             if not new_shape.well_defined:
                 assert new_shape.undefined.rank <= 1, f"At most one dim can have an undefined size to be inferred during un-packing but got {new_shape}"
@@ -1221,7 +1221,7 @@ class NativeTensor(Tensor):
         self._native_shape = native_shape
 
     def _transposed_native(self, order: Sequence[str], force_expand: bool):
-        assert all([n in order for n in self._native_shape.names]), f"order must list all essential dimensions but got {order} for tensor {self.shape}"
+        assert all([n in order for n in self._native_shape.names]), f"Failed to get native tensor because dims {[n for n in self._native_shape.names if n not in order]} were not specified in the dim order. Got {order} for tensor {self.shape}"
         backend = self.default_backend
         if order == self._native_shape.names:
             if self.dtype.precision in [None, get_precision()]:

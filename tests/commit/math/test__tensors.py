@@ -7,7 +7,7 @@ from phiml import math
 from phiml.backend import Backend
 from phiml.backend._backend import init_installed_backends
 from phiml.math import channel, batch, DType, vec, stack, expand
-from phiml.math._shape import shape_stack, spatial, instance
+from phiml.math._shape import shape_stack, spatial, instance, dual
 from phiml.math._tensors import wrap, tensor, cached, disassemble_tensors, assemble_tensors, \
     Layout, equality_by_ref, equality_by_shape_and_value
 from phiml.math.magic import PhiTreeNode
@@ -688,3 +688,9 @@ class TestTensors(TestCase):
         t = math.random_uniform(b)
         curves = vec(dataset_size=size, fraction=t)
         print(curves.shape)
+
+    def test_reshaped_tensor(self):
+        a = np.zeros((12, 12))
+        s = spatial(x=4, y=3)
+        t = math.reshaped_tensor(a, [s, s.as_dual()])
+        self.assertEqual(set(t.shape), set(s & dual))
