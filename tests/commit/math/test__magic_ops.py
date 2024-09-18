@@ -186,6 +186,11 @@ class TestMagicOps(TestCase):
         self.assertEqual(instance(x=4, y=3) & channel(vector='x,y'), rename_dims(t, spatial, instance).shape)
         self.assertEqual(set(spatial(x=4, y=3) & batch(vector='x,y')), set(rename_dims(t, channel, batch).shape))
 
+    def test_rename_items(self):
+        a = math.meshgrid(x=2, y=2)
+        a = rename_dims(a, 'vector', '(z,w)')
+        self.assertEqual(('z', 'w'), a.shape.get_item_names('vector'))
+
     def test_pack_dims(self):
         for test_class in TEST_CLASSES:
             a = test_class(spatial(x=5) & batch(b=2))

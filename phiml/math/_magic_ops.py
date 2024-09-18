@@ -408,7 +408,10 @@ def rename_dims(value,
     assert isinstance(value, Shapable) and isinstance(value, Shaped), f"value must be a Shape or Shapable but got {type(value).__name__}"
     dims = shape(value).only(dims).names if callable(dims) else parse_dim_order(dims)
     existing_dims = shape(value).only(dims, reorder=True)
-    if isinstance(names, str):
+    if isinstance(names, str) and names.startswith('(') and names.endswith(')'):
+        item_names = [s.strip() for s in names[1:-1].split(',')]
+        names = [shape(value)[d].with_size(item_names) for d in dims]
+    elif isinstance(names, str):
         names = parse_dim_order(names)
     elif callable(names):
         names = names(**existing_dims.untyped_dict)
