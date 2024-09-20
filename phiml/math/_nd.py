@@ -730,7 +730,7 @@ def masked_fill(values: Tensor, valid: Tensor, distance: int = 1) -> Tuple[Tenso
     return values, binarize(valid)
 
 
-def finite_fill(values: Tensor, dims: DimFilter = spatial, distance: int = 1, diagonal: bool = True, padding=extrapolation.BOUNDARY) -> Tuple[Tensor, Tensor]:
+def finite_fill(values: Tensor, dims: DimFilter = spatial, distance: int = 1, diagonal: bool = True, padding=extrapolation.BOUNDARY) -> Tensor:
     """
     Fills non-finite (NaN, inf, -inf) values from nearby finite values.
     Extrapolates the finite values of `values` for `distance` steps along `dims`.
