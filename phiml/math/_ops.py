@@ -1676,13 +1676,13 @@ def lookup_where(native_index_fn: Callable, value: Union[Tensor, PhiTreeNode, No
     v_native = reshaped_native(key, [keep, dims])
     idx_native = native_index_fn(v_native)
     multi_idx_native = choose_backend(idx_native).unravel_index(idx_native[:, 0], dims.sizes)
-    idx = reshaped_tensor(multi_idx_native, [keep.as_batch(), channel(_index=dims)])
+    idx = reshaped_tensor(multi_idx_native, [batch('_keep'), channel(_index=dims)])
     def lookup(t: Tensor):
         if t is None:
             return None
         keep_t = t.shape.without(dims)
         sel = rename_dims(t, keep_t, batch)[idx]
-        return rename_dims(rename_dims(sel, keep_t.names, keep_t), keep.names, keep)
+        return rename_dims(sel, keep_t.names, keep_t).unpack('_keep', keep)
     result = tree_map(lookup, value)
     return result
 
