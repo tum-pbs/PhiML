@@ -473,6 +473,11 @@ def d2i(value):
     return rename_dims(value, dual, instance)
 
 
+def d2s(value):
+    """ Change the type of all *dual* dimensions of `value` to *spatial* dimensions. See `rename_dims`. """
+    return rename_dims(value, dual, spatial)
+
+
 def pack_dims(value, dims: DimFilter, packed_dim: Union[Shape, str], pos: Optional[int] = None, **kwargs):
     """
     Compresses multiple dimensions into a single dimension by concatenating the elements.
