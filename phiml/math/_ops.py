@@ -3421,3 +3421,59 @@ def svd(x: Tensor, feature_dim: DimFilter = channel, list_dim: DimFilter = None,
     singular_values = reshaped_tensor(s, [batch_dims, latent_dim])
     latent_to_value = reshaped_tensor(v, [batch_dims, latent_dim.as_dual(), feature_dim])
     return latent_by_example, singular_values, latent_to_value
+
+
+def count_occurrences(values: Tensor, query: Tensor, feature_dims: DimFilter = channel) -> Tensor:
+    """
+    For each query item, counts how often this value occurs in `values`.
+
+    See Also:
+        `contains()`.
+
+    Args:
+        values: Data `Tensor` containing all `feature_dims`.
+            All non-batch and dims not specified as `feature_dims` are flattened.
+        query: Items to count the occurrences of. Must contain all `feature_dims`.
+        feature_dims: One item is considered to be the set of all values along `feature_dims`.
+            The number of items in a tensor is given by all dims except `feature_dims`.
+
+    Returns:
+        Integer `Tensor` matching `query` without `feature_dims`.
+    """
+    feature_dims = values.shape.only(feature_dims)
+    assert feature_dims in query
+    batches = batch(values) & batch(query)
+    values_nat = values.native([batches, ..., feature_dims])
+    query_nat = query.native([batches, ..., feature_dims])
+    def np_count(query_np: np.ndarray, values_np: np.ndarray):
+        query_and_values = np.concatenate([query_np, values_np], 1)
+        result_np = []
+        for i in range(batches.volume):
+            unique, inverse, counts = np.unique(query_and_values[i], axis=0, return_counts=True, return_inverse=True)
+            combined_occurrences = counts[inverse][:query_np.shape[1]]
+            unique, inverse, counts = np.unique(query_np[i], axis=0, return_counts=True, return_inverse=True)
+            query_occurrences = counts[inverse]
+            result_np.append(combined_occurrences - query_occurrences)
+        return np.stack(result_np).astype(np.int32)
+    result_nat = choose_backend(query_nat, values_nat).numpy_call(np_count, (batches.volume, (non_batch(query) - feature_dims).volume), DType(int, 32), query_nat, values_nat)
+    return reshaped_tensor(result_nat, [batches, non_batch(query) - feature_dims], convert=False)
+
+
+def contains(values: Tensor, query: Tensor, feature_dims: DimFilter = channel) -> Tensor:
+    """
+    For each query item, checks whether it is contained in `values`.
+
+    See Also:
+        `count_occurrences()`.
+
+    Args:
+        values: Data `Tensor` containing all `feature_dims`.
+            All non-batch and dims not specified as `feature_dims` are flattened.
+        query: Items to count the occurrences of. Must contain all `feature_dims`.
+        feature_dims: One item is considered to be the set of all values along `feature_dims`.
+            The number of items in a tensor is given by all dims except `feature_dims`.
+
+    Returns:
+        Integer `Tensor` matching `query` without `feature_dims`.
+    """
+    return count_occurrences(values, query, feature_dims=feature_dims) > 0

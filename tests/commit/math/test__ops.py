@@ -1111,3 +1111,9 @@ class TestOps(TestCase):
         self.assertIn('~singular', v.shape)
         self.assertIn('x', v.shape)
         self.assertIn('y', v.shape)
+
+    def test_contains(self):
+        a = wrap([(0, 0), (1, 1), (1, 2), (1, 2)], 'points:i,(x,y)')
+        b = wrap([(1, 2), (1, 0)], 'query:s,(x,y)')
+        math.assert_close([2, 0], math.count_occurrences(a, b))
+        math.assert_close([True, False], math.contains(a, b))
