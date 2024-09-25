@@ -254,3 +254,8 @@ class TestMagicOps(TestCase):
     def test_unstack_tree(self):
         t1, t2 = vec(x=0, y=1), vec(x=2, y=3)
         self.assertEqual(([0, 2], [1, 3]), unstack([t1, t2], 'vector'))
+
+    def test_concat_packing(self):
+        a = wrap([0, 1], 'a:i')
+        b = wrap([2], 'b:i')
+        math.assert_close([0, 1, 2], concat([a, b], 'i->points:i'))

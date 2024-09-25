@@ -9,7 +9,7 @@ import dataclasses
 from . import channel
 from ..backend import choose_backend, NoBackendFound
 from ..backend._dtype import DType
-from ._shape import Shape, DimFilter, batch, instance, shape, non_batch, merge_shapes, concat_shapes, spatial, parse_dim_order, dual, auto, shape_stack, parse_shape_spec
+from ._shape import Shape, DimFilter, batch, instance, shape, non_batch, merge_shapes, concat_shapes, spatial, parse_dim_order, dual, auto, shape_stack, parse_shape_spec, DIM_FUNCTIONS, INV_CHAR
 from .magic import Sliceable, Shaped, Shapable, PhiTreeNode
 
 
@@ -250,6 +250,8 @@ def concat(values: Union[tuple, list], dim: Union[str, Shape], expand_values=Fal
         values: Tuple or list of `phiml.math.magic.Shapable`, such as `phiml.math.Tensor`
         dim: Concatenation dimension, must be present in all `values`.
             The size along `dim` is determined from `values` and can be set to undefined (`None`).
+            Alternatively, a `str` of the form `'t->name:t'` can be specified, where `t` is on of `b d i s c` denoting the dimension type.
+            This first packs all dimensions of the input into a new dim with given name and type, then concatenates the values along this dim.
         expand_values: If `True`, will first add missing dimensions to all values, not just batch dimensions.
             This allows tensors with different dimensions to be concatenated.
             The resulting tensor will have all dimensions that are present in `values`.
@@ -271,7 +273,14 @@ def concat(values: Union[tuple, list], dim: Union[str, Shape], expand_values=Fal
     if isinstance(dim, Shape):
         dim = dim.name
     assert isinstance(dim, str), f"dim must be a str or Shape but got '{dim}' of type {type(dim)}"
-    dim = auto(dim, channel).name
+    if '->' in dim:
+        dim_type, dim = [s.strip() for s in dim.split('->', 1)]
+        dim_type = DIM_FUNCTIONS[INV_CHAR[dim_type]]
+        dim = auto(dim, dim_type)
+        values = [pack_dims(v, dim_type, dim) for v in values]
+        dim = dim.name
+    else:
+        dim = auto(dim, channel).name
     # Add missing dimensions
     if expand_values:
         all_dims = merge_shapes(*values, allow_varying_sizes=True)
