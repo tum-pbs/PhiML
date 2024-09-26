@@ -205,6 +205,10 @@ class TestOps(TestCase):
                 x = math.meshgrid(x=3, y=3)
                 math.assert_close(-math.max(x, 'x'), math.at_max(-x, x, 'x'))
                 math.assert_close(-math.max(x, 'vector'), math.at_max(-x, x, 'vector'))
+        # --- matrix ---
+        m = wrap([[1, 2], [4, 3]], 'row:c,~col')
+        a = wrap([1, 2], '~col')
+        math.assert_close([2, 1], math.at_max(a, m, '~col'))
 
     def test_at_min(self):
         for backend in BACKENDS:

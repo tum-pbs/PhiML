@@ -1672,20 +1672,17 @@ def finite_mean(value, dim: DimFilter = non_batch, default: Union[complex, float
 
 def lookup_where(native_index_fn: Callable, value: Union[Tensor, PhiTreeNode, None], key: Tensor, dim: DimFilter):
     dims = key.shape.only(dim)
-    keep = key.shape.without(dims)
+    key_batch = key.shape.without(dims)
     assert dim, f"No dimensions {dim} present on key {key.shape}"
-    v_native = reshaped_native(key, [keep, dims])
-    idx_native = native_index_fn(v_native)
+    key_nat = reshaped_native(key, [key_batch, dims])
+    idx_native = native_index_fn(key_nat)
     multi_idx_native = choose_backend(idx_native).unravel_index(idx_native[:, 0], dims.sizes)
-    idx = reshaped_tensor(multi_idx_native, [batch('_keep'), channel(_index=dims)])
+    idx = reshaped_tensor(multi_idx_native, [key_batch, channel(_index=dims)])
     def lookup(t: Tensor):
         if t is None:
             return None
-        keep_t = t.shape.without(dims)
-        sel = rename_dims(t, keep_t, batch)[idx]
-        return rename_dims(sel, keep_t.names, keep_t).unpack('_keep', keep)
-    result = tree_map(lookup, value)
-    return result
+        return gather(t, idx, pref_index_dim='_index')
+    return tree_map(lookup, value)
 
 
 def at_max(value, key: Tensor, dim: DimFilter = non_batch):
