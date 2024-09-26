@@ -12,7 +12,7 @@ from .magic import PhiTreeNode
 from ._magic_ops import expand, pack_dims, unpack_dim, cast, value_attributes, bool_to_int, tree_map, concat, stack, unstack, rename_dims, slice_
 from ._shape import (Shape, EMPTY_SHAPE,
                      spatial, batch, channel, instance, merge_shapes, parse_dim_order, concat_shapes,
-                     IncompatibleShapes, DimFilter, non_batch, dual, shape, shape as get_shape, primal, auto, non_spatial)
+                     IncompatibleShapes, DimFilter, non_batch, dual, shape, shape as get_shape, primal, auto, non_spatial, non_dual)
 from . import extrapolation as e_
 from ._tensors import (Tensor, wrap, tensor, broadcastable_native_tensors, NativeTensor, TensorStack,
                        custom_op2, compatible_tensor, variable_attributes, disassemble_tree, assemble_tree,
@@ -2380,33 +2380,36 @@ def clip(x: Tensor, lower_limit: Union[float, Tensor] = 0, upper_limit: Union[fl
 
 def convolve(value: Tensor,
              kernel: Tensor,
-             extrapolation: 'e_.Extrapolation' = None) -> Tensor:
+             extrapolation: 'e_.Extrapolation' = None,
+             dims: DimFilter = spatial) -> Tensor:
     """
-    Computes the convolution of `value` and `kernel` along the spatial axes of `kernel`.
+    Computes the convolution of `value` and `kernel` along the specified dims.
 
-    The channel dimensions of `value` are reduced against the equally named dimensions of `kernel`.
-    The result will have the non-reduced channel dimensions of `kernel`.
+    Dual dims of `kernel` are reduced against the corresponding primal dims of `value`.
+    All other primal dims of `value` are treated as batch.
 
     Args:
         value: `Tensor` whose shape includes all spatial dimensions of `kernel`.
         kernel: `Tensor` used as convolutional filter.
+        dims: Which dimensions to convolve over. Defaults to all spatial dims.
         extrapolation: If not None, pads `value` so that the result has the same shape as `value`.
 
     Returns:
-        `Tensor`
+        `Tensor` with all non-reduced dims of `value` and additional non-dual dims from `kernel`.
     """
     assert all(dim in value.shape for dim in kernel.shape.spatial.names), f"Value must have all spatial dimensions of kernel but got value {value} kernel {kernel}"
-    conv_shape = kernel.shape.spatial
-    in_channels = value.shape.channel.only(kernel.shape)
-    out_channels = kernel.shape.channel.without(in_channels)
-    batch = (non_spatial(value) & non_spatial(kernel.shape)) - in_channels
+    dims = kernel.shape.only(dims)
+    assert dims.dual_rank == 0, f"convolve dims must not be of type dual but got {dims}"
+    in_dims = value.shape.only(dual(kernel).as_batch().names)
+    out_dims = non_dual(kernel) - dims - batch(value)
+    batch_dims = (value.shape - dims - in_dims) & (non_dual(kernel) - dims - out_dims)
     if extrapolation is not None and extrapolation != e_.ZERO:
-        value = pad(value, {dim: (kernel.shape.get_size(dim) // 2, (kernel.shape.get_size(dim) - 1) // 2) for dim in conv_shape.names}, extrapolation)
-    native_kernel = reshaped_native(kernel, (batch, out_channels, in_channels, *conv_shape.names), force_expand=in_channels + conv_shape)
-    native_value = reshaped_native(value, (batch, in_channels, *conv_shape.names), force_expand=batch)
+        value = pad(value, {dim: (kernel.shape.get_size(dim) // 2, (kernel.shape.get_size(dim) - 1) // 2) for dim in dims.names}, extrapolation)
+    native_kernel = reshaped_native(kernel, (batch_dims, out_dims, dual(kernel), *dims.names), force_expand=in_dims + dims)
+    native_value = reshaped_native(value, (batch_dims, in_dims, *dims.names), force_expand=batch_dims)
     backend = choose_backend(native_value, native_kernel)
     native_result = backend.conv(native_value, native_kernel, zero_padding=extrapolation == e_.ZERO)
-    result = reshaped_tensor(native_result, (batch, out_channels, *conv_shape))
+    result = reshaped_tensor(native_result, (batch_dims, out_dims, *dims))
     return result
 
 

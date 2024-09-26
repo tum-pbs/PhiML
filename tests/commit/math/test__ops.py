@@ -6,7 +6,7 @@ from phiml import math
 from phiml.backend import Backend
 from phiml.backend._backend import init_installed_backends
 from phiml.math import extrapolation, spatial, channel, instance, batch, DType, IncompatibleShapes, NAN, vec, \
-    non_spatial, wrap, assert_close, PI, tensor, stack, dual
+    non_spatial, wrap, assert_close, PI, tensor, stack, dual, ones, convolve
 
 BACKENDS = init_installed_backends()
 
@@ -772,38 +772,38 @@ class TestOps(TestCase):
         for backend in BACKENDS:
             with backend:
                 # only values batched
-                x = math.tensor([[1, 2, 3], [11, 12, 13]], batch('batch'), spatial('x')) * vec(x=2, y=-1)
-                identity_kernel1 = math.ones(spatial(x=1))
-                identity_kernel2 = math.tensor([0, 1], spatial('x'))
-                identity_kernel3 = math.tensor([0, 1, 0], spatial('x'))
-                shift_kernel3 = math.tensor([0, 0, 1], spatial('x'))
+                x = tensor([[1, 2, 3], [11, 12, 13]], 'b:b,x') * vec(x=2, y=-1)
+                identity_kernel1 = ones(spatial(x=1))
+                identity_kernel2 = tensor([0, 1], 'x')
+                identity_kernel3 = tensor([0, 1, 0], 'x')
+                shift_kernel3 = tensor([0, 0, 1], 'x')
                 # no padding
-                assert_close(math.convolve(x, identity_kernel1), math.tensor([[1, 2, 3], [11, 12, 13]], batch('batch'), spatial('x')), msg=backend.name)
-                assert_close(math.convolve(x, identity_kernel2), math.tensor([[2, 3], [12, 13]], batch('batch'), spatial('x')), msg=backend.name)
-                assert_close(math.convolve(x, identity_kernel3), math.tensor([[2], [12]], batch('batch'), spatial('x')), msg=backend.name)
-                assert_close(math.convolve(x, shift_kernel3), math.tensor([[3], [13]], batch('batch'), spatial('x')), msg=backend.name)
+                assert_close(x, convolve(x, identity_kernel1))
+                assert_close(convolve(x, identity_kernel2), tensor([[2, 3], [12, 13]], 'b:b,x') * vec(x=2, y=-1))
+                assert_close(convolve(x, identity_kernel3), tensor([[2], [12]], 'b:b,x') * vec(x=2, y=-1))
+                assert_close(convolve(x, shift_kernel3), tensor([[3], [13]], 'b:b,x') * vec(x=2, y=-1))
                 # # zero-padding
-                assert_close(math.convolve(x, identity_kernel1, math.extrapolation.ZERO), math.tensor([[1, 2, 3], [11, 12, 13]], batch('batch'), spatial('x')), msg=backend.name)
-                assert_close(math.convolve(x, identity_kernel2, math.extrapolation.ZERO), math.tensor([[1, 2, 3], [11, 12, 13]], batch('batch'), spatial('x')), msg=backend.name)
-                assert_close(math.convolve(x, identity_kernel3, math.extrapolation.ZERO), math.tensor([[1, 2, 3], [11, 12, 13]], batch('batch'), spatial('x')), msg=backend.name)
-                assert_close(math.convolve(x, shift_kernel3, math.extrapolation.ZERO), math.tensor([[2, 3, 0], [12, 13, 0]], batch('batch'), spatial('x')), msg=backend.name)
+                assert_close(convolve(x, identity_kernel1, extrapolation.ZERO), tensor([[1, 2, 3], [11, 12, 13]], 'b:b,x') * vec(x=2, y=-1))
+                assert_close(convolve(x, identity_kernel2, extrapolation.ZERO), tensor([[1, 2, 3], [11, 12, 13]], 'b:b,x') * vec(x=2, y=-1))
+                assert_close(convolve(x, identity_kernel3, extrapolation.ZERO), tensor([[1, 2, 3], [11, 12, 13]], 'b:b,x') * vec(x=2, y=-1))
+                assert_close(convolve(x, shift_kernel3, extrapolation.ZERO), tensor([[2, 3, 0], [12, 13, 0]], 'b:b,x') * vec(x=2, y=-1))
                 # # periodic padding
-                assert_close(math.convolve(x, identity_kernel1, math.extrapolation.PERIODIC), math.tensor([[1, 2, 3], [11, 12, 13]], batch('batch'), spatial('x')), msg=backend.name)
-                assert_close(math.convolve(x, identity_kernel2, math.extrapolation.PERIODIC), math.tensor([[1, 2, 3], [11, 12, 13]], batch('batch'), spatial('x')), msg=backend.name)
-                assert_close(math.convolve(x, identity_kernel3, math.extrapolation.PERIODIC), math.tensor([[1, 2, 3], [11, 12, 13]], batch('batch'), spatial('x')), msg=backend.name)
-                assert_close(math.convolve(x, shift_kernel3, math.extrapolation.PERIODIC), math.tensor([[2, 3, 1], [12, 13, 11]], batch('batch'), spatial('x')), msg=backend.name)
+                assert_close(convolve(x, identity_kernel1, extrapolation.PERIODIC), tensor([[1, 2, 3], [11, 12, 13]], 'b:b,x') * vec(x=2, y=-1))
+                assert_close(convolve(x, identity_kernel2, extrapolation.PERIODIC), tensor([[1, 2, 3], [11, 12, 13]], 'b:b,x') * vec(x=2, y=-1))
+                assert_close(convolve(x, identity_kernel3, extrapolation.PERIODIC), tensor([[1, 2, 3], [11, 12, 13]], 'b:b,x') * vec(x=2, y=-1))
+                assert_close(convolve(x, shift_kernel3, extrapolation.PERIODIC), tensor([[2, 3, 1], [12, 13, 11]], 'b:b,x') * vec(x=2, y=-1))
                 # values and filters batched
-                mixed_kernel = math.tensor([[0, 1, 0], [0, 0, 1]], batch('batch'), spatial('x'))
-                assert_close(math.convolve(x, mixed_kernel, math.extrapolation.ZERO), math.tensor([[1, 2, 3], [12, 13, 0]], batch('batch'), spatial('x')), msg=backend.name)
-                assert_close(math.convolve(x, mixed_kernel, math.extrapolation.PERIODIC), math.tensor([[1, 2, 3], [12, 13, 11]], batch('batch'), spatial('x')), msg=backend.name)
+                mixed_kernel = tensor([[0, 1, 0], [0, 0, 1]], 'b:b,x')
+                assert_close(convolve(x, mixed_kernel, extrapolation.ZERO), tensor([[1, 2, 3], [12, 13, 0]], 'b:b,x') * vec(x=2, y=-1))
+                assert_close(convolve(x, mixed_kernel, extrapolation.PERIODIC), tensor([[1, 2, 3], [12, 13, 11]], 'b:b,x') * vec(x=2, y=-1))
                 # with output channels
-                out_matrix = math.tensor([[1, 0], [0, 1], [1, 1]], channel('out'), channel('vector')).out.as_channel()
+                out_matrix = tensor([[1, 0], [0, 1], [1, 1]], 'out:c,~vector')
                 kernel = identity_kernel3 * out_matrix
-                expected = math.tensor([
+                expected = tensor([
                     [[2, 4, 6], [22, 24, 26]],
                     [[-1, -2, -3], [-11, -12, -13]],
-                    [[1, 2, 3], [11, 12, 13]]], channel('out'), batch('batch'), spatial('x'))
-                assert_close(math.convolve(x, kernel, math.extrapolation.ZERO), expected, msg=backend.name)
+                    [[1, 2, 3], [11, 12, 13]]], 'out:c,b:b,x')
+                assert_close(convolve(x, kernel, extrapolation.ZERO), expected)
 
     def test_convolution_2d(self):
         for backend in BACKENDS:
