@@ -2647,7 +2647,6 @@ def scatter(base_grid: Union[Tensor, Shape],
     values = wrap(values)
     batches = values.shape.non_channel.non_instance & indices.shape.non_channel.non_instance
     batches &= values.shape.only(treat_as_batch) & indices.shape.only(treat_as_batch)
-    channels = grid_shape.without(indexed_dims).without(batches) & values.shape.channel
     # --- Set up grid ---
     if isinstance(base_grid, Shape):
         with choose_backend_t(indices, values):
@@ -2682,9 +2681,11 @@ def scatter(base_grid: Union[Tensor, Shape],
         indices = unpack_dim(indices_linear, '_scatter_instance', instance(indices))
         if indices.shape.is_non_uniform:
             raise NotImplementedError()
-    lists = indices.shape.instance & values.shape.instance
-
     def scatter_forward(base_grid: Tensor, indices: Tensor, values: Tensor):
+        batches = values.shape.non_channel.non_instance & indices.shape.non_channel.non_instance
+        batches &= values.shape.only(treat_as_batch) & indices.shape.only(treat_as_batch)
+        channels = grid_shape.without(indexed_dims).without(batches) & values.shape.channel
+        lists = indices.shape.instance & values.shape.instance
         if values._is_tracer:
             if indices._is_tracer or base_grid._is_tracer:
                 raise NotImplementedError("scattering linear tracer into linear tracer not supported")
@@ -2715,7 +2716,7 @@ def scatter(base_grid: Union[Tensor, Shape],
 
     from ._functional import custom_gradient
     scatter_function = custom_gradient(scatter_forward, scatter_backward) if indices_gradient else scatter_forward
-    result = scatter_function(base_grid, indices, values)
+    result = broadcast_op(scatter_function, [base_grid, indices, values])
     return result
 
 
