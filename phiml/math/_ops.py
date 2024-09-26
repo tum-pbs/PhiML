@@ -1494,6 +1494,7 @@ def _all(value: Tensor, dims: Shape) -> Tensor:
     elif is_sparse(value):
         if sparse_dims(value) in dims:
             return _all(value._values, dims.without(sparse_dims(value)) & instance(value._values))
+        return sparse_sum(to_int32(~value), dims) == 0
     raise ValueError(type(value))
 
 
