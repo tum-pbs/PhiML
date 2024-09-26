@@ -781,7 +781,12 @@ class Tensor:
             return iter(native)
 
     def __matmul__(self, other):
+        from ._ops import dot
         assert isinstance(other, Tensor), f"Matmul '@' requires two Tensor arguments but got {type(other)}"
+        if not self.shape.dual_rank and self.shape.channel_rank:
+            match = self.shape.channel.only(other.shape.channel)
+            if match:
+                return dot(self, match, other, match)
         match_names = self.shape.dual.as_batch().names
         if not match_names:  # this is not a matrix
             assert self.shape.primal.only(other.shape).is_empty, f"Cannot compute matmul {self.shape} @ {other.shape}. First argument is not a matrix; it has no dual dimensions."
@@ -793,7 +798,6 @@ class Tensor:
         match_dual = self.shape.dual.only(match_primal.as_dual(), reorder=True)
         left_arg = pack_dims(self, match_dual, dual('_reduce'))
         right_arg = pack_dims(other, match_primal, channel('_reduce'))
-        from ._ops import dot
         return dot(left_arg, '~_reduce', right_arg, '_reduce')
 
     # def __rmatmul__(self, other):
