@@ -117,7 +117,7 @@ from ._magic_ops import (
     slice_ as slice, unstack,
     stack, concat, expand,
     rename_dims, rename_dims as replace_dims, pack_dims, unpack_dim, flatten,
-    b2i, c2b, c2d, i2b, s2b, si2d, d2i,
+    b2i, c2b, c2d, i2b, s2b, si2d, d2i, d2s,
     copy_with, replace, find_differences
 )
 
@@ -138,7 +138,7 @@ from ._ops import (
     transpose,  # reshape operations
     sort,
     safe_div,
-    where, nonzero,
+    where, nonzero, ravel_index,
     sum_ as sum, finite_sum, mean, finite_mean, std, prod, max_ as max, finite_max, min_ as min, finite_min, any_ as any, all_ as all, quantile, median,  # reduce
     at_max, at_min, argmax, argmin,
     dot,
@@ -160,11 +160,12 @@ from ._ops import (
     pairwise_differences, pairwise_differences as pairwise_distances, map_pairs,
     with_diagonal,
     eigenvalues, svd,
+    contains, count_occurrences,
 )
 
 from ._nd import (
     shift, index_shift,
-    vec, const_vec, vec_length, vec_length as length, vec_squared, vec_normalize, cross_product, rotate_vector, rotation_matrix, rotation_angles, dim_mask,
+    vec, const_vec, vec_length, vec_length as length, vec_squared, vec_normalize, vec_normalize as normalize, cross_product, cross_product as cross, rotate_vector, rotate_vector as rotate, rotation_matrix, rotation_angles, dim_mask,
     normalize_to, clip_length,
     l1_loss, l2_loss, frequency_loss,
     spatial_gradient, laplace,
@@ -880,7 +881,9 @@ Batch dimensions will be added as needed.</p>
 <dd>Tuple or list of <code><a title="phiml.math.magic.Shapable" href="magic.html#phiml.math.magic.Shapable">Shapable</a></code>, such as <code><a title="phiml.math.Tensor" href="#phiml.math.Tensor">Tensor</a></code></dd>
 <dt><strong><code>dim</code></strong></dt>
 <dd>Concatenation dimension, must be present in all <code>values</code>.
-The size along <code>dim</code> is determined from <code>values</code> and can be set to undefined (<code>None</code>).</dd>
+The size along <code>dim</code> is determined from <code>values</code> and can be set to undefined (<code>None</code>).
+Alternatively, a <code>str</code> of the form <code>'t-&gt;name:t'</code> can be specified, where <code>t</code> is on of <code>b d i s c</code> denoting the dimension type.
+This first packs all dimensions of the input into a new dim with given name and type, then concatenates the values along this dim.</dd>
 <dt><strong><code>expand_values</code></strong></dt>
 <dd>If <code>True</code>, will first add missing dimensions to all values, not just batch dimensions.
 This allows tensors with different dimensions to be concatenated.
@@ -946,6 +949,27 @@ In the latter case, a new channel dimension named <code>'vector'</code> will be 
 <h2 id="returns">Returns</h2>
 <p><code><a title="phiml.math.Tensor" href="#phiml.math.Tensor">Tensor</a></code></p></div>
 </dd>
+<dt id="phiml.math.contains"><code class="name flex">
+<span>def <span class="ident">contains</span></span>(<span>values: phiml.math._tensors.Tensor, query: phiml.math._tensors.Tensor, feature_dims: Union[str, tuple, list, set, ForwardRef('<a title="phiml.math.Shape" href="#phiml.math.Shape">Shape</a>'), Callable] = &lt;function channel&gt;) ‑> phiml.math._tensors.Tensor</span>
+</code></dt>
+<dd>
+<div class="desc"><p>For each query item, checks whether it is contained in <code>values</code>.</p>
+<p>See Also:
+<code><a title="phiml.math.count_occurrences" href="#phiml.math.count_occurrences">count_occurrences()</a></code>.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>values</code></strong></dt>
+<dd>Data <code><a title="phiml.math.Tensor" href="#phiml.math.Tensor">Tensor</a></code> containing all <code>feature_dims</code>.
+All non-batch and dims not specified as <code>feature_dims</code> are flattened.</dd>
+<dt><strong><code>query</code></strong></dt>
+<dd>Items to count the occurrences of. Must contain all <code>feature_dims</code>.</dd>
+<dt><strong><code>feature_dims</code></strong></dt>
+<dd>One item is considered to be the set of all values along <code>feature_dims</code>.
+The number of items in a tensor is given by all dims except <code>feature_dims</code>.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<p>Integer <code><a title="phiml.math.Tensor" href="#phiml.math.Tensor">Tensor</a></code> matching <code>query</code> without <code>feature_dims</code>.</p></div>
+</dd>
 <dt id="phiml.math.convert"><code class="name flex">
 <span>def <span class="ident">convert</span></span>(<span>x, backend: phiml.backend._backend.Backend = None, use_dlpack=True)</span>
 </code></dt>
@@ -965,23 +989,25 @@ In the latter case, a new channel dimension named <code>'vector'</code> will be 
 <p><code><a title="phiml.math.Tensor" href="#phiml.math.Tensor">Tensor</a></code> with native representation belonging to <code>backend</code>.</p></div>
 </dd>
 <dt id="phiml.math.convolve"><code class="name flex">
-<span>def <span class="ident">convolve</span></span>(<span>value: phiml.math._tensors.Tensor, kernel: phiml.math._tensors.Tensor, extrapolation: e_.Extrapolation = None) ‑> phiml.math._tensors.Tensor</span>
+<span>def <span class="ident">convolve</span></span>(<span>value: phiml.math._tensors.Tensor, kernel: phiml.math._tensors.Tensor, extrapolation: e_.Extrapolation = None, dims: Union[str, tuple, list, set, ForwardRef('<a title="phiml.math.Shape" href="#phiml.math.Shape">Shape</a>'), Callable] = &lt;function spatial&gt;) ‑> phiml.math._tensors.Tensor</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Computes the convolution of <code>value</code> and <code>kernel</code> along the spatial axes of <code>kernel</code>.</p>
-<p>The channel dimensions of <code>value</code> are reduced against the equally named dimensions of <code>kernel</code>.
-The result will have the non-reduced channel dimensions of <code>kernel</code>.</p>
+<div class="desc"><p>Computes the convolution of <code>value</code> and <code>kernel</code> along the specified dims.</p>
+<p>Dual dims of <code>kernel</code> are reduced against the corresponding primal dims of <code>value</code>.
+All other primal dims of <code>value</code> are treated as batch.</p>
 <h2 id="args">Args</h2>
 <dl>
 <dt><strong><code>value</code></strong></dt>
 <dd><code><a title="phiml.math.Tensor" href="#phiml.math.Tensor">Tensor</a></code> whose shape includes all spatial dimensions of <code>kernel</code>.</dd>
 <dt><strong><code>kernel</code></strong></dt>
 <dd><code><a title="phiml.math.Tensor" href="#phiml.math.Tensor">Tensor</a></code> used as convolutional filter.</dd>
+<dt><strong><code>dims</code></strong></dt>
+<dd>Which dimensions to convolve over. Defaults to all spatial dims.</dd>
 <dt><strong><code>extrapolation</code></strong></dt>
 <dd>If not None, pads <code>value</code> so that the result has the same shape as <code>value</code>.</dd>
 </dl>
 <h2 id="returns">Returns</h2>
-<p><code><a title="phiml.math.Tensor" href="#phiml.math.Tensor">Tensor</a></code></p></div>
+<p><code><a title="phiml.math.Tensor" href="#phiml.math.Tensor">Tensor</a></code> with all non-reduced dims of <code>value</code> and additional non-dual dims from <code>kernel</code>.</p></div>
 </dd>
 <dt id="phiml.math.copy"><code class="name flex">
 <span>def <span class="ident">copy</span></span>(<span>value: phiml.math._tensors.Tensor)</span>
@@ -1025,6 +1051,42 @@ Otherwise, the <code><a title="phiml.math.copy" href="#phiml.math.copy">copy()</
 <dd>
 <div class="desc"><p>Computes <em>cosh(x)</em> of the <code><a title="phiml.math.Tensor" href="#phiml.math.Tensor">Tensor</a></code> or <code><a title="phiml.math.magic.PhiTreeNode" href="magic.html#phiml.math.magic.PhiTreeNode">PhiTreeNode</a></code> <code>x</code>.</p></div>
 </dd>
+<dt id="phiml.math.count_occurrences"><code class="name flex">
+<span>def <span class="ident">count_occurrences</span></span>(<span>values: phiml.math._tensors.Tensor, query: phiml.math._tensors.Tensor, feature_dims: Union[str, tuple, list, set, ForwardRef('<a title="phiml.math.Shape" href="#phiml.math.Shape">Shape</a>'), Callable] = &lt;function channel&gt;) ‑> phiml.math._tensors.Tensor</span>
+</code></dt>
+<dd>
+<div class="desc"><p>For each query item, counts how often this value occurs in <code>values</code>.</p>
+<p>See Also:
+<code><a title="phiml.math.contains" href="#phiml.math.contains">contains()</a></code>.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>values</code></strong></dt>
+<dd>Data <code><a title="phiml.math.Tensor" href="#phiml.math.Tensor">Tensor</a></code> containing all <code>feature_dims</code>.
+All non-batch and dims not specified as <code>feature_dims</code> are flattened.</dd>
+<dt><strong><code>query</code></strong></dt>
+<dd>Items to count the occurrences of. Must contain all <code>feature_dims</code>.</dd>
+<dt><strong><code>feature_dims</code></strong></dt>
+<dd>One item is considered to be the set of all values along <code>feature_dims</code>.
+The number of items in a tensor is given by all dims except <code>feature_dims</code>.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<p>Integer <code><a title="phiml.math.Tensor" href="#phiml.math.Tensor">Tensor</a></code> matching <code>query</code> without <code>feature_dims</code>.</p></div>
+</dd>
+<dt id="phiml.math.cross"><code class="name flex">
+<span>def <span class="ident">cross</span></span>(<span>vec1: phiml.math._tensors.Tensor, vec2: phiml.math._tensors.Tensor) ‑> phiml.math._tensors.Tensor</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Computes the cross product of two vectors in 2D.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>vec1</code></strong></dt>
+<dd><code><a title="phiml.math.Tensor" href="#phiml.math.Tensor">Tensor</a></code> with a single channel dimension called <code>'vector'</code></dd>
+<dt><strong><code>vec2</code></strong></dt>
+<dd><code><a title="phiml.math.Tensor" href="#phiml.math.Tensor">Tensor</a></code> with a single channel dimension called <code>'vector'</code></dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<p><code><a title="phiml.math.Tensor" href="#phiml.math.Tensor">Tensor</a></code></p></div>
+</dd>
 <dt id="phiml.math.cross_product"><code class="name flex">
 <span>def <span class="ident">cross_product</span></span>(<span>vec1: phiml.math._tensors.Tensor, vec2: phiml.math._tensors.Tensor) ‑> phiml.math._tensors.Tensor</span>
 </code></dt>
@@ -1041,7 +1103,7 @@ Otherwise, the <code><a title="phiml.math.copy" href="#phiml.math.copy">copy()</
 <p><code><a title="phiml.math.Tensor" href="#phiml.math.Tensor">Tensor</a></code></p></div>
 </dd>
 <dt id="phiml.math.cumulative_sum"><code class="name flex">
-<span>def <span class="ident">cumulative_sum</span></span>(<span>x: phiml.math._tensors.Tensor, dim: Union[str, tuple, list, set, ForwardRef('<a title="phiml.math.Shape" href="#phiml.math.Shape">Shape</a>'), Callable])</span>
+<span>def <span class="ident">cumulative_sum</span></span>(<span>x: phiml.math._tensors.Tensor, dim: Union[str, tuple, list, set, ForwardRef('<a title="phiml.math.Shape" href="#phiml.math.Shape">Shape</a>'), Callable], include_0=False, include_sum=True, index_dim: Union[str, phiml.math._shape.Shape, None] = None)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Performs a cumulative sum of <code>x</code> along <code>dim</code>.</p>
@@ -1057,7 +1119,13 @@ Otherwise, the <code><a title="phiml.math.copy" href="#phiml.math.copy">copy()</
 <dt><strong><code>x</code></strong></dt>
 <dd><code><a title="phiml.math.Tensor" href="#phiml.math.Tensor">Tensor</a></code></dd>
 <dt><strong><code>dim</code></strong></dt>
-<dd>Dimension along which to sum, as <code>str</code> or <code><a title="phiml.math.Shape" href="#phiml.math.Shape">Shape</a></code>.</dd>
+<dd>Dimension along which to sum, as <code>str</code> or <code><a title="phiml.math.Shape" href="#phiml.math.Shape">Shape</a></code>. If multiple dims are passed, <code>x</code> the cumulative sum will be computed on the flattened array.</dd>
+<dt><strong><code>include_0</code></strong></dt>
+<dd>If <code>True</code>, adds a 0 to the result before the first value.</dd>
+<dt><strong><code>include_sum</code></strong></dt>
+<dd>If <code>False</code>, the total sum will be sliced off the result.</dd>
+<dt><strong><code>index_dim</code></strong></dt>
+<dd>If given, adds an index dimension for <code>dim</code>.</dd>
 </dl>
 <h2 id="returns">Returns</h2>
 <p><code><a title="phiml.math.Tensor" href="#phiml.math.Tensor">Tensor</a></code> with the same shape as <code>x</code>.</p></div>
@@ -1088,6 +1156,12 @@ and <code>output_dict</code> contains only those parameters for which a gradient
 </code></dt>
 <dd>
 <div class="desc"><p>Change the type of all <em>dual</em> dimensions of <code>value</code> to <em>instance</em> dimensions. See <code><a title="phiml.math.rename_dims" href="#phiml.math.rename_dims">rename_dims()</a></code>.</p></div>
+</dd>
+<dt id="phiml.math.d2s"><code class="name flex">
+<span>def <span class="ident">d2s</span></span>(<span>value)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Change the type of all <em>dual</em> dimensions of <code>value</code> to <em>spatial</em> dimensions. See <code><a title="phiml.math.rename_dims" href="#phiml.math.rename_dims">rename_dims()</a></code>.</p></div>
 </dd>
 <dt id="phiml.math.degrees_to_radians"><code class="name flex">
 <span>def <span class="ident">degrees_to_radians</span></span>(<span>deg: ~TensorOrTree) ‑> ~TensorOrTree</span>
@@ -1286,7 +1360,7 @@ This may result in a noticeable drop in performance.</p></div>
 <div class="desc"><p>Computes <em>exp(x)</em> of the <code><a title="phiml.math.Tensor" href="#phiml.math.Tensor">Tensor</a></code> or <code><a title="phiml.math.magic.PhiTreeNode" href="magic.html#phiml.math.magic.PhiTreeNode">PhiTreeNode</a></code> <code>x</code>.</p></div>
 </dd>
 <dt id="phiml.math.expand"><code class="name flex">
-<span>def <span class="ident">expand</span></span>(<span>value, *dims: phiml.math._shape.Shape, **kwargs)</span>
+<span>def <span class="ident">expand</span></span>(<span>value, *dims: Union[str, phiml.math._shape.Shape], **kwargs)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Adds dimensions to a <code><a title="phiml.math.Tensor" href="#phiml.math.Tensor">Tensor</a></code> or tensor-like object by implicitly repeating the tensor values along the new dimensions.
@@ -1465,7 +1539,7 @@ Pass <code>None</code> to get 1D indices as scalars.</dd>
 <p>List of differences, each represented as a <code>tuple</code>.</p></div>
 </dd>
 <dt id="phiml.math.finite_fill"><code class="name flex">
-<span>def <span class="ident">finite_fill</span></span>(<span>values: phiml.math._tensors.Tensor, dims: Union[str, tuple, list, set, ForwardRef('<a title="phiml.math.Shape" href="#phiml.math.Shape">Shape</a>'), Callable] = &lt;function spatial&gt;, distance: int = 1, diagonal: bool = True, padding=zero-gradient) ‑> Tuple[phiml.math._tensors.Tensor, phiml.math._tensors.Tensor]</span>
+<span>def <span class="ident">finite_fill</span></span>(<span>values: phiml.math._tensors.Tensor, dims: Union[str, tuple, list, set, ForwardRef('<a title="phiml.math.Shape" href="#phiml.math.Shape">Shape</a>'), Callable] = &lt;function spatial&gt;, distance: int = 1, diagonal: bool = True, padding=zero-gradient, padding_kwargs: dict = None) ‑> phiml.math._tensors.Tensor</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Fills non-finite (NaN, inf, -inf) values from nearby finite values.
@@ -1483,6 +1557,8 @@ Where multiple finite values could fill an invalid value, the average is compute
 <dd>Whether to extrapolate values to their diagonal neighbors per step.</dd>
 <dt><strong><code>padding</code></strong></dt>
 <dd>Extrapolation of <code>values</code>. Determines whether to extrapolate from the edges as well.</dd>
+<dt><strong><code>padding_kwargs</code></strong></dt>
+<dd>Additional keyword arguments to be passed to <code><a title="phiml.math.pad" href="#phiml.math.pad">pad()</a></code>.</dd>
 </dl>
 <h2 id="returns">Returns</h2>
 <p><code><a title="phiml.math.Tensor" href="#phiml.math.Tensor">Tensor</a></code> of same shape as <code>values</code>.</p></div>
@@ -2248,7 +2324,7 @@ For <code><a title="phiml.math.magic.PhiTreeNode" href="magic.html#phiml.math.ma
 </dl></div>
 </dd>
 <dt id="phiml.math.laplace"><code class="name flex">
-<span>def <span class="ident">laplace</span></span>(<span>x: phiml.math._tensors.Tensor, dx: Union[float, phiml.math._tensors.Tensor] = 1, padding: Union[<a title="phiml.math.extrapolation.Extrapolation" href="extrapolation.html#phiml.math.extrapolation.Extrapolation">Extrapolation</a>, float, phiml.math._tensors.Tensor, str, None] = zero-gradient, dims: Union[str, tuple, list, set, ForwardRef('<a title="phiml.math.Shape" href="#phiml.math.Shape">Shape</a>'), Callable] = &lt;function spatial&gt;, weights: phiml.math._tensors.Tensor = None)</span>
+<span>def <span class="ident">laplace</span></span>(<span>x: phiml.math._tensors.Tensor, dx: Union[float, phiml.math._tensors.Tensor] = 1, padding: Union[<a title="phiml.math.extrapolation.Extrapolation" href="extrapolation.html#phiml.math.extrapolation.Extrapolation">Extrapolation</a>, float, phiml.math._tensors.Tensor, str, None] = zero-gradient, dims: Union[str, tuple, list, set, ForwardRef('<a title="phiml.math.Shape" href="#phiml.math.Shape">Shape</a>'), Callable] = &lt;function spatial&gt;, weights: phiml.math._tensors.Tensor = None, padding_kwargs: dict = None)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Spatial Laplace operator as defined for scalar fields.
@@ -2267,6 +2343,8 @@ Must be one of the following: <code>Extrapolation</code>, <code><a title="phiml.
 <dt><strong><code>weights</code></strong></dt>
 <dd>(Optional) Multiply the axis terms by these factors before summation.
 Must be a Tensor with a single channel dimension that lists all laplace dims by name.</dd>
+<dt><strong><code>padding_kwargs</code></strong></dt>
+<dd>Additional keyword arguments to be passed to <code><a title="phiml.math.pad" href="#phiml.math.pad">pad()</a></code>.</dd>
 </dl>
 <h2 id="returns">Returns</h2>
 <p><code><a title="phiml.math.Tensor" href="#phiml.math.Tensor">Tensor</a></code> of same shape as <code>x</code></p></div>
@@ -2796,7 +2874,7 @@ and single channel dimension <code>channel_dim</code>.</p></div>
 <div class="desc"><p><code><a title="phiml.math.neighbor_reduce" href="#phiml.math.neighbor_reduce">neighbor_reduce()</a></code> with <code>reduce_fun</code> set to <code><a title="phiml.math.min" href="#phiml.math.min">min_()</a></code>.</p></div>
 </dd>
 <dt id="phiml.math.neighbor_reduce"><code class="name flex">
-<span>def <span class="ident">neighbor_reduce</span></span>(<span>reduce_fun: Callable, grid: phiml.math._tensors.Tensor, dims: Union[str, tuple, list, set, ForwardRef('<a title="phiml.math.Shape" href="#phiml.math.Shape">Shape</a>'), Callable] = &lt;function spatial&gt;, padding: Union[<a title="phiml.math.extrapolation.Extrapolation" href="extrapolation.html#phiml.math.extrapolation.Extrapolation">Extrapolation</a>, float, phiml.math._tensors.Tensor, str, None] = None) ‑> phiml.math._tensors.Tensor</span>
+<span>def <span class="ident">neighbor_reduce</span></span>(<span>reduce_fun: Callable, grid: phiml.math._tensors.Tensor, dims: Union[str, tuple, list, set, ForwardRef('<a title="phiml.math.Shape" href="#phiml.math.Shape">Shape</a>'), Callable] = &lt;function spatial&gt;, padding: Union[<a title="phiml.math.extrapolation.Extrapolation" href="extrapolation.html#phiml.math.extrapolation.Extrapolation">Extrapolation</a>, float, phiml.math._tensors.Tensor, str, None] = None, padding_kwargs: dict = None) ‑> phiml.math._tensors.Tensor</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Computes the sum/mean/min/max/prod/etc. of two neighboring values along each dimension in <code>dim</code>.
@@ -2812,6 +2890,8 @@ The result tensor has one entry less than <code>grid</code> in each averaged dim
 <dd>Dimensions along which neighbors should be reduced.</dd>
 <dt><strong><code>padding</code></strong></dt>
 <dd>Padding at the upper edges of <code>grid</code> along <code>dims'. If not</code>None<code>, the result <a title="phiml.math.tensor" href="#phiml.math.tensor">tensor()</a> will have the same <a title="phiml.math.shape" href="#phiml.math.shape">shape()</a> as </code>grid`.</dd>
+<dt><strong><code>padding_kwargs</code></strong></dt>
+<dd>Additional keyword arguments to be passed to <code><a title="phiml.math.pad" href="#phiml.math.pad">pad()</a></code>.</dd>
 </dl>
 <h2 id="returns">Returns</h2>
 <p><code><a title="phiml.math.Tensor" href="#phiml.math.Tensor">Tensor</a></code></p></div>
@@ -2926,6 +3006,24 @@ If channel dimensions are present, this method returns the indices where any com
 <h2 id="returns">Returns</h2>
 <p><code><a title="phiml.math.Tensor" href="#phiml.math.Tensor">Tensor</a></code> of shape (batch dims&hellip;, <code>list_dim</code>=#non-zero, <code>index_dim</code>=value.shape.spatial_rank)</p></div>
 </dd>
+<dt id="phiml.math.normalize"><code class="name flex">
+<span>def <span class="ident">normalize</span></span>(<span>vec: phiml.math._tensors.Tensor, vec_dim: Union[str, tuple, list, set, ForwardRef('<a title="phiml.math.Shape" href="#phiml.math.Shape">Shape</a>'), Callable] = &lt;function channel&gt;, epsilon=None, allow_infinite=False)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Normalizes the vectors in <code><a title="phiml.math.vec" href="#phiml.math.vec">vec()</a></code>. If <code>vec_dim</code> is None, the combined channel dimensions of <code><a title="phiml.math.vec" href="#phiml.math.vec">vec()</a></code> are interpreted as a vector.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>vec</code></strong></dt>
+<dd><code><a title="phiml.math.Tensor" href="#phiml.math.Tensor">Tensor</a></code> to normalize.</dd>
+<dt><strong><code>vec_dim</code></strong></dt>
+<dd>Dimensions to normalize over. By default, all channel dimensions are used to compute the vector length.</dd>
+<dt><strong><code>epsilon</code></strong></dt>
+<dd>(Optional) Zero-length threshold. Vectors shorter than this length yield the unit vector (1, 0, 0, &hellip;).
+If not specified, the zero-vector yields <code>NaN</code> as it cannot be normalized.</dd>
+<dt><strong><code>allow_infinite</code></strong></dt>
+<dd>Allow infinite components in vectors. These vectors will then only points towards the infinite components.</dd>
+</dl></div>
+</dd>
 <dt id="phiml.math.normalize_to"><code class="name flex">
 <span>def <span class="ident">normalize_to</span></span>(<span>target: phiml.math._tensors.Tensor, source: Union[float, phiml.math._tensors.Tensor], epsilon=1e-05)</span>
 </code></dt>
@@ -2984,7 +3082,7 @@ If a dimension of the tensor is not listed in <code>order</code>, a <code>ValueE
 <div class="desc"><p>Create a <code><a title="phiml.math.Tensor" href="#phiml.math.Tensor">Tensor</a></code> containing only <code>1.0</code> / <code>1</code> / <code>True</code> with the same shape and dtype as <code>obj</code>.</p></div>
 </dd>
 <dt id="phiml.math.pack_dims"><code class="name flex">
-<span>def <span class="ident">pack_dims</span></span>(<span>value, dims: Union[str, tuple, list, set, ForwardRef('<a title="phiml.math.Shape" href="#phiml.math.Shape">Shape</a>'), Callable], packed_dim: phiml.math._shape.Shape, pos: Optional[int] = None, **kwargs)</span>
+<span>def <span class="ident">pack_dims</span></span>(<span>value, dims: Union[str, tuple, list, set, ForwardRef('<a title="phiml.math.Shape" href="#phiml.math.Shape">Shape</a>'), Callable], packed_dim: Union[str, phiml.math._shape.Shape], pos: Optional[int] = None, **kwargs)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Compresses multiple dimensions into a single dimension by concatenating the elements.
@@ -3464,6 +3562,23 @@ For 1D tensors, this equivalent to <code>arange()</code> with <code>step=1</code
 <h2 id="returns">Returns</h2>
 <p><code><a title="phiml.math.Tensor" href="#phiml.math.Tensor">Tensor</a></code></p></div>
 </dd>
+<dt id="phiml.math.ravel_index"><code class="name flex">
+<span>def <span class="ident">ravel_index</span></span>(<span>index: phiml.math._tensors.Tensor, resolution: phiml.math._shape.Shape, dim=&lt;function channel&gt;, mode='undefined') ‑> phiml.math._tensors.Tensor</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Computes a scalar index from a vector index.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>index</code></strong></dt>
+<dd><code><a title="phiml.math.Tensor" href="#phiml.math.Tensor">Tensor</a></code> with one channel dim.</dd>
+<dt><strong><code>resolution</code></strong></dt>
+<dd><code><a title="phiml.math.Shape" href="#phiml.math.Shape">Shape</a></code></dd>
+<dt><strong><code>mode</code></strong></dt>
+<dd><code>'undefined'</code>, <code>'periodic'</code>, <code>'clamp'</code> or an <code>int</code> to use for all invalid indices.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<p><code><a title="phiml.math.Tensor" href="#phiml.math.Tensor">Tensor</a></code></p></div>
+</dd>
 <dt id="phiml.math.real"><code class="name flex">
 <span>def <span class="ident">real</span></span>(<span>x: ~TensorOrTree) ‑> ~TensorOrTree</span>
 </code></dt>
@@ -3630,6 +3745,24 @@ If False, wraps the data in a <code><a title="phiml.math.Tensor" href="#phiml.ma
 </dl>
 <h2 id="returns">Returns</h2>
 <p><code><a title="phiml.math.Tensor" href="#phiml.math.Tensor">Tensor</a></code> with all dimensions from <code>groups</code></p></div>
+</dd>
+<dt id="phiml.math.rotate"><code class="name flex">
+<span>def <span class="ident">rotate</span></span>(<span>vector: phiml.math._tensors.Tensor, angle: Union[float, phiml.math._tensors.Tensor, None], invert=False) ‑> phiml.math._tensors.Tensor</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Rotates <code>vector</code> around the origin.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>vector</code></strong></dt>
+<dd>n-dimensional vector with exactly one channel dimension</dd>
+<dt><strong><code>angle</code></strong></dt>
+<dd>Euler angle(s) or rotation matrix.
+<code>None</code> is interpreted as no rotation.</dd>
+<dt><strong><code>invert</code></strong></dt>
+<dd>Whether to apply the inverse rotation.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<p>Rotated vector as <code><a title="phiml.math.Tensor" href="#phiml.math.Tensor">Tensor</a></code></p></div>
 </dd>
 <dt id="phiml.math.rotate_vector"><code class="name flex">
 <span>def <span class="ident">rotate_vector</span></span>(<span>vector: phiml.math._tensors.Tensor, angle: Union[float, phiml.math._tensors.Tensor, None], invert=False) ‑> phiml.math._tensors.Tensor</span>
@@ -3836,7 +3969,7 @@ If <code>obj</code> is a <code><a title="phiml.math.Shape" href="#phiml.math.Sha
 <p><code><a title="phiml.math.Shape" href="#phiml.math.Shape">Shape</a></code></p></div>
 </dd>
 <dt id="phiml.math.shift"><code class="name flex">
-<span>def <span class="ident">shift</span></span>(<span>x: phiml.math._tensors.Tensor, offsets: Sequence[int], dims: Union[str, tuple, list, set, ForwardRef('<a title="phiml.math.Shape" href="#phiml.math.Shape">Shape</a>'), Callable] = &lt;function spatial&gt;, padding: Union[<a title="phiml.math.extrapolation.Extrapolation" href="extrapolation.html#phiml.math.extrapolation.Extrapolation">Extrapolation</a>, float, phiml.math._tensors.Tensor, str, None] = zero-gradient, stack_dim: Union[phiml.math._shape.Shape, str, None] = (shiftᶜ=None), extend_bounds=0) ‑> List[phiml.math._tensors.Tensor]</span>
+<span>def <span class="ident">shift</span></span>(<span>x: phiml.math._tensors.Tensor, offsets: Sequence[int], dims: Union[str, tuple, list, set, ForwardRef('<a title="phiml.math.Shape" href="#phiml.math.Shape">Shape</a>'), Callable] = &lt;function spatial&gt;, padding: Union[<a title="phiml.math.extrapolation.Extrapolation" href="extrapolation.html#phiml.math.extrapolation.Extrapolation">Extrapolation</a>, float, phiml.math._tensors.Tensor, str, None] = zero-gradient, stack_dim: Union[str, phiml.math._shape.Shape, None] = (shiftᶜ=None), extend_bounds=0, padding_kwargs: dict = None) ‑> List[phiml.math._tensors.Tensor]</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Shift the tensor <code>x</code> by a fixed offset, using <code>padding</code> for edge values.</p>
@@ -3866,6 +3999,8 @@ This can be set to <code>None</code> only if <code>dims</code> is a single dimen
 <dt><strong><code>extend_bounds</code></strong></dt>
 <dd>Number of cells by which to pad the tensors in addition to the number required to maintain the size of <code>x</code>.
 Can only be used with a valid <code>padding</code>.</dd>
+<dt><strong><code>padding_kwargs</code></strong></dt>
+<dd>Additional keyword arguments to be passed to <code><a title="phiml.math.pad" href="#phiml.math.pad">pad()</a></code>.</dd>
 </dl>
 <h2 id="returns">Returns</h2>
 <p><code>list</code> of shifted tensors. The number of return tensors is equal to the number of <code>offsets</code>.</p></div>
@@ -4151,7 +4286,7 @@ Undefined sizes are automatically filled in by <code><a title="phiml.math.tensor
 <p><code><a title="phiml.math.Shape" href="#phiml.math.Shape">Shape</a></code> containing only dimensions of type spatial.</p></div>
 </dd>
 <dt id="phiml.math.spatial_gradient"><code class="name flex">
-<span>def <span class="ident">spatial_gradient</span></span>(<span>grid: phiml.math._tensors.Tensor, dx: Union[float, phiml.math._tensors.Tensor] = 1, difference: str = 'central', padding: Union[<a title="phiml.math.extrapolation.Extrapolation" href="extrapolation.html#phiml.math.extrapolation.Extrapolation">Extrapolation</a>, float, phiml.math._tensors.Tensor, str, None] = zero-gradient, dims: Union[str, tuple, list, set, ForwardRef('<a title="phiml.math.Shape" href="#phiml.math.Shape">Shape</a>'), Callable] = &lt;function spatial&gt;, stack_dim: Union[phiml.math._shape.Shape, str, None] = (gradientᶜ=None), pad=0) ‑> phiml.math._tensors.Tensor</span>
+<span>def <span class="ident">spatial_gradient</span></span>(<span>grid: phiml.math._tensors.Tensor, dx: Union[float, phiml.math._tensors.Tensor] = 1, difference: str = 'central', padding: Union[<a title="phiml.math.extrapolation.Extrapolation" href="extrapolation.html#phiml.math.extrapolation.Extrapolation">Extrapolation</a>, float, phiml.math._tensors.Tensor, str, None] = zero-gradient, dims: Union[str, tuple, list, set, ForwardRef('<a title="phiml.math.Shape" href="#phiml.math.Shape">Shape</a>'), Callable] = &lt;function spatial&gt;, stack_dim: Union[str, phiml.math._shape.Shape, None] = (gradientᶜ=None), pad=0, padding_kwargs: dict = None) ‑> phiml.math._tensors.Tensor</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Calculates the spatial_gradient of a scalar channel from finite differences.
@@ -4175,6 +4310,8 @@ Must be one of the following: <code>Extrapolation</code>, <code><a title="phiml.
 <dt><strong><code>pad</code></strong></dt>
 <dd>How many cells to extend the result compared to <code>grid</code>.
 This value is added to the internal padding. For non-trivial extrapolations, this gives the correct result while manual padding before or after this operation would not respect the boundary locations.</dd>
+<dt><strong><code>padding_kwargs</code></strong></dt>
+<dd>Additional keyword arguments to be passed to <code><a title="phiml.math.pad" href="#phiml.math.pad">pad()</a></code>.</dd>
 </dl>
 <h2 id="returns">Returns</h2>
 <p><code><a title="phiml.math.Tensor" href="#phiml.math.Tensor">Tensor</a></code></p></div>
@@ -4665,7 +4802,7 @@ If no dimension is given or none of the given dimensions exists on <code>value</
 </code></pre></div>
 </dd>
 <dt id="phiml.math.upsample2x"><code class="name flex">
-<span>def <span class="ident">upsample2x</span></span>(<span>grid: phiml.math._tensors.Tensor, padding: <a title="phiml.math.extrapolation.Extrapolation" href="extrapolation.html#phiml.math.extrapolation.Extrapolation">Extrapolation</a> = zero-gradient, dims: Union[str, tuple, list, set, ForwardRef('<a title="phiml.math.Shape" href="#phiml.math.Shape">Shape</a>'), Callable] = &lt;function spatial&gt;) ‑> phiml.math._tensors.Tensor</span>
+<span>def <span class="ident">upsample2x</span></span>(<span>grid: phiml.math._tensors.Tensor, padding: <a title="phiml.math.extrapolation.Extrapolation" href="extrapolation.html#phiml.math.extrapolation.Extrapolation">Extrapolation</a> = zero-gradient, dims: Union[str, tuple, list, set, ForwardRef('<a title="phiml.math.Shape" href="#phiml.math.Shape">Shape</a>'), Callable] = &lt;function spatial&gt;, padding_kwargs: dict = None) ‑> phiml.math._tensors.Tensor</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Resamples a regular grid to double the number of spatial sample points per dimension.
@@ -4679,13 +4816,15 @@ The grid values at the new points are determined via linear interpolation.</p>
 <dt><strong><code>dims</code></strong></dt>
 <dd>dims along which up-sampling is applied. If None, up-sample along all spatial dims.</dd>
 <dt><strong><code>grid</code></strong></dt>
-<dd>Tensor: </dd>
+<dd>Tensor:</dd>
 <dt><strong><code>padding</code></strong></dt>
 <dd>Extrapolation:
 (Default value = extrapolation.BOUNDARY)</dd>
 <dt><strong><code>dims</code></strong></dt>
 <dd>tuple or None:
 (Default value = None)</dd>
+<dt><strong><code>padding_kwargs</code></strong></dt>
+<dd>Additional keyword arguments to be passed to <code><a title="phiml.math.pad" href="#phiml.math.pad">pad()</a></code>.</dd>
 </dl>
 <h2 id="returns">Returns</h2>
 <p>double-size grid</p></div>
@@ -6880,6 +7019,8 @@ To create a shape with multiple types, use <code><a title="phiml.math.merge_shap
         return (max(indices) - min(indices)) == len(dims) - 1
 
     def __add__(self, other):
+        if isinstance(other, Shape) and self.isdisjoint(other):
+            return concat_shapes(self, other)
         return self._op2(other, lambda s, o: s + o, 0)
 
     def __radd__(self, other):
@@ -8787,9 +8928,11 @@ When backed by an editable native tensor, e.g. a <code>numpy.ndarray</code>, do 
         raise NotImplementedError(self.__class__)
 
     @property
-    def default_backend(self) -&gt; Backend:
+    def backend(self) -&gt; Backend:
         from ._ops import choose_backend_t
         return choose_backend_t(self)
+
+    default_backend = backend
 
     def _with_shape_replaced(self, new_shape: Shape):
         raise NotImplementedError(self.__class__)
@@ -9109,7 +9252,7 @@ When backed by an editable native tensor, e.g. a <code>numpy.ndarray</code>, do 
 
     def __unpack_dim__(self, dim: str, unpacked_dims: Shape, **kwargs) -&gt; &#39;Tensor&#39;:
         if self.shape.is_uniform:
-            native = self.native(self.shape.names)
+            native = self._transposed_native(self.shape.names, True)
             new_shape = self.shape.replace(dim, unpacked_dims)
             if not new_shape.well_defined:
                 assert new_shape.undefined.rank &lt;= 1, f&#34;At most one dim can have an undefined size to be inferred during un-packing but got {new_shape}&#34;
@@ -9125,7 +9268,8 @@ When backed by an editable native tensor, e.g. a <code>numpy.ndarray</code>, do 
                 result = []
                 for idx in split_dim.meshgrid():
                     s = new_shape.after_gather(idx).get_size(new_shape.non_uniform.name)
-                    result.append(self[{dim: slice(i, i + s)}])
+                    sliced = self[{dim: slice(i, i + s)}]
+                    result.append(sliced._with_shape_replaced(sliced.shape.replace(dim, unpacked_dims - split_dim)))
                     i += s
                 return stack(result, split_dim)
         else:
@@ -9189,6 +9333,10 @@ When backed by an editable native tensor, e.g. a <code>numpy.ndarray</code>, do 
     @property
     def T(self):
         return self._with_shape_replaced(self.shape.transposed)
+
+    def map(self, function: Callable, dims=shape_, range=range, unwrap_scalars=True, **kwargs):
+        from ._functional import map_
+        return map_(function, self, dims=dims, range=range, unwrap_scalars=unwrap_scalars, **kwargs)
 
     def __getattr__(self, name):
         if name.startswith(&#39;__&#39;):  # called by hasattr in magic ops
@@ -9347,7 +9495,12 @@ When backed by an editable native tensor, e.g. a <code>numpy.ndarray</code>, do 
             return iter(native)
 
     def __matmul__(self, other):
+        from ._ops import dot
         assert isinstance(other, Tensor), f&#34;Matmul &#39;@&#39; requires two Tensor arguments but got {type(other)}&#34;
+        if not self.shape.dual_rank and self.shape.channel_rank:
+            match = self.shape.channel.only(other.shape.channel)
+            if match:
+                return dot(self, match, other, match)
         match_names = self.shape.dual.as_batch().names
         if not match_names:  # this is not a matrix
             assert self.shape.primal.only(other.shape).is_empty, f&#34;Cannot compute matmul {self.shape} @ {other.shape}. First argument is not a matrix; it has no dual dimensions.&#34;
@@ -9359,7 +9512,6 @@ When backed by an editable native tensor, e.g. a <code>numpy.ndarray</code>, do 
         match_dual = self.shape.dual.only(match_primal.as_dual(), reorder=True)
         left_arg = pack_dims(self, match_dual, dual(&#39;_reduce&#39;))
         right_arg = pack_dims(other, match_primal, channel(&#39;_reduce&#39;))
-        from ._ops import dot
         return dot(left_arg, &#39;~_reduce&#39;, right_arg, &#39;_reduce&#39;)
 
     # def __rmatmul__(self, other):
@@ -9511,6 +9663,19 @@ def available(self) -&gt; bool:
     return all(natives_available)</code></pre>
 </details>
 </dd>
+<dt id="phiml.math.Tensor.backend"><code class="name">prop <span class="ident">backend</span> : phiml.backend._backend.Backend</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def backend(self) -&gt; Backend:
+    from ._ops import choose_backend_t
+    return choose_backend_t(self)</code></pre>
+</details>
+</dd>
 <dt id="phiml.math.Tensor.default_backend"><code class="name">prop <span class="ident">default_backend</span> : phiml.backend._backend.Backend</code></dt>
 <dd>
 <div class="desc"></div>
@@ -9519,7 +9684,7 @@ def available(self) -&gt; bool:
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">@property
-def default_backend(self) -&gt; Backend:
+def backend(self) -&gt; Backend:
     from ._ops import choose_backend_t
     return choose_backend_t(self)</code></pre>
 </details>
@@ -9786,6 +9951,12 @@ This is equivalent to the syntax <code>tensor.&lt;name&gt;</code>.</p>
 <h2 id="returns">Returns</h2>
 <p><code>TensorDim</code> corresponding to a dimension of this tensor</p></div>
 </dd>
+<dt id="phiml.math.Tensor.map"><code class="name flex">
+<span>def <span class="ident">map</span></span>(<span>self, function: Callable, dims=&lt;function shape&gt;, range=builtins.range, unwrap_scalars=True, **kwargs)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
 <dt id="phiml.math.Tensor.native"><code class="name flex">
 <span>def <span class="ident">native</span></span>(<span>self, order: Union[phiml.math._shape.Shape, tuple, list, str] = None, force_expand=True, to_numpy=False)</span>
 </code></dt>
@@ -9914,16 +10085,20 @@ If a dimension of the tensor is not listed in <code>order</code>, a <code>ValueE
 <li><code><a title="phiml.math.concat_shapes" href="#phiml.math.concat_shapes">concat_shapes</a></code></li>
 <li><code><a title="phiml.math.conjugate" href="#phiml.math.conjugate">conjugate</a></code></li>
 <li><code><a title="phiml.math.const_vec" href="#phiml.math.const_vec">const_vec</a></code></li>
+<li><code><a title="phiml.math.contains" href="#phiml.math.contains">contains</a></code></li>
 <li><code><a title="phiml.math.convert" href="#phiml.math.convert">convert</a></code></li>
 <li><code><a title="phiml.math.convolve" href="#phiml.math.convolve">convolve</a></code></li>
 <li><code><a title="phiml.math.copy" href="#phiml.math.copy">copy</a></code></li>
 <li><code><a title="phiml.math.copy_with" href="#phiml.math.copy_with">copy_with</a></code></li>
 <li><code><a title="phiml.math.cos" href="#phiml.math.cos">cos</a></code></li>
 <li><code><a title="phiml.math.cosh" href="#phiml.math.cosh">cosh</a></code></li>
+<li><code><a title="phiml.math.count_occurrences" href="#phiml.math.count_occurrences">count_occurrences</a></code></li>
+<li><code><a title="phiml.math.cross" href="#phiml.math.cross">cross</a></code></li>
 <li><code><a title="phiml.math.cross_product" href="#phiml.math.cross_product">cross_product</a></code></li>
 <li><code><a title="phiml.math.cumulative_sum" href="#phiml.math.cumulative_sum">cumulative_sum</a></code></li>
 <li><code><a title="phiml.math.custom_gradient" href="#phiml.math.custom_gradient">custom_gradient</a></code></li>
 <li><code><a title="phiml.math.d2i" href="#phiml.math.d2i">d2i</a></code></li>
+<li><code><a title="phiml.math.d2s" href="#phiml.math.d2s">d2s</a></code></li>
 <li><code><a title="phiml.math.degrees_to_radians" href="#phiml.math.degrees_to_radians">degrees_to_radians</a></code></li>
 <li><code><a title="phiml.math.dense" href="#phiml.math.dense">dense</a></code></li>
 <li><code><a title="phiml.math.dim_mask" href="#phiml.math.dim_mask">dim_mask</a></code></li>
@@ -10020,6 +10195,7 @@ If a dimension of the tensor is not listed in <code>order</code>, a <code>ValueE
 <li><code><a title="phiml.math.non_primal" href="#phiml.math.non_primal">non_primal</a></code></li>
 <li><code><a title="phiml.math.non_spatial" href="#phiml.math.non_spatial">non_spatial</a></code></li>
 <li><code><a title="phiml.math.nonzero" href="#phiml.math.nonzero">nonzero</a></code></li>
+<li><code><a title="phiml.math.normalize" href="#phiml.math.normalize">normalize</a></code></li>
 <li><code><a title="phiml.math.normalize_to" href="#phiml.math.normalize_to">normalize_to</a></code></li>
 <li><code><a title="phiml.math.numpy" href="#phiml.math.numpy">numpy</a></code></li>
 <li><code><a title="phiml.math.ones" href="#phiml.math.ones">ones</a></code></li>
@@ -10042,6 +10218,7 @@ If a dimension of the tensor is not listed in <code>order</code>, a <code>ValueE
 <li><code><a title="phiml.math.random_uniform" href="#phiml.math.random_uniform">random_uniform</a></code></li>
 <li><code><a title="phiml.math.range" href="#phiml.math.range">range</a></code></li>
 <li><code><a title="phiml.math.range_tensor" href="#phiml.math.range_tensor">range_tensor</a></code></li>
+<li><code><a title="phiml.math.ravel_index" href="#phiml.math.ravel_index">ravel_index</a></code></li>
 <li><code><a title="phiml.math.real" href="#phiml.math.real">real</a></code></li>
 <li><code><a title="phiml.math.rename_dims" href="#phiml.math.rename_dims">rename_dims</a></code></li>
 <li><code><a title="phiml.math.replace" href="#phiml.math.replace">replace</a></code></li>
@@ -10049,6 +10226,7 @@ If a dimension of the tensor is not listed in <code>order</code>, a <code>ValueE
 <li><code><a title="phiml.math.reshaped_native" href="#phiml.math.reshaped_native">reshaped_native</a></code></li>
 <li><code><a title="phiml.math.reshaped_numpy" href="#phiml.math.reshaped_numpy">reshaped_numpy</a></code></li>
 <li><code><a title="phiml.math.reshaped_tensor" href="#phiml.math.reshaped_tensor">reshaped_tensor</a></code></li>
+<li><code><a title="phiml.math.rotate" href="#phiml.math.rotate">rotate</a></code></li>
 <li><code><a title="phiml.math.rotate_vector" href="#phiml.math.rotate_vector">rotate_vector</a></code></li>
 <li><code><a title="phiml.math.rotation_angles" href="#phiml.math.rotation_angles">rotation_angles</a></code></li>
 <li><code><a title="phiml.math.rotation_matrix" href="#phiml.math.rotation_matrix">rotation_matrix</a></code></li>
@@ -10278,6 +10456,7 @@ If a dimension of the tensor is not listed in <code>order</code>, a <code>ValueE
 <li><code><a title="phiml.math.Tensor.all" href="#phiml.math.Tensor.all">all</a></code></li>
 <li><code><a title="phiml.math.Tensor.any" href="#phiml.math.Tensor.any">any</a></code></li>
 <li><code><a title="phiml.math.Tensor.available" href="#phiml.math.Tensor.available">available</a></code></li>
+<li><code><a title="phiml.math.Tensor.backend" href="#phiml.math.Tensor.backend">backend</a></code></li>
 <li><code><a title="phiml.math.Tensor.default_backend" href="#phiml.math.Tensor.default_backend">default_backend</a></code></li>
 <li><code><a title="phiml.math.Tensor.device" href="#phiml.math.Tensor.device">device</a></code></li>
 <li><code><a title="phiml.math.Tensor.dimension" href="#phiml.math.Tensor.dimension">dimension</a></code></li>
@@ -10287,6 +10466,7 @@ If a dimension of the tensor is not listed in <code>order</code>, a <code>ValueE
 <li><code><a title="phiml.math.Tensor.finite_min" href="#phiml.math.Tensor.finite_min">finite_min</a></code></li>
 <li><code><a title="phiml.math.Tensor.finite_sum" href="#phiml.math.Tensor.finite_sum">finite_sum</a></code></li>
 <li><code><a title="phiml.math.Tensor.imag" href="#phiml.math.Tensor.imag">imag</a></code></li>
+<li><code><a title="phiml.math.Tensor.map" href="#phiml.math.Tensor.map">map</a></code></li>
 <li><code><a title="phiml.math.Tensor.max" href="#phiml.math.Tensor.max">max</a></code></li>
 <li><code><a title="phiml.math.Tensor.mean" href="#phiml.math.Tensor.mean">mean</a></code></li>
 <li><code><a title="phiml.math.Tensor.min" href="#phiml.math.Tensor.min">min</a></code></li>
