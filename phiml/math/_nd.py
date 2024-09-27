@@ -482,7 +482,8 @@ def shift(x: Tensor,
           dims: DimFilter = math.spatial,
           padding: Union[Extrapolation, float, Tensor, str, None] = extrapolation.BOUNDARY,
           stack_dim: Union[Shape, str, None] = channel('shift'),
-          extend_bounds=0) -> List[Tensor]:
+          extend_bounds=0,
+          padding_kwargs: dict = None) -> List[Tensor]:
     """
     Shift the tensor `x` by a fixed offset, using `padding` for edge values.
 
@@ -506,6 +507,7 @@ def shift(x: Tensor,
             This can be set to `None` only if `dims` is a single dimension.
         extend_bounds: Number of cells by which to pad the tensors in addition to the number required to maintain the size of `x`.
             Can only be used with a valid `padding`.
+        padding_kwargs: Additional keyword arguments to be passed to `phiml.math.pad()`.
 
     Returns:
         `list` of shifted tensors. The number of return tensors is equal to the number of `offsets`.
@@ -519,7 +521,7 @@ def shift(x: Tensor,
     pad_lower = max(0, -min(offsets))
     pad_upper = max(0, max(offsets))
     if padding is not None:
-        x = math.pad(x, {axis: (pad_lower + extend_bounds, pad_upper + extend_bounds) for axis in dims}, mode=padding)
+        x = math.pad(x, {axis: (pad_lower + extend_bounds, pad_upper + extend_bounds) for axis in dims}, mode=padding, **(padding_kwargs or {}))
     if extend_bounds:
         assert padding is not None
     offset_tensors = []
@@ -580,7 +582,7 @@ def index_shift_widths(offsets: Sequence[Union[int, Tensor]]) -> List[Dict[str, 
     return widths_list
 
 
-def neighbor_reduce(reduce_fun: Callable, grid: Tensor, dims: DimFilter = spatial, padding: Union[Extrapolation, float, Tensor, str, None] = None) -> Tensor:
+def neighbor_reduce(reduce_fun: Callable, grid: Tensor, dims: DimFilter = spatial, padding: Union[Extrapolation, float, Tensor, str, None] = None, padding_kwargs: dict = None) -> Tensor:
     """
     Computes the sum/mean/min/max/prod/etc. of two neighboring values along each dimension in `dim`.
     The result tensor has one entry less than `grid` in each averaged dimension unless `padding` is specified.
@@ -592,6 +594,7 @@ def neighbor_reduce(reduce_fun: Callable, grid: Tensor, dims: DimFilter = spatia
         grid: Values to reduce.
         dims: Dimensions along which neighbors should be reduced.
         padding: Padding at the upper edges of `grid` along `dims'. If not `None`, the result tensor will have the same shape as `grid`.
+        padding_kwargs: Additional keyword arguments to be passed to `phiml.math.pad()`.
 
     Returns:
         `Tensor`
@@ -599,7 +602,7 @@ def neighbor_reduce(reduce_fun: Callable, grid: Tensor, dims: DimFilter = spatia
     result = grid
     dims = grid.shape.only(dims)
     for dim in dims:
-        l, r = shift(result, (0, 1), dim, padding, None)
+        l, r = shift(result, (0, 1), dim, padding, None, padding_kwargs=padding_kwargs)
         lr = stack([l, r], batch('_reduce'))
         result = reduce_fun(lr, '_reduce')
     return result
@@ -625,7 +628,7 @@ def neighbor_min(grid: Tensor, dims: DimFilter = spatial, padding: Union[Extrapo
     return neighbor_reduce(math.min_, grid, dims, padding)
 
 
-def at_neighbor_where(reduce_fun: Callable, values, key_grid: Tensor, dims: DimFilter = spatial, padding: Union[Extrapolation, float, Tensor, str, None] = None, offsets=(0, 1), diagonal=True) -> Tensor:
+def at_neighbor_where(reduce_fun: Callable, values, key_grid: Tensor, dims: DimFilter = spatial, padding: Union[Extrapolation, float, Tensor, str, None] = None, offsets=(0, 1), diagonal=True, padding_kwargs: dict = None) -> Tensor:
     """
     Computes the mean of two neighboring values along each dimension in `dim`.
     The result tensor has one entry less than `grid` in each averaged dimension unless `padding` is specified.
@@ -641,6 +644,7 @@ def at_neighbor_where(reduce_fun: Callable, values, key_grid: Tensor, dims: DimF
         offsets: Relative neighbor indices as `int`. `0` refers to self, negative values to earlier (left) neighbors and positive values to later (right) neighbors.
         diagonal: If `True`, performs sequential reductions along each axis, determining the minimum value along each axis independently.
             If the values of `key_grid` depend on `values`, this can lead to undesired behavior.
+        padding_kwargs: Additional keyword arguments to be passed to `phiml.math.pad()`.
 
     Returns:
         `Tensor`
@@ -649,12 +653,12 @@ def at_neighbor_where(reduce_fun: Callable, values, key_grid: Tensor, dims: DimF
     dims = key_grid.shape.only(dims)
     if diagonal:
         for dim in dims:
-            lr = stack(shift(result, offsets, dim, padding, None), batch('_reduce'))
-            values = tree_map(lambda t: stack(shift(t, offsets, dim, padding, None), batch('_reduce')), values)
+            lr = stack(shift(result, offsets, dim, padding, None, padding_kwargs=padding_kwargs), batch('_reduce'))
+            values = tree_map(lambda t: stack(shift(t, offsets, dim, padding, None, padding_kwargs=padding_kwargs), batch('_reduce')), values)
             result, values = reduce_fun([lr, values], lr, '_reduce')
     else:
-        lr = concat(shift(result, offsets, dims, padding, channel('_reduce')), '_reduce')
-        values = tree_map(lambda t: concat(shift(t, offsets, dims, padding, channel('_reduce')), '_reduce'), values)
+        lr = concat(shift(result, offsets, dims, padding, channel('_reduce'), padding_kwargs=padding_kwargs), '_reduce')
+        values = tree_map(lambda t: concat(shift(t, offsets, dims, padding, channel('_reduce'), padding_kwargs=padding_kwargs), '_reduce'), values)
         result, values = reduce_fun([lr, values], lr, '_reduce')
     return values
 
@@ -730,7 +734,7 @@ def masked_fill(values: Tensor, valid: Tensor, distance: int = 1) -> Tuple[Tenso
     return values, binarize(valid)
 
 
-def finite_fill(values: Tensor, dims: DimFilter = spatial, distance: int = 1, diagonal: bool = True, padding=extrapolation.BOUNDARY) -> Tensor:
+def finite_fill(values: Tensor, dims: DimFilter = spatial, distance: int = 1, diagonal: bool = True, padding=extrapolation.BOUNDARY, padding_kwargs: dict = None) -> Tensor:
     """
     Fills non-finite (NaN, inf, -inf) values from nearby finite values.
     Extrapolates the finite values of `values` for `distance` steps along `dims`.
@@ -742,6 +746,7 @@ def finite_fill(values: Tensor, dims: DimFilter = spatial, distance: int = 1, di
         distance: Number of extrapolation steps, each extrapolating one cell out.
         diagonal: Whether to extrapolate values to their diagonal neighbors per step.
         padding: Extrapolation of `values`. Determines whether to extrapolate from the edges as well.
+        padding_kwargs: Additional keyword arguments to be passed to `phiml.math.pad()`.
 
     Returns:
         `Tensor` of same shape as `values`.
@@ -754,15 +759,15 @@ def finite_fill(values: Tensor, dims: DimFilter = spatial, distance: int = 1, di
             valid_values = math.where(valid, values, 0)
             overlap = valid
             for dim in dims:
-                values_l, values_r = shift(valid_values, (-1, 1), dims=dim, padding=padding)
+                values_l, values_r = shift(valid_values, (-1, 1), dims=dim, padding=padding, padding_kwargs=padding_kwargs)
                 valid_values = math.sum_(values_l + values_r + valid_values, dim='shift')
-                mask_l, mask_r = shift(overlap, (-1, 1), dims=dim, padding=padding)
+                mask_l, mask_r = shift(overlap, (-1, 1), dims=dim, padding=padding, padding_kwargs=padding_kwargs)
                 overlap = math.sum_(mask_l + mask_r + overlap, dim='shift')
             values = math.where(valid, values, valid_values / overlap)
     else:
         distance = min(distance, sum(values.shape.sizes))
         for _ in range(distance):
-            neighbors = concat(shift(values, (-1, 1), dims, padding=padding, stack_dim=channel('neighbors')), 'neighbors')
+            neighbors = concat(shift(values, (-1, 1), dims, padding=padding, stack_dim=channel('neighbors'), padding_kwargs=padding_kwargs), 'neighbors')
             finite = math.is_finite(neighbors)
             avg_neighbors = math.sum_(math.where(finite, neighbors, 0), 'neighbors') / math.sum_(finite, 'neighbors')
             values = math.where(math.is_finite(values), values, avg_neighbors)
@@ -777,7 +782,8 @@ def spatial_gradient(grid: Tensor,
                      padding: Union[Extrapolation, float, Tensor, str, None] = extrapolation.BOUNDARY,
                      dims: DimFilter = spatial,
                      stack_dim: Union[Shape, str, None] = channel('gradient'),
-                     pad=0) -> Tensor:
+                     pad=0,
+                     padding_kwargs: dict = None) -> Tensor:
     """
     Calculates the spatial_gradient of a scalar channel from finite differences.
     The spatial_gradient vectors are in reverse order, lowest dimension first.
@@ -793,6 +799,7 @@ def spatial_gradient(grid: Tensor,
         stack_dim: name of the new vector dimension listing the spatial_gradient w.r.t. the various axes
         pad: How many cells to extend the result compared to `grid`.
             This value is added to the internal padding. For non-trivial extrapolations, this gives the correct result while manual padding before or after this operation would not respect the boundary locations.
+        padding_kwargs: Additional keyword arguments to be passed to `phiml.math.pad()`.
 
     Returns:
         `Tensor`
@@ -808,13 +815,13 @@ def spatial_gradient(grid: Tensor,
         if dx.vector.size in (None, 1):
             dx = dx.vector[0]
     if difference.lower() == 'central':
-        left, right = shift(grid, (-1, 1), dims, padding, stack_dim=stack_dim, extend_bounds=pad)
+        left, right = shift(grid, (-1, 1), dims, padding, stack_dim=stack_dim, extend_bounds=pad, padding_kwargs=padding_kwargs)
         return (right - left) / (dx * 2)
     elif difference.lower() == 'forward':
-        left, right = shift(grid, (0, 1), dims, padding, stack_dim=stack_dim, extend_bounds=pad)
+        left, right = shift(grid, (0, 1), dims, padding, stack_dim=stack_dim, extend_bounds=pad, padding_kwargs=padding_kwargs)
         return (right - left) / dx
     elif difference.lower() == 'backward':
-        left, right = shift(grid, (-1, 0), dims, padding, stack_dim=stack_dim, extend_bounds=pad)
+        left, right = shift(grid, (-1, 0), dims, padding, stack_dim=stack_dim, extend_bounds=pad, padding_kwargs=padding_kwargs)
         return (right - left) / dx
     else:
         raise ValueError('Invalid difference type: {}. Can be CENTRAL or FORWARD'.format(difference))
@@ -826,7 +833,8 @@ def laplace(x: Tensor,
             dx: Union[Tensor, float] = 1,
             padding: Union[Extrapolation, float, Tensor, str, None] = extrapolation.BOUNDARY,
             dims: DimFilter = spatial,
-            weights: Tensor = None):
+            weights: Tensor = None,
+            padding_kwargs: dict = None):
     """
     Spatial Laplace operator as defined for scalar fields.
     If a vector field is passed, the laplace is computed component-wise.
@@ -839,6 +847,7 @@ def laplace(x: Tensor,
         dims: The second derivative along these dimensions is summed over
         weights: (Optional) Multiply the axis terms by these factors before summation.
             Must be a Tensor with a single channel dimension that lists all laplace dims by name.
+        padding_kwargs: Additional keyword arguments to be passed to `phiml.math.pad()`.
 
     Returns:
         `phiml.math.Tensor` of same shape as `x`
@@ -849,7 +858,7 @@ def laplace(x: Tensor,
         dx = rename_dims(dx, 'vector', batch('_laplace'))
     if isinstance(x, Extrapolation):
         return x.spatial_gradient()
-    left, center, right = shift(wrap(x), (-1, 0, 1), dims, padding, stack_dim=batch('_laplace'))
+    left, center, right = shift(wrap(x), (-1, 0, 1), dims, padding, stack_dim=batch('_laplace'), padding_kwargs=padding_kwargs)
     result = (left + right - 2 * center) / (dx ** 2)
     if weights is not None:
         dim_names = x.shape.only(dims).names
@@ -944,25 +953,27 @@ def downsample2x(grid: Tensor,
 
 def upsample2x(grid: Tensor,
                padding: Extrapolation = extrapolation.BOUNDARY,
-               dims: DimFilter = spatial) -> Tensor:
+               dims: DimFilter = spatial,
+               padding_kwargs: dict = None) -> Tensor:
     """
     Resamples a regular grid to double the number of spatial sample points per dimension.
     The grid values at the new points are determined via linear interpolation.
 
     Args:
-      grid: half-size grid
-      padding: grid extrapolation
-      dims: dims along which up-sampling is applied. If None, up-sample along all spatial dims.
-      grid: Tensor: 
-      padding: Extrapolation:  (Default value = extrapolation.BOUNDARY)
-      dims: tuple or None:  (Default value = None)
+        grid: half-size grid
+        padding: grid extrapolation
+        dims: dims along which up-sampling is applied. If None, up-sample along all spatial dims.
+        grid: Tensor:
+        padding: Extrapolation:  (Default value = extrapolation.BOUNDARY)
+        dims: tuple or None:  (Default value = None)
+        padding_kwargs: Additional keyword arguments to be passed to `phiml.math.pad()`.
 
     Returns:
       double-size grid
 
     """
     for dim in grid.shape.only(dims):
-        left, center, right = shift(grid, (-1, 0, 1), dim.names, padding, None)
+        left, center, right = shift(grid, (-1, 0, 1), dim.names, padding, None, padding_kwargs=padding_kwargs)
         interp_left = 0.25 * left + 0.75 * center
         interp_right = 0.75 * center + 0.25 * right
         stacked = math.stack_tensors([interp_left, interp_right], channel(_interleave='left,right'))
