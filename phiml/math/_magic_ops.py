@@ -182,7 +182,7 @@ def stack(values: Union[tuple, list, dict], dim: Union[Shape, str], expand_value
             if hasattr(v, '__stack__'):
                 result = v.__stack__(values, dim, **kwargs)
                 if result is not NotImplemented:
-                    assert isinstance(result, Shapable), "__stack__ must return a Shapable object"
+                    assert isinstance(result, Shape) if isinstance(v, Shape) else isinstance(result, Shapable), "__stack__ must return a Shapable object"
                     return result
         # --- Next: try stacking attributes for tree nodes ---
         if all(isinstance(v, PhiTreeNode) for v in values):
