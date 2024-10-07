@@ -2350,7 +2350,7 @@ Must be a Tensor with a single channel dimension that lists all laplace dims by 
 <p><code><a title="phiml.math.Tensor" href="#phiml.math.Tensor">Tensor</a></code> of same shape as <code>x</code></p></div>
 </dd>
 <dt id="phiml.math.layout"><code class="name flex">
-<span>def <span class="ident">layout</span></span>(<span>objects, *shape: phiml.math._shape.Shape) ‑> phiml.math._tensors.Tensor</span>
+<span>def <span class="ident">layout</span></span>(<span>objects, *shape: Union[str, phiml.math._shape.Shape]) ‑> phiml.math._tensors.Tensor</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Wraps a Python tree in a <code><a title="phiml.math.Tensor" href="#phiml.math.Tensor">Tensor</a></code>, allowing elements to be accessed via dimensions.
@@ -2441,7 +2441,7 @@ The values will be laid out along <code>dim</code>.</dd>
 <div class="desc"><p>Computes <em>log(gamma(x))</em> of the <code><a title="phiml.math.Tensor" href="#phiml.math.Tensor">Tensor</a></code> or <code><a title="phiml.math.magic.PhiTreeNode" href="magic.html#phiml.math.magic.PhiTreeNode">PhiTreeNode</a></code> <code>x</code>.</p></div>
 </dd>
 <dt id="phiml.math.map"><code class="name flex">
-<span>def <span class="ident">map</span></span>(<span>function: Callable[..., ~Y], *args, dims: Union[str, tuple, list, set, ForwardRef('<a title="phiml.math.Shape" href="#phiml.math.Shape">Shape</a>'), Callable] = &lt;function shape&gt;, range=builtins.range, unwrap_scalars=True, **kwargs) ‑> Union[None, phiml.math._tensors.Tensor, ~Y]</span>
+<span>def <span class="ident">map</span></span>(<span>function: Callable[..., ~Y], *args, dims: Union[str, tuple, list, set, ForwardRef('<a title="phiml.math.Shape" href="#phiml.math.Shape">Shape</a>'), Callable] = &lt;function shape&gt;, range=builtins.range, unwrap_scalars=True, expand_results=False, **kwargs) ‑> Union[None, phiml.math._tensors.Tensor, ~Y]</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Calls <code>function</code> on slices of the arguments and returns the stacked result.</p>
