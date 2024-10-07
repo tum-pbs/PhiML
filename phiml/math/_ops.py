@@ -1497,6 +1497,8 @@ def _all(value: Tensor, dims: Shape) -> Tensor:
         reduced_inners = [_all(t, dims.without(value._stack_dim)) for t in value._tensors]
         return functools.reduce(lambda x, y: x & y, reduced_inners) if value._stack_dim in dims else TensorStack(reduced_inners, value._stack_dim)
     elif is_sparse(value):
+        if value.dtype.kind != bool:
+            value = value != 0
         if sparse_dims(value) in dims:
             return _all(value._values, dims.without(sparse_dims(value)) & instance(value._values))
         return sparse_sum(to_int32(~value), dims) == 0
