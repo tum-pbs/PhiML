@@ -3348,12 +3348,16 @@ def with_diagonal(matrix: Tensor, values: Union[float, Tensor], check_square=Tru
         assert row_dims.volume == col_dims.volume, f"matrix is not square (check_square=True). rows={row_dims}, cols={col_dims}"
     if is_sparse(matrix):
         assert matrix.default_backend.name == 'numpy', f"with_diagonal currently only supports SciPy matrices"
-        scipy_matrix = matrix.native()
-        values = wrap(values).native()
-        scipy_matrix.setdiag(values)
-        if close(0, values):
-            scipy_matrix.eliminate_zeros()
-        return wrap(scipy_matrix, row_dims, col_dims)
+        values = wrap(values)
+        result = []
+        for idx in (batch(values) & batch(matrix)).meshgrid():
+            scipy_matrix = matrix[idx].native()
+            values = values[idx].native()
+            scipy_matrix.setdiag(values)
+            if close(0, values):
+                scipy_matrix.eliminate_zeros()
+            result.append(wrap(scipy_matrix, row_dims.after_gather(idx), col_dims.after_gather(idx)))
+        return stack(result, batch(values) & batch(matrix))
     else:
         raise NotImplementedError("with_diagonal currently only supports sparse matrices")
 
