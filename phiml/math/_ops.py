@@ -1125,8 +1125,13 @@ def where(condition: Union[Tensor, float, int],
     condition = wrap(condition)
     value_true = wrap(value_true)
     value_false = wrap(value_false)
-
     def inner_where(c: Tensor, vt: Tensor, vf: Tensor):
+        if isinstance(value_true, Layout) or isinstance(value_false, Layout):  # result must be a Layout
+            shape = merge_shapes(c, vt, vf)
+            result = []
+            for idx in shape.meshgrid():
+                result.append(vt[idx] if c[idx].any else vf[idx])
+            return stack(result, shape)
         if vt._is_tracer or vf._is_tracer or c._is_tracer:
             return c * vt + (1 - c) * vf  # ToDo this does not take NaN into account
         if is_sparse(c) or is_sparse(vt) or is_sparse(vf):
