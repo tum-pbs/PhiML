@@ -1536,7 +1536,7 @@ class TensorStack(Tensor):
 
 
 def tensor(data,
-           *shape: Union[Shape,str],
+           *shape: Union[Shape, str],
            convert: bool = True,
            default_list_dim=channel('vector')) -> Tensor:  # TODO assume convert_unsupported, add convert_external=False for constants
     """
@@ -1673,12 +1673,12 @@ def tensor(data,
         raise ValueError(f"{type(data)} is not supported. Only (Tensor, tuple, list, np.ndarray, native tensors) are allowed.\nCurrent backends: {BACKENDS}")
 
 
-def wrap(data, *shape: Union[Shape,str], default_list_dim=channel('vector')) -> Tensor:
+def wrap(data, *shape: Union[Shape, str], default_list_dim=channel('vector')) -> Tensor:
     """ Short for `phiml.math.tensor()` with `convert=False`. """
     return tensor(data, *shape, convert=False, default_list_dim=default_list_dim)
 
 
-def layout(objects, *shape: Shape) -> Tensor:
+def layout(objects, *shape: Union[Shape, str]) -> Tensor:
     """
     Wraps a Python tree in a `Tensor`, allowing elements to be accessed via dimensions.
     A python tree is a structure of nested `tuple`, `list`, `dict` and *leaf* objects where leaves can be any Python object.
@@ -1704,6 +1704,7 @@ def layout(objects, *shape: Shape) -> Tensor:
         `Tensor`.
         Calling `Tensor.native()` on the returned tensor will return `objects`.
     """
+    shape = [parse_shape_spec(s) if isinstance(s, str) else s for s in shape]
     assert all(isinstance(s, Shape) for s in shape), f"shape needs to be one or multiple Shape instances but got {shape}"
     shape = EMPTY_SHAPE if len(shape) == 0 else concat_shapes(*shape)
     if isinstance(objects, Layout):
