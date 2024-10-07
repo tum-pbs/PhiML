@@ -799,7 +799,7 @@ class CompressedSparseMatrix(Tensor):
             native_indices = choose_backend(native_indices, native_pointers).csr_to_coo(native_indices, native_pointers)
             if self._compressed_dims.rank == self._uncompressed_dims.rank == 1:
                 indices = reshaped_tensor(native_indices, [ind_batch, instance(self._indices), channel(sparse_idx=(self._compressed_dims.name, self._uncompressed_dims.name))], convert=False)
-                values = reshaped_tensor(native_values, [ind_batch, instance(self._values), channel(self._values)])
+                values = reshaped_tensor(native_values, [ind_batch & batch(self._values), instance(self._values), channel(self._values)])
             else:
                 raise NotImplementedError()
             return SparseCoordinateTensor(indices, values, concat_shapes(self._compressed_dims, self._uncompressed_dims), False, True, self._indices_constant, self._matrix_rank)
