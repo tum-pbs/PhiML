@@ -1314,7 +1314,7 @@ def iterate(map_function: Callable,
         raise ValueError(f"iterations must be an int or Shape but got {type(iterations)}")
 
 
-def map_(function: Callable[..., Y], *args, dims: DimFilter = shape, range=range, unwrap_scalars=True, **kwargs) -> Union[None, Tensor, Y]:
+def map_(function: Callable[..., Y], *args, dims: DimFilter = shape, range=range, unwrap_scalars=True, expand_results=False, **kwargs) -> Union[None, Tensor, Y]:
     """
     Calls `function` on slices of the arguments and returns the stacked result.
 
@@ -1364,13 +1364,13 @@ def map_(function: Callable[..., Y], *args, dims: DimFilter = shape, range=range
                 assert all(r[i] is None for r in results), f"map function returned None for some elements, {results}"
                 stacked.append(None)
             else:
-                stacked.append(math.stack([r[i] for r in results], dims_, expand_values=True))
+                stacked.append(math.stack([r[i] for r in results], dims_, expand_values=expand_results))
         return tuple(stacked)
     else:
         if any(r is None for r in results):
             assert all(r is None for r in results), f"map function returned None for some elements, {results}"
             return None
-        return stack(results, dims_, expand_values=True)
+        return stack(results, dims_, expand_values=expand_results)
 
 
 def identity(x):
