@@ -462,7 +462,7 @@ class BoundDim:
             name: Dimension name as `str`.
         """
         if name.startswith('_') or ',' in name or ' ' in name:
-            raise AttributeError(f"'{type(self)}' object has no attribute '{name}'")
+            raise AttributeError(f"'{type(obj)}' object has no attribute '{name}'")
         if name == 'shape':
             raise AttributeError(f"Object of type {type(obj)} has no shape")
         if name == 'is_tensor_like':
