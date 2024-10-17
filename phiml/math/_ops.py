@@ -1677,17 +1677,6 @@ def finite_mean(value, dim: DimFilter = non_batch, default: Union[complex, float
     return where(is_finite(mean_nan), mean_nan, default)
 
 
-def lookup_where(native_index_fn: Callable, value: Union[Tensor, PhiTreeNode, None], key: Tensor, dim: DimFilter):
-    dims = key.shape.only(dim)
-    key_batch = key.shape.without(dims)
-    assert dim, f"No dimensions {dim} present on key {key.shape}"
-    key_nat = reshaped_native(key, [key_batch, dims])
-    idx_native = native_index_fn(key_nat)
-    multi_idx_native = choose_backend(idx_native).unravel_index(idx_native[:, 0], dims.sizes)
-    idx = reshaped_tensor(multi_idx_native, [key_batch, channel(_index=dims)])
-    return tree_map(lambda t: gather(t, idx, pref_index_dim='_index'), value)
-
-
 def at_max(value, key: Tensor, dim: DimFilter = non_batch):
     """
     Looks up the values of `value` at the positions where the maximum values in `key` are located along `dim`.
@@ -1703,7 +1692,9 @@ def at_max(value, key: Tensor, dim: DimFilter = non_batch):
     Returns:
         The values of `other_tensors` at the positions where the maximum values in `value` are located along `dim`.
     """
-    return lookup_where(lambda v: choose_backend(v).argmax(v, 1, keepdims=True), value, key, dim)
+    assert dim, f"No dimensions {dim} present on key {key.shape}"
+    idx = argmax(key, dim)
+    return tree_map(lambda t: gather(t, idx), value)
 
 
 def at_min(value, key: Tensor, dim: DimFilter = non_batch):
@@ -1721,7 +1712,9 @@ def at_min(value, key: Tensor, dim: DimFilter = non_batch):
     Returns:
         The values of `other_tensors` at the positions where the minimum values in `value` are located along `dim`.
     """
-    return lookup_where(lambda v: choose_backend(v).argmin(v, 1, keepdims=True), value, key, dim)
+    assert dim, f"No dimensions {dim} present on key {key.shape}"
+    idx = argmin(key, dim)
+    return tree_map(lambda t: gather(t, idx), value)
 
 
 def argmax(x: Tensor, dim: DimFilter, index_dim=channel('index')):
