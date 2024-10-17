@@ -10,7 +10,7 @@ from typing import Tuple, Callable, List
 import numpy
 import numpy as np
 
-from ._magic_ops import PhiTreeNodeType, variable_attributes, copy_with, stack, pack_dims, expand, slice_, flatten, rename_dims, unpack_dim, unstack, value_attributes
+from ._magic_ops import PhiTreeNodeType, variable_attributes, copy_with, stack, pack_dims, expand, slice_, flatten, rename_dims, unpack_dim, unstack, value_attributes, all_attributes
 from ._shape import (Shape,
                      CHANNEL_DIM, BATCH_DIM, SPATIAL_DIM, EMPTY_SHAPE,
                      parse_dim_order, shape_stack, merge_shapes, channel, concat_shapes, primal,
@@ -794,6 +794,7 @@ class Tensor:
         match_primal = other.shape.only(match_names, reorder=True)
         if not match_primal:
             assert non_batch(other).non_dual.rank == 1, f"Cannot multiply {self.shape} @ {other.shape} because arg2 does not have appropriate non-dual dimensions"
+            assert non_batch(other).non_dual.size == match_primal.volume, f"Cannot multiply {self.shape} @ {other.shape} because dual dims of arg1 have no match"
             match_primal = non_batch(other).non_dual
         match_dual = self.shape.dual.only(match_primal.as_dual(), reorder=True)
         left_arg = pack_dims(self, match_dual, dual('_reduce'))
@@ -1858,8 +1859,8 @@ def assemble_tensors(natives: Union[tuple, list], specs: Union[Tuple[dict, ...],
     return result
 
 
-MISSING_TENSOR = 'missing'
-NATIVE_TENSOR = 'native'
+MISSING_TENSOR = '__missing__'
+NATIVE_TENSOR = '__native__'
 
 
 def disassemble_tree(obj: PhiTreeNodeType, cache: bool, attr_type=variable_attributes) -> Tuple[PhiTreeNodeType, List[Tensor]]:
@@ -1922,9 +1923,9 @@ def disassemble_tree(obj: PhiTreeNodeType, cache: bool, attr_type=variable_attri
 
 def assemble_tree(obj: PhiTreeNodeType, values: List[Tensor], attr_type=variable_attributes) -> PhiTreeNodeType:
     """ Reverses `disassemble_tree()` given an empty nested structure and a list of tensors. """
-    if obj is MISSING_TENSOR:
+    if isinstance(obj, str) and obj == MISSING_TENSOR:
         return None
-    elif obj is NATIVE_TENSOR:
+    elif isinstance(obj, str) and obj == NATIVE_TENSOR:
         value = values.pop(0)
         assert isinstance(value, NativeTensor), f"Failed to assemble tree structure. Encountered {value}"
         if isinstance(value._native, np.ndarray) and value.shape == EMPTY_SHAPE:  # this can be represented as a Python scalar, which leads to less conversion errors
@@ -2257,6 +2258,9 @@ def reshaped_native(value: Tensor,
     assert isinstance(value, Tensor), f"value must be a Tensor but got {value} {type(value)}"
     assert not value._is_tracer, f"Failed accessing native values because tensor {value.shape} is a tracer"
     assert isinstance(groups, (tuple, list)), f"groups must be a tuple or list but got {type(value)}"
+    from ._sparse import is_sparse, dense
+    if is_sparse(value):
+        value = dense(value)
     def process_group(g):
         if g is None or (isinstance(g, tuple) and len(g) == 0):
             return EMPTY_SHAPE
@@ -2795,3 +2799,20 @@ def specs_equal(spec1, spec2):
     if isinstance(spec1, (tuple, list)):
         return len(spec1) == len(spec2) and all([specs_equal(s1, s2) for s1, s2 in zip(spec1, spec2)])
     return spec1 == spec2
+
+
+def save_tree(file: str, obj):
+    tree, tensors = disassemble_tree(obj, cache=False, attr_type=all_attributes)
+    natives, _, specs = disassemble_tensors(tensors, expand=False)
+    np_natives = [choose_backend(n).numpy(n) for n in natives]
+    np.savez(file, *np_natives, tree=tree, specs=specs)
+
+
+def load_tree(file: str):
+    data = np.load(file, allow_pickle=True)
+    np_natives = [data[k] for k in data if k not in ['tree', 'specs']]
+    specs = data['specs'].tolist()
+    tensors = assemble_tensors(np_natives, specs)
+    tree = data['tree'].tolist()  # this may require outside classes via pickle
+    obj = assemble_tree(tree, tensors, attr_type=all_attributes)
+    return obj

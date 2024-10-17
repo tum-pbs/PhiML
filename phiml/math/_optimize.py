@@ -13,7 +13,7 @@ from ..backend._linalg import IncompleteLU, incomplete_lu_dense, incomplete_lu_c
 from ._shape import EMPTY_SHAPE, Shape, merge_shapes, batch, non_batch, shape, dual, channel, non_dual, instance, spatial
 from ._magic_ops import stack, copy_with, rename_dims, unpack_dim, unstack, expand, value_attributes
 from ._sparse import native_matrix, SparseCoordinateTensor, CompressedSparseMatrix, stored_values, is_sparse, matrix_rank, _stored_matrix_rank
-from ._tensors import Tensor, disassemble_tree, assemble_tree, wrap, cached, NativeTensor, layout, reshaped_numpy, reshaped_native, reshaped_tensor
+from ._tensors import Tensor, disassemble_tree, assemble_tree, wrap, cached, NativeTensor, layout, reshaped_numpy, reshaped_native, reshaped_tensor, NATIVE_TENSOR
 from . import _ops as math
 from ._ops import choose_backend_t, zeros_like, all_available, to_float
 from ._functional import custom_gradient, LinearFunction, f_name, _TRACING_JIT, map_
@@ -574,7 +574,7 @@ def solve_linear(f: Union[Callable[[X], Y], Tensor],
     y_tree, y_tensors = disassemble_tree(y, cache=False, attr_type=value_attributes)
     x0_tree, x0_tensors = disassemble_tree(solve.x0, cache=False, attr_type=value_attributes)
     assert len(x0_tensors) == len(y_tensors) == 1, "Only single-tensor linear solves are currently supported"
-    if y_tree == 'native' and x0_tree == 'native':
+    if isinstance(y_tree, str) and y_tree == NATIVE_TENSOR and isinstance(x0_tree, str) and x0_tree == NATIVE_TENSOR:
         if callable(f):  # assume batch + 1 dim
             rank = y_tensors[0].rank
             assert x0_tensors[0].rank == rank, f"y and x0 must have the same rank but got {y_tensors[0].shape.sizes} for y and {x0_tensors[0].shape.sizes} for x0"
