@@ -343,6 +343,40 @@ def concat(values: Union[tuple, list], dim: Union[str, Shape], expand_values=Fal
         raise MagicNotImplemented(f"concat: No value implemented __concat__ and slices could not be stacked. values = {[type(v) for v in values]}")
 
 
+def ccat(values: Sequence, dim: Shape, expand_values=False):
+    """
+    Concatenate components along `dim`.
+
+    Args:
+        values: Each value can contain multiple components of `dim` if `dim` is present in its shape.
+            Else, it is interpreted as a single component whose name will be determined from the leftover item names of `dim`.
+        dim: Single dimension with item names.
+        expand_values: If `True`, will add all missing dimensions to values, not just batch dimensions.
+            This allows tensors with different dimensions to be concatenated.
+            The resulting tensor will have all dimensions that are present in `values`.
+            If `False`, this may return a non-numeric object instead.
+
+    Returns:
+        Same type as any value from `values`.
+    """
+    order = dim.item_names[0]
+    assert dim.rank == 1 and order, f"dim needs to be a single dimension with item names but got {dim}"
+    named = {}
+    unnamed = []
+    for value in values:
+        s = shape(value)
+        if dim in s:
+            for n in s[dim].item_names[0]:
+                named[n] = value[{dim.name: n}]
+        else:
+            unnamed.append(value)
+    missing = [n for n in order if n not in named]
+    assert len(missing) == len(unnamed), f"Components do not match dim {dim}. Given: {len(unnamed)} for remaining names {missing}"
+    named.update({n: v for v, n in zip(unnamed, missing)})
+    components = [named[n] for n in order]
+    return stack(components, dim, expand_values=expand_values)
+
+
 def expand(value, *dims: Union[Shape, str], **kwargs):
     """
     Adds dimensions to a `Tensor` or tensor-like object by implicitly repeating the tensor values along the new dimensions.
