@@ -686,6 +686,10 @@ def variable_values(obj) -> Tuple[str, ...]:
 
 
 def all_attributes(obj, assert_any=False) -> Sequence[str]:
+    if hasattr(obj, '__all_attrs__'):
+        result = obj.__all_attrs__()
+        assert isinstance(result, tuple), f"__value_attrs__ must return Tuple[str,...] but got '{type(result)}' from '{type(obj)}'"
+        return result
     if not isinstance(obj, PhiTreeNode):
         raise ValueError(f"Not a PhiTreeNode: {type(obj).__name__}")
     result = set()

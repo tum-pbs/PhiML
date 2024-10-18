@@ -368,6 +368,9 @@ class PhiTreeNode(metaclass=_PhiTreeNodeType):
         """
         Returns all `Tensor` or `PhiTreeNode` attribute names of `self` that should be transformed by single-operand math operations,
         such as `sin()`, `exp()`.
+        Optimization functions, such as `minimize` also work on value attributes, as well as most derivative-related function, e.g.
+        - `jacobian()`
+        - `custom_gradient()`
 
         Returns:
             `tuple` of `str` attributes.
@@ -386,8 +389,22 @@ class PhiTreeNode(metaclass=_PhiTreeNodeType):
         - `jit_compile()`
         - `jit_compile_linear()`
         - `stop_gradient()`
-        - `jacobian()`
-        - `custom_gradient()`
+
+        Returns:
+            `tuple` of `str` attributes.
+                Calling `getattr(self, attr)` must return a `Tensor` or `PhiTreeNode` for all returned attributes.
+        """
+        raise NotImplementedError
+
+    def __all_attrs__(self) -> Tuple[str, ...]:
+        """
+        Returns all `Tensor` or `PhiTreeNode` attribute names of `self` needed to fully describe this instance.
+        Fields which never hold `Tensor` instances (directly or indirectly) should not be included.
+
+        The returned attributes are used to extract tensors for serializing and un-serializing the object.
+
+        All names returned by `__variable_attrs__` and `__value_attrs__` must be included in this list.
+        If not implemented, the union of `__variable_attrs__` and `__value_attrs__` will be used instead.
 
         Returns:
             `tuple` of `str` attributes.
