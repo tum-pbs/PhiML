@@ -167,7 +167,7 @@ This supports the following operations:</p>
             name: Dimension name as `str`.
         &#34;&#34;&#34;
         if name.startswith(&#39;_&#39;) or &#39;,&#39; in name or &#39; &#39; in name:
-            raise AttributeError(f&#34;&#39;{type(self)}&#39; object has no attribute &#39;{name}&#39;&#34;)
+            raise AttributeError(f&#34;&#39;{type(obj)}&#39; object has no attribute &#39;{name}&#39;&#34;)
         if name == &#39;shape&#39;:
             raise AttributeError(f&#34;Object of type {type(obj)} has no shape&#34;)
         if name == &#39;is_tensor_like&#39;:

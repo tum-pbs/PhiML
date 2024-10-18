@@ -9508,6 +9508,7 @@ When backed by an editable native tensor, e.g. a <code>numpy.ndarray</code>, do 
         match_primal = other.shape.only(match_names, reorder=True)
         if not match_primal:
             assert non_batch(other).non_dual.rank == 1, f&#34;Cannot multiply {self.shape} @ {other.shape} because arg2 does not have appropriate non-dual dimensions&#34;
+            assert non_batch(other).non_dual.size == match_primal.volume, f&#34;Cannot multiply {self.shape} @ {other.shape} because dual dims of arg1 have no match&#34;
             match_primal = non_batch(other).non_dual
         match_dual = self.shape.dual.only(match_primal.as_dual(), reorder=True)
         left_arg = pack_dims(self, match_dual, dual(&#39;_reduce&#39;))
