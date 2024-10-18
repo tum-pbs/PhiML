@@ -277,6 +277,9 @@ class TorchBackend(Backend):
     def random_normal(self, shape, dtype: DType):
         return torch.randn(size=shape, dtype=to_torch_dtype(dtype or self.float_type), device=self.get_default_device().ref)
 
+    def random_permutations(self, permutations: int, n: int):
+        return torch.stack([torch.randperm(n) for _ in range(permutations)])
+
     def stack(self, values, axis=0):
         values = [self.as_tensor(v) for v in values]
         return torch.stack(values, dim=axis)

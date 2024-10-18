@@ -481,6 +481,35 @@ def random_uniform(*shape: Shape,
         return _initialize(uniform_random_uniform, shape) * (high - low) + low
 
 
+def random_permutation(*shape: Shape, dims=non_batch, index_dim=channel('index')) -> Tensor:
+    """
+    Generate random permutations of the integers between 0 and the size of `shape`.
+
+    When multiple dims are given, the permutation is randomized across all of them and tensor of multi-indices is returned.
+
+    Batch dims result in batches of permutations.
+
+    Args:
+        *shape: `Shape` of the result tensor, including `dims` and batches.
+        *dims: Sequence dims for an individual permutation. The total `Shape.volume` defines the maximum integer.
+            All other dims from `shape` are treated as batch.
+
+    Returns:
+        `Tensor`
+    """
+    assert dims is not batch, f"dims cannot include all batch dims because that violates the batch principle. Specify batch dims by name instead."
+    shape = concat_shapes(*shape)
+    assert not shape.dual_rank, f"random_permutation does not support dual dims but got {shape}"
+    perm_dims = shape.only(dims)
+    batches = shape - perm_dims
+    b = choose_backend(*shape.sizes, prefer_default=True)
+    native = b.random_permutations(batches.volume, perm_dims.volume)
+    if perm_dims.rank == 0:  # cannot add index_dim
+        return reshaped_tensor(native, [batches, ()], convert=False)
+    native = b.unravel_index(native, perm_dims.sizes)
+    return reshaped_tensor(native, [batches, perm_dims, index_dim.with_size(perm_dims.name_list)], convert=False)
+
+
 def transpose(x, axes):
     """
     Swap the dimension order of `x`.

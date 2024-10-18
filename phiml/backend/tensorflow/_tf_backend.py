@@ -195,6 +195,11 @@ class TFBackend(Backend):
         with tf.device(self._default_device.ref):
             return tf.random.normal(shape, dtype=to_numpy_dtype(dtype or self.float_type))
 
+    def random_permutations(self, permutations: int, n: int):
+        with tf.device(self._default_device.ref):
+            ordered = tf.range(0, n)
+            return tf.stack([tf.random.shuffle(ordered) for _ in range(permutations)])
+
     def range(self, start, limit=None, delta=1, dtype: DType = DType(int, 32)):
         with tf.device(self._default_device.ref):
             return tf.range(start, limit, delta, to_numpy_dtype(dtype))

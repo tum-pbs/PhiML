@@ -531,6 +531,10 @@ class Backend:
         """ Float tensor of selected precision containing random values sampled from a normal distribution with mean 0 and std 1. """
         raise NotImplementedError(self)
 
+    def random_permutations(self, permutations: int, n: int):
+        """Generate `permutations` stacked arrays of shuffled integers between `0` and `n`."""
+        raise NotImplementedError
+
     def stack(self, values, axis=0):
         raise NotImplementedError(self)
 

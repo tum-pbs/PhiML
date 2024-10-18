@@ -43,7 +43,8 @@ from ._ops import (
     reshaped_native, reshaped_tensor, copy, native_call,
     print_ as print,
     slice_off,
-    zeros, ones, fftfreq, random_normal, random_normal as randn, random_uniform, random_uniform as rand, meshgrid, linspace, arange as range, range_tensor,  # creation operators (use default backend)
+    zeros, ones, fftfreq, random_normal, random_normal as randn, random_uniform, random_uniform as rand, random_permutation,
+    meshgrid, linspace, arange as range, range_tensor,  # creation operators (use default backend)
     zeros_like, ones_like,
     pad,
     transpose,  # reshape operations

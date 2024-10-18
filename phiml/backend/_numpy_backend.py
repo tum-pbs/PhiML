@@ -199,6 +199,9 @@ class NumPyBackend(Backend):
         dtype = dtype or self.float_type
         return np.random.standard_normal(shape).astype(to_numpy_dtype(dtype))
 
+    def random_permutations(self, permutations: int, n: int):
+        return np.stack([np.random.permutation(n) for _ in range(permutations)])
+
     def range(self, start, limit=None, delta=1, dtype: DType = DType(int, 32)):
         if limit is None:
             start, limit = 0, start
