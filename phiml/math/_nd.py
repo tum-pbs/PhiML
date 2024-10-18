@@ -210,7 +210,7 @@ def rotate_vector(vector: math.Tensor, angle: Optional[Union[float, math.Tensor]
         return vector
     matrix = rotation_matrix(angle, matrix_dim=channel(vector))
     if invert:
-        matrix = rename_dims(matrix, '~vector,vector', math.concat_shapes(channel('vector'), dual('vector')))
+        matrix = rename_dims(matrix, '~vector,vector', matrix.shape['vector'] + matrix.shape['~vector'])
     assert matrix.vector.dual.size == vector.vector.size, f"Rotation matrix from {angle.shape} is {matrix.vector.dual.size}D but vector {vector.shape} is {vector.vector.size}D."
     return matrix @ vector
 
