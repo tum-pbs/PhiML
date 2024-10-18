@@ -111,7 +111,7 @@ def _any_uniform_dim(dims: Shape):
     raise ValueError(f"Uniform dimension required but found only non-uniform dimensions {dims}")
 
 
-def stack(values: Union[tuple, list, dict], dim: Union[Shape, str], expand_values=False, **kwargs):
+def stack(values: Union[tuple, list, dict], dim: Union[Shape, str], expand_values=False, simplify=False, **kwargs):
     """
     Stacks `values` along the new dimension `dim`.
     All values must have the same spatial, instance and channel dimensions. If the dimension sizes vary, the resulting tensor will be non-uniform.
@@ -129,6 +129,8 @@ def stack(values: Union[tuple, list, dict], dim: Union[Shape, str], expand_value
         expand_values: If `True`, will first add missing dimensions to all values, not just batch dimensions.
             This allows tensors with different dimensions to be stacked.
             The resulting tensor will have all dimensions that are present in `values`.
+            If `False`, this may return a non-numeric object instead.
+        simplify: If `True` and all values are equal, returns one value without adding the dimension.
         **kwargs: Additional keyword arguments required by specific implementations.
             Adding spatial dimensions to fields requires the `bounds: Box` argument specifying the physical extent of the new dimensions.
             Adding batch dimensions must always work without keyword arguments.
@@ -153,6 +155,16 @@ def stack(values: Union[tuple, list, dict], dim: Union[Shape, str], expand_value
     if not isinstance(dim, Shape):
         dim = auto(dim)
     values_ = tuple(values.values()) if isinstance(values, dict) else values
+    if simplify:
+        if all(v is None for v in values_):
+            return values[0]
+        from ._tensors import Tensor
+        if isinstance(values_[0], Tensor):
+            from ._ops import equal
+            if equal(*values_, equal_nan=True):
+                return values_[0]
+        elif all(v == values_[0] for v in values_[1:]):
+            return values_[0]
     shapes = [shape(v) for v in values_]
     if not expand_values:
         v0_dims = set(shapes[0].non_batch.names)
