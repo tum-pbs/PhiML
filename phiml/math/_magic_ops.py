@@ -685,7 +685,7 @@ def variable_values(obj) -> Tuple[str, ...]:
         return obj.__value_attrs__()  # this takes care of dataclasses as well
 
 
-def all_attributes(obj, assert_any=False) -> Set[str]:
+def all_attributes(obj, assert_any=False) -> Sequence[str]:
     if not isinstance(obj, PhiTreeNode):
         raise ValueError(f"Not a PhiTreeNode: {type(obj).__name__}")
     result = set()
@@ -697,7 +697,7 @@ def all_attributes(obj, assert_any=False) -> Set[str]:
         result.update([f.name for f in dataclasses.fields(obj)])
     if assert_any:
         assert result, f"{type(obj).__name__} is not a valid tree node because it has no tensor-like attributes."
-    return result
+    return tuple(sorted(result))
 
 
 def replace(obj: PhiTreeNodeType, **updates) -> PhiTreeNodeType:
