@@ -372,6 +372,8 @@ class PhiTreeNode(metaclass=_PhiTreeNodeType):
         - `jacobian()`
         - `custom_gradient()`
 
+        Dataclasses may instead declare the field `values: Tuple[str,...]`
+
         Returns:
             `tuple` of `str` attributes.
                 Calling `getattr(self, attr)` must return a `Tensor` or `PhiTreeNode` for all returned attributes.
@@ -390,6 +392,8 @@ class PhiTreeNode(metaclass=_PhiTreeNodeType):
         - `jit_compile_linear()`
         - `stop_gradient()`
 
+        Dataclasses may instead declare the field `variables: Tuple[str,...]`
+
         Returns:
             `tuple` of `str` attributes.
                 Calling `getattr(self, attr)` must return a `Tensor` or `PhiTreeNode` for all returned attributes.
@@ -404,7 +408,8 @@ class PhiTreeNode(metaclass=_PhiTreeNodeType):
         The returned attributes are used to extract tensors for serializing and un-serializing the object.
 
         All names returned by `__variable_attrs__` and `__value_attrs__` must be included in this list.
-        If not implemented, the union of `__variable_attrs__` and `__value_attrs__` will be used instead.
+        If not implemented, the union of `__variable_attrs__` and `__value_attrs__` will be used instead, and dataclasses default to all fields possibly containing data.
+        The only dataclass fields excluded are those of type `Shape` or primitive types `str`, `int`, `float`, etc. and collections of these.
 
         Returns:
             `tuple` of `str` attributes.
