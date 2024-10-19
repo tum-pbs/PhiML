@@ -215,7 +215,7 @@ def rotate_vector(vector: math.Tensor, angle: Optional[Union[float, math.Tensor]
     return matrix @ vector
 
 
-def rotation_matrix(x: Union[float, math.Tensor], matrix_dim=channel('vector')):
+def rotation_matrix(x: Union[float, math.Tensor, None], matrix_dim=channel('vector')) -> Optional[Tensor]:
     """
     Create a 2D or 3D rotation matrix from the corresponding angle(s).
 
@@ -231,6 +231,8 @@ def rotation_matrix(x: Union[float, math.Tensor], matrix_dim=channel('vector')):
     Returns:
         Matrix containing `matrix_dim` in primal and dual form as well as all non-channel dimensions of `x`.
     """
+    if x is None:
+        return None
     if isinstance(x, Tensor) and '~vector' in x.shape and 'vector' in x.shape.channel and x.shape.get_size('~vector') == x.shape.get_size('vector'):
         return x  # already a rotation matrix
     elif 'angle' in shape(x) and shape(x).get_size('angle') == 3:  # 3D Euler angles
