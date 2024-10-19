@@ -2,7 +2,7 @@ import copy
 import warnings
 from functools import partial
 from numbers import Number
-from typing import TypeVar, Tuple, Set, Dict, Union, Optional, Sequence, Any
+from typing import TypeVar, Tuple, Set, Dict, Union, Optional, Sequence, Any, get_origin, List, Iterable, get_args
 
 import dataclasses
 
@@ -702,12 +702,20 @@ def variable_attributes(obj) -> Tuple[str, ...]:
         result = obj.__variable_attrs__()
         assert isinstance(result, tuple), f"__variable_attrs__ must return Tuple[str,...] but got '{type(result)}' from '{type(obj)}'"
         return result
+    elif hasattr(obj, '__all_attrs__'):
+        result = obj.__all_attrs__()
+        assert isinstance(result, tuple), f"__all_attrs__ must return Tuple[str,...] but got '{type(result)}' from '{type(obj)}'"
+        return result
     elif hasattr(obj, '__value_attrs__'):
         result = obj.__value_attrs__()
         assert isinstance(result, tuple), f"__value_attrs__ must return Tuple[str,...] but got '{type(result)}' from '{type(obj)}'"
         return result
     elif dataclasses.is_dataclass(obj):
-        return tuple([f.name for f in dataclasses.fields(obj)])
+        if hasattr(obj, 'variable_attrs'):
+            result = obj.variable_attrs
+            assert isinstance(result, tuple), f"dataclass.variable_attrs must return Tuple[str,...] but got '{type(result)}' from '{type(obj)}'"
+            return result
+        return all_attributes(obj)
     else:
         raise ValueError(f"Not a PhiTreeNode: {type(obj).__name__}")
 
@@ -717,8 +725,16 @@ def value_attributes(obj) -> Tuple[str, ...]:
         result = obj.__value_attrs__()
         assert isinstance(result, tuple), f"__value_attrs__ must return Tuple[str,...] but got '{type(result)}' from '{type(obj)}'"
         return result
+    elif hasattr(obj, '__all_attrs__'):
+        result = obj.__all_attrs__()
+        assert isinstance(result, tuple), f"__all_attrs__ must return Tuple[str,...] but got '{type(result)}' from '{type(obj)}'"
+        return result
     if dataclasses.is_dataclass(obj):
-        return tuple([f.name for f in dataclasses.fields(obj)])
+        if hasattr(obj, 'value_attrs'):
+            result = obj.value_attrs
+            assert isinstance(result, tuple), f"dataclass.value_attrs must return Tuple[str,...] but got '{type(result)}' from '{type(obj)}'"
+            return result
+        return all_attributes(obj)
     raise ValueError(f"{type(obj).__name__} must implement '__value_attrs__()' or be a dataclass to be used with value functions.")
 
 
@@ -731,7 +747,7 @@ def variable_values(obj) -> Tuple[str, ...]:
         return obj.__value_attrs__()  # this takes care of dataclasses as well
 
 
-def all_attributes(obj, assert_any=False) -> Sequence[str]:
+def all_attributes(obj, assert_any=False) -> Tuple[str, ...]:
     if hasattr(obj, '__all_attrs__'):
         result = obj.__all_attrs__()
         assert isinstance(result, tuple), f"__value_attrs__ must return Tuple[str,...] but got '{type(result)}' from '{type(obj)}'"
@@ -744,10 +760,20 @@ def all_attributes(obj, assert_any=False) -> Sequence[str]:
     if hasattr(obj, '__value_attrs__'):
         result.update(obj.__value_attrs__())
     if dataclasses.is_dataclass(obj) and not hasattr(obj, '__variable_attrs__') and not hasattr(obj, '__value_attrs__'):
-        result.update([f.name for f in dataclasses.fields(obj)])
+        result.update([f.name for f in dataclasses.fields(obj) if _is_child_field(f)])
     if assert_any:
         assert result, f"{type(obj).__name__} is not a valid tree node because it has no tensor-like attributes."
     return tuple(sorted(result))
+
+
+def _is_child_field(field: dataclasses.Field):
+    origin_type = get_origin(field.type)
+    if origin_type in {list, List, tuple, Tuple, set, Set, Iterable, Optional}:
+        args = get_args(field.type)  # The arguments passed to the generic (e.g., List[int] -> (int,))
+        primitives = [a for a in args if a is not Ellipsis] if args else [field.type]
+    else:
+        primitives = [field.type]
+    return any(p not in (str, int, float, complex, bool, Shape) for p in primitives)
 
 
 def replace(obj: PhiTreeNodeType, **updates) -> PhiTreeNodeType:
