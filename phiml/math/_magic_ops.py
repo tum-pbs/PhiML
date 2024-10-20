@@ -149,6 +149,8 @@ def stack(values: Union[tuple, list, dict], dim: Union[Shape, str], expand_value
         (x=1.000, y=0.000); (x=2.000, y=3.000) (bᵇ=2, vectorᶜ=x,y)
     """
     assert len(values) > 0, f"stack() got empty sequence {values}"
+    if simplify and len(values) == 1:
+        return next(iter(values.values())) if isinstance(values, dict) else values[0]
     if not dim:
         assert len(values) == 1, f"Only one element can be passed as `values` if no dim is passed but got {values}"
         return next(iter(values.values())) if isinstance(values, dict) else values[0]
