@@ -672,7 +672,7 @@ class BoundDim:
         return unpack_dim(self.obj, self.name, *dims, **kwargs)
 
     def __bool__(self):
-        raise SyntaxError(f"{self} cannot be converted to bool. The property you want to access likely does not exist.")
+        raise SyntaxError(f"{self} cannot be converted to bool. The property you want to access likely does not exist or raised an error when evaluated.")
 
 
 class _BoundDims:
