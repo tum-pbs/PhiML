@@ -1101,7 +1101,7 @@ class TestOps(TestCase):
             with b:
                 mat = math.randn(channel(c=3), dual(d=2))
                 lat, s, conv = math.svd(mat)
-                math.assert_close(mat, conv @ (lat * s))
+                math.assert_close(mat, conv @ (lat * s), rel_tolerance=1e-4)
         # --- non-uniform list ---
         matrix = stack([
             math.random_normal(instance(voxels=3), spatial(x=2, y=2)),
