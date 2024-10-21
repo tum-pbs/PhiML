@@ -16,7 +16,7 @@ from .magic import Sliceable, Shaped, Shapable, PhiTreeNode
 class MagicNotImplemented(Exception): pass
 
 
-def slice_(value, slices: Dict[str, Union[int, slice, str, tuple, list]]):
+def slice_(value, slices: Dict[str, Union[int, slice, str, tuple, list, Any]]):
     """
     Slices a `Tensor` or `phiml.math.magic.PhiTreeNode` along named dimensions.
 
