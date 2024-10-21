@@ -864,7 +864,7 @@ class Tensor:
         return self
 
 
-TensorOrTree = TypeVar('TensorOrTree', Tensor, PhiTreeNode, Number, bool, tuple, list, dict)
+TensorOrTree = TypeVar('TensorOrTree', Tensor, PhiTreeNode, Number, bool, tuple, list, dict, Any)
 
 
 class TensorDim(BoundDim):

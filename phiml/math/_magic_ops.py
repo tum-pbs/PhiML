@@ -13,10 +13,15 @@ from ._shape import Shape, DimFilter, batch, instance, shape, non_batch, merge_s
 from .magic import Sliceable, Shaped, Shapable, PhiTreeNode
 
 
+# PhiTreeNode
+
+PhiTreeNodeType = TypeVar('PhiTreeNodeType')  # Defined in phiml.math.magic: tuple, list, dict, custom
+
+
 class MagicNotImplemented(Exception): pass
 
 
-def slice_(value, slices: Dict[str, Union[int, slice, str, tuple, list]]):
+def slice_(value: PhiTreeNodeType, slices: Dict[str, Union[int, slice, str, tuple, list, Any]]) -> PhiTreeNodeType:
     """
     Slices a `Tensor` or `phiml.math.magic.PhiTreeNode` along named dimensions.
 
@@ -692,11 +697,6 @@ def flatten(value, flat_dim: Shape = instance('flat'), flatten_batch=False, **kw
     # There is no tree node implementation for flatten because pack_dims is just as fast
     # --- Fallback: pack_dims ---
     return pack_dims(value, shape(value) if flatten_batch else non_batch(value), flat_dim, **kwargs)
-
-
-# PhiTreeNode
-
-PhiTreeNodeType = TypeVar('PhiTreeNodeType')  # Defined in phiml.math.magic: tuple, list, dict, custom
 
 
 def variable_attributes(obj) -> Tuple[str, ...]:
