@@ -58,7 +58,7 @@ def slice_(value: PhiTreeNodeType, slices: Dict[str, Union[int, slice, str, tupl
     if hasattr(value, '__getitem__'):
         return value[slices]
     if isinstance(value, PhiTreeNode):
-        attrs = {key: getattr(value, key) for key in value_attributes(value)}
+        attrs = {key: getattr(value, key) for key in all_attributes(value)}
         new_attrs = {k: slice_(v, slices) for k, v in attrs.items()}
         return copy_with(value, **new_attrs)
     raise ValueError(f"value must be a PhiTreeNode but got {type(value)}")
