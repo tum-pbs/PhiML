@@ -292,6 +292,52 @@ def rotation_angles(rot: Tensor):
         raise ValueError(f"")
 
 
+def rotation_matrix_from_directions(source_dir: Tensor, target_dir: Tensor) -> Tensor:
+    """
+    Computes a rotation matrix A, such that `target_dir = A @ source_dir`
+
+    Args:
+        source_dir: Two or three-dimensional vector. `Tensor` with channel dim called 'vector'.
+        target_dir: Two or three-dimensional vector. `Tensor` with channel dim called 'vector'.
+
+    Returns:
+        Rotation matrix as `Tensor` with 'vector' dim and its dual counterpart.
+    """
+    if source_dir.vector.size == 3:
+        source_dir = vec_normalize(source_dir)
+        target_dir = vec_normalize(target_dir)
+        axis = cross_product(source_dir, target_dir)
+        angle = math.arccos(source_dir.vector @ target_dir.vector)
+        return rotation_matrix_from_axis_and_angle(axis, angle, is_axis_normalized=False)
+    raise NotImplementedError
+
+
+def rotation_matrix_from_axis_and_angle(axis: Tensor, angle: Union[float, Tensor], is_axis_normalized=False) -> Tensor:
+    """
+    Computes a rotation matrix that rotates by `angle` around `axis`.
+
+    Args:
+        axis: 3D vector. `Tensor` with channel dim called 'vector'.
+        is_axis_normalized: Whether `axis` has length 1.
+        angle: Rotation angle.
+
+    Returns:
+        Rotation matrix as `Tensor` with 'vector' dim and its dual counterpart.
+    """
+    if axis.vector.size == 3:  # Rodrigues' rotation formula
+        axis = vec_normalize(axis) if not is_axis_normalized else axis
+        kx, ky, kz = axis.vector
+        s = math.sin(angle)
+        c = 1 - math.cos(angle)
+        return wrap([
+            (1 - c*(ky*ky+kz*kz),    -kz*s + c*(kx*ky),     ky*s + c*(kx*kz)),
+            (   kz*s + c*(kx*ky),  1 - c*(kx*kx+kz*kz),     -kx*s + c*(ky * kz)),
+            (  -ky*s + c*(kx*kz),    kx*s + c*(ky * kz),  1 - c*(kx*kx+ky*ky)),
+        ], axis.shape['vector'], axis.shape['vector'].as_dual())
+    raise NotImplementedError
+
+
+
 def dim_mask(all_dims: Union[Shape, tuple, list], dims: DimFilter, mask_dim=channel('vector')) -> Tensor:
     """
     Creates a masked vector with 1 elements for `dims` and 0 for all other dimensions in `all_dims`.
