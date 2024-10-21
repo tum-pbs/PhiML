@@ -510,6 +510,33 @@ def random_permutation(*shape: Union[Shape, Any], dims=non_batch, index_dim=chan
     return reshaped_tensor(native, [batches, perm_dims, index_dim.with_size(perm_dims.name_list)], convert=False)
 
 
+def pick_random(value: TensorOrTree, dim: DimFilter, count: Union[int, Shape, None] = 1) -> TensorOrTree:
+    """
+    Pick one or multiple random entries from `value`.
+
+    Args:
+        value: Tensor or tree. When containing multiple tensors, the corresponding entries are picked on all tensors that have `dim`.
+        dim: Dimension along which to pick random entries. `Shape` with one dim.
+        count: Number of entries to pick. When specified as a `Shape`, lists picked values along `count` instead of `dim`.
+
+    Returns:
+        `Tensor` or tree equal to `value`.
+    """
+    v_shape = shape(value)
+    dim = v_shape.only(dim)
+    idx = random_permutation(dim & v_shape.batch, dims=dim)
+    if count is None and dim.well_defined:
+        count = dim.size
+    if count is not None:
+        if isinstance(count, int):
+            idx = idx[{dim: slice(count)}]
+        else:
+            assert isinstance(count, Shape)
+            idx = idx[{dim: slice(count.volume)}]
+            idx = unpack_dim(idx, dim, count)
+    return slice_(value, idx)
+
+
 def transpose(x, axes):
     """
     Swap the dimension order of `x`.
