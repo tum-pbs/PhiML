@@ -481,7 +481,7 @@ def random_uniform(*shape: Shape,
         return _initialize(uniform_random_uniform, shape) * (high - low) + low
 
 
-def random_permutation(*shape: Shape, dims=non_batch, index_dim=channel('index')) -> Tensor:
+def random_permutation(*shape: Union[Shape, Any], dims=non_batch, index_dim=channel('index')) -> Tensor:
     """
     Generate random permutations of the integers between 0 and the size of `shape`.
 
