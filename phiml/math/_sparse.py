@@ -1774,6 +1774,8 @@ def sparse_gather(matrix: Tensor, indices: Tensor, index_dim: Shape):
         dense_shape = matrix._dense_shape.without(index_dim.item_names[0]) & indices.shape.without(index_dim)
         new_row_dims = indices.shape.without(index_dim).without(matrix.shape)
         if not new_row_dims:
+            if not lin_indices.flags.owndata:
+                lin_indices = np.array(lin_indices)
             lookup = scipy_mat[lin_indices, np.arange(scipy_mat.shape[1])].A1 - 1
             lookup = expand(wrap(lookup, instance('sp_entries')), channel(sparse_idx=instance(col_indices).name))
             gathered_indices = col_indices[lookup]
