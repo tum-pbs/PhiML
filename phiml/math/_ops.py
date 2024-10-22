@@ -2,7 +2,7 @@ import functools
 import math
 import warnings
 from numbers import Number
-from typing import Tuple, Callable, Any, Union, Optional, Dict, Collection, Sequence
+from typing import Tuple, Callable, Any, Union, Optional, Dict, Collection, Sequence, Set
 
 import numpy as np
 
@@ -1102,7 +1102,7 @@ def _grid_sample(grid: Tensor, coordinates: Tensor, extrap: Union['e_.Extrapolat
     return result
 
 
-def broadcast_dims(*tensors: Tensor):
+def broadcast_dims(*tensors: Tensor) -> Set[str]:
     iter_dims = set()
     for tensor in tensors:
         iter_dims.update(shape(tensor).shape.without('dims').names)
@@ -2578,6 +2578,17 @@ def gather(values, indices: Tensor, dims: Union[DimFilter, None] = None, pref_in
     treat_as_batch = indices.shape.only(values.shape) - dims - index_dim
     batch_ = ((values.shape.batch & indices.shape.batch).without(dims) & treat_as_batch) - broadcast
     channel_ = values.shape - dims - batch_ - broadcast
+    if broadcast.intersection(set(dims)):  # Cannot broadcast because that would iterate over dims!
+        if values.shape.is_uniform:
+            broadcast = broadcast - set(dims)
+        else:  # We have to slice the items, then stack the results
+            if batch_ or treat_as_batch:
+                raise NotImplementedError  # ToDo iterate over batches
+            result = []
+            for single_index in unstack(indices, indices.shape - index_dim):
+                index_slice = {d: i for d, i in zip(index_dim.item_names[0], single_index)}
+                result.append(values[index_slice])
+            return stack(result, indices.shape - index_dim)
     def uniform_gather(values: Tensor, indices: Tensor):
         index_list_dims = indices.shape - index_dim - batch_
         squeeze_index_list = False
