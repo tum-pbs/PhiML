@@ -620,6 +620,18 @@ class Tensor:
     def T(self):
         return self._with_shape_replaced(self.shape.transposed)
 
+    @property
+    def Ti(self):
+        return self._with_shape_replaced(self.shape.transpose(instance))
+
+    @property
+    def Tc(self):
+        return self._with_shape_replaced(self.shape.transpose(channel))
+
+    @property
+    def Ts(self):
+        return self._with_shape_replaced(self.shape.transpose(channel))
+
     def map(self, function: Callable, dims=shape_, range=range, unwrap_scalars=True, **kwargs):
         from ._functional import map_
         return map_(function, self, dims=dims, range=range, unwrap_scalars=unwrap_scalars, **kwargs)
