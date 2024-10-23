@@ -506,8 +506,15 @@ class Shape:
             replacement = {DUAL_DIM: CHANNEL_DIM}
         else:
             raise ValueError(f"Cannot transpose shape {self} as it has no channel or instance or spatial dims.")
-        types = tuple([replacement.get(t, t) for t in self.types])
-        return self._with_types(types)
+        return self._with_types(tuple([replacement.get(t, t) for t in self.types]))
+
+    def transpose(self, dims: DimFilter):
+        if callable(dims) and dims in TYPE_BY_FUNCTION:
+            dims = TYPE_BY_FUNCTION[dims]
+            replacement = {DUAL_DIM: dims, dims: DUAL_DIM}
+            return self._with_types(tuple([replacement.get(t, t) for t in self.types]))
+        dims = self.only(dims)
+        return self.replace(dims, dims.transposed)
 
     @property
     def non_singleton(self) -> 'Shape':
@@ -1182,7 +1189,7 @@ class Shape:
         to_remove = dims[-(len(dims) - len(new)):]
         return replaced.without(to_remove)
 
-    def _with_types(self, types: Union['Shape', str, Tuple[str], List[str]]):
+    def _with_types(self, types: Union['Shape', str, Tuple[str, ...], List[str]]):
         """
         Only for internal use.
         Note: This method does not rename dimensions to comply with type requirements (e.g. ~ for dual dims).
