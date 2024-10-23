@@ -651,6 +651,10 @@ class BoundDim:
             return self.obj
         return self.retype(dual) if name is None else self.replace(dual(**{name: self.item_names or self.size}))
 
+    @property
+    def T(self):
+        return self.retype(dual) if self.type != dual else self.retype(channel)
+
     def replace(self, dim: Shape, **kwargs):
         """
         Returns a shallow copy of the `Tensor` where this dimension has been replaced by `dim`.
