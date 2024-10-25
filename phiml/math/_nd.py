@@ -992,6 +992,8 @@ def downsample2x(grid: Tensor,
       half-size grid
 
     """
+    if grid is None:
+        return None
     dims = grid.shape.only(dims).names
     odd_dimensions = [dim for dim in dims if grid.shape.get_size(dim) % 2 != 0]
     grid = math.pad(grid, {dim: (0, 1) for dim in odd_dimensions}, padding)
@@ -1021,6 +1023,8 @@ def upsample2x(grid: Tensor,
       double-size grid
 
     """
+    if grid is None:
+        return None
     for dim in grid.shape.only(dims):
         left, center, right = shift(grid, (-1, 0, 1), dim.names, padding, None, padding_kwargs=padding_kwargs)
         interp_left = 0.25 * left + 0.75 * center
