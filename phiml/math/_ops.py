@@ -1212,7 +1212,7 @@ def where(condition: Union[Tensor, float, int],
     return broadcast_op(inner_where, [condition, value_true, value_false])
 
 
-def nonzero(value: Tensor, list_dim: Union[Shape, str] = instance('nonzero'), index_dim: Shape = channel('vector')):
+def nonzero(value: Tensor, list_dim: Union[Shape, str, int] = instance('nonzero'), index_dim: Shape = channel('vector')):
     """
     Get spatial indices of non-zero / True values.
     
@@ -1228,7 +1228,8 @@ def nonzero(value: Tensor, list_dim: Union[Shape, str] = instance('nonzero'), in
 
     Args:
         value: spatial tensor to find non-zero / True values in.
-        list_dim: Dimension listing non-zero values.
+        list_dim: Dimension listing non-zero values. If size specified, lists only the first `size` non-zero values.
+            Special case: For retrieving only the first non-zero value, you may pass `1` instead of a `Shape` of size 1.
         index_dim: Index dimension.
 
     Returns:
@@ -1239,10 +1240,13 @@ def nonzero(value: Tensor, list_dim: Union[Shape, str] = instance('nonzero'), in
         value = sum_(abs(value), value.shape.channel)
     if isinstance(list_dim, str):
         list_dim = auto(list_dim, instance)
+    cutoff = list_dim if isinstance(list_dim, int) else list_dim.size
+    list_dim = EMPTY_SHAPE if isinstance(list_dim, int) else list_dim
     def unbatched_nonzero(value: Tensor):
         if isinstance(value, CompressedSparseMatrix):
             value = value.decompress()
         if isinstance(value, SparseCoordinateTensor):
+            assert cutoff is None, f"Cut-off Not implemented for sparse tensors"
             nonzero_values = nonzero(value._values)
             nonzero_indices = value._indices[nonzero_values]
             index_dim_ = index_dim.with_size(channel(value._indices).item_names[0])
@@ -1250,10 +1254,11 @@ def nonzero(value: Tensor, list_dim: Union[Shape, str] = instance('nonzero'), in
         else:
             dims = value.shape.non_channel
             native = reshaped_native(value, [*dims])
-            backend = choose_backend(native)
-            indices = backend.nonzero(native)
-            indices_shape = Shape(backend.staticshape(indices), (list_dim.name, index_dim.name), (list_dim.type, index_dim.type), (None, dims.names))
-            return NativeTensor(indices, indices_shape)
+            b = choose_backend(native)
+            indices = b.nonzero(native)
+            if cutoff is not None:
+                indices = indices[:cutoff, :]
+            return reshaped_tensor(indices, [list_dim, index_dim.with_size(dims.name_list)])
     return broadcast_op(unbatched_nonzero, [value], iter_dims=value.shape.batch.names)
 
 
