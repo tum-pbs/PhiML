@@ -1809,10 +1809,14 @@ def argmax(x: Tensor, dim: DimFilter, index_dim=channel('index')):
             return x._with_values(argmax(x._values, dims))
         else:
             raise NotImplementedError
-    v_native = reshaped_native(x, [keep, dims])
-    idx_native = x.default_backend.argmax(v_native, 1, keepdims=True)
-    multi_idx_native = choose_backend(idx_native).unravel_index(idx_native[:, 0], dims.sizes)
-    return reshaped_tensor(multi_idx_native, [keep, index_dim.with_size(dims)])
+    broadcast = broadcast_dims(x)
+    def uniform_argmin(x: Tensor):
+        dims = x.shape.only(dim)
+        v_native = reshaped_native(x, [keep - broadcast, dims])
+        idx_native = x.default_backend.argmax(v_native, 1, keepdims=True)
+        multi_idx_native = choose_backend(idx_native).unravel_index(idx_native[:, 0], dims.sizes)
+        return reshaped_tensor(multi_idx_native, [keep - broadcast, index_dim.with_size(dims)])
+    return broadcast_op(uniform_argmin, [x], broadcast)
 
 
 def argmin(x: Tensor, dim: DimFilter, index_dim=channel('index')):
@@ -1851,10 +1855,14 @@ def argmin(x: Tensor, dim: DimFilter, index_dim=channel('index')):
             return x._with_values(argmin(x._values, dims))
         else:
             raise NotImplementedError
-    v_native = reshaped_native(x, [keep, dims])
-    idx_native = x.default_backend.argmin(v_native, 1, keepdims=True)
-    multi_idx_native = choose_backend(idx_native).unravel_index(idx_native[:, 0], dims.sizes)
-    return reshaped_tensor(multi_idx_native, [keep, index_dim.with_size(dims)])
+    broadcast = broadcast_dims(x)
+    def uniform_argmin(x: Tensor):
+        dims = x.shape.only(dim)
+        v_native = reshaped_native(x, [keep - broadcast, dims])
+        idx_native = x.default_backend.argmin(v_native, 1, keepdims=True)
+        multi_idx_native = choose_backend(idx_native).unravel_index(idx_native[:, 0], dims.sizes)
+        return reshaped_tensor(multi_idx_native, [keep - broadcast, index_dim.with_size(dims)])
+    return broadcast_op(uniform_argmin, [x], broadcast)
 
 
 def quantile(value: Tensor,
