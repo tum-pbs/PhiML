@@ -1566,7 +1566,7 @@ def _all(value: Tensor, dims: Shape) -> Tensor:
     raise ValueError(type(value))
 
 
-def max_(value: TensorOrTree, dim: DimFilter = non_batch) -> TensorOrTree:
+def max_(value: TensorOrTree, dim: DimFilter = non_batch, key: Tensor = None) -> TensorOrTree:
     """
     Determines the maximum value of `values` along the specified dimensions.
 
@@ -1581,9 +1581,13 @@ def max_(value: TensorOrTree, dim: DimFilter = non_batch) -> TensorOrTree:
             * `batch`, `instance`, `spatial`, `channel` to select dimensions by type
             * `'0'` when `isinstance(value, (tuple, list))` to add up the sequence of Tensors
 
+        key: Optional comparison values. If specified, returns the value where `key` is maximal, see `at_max()`.
+
     Returns:
         `Tensor` without the reduced dimensions.
     """
+    if key is not None:
+        return at_max(value, key, dim)
     return reduce_(_max, value, dim)
 
 
@@ -1601,7 +1605,7 @@ def _max(value: Tensor, dims: Shape) -> Tensor:
     raise ValueError(type(value))
 
 
-def min_(value, dim: DimFilter = non_batch) -> Tensor:
+def min_(value, dim: DimFilter = non_batch, key: Tensor = None) -> Tensor:
     """
     Determines the minimum value of `values` along the specified dimensions.
 
@@ -1616,9 +1620,13 @@ def min_(value, dim: DimFilter = non_batch) -> Tensor:
             * `batch`, `instance`, `spatial`, `channel` to select dimensions by type
             * `'0'` when `isinstance(value, (tuple, list))` to add up the sequence of Tensors
 
+        key: Optional comparison values. If specified, returns the value where `key` is minimal, see `at_min()`.
+
     Returns:
         `Tensor` without the reduced dimensions.
     """
+    if key is not None:
+        return at_min(value, key, dim)
     return reduce_(_min, value, dim)
 
 
