@@ -1750,7 +1750,7 @@ def at_max(value, key: Tensor, dim: DimFilter = non_batch):
     """
     assert dim, f"No dimensions {dim} present on key {key.shape}"
     idx = argmax(key, dim)
-    return tree_map(lambda t: gather(t, idx), value)
+    return slice_(value, idx)
 
 
 def at_min(value, key: Tensor, dim: DimFilter = non_batch):
@@ -1770,7 +1770,7 @@ def at_min(value, key: Tensor, dim: DimFilter = non_batch):
     """
     assert dim, f"No dimensions {dim} present on key {key.shape}"
     idx = argmin(key, dim)
-    return tree_map(lambda t: gather(t, idx), value)
+    return slice_(value, idx)
 
 
 def argmax(x: Tensor, dim: DimFilter, index_dim=channel('index')):
