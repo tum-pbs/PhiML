@@ -1231,18 +1231,16 @@ class Shape:
         Returns:
             volume as `int` or `Tensor` or `None` if the shape is not `Shape.well_defined`
         """
-        from . import Tensor
-        for dim, size in self._named_sizes:
-            if isinstance(size, Tensor) and size.rank > 0:
-                non_uniform_dim = size.shape.names[0]
-                shapes = self.unstack(non_uniform_dim)
-                return sum(s.volume for s in shapes)
         result = 1
         for size in self.sizes:
             if size is None:
                 return None
             result *= size
-        return int(result)
+        from ._tensors import Tensor
+        if not isinstance(result, Tensor):
+            return result
+        result /= self.non_uniform_shape.volume  # We summed up the items -> undo multiplication
+        return int(result.sum)
 
     @property
     def is_empty(self) -> bool:
