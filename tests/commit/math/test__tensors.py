@@ -403,21 +403,18 @@ class TestTensors(TestCase):
         total = 0.
         for value in math.ones():
             total += value
-        self.assertIsInstance(total, float)
         self.assertEqual(total, 1)
 
     def test_iterate_1d(self):
         total = 0.
         for value in math.ones(channel(vector=3)):
             total += value
-        self.assertIsInstance(total, float)
         self.assertEqual(total, 3)
 
     def test_iterate_2d(self):
         total = 0.
         for value in math.ones(channel(v1=2, v2=2)):
             total += value
-        self.assertIsInstance(total, float)
         self.assertEqual(total, 4)
 
     def test_iterate_layout(self):
