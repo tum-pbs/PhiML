@@ -2,7 +2,7 @@ import copy
 import warnings
 from functools import partial
 from numbers import Number
-from typing import TypeVar, Tuple, Set, Dict, Union, Optional, Sequence, Any, get_origin, List, Iterable, get_args
+from typing import TypeVar, Tuple, Set, Dict, Union, Optional, Sequence, Any, get_origin, List, Iterable, get_args, Callable
 
 import dataclasses
 
@@ -116,7 +116,7 @@ def _any_uniform_dim(dims: Shape):
     raise ValueError(f"Uniform dimension required but found only non-uniform dimensions {dims}")
 
 
-def stack(values: Union[tuple, list, dict], dim: Union[Shape, str], expand_values=False, simplify=False, **kwargs):
+def stack(values: Union[Sequence[PhiTreeNodeType], Dict[str, PhiTreeNodeType]], dim: Union[Shape, str], expand_values=False, simplify=False, **kwargs) -> PhiTreeNodeType:
     """
     Stacks `values` along the new dimension `dim`.
     All values must have the same spatial, instance and channel dimensions. If the dimension sizes vary, the resulting tensor will be non-uniform.
@@ -263,7 +263,7 @@ def stack(values: Union[tuple, list, dict], dim: Union[Shape, str], expand_value
         return values[0]
 
 
-def concat(values: Union[tuple, list], dim: Union[str, Shape], expand_values=False, **kwargs):
+def concat(values: Sequence[PhiTreeNodeType], dim: Union[str, Shape], expand_values=False, **kwargs) -> PhiTreeNodeType:
     """
     Concatenates a sequence of `phiml.math.magic.Shapable` objects, e.g. `Tensor`, along one dimension.
     All values must have the same spatial, instance and channel dimensions and their sizes must be equal, except for `dim`.
@@ -350,7 +350,7 @@ def concat(values: Union[tuple, list], dim: Union[str, Shape], expand_values=Fal
         raise MagicNotImplemented(f"concat: No value implemented __concat__ and slices could not be stacked. values = {[type(v) for v in values]}")
 
 
-def ccat(values: Sequence, dim: Shape, expand_values=False):
+def ccat(values: Sequence[PhiTreeNodeType], dim: Shape, expand_values=False) -> PhiTreeNodeType:
     """
     Concatenate components along `dim`.
 
@@ -382,6 +382,35 @@ def ccat(values: Sequence, dim: Shape, expand_values=False):
     named.update({n: v for v, n in zip(unnamed, missing)})
     components = [named[n] for n in order]
     return stack(components, dim, expand_values=expand_values)
+
+
+def tcat(values: Sequence[PhiTreeNodeType], dim_type: Callable, expand_values=False, default_name='tcat') -> PhiTreeNodeType:
+    """
+    Concatenate values by dim type.
+    This function first packs all dimensions of `dim_type` into one dim, then concatenates all `values`.
+    Values that do not have a dim of `dim_type` are considered a size-1 slice.
+
+    The name of the first matching dim of `dim_type` is used as the concatenated output dim name.
+    If no value has a matching dim, `default_name` is used instead.
+
+    Args:
+        values: Values to be concatenated.
+        dim_type: Dimension type along which to concatenate.
+        expand_values: Whether to add missing other non-batch dims to values as needed.
+        default_name: Concatenation dim name if none of the values have a matching dim.
+
+    Returns:
+        Same type as any value.
+    """
+    dims = [dim_type(v) for v in values]
+    present_dims = [s for s in dims if s]
+    if present_dims:
+        dim_name = present_dims[0].name
+    else:
+        dim_name = default_name
+    single = dim_type(**{dim_name: 1})
+    flat_values = [pack_dims(v, dim_type, dim_type(dim_name)) if dim_name in s else expand(v, single) for v, s in zip(values, dims)]
+    return concat(flat_values, dim_name, expand_values=expand_values)
 
 
 def expand(value, *dims: Union[Shape, str], **kwargs):
