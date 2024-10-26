@@ -55,6 +55,11 @@ def slice_(value: PhiTreeNodeType, slices: Dict[str, Union[int, slice, str, tupl
         return {k: slice_(v, slices) for k, v in value.items()}
     if isinstance(value, Shape):
         raise NotImplementedError
+    if value is range:
+        from ._tensors import Tensor
+        if isinstance(slices, Tensor):
+            return slices
+        raise NotImplementedError("range only supported for index slicing")
     if hasattr(value, '__getitem__'):
         return value[slices]
     if isinstance(value, PhiTreeNode):

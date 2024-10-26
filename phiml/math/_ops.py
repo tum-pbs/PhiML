@@ -516,6 +516,7 @@ def pick_random(value: TensorOrTree, dim: DimFilter, count: Union[int, Shape, No
 
     Args:
         value: Tensor or tree. When containing multiple tensors, the corresponding entries are picked on all tensors that have `dim`.
+            You can pass `range` (the type) to retrieve the picked indices.
         dim: Dimension along which to pick random entries. `Shape` with one dim.
         count: Number of entries to pick. When specified as a `Shape`, lists picked values along `count` instead of `dim`.
 
@@ -1755,6 +1756,7 @@ def at_max(value, key: Tensor, dim: DimFilter = non_batch):
 
     Args:
         value: Tensors or trees from which to lookup and return values. These tensors are indexed at the maximum index in `key´.
+            You can pass `range` (the type) to retrieve the picked indices.
         key: `Tensor` containing at least one dimension of `dim`. The maximum index of `key` is determined.
         dim: Dimensions along which to compute the maximum of `key`.
 
@@ -1775,6 +1777,7 @@ def at_min(value, key: Tensor, dim: DimFilter = non_batch):
 
     Args:
         value: Tensors or trees from which to lookup and return values. These tensors are indexed at the minimum index in `key´.
+            You can pass `range` (the type) to retrieve the picked indices.
         key: `Tensor` containing at least one dimension of `dim`. The minimum index of `key` is determined.
         dim: Dimensions along which to compute the minimum of `key`.
 
