@@ -502,12 +502,20 @@ def random_permutation(*shape: Union[Shape, Any], dims=non_batch, index_dim=chan
     assert not shape.dual_rank, f"random_permutation does not support dual dims but got {shape}"
     perm_dims = shape.only(dims)
     batches = shape - perm_dims
-    b = choose_backend(*shape.sizes, prefer_default=True)
-    native = b.random_permutations(batches.volume, perm_dims.volume)
-    if perm_dims.rank == 0:  # cannot add index_dim
-        return reshaped_tensor(native, [batches, ()], convert=False)
-    native = b.unravel_index(native, perm_dims.sizes)
-    return reshaped_tensor(native, [batches, perm_dims, index_dim.with_size(perm_dims.name_list)], convert=False)
+    nu = perm_dims.non_uniform_shape
+    batches -= nu
+    assert nu in shape, f"Non-uniform permutation dims {perm_dims} must be included in the shape but got {shape}"
+    b = default_backend()
+    result = []
+    for idx in nu.meshgrid():
+        perm_dims_i = perm_dims.after_gather(idx)
+        native = b.random_permutations(batches.volume, perm_dims_i.volume)
+        if perm_dims_i.rank == 0:  # cannot add index_dim
+            result.append(reshaped_tensor(native, [batches, ()], convert=False))
+        else:
+            native = b.unravel_index(native, perm_dims_i.sizes)
+            result.append(reshaped_tensor(native, [batches, perm_dims_i, index_dim.with_size(perm_dims_i.name_list)], convert=False))
+    return stack(result, nu)
 
 
 def pick_random(value: TensorOrTree, dim: DimFilter, count: Union[int, Shape, None] = 1) -> TensorOrTree:
@@ -525,7 +533,7 @@ def pick_random(value: TensorOrTree, dim: DimFilter, count: Union[int, Shape, No
     """
     v_shape = shape(value)
     dim = v_shape.only(dim)
-    idx = random_permutation(dim & v_shape.batch, dims=dim)
+    idx = random_permutation(dim & v_shape.batch & dim.non_uniform_shape, dims=dim)
     if count is None and dim.well_defined:
         count = dim.size
     if count is not None:
