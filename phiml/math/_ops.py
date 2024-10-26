@@ -2623,6 +2623,7 @@ def gather(values, indices: Tensor, dims: Union[DimFilter, None] = None, pref_in
             return stack(result, indices.shape - index_dim)
     def uniform_gather(values: Tensor, indices: Tensor):
         index_list_dims = indices.shape - index_dim - batch_
+        channel_ = values.shape - dims - batch_ - broadcast
         squeeze_index_list = False
         if not index_list_dims:
             index_list_dims = instance(_single_index=1)
@@ -2779,10 +2780,13 @@ def scatter(base_grid: Union[Tensor, Shape],
         indices = unpack_dim(indices_linear, '_scatter_instance', instance(indices))
         if indices.shape.is_non_uniform:
             raise NotImplementedError()
-    def scatter_forward(base_grid: Tensor, indices: Tensor, values: Tensor):
+    broadcast = broadcast_dims(base_grid, indices, values)
+    def scatter_forward(base_grid: Tensor, indices: Tensor, values: Tensor, indexed_dims=indexed_dims):
+        indexed_dims = base_grid.shape[indexed_dims] - broadcast
         batches = values.shape.non_channel.non_instance & indices.shape.non_channel.non_instance
         batches &= values.shape.only(treat_as_batch) & indices.shape.only(treat_as_batch)
-        channels = grid_shape.without(indexed_dims).without(batches) & values.shape.channel
+        batches -= broadcast
+        channels = (grid_shape - indexed_dims - batches - broadcast) & values.shape.channel
         lists = indices.shape.instance & values.shape.instance
         if values._is_tracer:
             if indices._is_tracer or base_grid._is_tracer:
@@ -2814,7 +2818,7 @@ def scatter(base_grid: Union[Tensor, Shape],
 
     from ._functional import custom_gradient
     scatter_function = custom_gradient(scatter_forward, scatter_backward) if indices_gradient else scatter_forward
-    result = broadcast_op(scatter_function, [base_grid, indices, values])
+    result = broadcast_op(scatter_function, [base_grid, indices, values], broadcast)
     return result
 
 
