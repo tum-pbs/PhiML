@@ -1304,8 +1304,7 @@ class Shape:
     def after_gather(self, selection: dict) -> 'Shape':
         result = self
         for sel_dim, selection in selection.items():
-            if sel_dim not in self.names:
-                continue
+            # Even if sel_dim not part of self, can still be part of non_uniform_shape
             selection = self.prepare_gather(sel_dim, selection)
             if isinstance(selection, int):
                 if result.is_uniform:
