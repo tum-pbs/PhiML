@@ -1302,18 +1302,19 @@ class Shape:
         return {dim: self.prepare_gather(dim, s) for dim, s in index.items()}
 
     def after_gather(self, selection: dict) -> 'Shape':
-        result = self
+        if self.is_non_uniform:
+            from . import Tensor
+            sizes = [(s[selection] if isinstance(s, Tensor) else s) for s in self.sizes]
+            sizes = [(int(s) if isinstance(s, Tensor) and s.rank == 0 else s) for s in sizes]
+            result = self.with_sizes(sizes)
+        else:
+            result = self
         for sel_dim, selection in selection.items():
-            # Even if sel_dim not part of self, can still be part of non_uniform_shape
+            if sel_dim not in self.names:
+                continue
             selection = self.prepare_gather(sel_dim, selection)
             if isinstance(selection, int):
-                if result.is_uniform:
-                    result = result.without(sel_dim)
-                else:
-                    from . import Tensor
-                    gathered_sizes = [(s[{sel_dim: selection}] if isinstance(s, Tensor) else s) for s in result.sizes]
-                    gathered_sizes = [(int(s) if isinstance(s, Tensor) and s.rank == 0 else s) for s in gathered_sizes]
-                    result = result.with_sizes(gathered_sizes, keep_item_names=True).without(sel_dim)
+                result = result.without(sel_dim)
             elif isinstance(selection, slice):
                 step = int(selection.step) if selection.step is not None else 1
                 start = int(selection.start) if selection.start is not None else (0 if step > 0 else self.get_size(sel_dim)-1)
