@@ -21,7 +21,7 @@ PhiTreeNodeType = TypeVar('PhiTreeNodeType')  # Defined in phiml.math.magic: tup
 class MagicNotImplemented(Exception): pass
 
 
-def slice_(value: PhiTreeNodeType, slices: Dict[str, Union[int, slice, str, tuple, list, Any]]) -> PhiTreeNodeType:
+def slice_(value: PhiTreeNodeType, slices: Union[Dict[str, Union[int, slice, str, tuple, list, Any]], Any]) -> PhiTreeNodeType:
     """
     Slices a `Tensor` or `phiml.math.magic.PhiTreeNode` along named dimensions.
 

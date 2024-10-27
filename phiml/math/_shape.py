@@ -630,7 +630,7 @@ class Shape:
         return self.names[0]
 
     @property
-    def size(self) -> int:
+    def size(self):
         """
         Only for Shapes containing exactly one single dimension.
         Returns the size of the dimension.
