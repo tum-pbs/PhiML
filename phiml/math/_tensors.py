@@ -2874,7 +2874,20 @@ def specs_equal(spec1, spec2):
     return spec1 == spec2
 
 
-def save_tree(file: str, obj):
+def save(file: str, obj):
+    """
+    Saves a `Tensor` or tree using NumPy.
+    This function converts all tensors contained in `obj` to NumPy tensors before storing.
+    Each tensor is given a name corresponding to its path within `obj`, allowing reading only specific arrays from the file later on.
+    Pickle is used for structures, but no reference to `Tensor` or its sub-classes is included.
+
+    See Also:
+        `load()`.
+
+    Args:
+        file: Target file, will be stored as `.npz`.
+        obj: `Tensor` or tree to store.
+    """
     tree, tensors = disassemble_tree(obj, False, all_attributes)
     paths = attr_paths(obj, all_attributes, 'root')
     assert len(paths) == len(tensors)
@@ -2887,7 +2900,19 @@ def save_tree(file: str, obj):
     np.savez(file, tree=tree, specs=specs, paths=paths, **{p: n for p, n in zip(all_paths, all_np)})
 
 
-def load_tree(file: str):
+def load(file: str):
+    """
+    Loads a `Tensor` or tree from a file previously written using `save`.
+
+    All tensors are restored as NumPy arrays, not the backend-specific tensors they may have been written as.
+    Use `convert()` to convert all or some of the tensors to a different backend.
+
+    Args:
+        file: File to read.
+
+    Returns:
+        Same type as what was written.
+    """
     data = np.load(file, allow_pickle=True)
     all_np = {k: data[k] for k in data if k not in ['tree', 'specs', 'paths']}
     specs = [unserialize_spec(spec) for spec in data['specs'].tolist()]

@@ -691,3 +691,10 @@ class TestTensors(TestCase):
         s = spatial(x=4, y=3)
         t = math.reshaped_tensor(a, [s, s.as_dual()])
         self.assertEqual(set(t.shape), set(s & dual))
+
+    def test_save_load(self):
+        files = math.layout(["A", "test/filename.png", math.ones(spatial(x='a,b,c'))], 'example:b')
+        math.save("files.npz", files)
+        loaded = math.load("files.npz")
+        self.assertEqual(loaded.example[0].native(), "A")
+        self.assertTrue((loaded.example[2] == 1).all)
