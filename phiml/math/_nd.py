@@ -313,20 +313,21 @@ def rotation_matrix_from_directions(source_dir: Tensor, target_dir: Tensor) -> T
     raise NotImplementedError
 
 
-def rotation_matrix_from_axis_and_angle(axis: Tensor, angle: Union[float, Tensor], is_axis_normalized=False) -> Tensor:
+def rotation_matrix_from_axis_and_angle(axis: Tensor, angle: Union[float, Tensor], is_axis_normalized=False, epsilon=1e-5) -> Tensor:
     """
     Computes a rotation matrix that rotates by `angle` around `axis`.
 
     Args:
         axis: 3D vector. `Tensor` with channel dim called 'vector'.
-        is_axis_normalized: Whether `axis` has length 1.
         angle: Rotation angle.
+        is_axis_normalized: Whether `axis` has length 1.
+        epsilon: Minimum axis length. For shorter axes, the unit matrix is returned.
 
     Returns:
         Rotation matrix as `Tensor` with 'vector' dim and its dual counterpart.
     """
     if axis.vector.size == 3:  # Rodrigues' rotation formula
-        axis = vec_normalize(axis) if not is_axis_normalized else axis
+        axis = vec_normalize(axis, epsilon=epsilon, allow_zero=True) if not is_axis_normalized else axis
         kx, ky, kz = axis.vector
         s = math.sin(angle)
         c = 1 - math.cos(angle)
