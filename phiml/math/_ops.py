@@ -1771,7 +1771,8 @@ def at_max(value, key: Tensor, dim: DimFilter = non_batch):
     Returns:
         The values of `other_tensors` at the positions where the maximum values in `value` are located along `dim`.
     """
-    assert dim, f"No dimensions {dim} present on key {key.shape}"
+    if not shape(key).only(dim):
+        return value
     idx = argmax(key, dim)
     return slice_(value, idx)
 
@@ -1792,7 +1793,8 @@ def at_min(value, key: Tensor, dim: DimFilter = non_batch):
     Returns:
         The values of `other_tensors` at the positions where the minimum values in `value` are located along `dim`.
     """
-    assert dim, f"No dimensions {dim} present on key {key.shape}"
+    if not shape(key).only(dim):
+        return value
     idx = argmin(key, dim)
     return slice_(value, idx)
 
