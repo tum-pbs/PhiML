@@ -9,7 +9,7 @@ import numpy as np
 from ..backend import default_backend, choose_backend, Backend, get_precision, convert as b_convert, BACKENDS, NoBackendFound, ComputeDevice, NUMPY
 from ..backend._dtype import DType, combine_types
 from .magic import PhiTreeNode
-from ._magic_ops import expand, pack_dims, unpack_dim, cast, value_attributes, bool_to_int, tree_map, concat, stack, unstack, rename_dims, slice_
+from ._magic_ops import expand, pack_dims, unpack_dim, cast, value_attributes, bool_to_int, tree_map, concat, stack, unstack, rename_dims, slice_, all_attributes, NON_ATTR_TYPES
 from ._shape import (Shape, EMPTY_SHAPE,
                      spatial, batch, channel, instance, merge_shapes, parse_dim_order, concat_shapes,
                      IncompatibleShapes, DimFilter, non_batch, dual, shape, shape as get_shape, primal, auto, non_spatial, non_dual)
@@ -2515,7 +2515,7 @@ def convolve(value: Tensor,
     return result
 
 
-def boolean_mask(x, dim: DimFilter, mask: Tensor):
+def boolean_mask(x, dim: DimFilter, mask: Tensor, preserve_names=False):
     """
     Discards values `x.dim[i]` where `mask.dim[i]=False`.
     All dimensions of `mask` that are not `dim` are treated as batch dimensions.
@@ -2533,6 +2533,7 @@ def boolean_mask(x, dim: DimFilter, mask: Tensor):
         x: `Tensor` or `phiml.math.magic.Sliceable`.
         dim: Dimension of `x` to along which to discard slices.
         mask: Boolean `Tensor` marking which values to keep. Must have the dimension `dim` matching `x´.
+        preserve_names: This only supports uniform 1D slicing. Batched slicing will remove item names if incompatible.
 
     Returns:
         Selected values of `x` as `Tensor` with dimensions from `x` and `mask`.
@@ -2540,6 +2541,16 @@ def boolean_mask(x, dim: DimFilter, mask: Tensor):
     dim, original_dim = shape(mask).only(dim), dim
     assert dim, f"mask dimension '{original_dim}' must be present on the mask {mask.shape}"
     assert dim.rank == 1, f"boolean mask only supports 1D selection"
+    if not isinstance(x, Tensor) and isinstance(x, PhiTreeNode):
+        return tree_map(boolean_mask, x, all_attributes, dim=dim, mask=mask, preserve_names=preserve_names, include_non_attrs=False, treat_layout_as_leaf=True)
+    if isinstance(x, Layout):
+        if dim.name == x._stack_dim.name:
+            np_mask = mask.numpy()
+            indices = np.nonzero(np_mask)[0]
+            gathered = [x._obj[i] for i in indices]
+            size = len(gathered) if not preserve_names or x._stack_dim.item_names[0] is None else [x._stack_dim.item_names[0][i] for i in indices]
+            return Layout(gathered, dim.with_size(size))
+        return tree_map(boolean_mask, x, all_attributes, dim=dim, mask=mask, preserve_names=preserve_names, include_non_attrs=False, treat_layout_as_leaf=True)
     if is_sparse(x):
         indices = nonzero(mask, list_dim=instance('_boolean_mask'))
         result = x[indices]
@@ -2555,14 +2566,17 @@ def boolean_mask(x, dim: DimFilter, mask: Tensor):
             mask_native = mask_1d.native()  # only has 1 dim
             backend = choose_backend(x_native, mask_native)
             result_native = backend.boolean_mask(x_native, mask_native, axis=x.shape.index(dim))
-            new_shape = x.shape.with_sizes(backend.staticshape(result_native))
+            new_shape = x.shape.with_sizes(backend.staticshape(result_native))  # ToDo add selected item names!!!
+            if preserve_names and dim.item_names[0]:
+                sel_names = [n for n, sel in zip(dim.item_names[0], mask_native) if sel]
+                new_shape = new_shape.with_dim_size(dim, sel_names)
             return NativeTensor(result_native, new_shape)
         else:
             total = int(sum_(to_int64(mask_1d), mask_1d.shape))
             new_shape = mask_1d.shape.with_sizes([total])
             return expand(x, new_shape)
 
-    return broadcast_op(uniform_boolean_mask, [x, mask], iter_dims=mask.shape.without(dim))
+    return broadcast_op(uniform_boolean_mask, [x, mask], iter_dims=set(mask.shape.without(dim).names) | broadcast_dims(x, mask))
 
 
 def gather(values, indices: Tensor, dims: Union[DimFilter, None] = None, pref_index_dim='index'):
