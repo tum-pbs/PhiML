@@ -3532,8 +3532,8 @@ def svd(x: Tensor, feature_dim: DimFilter = channel, list_dim: DimFilter = None,
 
     Returns:
         latents: Latent vectors of each item listed. `Tensor` with `list_dim` and `latent_dim`.
-        singular: List of singular values. `Tensor` with `latent_dim`
-        latent_to_value: Matrix which can compute the features from a latent vector. `Tensor` with `latent_dim` and `feature_dim`.
+        singular: List of singular values. `Tensor` with `latent_dim`.
+        features: Stacked normalized features / trends. This matrix can be used to compute the original value from a latent vector. `Tensor` with `latent_dim` and `feature_dim`.
     """
     feature_dim = x.shape.only(feature_dim)
     if list_dim is not None:
