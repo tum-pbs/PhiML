@@ -2240,6 +2240,11 @@ def is_inf(x: TensorOrTree) -> TensorOrTree:
     return _backend_op1(x, Backend.isnan)
 
 
+def nan_to_0(x: TensorOrTree) -> TensorOrTree:
+    """Replaces all NaN values in `x` with `0`."""
+    return where(is_nan(x), 0, x)
+
+
 def real(x: TensorOrTree) -> TensorOrTree:
     """
     See Also:
