@@ -809,7 +809,10 @@ def _is_child_field(field: dataclasses.Field):
         primitives = [a for a in args if a is not Ellipsis] if args else [field.type]
     else:
         primitives = [field.type]
-    return any(p not in (str, int, float, complex, bool, Shape) for p in primitives)
+    return any(p not in NON_ATTR_TYPES for p in primitives)
+
+
+NON_ATTR_TYPES = str, int, float, complex, bool, Shape
 
 
 def replace(obj: PhiTreeNodeType, **updates) -> PhiTreeNodeType:
@@ -891,6 +894,8 @@ def cast(x: MagicType, dtype: Union[DType, type]) -> OtherMagicType:
 
 
 def bool_to_int(x: MagicType, bits=32):
+    if x is None:
+        return None
     if isinstance(x, bool):
         return int(x)
     if isinstance(x, Number):
@@ -906,7 +911,7 @@ def bool_to_int(x: MagicType, bits=32):
         raise ValueError(f"Cannot cast object of type '{type(x).__name__}'")
 
 
-def tree_map(f, tree, attr_type=value_attributes, **f_kwargs):
+def tree_map(f, tree, attr_type=value_attributes, include_non_attrs=True, treat_layout_as_leaf=False, **f_kwargs):
     """
     Recursively iterates over Layouts, lists, tuples, dicts and the value attributes of PhiTreeNodes.
     Calls `f` on `Tensor` instances and everything else not in the above list.
@@ -915,6 +920,8 @@ def tree_map(f, tree, attr_type=value_attributes, **f_kwargs):
         f: Function mapping `Tensor`s or leaves
         tree: Nested tree or leaf
         attr_type: Which attributes to use for PhiTreeNodes. Typically, either `value_attributes` or `variable_attributes`.
+        include_non_attrs: Whether to invoke `f` on non-attribute types, such as `str`, `Shape` or primitives.
+        treat_layout_as_leaf: Whether to call `f` directly on `Layout` instances instead of their children.
         **f_kwargs: Keyword arguments for `f`.
 
     Returns:
@@ -922,21 +929,26 @@ def tree_map(f, tree, attr_type=value_attributes, **f_kwargs):
     """
     from ._tensors import Tensor, Layout
     if isinstance(tree, Layout):
-        return tree._op1(lambda x: f(x, **f_kwargs))
+        if treat_layout_as_leaf:
+            return f(tree, **f_kwargs)
+        else:
+            return tree._op1(lambda x: tree_map(f, x, attr_type, include_non_attrs, treat_layout_as_leaf, **f_kwargs))
     if isinstance(tree, Tensor) or tree is None:
         return f(tree, **f_kwargs)
     if isinstance(tree, list):
-        return [tree_map(f, e, **f_kwargs) for e in tree]
+        return [tree_map(f, e, attr_type, include_non_attrs, treat_layout_as_leaf, **f_kwargs) for e in tree]
     elif isinstance(tree, tuple):
-        return tuple([tree_map(f, e, **f_kwargs) for e in tree])
+        return tuple([tree_map(f, e, attr_type, include_non_attrs, treat_layout_as_leaf, **f_kwargs) for e in tree])
     elif isinstance(tree, dict):
-        return {k: tree_map(f, e, **f_kwargs) for k, e in tree.items()}
+        return {k: tree_map(f, e, attr_type, include_non_attrs, treat_layout_as_leaf, **f_kwargs) for k, e in tree.items()}
     elif isinstance(tree, PhiTreeNode):
         attrs = {key: getattr(tree, key) for key in attr_type(tree)}
-        new_attrs = {k: tree_map(f, v, **f_kwargs) for k, v in attrs.items()}
+        new_attrs = {k: tree_map(f, v, attr_type, include_non_attrs, treat_layout_as_leaf, **f_kwargs) for k, v in attrs.items()}
         return copy_with(tree, **new_attrs)
     else:
-        return f(tree, **f_kwargs)  # try anyway
+        if include_non_attrs or not isinstance(tree, NON_ATTR_TYPES):
+            return f(tree, **f_kwargs)  # try anyway
+        return tree
 
 
 def find_differences(tree1, tree2, compare_tensors_by_id=False, attr_type=value_attributes, tensor_equality=None) -> Sequence[Tuple[str, str, Any, Any]]:
