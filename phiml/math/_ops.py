@@ -541,11 +541,19 @@ def pick_random(value: TensorOrTree, dim: DimFilter, count: Union[int, Shape, No
         idx = random_permutation(dim & v_shape.batch & dim.non_uniform_shape, dims=dim)
         idx = unpack_dim(idx, dim, count) if isinstance(count, Shape) else idx
     else:
-        probability = weight / sum_(weight, dim)
-        np_idx = np.random.choice(dim.volume, size=n, replace=False, p=probability.numpy([dim]))
-        idx = wrap(np_idx, count if isinstance(count, Shape) else dim.without_sizes())
-        # idx = ravel_index()
-        idx = expand(idx, channel(index=dim.name))
+        nu_dims = v_shape.non_uniform_shape
+        idx_slices = []
+        for nui in nu_dims.meshgrid():
+            u_dim = dim.after_gather(nui)
+            weight_np = weight.numpy([u_dim]) if weight is not None else None
+            if u_dim.volume >= n:
+                np_idx = np.random.choice(u_dim.volume, size=n, replace=False, p=weight_np / weight_np.sum() if weight is not None else None)
+            else:
+                np_idx = np.arange(u_dim.volume)
+            idx = wrap(np_idx, count if isinstance(count, Shape) else u_dim.without_sizes())
+            # idx = ravel_index()
+            idx_slices.append(expand(idx, channel(index=u_dim.name)))
+        idx = stack(idx_slices, nu_dims)
     return slice_(value, idx)
 
 
