@@ -72,7 +72,7 @@ from ._ops import (
     pairwise_differences, pairwise_differences as pairwise_distances, map_pairs,
     with_diagonal,
     eigenvalues, svd,
-    contains, count_occurrences,
+    contains, count_occurrences, count_intersections,
 )
 
 from ._nd import (

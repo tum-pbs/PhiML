@@ -3594,3 +3594,39 @@ def contains(values: Tensor, query: Tensor, feature_dims: DimFilter = channel) -
         Integer `Tensor` matching `query` without `feature_dims`.
     """
     return count_occurrences(values, query, feature_dims=feature_dims) > 0
+
+
+def count_intersections(values: Tensor, arg_dims: DimFilter, list_dims: DimFilter = instance, feature_dims: DimFilter = channel) -> Tensor:
+    """
+    Counts the number of elements that are part of each pair of lists.
+
+    Args:
+        values:
+        arg_dims: Dims enumerating the input lists.
+        list_dims: Dims listing the elements.
+        feature_dims: Vector dims of one element. Elements are equal if all values along `feature_dims` are equal.
+
+    Returns:
+        `Tensor`.
+    """
+    assert arg_dims is not batch
+    feature_dims = values.shape.only(feature_dims)
+    arg_dims = values.shape.only(arg_dims)
+    if feature_dims:
+        if feature_dims.volume == 1:
+            values = unstack(values, feature_dims)[0]
+        else:
+            raise NotImplementedError
+    batch_dims = values.shape - arg_dims - list_dims - feature_dims
+    result = []
+    for b in batch_dims.meshgrid():
+        lists = unstack(values[b], arg_dims)
+        np_lists = [l.numpy([list_dims]) for l in lists]
+        n = len(np_lists)
+        shared_counts = np.zeros((n, n), dtype=int)
+        for i in range(n):
+            for j in range(i + 1, n):
+                intersection = np.intersect1d(np_lists[i], np_lists[j])
+                shared_counts[i, j] = shared_counts[j, i] = len(intersection)
+        result.append(wrap(shared_counts, arg_dims & arg_dims.as_dual()))
+    return stack(result, batch_dims)
