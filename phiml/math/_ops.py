@@ -2634,6 +2634,11 @@ def gather(values, indices: Tensor, dims: Union[DimFilter, None] = None, pref_in
         if values._is_tracer:
             return values._gather(indices)
         if is_sparse(values):
+            if isinstance(values, TensorStack):
+                if dims in values._stack_dim:
+                    gathered = [values[{dims[0]: i}] for i in indices]
+                    return stack(gathered, indices.shape-index_dim)
+                raise NotImplementedError
             return sparse_gather(values, indices, index_dim)
     elif is_sparse(indices):  # only indices sparse -> gather on sparse pattern
         gathered = gather(values, indices._values, dims=dims, pref_index_dim=index_dim)
@@ -2646,8 +2651,8 @@ def gather(values, indices: Tensor, dims: Union[DimFilter, None] = None, pref_in
         if values.shape.is_uniform:
             broadcast = broadcast - set(dims)
         else:  # We have to slice the items, then stack the results
-            if batch_ or treat_as_batch:
-                raise NotImplementedError  # ToDo iterate over batches
+            # if batch_ or treat_as_batch:
+            #     raise NotImplementedError  # ToDo iterate over batches
             result = []
             for single_index in unstack(indices, indices.shape - index_dim):
                 index_slice = {d: i for d, i in zip(index_dim.item_names[0], single_index)}
