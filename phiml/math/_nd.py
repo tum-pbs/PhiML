@@ -126,14 +126,15 @@ def vec_normalize(vec: Tensor, vec_dim: DimFilter = channel, epsilon=None, allow
         allow_infinite: Allow infinite components in vectors. These vectors will then only points towards the infinite components.
         allow_zero: Whether to return zero vectors for inputs smaller `epsilon` instead of a unit vector.
     """
+    vec_dim = vec.shape.only(vec_dim)
     if allow_infinite:  # replace inf by 1, finite by 0
         is_infinite = ~math.is_finite(vec)
         inf_mask = is_infinite & ~math.is_nan(vec)
-        vec = math.where(math.any_(is_infinite, channel), inf_mask, vec)
+        vec = math.where(math.any_(is_infinite, vec_dim), inf_mask, vec)
     if epsilon is None:
         return vec / vec_length(vec, vec_dim=vec_dim)
     length = vec_length(vec, vec_dim=vec_dim, eps=epsilon**2 * .99)
-    unit_vec = 0 if allow_zero else wrap([1] + [0] * (channel(vec).volume - 1), channel(vec))
+    unit_vec = 0 if allow_zero else stack([1] + [0] * (vec_dim.volume - 1), vec_dim)
     return math.where(abs(length) <= epsilon, unit_vec, vec / length)
 
 
@@ -293,7 +294,7 @@ def rotation_angles(rot: Tensor):
         raise ValueError(f"")
 
 
-def rotation_matrix_from_directions(source_dir: Tensor, target_dir: Tensor) -> Tensor:
+def rotation_matrix_from_directions(source_dir: Tensor, target_dir: Tensor, vec_dim: str = 'vector') -> Tensor:
     """
     Computes a rotation matrix A, such that `target_dir = A @ source_dir`
 
@@ -305,15 +306,15 @@ def rotation_matrix_from_directions(source_dir: Tensor, target_dir: Tensor) -> T
         Rotation matrix as `Tensor` with 'vector' dim and its dual counterpart.
     """
     if source_dir.vector.size == 3:
-        source_dir = vec_normalize(source_dir)
-        target_dir = vec_normalize(target_dir)
+        source_dir = vec_normalize(source_dir, vec_dim)
+        target_dir = vec_normalize(target_dir, vec_dim)
         axis = cross_product(source_dir, target_dir)
-        angle = math.arccos(source_dir.vector @ target_dir.vector)
+        angle = math.arccos(math.clip(source_dir.vector @ target_dir.vector, -1, 1))
         return rotation_matrix_from_axis_and_angle(axis, angle, is_axis_normalized=False)
     raise NotImplementedError
 
 
-def rotation_matrix_from_axis_and_angle(axis: Tensor, angle: Union[float, Tensor], is_axis_normalized=False, epsilon=1e-5) -> Tensor:
+def rotation_matrix_from_axis_and_angle(axis: Tensor, angle: Union[float, Tensor], vec_dim='vector', is_axis_normalized=False, epsilon=1e-5) -> Tensor:
     """
     Computes a rotation matrix that rotates by `angle` around `axis`.
 
@@ -327,7 +328,7 @@ def rotation_matrix_from_axis_and_angle(axis: Tensor, angle: Union[float, Tensor
         Rotation matrix as `Tensor` with 'vector' dim and its dual counterpart.
     """
     if axis.vector.size == 3:  # Rodrigues' rotation formula
-        axis = vec_normalize(axis, epsilon=epsilon, allow_zero=True) if not is_axis_normalized else axis
+        axis = vec_normalize(axis, vec_dim, epsilon=epsilon, allow_zero=True) if not is_axis_normalized else axis
         kx, ky, kz = axis.vector
         s = math.sin(angle)
         c = 1 - math.cos(angle)
