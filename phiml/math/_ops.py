@@ -2633,6 +2633,10 @@ def gather(values, indices: Tensor, dims: Union[DimFilter, None] = None, pref_in
     assert index_dim.volume == len(dims), f"channel dim of indices must have size equal to the number of indexed dims {dims} but got {index_dim} which has {index_dim.volume} entries"
     if indices.dtype.kind == bool:
         indices = to_int32(indices)
+    if isinstance(values, Layout) and dims in values._stack_dim:
+        index_list = unstack(rename_dims(indices, index_dim, 'index_'), indices.shape - index_dim)
+        v_list = [values[{n: int(v) for n, v in zip(index_dim.item_names[0], i)}] for i in index_list]
+        return stack(v_list, indices.shape - index_dim)
     if values._is_tracer or is_sparse(values):
         if not index_dim:
             index_dim = channel(gather=dims)
