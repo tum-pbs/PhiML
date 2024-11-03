@@ -18,7 +18,7 @@ INV_CHAR = {v: k for k, v in CHAR.items()}
 
 DEBUG_CHECKS = []
 
-DimFilter = Union[str, tuple, list, set, 'Shape', Callable]
+DimFilter = Union[str, tuple, list, set, 'Shape', Callable, None]
 try:
     DimFilter.__doc__ = """Dimension filters can be used with `Shape.only()` and `Shype.without()`, making them the standard tool for specifying sets of dimensions.
 
