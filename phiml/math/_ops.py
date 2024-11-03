@@ -557,7 +557,7 @@ def pick_random(value: TensorOrTree, dim: DimFilter, count: Union[int, Shape, No
     return slice_(value, idx)
 
 
-def transpose(x, axes):
+def swap_axes(x, axes):
     """
     Swap the dimension order of `x`.
     This operation is generally not necessary for `Tensor`s because tensors will be reshaped under the hood or when getting the native/numpy representations.

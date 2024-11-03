@@ -47,7 +47,7 @@ from ._ops import (
     meshgrid, linspace, arange as range, range_tensor,  # creation operators (use default backend)
     zeros_like, ones_like,
     pad,
-    transpose,  # reshape operations
+    swap_axes,  # reshape operations
     sort,
     safe_div,
     where, nonzero, ravel_index,

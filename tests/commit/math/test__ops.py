@@ -1034,15 +1034,15 @@ class TestOps(TestCase):
 
     def test_transpose(self):
         t = wrap([[0, 1, 2], [3, 4, 5]], spatial('y,x'))
-        math.assert_close(t, math.transpose(t, 'y,x'))
-        math.assert_close(t, math.transpose(t, 'x,y'))
-        math.assert_close(t, math.transpose(t, [1, 0]))
-        math.assert_close([[0, 3], [1, 4], [2, 5]], math.transpose(t, 'x,y').native('x,y'))
-        self.assertEqual(('x', 'y'), math.transpose(t, 'x,y').shape.names)
+        math.assert_close(t, math.swap_axes(t, 'y,x'))
+        math.assert_close(t, math.swap_axes(t, 'x,y'))
+        math.assert_close(t, math.swap_axes(t, [1, 0]))
+        math.assert_close([[0, 3], [1, 4], [2, 5]], math.swap_axes(t, 'x,y').native('x,y'))
+        self.assertEqual(('x', 'y'), math.swap_axes(t, 'x,y').shape.names)
 
     def test_transpose_native(self):
         t = wrap([[0, 1, 2], [3, 4, 5]], spatial('y,x')).native('y,x')
-        math.assert_close([[0, 3], [1, 4], [2, 5]], math.transpose(t, [1, 0]))
+        math.assert_close([[0, 3], [1, 4], [2, 5]], math.swap_axes(t, [1, 0]))
 
     def test_sort(self):
         for b in BACKENDS:
