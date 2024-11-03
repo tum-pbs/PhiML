@@ -1232,7 +1232,7 @@ def where(condition: Union[Tensor, float, int],
     return broadcast_op(inner_where, [condition, value_true, value_false])
 
 
-def nonzero(value: Tensor, list_dim: Union[Shape, str, int] = instance('nonzero'), index_dim: Shape = channel('vector')):
+def nonzero(value: Tensor, list_dim: Union[Shape, str, int] = instance('nonzero'), index_dim: Shape = channel('vector'), element_dims: DimFilter = channel, list_dims: DimFilter = non_batch, preserve_names=False):
     """
     Get spatial indices of non-zero / True values.
     
@@ -1251,17 +1251,22 @@ def nonzero(value: Tensor, list_dim: Union[Shape, str, int] = instance('nonzero'
         list_dim: Dimension listing non-zero values. If size specified, lists only the first `size` non-zero values.
             Special case: For retrieving only the first non-zero value, you may pass `1` instead of a `Shape` of size 1.
         index_dim: Index dimension.
+        element_dims: Dims listing components of one value. A value is only considered `zero` if all components are 0.
+        list_dims: Dims in which non-zero elements are searched. These will be stored in the item names of `index_dim`.
 
     Returns:
         `Tensor` of shape (batch dims..., `list_dim`=#non-zero, `index_dim`=value.shape.spatial_rank)
 
     """
-    if value.shape.channel_rank > 0:
-        value = sum_(abs(value), value.shape.channel)
+    element_dims = value.shape.only(element_dims)
+    if element_dims:
+        value = sum_(abs(value), element_dims)
+    list_dims = value.shape.only(list_dims) - element_dims
     if isinstance(list_dim, str):
         list_dim = auto(list_dim, instance)
     cutoff = list_dim if isinstance(list_dim, int) else list_dim.size
     list_dim = EMPTY_SHAPE if isinstance(list_dim, int) else list_dim
+    broadcast = value.shape - list_dims
     def unbatched_nonzero(value: Tensor):
         if isinstance(value, CompressedSparseMatrix):
             value = value.decompress()
@@ -1272,14 +1277,17 @@ def nonzero(value: Tensor, list_dim: Union[Shape, str, int] = instance('nonzero'
             index_dim_ = index_dim.with_size(channel(value._indices).item_names[0])
             return rename_dims(rename_dims(nonzero_indices, instance, list_dim), channel, index_dim_)
         else:
-            dims = value.shape.non_channel
-            native = reshaped_native(value, [*dims])
+            native = reshaped_native(value, [*value.shape])
             b = choose_backend(native)
             indices = b.nonzero(native)
             if cutoff is not None:
                 indices = indices[:cutoff, :]
-            return reshaped_tensor(indices, [list_dim, index_dim.with_size(dims.name_list)])
-    return broadcast_op(unbatched_nonzero, [value], iter_dims=value.shape.batch.names)
+            new_list_dim = list_dim
+            if preserve_names and list_dims.rank == 1 and list_dims.item_names[0]:
+                names = [list_dims.item_names[0][i] for i in indices[:, 0]]
+                new_list_dim = new_list_dim.with_size(names)
+            return reshaped_tensor(indices, [new_list_dim, index_dim.with_size(value.shape.name_list)])
+    return broadcast_op(unbatched_nonzero, [value], iter_dims=broadcast.names)
 
 
 def nonzero_slices(x: Tensor):
