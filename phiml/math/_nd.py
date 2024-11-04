@@ -294,7 +294,7 @@ def rotation_angles(rot: Tensor):
         raise ValueError(f"")
 
 
-def rotation_matrix_from_directions(source_dir: Tensor, target_dir: Tensor, vec_dim: str = 'vector') -> Tensor:
+def rotation_matrix_from_directions(source_dir: Tensor, target_dir: Tensor, vec_dim: str = 'vector', epsilon=None) -> Tensor:
     """
     Computes a rotation matrix A, such that `target_dir = A @ source_dir`
 
@@ -306,11 +306,12 @@ def rotation_matrix_from_directions(source_dir: Tensor, target_dir: Tensor, vec_
         Rotation matrix as `Tensor` with 'vector' dim and its dual counterpart.
     """
     if source_dir.vector.size == 3:
-        source_dir = vec_normalize(source_dir, vec_dim)
-        target_dir = vec_normalize(target_dir, vec_dim)
+        source_dir = vec_normalize(source_dir, vec_dim, epsilon=epsilon)
+        target_dir = vec_normalize(target_dir, vec_dim, epsilon=epsilon)
         axis = cross_product(source_dir, target_dir)
-        angle = math.arccos(math.clip(source_dir.vector @ target_dir.vector, -1, 1))
-        return rotation_matrix_from_axis_and_angle(axis, angle, is_axis_normalized=False)
+        lim = 1-epsilon if epsilon is not None else 1
+        angle = math.arccos(math.clip(source_dir.vector @ target_dir.vector, -lim, lim))
+        return rotation_matrix_from_axis_and_angle(axis, angle, is_axis_normalized=False, epsilon=epsilon)
     raise NotImplementedError
 
 
@@ -328,7 +329,7 @@ def rotation_matrix_from_axis_and_angle(axis: Tensor, angle: Union[float, Tensor
         Rotation matrix as `Tensor` with 'vector' dim and its dual counterpart.
     """
     if axis.vector.size == 3:  # Rodrigues' rotation formula
-        axis = vec_normalize(axis, vec_dim, epsilon=epsilon, allow_zero=True) if not is_axis_normalized else axis
+        axis = vec_normalize(axis, vec_dim, epsilon=epsilon, allow_zero=False) if not is_axis_normalized else axis
         kx, ky, kz = axis.vector
         s = math.sin(angle)
         c = 1 - math.cos(angle)
