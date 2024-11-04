@@ -2900,7 +2900,7 @@ def save(file: str, obj):
     all_natives = sum(natives, ())
     all_paths = sum(native_paths, [])
     all_np = [choose_backend(n).numpy(n) for n in all_natives]
-    np.savez(file, tree=tree, specs=specs, paths=paths, **{p: n for p, n in zip(all_paths, all_np)})
+    np.savez(file, tree=np.asarray(tree, dtype=object), specs=specs, paths=paths, **{p: n for p, n in zip(all_paths, all_np)})
 
 
 def load(file: str):
