@@ -1321,7 +1321,7 @@ def nonzero_slices(x: Tensor):
     return slices
 
 
-def reduce_(f, value, dims, require_all_dims_present=False, required_kind: type = None):
+def reduce_(f: TensorOrTree, value, dims, require_all_dims_present=False, required_kind: type = None) -> TensorOrTree:
     if not dims:
         return value
     is_tree = not isinstance(value, Tensor) and isinstance(value, PhiTreeNode)
@@ -1361,7 +1361,7 @@ def reduce_(f, value, dims, require_all_dims_present=False, required_kind: type 
     return f(value._simplify(), dims)
 
 
-def sum_(value, dim: DimFilter = non_batch) -> Tensor:
+def sum_(value: TensorOrTree, dim: DimFilter = non_batch) -> TensorOrTree:
     """
     Sums `values` along the specified dimensions.
 
@@ -1380,6 +1380,19 @@ def sum_(value, dim: DimFilter = non_batch) -> Tensor:
         `Tensor` without the reduced dimensions.
     """
     return reduce_(_sum, bool_to_int(value), dim, require_all_dims_present=True)
+
+
+dsum = functools.partial(sum_, dim=dual)
+dsum.__doc__ = """Sum dual dims of `value`, see `phiml.math.sum`."""
+
+isum = functools.partial(sum_, dim=instance)
+isum.__doc__ = """Sum instance dims of `value`, see `phiml.math.sum`."""
+
+ssum = functools.partial(sum_, dim=spatial)
+ssum.__doc__ = """Sum spatial dims of `value`, see `phiml.math.sum`."""
+
+csum = functools.partial(sum_, dim=channel)
+csum.__doc__ = """Sum channel dims of `value`, see `phiml.math.sum`."""
 
 
 def _sum(value: Tensor, dims: Shape) -> Tensor:
@@ -1462,6 +1475,19 @@ def mean(value, dim: DimFilter = non_batch, weight: Union[Tensor, list, tuple] =
             assert '0' in dim, "When passing a sequence of tensors to be reduced, the sequence dimension '0' must be reduced."
         return sum_(value * weight, dim) / sum_(weight, dim)
     return reduce_(_mean, value, dim)
+
+
+dmean = functools.partial(mean, dim=dual)
+dmean.__doc__ = """Compute the mean along dual dims of `value`, see `phiml.math.mean`."""
+
+imean = functools.partial(mean, dim=instance)
+imean.__doc__ = """Compute the mean along instance dims of `value`, see `phiml.math.mean`."""
+
+smean = functools.partial(mean, dim=spatial)
+smean.__doc__ = """Compute the mean along spatial dims of `value`, see `phiml.math.mean`."""
+
+cmean = functools.partial(mean, dim=channel)
+cmean.__doc__ = """Compute the mean along channel dims of `value`, see `phiml.math.mean`."""
 
 
 def _mean(value: Tensor, dims: Shape) -> Tensor:
