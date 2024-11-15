@@ -2451,6 +2451,12 @@ def sigmoid(x: TensorOrTree) -> TensorOrTree:
     return _backend_op1(x, Backend.sigmoid)
 
 
+def softmax(x, reduce: DimFilter):
+    """Compute the softmax of `x` over any dimension. The softmax is e^x / ∑ e^x ."""
+    e = exp(x)
+    return e / sum_(e, reduce)
+
+
 def cast_same(*values: Tensor) -> Tuple[Tensor]:
     """
     Casts all tensors to the same `DType`.
