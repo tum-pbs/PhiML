@@ -488,10 +488,10 @@ def expand(value, *dims: Union[Shape, str], **kwargs):
     return expand_tensor(value, dims)
 
 
-def rename_dims(value,
+def rename_dims(value: PhiTreeNodeType,
                 dims: DimFilter,
                 names: DimFilter,
-                **kwargs):
+                **kwargs) -> PhiTreeNodeType:
     """
     Change the name and optionally the type of some dimensions of `value`.
 
@@ -550,42 +550,42 @@ def rename_dims(value,
     return value
 
 
-def b2i(value):
+def b2i(value: PhiTreeNodeType) -> PhiTreeNodeType:
     """ Change the type of all *batch* dimensions of `value` to *instance* dimensions. See `rename_dims`. """
     return rename_dims(value, batch, instance)
 
 
-def c2b(value):
+def c2b(value: PhiTreeNodeType) -> PhiTreeNodeType:
     """ Change the type of all *channel* dimensions of `value` to *batch* dimensions. See `rename_dims`. """
     return rename_dims(value, channel, batch)
 
 
-def s2b(value):
+def s2b(value: PhiTreeNodeType) -> PhiTreeNodeType:
     """ Change the type of all *spatial* dimensions of `value` to *batch* dimensions. See `rename_dims`. """
     return rename_dims(value, spatial, batch)
 
 
-def si2d(value):
+def si2d(value: PhiTreeNodeType) -> PhiTreeNodeType:
     """ Change the type of all *spatial* and *instance* dimensions of `value` to *dual* dimensions. See `rename_dims`. """
     return rename_dims(value, lambda s: s.non_channel.non_dual.non_batch, dual)
 
 
-def c2d(value):
+def c2d(value: PhiTreeNodeType) -> PhiTreeNodeType:
     """ Change the type of all *channel* dimensions of `value` to *dual* dimensions. See `rename_dims`. """
     return rename_dims(value, channel, dual)
 
 
-def i2b(value):
+def i2b(value: PhiTreeNodeType) -> PhiTreeNodeType:
     """ Change the type of all *instance* dimensions of `value` to *batch* dimensions. See `rename_dims`. """
     return rename_dims(value, instance, batch)
 
 
-def d2i(value):
+def d2i(value: PhiTreeNodeType) -> PhiTreeNodeType:
     """ Change the type of all *dual* dimensions of `value` to *instance* dimensions. See `rename_dims`. """
     return rename_dims(value, dual, instance)
 
 
-def d2s(value):
+def d2s(value: PhiTreeNodeType) -> PhiTreeNodeType:
     """ Change the type of all *dual* dimensions of `value` to *spatial* dimensions. See `rename_dims`. """
     return rename_dims(value, dual, spatial)
 
