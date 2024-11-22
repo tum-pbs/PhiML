@@ -475,6 +475,8 @@ def random_uniform(*shape: Shape,
         `Tensor`
     """
     if get_shape(low).volume == 1 and get_shape(high).volume == 1:
+        low = low.native() if isinstance(low, Tensor) else low
+        high = high.native() if isinstance(high, Tensor) else high
         def uniform_random_uniform(shape):
             native = choose_backend(low, high, *shape.sizes, prefer_default=True).random_uniform(shape.sizes, low, high, DType.as_dtype(dtype))
             return NativeTensor(native, shape)
