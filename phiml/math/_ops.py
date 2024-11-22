@@ -555,8 +555,10 @@ def pick_random(value: TensorOrTree, dim: DimFilter, count: Union[int, Shape, No
             weight_np = weight.numpy([u_dim]) if weight is not None else None
             if u_dim.volume >= n:
                 np_idx = np.random.choice(u_dim.volume, size=n, replace=False, p=weight_np / weight_np.sum() if weight is not None else None)
+            elif u_dim.volume > 0:
+                np_idx = np.arange(n) % u_dim.volume
             else:
-                np_idx = np.arange(u_dim.volume)
+                raise ValueError(f"Cannot pick random from empty tensor {u_dim}")
             idx = wrap(np_idx, count if isinstance(count, Shape) else u_dim.without_sizes())
             # idx = ravel_index()
             idx_slices.append(expand(idx, channel(index=u_dim.name)))
