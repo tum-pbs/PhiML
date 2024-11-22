@@ -1469,7 +1469,7 @@ def _prod(value: Tensor, dims: Shape) -> Tensor:
         raise ValueError(type(value))
 
 
-def mean(value, dim: DimFilter = non_batch, weight: Union[Tensor, list, tuple] = None) -> Tensor:
+def mean(value, dim: DimFilter = non_batch, weight: Union[Tensor, list, tuple] = None, where_no_weight=float('nan'), epsilon=1e-10) -> Tensor:
     """
     Computes the mean over `values` along the specified dimensions.
 
@@ -1485,6 +1485,8 @@ def mean(value, dim: DimFilter = non_batch, weight: Union[Tensor, list, tuple] =
             * `'0'` when `isinstance(value, (tuple, list))` to add up the sequence of Tensors
 
         weight: Optionally perform a weighted mean operation. Must broadcast to `value`.
+        where_no_weight: Value to use when the sum of all weights are smaller than `epsilon`.
+        epsilon: Only if `where_no_weight`. Threshold for using `where_no_weight`.
 
     Returns:
         `Tensor` without the reduced dimensions.
@@ -1496,7 +1498,13 @@ def mean(value, dim: DimFilter = non_batch, weight: Union[Tensor, list, tuple] =
             weight = stack_tensors([wrap(w) for w in weight], instance(**{'0': len(weight)}))
             dim = value.shape.only(dim)
             assert '0' in dim, "When passing a sequence of tensors to be reduced, the sequence dimension '0' must be reduced."
-        return sum_(value * weight, dim) / sum_(weight, dim)
+        weight_sum = sum_(weight, dim)
+        if not np.isnan(where_no_weight):
+            weight_sum = where(abs(weight_sum) < epsilon, 1, weight_sum)
+        result = sum_(value * weight, dim) / weight_sum
+        if not np.isnan(where_no_weight):
+            result = where(weight_sum == 0, where_no_weight, result)
+        return result
     return reduce_(_mean, value, dim)
 
 
