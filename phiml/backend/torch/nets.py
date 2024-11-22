@@ -460,9 +460,9 @@ class ConvClassifier(nn.Module):
         for i in range(len(self._blocks)):
             x = getattr(self, f'conv{i+1}')(x)
             x = self.maxpool(x)
-        x = self.flatten(x)
-        x = self.mlp(x)
-        return x
+        xf = self.flatten(x)
+        y = self.mlp(xf)
+        return y
 
 
 NET = {'u_net': u_net, 'res_net': res_net, 'conv_net': conv_net}
