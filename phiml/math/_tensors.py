@@ -422,6 +422,9 @@ class Tensor:
     def _repr_pretty_(self, printer, cycle):
         printer.text(format_tensor(self, PrintOptions(colors=DEFAULT_COLORS)))
 
+    def print(self, layout='full', float_format=None, threshold=8, include_shape=None, include_dtype=None):
+        print(format_tensor(self, PrintOptions(layout=layout, float_format=float_format, threshold=threshold, colors=DEFAULT_COLORS, include_shape=include_shape, include_dtype=include_dtype)))
+
     def __format__(self, format_spec: str):
         if BROADCAST_FORMATTER.values is not None:
             return BROADCAST_FORMATTER.register_formatted(self, format_spec)
