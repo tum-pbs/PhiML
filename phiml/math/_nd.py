@@ -194,7 +194,7 @@ def cross_product(vec1: Tensor, vec2: Tensor) -> Tensor:
         raise AssertionError(f'dims = {spatial_rank}. Vector product not available in > 3 dimensions')
 
 
-def rotate_vector(vector: math.Tensor, angle: Optional[Union[float, math.Tensor]], invert=False) -> Tensor:
+def rotate_vector(vector: math.Tensor, angle: Optional[Union[float, math.Tensor]], invert=False, dim='vector') -> Tensor:
     """
     Rotates `vector` around the origin.
 
@@ -214,7 +214,8 @@ def rotate_vector(vector: math.Tensor, angle: Optional[Union[float, math.Tensor]
     if invert:
         matrix = rename_dims(matrix, '~vector,vector', matrix.shape['vector'] + matrix.shape['~vector'])
     assert matrix.vector.dual.size == vector.vector.size, f"Rotation matrix from {angle.shape} is {matrix.vector.dual.size}D but vector {vector.shape} is {vector.vector.size}D."
-    return matrix @ vector
+    dim = vector.shape.only(dim)
+    return math.dot(matrix, dim.as_dual(), vector, dim)
 
 
 def rotation_matrix(x: Union[float, math.Tensor, None], matrix_dim=channel('vector')) -> Optional[Tensor]:
