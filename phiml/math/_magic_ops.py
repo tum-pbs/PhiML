@@ -355,14 +355,14 @@ def concat(values: Sequence[PhiTreeNodeType], dim: Union[str, Shape], expand_val
         raise MagicNotImplemented(f"concat: No value implemented __concat__ and slices could not be stacked. values = {[type(v) for v in values]}")
 
 
-def ccat(values: Sequence[PhiTreeNodeType], dim: Shape, expand_values=False) -> PhiTreeNodeType:
+def ncat(values: Sequence[PhiTreeNodeType], dim: Shape, expand_values=False) -> PhiTreeNodeType:
     """
-    Concatenate components along `dim`.
+    Concatenate named components along `dim`.
 
     Args:
         values: Each value can contain multiple components of `dim` if `dim` is present in its shape.
             Else, it is interpreted as a single component whose name will be determined from the leftover item names of `dim`.
-        dim: Single dimension with item names.
+        dim: Single dimension that has item names matching components of `values`.
         expand_values: If `True`, will add all missing dimensions to values, not just batch dimensions.
             This allows tensors with different dimensions to be concatenated.
             The resulting tensor will have all dimensions that are present in `values`.
@@ -414,8 +414,18 @@ def tcat(values: Sequence[PhiTreeNodeType], dim_type: Callable, expand_values=Fa
     else:
         dim_name = default_name
     single = dim_type(**{dim_name: 1})
-    flat_values = [pack_dims(v, dim_type, dim_type(dim_name)) if dim_name in s else expand(v, single) for v, s in zip(values, dims)]
+    flat_values = [pack_dims(v, dim_type, dim_type(dim_name)) if s else expand(v, single) for v, s in zip(values, dims)]
     return concat(flat_values, dim_name, expand_values=expand_values)
+
+
+ccat = partial(tcat, dim_type=channel, default_name='ccat')
+ccat.__doc__ = "Concatenate values along their channel dim, see `tcat`."
+icat = partial(tcat, dim_type=instance, default_name='icat')
+icat.__doc__ = "Concatenate values along their instance dim, see `tcat`."
+dcat = partial(tcat, dim_type=dual, default_name='dcat')
+dcat.__doc__ = "Concatenate values along their dual dim, see `tcat`."
+scat = partial(tcat, dim_type=spatial, default_name='scat')
+scat.__doc__ = "Concatenate values along their spatial dim, see `tcat`."
 
 
 def expand(value, *dims: Union[Shape, str], **kwargs):
