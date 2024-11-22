@@ -895,6 +895,20 @@ def concat_tensor(values: Union[tuple, list], dim: str) -> Tensor:
     return result
 
 
+def unflatten_unpack(value: Tensor, dim: DimFilter, shapes: Sequence[Shape]):
+    dim = value.shape.only(dim)
+    required = sum([s.volume for s in shapes])
+    assert required == dim.size, f"Unpacked shapes must match {dim} but got {shapes} which total {required}"
+    result = []
+    i = 0
+    for s in shapes:
+        end = i + s.volume
+        sliced = value[{dim: slice(i, end)}]
+        result.append(sliced.__unpack_dim__(dim.name, s))
+        i = end
+    return result
+
+
 def pad(value: Tensor, widths: Union[dict, tuple, list], mode: Union['e_.Extrapolation', Tensor, Number, str, dict] = 0, **kwargs) -> Tensor:
     """
     Pads a tensor along the specified dimensions, determining the added values using the given extrapolation.

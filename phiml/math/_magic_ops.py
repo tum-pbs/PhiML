@@ -648,7 +648,7 @@ def pack_dims(value, dims: DimFilter, packed_dim: Union[Shape, str], pos: Option
 
 
 
-def unpack_dim(value, dim: DimFilter, *unpacked_dims: Shape, **kwargs):
+def unpack_dim(value, dim: DimFilter, *unpacked_dims: Union[Shape, Sequence[Shape]], **kwargs):
     """
     Decompresses a dimension by unstacking the elements along it.
     This function replaces the traditional `reshape` for these cases.
@@ -662,7 +662,9 @@ def unpack_dim(value, dim: DimFilter, *unpacked_dims: Shape, **kwargs):
     Args:
         value: `phiml.math.magic.Shapable`, such as `Tensor`, for which one dimension should be split.
         dim: Single dimension to be decompressed.
-        *unpacked_dims: Vararg `Shape`, ordered dimensions to replace `dim`, fulfilling `unpacked_dims.volume == shape(self)[dim].rank`.
+        *unpacked_dims: Either vararg `Shape`, ordered dimensions to replace `dim`, fulfilling `unpacked_dims.volume == shape(self)[dim].rank`.
+            This results in a single tensor output.
+            Alternatively, pass a `tuple` or `list` of shapes to unpack a dim into multiple tensors whose combined volumes match `dim.size`.
         **kwargs: Additional keyword arguments required by specific implementations.
             Adding spatial dimensions to fields requires the `bounds: Box` argument specifying the physical extent of the new dimensions.
             Adding batch dimensions must always work without keyword arguments.
@@ -674,6 +676,9 @@ def unpack_dim(value, dim: DimFilter, *unpacked_dims: Shape, **kwargs):
         >>> unpack_dim(math.zeros(instance(points=12)), 'points', spatial(x=4, y=3))
         (xˢ=4, yˢ=3) const 0.0
     """
+    if len(unpacked_dims) == 1 and isinstance(unpacked_dims[0], (tuple, list)):
+        from ._ops import unflatten_unpack
+        return unflatten_unpack(value, dim, unpacked_dims[0])
     if isinstance(value, (Number, bool)):
         return value
     assert isinstance(value, Shapable) and isinstance(value, Sliceable) and isinstance(value, Shaped), f"value must be Shapable but got {type(value)}"
