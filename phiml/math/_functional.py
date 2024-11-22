@@ -1188,24 +1188,19 @@ def map_types(f: Callable, dims: Union[Shape, tuple, list, str, Callable], dim_t
     return retyped_f
 
 
-def map_s2b(f: Callable) -> Callable:
-    """ Map spatial dimensions to batch dimensions. Short for `map_types(f, spatial, batch)`. """
-    return map_types(f, spatial, batch)
+map_s2b = partial(map_types, dims=spatial, dim_type=batch)
+map_s2b.__doc__ = "Map spatial dims to type batch. Short for `map_types(f, spatial, batch)`. "
+map_i2b = partial(map_types, dims=instance, dim_type=batch)
+map_i2b.__doc__ = "Map instance dims to type batch. Short for `map_types(f, spatial, batch)`. "
+map_c2b = partial(map_types, dims=channel, dim_type=batch)
+map_c2b.__doc__ = "Map channel dims to type batch. Short for `map_types(f, spatial, batch)`. "
+map_d2b = partial(map_types, dims=dual, dim_type=channel)
+map_d2b.__doc__ = "Map dual dims to type batch. Short for `map_types(f, spatial, batch)`. "
 
-
-def map_i2b(f: Callable) -> Callable:
-    """ Map instance dimensions to batch dimensions. Short for `map_types(f, instance, batch)`. """
-    return map_types(f, instance, batch)
-
-
-def map_c2b(f: Callable) -> Callable:
-    """ Map channel dimensions to batch dimensions. Short for `map_types(f, instance, batch)`. """
-    return map_types(f, channel, batch)
-
-
-def map_d2c(f: Callable) -> Callable:
-    """ Map dual dimensions to channel dimensions. Short for `map_types(f, instance, batch)`. """
-    return map_types(f, dual, channel)
+map_d2c = partial(map_types, dims=dual, dim_type=channel)
+map_d2c.__doc__ = "Map dual dims to type channel. Short for `map_types(f, spatial, batch)`."
+map_c2d = partial(map_types, dims=channel, dim_type=dual)
+map_c2d.__doc__ = "Map channel dims to type dual. Short for `map_types(f, spatial, batch)`."
 
 
 def broadcast(function=None, dims=shape, range=range, unwrap_scalars=True):

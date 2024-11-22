@@ -97,7 +97,7 @@ from ._functional import (
     LinearFunction, jit_compile_linear, jit_compile,
     jacobian, gradient, custom_gradient, print_gradient,
     safe_mul,
-    map_types, map_s2b, map_i2b, map_c2b, map_d2c,
+    map_types, map_s2b, map_i2b, map_c2b, map_d2b, map_d2c, map_c2d,
     broadcast,
     iterate,
     identity,
