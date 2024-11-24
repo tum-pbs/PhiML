@@ -283,18 +283,6 @@ class TestMathNDNumpy(TestCase):
         c = math.cross_product(math.vec(x=0, y=1, z=0), math.vec(x=0, y=2, z=0))
         math.assert_close(math.vec(x=0, y=0, z=0), c)
 
-    def test_rotate_vector(self):
-        # --- 2D ---
-        vec = math.rotate_vector(math.vec(x=2, y=0), math.PI / 2)
-        math.assert_close(math.vec(x=0, y=2), vec, abs_tolerance=1e-5)
-        math.assert_close(math.vec(x=2, y=0), math.rotate_vector(vec, math.PI / 2, invert=True), abs_tolerance=1e-5)
-        # --- 3D ---
-        vec = math.rotate_vector(math.vec(x=2, y=0, z=0), angle=math.vec(x=0, y=math.PI / 2, z=0))
-        math.assert_close(math.vec(x=0, y=0, z=-2), vec, abs_tolerance=1e-5)
-        math.assert_close(math.vec(x=2, y=0, z=0), math.rotate_vector(vec, angle=math.vec(x=0, y=math.PI / 2, z=0), invert=True), abs_tolerance=1e-5)
-        # --- None ---
-        math.assert_close(math.vec(x=2, y=0), math.rotate_vector(math.vec(x=2, y=0), None, invert=True))
-
     def test_dim_mask(self):
         math.assert_close((1, 0, 0), math.dim_mask(spatial('x,y,z'), 'x'))
         math.assert_close((1, 0, 1), math.dim_mask(spatial('x,y,z'), 'x,z'))
@@ -333,29 +321,6 @@ class TestMathNDNumpy(TestCase):
         grid = math.random_normal(batch(b=2), spatial(x=20, y=20))
         s = math.sample_subgrid(grid, start=vec(x=4, y=.5), size=spatial(x=2, y=3))
         self.assertEqual(batch(grid) & spatial(x=2, y=3), s.shape)
-
-    def test_rotation_matrix(self):
-        def assert_matrices_equal(angle):
-            matrix = math.rotation_matrix(angle)
-            angle_ = math.rotation_angles(matrix)
-            math.assert_close(matrix, math.rotation_matrix(angle_), abs_tolerance=1e-5)
-
-        angle = wrap([0, -math.PI/2, math.PI/2, -math.PI, math.PI, 2*math.PI], batch('angles'))
-        assert_matrices_equal(angle)
-        # --- 3D axis-angle ---
-        angle = wrap([0, -math.PI/2, math.PI/2, -math.PI, math.PI, 2*math.PI], batch('angles'))
-        assert_matrices_equal(math.vec(x=0, y=0, z=angle))
-        assert_matrices_equal(math.vec(x=0, y=angle, z=0))
-        assert_matrices_equal(math.vec(x=angle, y=0, z=0))
-        assert_matrices_equal(math.vec(x=angle, y=angle, z=0))
-        assert_matrices_equal(math.vec(x=angle, y=angle, z=angle))
-        # --- 3D Euler angle ---
-        angle = wrap([0, -math.PI/2, math.PI/2, -math.PI, math.PI, 2*math.PI], batch('angles'))
-        assert_matrices_equal(math.vec('angle', x=0, y=0, z=angle))
-        assert_matrices_equal(math.vec('angle', x=0, y=angle, z=0))
-        assert_matrices_equal(math.vec('angle', x=angle, y=0, z=0))
-        assert_matrices_equal(math.vec('angle', x=angle, y=angle, z=0))
-        assert_matrices_equal(math.vec('angle', x=angle, y=angle, z=angle))
 
     def test_neighbor_reduce(self):
         grid1 = wrap([0, 2, 4, 0], spatial('x'))

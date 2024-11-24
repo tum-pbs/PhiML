@@ -79,7 +79,7 @@ from ._ops import (
 
 from ._nd import (
     shift, index_shift,
-    vec, const_vec, vec_length, vec_length as length, vec_squared, vec_normalize, vec_normalize as normalize, cross_product, cross_product as cross, rotate_vector, rotate_vector as rotate, rotation_matrix, rotation_angles, rotation_matrix_from_axis_and_angle, rotation_matrix_from_directions,
+    vec, const_vec, length, length as vec_length, vec_squared, normalize, normalize as vec_normalize, cross_product, cross_product as cross,
     dim_mask,
     normalize_to, clip_length,
     l1_loss, l2_loss, frequency_loss,

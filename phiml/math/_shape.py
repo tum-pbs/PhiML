@@ -1004,7 +1004,7 @@ class Shape:
                 shape = shape & size.shape
         return shape
 
-    def with_size(self, size: Union[int, Tuple[str, ...]]):
+    def with_size(self, size: Union[int, Sequence[str]]):
         """
         Only for single-dimension shapes.
         Returns a `Shape` representing this dimension but with a different size.

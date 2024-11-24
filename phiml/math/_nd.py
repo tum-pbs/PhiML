@@ -1,13 +1,13 @@
-from typing import Tuple, Optional, Union, List, Callable, Sequence, Dict
+from typing import Tuple, Union, List, Callable, Sequence, Dict
 
 import numpy as np
 
-from . import _ops as math, reshaped_numpy, reshaped_native, reshaped_tensor
+from . import _ops as math
 from . import extrapolation as extrapolation
 from ._magic_ops import stack, rename_dims, concat, variable_values, tree_map
-from ._ops import choose_backend_t
-from ._shape import Shape, channel, batch, spatial, DimFilter, parse_dim_order, shape, instance, dual, auto, non_batch
-from ._tensors import Tensor, wrap, tensor
+from ._ops import choose_backend_t, reshaped_native, reshaped_tensor
+from ._shape import Shape, channel, batch, spatial, DimFilter, parse_dim_order, instance, dual, auto, non_batch
+from ._tensors import Tensor, wrap, tensor, reshaped_numpy
 from .extrapolation import Extrapolation
 from .magic import PhiTreeNode
 from ..backend import choose_backend
@@ -94,18 +94,20 @@ def const_vec(value: Union[float, Tensor], dim: Union[Shape, tuple, list, str]):
     return wrap([value] * shape.size, shape)
 
 
-def vec_length(vec: Tensor, vec_dim: DimFilter = channel, eps: Union[float, Tensor] = None):
+def length(vec: Tensor, vec_dim: DimFilter = channel, eps: Union[float, Tensor] = None):
     """
     Computes the vector length of `vec`.
 
     Args:
-        eps: Minimum vector length. Use to avoid `inf` gradients for zero-length vectors.
+        eps: Minimum valid vector length. Use to avoid `inf` gradients for zero-length vectors.
+            Lengths shorter than `eps` are set to 0.
     """
     if vec.dtype.kind == complex:
         vec = stack([vec.real, vec.imag], channel('_ReIm'))
-    squared = vec_squared(vec, vec_dim)
+    squared = math.sum_(vec ** 2, dim=vec_dim)
     if eps is not None:
         squared = math.maximum(squared, eps)
+        return math.where(squared < eps**2, 0, math.sqrt(squared))
     return math.sqrt(squared)
 
 
@@ -114,7 +116,7 @@ def vec_squared(vec: Tensor, vec_dim: DimFilter = channel):
     return math.sum_(vec ** 2, dim=vec_dim)
 
 
-def vec_normalize(vec: Tensor, vec_dim: DimFilter = channel, epsilon=None, allow_infinite=False, allow_zero=False):
+def normalize(vec: Tensor, vec_dim: DimFilter = channel, epsilon=None, allow_infinite=False, allow_zero=False):
     """
     Normalizes the vectors in `vec`. If `vec_dim` is None, the combined channel dimensions of `vec` are interpreted as a vector.
 
@@ -132,10 +134,10 @@ def vec_normalize(vec: Tensor, vec_dim: DimFilter = channel, epsilon=None, allow
         inf_mask = is_infinite & ~math.is_nan(vec)
         vec = math.where(math.any_(is_infinite, vec_dim), inf_mask, vec)
     if epsilon is None:
-        return vec / vec_length(vec, vec_dim=vec_dim)
-    length = vec_length(vec, vec_dim=vec_dim, eps=epsilon**2 * .99)
+        return vec / length(vec, vec_dim=vec_dim)
+    le = length(vec, vec_dim=vec_dim, eps=epsilon**2 * .99)
     unit_vec = 0 if allow_zero else stack([1] + [0] * (vec_dim.volume - 1), vec_dim)
-    return math.where(abs(length) <= epsilon, unit_vec, vec / length)
+    return math.where(abs(le) <= epsilon, unit_vec, vec / le)
 
 
 def clip_length(vec: Tensor, min_len=0, max_len=1, vec_dim: DimFilter = channel, eps: Union[float, Tensor] = None):
@@ -153,9 +155,9 @@ def clip_length(vec: Tensor, min_len=0, max_len=1, vec_dim: DimFilter = channel,
     Returns:
         `Tensor` with same shape as `vec`.
     """
-    length = vec_length(vec, vec_dim, eps)
-    new_length = math.clip(length, min_len, max_len)
-    return vec * math.safe_div(new_length, length)
+    le = length(vec, vec_dim, eps)
+    new_length = math.clip(le, min_len, max_len)
+    return vec * math.safe_div(new_length, le)
 
 
 def cross_product(vec1: Tensor, vec2: Tensor) -> Tensor:
@@ -192,154 +194,6 @@ def cross_product(vec1: Tensor, vec2: Tensor) -> Tensor:
         ], vec1.shape['vector'])
     else:
         raise AssertionError(f'dims = {spatial_rank}. Vector product not available in > 3 dimensions')
-
-
-def rotate_vector(vector: math.Tensor, angle: Optional[Union[float, math.Tensor]], invert=False, dim='vector') -> Tensor:
-    """
-    Rotates `vector` around the origin.
-
-    Args:
-        vector: n-dimensional vector with exactly one channel dimension
-        angle: Euler angle(s) or rotation matrix.
-            `None` is interpreted as no rotation.
-        invert: Whether to apply the inverse rotation.
-
-    Returns:
-        Rotated vector as `Tensor`
-    """
-    assert 'vector' in vector.shape, f"vector must have exactly a channel dimension named 'vector'"
-    if angle is None:
-        return vector
-    matrix = rotation_matrix(angle, matrix_dim=channel(vector))
-    if invert:
-        matrix = rename_dims(matrix, '~vector,vector', matrix.shape['vector'] + matrix.shape['~vector'])
-    assert matrix.vector.dual.size == vector.vector.size, f"Rotation matrix from {angle.shape} is {matrix.vector.dual.size}D but vector {vector.shape} is {vector.vector.size}D."
-    dim = vector.shape.only(dim)
-    return math.dot(matrix, dim.as_dual(), vector, dim)
-
-
-def rotation_matrix(x: Union[float, math.Tensor, None], matrix_dim=channel('vector')) -> Optional[Tensor]:
-    """
-    Create a 2D or 3D rotation matrix from the corresponding angle(s).
-
-    Args:
-        x:
-            2D: scalar angle
-            3D: Either vector pointing along the rotation axis with rotation angle as length or Euler angles.
-            Euler angles need to be laid out along a `angle` channel dimension with dimension names listing the spatial dimensions.
-            E.g. a 90° rotation about the z-axis is represented by `vec('angles', x=0, y=0, z=PI/2)`.
-            If a rotation matrix is passed for `angle`, it is returned without modification.
-        matrix_dim: Matrix dimension for 2D rotations. In 3D, the channel dimension of angle is used.
-
-    Returns:
-        Matrix containing `matrix_dim` in primal and dual form as well as all non-channel dimensions of `x`.
-    """
-    if x is None:
-        return None
-    if isinstance(x, Tensor) and '~vector' in x.shape and 'vector' in x.shape.channel and x.shape.get_size('~vector') == x.shape.get_size('vector'):
-        return x  # already a rotation matrix
-    elif 'angle' in shape(x) and shape(x).get_size('angle') == 3:  # 3D Euler angles
-        assert channel(x).rank == 1 and channel(x).size == 3, f"x for 3D rotations needs to be a 3-vector but got {x}"
-        s1, s2, s3 = math.sin(x).angle  # x, y, z
-        c1, c2, c3 = math.cos(x).angle
-        matrix_dim = matrix_dim.with_size(shape(x).get_item_names('angle'))
-        return wrap([[c3 * c2, c3 * s2 * s1 - s3 * c1, c3 * s2 * c1 + s3 * s1],
-                     [s3 * c2, s3 * s2 * s1 + c3 * c1, s3 * s2 * c1 - c3 * s1],
-                     [-s2, c2 * s1, c2 * c1]], matrix_dim, matrix_dim.as_dual())  # Rz * Ry * Rx  (1. rotate about X by first angle)
-    elif 'vector' in shape(x) and shape(x).get_size('vector') == 3:  # 3D axis + x
-        angle = vec_length(x)
-        s, c = math.sin(angle), math.cos(angle)
-        t = 1 - c
-        k1, k2, k3 = vec_normalize(x, epsilon=1e-12).vector
-        matrix_dim = matrix_dim.with_size(shape(x).get_item_names('vector'))
-        return wrap([[c + k1**2 * t, k1 * k2 * t - k3 * s, k1 * k3 * t + k2 * s],
-                     [k2 * k1 * t + k3 * s, c + k2**2 * t, k2 * k3 * t - k1 * s],
-                     [k3 * k1 * t - k2 * s, k3 * k2 * t + k1 * s, c + k3**2 * t]], matrix_dim, matrix_dim.as_dual())
-    else:  # 2D rotation
-        sin = wrap(math.sin(x))
-        cos = wrap(math.cos(x))
-        return wrap([[cos, -sin], [sin, cos]], matrix_dim, matrix_dim.as_dual())
-
-
-def rotation_angles(rot: Tensor):
-    """
-    Compute the scalar x in 2D or the Euler angles in 3D from a given rotation matrix.
-    This function returns one valid solution but often, there are multiple solutions.
-
-    Args:
-        rot: Rotation matrix as created by `phi.math.rotation_matrix()`.
-            Must have exactly one channel and one dual dimension with equally-ordered elements.
-
-    Returns:
-        Scalar x in 2D, Euler angles
-    """
-    assert channel(rot).rank == 1 and dual(rot).rank == 1, f"Rotation matrix must have one channel and one dual dimension but got {rot.shape}"
-    if channel(rot).size == 2:
-        cos = rot[{channel: 0, dual: 0}]
-        sin = rot[{channel: 1, dual: 0}]
-        return math.arctan(sin, divide_by=cos)
-    elif channel(rot).size == 3:
-        a2 = -math.arcsin(rot[{channel: 2, dual: 0}])  # ToDo handle [2, 0] == 1 (i.e. cos_theta == 0)
-        cos2 = math.cos(a2)
-        a1 = math.arctan(rot[{channel: 2, dual: 1}] / cos2, divide_by=rot[{channel: 2, dual: 2}] / cos2)
-        a3 = math.arctan(rot[{channel: 1, dual: 0}] / cos2, divide_by=rot[{channel: 0, dual: 0}] / cos2)
-        regular_sol = stack([a1, a2, a3], channel(angle=channel(rot).item_names[0]))
-        # --- pole case cos(theta) == 1 ---
-        a3_pole = 0  # unconstrained
-        bottom_pole = rot[{channel: 2, dual: 0}] < 0
-        a2_pole = math.where(bottom_pole, 1.57079632679, -1.57079632679)
-        a1_pole = math.where(bottom_pole, math.arctan(rot[{channel: 0, dual: 1}], divide_by=rot[{channel: 0, dual: 2}]), math.arctan(-rot[{channel: 0, dual: 1}], divide_by=-rot[{channel: 0, dual: 2}]))
-        pole_sol = stack([a1_pole, a2_pole, a3_pole], channel(regular_sol))
-        return math.where(abs(rot[{channel: 2, dual: 0}]) >= 1, pole_sol, regular_sol)
-    else:
-        raise ValueError(f"")
-
-
-def rotation_matrix_from_directions(source_dir: Tensor, target_dir: Tensor, vec_dim: str = 'vector', epsilon=None) -> Tensor:
-    """
-    Computes a rotation matrix A, such that `target_dir = A @ source_dir`
-
-    Args:
-        source_dir: Two or three-dimensional vector. `Tensor` with channel dim called 'vector'.
-        target_dir: Two or three-dimensional vector. `Tensor` with channel dim called 'vector'.
-
-    Returns:
-        Rotation matrix as `Tensor` with 'vector' dim and its dual counterpart.
-    """
-    if source_dir.vector.size == 3:
-        source_dir = vec_normalize(source_dir, vec_dim, epsilon=epsilon)
-        target_dir = vec_normalize(target_dir, vec_dim, epsilon=epsilon)
-        axis = cross_product(source_dir, target_dir)
-        lim = 1-epsilon if epsilon is not None else 1
-        angle = math.arccos(math.clip(source_dir.vector @ target_dir.vector, -lim, lim))
-        return rotation_matrix_from_axis_and_angle(axis, angle, is_axis_normalized=False, epsilon=epsilon)
-    raise NotImplementedError
-
-
-def rotation_matrix_from_axis_and_angle(axis: Tensor, angle: Union[float, Tensor], vec_dim='vector', is_axis_normalized=False, epsilon=1e-5) -> Tensor:
-    """
-    Computes a rotation matrix that rotates by `angle` around `axis`.
-
-    Args:
-        axis: 3D vector. `Tensor` with channel dim called 'vector'.
-        angle: Rotation angle.
-        is_axis_normalized: Whether `axis` has length 1.
-        epsilon: Minimum axis length. For shorter axes, the unit matrix is returned.
-
-    Returns:
-        Rotation matrix as `Tensor` with 'vector' dim and its dual counterpart.
-    """
-    if axis.vector.size == 3:  # Rodrigues' rotation formula
-        axis = vec_normalize(axis, vec_dim, epsilon=epsilon, allow_zero=False) if not is_axis_normalized else axis
-        kx, ky, kz = axis.vector
-        s = math.sin(angle)
-        c = 1 - math.cos(angle)
-        return wrap([
-            (1 - c*(ky*ky+kz*kz),    -kz*s + c*(kx*ky),     ky*s + c*(kx*kz)),
-            (   kz*s + c*(kx*ky),  1 - c*(kx*kx+kz*kz),     -kx*s + c*(ky * kz)),
-            (  -ky*s + c*(kx*kz),    kx*s + c*(ky * kz),  1 - c*(kx*kx+ky*ky)),
-        ], axis.shape['vector'], axis.shape['vector'].as_dual())
-    raise NotImplementedError
 
 
 def dim_mask(all_dims: Union[Shape, tuple, list], dims: DimFilter, mask_dim=channel('vector')) -> Tensor:
@@ -468,7 +322,7 @@ def frequency_loss(x,
     if isinstance(x, Tensor):
         if ignore_mean:
             x -= math.mean(x, x.shape.non_batch)
-        k_squared = vec_squared(math.fftfreq(x.shape.spatial))
+        k_squared = math.sum_(math.fftfreq(x.shape.spatial) ** 2, channel)
         weights = math.exp(-0.5 * k_squared * frequency_falloff ** 2)
 
         diff_fft = abs_square(math.fft(x) * weights)
@@ -927,9 +781,9 @@ def fourier_laplace(grid: Tensor,
                     times: int = 1):
     """
     Applies the spatial laplace operator to the given tensor with periodic boundary conditions.
-    
+
     *Note:* The results of `fourier_laplace` and `laplace` are close but not identical.
-    
+
     This implementation computes the laplace operator in Fourier space.
     The result for periodic fields is exact, i.e. no numerical instabilities can occur, even for higher-order derivatives.
 
@@ -937,8 +791,8 @@ def fourier_laplace(grid: Tensor,
       grid: tensor, assumed to have periodic boundary conditions
       dx: distance between grid points, tensor-like, scalar or vector
       times: number of times the laplace operator is applied. The computational cost is independent of this parameter.
-      grid: Tensor: 
-      dx: Tensor or Shape or float or list or tuple: 
+      grid: Tensor:
+      dx: Tensor or Shape or float or list or tuple:
       times: int:  (Default value = 1)
 
     Returns:
@@ -1092,7 +946,7 @@ def find_closest(vectors: Tensor, query: Tensor, method='kd', index_dim=channel(
     assert not dual(vectors), f"vectors cannot have dual dims"
     index_dim = None if index_dim is None else index_dim.with_size(non_batch(vectors).non_channel.names)
     if method == 'dense':
-        dist = vec_squared(query - vectors)
+        dist = math.sum_((query - vectors) ** 2, channel)
         idx = math.argmin(dist, non_batch(vectors).non_channel)
         return rename_dims(idx, '_index', index_dim) if index_dim is not None else idx._index[0]
     # --- k-d tree ---
