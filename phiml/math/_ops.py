@@ -3415,13 +3415,12 @@ def pairwise_differences(positions: Tensor,
     dual_dims = primal_dims.as_dual()
     if isinstance(periodic, bool):
         any_periodic = periodic
-        periodic = (periodic,) * channel(positions).size
+        periodic = expand(periodic, channel(positions))
     else:
         assert isinstance(periodic, Tensor), f"periodic must be a bool or Tensor but got {periodic}"
-        assert periodic.shape.names == channel(positions)
+        assert periodic.shape.names == channel(positions).names
         assert periodic.shape.item_names == channel(positions).item_names
         any_periodic = periodic.any
-        periodic = unstack(periodic, channel)
     # --- Dense ---
     if (isinstance(format, str) and format == 'dense') or (isinstance(format, Tensor) and get_format(format) == 'dense'):
         if isinstance(format, Tensor):
@@ -3431,7 +3430,7 @@ def pairwise_differences(positions: Tensor,
             if any_periodic:
                 domain_size = domain[1] - domain[0]
                 dx_periodic = (dx + domain_size / 2) % domain_size - domain_size / 2
-                dx = where(wrap(periodic, channel(positions)), dx_periodic, dx)
+                dx = where(periodic, dx_periodic, dx)
             neighbors = sum_(dx ** 2, channel) <= max_distance ** 2
             dx = where(neighbors, dx, default)
         return dx
@@ -3439,6 +3438,12 @@ def pairwise_differences(positions: Tensor,
     if isinstance(format, Tensor):  # sparse connectivity specified, no neighborhood search required
         assert max_distance is None, "max_distance not allowed when connectivity is specified (passing a Tensor for format)"
         assert is_sparse(format)
+        if any_periodic:
+            from .extrapolation import PERIODIC
+            def periodic_dist(p1, p2):
+                p_dist = PERIODIC.shortest_distance(p1-domain[0], p2-domain[0], domain[1] - domain[0])
+                return where(periodic, p_dist, p2 - p1)
+            return map_pairs(periodic_dist, positions, format)
         return map_pairs(lambda p1, p2: p2 - p1, positions, format)
     # --- Sparse neighbor search ---
     assert max_distance is not None, "max_distance must be specified when computing distance in sparse format"
