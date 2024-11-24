@@ -1646,7 +1646,8 @@ def _all(value: Tensor, dims: Shape) -> Tensor:
         if value.dtype.kind != bool:
             value = value != 0
         if sparse_dims(value) in dims:
-            return _all(value._values, dims.without(sparse_dims(value)) & instance(value._values))
+            values = stored_values(value, list_dim=instance('_entries'))
+            return _all(values, dims.without(sparse_dims(value)) & instance(values))
         return sparse_sum(to_int32(~value), dims) == 0
     raise ValueError(type(value))
 
