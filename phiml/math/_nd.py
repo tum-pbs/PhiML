@@ -342,7 +342,6 @@ def rotation_matrix_from_axis_and_angle(axis: Tensor, angle: Union[float, Tensor
     raise NotImplementedError
 
 
-
 def dim_mask(all_dims: Union[Shape, tuple, list], dims: DimFilter, mask_dim=channel('vector')) -> Tensor:
     """
     Creates a masked vector with 1 elements for `dims` and 0 for all other dimensions in `all_dims`.
@@ -360,7 +359,7 @@ def dim_mask(all_dims: Union[Shape, tuple, list], dims: DimFilter, mask_dim=chan
     if isinstance(all_dims, (tuple, list)):
         all_dims = spatial(*all_dims)
     dims = all_dims.only(dims)
-    mask = [1 if dim in dims else 0 for dim in all_dims]
+    mask = [dim in dims for dim in all_dims]
     mask_dim = mask_dim.with_size(all_dims.names)
     return wrap(mask, mask_dim)
 
