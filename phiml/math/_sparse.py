@@ -61,6 +61,7 @@ def sparse_tensor(indices: Optional[Tensor],
         Sparse `Tensor` with the specified `format`.
     """
     assert values is not None, f"values must be a number of Tensor but got None. Pass values=1 for unit values."
+    assert dense_shape.well_defined, f"Dense shape must be well-defined but got {dense_shape}"
     if indices_constant is None:
         indices_constant = indices.default_backend.name == 'numpy'
     assert isinstance(indices_constant, bool)
@@ -1479,7 +1480,8 @@ def dot_sparse_sparse(a: Tensor, a_dims: Shape, b: Tensor, b_dims: Shape):
     j = b._indices[remaining_b][{instance: values._indices[list_dim.name]}]
     indices = concat([i, j], 'sparse_idx')
     values = values._values
-    return SparseCoordinateTensor(indices, values, channel(a) & dual(b), can_contain_double_entries=True, indices_sorted=False, indices_constant=a._indices_constant)
+    result_shape = (sparse_dims(a) - a_dims) & (sparse_dims(b) - b_dims)
+    return SparseCoordinateTensor(indices, values, result_shape, can_contain_double_entries=True, indices_sorted=False, indices_constant=a._indices_constant)
 
 
 def native_matrix(value: Tensor, target_backend: Backend):
@@ -1556,6 +1558,8 @@ def sparse_dot(x: Tensor, x_dims: Shape, y: Tensor, y_dims: Shape):
     elif isinstance(x, CompactSparseTensor):
         if not is_sparse(y):
             return dot_compact_dense(x, x_dims, y, y_dims)
+        x = to_format(x, 'csr')
+        return dot_sparse_sparse(x, x_dims, y, y_dims)
     raise NotImplementedError
 
 
