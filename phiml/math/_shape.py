@@ -18,7 +18,7 @@ INV_CHAR = {v: k for k, v in CHAR.items()}
 
 DEBUG_CHECKS = []
 
-DimFilter = Union[str, tuple, list, set, 'Shape', Callable, None]
+DimFilter = Union[str, Sequence, set, 'Shape', Callable, None]
 try:
     DimFilter.__doc__ = """Dimension filters can be used with `Shape.only()` and `Shype.without()`, making them the standard tool for specifying sets of dimensions.
 
@@ -236,7 +236,7 @@ class Shape:
                     return default
             return self.sizes[self.names.index(dim)]
         else:
-            raise ValueError(f"get_size() requires a single dimension but got {dim}. Use indices() to get multiple sizes.")
+            raise ValueError(f"get_size() requires a single dim name but got {dim}. Use indices() to get multiple sizes.")
 
     def get_sizes(self, dims: Union[tuple, list, 'Shape']) -> tuple:
         """
