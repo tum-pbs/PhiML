@@ -809,15 +809,6 @@ def value_attributes(obj) -> Tuple[str, ...]:
     raise ValueError(f"{type(obj).__name__} must implement '__value_attrs__()' or be a dataclass to be used with value functions.")
 
 
-def variable_values(obj) -> Tuple[str, ...]:
-    if hasattr(obj, '__variable_attrs__'):
-        values = obj.__value_attrs__()
-        variables = obj.__variable_attrs__()
-        return tuple([a for a in values if a in variables])
-    else:
-        return obj.__value_attrs__()  # this takes care of dataclasses as well
-
-
 def all_attributes(obj, assert_any=False) -> Tuple[str, ...]:
     if hasattr(obj, '__all_attrs__'):
         result = obj.__all_attrs__()
