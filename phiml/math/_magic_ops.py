@@ -1,6 +1,6 @@
 import copy
 import warnings
-from functools import partial
+from functools import partial, cached_property
 from numbers import Number
 from typing import TypeVar, Tuple, Set, Dict, Union, Optional, Sequence, Any, get_origin, List, Iterable, get_args, Callable
 
@@ -10,8 +10,7 @@ from . import channel
 from ..backend import choose_backend, NoBackendFound
 from ..backend._dtype import DType
 from ._shape import Shape, DimFilter, batch, instance, shape, non_batch, merge_shapes, concat_shapes, spatial, parse_dim_order, dual, auto, shape_stack, parse_shape_spec, DIM_FUNCTIONS, INV_CHAR
-from .magic import Sliceable, Shaped, Shapable, PhiTreeNode
-
+from .magic import Sliceable, Shaped, Shapable, PhiTreeNode, slicing_dict
 
 # PhiTreeNode
 
@@ -54,7 +53,7 @@ def slice_(value: PhiTreeNodeType, slices: Union[Dict[str, Union[int, slice, str
     if isinstance(value, dict):
         return {k: slice_(v, slices) for k, v in value.items()}
     if isinstance(value, Shape):
-        raise NotImplementedError
+        return value.after_gather(slices)
     if value is range:
         from ._tensors import Tensor
         if isinstance(slices, Tensor):
@@ -67,6 +66,27 @@ def slice_(value: PhiTreeNodeType, slices: Union[Dict[str, Union[int, slice, str
         new_attrs = {k: slice_(v, slices) for k, v in attrs.items()}
         return copy_with(value, **new_attrs)
     raise ValueError(f"value must be a PhiTreeNode but got {type(value)}")
+
+
+def getitem_dataclass(obj: PhiTreeNodeType, item, keepdims: DimFilter = None) -> PhiTreeNodeType:
+    assert dataclasses.is_dataclass(obj), f"obj must be a dataclass but got {type(obj)}"
+    item = slicing_dict(obj, item)
+    if keepdims:
+        keep = shape(obj).only(keepdims)
+        for dim, sel in item.items():
+            if dim in keep:
+                raise NotImplementedError
+    if not item:
+        return obj
+    fields = [f.name for f in dataclasses.fields(obj)]
+    attrs = all_attributes(obj)
+    kwargs = {f: slice_(getattr(obj, f), item) if f in attrs else getattr(obj, f) for f in fields}
+    cls = type(obj)
+    new_obj = cls.__new__(cls, **kwargs)
+    new_obj.__init__(**kwargs)
+    cached = {k: slice_(v, item) for k, v in obj.__dict__.items() if isinstance(getattr(type(obj), k, None), cached_property)}
+    new_obj.__dict__.update(cached)
+    return new_obj
 
 
 def unstack(value, dim: DimFilter) -> tuple:
