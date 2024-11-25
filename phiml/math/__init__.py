@@ -79,9 +79,9 @@ from ._ops import (
 
 from ._nd import (
     shift, index_shift,
-    vec, const_vec, length, length as vec_length, vec_squared, normalize, normalize as vec_normalize, cross_product, cross_product as cross,
+    vec, const_vec, length, length as vec_length, vec_squared, normalize, normalize as vec_normalize,
     dim_mask,
-    normalize_to, clip_length,
+    normalize_to,
     l1_loss, l2_loss, frequency_loss,
     spatial_gradient, laplace,
     neighbor_reduce, neighbor_mean, neighbor_sum, neighbor_max, neighbor_min, at_min_neighbor, at_max_neighbor,
@@ -108,6 +108,8 @@ from ._functional import (
 )
 
 from ._optimize import solve_linear, solve_nonlinear, minimize, Solve, SolveInfo, ConvergenceException, NotConverged, Diverged, SolveTape, factor_ilu
+
+# from ._deprecated import clip_length, cross_product, cross_product as cross,
 
 import sys as _sys
 math = _sys.modules[__name__]
