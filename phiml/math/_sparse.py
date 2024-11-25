@@ -1196,9 +1196,24 @@ def sparse_dims(x: Tensor) -> Shape:
     if isinstance(x, SparseCoordinateTensor):
         return x._dense_shape
     elif isinstance(x, CompressedSparseMatrix):
-        return concat_shapes(x._compressed_dims, x._uncompressed_dims)
+        return x._compressed_dims + x._uncompressed_dims
     elif isinstance(x, CompactSparseTensor):
         return x._compressed_dims
+    elif isinstance(x, TensorStack):
+        return merge_shapes([sparse_dims(t) for t in x._tensors])
+    else:
+        return EMPTY_SHAPE
+
+
+def sparse_matrix_dims(x: Tensor) -> Shape:
+    if isinstance(x, SparseCoordinateTensor):
+        return x._dense_shape
+    elif isinstance(x, CompressedSparseMatrix):
+        return x._compressed_dims + x._uncompressed_dims
+    elif isinstance(x, CompactSparseTensor):
+        return x._compressed_dims + x._uncompressed_dims
+    elif isinstance(x, TensorStack):
+        return merge_shapes([sparse_matrix_dims(t) for t in x._tensors])
     else:
         return EMPTY_SHAPE
 

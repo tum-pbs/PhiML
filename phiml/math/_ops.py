@@ -20,7 +20,7 @@ from ._tensors import (Tensor, wrap, tensor, broadcastable_native_tensors, Nativ
                        reshaped_native, reshaped_tensor, discard_constant_dims)
 from ._sparse import (CompressedSparseMatrix, dense, SparseCoordinateTensor, get_format, to_format, stored_indices,
                       tensor_like, sparse_dims, same_sparsity_pattern, is_sparse, sparse_dot, sparse_sum, sparse_gather, sparse_max,
-                      sparse_min, dense_dims, sparse_mean, stored_values)
+                      sparse_min, dense_dims, sparse_mean, stored_values, sparse_matrix_dims, CompactSparseTensor)
 
 
 def choose_backend_t(*values, prefer_default=False) -> Backend:
@@ -1288,11 +1288,22 @@ def nonzero(value: Tensor, list_dim: Union[Shape, str, int] = instance('nonzero'
     if isinstance(list_dim, str):
         list_dim = auto(list_dim, instance)
     cutoff = list_dim if isinstance(list_dim, int) else list_dim.size
-    list_dim = EMPTY_SHAPE if isinstance(list_dim, int) else list_dim
-    broadcast = value.shape - list_dims
+    if isinstance(list_dim, int) and list_dim == 1:
+        list_dim = EMPTY_SHAPE
+    elif isinstance(list_dim, int):
+        assert list_dims.rank == 1
+        list_dim = list_dims.without_sizes()
+    broadcast = value.shape - list_dims - sparse_matrix_dims(value)
     def unbatched_nonzero(value: Tensor):
         if isinstance(value, CompressedSparseMatrix):
             value = value.decompress()
+        elif isinstance(value, CompactSparseTensor):
+            if list_dims in value._compressed_dims and value._uncompressed_dims not in list_dims:
+                result = value._indices
+                if result.shape.only(value._compressed_dims).volume == cutoff:
+                    return result
+            else:
+                raise NotImplementedError
         if isinstance(value, SparseCoordinateTensor):
             assert cutoff is None, f"Cut-off Not implemented for sparse tensors"
             nonzero_values = nonzero(value._values)
