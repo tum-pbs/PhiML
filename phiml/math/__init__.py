@@ -109,7 +109,7 @@ from ._functional import (
 
 from ._optimize import solve_linear, solve_nonlinear, minimize, Solve, SolveInfo, ConvergenceException, NotConverged, Diverged, SolveTape, factor_ilu
 
-# from ._deprecated import clip_length, cross_product, cross_product as cross,
+from ._deprecated import clip_length, cross_product, cross_product as cross, rotate_vector, rotation_matrix
 
 import sys as _sys
 math = _sys.modules[__name__]
