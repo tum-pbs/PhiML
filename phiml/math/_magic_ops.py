@@ -1,3 +1,4 @@
+import collections
 import copy
 import warnings
 from functools import partial, cached_property
@@ -829,16 +830,27 @@ def all_attributes(obj, assert_any=False) -> Tuple[str, ...]:
 
 
 def _is_child_field(field: dataclasses.Field):
-    origin_type = get_origin(field.type)
-    if origin_type in {list, List, tuple, Tuple, set, Set, Iterable, Optional}:
-        args = get_args(field.type)  # The arguments passed to the generic (e.g., List[int] -> (int,))
-        primitives = [a for a in args if a is not Ellipsis] if args else [field.type]
-    else:
-        primitives = [field.type]
+    primitives = _get_primitive_types(field.type)
     return any(p not in NON_ATTR_TYPES for p in primitives)
 
 
-NON_ATTR_TYPES = str, int, float, complex, bool, Shape
+NON_ATTR_TYPES = str, int, float, complex, bool, Shape, slice
+
+
+def _get_primitive_types(field_type) -> List:
+    """Returns None for unknown types."""
+    if field_type is Ellipsis:
+        return []
+    origin_type = get_origin(field_type)
+    if origin_type in {list, List, tuple, Tuple, set, Set, Iterable, Optional, collections.abc.Sequence}:
+        args = get_args(field_type)  # The arguments passed to the generic (e.g., List[int] -> (int,))
+        return sum([_get_primitive_types(a) for a in args], []) if args else [None]
+    elif origin_type in {Dict, dict}:
+        k_type, v_type = get_args(field_type)
+        return _get_primitive_types(v_type)
+    else:
+        return [field_type]
+
 
 
 def replace(obj: PhiTreeNodeType, **updates) -> PhiTreeNodeType:
