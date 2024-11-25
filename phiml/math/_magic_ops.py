@@ -490,8 +490,7 @@ def expand(value, *dims: Union[Shape, str], **kwargs):
             return result
     # --- Next try Tree Node ---
     if isinstance(value, PhiTreeNode):
-        attributes = value_attributes(value) if hasattr(value, '__value_attrs__') else [variable_attributes(value)[0]]
-        new_attributes = {a: expand(getattr(value, a), dims, **kwargs) for a in attributes}
+        new_attributes = {a: expand(getattr(value, a), dims, **kwargs) for a in all_attributes(value)}
         return copy_with(value, **new_attributes)
     # --- Fallback: stack ---
     if hasattr(value, '__stack__'):
