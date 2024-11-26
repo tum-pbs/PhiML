@@ -334,6 +334,10 @@ This supports the following operations:</p>
             return self.obj
         return self.retype(dual) if name is None else self.replace(dual(**{name: self.item_names or self.size}))
 
+    @property
+    def T(self):
+        return self.retype(dual) if self.type != dual else self.retype(channel)
+
     def replace(self, dim: Shape, **kwargs):
         &#34;&#34;&#34;
         Returns a shallow copy of the `Tensor` where this dimension has been replaced by `dim`.
@@ -355,7 +359,7 @@ This supports the following operations:</p>
         return unpack_dim(self.obj, self.name, *dims, **kwargs)
 
     def __bool__(self):
-        raise SyntaxError(f&#34;{self} cannot be converted to bool. The property you want to access likely does not exist.&#34;)</code></pre>
+        raise SyntaxError(f&#34;{self} cannot be converted to bool. The property you want to access likely does not exist or raised an error when evaluated.&#34;)</code></pre>
 </details>
 <h3>Subclasses</h3>
 <ul class="hlist">
@@ -363,6 +367,18 @@ This supports the following operations:</p>
 </ul>
 <h3>Instance variables</h3>
 <dl>
+<dt id="phiml.math.magic.BoundDim.T"><code class="name">prop <span class="ident">T</span></code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def T(self):
+    return self.retype(dual) if self.type != dual else self.retype(channel)</code></pre>
+</details>
+</dd>
 <dt id="phiml.math.magic.BoundDim.dual"><code class="name">prop <span class="ident">dual</span></code></dt>
 <dd>
 <div class="desc"></div>
@@ -623,6 +639,11 @@ In key mode, <code>__eq__()</code> compares all non-variable properties that mig
         &#34;&#34;&#34;
         Returns all `Tensor` or `PhiTreeNode` attribute names of `self` that should be transformed by single-operand math operations,
         such as `sin()`, `exp()`.
+        Optimization functions, such as `minimize` also work on value attributes, as well as most derivative-related function, e.g.
+        - `jacobian()`
+        - `custom_gradient()`
+
+        Dataclasses may instead declare the field `values: Tuple[str,...]`
 
         Returns:
             `tuple` of `str` attributes.
@@ -641,8 +662,25 @@ In key mode, <code>__eq__()</code> compares all non-variable properties that mig
         - `jit_compile()`
         - `jit_compile_linear()`
         - `stop_gradient()`
-        - `jacobian()`
-        - `custom_gradient()`
+
+        Dataclasses may instead declare the field `variables: Tuple[str,...]`
+
+        Returns:
+            `tuple` of `str` attributes.
+                Calling `getattr(self, attr)` must return a `Tensor` or `PhiTreeNode` for all returned attributes.
+        &#34;&#34;&#34;
+        raise NotImplementedError
+
+    def __all_attrs__(self) -&gt; Tuple[str, ...]:
+        &#34;&#34;&#34;
+        Returns all `Tensor` or `PhiTreeNode` attribute names of `self` needed to fully describe this instance.
+        Fields which never hold `Tensor` instances (directly or indirectly) should not be included.
+
+        The returned attributes are used to extract tensors for serializing and un-serializing the object.
+
+        All names returned by `__variable_attrs__` and `__value_attrs__` must be included in this list.
+        If not implemented, the union of `__variable_attrs__` and `__value_attrs__` will be used instead, and dataclasses default to all fields possibly containing data.
+        The only dataclass fields excluded are those of type `Shape` or primitive types `str`, `int`, `float`, etc. and collections of these.
 
         Returns:
             `tuple` of `str` attributes.
@@ -669,12 +707,30 @@ In key mode, <code>__eq__()</code> compares all non-variable properties that mig
 </details>
 <h3>Methods</h3>
 <dl>
+<dt id="phiml.math.magic.PhiTreeNode.__all_attrs__"><code class="name flex">
+<span>def <span class="ident">__all_attrs__</span></span>(<span>self) ‑> Tuple[str, ...]</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Returns all <code>Tensor</code> or <code><a title="phiml.math.magic.PhiTreeNode" href="#phiml.math.magic.PhiTreeNode">PhiTreeNode</a></code> attribute names of <code>self</code> needed to fully describe this instance.
+Fields which never hold <code>Tensor</code> instances (directly or indirectly) should not be included.</p>
+<p>The returned attributes are used to extract tensors for serializing and un-serializing the object.</p>
+<p>All names returned by <code>__variable_attrs__</code> and <code>__value_attrs__</code> must be included in this list.
+If not implemented, the union of <code>__variable_attrs__</code> and <code>__value_attrs__</code> will be used instead, and dataclasses default to all fields possibly containing data.
+The only dataclass fields excluded are those of type <code>Shape</code> or primitive types <code>str</code>, <code>int</code>, <code>float</code>, etc. and collections of these.</p>
+<h2 id="returns">Returns</h2>
+<p><code>tuple</code> of <code>str</code> attributes.
+Calling <code>getattr(self, attr)</code> must return a <code>Tensor</code> or <code><a title="phiml.math.magic.PhiTreeNode" href="#phiml.math.magic.PhiTreeNode">PhiTreeNode</a></code> for all returned attributes.</p></div>
+</dd>
 <dt id="phiml.math.magic.PhiTreeNode.__value_attrs__"><code class="name flex">
 <span>def <span class="ident">__value_attrs__</span></span>(<span>self) ‑> Tuple[str, ...]</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Returns all <code>Tensor</code> or <code><a title="phiml.math.magic.PhiTreeNode" href="#phiml.math.magic.PhiTreeNode">PhiTreeNode</a></code> attribute names of <code>self</code> that should be transformed by single-operand math operations,
-such as <code>sin()</code>, <code>exp()</code>.</p>
+such as <code>sin()</code>, <code>exp()</code>.
+Optimization functions, such as <code>minimize</code> also work on value attributes, as well as most derivative-related function, e.g.
+- <code>jacobian()</code>
+- <code>custom_gradient()</code></p>
+<p>Dataclasses may instead declare the field <code>values: Tuple[str,...]</code></p>
 <h2 id="returns">Returns</h2>
 <p><code>tuple</code> of <code>str</code> attributes.
 Calling <code>getattr(self, attr)</code> must return a <code>Tensor</code> or <code><a title="phiml.math.magic.PhiTreeNode" href="#phiml.math.magic.PhiTreeNode">PhiTreeNode</a></code> for all returned attributes.</p></div>
@@ -691,9 +747,8 @@ If this method is not implemented, all attributes returned by <code>__value_attr
 <li><code>jit_compile()</code></li>
 <li><code>jit_compile_linear()</code></li>
 <li><code>stop_gradient()</code></li>
-<li><code>jacobian()</code></li>
-<li><code>custom_gradient()</code></li>
 </ul>
+<p>Dataclasses may instead declare the field <code>variables: Tuple[str,...]</code></p>
 <h2 id="returns">Returns</h2>
 <p><code>tuple</code> of <code>str</code> attributes.
 Calling <code>getattr(self, attr)</code> must return a <code>Tensor</code> or <code><a title="phiml.math.magic.PhiTreeNode" href="#phiml.math.magic.PhiTreeNode">PhiTreeNode</a></code> for all returned attributes.</p></div>
@@ -1266,6 +1321,7 @@ Un-stacking along multiple dimensions is equal to first packing the dimensions a
 <li>
 <h4><code><a title="phiml.math.magic.BoundDim" href="#phiml.math.magic.BoundDim">BoundDim</a></code></h4>
 <ul class="two-column">
+<li><code><a title="phiml.math.magic.BoundDim.T" href="#phiml.math.magic.BoundDim.T">T</a></code></li>
 <li><code><a title="phiml.math.magic.BoundDim.as_batch" href="#phiml.math.magic.BoundDim.as_batch">as_batch</a></code></li>
 <li><code><a title="phiml.math.magic.BoundDim.as_channel" href="#phiml.math.magic.BoundDim.as_channel">as_channel</a></code></li>
 <li><code><a title="phiml.math.magic.BoundDim.as_dual" href="#phiml.math.magic.BoundDim.as_dual">as_dual</a></code></li>
@@ -1293,6 +1349,7 @@ Un-stacking along multiple dimensions is equal to first packing the dimensions a
 <li>
 <h4><code><a title="phiml.math.magic.PhiTreeNode" href="#phiml.math.magic.PhiTreeNode">PhiTreeNode</a></code></h4>
 <ul class="">
+<li><code><a title="phiml.math.magic.PhiTreeNode.__all_attrs__" href="#phiml.math.magic.PhiTreeNode.__all_attrs__">__all_attrs__</a></code></li>
 <li><code><a title="phiml.math.magic.PhiTreeNode.__value_attrs__" href="#phiml.math.magic.PhiTreeNode.__value_attrs__">__value_attrs__</a></code></li>
 <li><code><a title="phiml.math.magic.PhiTreeNode.__variable_attrs__" href="#phiml.math.magic.PhiTreeNode.__variable_attrs__">__variable_attrs__</a></code></li>
 <li><code><a title="phiml.math.magic.PhiTreeNode.__with_attrs__" href="#phiml.math.magic.PhiTreeNode.__with_attrs__">__with_attrs__</a></code></li>

@@ -199,9 +199,9 @@ evaluation mode.
         for i in range(len(self._blocks)):
             x = getattr(self, f&#39;conv{i+1}&#39;)(x)
             x = self.maxpool(x)
-        x = self.flatten(x)
-        x = self.mlp(x)
-        return x</code></pre>
+        xf = self.flatten(x)
+        y = self.mlp(xf)
+        return y</code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">

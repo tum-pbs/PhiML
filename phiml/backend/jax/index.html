@@ -366,6 +366,11 @@ The methods of <code>Backend</code> form a comprehensive list of available opera
         dtype = dtype or self.float_type
         return jax.device_put(random.normal(subkey, shape, dtype=to_numpy_dtype(dtype)), self._default_device.ref)
 
+    def random_permutations(self, permutations: int, n: int):
+        self.rnd_key, subkey = jax.random.split(self.rnd_key)
+        result = jnp.stack([jax.random.permutation(subkey, n) for _ in range(permutations)])
+        return jax.device_put(result, self._default_device.ref)
+
     def range(self, start, limit=None, delta=1, dtype: DType = DType(int, 32)):
         if limit is None:
             start, limit = 0, start
@@ -2071,6 +2076,12 @@ Use <code>is_available(tensor)</code> to check if the value can be represented a
 <dd>
 <div class="desc"><p>Float tensor of selected precision containing random values sampled from a normal distribution with mean 0 and std 1.</p></div>
 </dd>
+<dt id="phiml.backend.jax.JaxBackend.random_permutations"><code class="name flex">
+<span>def <span class="ident">random_permutations</span></span>(<span>self, permutations: int, n: int)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Generate <code>permutations</code> stacked arrays of shuffled integers between <code>0</code> and <code>n</code>.</p></div>
+</dd>
 <dt id="phiml.backend.jax.JaxBackend.random_uniform"><code class="name flex">
 <span>def <span class="ident">random_uniform</span></span>(<span>self, shape, low, high, dtype: Optional[phiml.backend._dtype.DType])</span>
 </code></dt>
@@ -2450,6 +2461,7 @@ If the loop is broken, the values returned by the last loop are expected to be c
 <li><code><a title="phiml.backend.jax.JaxBackend.prod" href="#phiml.backend.jax.JaxBackend.prod">prod</a></code></li>
 <li><code><a title="phiml.backend.jax.JaxBackend.quantile" href="#phiml.backend.jax.JaxBackend.quantile">quantile</a></code></li>
 <li><code><a title="phiml.backend.jax.JaxBackend.random_normal" href="#phiml.backend.jax.JaxBackend.random_normal">random_normal</a></code></li>
+<li><code><a title="phiml.backend.jax.JaxBackend.random_permutations" href="#phiml.backend.jax.JaxBackend.random_permutations">random_permutations</a></code></li>
 <li><code><a title="phiml.backend.jax.JaxBackend.random_uniform" href="#phiml.backend.jax.JaxBackend.random_uniform">random_uniform</a></code></li>
 <li><code><a title="phiml.backend.jax.JaxBackend.range" href="#phiml.backend.jax.JaxBackend.range">range</a></code></li>
 <li><code><a title="phiml.backend.jax.JaxBackend.ravel_multi_index" href="#phiml.backend.jax.JaxBackend.ravel_multi_index">ravel_multi_index</a></code></li>

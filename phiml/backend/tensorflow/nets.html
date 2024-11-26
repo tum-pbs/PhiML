@@ -475,6 +475,277 @@ a list of tensors if there are more than one outputs.</p></div>
 </dd>
 </dl>
 </dd>
+<dt id="phiml.backend.tensorflow.nets.PeriodicPad"><code class="flex name class">
+<span>class <span class="ident">PeriodicPad</span></span>
+<span>(</span><span>trainable=True, name=None, dtype=None, dynamic=False, **kwargs)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>This is the class from which all layers inherit.</p>
+<p>A layer is a callable object that takes as input one or more tensors and
+that outputs one or more tensors. It involves <em>computation</em>, defined
+in the <code>call()</code> method, and a <em>state</em> (weight variables). State can be
+created in various places, at the convenience of the subclass implementer:</p>
+<ul>
+<li>in <code>__init__()</code>;</li>
+<li>in the optional <code>build()</code> method, which is invoked by the first
+<code>__call__()</code> to the layer, and supplies the shape(s) of the input(s),
+which may not have been known at initialization time;</li>
+<li>in the first invocation of <code>call()</code>, with some caveats discussed
+below.</li>
+</ul>
+<p>Layers are recursively composable: If you assign a Layer instance as an
+attribute of another Layer, the outer layer will start tracking the weights
+created by the inner layer. Nested layers should be instantiated in the
+<code>__init__()</code> method.</p>
+<p>Users will just instantiate a layer and then treat it as a callable.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>trainable</code></strong></dt>
+<dd>Boolean, whether the layer's variables should be trainable.</dd>
+<dt><strong><code>name</code></strong></dt>
+<dd>String name of the layer.</dd>
+<dt><strong><code>dtype</code></strong></dt>
+<dd>The dtype of the layer's computations and weights. Can also be a
+<code>tf.keras.mixed_precision.Policy</code>, which allows the computation and
+weight dtype to differ. Default of <code>None</code> means to use
+<code>tf.keras.mixed_precision.global_policy()</code>, which is a float32 policy
+unless set to different value.</dd>
+<dt><strong><code>dynamic</code></strong></dt>
+<dd>Set this to <code>True</code> if your layer should only be run eagerly, and
+should not be used to generate a static computation graph.
+This would be the case for a Tree-RNN or a recursive network,
+for example, or generally for any layer that manipulates tensors
+using Python control flow. If <code>False</code>, we assume that the layer can
+safely be used to generate a static computation graph.</dd>
+</dl>
+<h2 id="attributes">Attributes</h2>
+<dl>
+<dt><strong><code>name</code></strong></dt>
+<dd>The name of the layer (string).</dd>
+<dt><strong><code>dtype</code></strong></dt>
+<dd>The dtype of the layer's weights.</dd>
+<dt><strong><code>variable_dtype</code></strong></dt>
+<dd>Alias of <code>dtype</code>.</dd>
+<dt><strong><code>compute_dtype</code></strong></dt>
+<dd>The dtype of the layer's computations. Layers automatically
+cast inputs to this dtype which causes the computations and output to
+also be in this dtype. When mixed precision is used with a
+<code>tf.keras.mixed_precision.Policy</code>, this will be different than
+<code>variable_dtype</code>.</dd>
+<dt><strong><code>dtype_policy</code></strong></dt>
+<dd>The layer's dtype policy. See the
+<code>tf.keras.mixed_precision.Policy</code> documentation for details.</dd>
+<dt><strong><code>trainable_weights</code></strong></dt>
+<dd>List of variables to be included in backprop.</dd>
+<dt><strong><code>non_trainable_weights</code></strong></dt>
+<dd>List of variables that should not be
+included in backprop.</dd>
+<dt><strong><code>weights</code></strong></dt>
+<dd>The concatenation of the lists trainable_weights and
+non_trainable_weights (in this order).</dd>
+<dt><strong><code>trainable</code></strong></dt>
+<dd>Whether the layer should be trained (boolean), i.e. whether
+its potentially-trainable weights should be returned as part of
+<code>layer.trainable_weights</code>.</dd>
+<dt><strong><code>input_spec</code></strong></dt>
+<dd>Optional (list of) <code>InputSpec</code> object(s) specifying the
+constraints on inputs that can be accepted by the layer.</dd>
+</dl>
+<p>We recommend that descendants of <code>Layer</code> implement the following methods:</p>
+<ul>
+<li><code>__init__()</code>: Defines custom layer attributes, and creates layer weights
+that do not depend on input shapes, using <code>add_weight()</code>, or other state.</li>
+<li><code>build(self, input_shape)</code>: This method can be used to create weights that
+depend on the shape(s) of the input(s), using <code>add_weight()</code>, or other
+state. <code>__call__()</code> will automatically build the layer (if it has not been
+built yet) by calling <code>build()</code>.</li>
+<li><code>call(self, inputs, *args, **kwargs)</code>: Called in <code>__call__</code> after making
+sure <code>build()</code> has been called. <code>call()</code> performs the logic of applying
+the layer to the <code>inputs</code>. The first invocation may additionally create
+state that could not be conveniently created in <code>build()</code>; see its
+docstring for details.
+Two reserved keyword arguments you can optionally use in <code>call()</code> are:<ul>
+<li><code>training</code> (boolean, whether the call is in inference mode or training
+mode). See more details in <a href="https://www.tensorflow.org/guide/keras/custom_layers_and_models#privileged_training_argument_in_the_call_method">the layer/model subclassing guide</a></li>
+<li><code>mask</code> (boolean tensor encoding masked timesteps in the input, used
+in RNN layers). See more details in
+<a href="https://www.tensorflow.org/guide/keras/custom_layers_and_models#privileged_mask_argument_in_the_call_method">the layer/model subclassing guide</a>
+A typical signature for this method is <code>call(self, inputs)</code>, and user
+could optionally add <code>training</code> and <code>mask</code> if the layer need them. <code>*args</code>
+and <code>**kwargs</code> is only useful for future extension when more input
+parameters are planned to be added.</li>
+</ul>
+</li>
+<li><code>get_config(self)</code>: Returns a dictionary containing the configuration used
+to initialize this layer. If the keys differ from the arguments
+in <code>__init__</code>, then override <code>from_config(self)</code> as well.
+This method is used when saving
+the layer or a model that contains this layer.</li>
+</ul>
+<p>Examples:</p>
+<p>Here's a basic example: a layer with two variables, <code>w</code> and <code>b</code>,
+that returns <code>y = w . x + b</code>.
+It shows how to implement <code>build()</code> and <code>call()</code>.
+Variables set as attributes of a layer are tracked as weights
+of the layers (in <code>layer.weights</code>).</p>
+<pre><code class="language-python">class SimpleDense(Layer):
+
+  def __init__(self, units=32):
+      super(SimpleDense, self).__init__()
+      self.units = units
+
+  def build(self, input_shape):  # Create the state of the layer (weights)
+    w_init = tf.random_normal_initializer()
+    self.w = tf.Variable(
+        initial_value=w_init(shape=(input_shape[-1], self.units),
+                             dtype='float32'),
+        trainable=True)
+    b_init = tf.zeros_initializer()
+    self.b = tf.Variable(
+        initial_value=b_init(shape=(self.units,), dtype='float32'),
+        trainable=True)
+
+  def call(self, inputs):  # Defines the computation from inputs to outputs
+      return tf.matmul(inputs, self.w) + self.b
+
+# Instantiates the layer.
+linear_layer = SimpleDense(4)
+
+# This will also call `build(input_shape)` and create the weights.
+y = linear_layer(tf.ones((2, 2)))
+assert len(linear_layer.weights) == 2
+
+# These weights are trainable, so they're listed in `trainable_weights`:
+assert len(linear_layer.trainable_weights) == 2
+</code></pre>
+<p>Note that the method <code>add_weight()</code> offers a shortcut to create weights:</p>
+<pre><code class="language-python">class SimpleDense(Layer):
+
+  def __init__(self, units=32):
+      super(SimpleDense, self).__init__()
+      self.units = units
+
+  def build(self, input_shape):
+      self.w = self.add_weight(shape=(input_shape[-1], self.units),
+                               initializer='random_normal',
+                               trainable=True)
+      self.b = self.add_weight(shape=(self.units,),
+                               initializer='random_normal',
+                               trainable=True)
+
+  def call(self, inputs):
+      return tf.matmul(inputs, self.w) + self.b
+</code></pre>
+<p>Besides trainable weights, updated via backpropagation during training,
+layers can also have non-trainable weights. These weights are meant to
+be updated manually during <code>call()</code>. Here's a example layer that computes
+the running sum of its inputs:</p>
+<pre><code class="language-python">class ComputeSum(Layer):
+
+  def __init__(self, input_dim):
+      super(ComputeSum, self).__init__()
+      # Create a non-trainable weight.
+      self.total = tf.Variable(initial_value=tf.zeros((input_dim,)),
+                               trainable=False)
+
+  def call(self, inputs):
+      self.total.assign_add(tf.reduce_sum(inputs, axis=0))
+      return self.total
+
+my_sum = ComputeSum(2)
+x = tf.ones((2, 2))
+
+y = my_sum(x)
+print(y.numpy())  # [2. 2.]
+
+y = my_sum(x)
+print(y.numpy())  # [4. 4.]
+
+assert my_sum.weights == [my_sum.total]
+assert my_sum.non_trainable_weights == [my_sum.total]
+assert my_sum.trainable_weights == []
+</code></pre>
+<p>For more information about creating layers, see the guide
+<a href="https://www.tensorflow.org/guide/keras/custom_layers_and_models">Making new Layers and Models via subclassing</a></p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class PeriodicPad(kl.Layer):
+    def call(self, x):
+        d = len(x.shape) - 2
+        if d &gt;= 1:
+            x = tf.concat([tf.expand_dims(x[:, -1, ...], axis=1), x, tf.expand_dims(x[:, 0, ...], axis=1)], axis=1)
+        if d &gt;= 2:
+            x = tf.concat([tf.expand_dims(x[:, :, -1, ...], axis=2), x, tf.expand_dims(x[:, :, 0, ...], axis=2)], axis=2)
+        if d &gt;= 3:
+            x = tf.concat([tf.expand_dims(x[:, :, :, -1, ...], axis=3), x, tf.expand_dims(x[:, :, :, 0, ...], axis=3)], axis=3)
+        return x</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>keras.src.engine.base_layer.Layer</li>
+<li>tensorflow.python.module.module.Module</li>
+<li>tensorflow.python.trackable.autotrackable.AutoTrackable</li>
+<li>tensorflow.python.trackable.base.Trackable</li>
+<li>keras.src.utils.version_utils.LayerVersionSelector</li>
+</ul>
+<h3>Methods</h3>
+<dl>
+<dt id="phiml.backend.tensorflow.nets.PeriodicPad.call"><code class="name flex">
+<span>def <span class="ident">call</span></span>(<span>self, x)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>This is where the layer's logic lives.</p>
+<p>The <code>call()</code> method may not create state (except in its first
+invocation, wrapping the creation of variables or other resources in
+<code>tf.init_scope()</code>).
+It is recommended to create state, including
+<code>tf.Variable</code> instances and nested <code>Layer</code> instances,
+in <code>__init__()</code>, or in the <code>build()</code> method that is
+called automatically before <code>call()</code> executes for the first time.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>inputs</code></strong></dt>
+<dd>Input tensor, or dict/list/tuple of input tensors.
+The first positional <code>inputs</code> argument is subject to special rules:
+- <code>inputs</code> must be explicitly passed. A layer cannot have zero
+arguments, and <code>inputs</code> cannot be provided via the default value
+of a keyword argument.
+- NumPy array or Python scalar values in <code>inputs</code> get cast as
+tensors.
+- Keras mask metadata is only collected from <code>inputs</code>.
+- Layers are built (<code>build(input_shape)</code> method)
+using shape info from <code>inputs</code> only.
+- <code>input_spec</code> compatibility is only checked against <code>inputs</code>.
+- Mixed precision input casting is only applied to <code>inputs</code>.
+If a layer has tensor arguments in <code>*args</code> or <code>**kwargs</code>, their
+casting behavior in mixed precision should be handled manually.
+- The SavedModel input specification is generated using <code>inputs</code>
+only.
+- Integration with various ecosystem packages like TFMOT, TFLite,
+TF.js, etc is only supported for <code>inputs</code> and not for tensors in
+positional and keyword arguments.</dd>
+<dt><strong><code>*args</code></strong></dt>
+<dd>Additional positional arguments. May contain tensors, although
+this is not recommended, for the reasons above.</dd>
+<dt><strong><code>**kwargs</code></strong></dt>
+<dd>Additional keyword arguments. May contain tensors, although
+this is not recommended, for the reasons above.
+The following optional keyword arguments are reserved:
+- <code>training</code>: Boolean scalar tensor of Python boolean indicating
+whether the <code>call</code> is meant for training or inference.
+- <code>mask</code>: Boolean input mask. If the layer's <code>call()</code> method takes a
+<code>mask</code> argument, its default value will be set to the mask
+generated for <code>inputs</code> by the previous layer (if <code>input</code> did come
+from a layer that generated a corresponding mask, i.e. if it came
+from a Keras layer with masking support).</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<p>A tensor or list/tuple of tensors.</p></div>
+</dd>
+</dl>
+</dd>
 </dl>
 </section>
 </article>
@@ -522,6 +793,12 @@ a list of tensors if there are more than one outputs.</p></div>
 <h4><code><a title="phiml.backend.tensorflow.nets.InvertibleNet" href="#phiml.backend.tensorflow.nets.InvertibleNet">InvertibleNet</a></code></h4>
 <ul class="">
 <li><code><a title="phiml.backend.tensorflow.nets.InvertibleNet.call" href="#phiml.backend.tensorflow.nets.InvertibleNet.call">call</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="phiml.backend.tensorflow.nets.PeriodicPad" href="#phiml.backend.tensorflow.nets.PeriodicPad">PeriodicPad</a></code></h4>
+<ul class="">
+<li><code><a title="phiml.backend.tensorflow.nets.PeriodicPad.call" href="#phiml.backend.tensorflow.nets.PeriodicPad.call">call</a></code></li>
 </ul>
 </li>
 </ul>
