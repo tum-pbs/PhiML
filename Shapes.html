@@ -15453,7 +15453,7 @@ We can pass multiple shapes to tensor constructors and can construct multiple di
 
 
 <div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre><span class="ansi-green-intense-fg">(xˢ=28, yˢ=28)</span> <span class="ansi-blue-intense-fg">0.490 ± 0.286</span> <span class="ansi-white-fg">(2e-03...1e+00)</span></pre>
+<pre><span class="ansi-green-intense-fg">(xˢ=28, yˢ=28)</span> <span class="ansi-blue-intense-fg">0.501 ± 0.296</span> <span class="ansi-white-fg">(7e-04...1e+00)</span></pre>
 </div>
 
 </div>
@@ -15534,7 +15534,7 @@ Assuming we have a tensor with dimensions <code>a,b</code> and another with the 
 
 
 <div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre><span class="ansi-blue-intense-fg">(-2.103, 2.786, -0.337, -0.497, 1.668, -1.134)</span> <span class="ansi-green-intense-fg">(aᶜ=2, bᶜ=3)</span></pre>
+<pre><span class="ansi-blue-intense-fg">(-0.675, -1.882, 0.323, 0.364, -0.655, -0.207)</span> <span class="ansi-green-intense-fg">(aᶜ=2, bᶜ=3)</span></pre>
 </div>
 
 </div>
@@ -15590,7 +15590,7 @@ In these cases, you can think of the value being constant along the missing dime
 
 
 <div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre><span class="ansi-blue-intense-fg">(1.209, -1.056, 1.706, -2.418, -4.683, -1.922)</span> <span class="ansi-green-intense-fg">(aᶜ=2, bᶜ=3)</span></pre>
+<pre><span class="ansi-blue-intense-fg">(0.613, 1.351, 1.046, 0.441, 1.179, 0.874)</span> <span class="ansi-green-intense-fg">(aᶜ=2, bᶜ=3)</span></pre>
 </div>
 
 </div>
@@ -15657,7 +15657,7 @@ This can also be done explicitly using <a href="phiml/math/#phiml.math.concat_sh
 
 
 <div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre>(xˢ=28, yˢ=28, channelsᶜ=red,green,blue, examplesᵇ=16)</pre>
+<pre>(xˢ=28, yˢ=28, channelsᶜ=3:red..., examplesᵇ=16)</pre>
 </div>
 
 </div>
@@ -15710,7 +15710,7 @@ Alternatively, <a href="phiml/math/#phiml.math.merge_shapes"><code>merge_shapes(
 
 
 <div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre>(examplesᵇ=16, xˢ=28, yˢ=28, channelsᶜ=red,green,blue)</pre>
+<pre>(examplesᵇ=16, xˢ=28, yˢ=28, channelsᶜ=3:red...)</pre>
 </div>
 
 </div>
@@ -15762,7 +15762,7 @@ Notice how the <em>batch</em> dimension is moved to the first place.</p>
 
 
 <div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre>(examplesᵇ=16, xˢ=28, yˢ=28, channelsᶜ=red,green,blue)</pre>
+<pre>(examplesᵇ=16, xˢ=28, yˢ=28, channelsᶜ=3:red...)</pre>
 </div>
 
 </div>
@@ -15891,7 +15891,7 @@ Notice how the <em>batch</em> dimension is moved to the first place.</p>
 
 
 <div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre>(examplesᵇ=16, channelsᶜ=red,green,blue)</pre>
+<pre>(examplesᵇ=16, channelsᶜ=3:red...)</pre>
 </div>
 
 </div>
@@ -16059,7 +16059,7 @@ Notice how the <em>batch</em> dimension is moved to the first place.</p>
 
 
 <div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre>(examplesᵇ=16, channelsᶜ=red,green,blue)</pre>
+<pre>(examplesᵇ=16, channelsᶜ=3:red...)</pre>
 </div>
 
 </div>
@@ -16098,7 +16098,7 @@ Notice how the <em>batch</em> dimension is moved to the first place.</p>
 
 
 <div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre>(examplesᵇ=16, channelsᶜ=red,green,blue)</pre>
+<pre>(examplesᵇ=16, channelsᶜ=3:red...)</pre>
 </div>
 
 </div>
@@ -16437,7 +16437,7 @@ Assume, we want to rename the <code>channels</code> dimension from above to <cod
 
 
 <div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre>(examplesᵇ=16, xˢ=28, yˢ=28, colorᶜ=red,green,blue)</pre>
+<pre>(examplesᵇ=16, xˢ=28, yˢ=28, colorᶜ=3:red...)</pre>
 </div>
 
 </div>
@@ -16488,7 +16488,7 @@ Assume, we want to rename the <code>channels</code> dimension from above to <cod
 
 
 <div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre><span class="ansi-green-intense-fg">(examplesᵇ=16, xˢ=28, yˢ=28, colorᶜ=red,green,blue)</span> <span class="ansi-blue-intense-fg">const 0.0</span></pre>
+<pre><span class="ansi-green-intense-fg">(examplesᵇ=16, xˢ=28, yˢ=28, colorᶜ=3:red...)</span> <span class="ansi-blue-intense-fg">const 0.0</span></pre>
 </div>
 
 </div>

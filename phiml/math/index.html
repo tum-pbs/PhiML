@@ -6477,7 +6477,7 @@ To create a shape with multiple types, use <code><a title="phiml.math.merge_shap
         def size_repr(size, items):
             if items is not None:
                 items_str = &#34;,&#34;.join(items)
-                return items_str if len(items_str) &lt;= 20 else f&#34;{size}:{items[0]}..{items[-1]}&#34;
+                return items_str if len(items_str) &lt;= 12 else f&#34;{size}:{items[0][:5]}...&#34;
             return size
 
         strings = [f&#34;{name}{SUPERSCRIPT.get(dim_type, &#39;?&#39;)}={size_repr(size, items)}&#34; for size, name, dim_type, items in self._dimensions]
