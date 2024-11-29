@@ -1680,7 +1680,7 @@ def sparse_reduce(value: Tensor, dims: Shape, mode: str):
             return scatter(result_base, indices, value._values, mode=mode, outside_handling='undefined')
         elif value.sparse_dims.only(dims):  # reduce some sparse dims
             if mode == 'add':
-                return dot(value, dims, ones(dims), dims)  # this is what SciPy does in both axes, actually.
+                return dot(value, dims, ones(dims, dtype=value.dtype), dims)  # this is what SciPy does in both axes, actually.
             else:
                 value = value.decompress()
                 return sparse_reduce(value, dims, mode)
