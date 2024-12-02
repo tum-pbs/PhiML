@@ -1793,7 +1793,10 @@ def sparse_gather(matrix: Tensor, indices: Tensor, index_dim: Shape):
         col_indices = matrix._indices[col_dims.name_list]
         # --- Construct SciPy matrix for efficient slicing ---
         np_rows = NUMPY.ravel_multi_index(reshaped_numpy(row_indices, [instance, channel]), row_dims.sizes)
-        np_cols = NUMPY.ravel_multi_index(reshaped_numpy(col_indices, [instance, channel]), col_dims.sizes)
+        if col_dims:
+            np_cols = NUMPY.ravel_multi_index(reshaped_numpy(col_indices, [instance, channel]), col_dims.sizes)
+        else:
+            np_cols = np.zeros_like(np_rows)
         scipy_mat = csr_matrix((placeholders, (np_rows, np_cols)), shape=(row_dims.volume, col_dims.volume))
         if row_dims.rank > 1:
             raise NotImplementedError  # ravel indices
@@ -1807,7 +1810,10 @@ def sparse_gather(matrix: Tensor, indices: Tensor, index_dim: Shape):
                 lin_indices = np.array(lin_indices)
             lookup = scipy_mat[lin_indices, np.arange(scipy_mat.shape[1])].A1 - 1
             lookup = expand(wrap(lookup, instance('sp_entries')), channel(sparse_idx=instance(col_indices).name))
-            gathered_indices = col_indices[lookup]
+            if col_dims:
+                gathered_indices = col_indices[lookup]
+            else:
+                raise NotImplementedError
         else:
             row_counts = scipy_mat.getnnz(axis=1)  # how many elements per matrix row
             lookup = scipy_mat[lin_indices, :].data - 1
