@@ -833,7 +833,7 @@ def _is_child_field(field: dataclasses.Field):
     return any(p not in NON_ATTR_TYPES for p in primitives)
 
 
-NON_ATTR_TYPES = str, int, float, complex, bool, Shape, slice
+NON_ATTR_TYPES = str, int, float, complex, bool, Shape, slice, Callable
 
 
 def _get_primitive_types(field_type) -> List:
