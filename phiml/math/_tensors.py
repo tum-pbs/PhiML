@@ -716,7 +716,7 @@ class Tensor:
     def __rmod__(self, other):
         return self._op2(other, lambda x, y: y % x, lambda x, y: choose_backend(x, y).mod(y, x), 'rmod', '%')
 
-    def __eq__(self, other):
+    def __eq__(self, other) -> 'Tensor':
         if _EQUALITY_REDUCE[-1] == 'ref':
             return wrap(self is other)
         elif _EQUALITY_REDUCE[-1] == 'shape_and_value':
@@ -728,7 +728,7 @@ class Tensor:
             other = float('nan')
         return self._op2(other, lambda x, y: x == y, lambda x, y: choose_backend(x, y).equal(x, y), 'eq', '==')
 
-    def __ne__(self, other):
+    def __ne__(self, other) -> 'Tensor':
         if _EQUALITY_REDUCE[-1] == 'ref':
             return wrap(self is not other)
         elif _EQUALITY_REDUCE[-1] == 'shape_and_value':
