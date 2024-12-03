@@ -1302,8 +1302,8 @@ class Shape:
         return {dim: self.prepare_gather(dim, s) for dim, s in index.items()}
 
     def after_gather(self, selection: dict) -> 'Shape':
+        from . import Tensor
         if self.is_non_uniform:
-            from . import Tensor
             sizes = [(s[selection] if isinstance(s, Tensor) else s) for s in self.sizes]
             sizes = [(int(s) if isinstance(s, Tensor) and s.rank == 0 else s) for s in sizes]
             result = self.with_sizes(sizes)
@@ -1338,6 +1338,17 @@ class Shape:
                 result = result._replace_single_size(sel_dim, len(selection))
                 if self.get_item_names(sel_dim) is not None:
                     result = result._with_item_name(sel_dim, tuple([self.get_item_names(sel_dim)[i] for i in selection]))
+            elif isinstance(selection, Tensor) and selection.dtype.kind == bool:
+                raise NotImplementedError("Shape.after_gather(Tensor[bool]) not yet implemented")
+            elif isinstance(selection, Tensor) and selection.dtype.kind == int:
+                assert len(selection) == 1, f"When slicing a Shape with Tensor[int], only one selection item is allowed but got {selection}"
+                sel_shape = shape(selection)
+                assert sel_shape.channel_rank == 1 and sel_shape.channel.item_names[0], f"Shape.after_gather(Tensor[int]) requires indices to have a single channel dim with item names"
+                indexed = sel_shape.channel.item_names[0]
+                assert indexed in self, f"All indexed dims {indexed} must be part of sliced Shape {self}"
+                from ._ops import slice_
+                sizes = [slice_(s, selection) for s in self.sizes]
+                return self.with_sizes(sizes).without(indexed) & sel_shape.non_channel
             else:
                 raise NotImplementedError(f"{type(selection)} not supported. Only (int, slice) allowed.")
         return result
