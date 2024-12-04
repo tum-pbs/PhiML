@@ -1488,7 +1488,7 @@ class TensorStack(Tensor):
         else:
             return TensorStack(tensors, self._stack_dim)
 
-    def _unstack(self, dim):
+    def _unstack(self, dim: str):
         if dim == self._stack_dim.name:
             return self._tensors
         else:
@@ -1613,18 +1613,7 @@ def tensor(data,
     """
     shape = [parse_shape_spec(s) if isinstance(s, str) else s for s in shape]
     shape = None if len(shape) == 0 else concat_shapes(*shape)
-    if isinstance(data, Tensor):
-        if convert:
-            backend = data.default_backend
-            if backend != default_backend():
-                data = data._op1(lambda n: convert_(n, use_dlpack=False))
-        if shape is None:
-            return data
-        else:
-            if None in shape.sizes:
-                shape = shape.with_sizes(data.shape)
-            return data._with_shape_replaced(shape)
-    elif isinstance(data, Shape):
+    if isinstance(data, Shape):
         if shape is None:
             shape = channel('dims')
             shape = shape.with_size(data.names)
@@ -1636,6 +1625,17 @@ def tensor(data,
             assert shape.rank == 1, "Can only convert 1D shapes to Tensors"
             shape = shape.with_size(data.names)
             data = data.sizes
+    if isinstance(data, Tensor):
+        if convert:
+            backend = data.default_backend
+            if backend != default_backend():
+                data = data._op1(lambda n: convert_(n, use_dlpack=False))
+        if shape is None:
+            return data
+        else:
+            if None in shape.sizes:
+                shape = shape.with_sizes(data.shape)
+            return data._with_shape_replaced(shape)
     elif isinstance(data, str) or data is None:
         return layout(data)
     elif isinstance(data, (Number, bool)):
