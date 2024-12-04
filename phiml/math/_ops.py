@@ -1474,6 +1474,19 @@ def prod(value, dim: DimFilter = non_batch) -> Tensor:
     return reduce_(_prod, value, dim, require_all_dims_present=True)
 
 
+dprod = functools.partial(prod, dim=dual)
+dprod.__doc__ = """Compute the product along dual dims of `value`, see `phiml.math.prod`."""
+
+iprod = functools.partial(prod, dim=instance)
+iprod.__doc__ = """Compute the product along instance dims of `value`, see `phiml.math.prod`."""
+
+sprod = functools.partial(prod, dim=spatial)
+sprod.__doc__ = """Compute the product along spatial dims of `value`, see `phiml.math.prod`."""
+
+cprod = functools.partial(prod, dim=channel)
+cprod.__doc__ = """Compute the product along channel dims of `value`, see `phiml.math.prod`."""
+
+
 def _prod(value: Tensor, dims: Shape) -> Tensor:
     if isinstance(value, NativeTensor):
         result = value.default_backend.prod(value._native, value._native_shape.indices(dims)) ** value.collapsed_dims.only(dims).volume
@@ -1693,6 +1706,19 @@ def max_(value: TensorOrTree, dim: DimFilter = non_batch, key: Tensor = None) ->
     return reduce_(_max, value, dim)
 
 
+dmax = functools.partial(max_, dim=dual)
+dmax.__doc__ = """Compute the maximum along dual dims of `value`, see `phiml.math.max`."""
+
+imax = functools.partial(max_, dim=instance)
+imax.__doc__ = """Compute the maximum along instance dims of `value`, see `phiml.math.max`."""
+
+smax = functools.partial(max_, dim=spatial)
+smax.__doc__ = """Compute the maximum along spatial dims of `value`, see `phiml.math.max`."""
+
+cmax = functools.partial(max_, dim=channel)
+cmax.__doc__ = """Compute the maximum along channel dims of `value`, see `phiml.math.max`."""
+
+
 def _max(value: Tensor, dims: Shape) -> Tensor:
     if value.shape.volume == 0:
         return zeros(value.shape.without(dims), dtype=value.dtype)
@@ -1730,6 +1756,19 @@ def min_(value, dim: DimFilter = non_batch, key: Tensor = None) -> Tensor:
     if key is not None:
         return at_min(value, key, dim)
     return reduce_(_min, value, dim)
+
+
+dmin = functools.partial(min_, dim=dual)
+dmin.__doc__ = """Compute the minimum along dual dims of `value`, see `phiml.math.min`."""
+
+imin = functools.partial(min_, dim=instance)
+imin.__doc__ = """Compute the minimum along instance dims of `value`, see `phiml.math.min`."""
+
+smin = functools.partial(min_, dim=spatial)
+smin.__doc__ = """Compute the minimum along spatial dims of `value`, see `phiml.math.min`."""
+
+cmin = functools.partial(min_, dim=channel)
+cmin.__doc__ = """Compute the minimum along channel dims of `value`, see `phiml.math.min`."""
 
 
 def _min(value: Tensor, dims: Shape) -> Tensor:
