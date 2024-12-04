@@ -2935,6 +2935,8 @@ def scatter(base_grid: Union[Tensor, Shape],
         else:
             assert mode == 'add'  # initialize with zeros
     # --- Handle outside indices ---
+    if not channel(indices):
+        indices = expand(indices, channel(_index=indexed_dims.name_list))
     limit = tensor(indexed_dims, channel(indices)) - 1
     if outside_handling == 'check':
         from ._functional import when_available
