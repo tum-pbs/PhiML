@@ -85,7 +85,7 @@ def getitem_dataclass(obj: PhiTreeNodeType, item, keepdims: DimFilter = None) ->
     cls = type(obj)
     new_obj = cls.__new__(cls, **kwargs)
     new_obj.__init__(**kwargs)
-    cached = {k: slice_(v, item) for k, v in obj.__dict__.items() if isinstance(getattr(type(obj), k, None), cached_property)}
+    cached = {k: slice_(v, item) for k, v in obj.__dict__.items() if isinstance(getattr(type(obj), k, None), cached_property) and not isinstance(v, Shape)}
     new_obj.__dict__.update(cached)
     return new_obj
 

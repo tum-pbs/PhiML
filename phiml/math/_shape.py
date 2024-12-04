@@ -1048,7 +1048,7 @@ class Shape:
             sizes = [sizes.get_size(dim) if dim in sizes else s for dim, s in self._named_sizes]
             return Shape(tuple(sizes), self.names, self.types, tuple(item_names))
         else:
-            assert len(sizes) == len(self.sizes), f"Cannot create shape from {self} with sizes {sizes}"
+            assert len(sizes) == len(self.sizes), f"Failed to set sizes of Shape {self} to {sizes} because rank does not match."
             sizes_ = []
             item_names = []
             for i, obj in enumerate(sizes):
@@ -1309,16 +1309,16 @@ class Shape:
             result = self.with_sizes(sizes)
         else:
             result = self
-        for sel_dim, selection in selection.items():
+        for sel_dim, sel in selection.items():
             if sel_dim not in self.names:
                 continue
-            selection = self.prepare_gather(sel_dim, selection)
-            if isinstance(selection, int):
+            sel = self.prepare_gather(sel_dim, sel)
+            if isinstance(sel, int):
                 result = result.without(sel_dim)
-            elif isinstance(selection, slice):
-                step = int(selection.step) if selection.step is not None else 1
-                start = int(selection.start) if selection.start is not None else (0 if step > 0 else self.get_size(sel_dim)-1)
-                stop = int(selection.stop) if selection.stop is not None else (self.get_size(sel_dim) if step > 0 else -1)
+            elif isinstance(sel, slice):
+                step = int(sel.step) if sel.step is not None else 1
+                start = int(sel.start) if sel.start is not None else (0 if step > 0 else self.get_size(sel_dim)-1)
+                stop = int(sel.stop) if sel.stop is not None else (self.get_size(sel_dim) if step > 0 else -1)
                 if stop < 0 and step > 0:
                     stop += self.get_size(sel_dim)
                     assert stop >= 0
@@ -1333,24 +1333,27 @@ class Shape:
                 if step < 0:
                     result = result.flipped([sel_dim])
                 if self.get_item_names(sel_dim) is not None:
-                    result = result._with_item_name(sel_dim, tuple(self.get_item_names(sel_dim)[selection]))
-            elif isinstance(selection, (tuple, list)):
-                result = result._replace_single_size(sel_dim, len(selection))
+                    result = result._with_item_name(sel_dim, tuple(self.get_item_names(sel_dim)[sel]))
+            elif isinstance(sel, (tuple, list)):
+                result = result._replace_single_size(sel_dim, len(sel))
                 if self.get_item_names(sel_dim) is not None:
-                    result = result._with_item_name(sel_dim, tuple([self.get_item_names(sel_dim)[i] for i in selection]))
-            elif isinstance(selection, Tensor) and selection.dtype.kind == bool:
-                raise NotImplementedError("Shape.after_gather(Tensor[bool]) not yet implemented")
-            elif isinstance(selection, Tensor) and selection.dtype.kind == int:
-                assert len(selection) == 1, f"When slicing a Shape with Tensor[int], only one selection item is allowed but got {selection}"
-                sel_shape = shape(selection)
-                assert sel_shape.channel_rank == 1 and sel_shape.channel.item_names[0], f"Shape.after_gather(Tensor[int]) requires indices to have a single channel dim with item names"
-                indexed = sel_shape.channel.item_names[0]
-                assert indexed in self, f"All indexed dims {indexed} must be part of sliced Shape {self}"
-                from ._ops import slice_
-                sizes = [slice_(s, selection) for s in self.sizes]
-                return self.with_sizes(sizes).without(indexed) & sel_shape.non_channel
+                    result = result._with_item_name(sel_dim, tuple([self.get_item_names(sel_dim)[i] for i in sel]))
+            elif isinstance(sel, Tensor):
+                if sel.dtype.kind == bool:
+                    raise NotImplementedError("Shape.after_gather(Tensor[bool]) not yet implemented")
+                    # from ._ops import nonzero
+                    # sel = nonzero(sel)
+                if sel.dtype.kind == int:
+                    assert len(selection) == 1, f"When slicing a Shape with Tensor[int], only one sel item is allowed but got {sel}"
+                    sel_shape = shape(sel)
+                    assert sel_shape.channel_rank == 1 and sel_shape.channel.item_names[0], f"Shape.after_gather(Tensor[int]) requires indices to have a single channel dim with item names but got {sel}"
+                    indexed = sel_shape.channel.item_names[0]
+                    assert indexed in self, f"All indexed dims {indexed} must be part of sliced Shape {self}"
+                    from ._ops import slice_
+                    sizes = [slice_(s, sel) for s in self.sizes]
+                    return self.with_sizes(sizes).without(indexed) & sel_shape.non_channel
             else:
-                raise NotImplementedError(f"{type(selection)} not supported. Only (int, slice) allowed.")
+                raise NotImplementedError(f"{type(sel)} not supported. Only (int, slice) allowed.")
         return result
 
     def meshgrid(self, names=False):
