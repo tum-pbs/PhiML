@@ -2052,20 +2052,26 @@ def quantile(value: Tensor,
     Returns:
         `Tensor` with dimensions of `quantiles` and non-reduced dimensions of `value`.
     """
-    dims = value.shape.only(dim)
-    native_values = reshaped_native(value, [*value.shape.without(dims), value.shape.only(dims)])
-    backend = choose_backend(native_values)
-    q = wrap(quantiles, default_list_dim=instance('quantiles'))
-    native_quantiles = reshaped_native(q, [q.shape])
-    native_result = backend.quantile(native_values, native_quantiles)
-    if native_result is not NotImplemented:
-        return reshaped_tensor(native_result, [q.shape, *value.shape.without(dims)])
-    # --- fallback: custom quantile implementation ---
-    v_sorted = sort(value, dims)
-    q_idx = q * (v_sorted.shape.get_size(dims) - 1)
-    q_idx = expand(q_idx, channel(vector=dims))
-    result = grid_sample(v_sorted, q_idx, e_.ZERO_GRADIENT)
-    return result
+    quantiles = wrap(quantiles, default_list_dim=instance('quantiles'))
+    shared_dims = value.shape.only(quantiles.shape)
+    broadcast = broadcast_dims(value, quantiles) | set(shared_dims.names)
+    def uniform_quantile(value: Tensor, q: Tensor):
+        dims = value.shape.only(dim)
+        backend = value.default_backend
+        if dims.volume == 0:
+            return zeros((value.shape-dims) & q.shape, dtype=value.dtype) + float('nan')
+        native_values = reshaped_native(value, [*(value.shape-dims), dims])
+        native_quantiles = reshaped_native(q, [q.shape])
+        native_result = backend.quantile(native_values, native_quantiles)
+        if native_result is not NotImplemented:
+            return reshaped_tensor(native_result, [q.shape, *value.shape.without(dims)])
+        # --- fallback: custom quantile implementation ---
+        v_sorted = sort(value, dims)
+        q_idx = q * (v_sorted.shape.get_size(dims) - 1)
+        q_idx = expand(q_idx, channel(vector=dims))
+        result = grid_sample(v_sorted, q_idx, e_.ZERO_GRADIENT)
+        return result
+    return broadcast_op(uniform_quantile, [value, quantiles], broadcast)
 
 
 def median(value, dim: DimFilter = non_batch):
