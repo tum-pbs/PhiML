@@ -69,27 +69,6 @@ def slice_(value: PhiTreeNodeType, slices: Union[Dict[str, Union[int, slice, str
     raise ValueError(f"value must be a PhiTreeNode but got {type(value)}")
 
 
-def getitem_dataclass(obj: PhiTreeNodeType, item, keepdims: DimFilter = None) -> PhiTreeNodeType:
-    assert dataclasses.is_dataclass(obj), f"obj must be a dataclass but got {type(obj)}"
-    item = slicing_dict(obj, item)
-    if keepdims:
-        keep = shape(obj).only(keepdims)
-        for dim, sel in item.items():
-            if dim in keep:
-                raise NotImplementedError
-    if not item:
-        return obj
-    fields = [f.name for f in dataclasses.fields(obj)]
-    attrs = all_attributes(obj)
-    kwargs = {f: slice_(getattr(obj, f), item) if f in attrs else getattr(obj, f) for f in fields}
-    cls = type(obj)
-    new_obj = cls.__new__(cls, **kwargs)
-    new_obj.__init__(**kwargs)
-    cached = {k: slice_(v, item) for k, v in obj.__dict__.items() if isinstance(getattr(type(obj), k, None), cached_property) and not isinstance(v, Shape)}
-    new_obj.__dict__.update(cached)
-    return new_obj
-
-
 def unstack(value, dim: DimFilter) -> tuple:
     """
     Un-stacks a `Sliceable` along one or multiple dimensions.
@@ -826,34 +805,11 @@ def all_attributes(obj, assert_any=False) -> Tuple[str, ...]:
     if hasattr(obj, '__value_attrs__'):
         result.update(obj.__value_attrs__())
     if dataclasses.is_dataclass(obj) and not hasattr(obj, '__variable_attrs__') and not hasattr(obj, '__value_attrs__'):
-        result.update([f.name for f in dataclasses.fields(obj) if _is_child_field(f)])
+        from phiml.dataclasses import attributes
+        result.update([f.name for f in attributes(obj)])
     if assert_any:
         assert result, f"{type(obj).__name__} is not a valid tree node because it has no tensor-like attributes."
     return tuple(sorted(result))
-
-
-def _is_child_field(field: dataclasses.Field):
-    primitives = _get_primitive_types(field.type)
-    return any(p not in NON_ATTR_TYPES for p in primitives)
-
-
-NON_ATTR_TYPES = str, int, float, complex, bool, Shape, slice, Callable
-
-
-def _get_primitive_types(field_type) -> List:
-    """Returns None for unknown types."""
-    if field_type is Ellipsis:
-        return []
-    origin_type = get_origin(field_type)
-    if origin_type in {list, List, tuple, Tuple, set, Set, Iterable, Optional, collections.abc.Sequence}:
-        args = get_args(field_type)  # The arguments passed to the generic (e.g., List[int] -> (int,))
-        return sum([_get_primitive_types(a) for a in args], []) if args else [None]
-    elif origin_type in {Dict, dict}:
-        k_type, v_type = get_args(field_type)
-        return _get_primitive_types(v_type)
-    else:
-        return [field_type]
-
 
 
 def replace(obj: PhiTreeNodeType, **updates) -> PhiTreeNodeType:
@@ -870,12 +826,12 @@ def replace(obj: PhiTreeNodeType, **updates) -> PhiTreeNodeType:
     Returns:
         Copy of `obj` with updated values.
     """
-    if hasattr(obj, '__with_attrs__'):
+    if isinstance(obj, (Number, bool)):
+        return obj
+    elif hasattr(obj, '__with_attrs__'):
         result = obj.__with_attrs__(**updates)
         if result is not NotImplemented:
             return result
-    elif isinstance(obj, (Number, bool)):
-        return obj
     if dataclasses.is_dataclass(obj):
         return dataclasses.replace(obj, **updates)
     else:
@@ -987,6 +943,7 @@ def tree_map(f, tree, attr_type=value_attributes, include_non_attrs=True, treat_
         new_attrs = {k: tree_map(f, v, attr_type, include_non_attrs, treat_layout_as_leaf, **f_kwargs) for k, v in attrs.items()}
         return copy_with(tree, **new_attrs)
     else:
+        from phiml.dataclasses._dataclasses import NON_ATTR_TYPES
         if include_non_attrs or not isinstance(tree, NON_ATTR_TYPES):
             return f(tree, **f_kwargs)  # try anyway
         return tree
