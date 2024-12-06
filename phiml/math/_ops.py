@@ -1307,6 +1307,8 @@ def nonzero(value: Tensor, list_dim: Union[Shape, str, int] = instance('nonzero'
                 result = value._indices
                 if result.shape.only(value._compressed_dims).volume == cutoff:
                     return result
+                else:
+                    return result[{value._compressed_dims: slice(cutoff)}]
             else:
                 raise NotImplementedError
         if isinstance(value, SparseCoordinateTensor):
