@@ -2657,8 +2657,12 @@ def format_tracer(self: Tensor, options: PrintOptions) -> str:
 def format_full(value: Tensor, options: PrintOptions) -> str:  # multi-line content
     if not value.available:
         return format_tracer(value, options)
-    from ._sparse import dense
-    value = dense(value)
+    from ._sparse import is_sparse, dense
+    if is_sparse(value):
+        try:
+            return format_full_sparse(value, options)
+        except NotImplementedError:
+            value = dense(value)
     import re
     colors = options.get_colors()
     dim_order = tuple(sorted(value.shape.spatial.names, reverse=True))
@@ -2682,7 +2686,7 @@ def format_full(value: Tensor, options: PrintOptions) -> str:  # multi-line cont
             for b in batch(value).meshgrid(names=True):
                 text = " " + np.array2string(value[b].numpy([primal, dual_dim]), separator=', ', max_line_width=np.inf) + " "
                 text = re.sub('[\\[\\]]', '', text).replace(',', ' ')
-                prefixes = prefix_indices(non_batch(value).non_dual, colors)
+                prefixes, prefix_len = prefix_indices(non_batch(value).non_dual, colors)
                 if options.include_shape is not False:
                     for line, prefix in zip(text.split("\n"), prefixes):
                         lines.append(f"{prefix}  {colors.value(line)} along {colors.shape(dual_dim)}")
@@ -2717,11 +2721,63 @@ def format_full(value: Tensor, options: PrintOptions) -> str:  # multi-line cont
     return "\n".join(lines)
 
 
-def prefix_indices(index_shape, colors: ColorScheme):
-    prefixes = [f"{colors.shape(', '.join(f'{name}={idx}' for name, idx in index_dict.items()))}" for index_dict in index_shape.meshgrid(names=True)]
-    max_len = max(len(p) for p in prefixes)
-    prefixes = [p + " " * (max_len - len(p) + 2) for p in prefixes]
-    return prefixes
+def format_full_sparse(value: Tensor, options: PrintOptions) -> str:
+    from ._ops import log10, ravel_index
+    from ._sparse import stored_indices, stored_values
+    colors = options.get_colors()
+    right = dual(value) if dual(value) else non_batch(value)[-1]
+    down = non_batch(value) - right
+    kind = value.dtype.kind
+    if kind == int:
+        str_max = 2 + int(log10(value.max))
+    elif kind == bool:
+        str_max = 3 + int(log10(right.volume))
+    else:
+        raise NotImplementedError
+    lines = []
+    if value.shape.dual_rank > 0:  # matrix
+        if options.include_shape is not None:
+            lines.append(colors.shape(value.shape))
+    data = [[" "] * (str_max * right.volume) for _ in range(down.volume)]
+    for b in batch(value).meshgrid(names=True):
+        idx = stored_indices(value[b])
+        vals = stored_values(value[b]).numpy()
+        cols = ravel_index(idx[right.name_list], right).numpy()
+        rows = ravel_index(idx[down.name_list], down).numpy()
+        for val, col, row in zip(vals, cols, rows):
+            if kind == bool:
+                val_str = f"[{col}]" if val else "[ ]"
+            elif kind == int:
+                val_str = str(val)
+            else:
+                raise NotImplementedError
+            col *= str_max
+            data[row][col:col+len(val_str)] = val_str
+    data = ["".join(line) for line in data]
+    prefixes, prefix_len = prefix_indices(down, colors)
+    if kind != bool:  # add col index header
+        header = [" "] * (str_max * right.volume)
+        for i in range(right.volume):
+            i_str = str(i)
+            header[i*str_max:i*str_max+len(i_str)] = i_str
+        if options.include_shape is not False:
+            header += " " + colors.shape(down)
+        lines.append(" "*prefix_len + "".join(header))
+    if options.include_shape is not False:
+        for line, prefix in zip(data, prefixes):
+            lines.append(f"{prefix}{colors.value(line)} along {colors.shape(right)}")
+    else:
+        for line in data:
+            lines.append(colors.value(line))
+    return "\n".join(lines)
+
+
+def prefix_indices(index_shape, colors: ColorScheme, pad=2):
+    prefix_texts = [f"{', '.join(f'{name}={idx}' for name, idx in index_dict.items())}" for index_dict in index_shape.meshgrid(names=True)]
+    prefixes = [f"{colors.shape(text)}" for text in prefix_texts]
+    max_len = max(len(p) for p in prefix_texts) + pad
+    prefixes = [p + " " * (max_len - len(t)) for p, t in zip(prefixes, prefix_texts)]
+    return prefixes, max_len
 
 
 def format_row(self: Tensor, options: PrintOptions) -> str:  # all values in a single line

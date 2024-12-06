@@ -1300,7 +1300,7 @@ def stored_values(x: Tensor, list_dim=instance('entries'), invalid='discard') ->
         if x._can_contain_double_entries:
             warnings.warn(f"stored_values of sparse tensor {x.shape} may contain multiple values for the same position.")
         return rename_dims(x._values, instance, list_dim)
-    raise ValueError(x)
+    raise ValueError(type(x))
 
 
 def stored_indices(x: Tensor, list_dim=instance('entries'), index_dim=channel('index'), invalid='discard') -> Tensor:
