@@ -12,17 +12,20 @@ This affects which attributes are optimized / traced by functions like `phiml.ma
 
 **Template for custom classes**
 ```python
-from functools import cached_property
-from phiml.dataclasses import dataclass, getitem
-from phiml.math import Tensor, shape, exp
+
+from phiml.dataclasses import dataclass, cached_property
+from phiml.math import Tensor, Shape, shape
 
 @dataclass(frozen=True)
 class MyClass:
+    # --- Attributes ---
     attribute1: Tensor
     attribute2: 'MyClass' = None
 
+    # --- Additional fields ---
     field1: str = 'x'
 
+    # --- Special fields declaring attribute types ---
     variable_attrs = ('attribute1', 'attribute2')
     value_attrs = ()
 
@@ -30,20 +33,17 @@ class MyClass:
         assert self.field1 in 'xyz'
 
     @cached_property
-    def shape(self):
+    def shape(self) -> Shape:  # override the default shape which is merged from all attribute shapes
         return self.attribute1.shape & shape(self.attribute2)
 
     @cached_property  # the cache will be copied to derived instances unless attribute1 changes (this is analyzed from the code)
-    def derived_property(self):
-        return exp(self.attribute1)
-
-    def __getitem__(self, item):
-        return getitem(self, item)
+    def derived_property(self) -> Tensor:
+        return self.attribute1 + 1
 ```
 """
 
-from dataclasses import dataclass
+from functools import cached_property
 
-from ._dataclasses import attributes, replace, getitem
+from ._dataclasses import dataclass, attributes, replace, getitem
 
 __all__ = [key for key in globals().keys() if not key.startswith('_')]
