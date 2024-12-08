@@ -67,7 +67,12 @@ class DType:
         return self.bits // 8
 
     def __eq__(self, other):
-        return isinstance(other, DType) and self.kind == other.kind and self.bits == other.bits
+        if isinstance(other, DType):
+            return self.kind == other.kind and self.bits == other.bits
+        elif other in {bool, int, float, complex, object}:
+            return self.kind == other
+        else:
+            return False
 
     def __ne__(self, other):
         return not self == other
