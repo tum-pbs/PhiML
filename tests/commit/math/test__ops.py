@@ -1094,7 +1094,7 @@ class TestOps(TestCase):
             for method in ['sparse', 'scipy-kd']:
                 points = vec(x=(0, 0.99))
                 diff = math.pairwise_differences(points, 0.1, format=format, domain=(0, 1), periodic=True, method=method)
-                math.assert_close([[0, 0.01], [0.01, 0]], math.vec_length(diff))
+                math.assert_close([[0, 0.01], [0.01, 0]], math.norm(diff))
 
     def test_svd(self):
         for b in BACKENDS:

@@ -256,13 +256,13 @@ class TestMathNDNumpy(TestCase):
             #     print(f"{variation_str}\n{params}")
             #     raise AssertionError(e, f"{variation_str}\n{params}")
 
-    def test_vector_length(self):
+    def test_norm(self):
         v = tensor([(0, 0), (1, 1), (-1, 0)], instance('values'), channel('vector'))
-        le = math.vec_length(v)
+        le = math.norm(v)
         math.assert_close(le, [0, 1.41421356237, 1])
-        le = math.vec_length(v, eps=0.01)
+        le = math.norm(v, eps=0.01)
         math.assert_close(le, [1e-1, 1.41421356237, 1])
-        le = math.vec_length(wrap(1+1j), eps=0.01)
+        le = math.norm(wrap(1+1j), eps=0.01)
         math.assert_close(1.41421356237, le)
 
     def test_vec_normalize(self):

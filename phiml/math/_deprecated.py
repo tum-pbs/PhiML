@@ -2,8 +2,20 @@ import warnings
 from typing import Union, Optional
 
 from ._shape import shape
-from ._nd import Tensor, DimFilter, channel, length, tensor, math, wrap, normalize, rename_dims
+from ._nd import Tensor, DimFilter, channel, tensor, math, wrap, normalize, rename_dims, norm, squared_norm
 from ._ops import clip, safe_div, stack_tensors
+
+
+def length(*args, **kwargs):
+    """Deprecated. Use `norm` instead."""
+    warnings.warn("phiml.math.length is deprecated in favor of phiml.math.norm", DeprecationWarning, stacklevel=2)
+    return norm(*args, **kwargs)
+
+
+def vec_squared(*args, **kwargs):
+    """Deprecated. Use `squared_norm` instead."""
+    warnings.warn("phiml.math.vec_squared is deprecated in favor of phiml.math.squared_norm", DeprecationWarning, stacklevel=2)
+    return squared_norm(*args, **kwargs)
 
 
 def clip_length(vec: Tensor, min_len=0, max_len=1, vec_dim: DimFilter = channel, eps: Union[float, Tensor] = None):

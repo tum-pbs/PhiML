@@ -94,12 +94,12 @@ def const_vec(value: Union[float, Tensor], dim: Union[Shape, tuple, list, str]):
     return wrap([value] * shape.size, shape)
 
 
-def length(vec: Tensor, vec_dim: DimFilter = channel, eps: Union[float, Tensor] = None):
+def norm(vec: Tensor, vec_dim: DimFilter = channel, eps: Union[float, Tensor] = None):
     """
-    Computes the vector length of `vec`.
+    Computes the vector norm (L2 norm) of `vec` defined as √∑v².
 
     Args:
-        eps: Minimum valid vector length. Use to avoid `inf` gradients for zero-length vectors.
+        eps: Minimum valid vector length. Use to avoid `inf` gradients for zero-norm vectors.
             Lengths shorter than `eps` are set to 0.
     """
     if vec.dtype.kind == complex:
@@ -111,8 +111,8 @@ def length(vec: Tensor, vec_dim: DimFilter = channel, eps: Union[float, Tensor] 
     return math.sqrt(squared)
 
 
-def vec_squared(vec: Tensor, vec_dim: DimFilter = channel):
-    """ Computes the squared length of `vec`. If `vec_dim` is None, the combined channel dimensions of `vec` are interpreted as a vector. """
+def squared_norm(vec: Tensor, vec_dim: DimFilter = channel):
+    """ Computes the squared norm of `vec`. If `vec_dim` is None, the combined channel dimensions of `vec` are interpreted as a vector. """
     return math.sum_(vec ** 2, dim=vec_dim)
 
 
@@ -134,8 +134,8 @@ def normalize(vec: Tensor, vec_dim: DimFilter = channel, epsilon=None, allow_inf
         inf_mask = is_infinite & ~math.is_nan(vec)
         vec = math.where(math.any_(is_infinite, vec_dim), inf_mask, vec)
     if epsilon is None:
-        return vec / length(vec, vec_dim=vec_dim)
-    le = length(vec, vec_dim=vec_dim, eps=epsilon**2 * .99)
+        return vec / norm(vec, vec_dim=vec_dim)
+    le = norm(vec, vec_dim=vec_dim, eps=epsilon**2 * .99)
     unit_vec = 0 if allow_zero else stack([1] + [0] * (vec_dim.volume - 1), vec_dim)
     return math.where(abs(le) <= epsilon, unit_vec, vec / le)
 

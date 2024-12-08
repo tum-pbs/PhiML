@@ -50,7 +50,7 @@ class TestSparse(TestCase):
         pos = tensor([(0, 0), (0, 1), (0, 2)], instance('particles'), channel(vector='x,y'))
         dx = pairwise_distances(pos, max_distance=1.5, format='csr')
         self.assertEqual(0, dx.sum)
-        dist = math.vec_length(dx, eps=1e-6)
+        dist = math.norm(dx, eps=1e-6)
         self.assertEqual(set(dual(particles=3) & instance(particles=3)), set(dist.shape))
         self.assertGreater(dist.sum, 0)
         # Slice channel
