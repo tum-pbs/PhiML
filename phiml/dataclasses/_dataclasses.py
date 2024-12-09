@@ -3,7 +3,7 @@ import dataclasses
 import inspect
 from dataclasses import dataclass
 from functools import cached_property
-from typing import TypeVar, Callable, Tuple, List, Set, Iterable, Optional, get_origin, get_args, Dict, Sequence
+from typing import TypeVar, Callable, Tuple, List, Set, Iterable, Optional, get_origin, get_args, Dict, Sequence, Union
 
 from phiml.dataclasses._dep import get_unchanged_cache
 from phiml.math import DimFilter, shape, Shape
@@ -160,15 +160,3 @@ def getitem(obj: PhiMLDataclass, item, keepdims: DimFilter = None) -> PhiMLDatac
     cache = {k: slice_(v, item) for k, v in obj.__dict__.items() if isinstance(getattr(type(obj), k, None), cached_property) and not isinstance(v, Shape)}
     new_obj.__dict__.update(cache)
     return new_obj
-
-
-def stack(objs: Sequence, dim):
-    raise NotImplementedError  # stack cached properties
-
-
-def concat(obj: Sequence, dim):
-    raise NotImplementedError  # concat cached properties
-
-
-def expand(obj, dims):
-    raise NotImplementedError  # expand cached Tensor properties

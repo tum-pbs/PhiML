@@ -12,7 +12,7 @@ This affects which attributes are optimized / traced by functions like `phiml.ma
 
 **Template for custom classes:**
 
->>> from dataclasses import dataclass
+>>> from typing import Tuple from dataclasses import dataclass
 >>> from phiml.dataclasses import sliceable, cached_property
 >>> from phiml.math import Tensor, Shape, shape
 >>>
@@ -26,9 +26,9 @@ This affects which attributes are optimized / traced by functions like `phiml.ma
 >>>     # --- Additional fields ---
 >>>     field1: str = 'x'
 >>>
->>>     # --- Special fields declaring attribute types ---
->>>     variable_attrs = ('attribute1', 'attribute2')
->>>     value_attrs = ()
+>>>     # --- Special fields declaring attribute types. Must be of type Tuple[str, ...] ---
+>>>     variable_attrs: Tuple[str, ...] = ('attribute1', 'attribute2')
+>>>     value_attrs: Tuple[str, ...] = ()
 >>>
 >>>     def __post_init__(self):
 >>>         assert self.field1 in 'xyz'

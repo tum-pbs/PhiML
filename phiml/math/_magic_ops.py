@@ -170,14 +170,15 @@ def stack(values: Union[Sequence[PhiTreeNodeType], Dict[str, PhiTreeNodeType]], 
     values_ = tuple(values.values()) if isinstance(values, dict) else values
     if simplify:
         if all(v is None for v in values_):
-            return values[0]
-        from ._tensors import Tensor
-        if isinstance(values_[0], Tensor):
-            from ._ops import equal
-            if equal(*values_, equal_nan=True):
+            return None
+        if all(type(v) == type(values_[0]) for v in values_[1:]):
+            from ._tensors import Tensor
+            if isinstance(values_[0], Tensor):
+                from ._ops import equal
+                if equal(*values_, equal_nan=True):
+                    return values_[0]
+            elif all(v == values_[0] for v in values_[1:]):
                 return values_[0]
-        elif all(v == values_[0] for v in values_[1:]):
-            return values_[0]
     shapes = [shape(v) for v in values_]
     if not expand_values:
         v0_dims = set(shapes[0].non_batch.names)
@@ -217,6 +218,9 @@ def stack(values: Union[Sequence[PhiTreeNodeType], Dict[str, PhiTreeNodeType]], 
                     assert isinstance(result, Shape) if isinstance(v, Shape) else isinstance(result, Shapable), "__stack__ must return a Shapable object"
                     return result
         # --- Next: try stacking attributes for tree nodes ---
+        if any(dataclasses.is_dataclass(v) for v in values):
+            from ..dataclasses._merge import dc_stack
+            return dc_stack(values, dim, expand_values=expand_values, simplify=simplify, layout_non_matching=layout_non_matching, **kwargs)
         if all(isinstance(v, PhiTreeNode) for v in values):
             attributes = all_attributes(values[0])
             if attributes and all(all_attributes(v) == attributes for v in values):
