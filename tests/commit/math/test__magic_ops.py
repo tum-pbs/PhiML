@@ -6,7 +6,7 @@ import dataclasses
 from phiml import math
 
 from phiml.math import batch, unstack, Shape, merge_shapes, stack, concat, expand, spatial, shape, instance, rename_dims, \
-    pack_dims, random_normal, flatten, unpack_dim, EMPTY_SHAPE, Tensor, Dict, channel, linspace, zeros, meshgrid, assert_close, wrap, vec
+    pack_dims, random_normal, flatten, unpack_dim, EMPTY_SHAPE, Tensor, Dict, channel, linspace, zeros, meshgrid, assert_close, wrap, vec, spack
 from phiml.math._magic_ops import bool_to_int
 from phiml.math.magic import BoundDim, Shaped, Sliceable, Shapable, PhiTreeNode, slicing_dict
 
@@ -259,3 +259,9 @@ class TestMagicOps(TestCase):
         a = wrap([0, 1], 'a:i')
         b = wrap([2], 'b:i')
         math.assert_close([0, 1, 2], concat([a, b], 'i->points:i'))
+
+    def test_spack(self):
+        x = spack(math.meshgrid(x=4, y=3), 'points')
+        self.assertEqual(spatial(points=12), spatial(x))
+        x = spack(math.meshgrid(x=4, y=3), 'points:i')
+        self.assertEqual(instance(points=12), instance(x))

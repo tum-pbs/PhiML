@@ -627,8 +627,8 @@ def pack_dims(value, dims: DimFilter, packed_dim: Union[Shape, str], pos: Option
     if isinstance(value, (Number, bool)):
         return value
     assert isinstance(value, Shapable) and isinstance(value, Sliceable) and isinstance(value, Shaped), f"value must be Shapable but got {type(value)}"
+    packed_dim = auto(packed_dim, dims if callable(dims) else None) if isinstance(packed_dim, str) else packed_dim
     dims = shape(value).only(dims, reorder=True)
-    packed_dim = auto(packed_dim) if isinstance(packed_dim, str) else packed_dim
     if packed_dim in shape(value):
         assert packed_dim in dims, f"Cannot pack dims into new dimension {packed_dim} because it already exists on value {value} and is not packed."
     if len(dims) == 0 or all(dim not in shape(value) for dim in dims):
@@ -649,6 +649,24 @@ def pack_dims(value, dims: DimFilter, packed_dim: Union[Shape, str], pos: Option
     return stack(unstack(value, dims), packed_dim, **kwargs)
 
 
+def dpack(value, packed_dim: Union[Shape, str], pos: Optional[int] = None, **kwargs):
+    """Short for `pack_dims(..., dims=dual)"""
+    return pack_dims(value, dual, packed_dim, pos=pos, **kwargs)
+
+
+def spack(value, packed_dim: Union[Shape, str], pos: Optional[int] = None, **kwargs):
+    """Short for `pack_dims(..., dims=spatial)"""
+    return pack_dims(value, spatial, packed_dim, pos=pos, **kwargs)
+
+
+def ipack(value, packed_dim: Union[Shape, str], pos: Optional[int] = None, **kwargs):
+    """Short for `pack_dims(..., dims=instance)"""
+    return pack_dims(value, instance, packed_dim, pos=pos, **kwargs)
+
+
+def cpack(value, packed_dim: Union[Shape, str], pos: Optional[int] = None, **kwargs):
+    """Short for `pack_dims(..., dims=channel)"""
+    return pack_dims(value, channel, packed_dim, pos=pos, **kwargs)
 
 
 def unpack_dim(value, dim: DimFilter, *unpacked_dims: Union[Shape, Sequence[Shape]], **kwargs):
