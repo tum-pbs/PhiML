@@ -44,6 +44,6 @@ This affects which attributes are optimized / traced by functions like `phiml.ma
 
 from functools import cached_property
 
-from ._dataclasses import sliceable, attributes, replace, getitem
+from ._dataclasses import sliceable, attributes, non_attributes, special_fields, replace, getitem
 
 __all__ = [key for key in globals().keys() if not key.startswith('_')]

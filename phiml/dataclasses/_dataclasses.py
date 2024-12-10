@@ -73,6 +73,35 @@ def attributes(obj) -> Sequence[dataclasses.Field]:
     return [f for f in dataclasses.fields(obj) if _is_child_field(f)]
 
 
+def non_attributes(obj) -> Sequence[dataclasses.Field]:
+    """
+    List all dataclass Fields of `obj` that are not considered attributes or special.
+    These cannot hold any Tensors or shaped objects.
+
+    Args:
+        obj: Dataclass type or instance.
+
+    Returns:
+        Sequence of `dataclasses.Field`.
+    """
+    return [f for f in dataclasses.fields(obj) if not _is_child_field(f) and f.name not in ('variable_attrs', 'value_attrs')]
+
+
+def special_fields(obj) -> Sequence[dataclasses.Field]:
+    """
+    List all special dataclass Fields of `obj`, i.e. fields that don't store data related to the object but rather meta-information relevant to PhiML.
+
+    These include `variable_attrs` and `value_attrs`.
+
+    Args:
+        obj: Dataclass type or instance.
+
+    Returns:
+        Sequence of `dataclasses.Field`.
+    """
+    return [f for f in dataclasses.fields(obj) if f.name in ('variable_attrs', 'value_attrs')]
+
+
 def _is_child_field(field: dataclasses.Field):
     primitives = _get_primitive_types(field.type)
     return any(p not in NON_ATTR_TYPES for p in primitives)
