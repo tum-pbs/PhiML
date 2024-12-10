@@ -495,6 +495,24 @@ def expand(value, *dims: Union[Shape, str], **kwargs):
     return expand_tensor(value, dims)
 
 
+def squeeze(x: PhiTreeNodeType, dims: DimFilter) -> PhiTreeNodeType:
+    """
+    Remove specific singleton (volume=1) dims from `x`.
+
+    Args:
+        x: Tensor or composite type / tree.
+        dims: Singleton dims to remove.
+
+    Returns:
+        Same type as `x`.
+    """
+    dims = shape(x).only(dims)
+    if not dims:
+        return x
+    assert dims.volume == 1, f"Cannot squeeze non-singleton dims {dims} from {x}"
+    return x[{d: 0 for d in dims.names}]
+
+
 def rename_dims(value: PhiTreeNodeType,
                 dims: DimFilter,
                 names: DimFilter,
