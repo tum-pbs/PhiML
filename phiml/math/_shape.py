@@ -1256,7 +1256,7 @@ class Shape:
                 item_names[self.index(dim)] = None
         return Shape(tuple(sizes), self.names, self.types, tuple(item_names))
 
-    def prepare_gather(self, dim: str, selection: Union[slice, int, 'Shape', str, tuple, list]):
+    def prepare_gather(self, dim: str, selection: Union[slice, int, 'Shape', str, tuple, list]) -> Union[slice, List[int]]:
         """
         Parse a slice object for a specific dimension.
 
@@ -1288,6 +1288,16 @@ class Shape:
             if not selection:  # empty
                 selection = slice(0, 0)
         return selection
+
+    def prepare_renaming_gather(self, dim: str, selection: Union[slice, int, 'Shape', str, tuple, list]):
+        if isinstance(selection, str) and '->' in selection:
+            selection, new_names = selection.split('->')
+            if new_names == '?':
+                return self.prepare_gather(dim, selection), self[dim]._with_item_names((None,))
+            else:
+                return self.prepare_gather(dim, selection), self[dim].with_size(new_names)
+        else:
+            return self.prepare_gather(dim, selection), None
 
     def resolve_index(self, index: Dict[str, Union[slice, int, 'Shape', str, tuple, list]]) -> Dict[str, Union[slice, int, tuple, list]]:
         """

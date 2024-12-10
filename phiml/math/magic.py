@@ -818,7 +818,8 @@ def slicing_dict(obj, item, existing_only=True) -> dict:
         assert channel(item).item_names[0], f"When gathering using data[indices], indices Tensor must declare the indexed dimension as the item name of its channel dim but got {item.shape}"
         return {channel(item).item_names[0][0]: item}
     elif isinstance(item, str):
-        item_names = set([s.strip() for s in item.split(",")])
+        items = item.split('->', 1)[0] if '->' in item else item
+        item_names = set([s.strip() for s in items.split(",")])
         for dim in shape(obj):
             if dim.item_names[0] and item_names.issubset(dim.item_names[0]):
                 return {dim.name: item}

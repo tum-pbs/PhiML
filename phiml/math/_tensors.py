@@ -463,12 +463,14 @@ class Tensor:
         for dim, selection in item.items():
             if dim not in self.shape:
                 continue
-            selection = self.shape.prepare_gather(dim, selection)
+            selection, new_dim = self.shape.prepare_renaming_gather(dim, selection)
             # Either handle slicing directly or add it to the dict
             if isinstance(selection, (tuple, list)):
                 result = [sliced[{dim: i}] for i in selection]
                 stack_dim = sliced.shape[dim].after_gather({dim: selection})
                 sliced = stack(result, stack_dim)
+                if new_dim is not None:
+                    sliced = rename_dims(sliced, dim, new_dim)
             elif isinstance(selection, Tensor) and selection.dtype.kind == bool:
                 from ._ops import boolean_mask
                 sliced = boolean_mask(sliced, dim, selection)
