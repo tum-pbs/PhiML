@@ -541,6 +541,12 @@ class BoundDim:
     def item_names(self):
         return shape(self.obj).get_item_names(self.name)
 
+    @property
+    def name_tensor(self):
+        dim = shape(self.obj)[self.name]
+        from ._tensors import wrap
+        return wrap(dim.item_names[0], dim)
+
     def __getitem__(self, item):
         return self.obj[{self.name: item}]
 
