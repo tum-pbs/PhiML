@@ -9,7 +9,7 @@ import numpy as np
 from ..backend import default_backend, choose_backend, Backend, get_precision, convert as b_convert, BACKENDS, NoBackendFound, ComputeDevice, NUMPY
 from ..backend._dtype import DType, combine_types
 from .magic import PhiTreeNode
-from ._magic_ops import expand, pack_dims, unpack_dim, cast, value_attributes, bool_to_int, tree_map, concat, stack, unstack, rename_dims, slice_, all_attributes, squeeze
+from ._magic_ops import expand, pack_dims, unpack_dim, cast, value_attributes, bool_to_int, tree_map, concat, stack, unstack, rename_dims, slice_, all_attributes, squeeze, ipack
 from ._shape import (Shape, EMPTY_SHAPE,
                      spatial, batch, channel, instance, merge_shapes, parse_dim_order, concat_shapes,
                      IncompatibleShapes, DimFilter, non_batch, dual, shape, shape as get_shape, primal, auto, non_spatial, non_dual)
@@ -1302,7 +1302,13 @@ def nonzero(value: Tensor, list_dim: Union[Shape, str, int] = instance('nonzero'
     broadcast = value.shape - list_dims - sparse_matrix_dims(value)
     def unbatched_nonzero(value: Tensor):
         if isinstance(value, CompressedSparseMatrix):
-            value = value.decompress()
+            if (sparse_dims(value) - list_dims) in value._compressed_dims:
+                v0 = value._pointers[:-1]
+                vs = v0 + arange(instance(_offset=cutoff))
+                col = value._indices[vs]
+                return ipack(rename_dims(col, '_offset', list_dim), value._compressed_dims)
+            else:
+                value = value.decompress()
         elif isinstance(value, CompactSparseTensor):
             if list_dims in value._compressed_dims and value._uncompressed_dims not in list_dims:
                 result = value._indices
@@ -1312,12 +1318,15 @@ def nonzero(value: Tensor, list_dim: Union[Shape, str, int] = instance('nonzero'
                     return result[{value._compressed_dims: slice(cutoff)}]
             else:
                 raise NotImplementedError
-        if isinstance(value, SparseCoordinateTensor):
+        if isinstance(value, SparseCoordinateTensor) and cutoff is None:
             assert cutoff is None, f"Cut-off Not implemented for sparse tensors"
             nonzero_values = nonzero(value._values)
             nonzero_indices = value._indices[nonzero_values]
             index_dim_ = index_dim.with_size(channel(value._indices).item_names[0])
             return rename_dims(rename_dims(nonzero_indices, instance, list_dim), channel, index_dim_)
+        elif isinstance(value, SparseCoordinateTensor):
+            # value = value.compress(sparse_dims(value) - list_dims)
+            raise NotImplementedError
         else:
             native = reshaped_native(value, [*value.shape])
             b = choose_backend(native)
