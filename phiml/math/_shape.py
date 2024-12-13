@@ -1041,7 +1041,7 @@ class Shape:
         Returns:
             `Shape` with same names and types as `self`.
         """
-        if isinstance(sizes, int):
+        if isinstance(sizes, (int, str)):
             sizes = [sizes] * len(self.sizes)
         if isinstance(sizes, Shape):
             item_names = [sizes.get_item_names(dim) if dim in sizes else self.get_item_names(dim) for dim in self.names]
