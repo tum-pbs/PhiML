@@ -276,7 +276,7 @@ def stack(values: Union[Sequence[PhiTreeNodeType], Dict[str, PhiTreeNodeType]], 
         return values[0]
 
 
-def concat(values: Sequence[PhiTreeNodeType], dim: Union[str, Shape], expand_values=False, **kwargs) -> PhiTreeNodeType:
+def concat(values: Sequence[PhiTreeNodeType], dim: Union[str, Shape], /, expand_values=False, **kwargs) -> PhiTreeNodeType:
     """
     Concatenates a sequence of `phiml.math.magic.Shapable` objects, e.g. `Tensor`, along one dimension.
     All values must have the same spatial, instance and channel dimensions and their sizes must be equal, except for `dim`.
@@ -416,9 +416,14 @@ def tcat(values: Sequence[PhiTreeNodeType], dim_type: Callable, expand_values=Fa
         Same type as any value.
     """
     dims = [dim_type(v) for v in values]
-    present_dims = [s for s in dims if s]
-    if present_dims:
-        dim_name = present_dims[0].name
+    present_names = tuple(set(sum([s.names for s in dims], ())))
+    if len(present_names) == 1:
+        dim_name = present_names[0]
+    elif len(present_names) > 1:
+        if default_name in present_names:
+            dim_name = default_name
+        else:
+            dim_name = present_names[0]
     else:
         dim_name = default_name
     single = dim_type(**{dim_name: 1})
