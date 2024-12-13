@@ -332,7 +332,7 @@ def shift(x: Tensor,
           dims: DimFilter = math.spatial,
           padding: Union[Extrapolation, float, Tensor, str, None] = extrapolation.BOUNDARY,
           stack_dim: Union[Shape, str, None] = channel('shift'),
-          extend_bounds=0,
+          extend_bounds: Union[tuple, int] = 0,
           padding_kwargs: dict = None) -> List[Tensor]:
     """
     Shift the tensor `x` by a fixed offset, using `padding` for edge values.
@@ -370,8 +370,9 @@ def shift(x: Tensor,
     x = wrap(x)
     pad_lower = max(0, -min(offsets))
     pad_upper = max(0, max(offsets))
+    extend_tuple = (extend_bounds,)*2 if isinstance(extend_bounds, int) else extend_bounds
     if padding is not None:
-        x = math.pad(x, {axis: (pad_lower + extend_bounds, pad_upper + extend_bounds) for axis in dims}, mode=padding, **(padding_kwargs or {}))
+        x = math.pad(x, {axis: (pad_lower + extend_tuple[0], pad_upper + extend_tuple[1]) for axis in dims}, mode=padding, **(padding_kwargs or {}))
     if extend_bounds:
         assert padding is not None
     offset_tensors = []
@@ -432,7 +433,7 @@ def index_shift_widths(offsets: Sequence[Union[int, Tensor]]) -> List[Dict[str, 
     return widths_list
 
 
-def neighbor_reduce(reduce_fun: Callable, grid: Tensor, dims: DimFilter = spatial, padding: Union[Extrapolation, float, Tensor, str, None] = None, padding_kwargs: dict = None) -> Tensor:
+def neighbor_reduce(reduce_fun: Callable, grid: Tensor, dims: DimFilter = spatial, padding: Union[Extrapolation, float, Tensor, str, None] = None, padding_kwargs: dict = None, extend_bounds=0) -> Tensor:
     """
     Computes the sum/mean/min/max/prod/etc. of two neighboring values along each dimension in `dim`.
     The result tensor has one entry less than `grid` in each averaged dimension unless `padding` is specified.
@@ -452,30 +453,30 @@ def neighbor_reduce(reduce_fun: Callable, grid: Tensor, dims: DimFilter = spatia
     result = grid
     dims = grid.shape.only(dims)
     for dim in dims:
-        l, r = shift(result, (0, 1), dim, padding, None, padding_kwargs=padding_kwargs)
+        l, r = shift(result, (0, 1), dim, padding, None, extend_bounds=extend_bounds, padding_kwargs=padding_kwargs)
         lr = stack([l, r], batch('_reduce'))
         result = reduce_fun(lr, '_reduce')
     return result
 
 
-def neighbor_mean(grid: Tensor, dims: DimFilter = spatial, padding: Union[Extrapolation, float, Tensor, str, None] = None) -> Tensor:
+def neighbor_mean(grid: Tensor, dims: DimFilter = spatial, padding: Union[Extrapolation, float, Tensor, str, None] = None, extend_bounds=0) -> Tensor:
     """`neighbor_reduce` with `reduce_fun` set to `phiml.math.mean`."""
-    return neighbor_reduce(math.mean, grid, dims, padding)
+    return neighbor_reduce(math.mean, grid, dims, padding, extend_bounds=extend_bounds)
 
 
-def neighbor_sum(grid: Tensor, dims: DimFilter = spatial, padding: Union[Extrapolation, float, Tensor, str, None] = None) -> Tensor:
+def neighbor_sum(grid: Tensor, dims: DimFilter = spatial, padding: Union[Extrapolation, float, Tensor, str, None] = None, extend_bounds=0) -> Tensor:
     """`neighbor_reduce` with `reduce_fun` set to `phiml.math.sum`."""
-    return neighbor_reduce(math.sum_, grid, dims, padding)
+    return neighbor_reduce(math.sum_, grid, dims, padding, extend_bounds=extend_bounds)
 
 
-def neighbor_max(grid: Tensor, dims: DimFilter = spatial, padding: Union[Extrapolation, float, Tensor, str, None] = None) -> Tensor:
+def neighbor_max(grid: Tensor, dims: DimFilter = spatial, padding: Union[Extrapolation, float, Tensor, str, None] = None, extend_bounds=0) -> Tensor:
     """`neighbor_reduce` with `reduce_fun` set to `phiml.math.max`."""
-    return neighbor_reduce(math.max_, grid, dims, padding)
+    return neighbor_reduce(math.max_, grid, dims, padding, extend_bounds=extend_bounds)
 
 
-def neighbor_min(grid: Tensor, dims: DimFilter = spatial, padding: Union[Extrapolation, float, Tensor, str, None] = None) -> Tensor:
+def neighbor_min(grid: Tensor, dims: DimFilter = spatial, padding: Union[Extrapolation, float, Tensor, str, None] = None, extend_bounds=0) -> Tensor:
     """`neighbor_reduce` with `reduce_fun` set to `phiml.math.min`."""
-    return neighbor_reduce(math.min_, grid, dims, padding)
+    return neighbor_reduce(math.min_, grid, dims, padding, extend_bounds=extend_bounds)
 
 
 def at_neighbor_where(reduce_fun: Callable, values, key_grid: Tensor, dims: DimFilter = spatial, padding: Union[Extrapolation, float, Tensor, str, None] = None, offsets=(0, 1), diagonal=True, padding_kwargs: dict = None) -> Tensor:
