@@ -2352,7 +2352,7 @@ def reshaped_native(value: Tensor,
         if len(g) > 1:
             for name in g:
                 assert name in value.shape, f"When specifying a group by dim names, all dims must be present but {name} is not part of {value.shape}"
-        return value.shape.only(g)
+        return value.shape.only(g, reorder=True)
     groups = [process_group(g) for g in groups]
     order = []
     if Ellipsis in groups:
