@@ -66,15 +66,15 @@ class Shape:
         See Also:
             `Shape.get_size()`, `Shape.size`, `Shape.shape`.
         """
-        self.names: Tuple[str] = names
+        self.names: Tuple[str, ...] = names
         """
         Ordered dimension names as `tuple[str]`.
         
         See Also:
             `Shape.name`.
         """
-        self.types: Tuple[str] = types  # undocumented, may be private
-        self.item_names: Tuple[Optional[Tuple[str, ...]]] = (None,) * len(sizes) if item_names is None else item_names  # undocumented
+        self.types: Tuple[str, ...] = types  # undocumented, may be private
+        self.item_names: Tuple[Optional[Tuple[str, ...]], ...] = (None,) * len(sizes) if item_names is None else item_names  # undocumented
         if DEBUG_CHECKS:
             assert len(sizes) == len(names) == len(types) == len(item_names), f"sizes={sizes}, names={names}, types={types}, item_names={item_names}"
             assert len(set(names)) == len(names), f"Duplicate dimension names: {names}"
