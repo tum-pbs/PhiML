@@ -128,11 +128,12 @@ setup(
     version=version,
     download_url='https://github.com/tum-pbs/PhiML/archive/%s.tar.gz' % version,
     packages=['phiml',
-              'phiml.math',
               'phiml.backend',
               'phiml.backend.jax',
               'phiml.backend.torch',
               'phiml.backend.tensorflow',
+              'phiml.dataclasses',
+              'phiml.math',
           ],
     cmdclass={
         'tf_cuda': CudaCommand,
