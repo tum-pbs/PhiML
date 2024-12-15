@@ -1786,7 +1786,9 @@ def domain_slice(ext: Extrapolation, item: dict, domain_dims: Union[Shape, tuple
     if isinstance(ext, (ConstantExtrapolation, _CopyExtrapolation)):
         return ext[item]
     sides = {}
-    domain_dims = parse_dim_order(domain_dims)
+    domain_dims = [d[:-1] if d[-1] in '+-' else d for d in parse_dim_order(domain_dims)]
+    dim_set = set()
+    domain_dims = [d for d in domain_dims if not (d in dim_set or dim_set.add(d))]
     for dim in domain_dims:
         lo = ext._getitem_with_domain(item, dim, False, domain_dims)
         up = ext._getitem_with_domain(item, dim, True, domain_dims)
