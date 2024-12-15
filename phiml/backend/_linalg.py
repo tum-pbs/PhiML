@@ -297,9 +297,10 @@ def scipy_sparse_solve(b: Backend, method: Union[str, Callable], lin, y, x0, rto
     if not callable(lin):
         assemble_lin, lin_tensors = b.disassemble(lin)
         assemble_pre, pre_tensors = disassemble_dataclass(pre)
+        n_lin_tensors = len(lin_tensors)  # compute this outside the NumPy function to avoid variable capture
         def scipy_solve(np_y, np_x0, np_rtol, np_atol, *np_tensors):
-            np_lin = assemble_lin(NUMPY, *np_tensors[:len(lin_tensors)])
-            np_pre = assemble_pre(NUMPY, *np_tensors[len(lin_tensors):])
+            np_lin = assemble_lin(NUMPY, *np_tensors[:n_lin_tensors])
+            np_pre = assemble_pre(NUMPY, *np_tensors[n_lin_tensors:])
             if method == 'direct':
                 npr = scipy_direct_linear_solve(NUMPY, np_lin, np_y)
             else:
