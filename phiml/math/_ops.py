@@ -793,7 +793,7 @@ def linspace(start: Union[float, Tensor, tuple, list], stop: Union[float, Tensor
         return map_(linspace, start, stop, dim=dim)
 
 
-def arange(dim: Shape, start_or_stop: Union[int, None] = None, stop: Union[int, None] = None, step=1):
+def arange(dim: Shape, start_or_stop: Union[int, None] = None, stop: Union[int, None] = None, step=1, backend=None):
     """
     Returns evenly spaced values between `start` and `stop`.
     If only one limit is given, `0` is used for the start.
@@ -807,6 +807,7 @@ def arange(dim: Shape, start_or_stop: Union[int, None] = None, stop: Union[int, 
         start_or_stop: (Optional) `int`. Interpreted as `start` if `stop` is specified as well. Otherwise this is `stop`.
         stop: (Optional) `int`. `stop` value.
         step: Distance between values.
+        backend: Backend to use for creating the tensor. If unspecified, uses the current default.
 
     Returns:
         `Tensor`
@@ -833,7 +834,8 @@ def arange(dim: Shape, start_or_stop: Union[int, None] = None, stop: Union[int, 
             b0 = batches.non_uniform[0] if batches.is_non_uniform else batches
             ranges = [batched_range(dims.after_gather(i), start[i], stop[i], step[i]) for i in b0.meshgrid()]
             return stack(ranges, b0)
-        native = choose_backend_t(start, stop, prefer_default=True).range(start.native(), stop.native(), step.native(), DType(int, 32))
+        b = backend or choose_backend_t(start, stop, prefer_default=True)
+        native = b.range(start.native(), stop.native(), step.native(), DType(int, 32))
         return NativeTensor(native, range_dim.with_size(len(native)))
     return batched_range(dim, start, stop, step)
 
@@ -2952,7 +2954,7 @@ def scatter(base_grid: Union[Tensor, Shape],
     # --- Handle outside indices ---
     if not channel(indices):
         indices = expand(indices, channel(_index=indexed_dims.name_list))
-    limit = tensor(indexed_dims, channel(indices)) - 1
+    limit = wrap(indexed_dims, channel(indices)) - 1
     if outside_handling == 'check':
         from ._functional import when_available
         def check(indices):
