@@ -3,6 +3,7 @@ from functools import cached_property
 from typing import Sequence, Union, Callable
 
 from phiml.dataclasses import replace
+from phiml.math import Tensor
 from phiml.math._magic_ops import stack
 from phiml.math._shape import Shape
 from phiml.dataclasses._dataclasses import _is_child_field
@@ -77,7 +78,8 @@ def dc_stack(objs: Sequence, dim: Shape, expand_values=False, simplify=False, la
     shared = c_names & set.intersection(*[set(obj.__dict__) for obj in objs])
     for key in shared:
         values = [getattr(obj, key) for obj in objs]
-        result.__dict__[key] = stack(values, dim, expand_values=expand_values, simplify=simplify, layout_non_matching=layout_non_matching, **kwargs)
+        if all(isinstance(v, Tensor) for v in values):
+            result.__dict__[key] = stack(values, dim, expand_values=expand_values, simplify=simplify, layout_non_matching=layout_non_matching, **kwargs)
     print(result.__dict__)
     return result
 
