@@ -1424,7 +1424,10 @@ class TensorStack(Tensor):
 
     @property
     def requires_broadcast(self):
-        return self._varying_shapes or not self._shape.well_defined or self._is_tracer or self._tensors[0].shape.is_non_uniform
+        if self._varying_shapes or not self._shape.well_defined or self._is_tracer or self._tensors[0].shape.is_non_uniform:
+            return True
+        from ._sparse import is_sparse
+        return is_sparse(self)
     
     @property
     def stack_dim(self):
