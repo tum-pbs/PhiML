@@ -1203,7 +1203,7 @@ map_c2d = partial(map_types, dims=channel, dim_type=dual)
 map_c2d.__doc__ = "Map channel dims to type dual. Short for `map_types(f, spatial, batch)`."
 
 
-def broadcast(function=None, dims=shape, range=range, unwrap_scalars=True):
+def broadcast(function=None, dims=shape, range=range, unwrap_scalars=True, simplify=False):
     """
     Function decorator for non-vectorized functions.
     When passing `Tensor` arguments to a broadcast function, the function is called once for each slice of the tensor.
@@ -1220,6 +1220,7 @@ def broadcast(function=None, dims=shape, range=range, unwrap_scalars=True):
             If `dims` is not specified, all dimensions from the `phiml.math.magic.Sliceable` values in `args` and `kwargs` will be mapped.
         range: Optional range function. Can be used to generate `tqdm` output by passing `trange`.
         unwrap_scalars: If `True`, passes the contents of scalar `Tensor`s instead of the tensor objects.
+        simplify: If `True`, reduces constant dims of output tensors that don't vary across broadcast slices.
 
     Returns:
         Broadcast function
@@ -1229,7 +1230,7 @@ def broadcast(function=None, dims=shape, range=range, unwrap_scalars=True):
         return partial(broadcast, **kwargs)
     @wraps(function)
     def broadcast_(*args, **kwargs):
-        return map_(function, *args, dims=dims, range=range, unwrap_scalars=unwrap_scalars, **kwargs)
+        return map_(function, *args, dims=dims, range=range, unwrap_scalars=unwrap_scalars, simplify=simplify, **kwargs)
     return broadcast_
 
 
@@ -1309,7 +1310,7 @@ def iterate(map_function: Callable,
         raise ValueError(f"iterations must be an int or Shape but got {type(iterations)}")
 
 
-def map_(function: Callable[..., Y], *args, dims: DimFilter = shape, range=range, unwrap_scalars=True, expand_results=False, **kwargs) -> Union[None, Tensor, Y]:
+def map_(function: Callable[..., Y], *args, dims: DimFilter = shape, range=range, unwrap_scalars=True, expand_results=False, simplify=False, **kwargs) -> Union[None, Tensor, Y]:
     """
     Calls `function` on slices of the arguments and returns the stacked result.
 
@@ -1327,6 +1328,7 @@ def map_(function: Callable[..., Y], *args, dims: DimFilter = shape, range=range
             Pass `object` to map only objects, not tensors of primitives (`dtype.kind == object`). This will select only `layout`-type dimensions.
         range: Optional range function. Can be used to generate `tqdm` output by passing `trange`.
         unwrap_scalars: If `True`, passes the contents of scalar `Tensor`s instead of the tensor objects.
+        simplify: If `True`, reduces constant dims of output tensors that don't vary across mapped slices.
 
     Returns:
         `Tensor` of same shape as `value`.
@@ -1365,7 +1367,7 @@ def map_(function: Callable[..., Y], *args, dims: DimFilter = shape, range=range
         if any(r is None for r in results):
             assert all(r is None for r in results), f"map function returned None for some elements, {results}"
             return None
-        return stack(results, dims_, expand_values=expand_results)
+        return stack(results, dims_, expand_values=expand_results, simplify=simplify)
 
 
 def identity(x):
