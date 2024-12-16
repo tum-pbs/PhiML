@@ -3,11 +3,12 @@ import dataclasses
 import inspect
 from dataclasses import dataclass
 from functools import cached_property
-from typing import TypeVar, Callable, Tuple, List, Set, Iterable, Optional, get_origin, get_args, Dict, Sequence, Union
+from typing import TypeVar, Callable, Tuple, List, Set, Iterable, Optional, get_origin, get_args, Dict, Sequence, Union, Any
 
 from phiml.dataclasses._dep import get_unchanged_cache
 from phiml.math import DimFilter, shape, Shape
-from phiml.math._magic_ops import slice_
+from phiml.math._magic_ops import slice_, variable_attributes
+from phiml.math._tensors import disassemble_tree, Tensor, assemble_tree
 from phiml.math.magic import slicing_dict, BoundDim
 
 PhiMLDataclass = TypeVar("PhiMLDataclass")
@@ -147,6 +148,36 @@ def replace(obj: PhiMLDataclass, /, call_metaclass=False, **changes) -> PhiMLDat
     cache = get_unchanged_cache(obj, set(changes.keys()))
     new_obj.__dict__.update(cache)
     return new_obj
+
+
+@dataclass
+class DataclassTreeNode:
+    cls: type
+    attr_type: Callable
+    extracted: Dict[str, Any]  # trees without variable tensors
+    not_extracted: Dict[str, Any]  # original values of non-extracted properties
+    cache: Dict[str, Any]
+
+
+def disassemble(obj: PhiMLDataclass, attr_type=variable_attributes):
+    extract_names = attr_type(obj)
+    keys = {}
+    values = []
+    for attr in extract_names:
+        key, value = disassemble_tree(getattr(obj, attr), False, attr_type)
+        keys[attr] = key
+        values.extend(value)
+    non_attributes = {f.name: getattr(obj, f.name) for f in dataclasses.fields(obj) if f.name not in keys}
+    cache = get_unchanged_cache(obj, set(extract_names))
+    return DataclassTreeNode(type(obj), attr_type, keys, non_attributes, cache), values
+
+
+def assemble(container: DataclassTreeNode, values: List[Tensor]):
+    extracted = {a: assemble_tree(v, values, container.attr_type) for a, v in container.extracted.items()}
+    instance = container.cls.__new__(container.cls)
+    instance.__init__(**extracted, **container.not_extracted)
+    instance.__dict__.update(container.cache)
+    return instance
 
 
 def getitem(obj: PhiMLDataclass, item, keepdims: DimFilter = None) -> PhiMLDataclass:

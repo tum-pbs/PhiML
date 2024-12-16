@@ -1,8 +1,9 @@
+import dataclasses
 from numbers import Number
 import traceback
 import warnings
 from contextlib import contextmanager
-from typing import Union, TypeVar, Sequence, Any
+from typing import Union, TypeVar, Sequence, Any, Dict
 
 from dataclasses import dataclass
 from typing import Tuple, Callable, List
@@ -1920,6 +1921,12 @@ def disassemble_tree(obj: PhiTreeNodeType, cache: bool, attr_type=variable_attri
             keys[name] = key
             values.extend(value)
         return keys, values
+    elif dataclasses.is_dataclass(obj):
+        from ..dataclasses._dataclasses import disassemble
+        container, values = disassemble(obj, attr_type=attr_type)
+        if cache:
+            values = [cached(v) for v in values]
+        return container, values
     elif isinstance(obj, PhiTreeNode):
         attributes = attr_type(obj)
         keys = {}
@@ -1966,12 +1973,15 @@ def assemble_tree(obj: PhiTreeNodeType, values: List[Tensor], attr_type=variable
         return {name: assemble_tree(val, values, attr_type) for name, val in obj.items()}
     elif isinstance(obj, Tensor):
         return obj
-    elif isinstance(obj, PhiTreeNode):
+    elif dataclasses.is_dataclass(obj):
+        from ..dataclasses._dataclasses import DataclassTreeNode, assemble
+        if isinstance(obj, DataclassTreeNode):
+            return assemble(obj, values)
+    if isinstance(obj, PhiTreeNode):
         attributes = attr_type(obj)
         values = {a: assemble_tree(getattr(obj, a), values, attr_type) for a in attributes}
         return copy_with(obj, **values)
-    else:
-        return obj
+    return obj
 
 
 def attr_paths(obj: PhiTreeNodeType, attr_type: Callable, root: str) -> List[str]:
