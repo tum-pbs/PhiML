@@ -1555,7 +1555,7 @@ class TensorStack(Tensor):
 
 
 def tensor(data,
-           *shape: Union[Shape, str],
+           *shape: Union[Shape, str, list],
            convert: bool = True,
            default_list_dim=channel('vector')) -> Tensor:  # TODO assume convert_unsupported, add convert_external=False for constants
     """
@@ -1588,6 +1588,8 @@ def tensor(data,
     Args:
         data: native tensor, sparse COO / CSR / CSC matrix, scalar, sequence, `Shape` or `Tensor`
         shape: Ordered dimensions and types. If sizes are defined, they will be checked against `data`.`
+            You may also pass a single `str` specifying dimension in the format `name:t` or `name:t=(item_names)` where `t` refers to the type letter, one of s,i,c,d,b.
+            Alternatively, you can pass a `list` of shapes which will call `reshaped_tensor`.
         convert: If True, converts the data to the native format of the current default backend.
             If False, wraps the data in a `Tensor` but keeps the given data reference if possible.
 
@@ -1614,6 +1616,8 @@ def tensor(data,
         >>> tensor(numpy.random.randn(10))
         (vectorᶜ=10) float64 -0.128 ± 1.197 (-2e+00...2e+00)
     """
+    if len(shape) == 1 and isinstance(shape[0], list):
+        return reshaped_tensor(data, shape[0], convert=convert)
     shape = [parse_shape_spec(s) if isinstance(s, str) else s for s in shape]
     shape = None if len(shape) == 0 else concat_shapes(*shape)
     if isinstance(data, Shape):
@@ -1692,7 +1696,7 @@ def tensor(data,
         raise ValueError(f"{type(data)} is not supported. Only (Tensor, tuple, list, np.ndarray, native tensors) are allowed.\nCurrent backends: {BACKENDS}")
 
 
-def wrap(data, *shape: Union[Shape, str], default_list_dim=channel('vector')) -> Tensor:
+def wrap(data, *shape: Union[Shape, str, list], default_list_dim=channel('vector')) -> Tensor:
     """ Short for `phiml.math.tensor()` with `convert=False`. """
     return tensor(data, *shape, convert=False, default_list_dim=default_list_dim)
 
