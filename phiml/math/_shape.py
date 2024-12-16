@@ -120,9 +120,12 @@ class Shape:
     @staticmethod
     def _from_dict(dict_: dict):
         names = tuple(dict_['names'])
-        sizes = tuple(dict_['sizes']) if 'sizes' in dict_ else (None,) * len(names)
+        sizes = list(dict_['sizes']) if 'sizes' in dict_ else [None] * len(names)
         item_names = tuple([None if n is None else tuple(n) for n in dict_['item_names']])
-        return Shape(sizes, names, tuple(dict_['types']), item_names)
+        for i, n in enumerate(item_names):
+            if n and sizes[i] is None:
+                sizes[i] = len(n)
+        return Shape(tuple(sizes), names, tuple(dict_['types']), item_names)
 
     @property
     def name_list(self):
