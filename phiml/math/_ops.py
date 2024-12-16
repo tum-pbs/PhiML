@@ -3209,7 +3209,7 @@ def close(*tensors, rel_tolerance: Union[float, Tensor] = 1e-5, abs_tolerance: U
     """
     Checks whether all tensors have equal values within the specified tolerance.
     
-    Does not check that the shapes exactly match.
+    Does not check that the shapes exactly match but if shapes are incompatible, returns `False`.
     Unlike with `always_close()`, all shapes must be compatible and tensors with different shapes are reshaped before comparing.
 
     See Also:
@@ -3233,6 +3233,8 @@ def close(*tensors, rel_tolerance: Union[float, Tensor] = 1e-5, abs_tolerance: U
     if all(t is tensors[0] for t in tensors):
         return True
     tensors = [wrap(t) for t in tensors]
+    if any(not tensors[0].shape.is_compatible(t.shape) for t in tensors[1:]):
+        return False
     c = True
     for other in tensors[1:]:
         c &= _close(tensors[0], other, rel_tolerance=rel_tolerance, abs_tolerance=abs_tolerance, equal_nan=equal_nan, reduce=reduce)
