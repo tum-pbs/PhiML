@@ -1305,7 +1305,7 @@ def nonzero(value: Tensor, list_dim: Union[Shape, str, int] = instance('nonzero'
     broadcast = value.shape - list_dims - sparse_matrix_dims(value)
     def unbatched_nonzero(value: Tensor):
         if isinstance(value, CompressedSparseMatrix):
-            if (sparse_dims(value) - list_dims) in value._compressed_dims:
+            if cutoff is not None and (sparse_dims(value) - list_dims) in value._compressed_dims:
                 v0 = value._pointers[:-1]
                 vs = v0 + arange(instance(_offset=cutoff))
                 col = value._indices[vs]
