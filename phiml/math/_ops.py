@@ -881,6 +881,7 @@ def stack_tensors(values: Union[tuple, list], dim: Shape):
     if not broadcast_shape.well_defined:
         return TensorStack(values, dim)
     # --- uniform stack ---
+    dim = dim.with_size(len(values))
     native_shapes = [variable_shape(v) for v in values]
     native_broadcast_shape = merge_shapes(*native_shapes)
     natives = [reshaped_native(discard_constant_dims(v), [*native_broadcast_shape], force_expand=True) for v in values]
