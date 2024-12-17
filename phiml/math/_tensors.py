@@ -149,29 +149,9 @@ class Tensor:
             else:
                 return self._op2(inputs[0], lambda x, y: y ** x, lambda x, y: choose_backend(x, y).pow(y, x), 'r_power', '**')
         if ufunc.__name__ == 'equal':
-            if _EQUALITY_REDUCE[-1] == 'ref':
-                return wrap(inputs[0] is inputs[1])
-            elif _EQUALITY_REDUCE[-1] == 'shape_and_value':
-                if set(inputs[0].shape) != set(inputs[1].shape):
-                    return wrap(False)
-                from ._ops import close
-                return wrap(close(inputs[0], inputs[1], rel_tolerance=0, abs_tolerance=0))
-            if inputs[0] is self:
-                return self._op2(inputs[1], lambda x, y: x == y, lambda x, y: choose_backend(x, y).equal(x, y), 'equal', '==')
-            else:
-                return self._op2(inputs[0], lambda x, y: y == x, lambda x, y: choose_backend(x, y).equal(y, x), 'r_equal', '==')
+            return self.__eq__(inputs[1] if self is inputs[0] else inputs[0])
         if ufunc.__name__ == 'not_equal':
-            if _EQUALITY_REDUCE[-1] == 'ref':
-                return wrap(inputs[0] is not inputs[1])
-            elif _EQUALITY_REDUCE[-1] == 'shape_and_value':
-                if set(inputs[0].shape) != set(inputs[1].shape):
-                    return wrap(True)
-                from ._ops import close
-                return wrap(not close(inputs[0], inputs[1], rel_tolerance=0, abs_tolerance=0))
-            if inputs[0] is self:
-                return self._op2(inputs[1], lambda x, y: x != y, lambda x, y: choose_backend(x, y).not_equal(x, y), 'equal', '!=')
-            else:
-                return self._op2(inputs[0], lambda x, y: y != x, lambda x, y: choose_backend(x, y).not_equal(y, x), 'r_equal', '!=')
+            return self.__ne__(inputs[1] if self is inputs[0] else inputs[0])
         if ufunc.__name__ == 'greater':
             if inputs[0] is self:
                 return self._op2(inputs[1], lambda x, y: x > y, lambda x, y: choose_backend(x, y).greater_than(x, y), 'greater', '>')
@@ -722,13 +702,13 @@ class Tensor:
     def __eq__(self, other) -> 'Tensor':
         if self is other:
             return expand(True, self.shape)
-        if _EQUALITY_REDUCE[-1] == 'ref':
+        if _EQUALITY_REDUCE[-1]['type'] == 'ref':
             return wrap(self is other)
-        elif _EQUALITY_REDUCE[-1] == 'shape_and_value':
+        elif _EQUALITY_REDUCE[-1]['type'] == 'shape_and_value':
             if set(self.shape) != set(other.shape):
                 return wrap(False)
             from ._ops import close
-            return wrap(close(self, other, rel_tolerance=0, abs_tolerance=0))
+            return wrap(close(self, other, rel_tolerance=_EQUALITY_REDUCE[-1]['rel_tolerance'], abs_tolerance=_EQUALITY_REDUCE[-1]['abs_tolerance'], equal_nan=_EQUALITY_REDUCE[-1]['equal_nan']))
         if other is None:
             other = float('nan')
         if self.shape.is_compatible(shape(other)):
@@ -737,16 +717,19 @@ class Tensor:
             return wrap(False)
 
     def __ne__(self, other) -> 'Tensor':
-        if _EQUALITY_REDUCE[-1] == 'ref':
+        if _EQUALITY_REDUCE[-1]['type'] == 'ref':
             return wrap(self is not other)
-        elif _EQUALITY_REDUCE[-1] == 'shape_and_value':
+        elif _EQUALITY_REDUCE[-1]['type'] == 'shape_and_value':
             if set(self.shape) != set(other.shape):
                 return wrap(True)
             from ._ops import close
-            return wrap(not close(self, other, rel_tolerance=0, abs_tolerance=0))
+            return wrap(not close(self, other, rel_tolerance=_EQUALITY_REDUCE[-1]['rel_tolerance'], abs_tolerance=_EQUALITY_REDUCE[-1]['abs_tolerance'], equal_nan=_EQUALITY_REDUCE[-1]['equal_nan']))
         if other is None:
             other = float('nan')
-        return self._op2(other, lambda x, y: x != y, lambda x, y: choose_backend(x, y).not_equal(x, y), 'ne', '!=')
+        if self.shape.is_compatible(shape(other)):
+            return self._op2(other, lambda x, y: x != y, lambda x, y: choose_backend(x, y).not_equal(x, y), 'ne', '!=')
+        else:
+            return wrap(True)
 
     def __lt__(self, other):
         return self._op2(other, lambda x, y: x < y, lambda x, y: choose_backend(x, y).greater_than(y, x), 'lt', '<')
@@ -945,7 +928,7 @@ class TensorDim(BoundDim):
         return prod(self.tensor, self.name)
 
 
-_EQUALITY_REDUCE = [None]
+_EQUALITY_REDUCE = [{'type': 'elementwise'}]
 
 
 @contextmanager
@@ -953,23 +936,24 @@ def equality_by_ref():
     """
     Enables Tensor.__bool__
     """
-    _EQUALITY_REDUCE.append('ref')
+    _EQUALITY_REDUCE.append({'type': 'ref'})
     try:
         yield None
     finally:
-        assert _EQUALITY_REDUCE.pop(-1) == 'ref'
+        assert _EQUALITY_REDUCE.pop(-1) == {'type': 'ref'}
 
 
 @contextmanager
-def equality_by_shape_and_value():
+def equality_by_shape_and_value(rel_tolerance=0, abs_tolerance=0, equal_nan=False):
     """
     Enables Tensor.__bool__
     """
-    _EQUALITY_REDUCE.append('shape_and_value')
+    spec = {'type': 'shape_and_value', 'rel_tolerance': rel_tolerance, 'abs_tolerance': abs_tolerance, 'equal_nan': equal_nan}
+    _EQUALITY_REDUCE.append(spec)
     try:
         yield None
     finally:
-        assert _EQUALITY_REDUCE.pop(-1) == 'shape_and_value'
+        assert _EQUALITY_REDUCE.pop(-1) == spec
 
 
 class Layout(Tensor):
@@ -1154,12 +1138,12 @@ class Layout(Tensor):
             return iter(self._as_list())
 
     def __eq__(self, other):
-        if _EQUALITY_REDUCE[-1]:
+        if _EQUALITY_REDUCE[-1]['type'] != 'elementwise':
             return Tensor.__eq__(self, other)
         return self._op2(other, lambda x, y: x == y, lambda x, y: x == y, 'eq', '==')
 
     def __ne__(self, other):
-        if _EQUALITY_REDUCE[-1]:
+        if _EQUALITY_REDUCE[-1]['type'] != 'elementwise':
             return Tensor.__ne__(self, other)
         return self._op2(other, lambda x, y: x != y, lambda x, y: x != y, 'ne', '!=')
 
