@@ -1,19 +1,16 @@
-import collections
 import copy
-import warnings
-from functools import partial, cached_property
-from numbers import Number
-from typing import TypeVar, Tuple, Set, Dict, Union, Optional, Sequence, Any, get_origin, List, Iterable, get_args, Callable
-
 import dataclasses
+import warnings
+from functools import partial
+from numbers import Number
+from typing import TypeVar, Tuple, Dict, Union, Optional, Sequence, Any, Callable
 
 from . import channel
+from ._shape import Shape, DimFilter, batch, instance, shape, non_batch, merge_shapes, concat_shapes, spatial, parse_dim_order, dual, auto, parse_shape_spec, DIM_FUNCTIONS, INV_CHAR
+from .magic import Sliceable, Shaped, Shapable, PhiTreeNode
 from ..backend import choose_backend, NoBackendFound
 from ..backend._dtype import DType
-from ._shape import Shape, DimFilter, batch, instance, shape, non_batch, merge_shapes, concat_shapes, spatial, parse_dim_order, dual, auto, shape_stack, parse_shape_spec, DIM_FUNCTIONS, INV_CHAR
-from .magic import Sliceable, Shaped, Shapable, PhiTreeNode, slicing_dict
 
-# PhiTreeNode
 
 PhiTreeNodeType = TypeVar('PhiTreeNodeType')  # Defined in phiml.math.magic: tuple, list, dict, custom
 
@@ -172,13 +169,10 @@ def stack(values: Union[Sequence[PhiTreeNodeType], Dict[str, PhiTreeNodeType]], 
         if all(v is None for v in values_):
             return None
         if all(type(v) == type(values_[0]) for v in values_[1:]):
-            from ._tensors import Tensor
-            if isinstance(values_[0], Tensor):
-                from ._ops import equal
-                if equal(*values_, equal_nan=True):
+            from ._tensors import equality_by_shape_and_value
+            with equality_by_shape_and_value(equal_nan=True):
+                if all(v == values_[0] for v in values_[1:]):
                     return values_[0]
-            elif all(v == values_[0] for v in values_[1:]):
-                return values_[0]
     shapes = [shape(v) for v in values_]
     if not expand_values:
         v0_dims = set(shapes[0].non_batch.names)
@@ -221,17 +215,25 @@ def stack(values: Union[Sequence[PhiTreeNodeType], Dict[str, PhiTreeNodeType]], 
         if any(dataclasses.is_dataclass(v) for v in values):
             from ..dataclasses._merge import dc_stack
             return dc_stack(values, dim, expand_values=expand_values, simplify=simplify, layout_non_matching=layout_non_matching, **kwargs)
+        if all(isinstance(v, dict) for v in values):
+            keys = set(values[0])
+            if all(set(v) == keys for v in values[1:]):
+                new_dict = {}
+                for k in keys:
+                    k_values = [v[k] for v in values]
+                    new_dict[k] = stack(k_values, dim, expand_values=expand_values, simplify=simplify, **kwargs)
+                return new_dict
+            raise NotImplementedError
         if all(isinstance(v, PhiTreeNode) for v in values):
             attributes = all_attributes(values[0])
             if attributes and all(all_attributes(v) == attributes for v in values):
                 new_attrs = {}
                 for a in attributes:
-                    assert all([dim not in shape(getattr(v, a)) for v in values]), f"Cannot stack attribute {a} because one value already contains the stack dim {dim}."
                     a_values = [getattr(v, a) for v in values]
                     if all(v is a_values[0] for v in a_values[1:]):
                         new_attrs[a] = expand(a_values[0], dim, **kwargs) if a_values[0] is not None else a_values[0]
                     else:
-                        new_attrs[a] = stack(a_values, dim, expand_values=expand_values, **kwargs)
+                        new_attrs[a] = stack(a_values, dim, expand_values=expand_values, simplify=simplify, **kwargs)
                 return copy_with(values[0], **new_attrs)
             else:
                 warnings.warn(f"Failed to concat values using value attributes because attributes differ among values {values}")
@@ -570,8 +572,7 @@ def rename_dims(value: PhiTreeNodeType,
             return result
     # --- Next try Tree Node ---
     if isinstance(value, PhiTreeNode):
-        new_attributes = {a: rename_dims(getattr(value, a), existing_dims, existing_names, **kwargs) for a in all_attributes(value)}
-        return copy_with(value, **new_attributes)
+        return tree_map(rename_dims, value, all_attributes, treat_layout_as_leaf=True, dims=existing_dims, names=existing_names, **kwargs)
     # --- Fallback: unstack and stack ---
     if shape(value).only(existing_dims).volume > 8:
         warnings.warn(f"rename_dims() default implementation is slow on large dimensions ({existing_dims}). Please implement __replace_dims__() for {type(value).__name__} as defined in phiml.math.magic", RuntimeWarning, stacklevel=2)
