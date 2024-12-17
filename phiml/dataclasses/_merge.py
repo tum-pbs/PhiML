@@ -80,7 +80,6 @@ def dc_stack(objs: Sequence, dim: Shape, expand_values=False, simplify=False, la
         values = [getattr(obj, key) for obj in objs]
         if all(isinstance(v, Tensor) for v in values):
             result.__dict__[key] = stack(values, dim, expand_values=expand_values, simplify=simplify, layout_non_matching=layout_non_matching, **kwargs)
-    print(result.__dict__)
     return result
 
 

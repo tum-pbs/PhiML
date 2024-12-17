@@ -47,7 +47,7 @@ def get_dependencies(cls: type, cls_property) -> Set[str]:
         if isinstance(getattr(cls, prop_dep), (property, cached_property)):
             field_deps.update(get_dependencies(cls, getattr(cls, prop_dep)))
         elif callable(getattr(cls, prop_dep)):
-            raise NotImplementedError
+            field_deps.update(get_dependencies(cls, getattr(cls, prop_dep)))
     if not hasattr(cls, '__phiml_dep__'):
         cls.__phiml_dep__ = {cls_property: field_deps}
     else:
