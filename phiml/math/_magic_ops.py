@@ -201,7 +201,8 @@ def stack(values: Union[Sequence[PhiTreeNodeType], Dict[str, PhiTreeNodeType]], 
         if dim.size is None:
             dim = dim.with_size(len(values))
         if isinstance(values, dict):
-            dim_item_names = tuple(values.keys())
+            dim_item_names = tuple([k.name if isinstance(k, Shape) else k for k in values.keys()])
+            assert all(isinstance(k, str) for k in dim_item_names), f"dict keys must be of type str but got {dim_item_names}"
             values = tuple(values.values())
             dim = dim.with_size(dim_item_names)
         # --- First try __stack__ ---
@@ -661,8 +662,10 @@ def pack_dims(value, dims: DimFilter, packed_dim: Union[Shape, str], pos: Option
         assert packed_dim in dims, f"Cannot pack dims into new dimension {packed_dim} because it already exists on value {value} and is not packed."
     if len(dims) == 0 or all(dim not in shape(value) for dim in dims):
         return value if packed_dim.size is None else expand(value, packed_dim, **kwargs)  # Inserting size=1 can cause shape errors
-    elif len(dims) == 1:
+    elif len(dims) == 1 and packed_dim.rank == 1:
         return rename_dims(value, dims, packed_dim, **kwargs)
+    elif len(dims) == 1 and packed_dim.rank > 1:
+        return unpack_dim(value, dims, packed_dim, **kwargs)
     # --- First try __pack_dims__ ---
     if hasattr(value, '__pack_dims__'):
         result = value.__pack_dims__(dims.names, packed_dim, pos, **kwargs)
