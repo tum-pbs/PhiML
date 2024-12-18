@@ -2616,13 +2616,14 @@ def minimum(x: Union[Tensor, float], y: Union[Tensor, float], allow_none=False):
     return custom_op2(x, y, minimum, lambda x_, y_: choose_backend(x_, y_).minimum(x_, y_), op_name='minimum')
 
 
-def clip(x: Tensor, lower_limit: Union[float, Tensor] = 0, upper_limit: Union[float, Tensor] = 1):
+def clip(x: Tensor, lower_limit: Union[float, Tensor] = 0, upper_limit: Union[float, Tensor, Shape] = 1):
     """ Limits the values of the `Tensor` `x` to lie between `lower_limit` and `upper_limit` (inclusive). """
+    if isinstance(upper_limit, Shape):
+        assert x.shape.channel_rank == 1, f"When passing a Shape for upper_limit, x must have exactly one channel dim but got {x.shape}"
+        upper_limit = wrap(upper_limit.sizes, channel(x))
     if isinstance(lower_limit, Number) and isinstance(upper_limit, Number):
-
         def clip_(x):
             return x._op1(lambda native: choose_backend(native).clip(native, lower_limit, upper_limit))
-
         return broadcast_op(clip_, [x])
     else:
         return maximum(lower_limit, minimum(x, upper_limit))
