@@ -474,8 +474,10 @@ class TorchBackend(Backend):
             return torch.linspace(float(start), float(stop), number, dtype=to_torch_dtype(self.float_type), device=self.get_default_device().ref)
 
     def tensordot(self, a, a_axes: Union[tuple, list], b, b_axes: Union[tuple, list]):
-        a, b = self.auto_cast(a, b)
-        return torch.tensordot(a, b, (a_axes, b_axes))
+        dtype = self.combine_types(self.dtype(a), self.dtype(b))
+        a, b = self.auto_cast(a, b, int_to_float=True)
+        result = torch.tensordot(a, b, (a_axes, b_axes))
+        return self.cast(result, dtype)
 
     def mul_matrix_batched_vector(self, A, b):
         A, b = self.auto_cast(A, b)
