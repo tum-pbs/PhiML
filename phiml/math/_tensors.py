@@ -944,7 +944,7 @@ def equality_by_ref():
 
 
 @contextmanager
-def equality_by_shape_and_value(rel_tolerance=0, abs_tolerance=0, equal_nan=False):
+def equality_by_shape_and_value(rel_tolerance=0., abs_tolerance=0., equal_nan=False):
     """
     Enables Tensor.__bool__
     """

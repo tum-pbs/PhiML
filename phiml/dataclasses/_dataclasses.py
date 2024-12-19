@@ -8,7 +8,7 @@ from typing import TypeVar, Callable, Tuple, List, Set, Iterable, Optional, get_
 from phiml.dataclasses._dep import get_unchanged_cache
 from phiml.math import DimFilter, shape, Shape
 from phiml.math._magic_ops import slice_, variable_attributes
-from phiml.math._tensors import disassemble_tree, Tensor, assemble_tree
+from phiml.math._tensors import disassemble_tree, Tensor, assemble_tree, equality_by_shape_and_value, equality_by_ref
 from phiml.math.magic import slicing_dict, BoundDim
 
 PhiMLDataclass = TypeVar("PhiMLDataclass")
@@ -52,10 +52,23 @@ def sliceable(cls=None, /, *, dim_attrs=True, keepdims=None, dim_repr=True):
                 return f"{type(obj).__name__}[{content}]"
             cls.__repr__ = __dataclass_repr__
         return cls
+    return wrap(cls) if cls is not None else wrap  # See if we're being called as @dataclass or @dataclass().
 
-    if cls is None:  # See if we're being called as @dataclass or @dataclass().
-        return wrap
-    return wrap(cls)
+
+def data_eq(cls=None, /, *, rel_tolerance=0., abs_tolerance=0., equal_nan=True, compare_tensors_by_ref=False):
+    def wrap(cls):
+        assert cls.__dataclass_params__.eq, f"@data_eq can only be used with dataclasses with eq=True."
+        cls.__default_dataclass_eq__ = cls.__eq__
+        def __tensor_eq__(obj, other):
+            if compare_tensors_by_ref:
+                with equality_by_ref():
+                    return cls.__default_dataclass_eq__(obj, other)
+            with equality_by_shape_and_value(rel_tolerance, abs_tolerance, equal_nan):
+                return cls.__default_dataclass_eq__(obj, other)
+        cls.__eq__ = __tensor_eq__
+        # __ne__ calls `not __eq__()` by default
+        return cls
+    return wrap(cls) if cls is not None else wrap  # See if we're being called as @dataclass or @dataclass().
 
 
 NON_ATTR_TYPES = str, int, float, complex, bool, Shape, slice, Callable
@@ -236,3 +249,23 @@ def getitem(obj: PhiMLDataclass, item, keepdims: DimFilter = None) -> PhiMLDatac
     cache = {k: slice_(v, item) for k, v in obj.__dict__.items() if isinstance(getattr(type(obj), k, None), cached_property) and not isinstance(v, Shape)}
     new_obj.__dict__.update(cache)
     return new_obj
+
+
+def equal(obj1, obj2, rel_tolerance=0., abs_tolerance=0., equal_nan=True):
+    """
+    Checks if two
+
+    Args:
+        obj1:
+        obj2:
+        rel_tolerance:
+        abs_tolerance:
+        equal_nan:
+
+    Returns:
+
+    """
+    cls = type(obj1)
+    eq_fn = cls.__default_dataclass_eq__ if hasattr(cls, '__default_dataclass_eq__') else cls.__eq__
+    with equality_by_shape_and_value(rel_tolerance, abs_tolerance, equal_nan):
+        return eq_fn(obj1, obj2)
