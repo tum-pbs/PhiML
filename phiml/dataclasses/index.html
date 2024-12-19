@@ -1,0 +1,293 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1">
+<meta name="generator" content="pdoc3 0.11.0">
+<title>phiml.dataclasses API documentation</title>
+<meta name="description" content="PhiML makes it easy to work with custom classes.
+Any class decorated with `@dataclass` can be used with `phiml.math` functions, such as `shape()`, …">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/13.0.0/sanitize.min.css" integrity="sha512-y1dtMcuvtTMJc1yPgEqF0ZjQbhnc/bFhyvIyVNb9Zk5mIGtqVaAB1Ttl28su8AvFMOY0EwRbAe+HCLqj6W7/KA==" crossorigin>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/13.0.0/typography.min.css" integrity="sha512-Y1DYSb995BAfxobCkKepB1BqJJTPrOp3zPL74AWFugHHmmdcvO+C48WLrUOlhGMc0QG7AE3f7gmvvcrmX2fDoA==" crossorigin>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/default.min.css" crossorigin>
+<style>:root{--highlight-color:#fe9}.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:1.5em;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:2em 0 .50em 0}h3{font-size:1.4em;margin:1.6em 0 .7em 0}h4{margin:0;font-size:105%}h1:target,h2:target,h3:target,h4:target,h5:target,h6:target{background:var(--highlight-color);padding:.2em 0}a{color:#058;text-decoration:none;transition:color .2s ease-in-out}a:visited{color:#503}a:hover{color:#b62}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900;font-weight:bold}pre code{font-size:.8em;line-height:1.4em;padding:1em;display:block}code{background:#f3f3f3;font-family:"DejaVu Sans Mono",monospace;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}dt:target .name{background:var(--highlight-color)}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}td{padding:0 .5em}.admonition{padding:.1em 1em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul ul{padding-left:1em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js" integrity="sha512-D9gUyxqja7hBtkWpPWGt9wfbfaMGVt9gnyCvYa+jojwwPHLCzUm5i8rpk7vD7wNee9bA35eYIjobYPaQuKS1MQ==" crossorigin></script>
+<script>window.addEventListener('DOMContentLoaded', () => {
+hljs.configure({languages: ['bash', 'css', 'diff', 'graphql', 'ini', 'javascript', 'json', 'plaintext', 'python', 'python-repl', 'rust', 'shell', 'sql', 'typescript', 'xml', 'yaml']});
+hljs.highlightAll();
+})</script>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>phiml.dataclasses</code></h1>
+</header>
+<section id="section-intro">
+<p>PhiML makes it easy to work with custom classes.
+Any class decorated with <code>@dataclass</code> can be used with <code><a title="phiml.math" href="../math/index.html">phiml.math</a></code> functions, such as <code>shape()</code>, <code>slice()</code>, <code>stack()</code>, <code>concat()</code>, <code>expand()</code> and many more.
+We recommend always setting <code>frozen=True</code>.</p>
+<p>PhiML's dataclass support explicitly handles properties defined decorated with <code>functools.cached_property</code>.
+Their cached values will be preserved whenever possible, preventing costly re-computation when modifying unrelated properties, slicing, gathering, or stacking objects.
+This will usually affect all <em>data fields</em>, i.e. fields that hold <code>Tensor</code> or composite properties.</p>
+<p>Dataclass fields can additionally be specified as being <em>variable</em> and <em>value</em>.
+This affects which data_fields are optimized / traced by functions like <code><a title="phiml.math.jit_compile" href="../math/index.html#phiml.math.jit_compile">jit_compile()</a></code> or <code><a title="phiml.math.minimize" href="../math/index.html#phiml.math.minimize">minimize()</a></code>.</p>
+<p><strong>Template for custom classes:</strong></p>
+<pre><code class="language-python-repl">&gt;&gt;&gt; from typing import Tuple from dataclasses import dataclass
+&gt;&gt;&gt; from phiml.dataclasses import sliceable, cached_property
+&gt;&gt;&gt; from phiml.math import Tensor, Shape, shape
+&gt;&gt;&gt;
+&gt;&gt;&gt; @sliceable
+&gt;&gt;&gt; @dataclass(frozen=True)
+&gt;&gt;&gt; class MyClass:
+&gt;&gt;&gt;     # --- Attributes ---
+&gt;&gt;&gt;     attribute1: Tensor
+&gt;&gt;&gt;     attribute2: 'MyClass' = None
+&gt;&gt;&gt;
+&gt;&gt;&gt;     # --- Additional fields ---
+&gt;&gt;&gt;     field1: str = 'x'
+&gt;&gt;&gt;
+&gt;&gt;&gt;     # --- Special fields declaring attribute types. Must be of type Tuple[str, ...] ---
+&gt;&gt;&gt;     variable_attrs: Tuple[str, ...] = ('attribute1', 'attribute2')
+&gt;&gt;&gt;     value_attrs: Tuple[str, ...] = ()
+&gt;&gt;&gt;
+&gt;&gt;&gt;     def __post_init__(self):
+&gt;&gt;&gt;         assert self.field1 in 'xyz'
+&gt;&gt;&gt;
+&gt;&gt;&gt;     @cached_property
+&gt;&gt;&gt;     def shape(self) -&gt; Shape:  # override the default shape which is merged from all attribute shapes
+&gt;&gt;&gt;         return self.attribute1.shape &amp; shape(self.attribute2)
+&gt;&gt;&gt;
+&gt;&gt;&gt;     @cached_property  # the cache will be copied to derived instances unless attribute1 changes (this is analyzed from the code)
+&gt;&gt;&gt;     def derived_property(self) -&gt; Tensor:
+&gt;&gt;&gt;         return self.attribute1 + 1
+</code></pre>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-functions">Functions</h2>
+<dl>
+<dt id="phiml.dataclasses.config_fields"><code class="name flex">
+<span>def <span class="ident">config_fields</span></span>(<span>obj) ‑> Sequence[dataclasses.Field]</span>
+</code></dt>
+<dd>
+<div class="desc"><p>List all dataclass Fields of <code>obj</code> that are not considered data_fields or special.
+These cannot hold any Tensors or shaped objects.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>obj</code></strong></dt>
+<dd>Dataclass type or instance.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<p>Sequence of <code>dataclasses.Field</code>.</p></div>
+</dd>
+<dt id="phiml.dataclasses.data_eq"><code class="name flex">
+<span>def <span class="ident">data_eq</span></span>(<span>cls=None, /, *, rel_tolerance=0.0, abs_tolerance=0.0, equal_nan=True, compare_tensors_by_ref=False)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="phiml.dataclasses.data_fields"><code class="name flex">
+<span>def <span class="ident">data_fields</span></span>(<span>obj) ‑> Sequence[dataclasses.Field]</span>
+</code></dt>
+<dd>
+<div class="desc"><p>List all dataclass Fields of <code>obj</code> that are considered data, i.e. can hold (directly or indirectly) one or multiple <code>Tensor</code> instances.
+This includes fields referencing other dataclasses.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>obj</code></strong></dt>
+<dd>Dataclass type or instance.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<p>Sequence of <code>dataclasses.Field</code>.</p></div>
+</dd>
+<dt id="phiml.dataclasses.equal"><code class="name flex">
+<span>def <span class="ident">equal</span></span>(<span>obj1, obj2, rel_tolerance=0.0, abs_tolerance=0.0, equal_nan=True)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Checks if two</p>
+<h2 id="args">Args</h2>
+<p>obj1:
+obj2:
+rel_tolerance:
+abs_tolerance:
+equal_nan:
+Returns:</p></div>
+</dd>
+<dt id="phiml.dataclasses.getitem"><code class="name flex">
+<span>def <span class="ident">getitem</span></span>(<span>obj: ~PhiMLDataclass, item, keepdims: Union[str, Sequence[+T_co], set, ForwardRef('Shape'), Callable, None] = None) ‑> ~PhiMLDataclass</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Slice / gather a dataclass by broadcasting the operation to its data_fields.</p>
+<p>You may call this from <code>__getitem__</code> to allow the syntax <code>my_class[component_str]</code>, <code>my_class[slicing_dict]</code>, <code>my_class[boolean_tensor]</code> and <code>my_class[index_tensor]</code>.</p>
+<pre><code class="language-python">def __getitem__(self, item):
+    return getitem(self, item)
+</code></pre>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>obj</code></strong></dt>
+<dd>Dataclass instance to slice / gather.</dd>
+<dt><strong><code>item</code></strong></dt>
+<dd>One of the supported tensor slicing / gathering values.</dd>
+<dt><strong><code>keepdims</code></strong></dt>
+<dd>Dimensions that will not be removed during slicing.
+When selecting a single slice, these dims will remain with size 1.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<p>Slice of <code>obj</code> of same type.</p></div>
+</dd>
+<dt id="phiml.dataclasses.non_data_fields"><code class="name flex">
+<span>def <span class="ident">non_data_fields</span></span>(<span>obj) ‑> Sequence[dataclasses.Field]</span>
+</code></dt>
+<dd>
+<div class="desc"><p>List all dataclass Fields of <code>obj</code> that cannot hold tensors (directly or indirectly).</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>obj</code></strong></dt>
+<dd>Dataclass type or instance.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<p>Sequence of <code>dataclasses.Field</code>.</p></div>
+</dd>
+<dt id="phiml.dataclasses.replace"><code class="name flex">
+<span>def <span class="ident">replace</span></span>(<span>obj: ~PhiMLDataclass, /, call_metaclass=False, **changes) ‑> ~PhiMLDataclass</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Create a copy of <code>obj</code> with some fields replaced.
+Unlike <code>dataclasses.replace()</code>, this function also transfers <code>@cached_property</code> members if their dependencies are not affected.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>obj</code></strong></dt>
+<dd>Dataclass instance.</dd>
+<dt><strong><code>call_metaclass</code></strong></dt>
+<dd>Whether to copy <code>obj</code> by invoking <code>type(obj).__call__</code>.
+If <code>obj</code> defines a metaclass, this will allow users to define custom constructors for dataclasses.</dd>
+<dt><strong><code>**changes</code></strong></dt>
+<dd>New field values to replace old ones.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<p>Copy of <code>obj</code> with replaced values.</p></div>
+</dd>
+<dt id="phiml.dataclasses.sliceable"><code class="name flex">
+<span>def <span class="ident">sliceable</span></span>(<span>cls=None, /, *, dim_attrs=True, keepdims=None, dim_repr=True)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Decorator for frozen dataclasses, adding slicing functionality by defining <code>__getitem__</code>.
+This enables slicing similar to tensors, gathering and boolean masking.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>dim_attrs</code></strong></dt>
+<dd>Whether to generate <code>__getattr__</code> that allows slicing via the syntax <code>instance.dim[&hellip;]</code> where <code>dim</code> is the name of any dim present on <code>instance</code>.</dd>
+<dt><strong><code>keepdims</code></strong></dt>
+<dd>Which dimensions should be kept with size 1 taking a single slice along them. This will preserve item names.</dd>
+<dt><strong><code>dim_repr</code></strong></dt>
+<dd>Whether to replace the default <code>repr</code> of a dataclass by a simplified one based on the object's shape.</dd>
+</dl></div>
+</dd>
+<dt id="phiml.dataclasses.special_fields"><code class="name flex">
+<span>def <span class="ident">special_fields</span></span>(<span>obj) ‑> Sequence[dataclasses.Field]</span>
+</code></dt>
+<dd>
+<div class="desc"><p>List all special dataclass Fields of <code>obj</code>, i.e. fields that don't store data related to the object but rather meta-information relevant to PhiML.</p>
+<p>These include <code>variable_attrs</code> and <code>value_attrs</code>.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>obj</code></strong></dt>
+<dd>Dataclass type or instance.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<p>Sequence of <code>dataclasses.Field</code>.</p></div>
+</dd>
+</dl>
+</section>
+<section>
+<h2 class="section-title" id="header-classes">Classes</h2>
+<dl>
+<dt id="phiml.dataclasses.cached_property"><code class="flex name class">
+<span>class <span class="ident">cached_property</span></span>
+<span>(</span><span>func)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def __get__(self, instance, owner=None):
+    if instance is None:
+        return self
+    if self.attrname is None:
+        raise TypeError(
+            &#34;Cannot use cached_property instance without calling __set_name__ on it.&#34;)
+    try:
+        cache = instance.__dict__
+    except AttributeError:  # not all objects have __dict__ (e.g. class defines slots)
+        msg = (
+            f&#34;No &#39;__dict__&#39; attribute on {type(instance).__name__!r} &#34;
+            f&#34;instance to cache {self.attrname!r} property.&#34;
+        )
+        raise TypeError(msg) from None
+    val = cache.get(self.attrname, _NOT_FOUND)
+    if val is _NOT_FOUND:
+        with self.lock:
+            # check if another thread filled cache while we awaited lock
+            val = cache.get(self.attrname, _NOT_FOUND)
+            if val is _NOT_FOUND:
+                val = self.func(instance)
+                try:
+                    cache[self.attrname] = val
+                except TypeError:
+                    msg = (
+                        f&#34;The &#39;__dict__&#39; attribute on {type(instance).__name__!r} instance &#34;
+                        f&#34;does not support item assignment for caching {self.attrname!r} property.&#34;
+                    )
+                    raise TypeError(msg) from None
+    return val</code></pre>
+</details>
+</dd>
+</dl>
+</section>
+</article>
+<nav id="sidebar">
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="phiml" href="../index.html">phiml</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-functions">Functions</a></h3>
+<ul class="two-column">
+<li><code><a title="phiml.dataclasses.config_fields" href="#phiml.dataclasses.config_fields">config_fields</a></code></li>
+<li><code><a title="phiml.dataclasses.data_eq" href="#phiml.dataclasses.data_eq">data_eq</a></code></li>
+<li><code><a title="phiml.dataclasses.data_fields" href="#phiml.dataclasses.data_fields">data_fields</a></code></li>
+<li><code><a title="phiml.dataclasses.equal" href="#phiml.dataclasses.equal">equal</a></code></li>
+<li><code><a title="phiml.dataclasses.getitem" href="#phiml.dataclasses.getitem">getitem</a></code></li>
+<li><code><a title="phiml.dataclasses.non_data_fields" href="#phiml.dataclasses.non_data_fields">non_data_fields</a></code></li>
+<li><code><a title="phiml.dataclasses.replace" href="#phiml.dataclasses.replace">replace</a></code></li>
+<li><code><a title="phiml.dataclasses.sliceable" href="#phiml.dataclasses.sliceable">sliceable</a></code></li>
+<li><code><a title="phiml.dataclasses.special_fields" href="#phiml.dataclasses.special_fields">special_fields</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-classes">Classes</a></h3>
+<ul>
+<li>
+<h4><code><a title="phiml.dataclasses.cached_property" href="#phiml.dataclasses.cached_property">cached_property</a></code></h4>
+</li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc" title="pdoc: Python API documentation generator"><cite>pdoc</cite> 0.11.0</a>.</p>
+</footer>
+</body>
+</html>

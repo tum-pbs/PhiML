@@ -15437,7 +15437,9 @@ class="
 
 
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="application/vnd.jupyter.stderr">
-<pre>/opt/hostedtoolcache/Python/3.8.18/x64/lib/python3.8/site-packages/phiml/math/_optimize.py:631: UserWarning: Possible rank deficiency detected. Matrix might be singular which can lead to convergence problems. Please specify using Solve(rank_deficiency=...).
+<pre>/tmp/ipykernel_2266/2300467920.py:2: DeprecationWarning: phiml.math.vec_squared is deprecated in favor of phiml.math.squared_norm
+  u0 = math.exp(-.5 * math.vec_squared(x-.5) / .1 ** 2)
+/opt/hostedtoolcache/Python/3.8.18/x64/lib/python3.8/site-packages/phiml/math/_optimize.py:631: UserWarning: Possible rank deficiency detected. Matrix might be singular which can lead to convergence problems. Please specify using Solve(rank_deficiency=...).
   warnings.warn(&#34;Possible rank deficiency detected. Matrix might be singular which can lead to convergence problems. Please specify using Solve(rank_deficiency=...).&#34;)
 </pre>
 </div>
@@ -15644,6 +15646,17 @@ class="
 </pre>
 </div>
 </div>
+<div class="jp-OutputArea-child">
+    
+    <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+
+
+<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="application/vnd.jupyter.stderr">
+<pre>/tmp/ipykernel_2266/2042670748.py:5: DeprecationWarning: phiml.math.length is deprecated in favor of phiml.math.norm
+  return math.vec_length(dx)
+</pre>
+</div>
+</div>
 
 </div>
 
@@ -15780,7 +15793,7 @@ An explanation of this automatic reshaping is given <a href="https://tum-pbs.git
 
 
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="application/vnd.jupyter.stderr">
-<pre>2024-12-06 19:16:16.431131: W tensorflow/compiler/tf2tensorrt/utils/py_utils.cc:38] TF-TRT Warning: Could not find TensorRT
+<pre>2024-12-19 17:09:35.449165: W tensorflow/compiler/tf2tensorrt/utils/py_utils.cc:38] TF-TRT Warning: Could not find TensorRT
 </pre>
 </div>
 </div>
@@ -15896,12 +15909,12 @@ File <span class="ansi-green-fg">/opt/hostedtoolcache/Python/3.8.18/x64/lib/pyth
 <span class="ansi-green-intense-fg ansi-bold">    772</span>     values<span style="color: rgb(98,98,98)">.</span>append(native_shift_values[(<span style="color: rgb(0,135,0)">slice</span>(<span class="ansi-bold" style="color: rgb(0,135,0)">None</span>), <span style="color: rgb(98,98,98)">*</span>out_idx)])
 <span class="ansi-green-intense-fg ansi-bold">    773</span> <span class="ansi-bold" style="color: rgb(0,135,0)">else</span>:  <span style="color: rgb(95,135,135)"># add full stencil tensor</span>
 
-File <span class="ansi-green-fg">/opt/hostedtoolcache/Python/3.8.18/x64/lib/python3.8/site-packages/phiml/math/_shape.py:234</span>, in <span class="ansi-cyan-fg">Shape.get_size</span><span class="ansi-blue-fg">(self, dim, default)</span>
-<span class="ansi-green-intense-fg ansi-bold">    232</span> <span class="ansi-bold" style="color: rgb(0,135,0)">if</span> dim <span class="ansi-bold" style="color: rgb(175,0,255)">not</span> <span class="ansi-bold" style="color: rgb(175,0,255)">in</span> <span style="color: rgb(0,135,0)">self</span><span style="color: rgb(98,98,98)">.</span>names:
-<span class="ansi-green-intense-fg ansi-bold">    233</span>     <span class="ansi-bold" style="color: rgb(0,135,0)">if</span> default <span class="ansi-bold" style="color: rgb(175,0,255)">is</span> <span class="ansi-bold" style="color: rgb(0,135,0)">None</span>:
-<span class="ansi-green-fg">--&gt; 234</span>         <span class="ansi-bold" style="color: rgb(0,135,0)">raise</span> <span class="ansi-bold" style="color: rgb(215,95,95)">KeyError</span>(<span style="color: rgb(175,0,0)">f</span><span style="color: rgb(175,0,0)">&#34;</span><span style="color: rgb(175,0,0)">get_size() failed because </span><span style="color: rgb(175,0,0)">&#39;</span><span class="ansi-bold" style="color: rgb(175,95,135)">{</span>dim<span class="ansi-bold" style="color: rgb(175,95,135)">}</span><span style="color: rgb(175,0,0)">&#39;</span><span style="color: rgb(175,0,0)"> is not part of Shape </span><span class="ansi-bold" style="color: rgb(175,95,135)">{</span><span style="color: rgb(0,135,0)">self</span><span class="ansi-bold" style="color: rgb(175,95,135)">}</span><span style="color: rgb(175,0,0)"> and no default value was provided</span><span style="color: rgb(175,0,0)">&#34;</span>)
-<span class="ansi-green-intense-fg ansi-bold">    235</span>     <span class="ansi-bold" style="color: rgb(0,135,0)">else</span>:
-<span class="ansi-green-intense-fg ansi-bold">    236</span>         <span class="ansi-bold" style="color: rgb(0,135,0)">return</span> default
+File <span class="ansi-green-fg">/opt/hostedtoolcache/Python/3.8.18/x64/lib/python3.8/site-packages/phiml/math/_shape.py:237</span>, in <span class="ansi-cyan-fg">Shape.get_size</span><span class="ansi-blue-fg">(self, dim, default)</span>
+<span class="ansi-green-intense-fg ansi-bold">    235</span> <span class="ansi-bold" style="color: rgb(0,135,0)">if</span> dim <span class="ansi-bold" style="color: rgb(175,0,255)">not</span> <span class="ansi-bold" style="color: rgb(175,0,255)">in</span> <span style="color: rgb(0,135,0)">self</span><span style="color: rgb(98,98,98)">.</span>names:
+<span class="ansi-green-intense-fg ansi-bold">    236</span>     <span class="ansi-bold" style="color: rgb(0,135,0)">if</span> default <span class="ansi-bold" style="color: rgb(175,0,255)">is</span> <span class="ansi-bold" style="color: rgb(0,135,0)">None</span>:
+<span class="ansi-green-fg">--&gt; 237</span>         <span class="ansi-bold" style="color: rgb(0,135,0)">raise</span> <span class="ansi-bold" style="color: rgb(215,95,95)">KeyError</span>(<span style="color: rgb(175,0,0)">f</span><span style="color: rgb(175,0,0)">&#34;</span><span style="color: rgb(175,0,0)">get_size() failed because </span><span style="color: rgb(175,0,0)">&#39;</span><span class="ansi-bold" style="color: rgb(175,95,135)">{</span>dim<span class="ansi-bold" style="color: rgb(175,95,135)">}</span><span style="color: rgb(175,0,0)">&#39;</span><span style="color: rgb(175,0,0)"> is not part of Shape </span><span class="ansi-bold" style="color: rgb(175,95,135)">{</span><span style="color: rgb(0,135,0)">self</span><span class="ansi-bold" style="color: rgb(175,95,135)">}</span><span style="color: rgb(175,0,0)"> and no default value was provided</span><span style="color: rgb(175,0,0)">&#34;</span>)
+<span class="ansi-green-intense-fg ansi-bold">    238</span>     <span class="ansi-bold" style="color: rgb(0,135,0)">else</span>:
+<span class="ansi-green-intense-fg ansi-bold">    239</span>         <span class="ansi-bold" style="color: rgb(0,135,0)">return</span> default
 
 <span class="ansi-red-fg">KeyError</span>: &#34;get_size() failed because &#39;gradient&#39; is not part of Shape (xˢ=10) and no default value was provided&#34;</pre>
 </div>

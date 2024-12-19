@@ -15250,7 +15250,7 @@ Then we can take the mean of the <code>right</code> and the <code>left</code> va
 
 
 <div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre><span class="ansi-blue-intense-fg">(0.416, 0.441, 0.543, 0.293, 0.514)</span> along <span class="ansi-green-intense-fg">xˢ</span></pre>
+<pre><span class="ansi-blue-intense-fg">(0.264, 0.277, 0.576, 0.125, 0.465)</span> along <span class="ansi-green-intense-fg">xˢ</span></pre>
 </div>
 
 </div>
@@ -15289,7 +15289,7 @@ Then we can take the mean of the <code>right</code> and the <code>left</code> va
 
 
 <div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre><span class="ansi-green-intense-fg">(xˢ=3, yˢ=3)</span> <span class="ansi-blue-intense-fg">0.474 ± 0.116</span> <span class="ansi-white-fg">(3e-01...6e-01)</span></pre>
+<pre><span class="ansi-green-intense-fg">(xˢ=3, yˢ=3)</span> <span class="ansi-blue-intense-fg">0.535 ± 0.102</span> <span class="ansi-white-fg">(4e-01...7e-01)</span></pre>
 </div>
 
 </div>
@@ -15328,7 +15328,7 @@ Then we can take the mean of the <code>right</code> and the <code>left</code> va
 
 
 <div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre><span class="ansi-green-intense-fg">(xˢ=16, yˢ=16, zˢ=16)</span> <span class="ansi-blue-intense-fg">0.499 ± 0.120</span> <span class="ansi-white-fg">(1e-01...9e-01)</span></pre>
+<pre><span class="ansi-green-intense-fg">(xˢ=16, yˢ=16, zˢ=16)</span> <span class="ansi-blue-intense-fg">0.502 ± 0.117</span> <span class="ansi-white-fg">(1e-01...9e-01)</span></pre>
 </div>
 
 </div>
@@ -15479,7 +15479,7 @@ A 1D FFT will always be performed on our 1D grid, even if we add additional non-
 
 
 <div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre><span class="ansi-blue-intense-fg">((2.2071228+0j), (0.113332815-0.2507103j), (0.1208083-0.3455006j), (0.1208083+0.3455006j), (0.113332815+0.2507103j))</span> along <span class="ansi-green-intense-fg">xˢ</span> <span class="ansi-yellow-intense-fg">complex64</span></pre>
+<pre><span class="ansi-blue-intense-fg">((1.7072389+0j), (-0.23778898-0.27611923j), (0.14764684-0.6669498j), (0.14764684+0.6669498j), (-0.23778898+0.27611923j))</span> along <span class="ansi-green-intense-fg">xˢ</span> <span class="ansi-yellow-intense-fg">complex64</span></pre>
 </div>
 
 </div>
@@ -15518,7 +15518,7 @@ A 1D FFT will always be performed on our 1D grid, even if we add additional non-
 
 
 <div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre><span class="ansi-green-intense-fg">(xˢ=3, yˢ=3)</span> <span class="ansi-yellow-intense-fg">complex64</span> <span class="ansi-blue-intense-fg">|...| &lt; 4.265614032745361</span></pre>
+<pre><span class="ansi-green-intense-fg">(xˢ=3, yˢ=3)</span> <span class="ansi-yellow-intense-fg">complex64</span> <span class="ansi-blue-intense-fg">|...| &lt; 4.818906784057617</span></pre>
 </div>
 
 </div>
@@ -15557,7 +15557,7 @@ A 1D FFT will always be performed on our 1D grid, even if we add additional non-
 
 
 <div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre><span class="ansi-green-intense-fg">(xˢ=16, yˢ=16, zˢ=16)</span> <span class="ansi-yellow-intense-fg">complex64</span> <span class="ansi-blue-intense-fg">|...| &lt; 2043.8115234375</span></pre>
+<pre><span class="ansi-green-intense-fg">(xˢ=16, yˢ=16, zˢ=16)</span> <span class="ansi-yellow-intense-fg">complex64</span> <span class="ansi-blue-intense-fg">|...| &lt; 2054.209716796875</span></pre>
 </div>
 
 </div>
@@ -15664,6 +15664,17 @@ Consequently, this function computes the correct distances in 1D, 2D and 3D.</p>
 
 
 <div class="jp-OutputArea jp-Cell-outputArea">
+<div class="jp-OutputArea-child">
+    
+    <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+
+
+<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="application/vnd.jupyter.stderr">
+<pre>/tmp/ipykernel_2579/2630121943.py:2: DeprecationWarning: phiml.math.length is deprecated in favor of phiml.math.norm
+  return math.vec_length(math.rename_dims(x, &#39;points&#39;, &#39;others&#39;) - x)
+</pre>
+</div>
+</div>
 <div class="jp-OutputArea-child jp-OutputArea-executeResult">
     
     <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[14]:</div>
@@ -15672,7 +15683,7 @@ Consequently, this function computes the correct distances in 1D, 2D and 3D.</p>
 
 
 <div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre><span class="ansi-green-intense-fg">(othersⁱ=4, pointsⁱ=4)</span> <span class="ansi-blue-intense-fg">0.299 ± 0.272</span> <span class="ansi-white-fg">(0e+00...8e-01)</span></pre>
+<pre><span class="ansi-green-intense-fg">(othersⁱ=4, pointsⁱ=4)</span> <span class="ansi-blue-intense-fg">0.244 ± 0.231</span> <span class="ansi-white-fg">(0e+00...6e-01)</span></pre>
 </div>
 
 </div>
@@ -15703,6 +15714,17 @@ Consequently, this function computes the correct distances in 1D, 2D and 3D.</p>
 
 
 <div class="jp-OutputArea jp-Cell-outputArea">
+<div class="jp-OutputArea-child">
+    
+    <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+
+
+<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="application/vnd.jupyter.stderr">
+<pre>/tmp/ipykernel_2579/2630121943.py:2: DeprecationWarning: phiml.math.length is deprecated in favor of phiml.math.norm
+  return math.vec_length(math.rename_dims(x, &#39;points&#39;, &#39;others&#39;) - x)
+</pre>
+</div>
+</div>
 <div class="jp-OutputArea-child jp-OutputArea-executeResult">
     
     <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[15]:</div>
@@ -15711,7 +15733,7 @@ Consequently, this function computes the correct distances in 1D, 2D and 3D.</p>
 
 
 <div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre><span class="ansi-green-intense-fg">(othersⁱ=4, pointsⁱ=4)</span> <span class="ansi-blue-intense-fg">0.279 ± 0.208</span> <span class="ansi-white-fg">(0e+00...6e-01)</span></pre>
+<pre><span class="ansi-green-intense-fg">(othersⁱ=4, pointsⁱ=4)</span> <span class="ansi-blue-intense-fg">0.440 ± 0.315</span> <span class="ansi-white-fg">(0e+00...8e-01)</span></pre>
 </div>
 
 </div>
@@ -15742,6 +15764,17 @@ Consequently, this function computes the correct distances in 1D, 2D and 3D.</p>
 
 
 <div class="jp-OutputArea jp-Cell-outputArea">
+<div class="jp-OutputArea-child">
+    
+    <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+
+
+<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="application/vnd.jupyter.stderr">
+<pre>/tmp/ipykernel_2579/2630121943.py:2: DeprecationWarning: phiml.math.length is deprecated in favor of phiml.math.norm
+  return math.vec_length(math.rename_dims(x, &#39;points&#39;, &#39;others&#39;) - x)
+</pre>
+</div>
+</div>
 <div class="jp-OutputArea-child jp-OutputArea-executeResult">
     
     <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[16]:</div>
@@ -15750,7 +15783,7 @@ Consequently, this function computes the correct distances in 1D, 2D and 3D.</p>
 
 
 <div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre><span class="ansi-green-intense-fg">(othersⁱ=4, pointsⁱ=4)</span> <span class="ansi-blue-intense-fg">0.645 ± 0.398</span> <span class="ansi-white-fg">(0e+00...1e+00)</span></pre>
+<pre><span class="ansi-green-intense-fg">(othersⁱ=4, pointsⁱ=4)</span> <span class="ansi-blue-intense-fg">0.525 ± 0.406</span> <span class="ansi-white-fg">(0e+00...1e+00)</span></pre>
 </div>
 
 </div>

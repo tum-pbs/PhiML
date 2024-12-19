@@ -224,6 +224,12 @@ This supports the following operations:</p>
     def item_names(self):
         return shape(self.obj).get_item_names(self.name)
 
+    @property
+    def name_tensor(self):
+        dim = shape(self.obj)[self.name]
+        from ._tensors import wrap
+        return wrap(dim.item_names[0], dim)
+
     def __getitem__(self, item):
         return self.obj[{self.name: item}]
 
@@ -414,6 +420,20 @@ def exists(self):
 <pre><code class="python">@property
 def item_names(self):
     return shape(self.obj).get_item_names(self.name)</code></pre>
+</details>
+</dd>
+<dt id="phiml.math.magic.BoundDim.name_tensor"><code class="name">prop <span class="ident">name_tensor</span></code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def name_tensor(self):
+    dim = shape(self.obj)[self.name]
+    from ._tensors import wrap
+    return wrap(dim.item_names[0], dim)</code></pre>
 </details>
 </dd>
 <dt id="phiml.math.magic.BoundDim.size"><code class="name">prop <span class="ident">size</span></code></dt>
@@ -1332,6 +1352,7 @@ Un-stacking along multiple dimensions is equal to first packing the dimensions a
 <li><code><a title="phiml.math.magic.BoundDim.exists" href="#phiml.math.magic.BoundDim.exists">exists</a></code></li>
 <li><code><a title="phiml.math.magic.BoundDim.item_names" href="#phiml.math.magic.BoundDim.item_names">item_names</a></code></li>
 <li><code><a title="phiml.math.magic.BoundDim.keys" href="#phiml.math.magic.BoundDim.keys">keys</a></code></li>
+<li><code><a title="phiml.math.magic.BoundDim.name_tensor" href="#phiml.math.magic.BoundDim.name_tensor">name_tensor</a></code></li>
 <li><code><a title="phiml.math.magic.BoundDim.rename" href="#phiml.math.magic.BoundDim.rename">rename</a></code></li>
 <li><code><a title="phiml.math.magic.BoundDim.replace" href="#phiml.math.magic.BoundDim.replace">replace</a></code></li>
 <li><code><a title="phiml.math.magic.BoundDim.retype" href="#phiml.math.magic.BoundDim.retype">retype</a></code></li>
