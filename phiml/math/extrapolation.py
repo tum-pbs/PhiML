@@ -297,7 +297,7 @@ class ConstantExtrapolation(Extrapolation):
             for dim in pad_value.shape.non_batch.names:
                 assert dim in value.shape, f"Cannot pad tensor {value.shape} with extrapolation {pad_value.shape} because non-batch dimension '{dim}' is missing."
             if pad_value.rank == 0:
-                equal_values = math.all_available(self.value, value) and value._native_shape in self.value.shape and (self.value == value).all
+                equal_values = math.always_close(self.value, value, 0, 0, equal_nan=True)
                 if not equal_values:
                     required_dims = value._shape.only(tuple(widths.keys()))
                     value = value._cached(required_dims)
