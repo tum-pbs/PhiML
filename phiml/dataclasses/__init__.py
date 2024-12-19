@@ -5,10 +5,10 @@ We recommend always setting `frozen=True`.
 
 PhiML's dataclass support explicitly handles properties defined decorated with `functools.cached_property`.
 Their cached values will be preserved whenever possible, preventing costly re-computation when modifying unrelated properties, slicing, gathering, or stacking objects.
-This will usually affect all *attributes*, i.e. fields that hold `Tensor` or composite properties.
+This will usually affect all *data fields*, i.e. fields that hold `Tensor` or composite properties.
 
 Dataclass fields can additionally be specified as being *variable* and *value*.
-This affects which attributes are optimized / traced by functions like `phiml.math.jit_compile` or `phiml.math.minimize`.
+This affects which data_fields are optimized / traced by functions like `phiml.math.jit_compile` or `phiml.math.minimize`.
 
 **Template for custom classes:**
 
@@ -44,6 +44,6 @@ This affects which attributes are optimized / traced by functions like `phiml.ma
 
 from functools import cached_property
 
-from ._dataclasses import sliceable, attributes, non_attributes, special_fields, replace, getitem
+from ._dataclasses import sliceable, data_fields, non_data_fields, config_fields, special_fields, replace, getitem
 
 __all__ = [key for key in globals().keys() if not key.startswith('_')]

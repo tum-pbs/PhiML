@@ -6,7 +6,7 @@ from phiml.dataclasses import replace
 from phiml.math import Tensor
 from phiml.math._magic_ops import stack
 from phiml.math._shape import Shape
-from phiml.dataclasses._dataclasses import _is_child_field
+from phiml.dataclasses._dataclasses import is_data_field
 
 
 def merge_rule(field_name: str, rule: Union[str, Callable] = 'default', simplify=True):
@@ -65,7 +65,7 @@ def dc_stack(objs: Sequence, dim: Shape, expand_values=False, simplify=False, la
             va0 = set(objs[0].value_attrs)
             assert all(set(obj.value_attrs) == va0 for obj in objs), f"value_attrs must match among all stacked instances of {type(objs[0]).__name__} but got {[obj.value_attrs for obj in objs]}"
         else:
-            is_attribute = _is_child_field(f)
+            is_attribute = is_data_field(f)
             if is_attribute:
                 values = [getattr(obj, f.name) for obj in objs]
                 updates[f.name] = stack(values, dim, expand_values=expand_values, simplify=simplify, layout_non_matching=True)

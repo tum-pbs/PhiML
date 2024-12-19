@@ -42,7 +42,7 @@ def get_dependencies(cls: type, cls_property) -> Set[str]:
             if hasattr(cls, 'shape'):
                 prop_dep = 'shape'
             else:
-                field_deps.update(fields)  # automatic shape() depends on all attributes
+                field_deps.update(fields)  # automatic shape() depends on all data_fields
                 continue
         if isinstance(getattr(cls, prop_dep), (property, cached_property)):
             field_deps.update(get_dependencies(cls, getattr(cls, prop_dep)))

@@ -27,7 +27,7 @@ def sliceable(cls=None, /, *, dim_attrs=True, keepdims=None, dim_repr=True):
     def wrap(cls):
         assert dataclasses.is_dataclass(cls), f"@sliceable must be used on a @dataclass, i.e. declared above it."
         assert cls.__dataclass_params__.frozen, f"@sliceable dataclasses must be frozen. Declare as @dataclass(frozen=True)"
-        assert attributes(cls), f"PhiML dataclasses must have at least one field storing a Shaped object, such as a Tensor, tree of Tensors or compatible dataclass."
+        assert data_fields(cls), f"PhiML dataclasses must have at least one field storing a Shaped object, such as a Tensor, tree of Tensors or compatible dataclass."
         if not hasattr(cls, '__getitem__'):
             def __dataclass_getitem__(obj, item):
                 return getitem(obj, item, keepdims=keepdims)
@@ -61,9 +61,10 @@ def sliceable(cls=None, /, *, dim_attrs=True, keepdims=None, dim_repr=True):
 NON_ATTR_TYPES = str, int, float, complex, bool, Shape, slice, Callable
 
 
-def attributes(obj) -> Sequence[dataclasses.Field]:
+def data_fields(obj) -> Sequence[dataclasses.Field]:
     """
-    List all dataclass Fields of `obj` that are considered an attribute, i.e. could possibly hold (directly or indirectly) a `Tensor`.
+    List all dataclass Fields of `obj` that are considered data, i.e. can hold (directly or indirectly) one or multiple `Tensor` instances.
+    This includes fields referencing other dataclasses.
 
     Args:
         obj: Dataclass type or instance.
@@ -71,12 +72,25 @@ def attributes(obj) -> Sequence[dataclasses.Field]:
     Returns:
         Sequence of `dataclasses.Field`.
     """
-    return [f for f in dataclasses.fields(obj) if _is_child_field(f)]
+    return [f for f in dataclasses.fields(obj) if is_data_field(f)]
 
 
-def non_attributes(obj) -> Sequence[dataclasses.Field]:
+def non_data_fields(obj) -> Sequence[dataclasses.Field]:
     """
-    List all dataclass Fields of `obj` that are not considered attributes or special.
+    List all dataclass Fields of `obj` that cannot hold tensors (directly or indirectly).
+
+    Args:
+        obj: Dataclass type or instance.
+
+    Returns:
+        Sequence of `dataclasses.Field`.
+    """
+    return [f for f in dataclasses.fields(obj) if not is_data_field(f)]
+
+
+def config_fields(obj) -> Sequence[dataclasses.Field]:
+    """
+    List all dataclass Fields of `obj` that are not considered data_fields or special.
     These cannot hold any Tensors or shaped objects.
 
     Args:
@@ -85,7 +99,7 @@ def non_attributes(obj) -> Sequence[dataclasses.Field]:
     Returns:
         Sequence of `dataclasses.Field`.
     """
-    return [f for f in dataclasses.fields(obj) if not _is_child_field(f) and f.name not in ('variable_attrs', 'value_attrs')]
+    return [f for f in dataclasses.fields(obj) if not is_data_field(f) and f.name not in ('variable_attrs', 'value_attrs')]
 
 
 def special_fields(obj) -> Sequence[dataclasses.Field]:
@@ -103,7 +117,9 @@ def special_fields(obj) -> Sequence[dataclasses.Field]:
     return [f for f in dataclasses.fields(obj) if f.name in ('variable_attrs', 'value_attrs')]
 
 
-def _is_child_field(field: dataclasses.Field):
+def is_data_field(field: dataclasses.Field):
+    if field.name in ('variable_attrs', 'value_attrs'):  # this check is not strictly necessary since the types of special fields cannot hold tensors
+        return False
     primitives = _get_primitive_types(field.type)
     return any(p not in NON_ATTR_TYPES for p in primitives)
 
@@ -182,7 +198,7 @@ def assemble(container: DataclassTreeNode, values: List[Tensor]):
 
 def getitem(obj: PhiMLDataclass, item, keepdims: DimFilter = None) -> PhiMLDataclass:
     """
-    Slice / gather a dataclass by broadcasting the operation to its attributes.
+    Slice / gather a dataclass by broadcasting the operation to its data_fields.
 
     You may call this from `__getitem__` to allow the syntax `my_class[component_str]`, `my_class[slicing_dict]`, `my_class[boolean_tensor]` and `my_class[index_tensor]`.
 
@@ -212,7 +228,7 @@ def getitem(obj: PhiMLDataclass, item, keepdims: DimFilter = None) -> PhiMLDatac
                     item[dim] = [sel]
     if not item:
         return obj
-    attrs = attributes(obj)
+    attrs = data_fields(obj)
     kwargs = {f.name: slice_(getattr(obj, f.name), item) if f in attrs else getattr(obj, f.name) for f in dataclasses.fields(obj)}
     cls = type(obj)
     new_obj = cls.__new__(cls, **kwargs)

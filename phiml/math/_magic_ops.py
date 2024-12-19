@@ -854,8 +854,8 @@ def all_attributes(obj, assert_any=False) -> Tuple[str, ...]:
     if hasattr(obj, '__value_attrs__'):
         result.update(obj.__value_attrs__())
     if dataclasses.is_dataclass(obj) and not hasattr(obj, '__variable_attrs__') and not hasattr(obj, '__value_attrs__'):
-        from phiml.dataclasses import attributes
-        result.update([f.name for f in attributes(obj)])
+        from phiml.dataclasses import data_fields
+        result.update([f.name for f in data_fields(obj)])
     if assert_any:
         assert result, f"{type(obj).__name__} is not a valid tree node because it has no tensor-like attributes."
     return tuple(sorted(result))
