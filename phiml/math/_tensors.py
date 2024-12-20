@@ -555,7 +555,17 @@ class Tensor:
             raise NotImplementedError
 
     def __pack_dims__(self, dims: Tuple[str, ...], packed_dim: Shape, pos: Union[int, None], **kwargs) -> 'Tensor':
-        order = self.shape._order_group(dims)
+        order = self.shape._order_group(dims)  # ToDo only occurrence
+        # if isinstance(names, Shape):
+        #     names = names.names
+        # result = []
+        # for dim in self.names:
+        #     if dim not in result:
+        #         if dim in names:
+        #             result.extend(names)
+        #         else:
+        #             result.append(dim)
+
         if self.shape.is_uniform:
             native = self._transposed_native(order, force_expand=True)
             if pos is None:

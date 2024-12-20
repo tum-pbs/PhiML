@@ -13,7 +13,7 @@ from typing import Union, Dict, Callable, Tuple, Optional, Sequence
 from .magic import slicing_dict
 from ..backend._backend import get_spatial_derivative_order
 from ..backend import choose_backend
-from ._shape import Shape, channel, spatial, EMPTY_SHAPE, merge_shapes, dual, non_dual, instance, parse_dim_names, parse_dim_order
+from ._shape import Shape, channel, spatial, EMPTY_SHAPE, merge_shapes, dual, non_dual, instance, parse_dim_names, parse_dim_order, after_pad
 from ._magic_ops import concat, stack, expand, rename_dims
 from ._tensors import Tensor, NativeTensor, TensorStack, wrap, to_dict as tensor_to_dict, from_dict as tensor_from_dict
 from . import _ops as math  # TODO this executes _ops.py, can we avoid this?
@@ -107,7 +107,7 @@ class Extrapolation:
         from ._trace import ShiftLinTracer
         if isinstance(value, ShiftLinTracer):
             lower = {dim: -lo for dim, (lo, _) in widths.items()}
-            return value.shift(lower, new_shape=value.shape.after_pad(widths), val_fun=lambda v: ZERO.pad(v, widths, already_padded=already_padded, **kwargs), bias_fun=lambda b: self.pad(b, widths, already_padded=already_padded, **kwargs), nonzero_edge=False)
+            return value.shift(lower, new_shape=after_pad(value.shape, widths), val_fun=lambda v: ZERO.pad(v, widths, already_padded=already_padded, **kwargs), bias_fun=lambda b: self.pad(b, widths, already_padded=already_padded, **kwargs), nonzero_edge=False)
         already_padded = {} if already_padded is None else dict(already_padded)
         for dim, width in widths.items():
             assert (w > 0 for w in width), "Negative widths not allowed in Extrapolation.pad(). Use math.pad() instead."
@@ -308,7 +308,7 @@ class ConstantExtrapolation(Extrapolation):
                 else:
                     result_native = value._native
                 if result_native is not NotImplemented:
-                    return NativeTensor(result_native, value._native_shape.after_pad(widths), value._shape.after_pad(widths))
+                    return NativeTensor(result_native, after_pad(value._native_shape, widths), after_pad(value._shape, widths))
             return Extrapolation.pad(self, value, widths, already_padded=already_padded, **kwargs)
         elif isinstance(value, TensorStack):
             if not value.requires_broadcast:
@@ -473,7 +473,7 @@ class _CopyExtrapolation(Extrapolation, ABC):
             else:
                 result_native = value._native
             if result_native is not NotImplemented:
-                return NativeTensor(result_native, value._native_shape.after_pad(widths), value._shape.after_pad(widths))
+                return NativeTensor(result_native, after_pad(value._native_shape, widths), after_pad(value._shape, widths))
             return Extrapolation.pad(self, value, widths)
         elif isinstance(value, TensorStack):
             if not value.requires_broadcast:
@@ -587,7 +587,7 @@ class _ZeroGradient(_CopyExtrapolation):
 
         """
         lower = {dim: -lo for dim, (lo, _) in widths.items()}
-        result = value.shift(lower, new_shape=value.shape.after_pad(widths), val_fun=lambda v: ZERO.pad(v, widths), bias_fun=lambda b: ZERO.pad(b, widths))  # inner values  ~half the computation time
+        result = value.shift(lower, new_shape=after_pad(value.shape, widths), val_fun=lambda v: ZERO.pad(v, widths), bias_fun=lambda b: ZERO.pad(b, widths))  # inner values  ~half the computation time
         for bound_dim, (bound_lo, bound_hi) in widths.items():
             for i in range(bound_lo):  # i=0 means outer
                 # this sets corners to 0
@@ -678,7 +678,7 @@ class _PeriodicExtrapolation(_CopyExtrapolation):
         if value.shape.get_sizes(tuple(widths.keys())) != value._source.shape.get_sizes(tuple(widths.keys())):
             raise NotImplementedError("Periodicity does not match input: %s but input has %s. This can happen when padding an already padded or sliced tensor." % (value.shape.only(tuple(widths.keys())), value._source.shape.only(tuple(widths.keys()))))
         lower = {dim: -lo for dim, (lo, _) in widths.items()}
-        return value.shift(lower, new_shape=value.shape.after_pad(widths), val_fun=lambda v: self.pad(v, widths), bias_fun=lambda b: ZERO.pad(b, widths))
+        return value.shift(lower, new_shape=after_pad(value.shape, widths), val_fun=lambda v: self.pad(v, widths), bias_fun=lambda b: ZERO.pad(b, widths))
 
     def shortest_distance(self, start: Tensor, end: Tensor, domain_size: Tensor):
         dx = end - start
@@ -726,7 +726,7 @@ class _SymmetricExtrapolation(_CopyExtrapolation):
 
         """
         lower = {dim: -lo for dim, (lo, _) in widths.items()}
-        result = value.shift(lower, new_shape=value.shape.after_pad(widths), val_fun=lambda v: ZERO.pad(v, widths), bias_fun=lambda b: ZERO.pad(b, widths))  # inner values  ~half the computation time
+        result = value.shift(lower, new_shape=after_pad(value.shape, widths), val_fun=lambda v: ZERO.pad(v, widths), bias_fun=lambda b: ZERO.pad(b, widths))  # inner values  ~half the computation time
         for bound_dim, (bound_lo, bound_hi) in widths.items():
             for i in range(bound_lo):  # i=0 means outer
                 # this sets corners to 0
@@ -781,7 +781,7 @@ class _AntiSymmetricExtrapolation(_SymmetricExtrapolation):
 
         """
         lower = {dim: -lo for dim, (lo, _) in widths.items()}
-        result = value.shift(lower, new_shape=value.shape.after_pad(widths), val_fun=lambda v: ZERO.pad(v, widths), bias_fun=lambda b: ZERO.pad(b, widths))  # inner values  ~half the computation time
+        result = value.shift(lower, new_shape=after_pad(value.shape, widths), val_fun=lambda v: ZERO.pad(v, widths), bias_fun=lambda b: ZERO.pad(b, widths))  # inner values  ~half the computation time
         for bound_dim, (bound_lo, bound_hi) in widths.items():
             for i in range(bound_lo):  # i=0 means outer
                 # this sets corners to 0
@@ -838,7 +838,7 @@ class _ReflectExtrapolation(_CopyExtrapolation):
 
         """
         lower = {dim: -lo for dim, (lo, _) in widths.items()}
-        result = value.shift(lower, new_shape=value.shape.after_pad(widths), val_fun=lambda v: ZERO.pad(v, widths), bias_fun=lambda b: ZERO.pad(b, widths))  # inner values  ~half the computation time
+        result = value.shift(lower, new_shape=after_pad(value.shape, widths), val_fun=lambda v: ZERO.pad(v, widths), bias_fun=lambda b: ZERO.pad(b, widths))  # inner values  ~half the computation time
         for bound_dim, (bound_lo, bound_hi) in widths.items():
             for i in range(bound_lo):  # i=0 means outer
                 # this sets corners to 0
@@ -893,7 +893,7 @@ class _AntiReflectExtrapolation(_ReflectExtrapolation):
 
         """
         lower = {dim: -lo for dim, (lo, _) in widths.items()}
-        result = value.shift(lower, new_shape=value.shape.after_pad(widths), val_fun=lambda v: ZERO.pad(v, widths), bias_fun=lambda b: ZERO.pad(b, widths))  # inner values  ~half the computation time
+        result = value.shift(lower, new_shape=after_pad(value.shape, widths), val_fun=lambda v: ZERO.pad(v, widths), bias_fun=lambda b: ZERO.pad(b, widths))  # inner values  ~half the computation time
         for bound_dim, (bound_lo, bound_hi) in widths.items():
             for i in range(bound_lo):  # i=0 means outer
                 # this sets corners to 0

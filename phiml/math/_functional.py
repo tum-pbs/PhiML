@@ -82,9 +82,9 @@ class SignatureKey:
     @staticmethod
     def _extrapolate_shape(shape_: Shape, rec_in: 'SignatureKey', new_in: 'SignatureKey') -> Shape:
         sizes = []
-        for dim, size in shape_._named_sizes:
+        for dim in shape_:
             for p_in, n_in in zip(rec_in.shapes, new_in.shapes):
-                if dim in p_in and size == p_in.get_size(dim):
+                if dim.name in p_in and dim.size == p_in.get_size(dim):
                     sizes.append(n_in.get_size(dim))
                     break
             else:

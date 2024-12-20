@@ -12,7 +12,7 @@ from .magic import PhiTreeNode
 from ._magic_ops import expand, pack_dims, unpack_dim, cast, value_attributes, bool_to_int, tree_map, concat, stack, unstack, rename_dims, slice_, all_attributes, squeeze, ipack
 from ._shape import (Shape, EMPTY_SHAPE,
                      spatial, batch, channel, instance, merge_shapes, parse_dim_order, concat_shapes,
-                     IncompatibleShapes, DimFilter, non_batch, dual, shape, shape as get_shape, primal, auto, non_spatial, non_dual)
+                     IncompatibleShapes, DimFilter, non_batch, dual, shape, shape as get_shape, primal, auto, non_spatial, non_dual, resolve_index)
 from . import extrapolation as e_
 from ._tensors import (Tensor, wrap, tensor, broadcastable_native_tensors, NativeTensor, TensorStack,
                        custom_op2, compatible_tensor, variable_attributes, disassemble_tree, assemble_tree,
@@ -684,7 +684,7 @@ def fftfreq(resolution: Shape, dx: Union[Tensor, float] = 1, dtype: DType = None
         `Tensor` holding the frequencies of the corresponding values computed by math.fft
     """
     assert resolution.spatial and f"resolution must contain at least one spatial dimension"
-    k = meshgrid(**{dim: np.fft.fftfreq(int(n)) for dim, n in resolution.spatial._named_sizes})
+    k = meshgrid(**{dim.name: np.fft.fftfreq(int(dim.size)) for dim in resolution.spatial})
     k /= dx
     return to_float(k) if dtype is None else cast(k, dtype)
 
@@ -993,7 +993,7 @@ def _pad_slices(x: Tensor, pad_slices: Sequence[Dict[str, Any]], mode: 'e_.Extra
 
     sel_dims = set().union(*[{dim for dim, s in s_dict.items() if not isinstance(s, slice)} for s_dict in pad_slices])
     sel_dims = x.shape.only(sel_dims)
-    pad_slices = [x.shape.resolve_index(ps) for ps in pad_slices]
+    pad_slices = [resolve_index(x.shape, ps) for ps in pad_slices]
     padded_slices = []
     for i in sel_dims.meshgrid():
         shape_i = x.shape.after_gather(i)

@@ -332,13 +332,6 @@ class Shape(Protocol, metaclass=ShapeMeta):
         ...
 
     @property
-    def transposed(self):
-        ...
-
-    def transpose(self, dims: 'DimFilter'):
-        ...
-
-    @property
     def non_singleton(self) -> 'Shape':
         """
         Filters this shape, returning only non-singleton dimensions as a new `Shape` object.
@@ -382,22 +375,6 @@ class Shape(Protocol, metaclass=ShapeMeta):
 
     def as_type(self, new_type: Callable):
         """Returns a copy of this `Shape` with all dimensions of the given type, either `batch`, `dual`, `spatial`, `instance`, or `channel` ."""
-        ...
-
-    def unstack(self, dim='dims') -> Tuple['Shape']:
-        """
-        Slices this `Shape` along a dimension.
-        The dimension listing the sizes of the shape is referred to as `'dims'`.
-
-        Non-uniform tensor shapes may be unstacked along other dimensions as well, see
-        https://tum-pbs.github.io/PhiML/Non_Uniform.html
-
-        Args:
-            dim: dimension to unstack
-
-        Returns:
-            slices of this shape
-        """
         ...
 
     @property
@@ -715,9 +692,6 @@ class Shape(Protocol, metaclass=ShapeMeta):
         """ True if this shape has no dimensions. Equivalent to `Shape.rank` `== 0`. """
         ...
 
-    def after_pad(self, widths: dict) -> 'Shape':
-        ...
-
     def prepare_gather(self, dim: str, selection: Union[slice, int, 'Shape', str, tuple, list]) -> Union[slice, List[int]]:
         """
         Parse a slice object for a specific dimension.
@@ -732,18 +706,6 @@ class Shape(Protocol, metaclass=ShapeMeta):
         ...
 
     def prepare_renaming_gather(self, dim: str, selection: Union[slice, int, 'Shape', str, tuple, list]):
-        ...
-
-    def resolve_index(self, index: Dict[str, Union[slice, int, 'Shape', str, tuple, list]]) -> Dict[str, Union[slice, int, tuple, list]]:
-        """
-        Replaces item names by the corresponding indices.
-
-        Args:
-            index: n-dimensional index or slice.
-
-        Returns:
-            Same index but without any reference to item names.
-        """
         ...
 
     def after_gather(self, selection: dict) -> 'Shape':
@@ -882,6 +844,12 @@ class Dim:
     @property
     def well_defined(self):
         return self.size is not None
+    @property
+    def defined(self):
+        return self if self.size is not None else EMPTY_SHAPE
+    @property
+    def undefined(self):
+        return self if self.size is None else EMPTY_SHAPE
 
     @property
     def batch_rank(self) -> int:
@@ -1230,6 +1198,14 @@ class PureShape:
             if size is None:
                 return False
         return True
+    @property
+    def defined(self):
+        dims = {n: dim for n, dim in self.dims.items() if dim.size is not None}
+        return next(iter(dims.values())) if len(dims) == 1 else PureShape(self.dim_type, dims)
+    @property
+    def undefined(self):
+        dims = {n: dim for n, dim in self.dims.items() if dim.size is None}
+        return next(iter(dims.values())) if len(dims) == 1 else PureShape(self.dim_type, dims)
 
     @property
     def batch_rank(self) -> int:
@@ -1583,6 +1559,14 @@ class MixedShape:
             if size is None:
                 return False
         return True
+    @property
+    def defined(self):
+        dims = {n: dim for n, dim in self.dims.items() if dim.size is not None}
+        raise NotImplementedError
+    @property
+    def undefined(self):
+        dims = {n: dim for n, dim in self.dims.items() if dim.size is None}
+        raise NotImplementedError
 
     @property
     def batch_rank(self) -> int:
@@ -1752,7 +1736,7 @@ class MixedShape:
             #     return self.dims[names[0]]
             # order = {d: order[d] for d in names}
         return MixedShape(b, d, i, s, c, order)
-    
+
     def __add__(self, other):
         if isinstance(other, int):
             assert not self.batch, f"Shape arithmetic not allowed for batch dims {self}"
@@ -2560,6 +2544,7 @@ def shape_stack(stack_dim: Shape, *shapes: Shape, stack_dim_first=False):
     # delete conflicting item names
     # for each merged dim: gather sizes, filter present/None, if conflicting: stack replacing missing/None by 1
 
+    raise NotImplementedError
 
     names = list(stack_dim.names)
     types = list(stack_dim.types)
@@ -2709,7 +2694,15 @@ def after_gather(self, selection: dict) -> 'Shape':
                 new_size = int(new_size)  # NumPy array not allowed because not hashable
             result = result.with_dim_size(sel_dim, new_size, keep_item_names=True)
             if step < 0:
-                result = result.flipped([sel_dim])
+                result = result.flipped([sel_dim])  # ToDo only occurrence
+
+                # item_names = list(self.item_names)
+                # for dim in dims:
+                #     if dim in self.names:
+                #         dim_i_n = self.get_item_names(dim)
+                #         if dim_i_n is not None:
+                #             item_names[self.index(dim)] = tuple(reversed(dim_i_n))
+
             if self.get_item_names(sel_dim) is not None:
                 result = result.with_dim_size(sel_dim, tuple(self.get_item_names(sel_dim)[sel]))
         elif isinstance(sel, (tuple, list)):
@@ -2734,3 +2727,104 @@ def after_gather(self, selection: dict) -> 'Shape':
         else:
             raise NotImplementedError(f"{type(sel)} not supported. Only (int, slice) allowed.")
     return result
+
+
+def resolve_index(self, index: Dict[str, Union[slice, int, 'Shape', str, tuple, list]]) -> Dict[str, Union[slice, int, tuple, list]]:
+    """
+    Replaces item names by the corresponding indices.
+
+    Args:
+        index: n-dimensional index or slice.
+
+    Returns:
+        Same index but without any reference to item names.
+    """
+    return {dim: self.prepare_gather(dim, s) for dim, s in index.items()}
+
+
+def after_pad(self, widths: dict) -> 'Shape':
+    sizes = list(self.sizes)
+    for dim, (lo, up) in widths.items():
+        if dim in self.names:
+            sizes[self.index(dim)] += lo + up
+    return self.with_sizes(sizes)
+
+
+def unstack(self, dim='dims') -> Tuple['Shape']:
+    """
+    Slices this `Shape` along a dimension.
+    The dimension listing the sizes of the shape is referred to as `'dims'`.
+
+    Non-uniform tensor shapes may be unstacked along other dimensions as well, see
+    https://tum-pbs.github.io/PhiML/Non_Uniform.html
+
+    Args:
+        dim: dimension to unstack
+
+    Returns:
+        slices of this shape
+    """
+    if dim == 'dims':
+        return tuple(Shape((self.sizes[i],), (self.names[i],), (self.types[i],), (self.item_names[i],)) for i in range(self.rank))
+    if dim not in self and self.is_uniform:
+        return tuple([self])
+    from ._tensors import Tensor
+    if dim in self:
+        inner = self.without(dim)
+        dim_size = self.get_size(dim)
+    else:
+        inner = self
+        dim_size = self.shape.get_size(dim)
+    sizes = []
+    for size in inner.sizes:
+        if isinstance(size, Tensor) and dim in size.shape:
+            sizes.append(size._unstack(dim))
+            dim_size = size.shape.get_size(dim)
+        else:
+            sizes.append(size)
+    assert isinstance(dim_size, int)
+    shapes = tuple(Shape(tuple([int(size[i]) if isinstance(size, tuple) else size for size in sizes]), inner.names, inner.types, inner.item_names) for i in range(dim_size))
+    return shapes
+
+
+def transpose(self, dims: DimFilter):
+    if callable(dims) and dims in TYPE_BY_FUNCTION:
+        dims = TYPE_BY_FUNCTION[dims]
+        replacement = {DUAL_DIM: dims, dims: DUAL_DIM}
+        return self._with_types(tuple([replacement.get(t, t) for t in self.types]))
+    dims = self.only(dims)
+    return self.replace(dims, dims.transposed)
+
+
+def transposed(self):
+    if self.channel_rank > 0:
+        replacement = {DUAL_DIM: CHANNEL_DIM, CHANNEL_DIM: DUAL_DIM}
+    elif self.instance_rank > 0:
+        replacement = {DUAL_DIM: INSTANCE_DIM, INSTANCE_DIM: DUAL_DIM}
+    elif self.spatial_rank > 0:
+        replacement = {DUAL_DIM: SPATIAL_DIM, SPATIAL_DIM: DUAL_DIM}
+    elif self.dual_rank > 0:
+        warnings.warn(f"Transposing {self} is ill-defined because there are not primal dims. Replacing dual dims by channel dims.", SyntaxWarning)
+        replacement = {DUAL_DIM: CHANNEL_DIM}
+    else:
+        raise ValueError(f"Cannot transpose shape {self} as it has no channel or instance or spatial dims.")
+    return self._with_types(tuple([replacement.get(t, t) for t in self.types]))
+
+
+def to_dict(self, include_sizes=True):
+    result = dict(names=self.names, types=self.types, item_names=self.item_names)
+    if include_sizes:
+        if not all([isinstance(s, int)] for s in self.sizes):
+            raise NotImplementedError()
+        result['sizes'] = self.sizes
+    return result
+
+
+def from_dict(dict_: dict):
+    names = tuple(dict_['names'])
+    sizes = list(dict_['sizes']) if 'sizes' in dict_ else [None] * len(names)
+    item_names = tuple([None if n is None else tuple(n) for n in dict_['item_names']])
+    for i, n in enumerate(item_names):
+        if n and sizes[i] is None:
+            sizes[i] = len(n)
+    return Shape(tuple(sizes), names, tuple(dict_['types']), item_names)

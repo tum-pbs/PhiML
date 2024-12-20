@@ -2,7 +2,7 @@ from unittest import TestCase
 
 from phiml import math
 from phiml.math import spatial, channel, batch, instance, non_instance, non_channel, non_spatial, non_batch
-from phiml.math._shape import shape_stack, vector_add, EMPTY_SHAPE, Shape, dual
+from phiml.math._shape import shape_stack, vector_add, EMPTY_SHAPE, Shape, dual, resolve_index
 
 
 class ShapedDummy:
@@ -165,14 +165,14 @@ class TestShape(TestCase):
 
     def test_resolve_index(self):
         s = spatial(x=4, y=3) & channel(vector='x,y')
-        self.assertEqual({}, s.resolve_index({}))
-        self.assertEqual({'vector': 0}, s.resolve_index({'vector': 'x'}))
-        self.assertEqual({'vector': 1}, s.resolve_index({'vector': 'y'}))
-        self.assertEqual({'vector': [0, 1]}, s.resolve_index({'vector': 'x,y'}))
-        self.assertEqual({'vector': [0, 1]}, s.resolve_index({'vector': [0, 1]}))
-        self.assertEqual({'vector': 0}, s.resolve_index({'vector': 0}))
-        self.assertEqual({'vector': slice(1)}, s.resolve_index({'vector': slice(1)}))
-        self.assertEqual({'vector': slice(0, 0)}, s.resolve_index({'vector': []}))
+        self.assertEqual({}, resolve_index(s, {}))
+        self.assertEqual({'vector': 0}, resolve_index(s, {'vector': 'x'}))
+        self.assertEqual({'vector': 1}, resolve_index(s, {'vector': 'y'}))
+        self.assertEqual({'vector': [0, 1]}, resolve_index(s, {'vector': 'x,y'}))
+        self.assertEqual({'vector': [0, 1]}, resolve_index(s, {'vector': [0, 1]}))
+        self.assertEqual({'vector': 0}, resolve_index(s, {'vector': 0}))
+        self.assertEqual({'vector': slice(1)}, resolve_index(s, {'vector': slice(1)}))
+        self.assertEqual({'vector': slice(0, 0)}, resolve_index(s, {'vector': []}))
 
     def test_auto(self):
         v = math.vec('~vector', 1, 2)
@@ -181,19 +181,6 @@ class TestShape(TestCase):
         self.assertEqual(channel(vec='0'), v.shape)
         v = math.vec('b:b', 0)
         self.assertEqual(batch(b='0,'), v.shape)
-
-    def test_higher_dual(self):
-        s = spatial(x=4, y=3) & channel(vector='x,y') & dual(vector=2)
-        d = s._more_dual()
-        self.assertEqual(d, dual(d))
-        self.assertEqual(d, d.dual)
-        self.assertEqual({'~x', '~y', '~vector', '~~vector'}, set(d.names))
-        p = d._less_dual()
-        self.assertEqual(dual(vector=2), dual(p))
-        self.assertEqual({'x', 'y', 'vector', '~vector'}, set(p.names))
-        pp = s._less_dual()
-        self.assertEqual(spatial(x=4, y=3), pp.spatial)
-        self.assertEqual(math.EMPTY_SHAPE, pp.dual)
 
     def test_only(self):
         s = batch(b=10) & channel(vector='x,y')
