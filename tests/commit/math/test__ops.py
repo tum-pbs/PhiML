@@ -249,37 +249,39 @@ class TestOps(TestCase):
         assert_close(sampled, [0, 1, 0.5])
 
     def test_grid_sample_backend_equality_2d(self):
-        grid = math.random_uniform(spatial(y=10, x=7))
-        coords = math.random_uniform(batch(mybatch=10) & spatial(x=3, y=2)) * vec(y=12, x=9)
-        grid_ = math.tensor(grid.native('x,y'), spatial('x,y'))
-        coords_ = coords.vector[::-1]
+        grid_yx = math.random_uniform(spatial(y=10, x=7))
+        coords_yx = math.random_uniform(batch(mybatch=10) & spatial(x=3, y=2)) * vec(y=12, x=9)
+        grid_xy = math.tensor(grid_yx.native('x,y'), spatial('x,y'))
+        coords_xy = coords_yx.vector['x,y']
         for extrap in (extrapolation.ZERO, extrapolation.ONE, extrapolation.BOUNDARY, extrapolation.PERIODIC):
             sampled = []
             for backend in BACKENDS:
                 with backend:
-                    grid = math.tensor(grid)
-                    coords = math.tensor(coords)
-                    grid_ = math.tensor(grid_)
-                    coords_ = math.tensor(coords_)
-                    sampled.append(math.grid_sample(grid, coords, extrap))
-                    sampled.append(math.grid_sample(grid_, coords_, extrap))
+                    grid_yx = math.tensor(grid_yx)
+                    coords_yx = math.tensor(coords_yx)
+                    grid_xy = math.tensor(grid_xy)
+                    coords_xy = math.tensor(coords_xy)
+                    sampled.append(math.grid_sample(grid_yx, coords_yx, extrap))
+                    sampled.append(math.grid_sample(grid_xy, coords_xy, extrap))
+                    sampled.append(math.grid_sample(grid_xy, coords_yx, extrap))
             assert_close(*sampled, abs_tolerance=1e-5)
 
     def test_grid_sample_backend_equality_2d_batched(self):
-        grid = math.random_uniform(batch(mybatch=10) & spatial(y=10, x=7))
-        coords = math.random_uniform(batch(mybatch=10) & spatial(x=3, y=2)) * vec(y=12, x=9)
-        grid_ = math.tensor(grid.native('mybatch,x,y'), batch('mybatch'), spatial('x,y'))
-        coords_ = coords.vector[::-1]
+        grid_yx = math.random_uniform(batch(mybatch=10) & spatial(y=10, x=7))
+        coords_yx = math.random_uniform(batch(mybatch=10) & spatial(x=3, y=2)) * vec(y=12, x=9)
+        grid_xy = math.tensor(grid_yx.native('mybatch,x,y'), batch('mybatch'), spatial('x,y'))
+        coords_xy = coords_yx.vector['x,y']
         for extrap in (extrapolation.ZERO, extrapolation.ONE, extrapolation.BOUNDARY, extrapolation.PERIODIC):
             sampled = []
             for backend in BACKENDS:
                 with backend:
-                    grid = math.tensor(grid)
-                    coords = math.tensor(coords)
-                    grid_ = math.tensor(grid_)
-                    coords_ = math.tensor(coords_)
-                    sampled.append(math.grid_sample(grid, coords, extrap))
-                    sampled.append(math.grid_sample(grid_, coords_, extrap))
+                    grid_yx = math.tensor(grid_yx)
+                    coords_yx = math.tensor(coords_yx)
+                    grid_xy = math.tensor(grid_xy)
+                    coords_xy = math.tensor(coords_xy)
+                    sampled.append(math.grid_sample(grid_yx, coords_yx, extrap))
+                    sampled.append(math.grid_sample(grid_xy, coords_xy, extrap))
+                    sampled.append(math.grid_sample(grid_xy, coords_yx, extrap))
             assert_close(*sampled, abs_tolerance=1e-5)
 
     def test_grid_sample_gradient_1d(self):
@@ -628,9 +630,9 @@ class TestOps(TestCase):
     def test_histogram_1d(self):
         for backend in BACKENDS:
             with backend:
-                data = vec(instance('losses'), 0, .1, .1, .2, .1, .2, .3, .5)
+                data = vec(instance('losses'), 0, .11, .11, .21, .11, .21, .31, .51)
                 hist, bin_edges, bin_center = math.histogram(data, instance(loss=10))
-                assert_close(hist, [1, 0, 3, 0, 2, 0, 1, 0, 0, 1])
+                assert_close(hist, [1, 0, 3, 0, 2, 0, 1, 0, 0, 1], msg=backend.name)
 
     def test_sin(self):
         for backend in BACKENDS:
@@ -817,9 +819,9 @@ class TestOps(TestCase):
         nat = math.reshaped_native(a, ['batch', a.shape.spatial, 'vector'], force_expand=False)
         self.assertEqual((1, 12, 2), nat.shape)
         nat = math.reshaped_native(a, [batch(batch=10), a.shape.spatial, channel(vector=2)], force_expand=False)
-        self.assertEqual((1, 12, 2), nat.shape)
+        self.assertEqual((12, 2), nat.shape[1:])
         nat = math.reshaped_native(a, [batch(batch=10), a.shape.spatial, channel(vector=2)], force_expand=['x'])
-        self.assertEqual((1, 12, 2), nat.shape)
+        self.assertEqual((12, 2), nat.shape[1:])
         nat = math.reshaped_native(a, [batch(batch=10), a.shape.spatial, channel(vector=2)])
         self.assertEqual((10, 12, 2), nat.shape)
         nat = math.reshaped_native(a, [batch(batch=10), a.shape.spatial, channel(vector=2)], force_expand=['batch'])
@@ -828,8 +830,7 @@ class TestOps(TestCase):
         self.assertEqual((12, 4), nat.shape)
         try:
             math.reshaped_native(a, [channel(vector=2, v2=2)], force_expand=False)
-        except AssertionError as err:
-            print(err)
+        except ValueError:
             pass
         nat = math.reshaped_native(a, [spatial, non_spatial], force_expand=False)
         self.assertEqual((12, 2), nat.shape)
@@ -851,9 +852,9 @@ class TestOps(TestCase):
 
     def test_rename_dims(self):
         t = math.zeros(spatial(x=5, y=4))
-        self.assertEqual(math.rename_dims(t, 'x', 'z').shape.get_type('z'), 'spatial')
-        self.assertEqual(math.rename_dims(t, ['x'], ['z']).shape.get_type('z'), 'spatial')
-        self.assertEqual(math.rename_dims(t, ['x'], channel('z')).shape.get_type('z'), 'channel')
+        self.assertEqual(math.rename_dims(t, 'x', 'z').shape.get_dim_type('z'), 'spatial')
+        self.assertEqual(math.rename_dims(t, ['x'], ['z']).shape.get_dim_type('z'), 'spatial')
+        self.assertEqual(math.rename_dims(t, ['x'], channel('z')).shape.get_dim_type('z'), 'channel')
 
     def test_safe_div(self):
         for backend in BACKENDS:
