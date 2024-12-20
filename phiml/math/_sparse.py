@@ -820,11 +820,9 @@ class CompressedSparseMatrix(Tensor):
         assert all(d in self._shape for d in dims)
         dims = self._shape.only(dims, reorder=True)
         if dims.only(self._compressed_dims).is_empty:  # pack cols
-            assert self._uncompressed_dims.are_adjacent(dims), f"Can only compress adjacent dims but got {dims} for matrix {self._shape}"
             uncompressed_dims = self._uncompressed_dims.replace(dims, packed_dim.with_size(dims.volume))
             return CompressedSparseMatrix(self._indices, self._pointers, self._values, uncompressed_dims, self._compressed_dims, self._indices_constant, self._uncompressed_offset)
         elif dims.only(self._uncompressed_dims).is_empty:   # pack rows
-            assert self._compressed_dims.are_adjacent(dims), f"Can only compress adjacent dims but got {dims} for matrix {self._shape}"
             compressed_dims = self._compressed_dims.replace(dims, packed_dim.with_size(dims.volume))
             return CompressedSparseMatrix(self._indices, self._pointers, self._values, self._uncompressed_dims, compressed_dims, self._indices_constant, self._uncompressed_offset)
         else:

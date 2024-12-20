@@ -3234,7 +3234,7 @@ def close(*tensors, rel_tolerance: Union[float, Tensor] = 1e-5, abs_tolerance: U
     if all(t is tensors[0] for t in tensors):
         return True
     tensors = [wrap(t) for t in tensors]
-    if any(not tensors[0].shape.is_compatible(t.shape) for t in tensors[1:]):
+    if any([not tensors[0].shape.is_compatible(t.shape) for t in tensors[1:]]):
         return False
     c = True
     for other in tensors[1:]:

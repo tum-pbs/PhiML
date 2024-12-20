@@ -449,7 +449,7 @@ class Tensor:
             # Either handle slicing directly or add it to the dict
             if isinstance(selection, (tuple, list)):
                 result = [sliced[{dim: i}] for i in selection]
-                stack_dim = sliced.shape[dim].after_gather({dim: selection})
+                stack_dim = after_gather(sliced.shape[dim], {dim: selection})
                 sliced = stack(result, stack_dim)
                 if new_dim is not None:
                     sliced = rename_dims(sliced, dim, new_dim)
@@ -540,7 +540,7 @@ class Tensor:
                 i = 0
                 result = []
                 for idx in split_dim.meshgrid():
-                    s = new_shape.after_gather(idx).get_size(new_shape.non_uniform.name)
+                    s = after_gather(new_shape, idx).get_size(new_shape.non_uniform.name)
                     sliced = self[{dim: slice(i, i + s)}]
                     result.append(sliced._with_shape_replaced(sliced.shape.replace(dim, unpacked_dims - split_dim)))
                     i += s
@@ -981,9 +981,9 @@ class Layout(Tensor):
         if not s:
             return shape(obj, allow_unshaped=True),
         elif isinstance(obj, (tuple, list)):
-            return sum([Layout._recursive_get_shapes(o, s.after_gather({s.names[0]: i})) for i, o in enumerate(obj)], ())
+            return sum([Layout._recursive_get_shapes(o, after_gather(s, {s.names[0]: i})) for i, o in enumerate(obj)], ())
         elif isinstance(obj, dict):
-            return sum([Layout._recursive_get_shapes(v, s.after_gather({s.names[0]: i})) for i, (k, v) in enumerate(obj.items())], ())
+            return sum([Layout._recursive_get_shapes(v, after_gather(s, {s.names[0]: i})) for i, (k, v) in enumerate(obj.items())], ())
         obj_shape = shape(obj, allow_unshaped=True)
         return (obj_shape,) * s.volume
 
@@ -1016,7 +1016,7 @@ class Layout(Tensor):
     def _getitem(self, selection: dict) -> 'Tensor':
         selection_list = [selection.get(dim, None) for dim in self._stack_dim.names]
         native = self._getitem_recursive(self._obj, tuple(selection_list), selection)
-        return Layout.wrap(native, self._stack_dim.after_gather(selection))
+        return Layout.wrap(native, after_gather(self._stack_dim, selection))
 
     @staticmethod
     def wrap(native, stack_dim: Shape):
@@ -1223,7 +1223,11 @@ class NativeTensor(Tensor):
         super().__init__()
         expanded_shape = native_shape if expanded_shape is None else expanded_shape
         if DEBUG_CHECKS:
-            expanded_shape._check_is_valid_tensor_shape()
+            for dim in expanded_shape:
+                if dim.size is not None and isinstance(dim.size, Tensor):
+                    assert dim.size.rank > 0
+                    for s_dim in dim.size.shape.names:
+                        assert s_dim in expanded_shape.names, f"Dimension {dim} varies along {s_dim} but {s_dim} is not part of the Shape {self}"
             backend = choose_backend(native_tensor)
             assert native_shape.is_uniform
             assert expanded_shape.is_uniform
@@ -1242,7 +1246,7 @@ class NativeTensor(Tensor):
             else:
                 return backend.cast(self._native, DType(self.dtype.kind, precision=get_precision()))
         # --- Transpose ---
-        perm = [self._native_shape.index(dim) for dim in order]
+        perm = [self._native_shape.index(dim) for dim in self._native_shape.only(order, reorder=True).names]
         if perm != list(range(len(perm))):
             transposed = backend.transpose(self._native, perm)  # this will cast automatically
         else:
@@ -1477,7 +1481,7 @@ class TensorStack(Tensor):
         if self._stack_dim.name in selection:
             selection = selection[self._stack_dim.name]
             if isinstance(selection, slice):
-                return TensorStack(tensors[selection], self._stack_dim.after_gather({self._stack_dim.name: selection}))
+                return TensorStack(tensors[selection], after_gather(self._stack_dim, {self._stack_dim.name: selection}))
             else:
                 selection = int(selection)
                 return tensors[selection]
@@ -2071,7 +2075,7 @@ def cached(t: TensorOrTree) -> TensorOrTree:
 def expand_tensor(value: Tensor, dims: Shape):
     if not dims:
         return value
-    dims.assert_all_sizes_defined()
+    assert dims.well_defined
     if isinstance(value, NativeTensor):
         if dims.is_uniform:
             return NativeTensor(value._native, value._native_shape, dims & value._shape)
@@ -2079,7 +2083,7 @@ def expand_tensor(value: Tensor, dims: Shape):
             stack_dim = dims.shape.without('dims')
             if stack_dim.rank > 1:
                 raise NotImplementedError(f"Higher-order non-uniform expand() not yet supported. Tried expanding {value.shape} by {dims}")
-            unstacked_dims = [dims.after_gather(i) for i in stack_dim.meshgrid()]
+            unstacked_dims = [after_gather(dims, i) for i in stack_dim.meshgrid()]
             if stack_dim in value.shape:
                 unstacked = unstack(value, stack_dim)
                 components = [NativeTensor(inner._native, inner._native_shape, inner_shape & inner._native_shape) for inner_shape, inner in zip(unstacked_dims, unstacked)]
@@ -2087,7 +2091,7 @@ def expand_tensor(value: Tensor, dims: Shape):
                 components = [NativeTensor(value._native, value._native_shape, inner_shape & value._native_shape) for inner_shape in unstacked_dims]
             return TensorStack(components, stack_dim)
     if isinstance(value, TensorStack):
-        expanded = [expand_tensor(v, dims.after_gather({value._stack_dim.name: i})) for i, v in enumerate(value._tensors)]
+        expanded = [expand_tensor(v, after_gather(dims, {value._stack_dim.name: i})) for i, v in enumerate(value._tensors)]
         return TensorStack(expanded, value.stack_dim)
     if value._is_tracer:
         from ._trace import expand_tracer
@@ -2370,8 +2374,8 @@ def reshaped_native(value: Tensor,
         ellipsis_dims = value.shape.without([g for g in groups if g is not Ellipsis])
         groups = [ellipsis_dims if g is Ellipsis else g for g in groups]
     # --- Only transpose, no packing ---
-    if isinstance(value, NativeTensor) and all(len(group) == 1 for group in groups):
-        native = value._transposed_native([g.name for g in groups], force_expand=force_expand)
+    if isinstance(value, NativeTensor) and all(len(group) <= 1 for group in groups):
+        native = value._transposed_native([g.name if g else f'new{i}' for i, g in enumerate(groups)], force_expand=force_expand)
         return choose_backend(native).numpy(native) if to_numpy else native
     # --- Pack and transpose---
     for i, group in enumerate(groups):

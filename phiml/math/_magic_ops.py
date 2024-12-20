@@ -477,7 +477,7 @@ def expand(value, *dims: Union[Shape, str], **kwargs):
     if not dims.without(shape(value)):  # no new dims to add
         if set(dims) == set(shape(value).only(dims)):  # sizes and item names might differ, though
             return value
-    dims &= combined.shape.without('dims')  # add missing non-uniform dims
+    dims &= combined.non_uniform_shape  # add missing non-uniform dims
     # --- First try __expand__
     if hasattr(value, '__expand__'):
         result = value.__expand__(dims, **kwargs)
