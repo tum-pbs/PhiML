@@ -15,7 +15,8 @@ from ._magic_ops import PhiTreeNodeType, variable_attributes, copy_with, stack, 
 from ._shape import (Shape,
                      CHANNEL_DIM, BATCH_DIM, SPATIAL_DIM, EMPTY_SHAPE,
                      parse_dim_order, shape_stack, merge_shapes, channel, concat_shapes, primal,
-                     SUPERSCRIPT, IncompatibleShapes, INSTANCE_DIM, batch, spatial, dual, instance, shape, shape as shape_, DimFilter, non_batch, DEBUG_CHECKS, parse_shape_spec)
+                     SUPERSCRIPT, IncompatibleShapes, INSTANCE_DIM, batch, spatial, dual, instance, shape, shape as shape_, DimFilter, non_batch, DEBUG_CHECKS, parse_shape_spec,
+                     prepare_renaming_gather, after_gather)
 from ..backend import NoBackendFound, choose_backend, BACKENDS, get_precision, default_backend, convert as convert_, \
     Backend, ComputeDevice, OBJECTS, NUMPY
 from ..backend._dtype import DType, combine_types
@@ -444,7 +445,7 @@ class Tensor:
         for dim, selection in item.items():
             if dim not in self.shape:
                 continue
-            selection, new_dim = self.shape.prepare_renaming_gather(dim, selection)
+            selection, new_dim = prepare_renaming_gather(self.shape, dim, selection)
             # Either handle slicing directly or add it to the dict
             if isinstance(selection, (tuple, list)):
                 result = [sliced[{dim: i}] for i in selection]
@@ -1241,7 +1242,7 @@ class NativeTensor(Tensor):
             else:
                 return backend.cast(self._native, DType(self.dtype.kind, precision=get_precision()))
         # --- Transpose ---
-        perm = self._native_shape.only(order, reorder=False)._perm(self._native_shape.only(order, reorder=True).names)
+        perm = [self._native_shape.index(dim) for dim in order]
         if perm != list(range(len(perm))):
             transposed = backend.transpose(self._native, perm)  # this will cast automatically
         else:
@@ -1324,8 +1325,8 @@ class NativeTensor(Tensor):
             elif name not in self._shape:
                 assert isinstance(sel, int), f"Attempting slice missing dimension {name} with {selection}"
         gathered = self.default_backend.multi_slice(self._native, tuple(selections)) if selections else self._native
-        new_native_shape = self._native_shape.after_gather(selection)
-        new_shape = self._shape.after_gather(selection)
+        new_native_shape = after_gather(self._native_shape, selection)
+        new_shape = after_gather(self._shape, selection)
         return NativeTensor(gathered, new_native_shape, new_shape)
 
     def _unstack(self, dim):
@@ -2368,6 +2369,11 @@ def reshaped_native(value: Tensor,
     if Ellipsis in groups:
         ellipsis_dims = value.shape.without([g for g in groups if g is not Ellipsis])
         groups = [ellipsis_dims if g is Ellipsis else g for g in groups]
+    # --- Only transpose, no packing ---
+    if isinstance(value, NativeTensor) and all(len(group) == 1 for group in groups):
+        native = value._transposed_native([g.name for g in groups], force_expand=force_expand)
+        return choose_backend(native).numpy(native) if to_numpy else native
+    # --- Pack and transpose---
     for i, group in enumerate(groups):
         if isinstance(group, Shape):
             present = value.shape.only(group)

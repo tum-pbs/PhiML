@@ -885,9 +885,9 @@ def stack_tensors(values: Union[tuple, list], dim: Shape):
     native_shapes = [variable_shape(v) for v in values]
     native_broadcast_shape = merge_shapes(*native_shapes)
     natives = [reshaped_native(discard_constant_dims(v), [*native_broadcast_shape], force_expand=True) for v in values]
-    native_shape = native_broadcast_shape._expand(dim)
+    native_shape = native_broadcast_shape & dim
     native_stacked = choose_backend(*natives).stack(natives, axis=native_shape.index(dim))
-    expanded_shape = merge_shapes(*[v.shape for v in values])._expand(dim)
+    expanded_shape = merge_shapes(*[v.shape for v in values]) & dim
     return NativeTensor(native_stacked, native_shape, expanded_shape)
 
 
@@ -1157,7 +1157,7 @@ def _grid_sample(grid: Tensor, coordinates: Tensor, extrap: Union['e_.Extrapolat
 def broadcast_dims(*tensors: Tensor) -> Set[str]:
     iter_dims = set()
     for tensor in tensors:
-        iter_dims.update(shape(tensor).shape.without('dims').names)
+        iter_dims.update(shape(tensor).non_uniform_shape.names)
         if isinstance(tensor, TensorStack) and tensor.requires_broadcast:
             iter_dims.add(tensor._stack_dim.name)
         # --- remove iter_dims for which the sizes vary among tensors ---

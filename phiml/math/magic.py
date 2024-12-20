@@ -20,7 +20,7 @@ from typing import Tuple, Callable, Union
 
 import dataclasses
 
-from ._shape import Shape, shape, channel, non_batch, batch, spatial, instance, concat_shapes, dual
+from ._shape import Shape, shape, channel, non_batch, batch, spatial, instance, concat_shapes, dual, PureShape, Dim, MixedShape
 from ..backend._dtype import DType
 
 
@@ -76,12 +76,12 @@ class Shaped(metaclass=_ShapedType):
 
 class _SliceableType(type):
     def __instancecheck__(self, instance):
-        if isinstance(instance, (str, Shape)):
+        if isinstance(instance, (str, Dim, PureShape, MixedShape)):
             return False
         return isinstance(instance, Shaped) and (hasattr(instance, '__getitem__') or isinstance(instance, PhiTreeNode))
 
     def __subclasscheck__(self, subclass):
-        if subclass in (str, Shape):
+        if subclass in (str, Dim, PureShape, MixedShape):
             return False
         return hasattr(subclass, '__getitem__')
 
