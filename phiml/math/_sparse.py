@@ -336,8 +336,7 @@ class SparseCoordinateTensor(Tensor):
         pointers = wrap(scipy_csr.indptr, instance('pointers'))
         return CompressedSparseMatrix(indices, pointers, values, u_dims, c_dims, self._indices_constant, uncompressed_indices=uncompressed_indices, uncompressed_indices_perm=perm, m_rank=self._matrix_rank)
 
-    def __pack_dims__(self, dims: Tuple[str, ...], packed_dim: Shape, pos: Union[int, None], **kwargs) -> 'Tensor':
-        dims = self._shape.only(dims)
+    def __pack_dims__(self, dims: Shape, packed_dim: Shape, pos: Union[int, None], **kwargs) -> 'Tensor':
         assert dims in self._dense_shape, f"Can only pack sparse dimensions on SparseCoordinateTensor but got {dims} of which {dims.without(self._dense_shape)} are not sparse"
         assert self._indices.default_backend is NUMPY, "Can only pack NumPy indices as of yet"
         inst_dim_order = instance(self._indices)
@@ -816,9 +815,8 @@ class CompressedSparseMatrix(Tensor):
         assert order is None, f"sparse matrices are always ordered (primal, dual). For custom ordering, use math.dense(tensor).native() instead."
         return native_matrix(self, NUMPY if to_numpy else self.default_backend)
 
-    def __pack_dims__(self, dims: Tuple[str, ...], packed_dim: Shape, pos: Union[int, None], **kwargs) -> 'Tensor':
+    def __pack_dims__(self, dims: Shape, packed_dim: Shape, pos: Union[int, None], **kwargs) -> 'Tensor':
         assert all(d in self._shape for d in dims)
-        dims = self._shape.only(dims, reorder=True)
         if dims.only(self._compressed_dims).is_empty:  # pack cols
             uncompressed_dims = self._uncompressed_dims.replace(dims, packed_dim.with_size(dims.volume))
             return CompressedSparseMatrix(self._indices, self._pointers, self._values, uncompressed_dims, self._compressed_dims, self._indices_constant, self._uncompressed_offset)
@@ -918,9 +916,8 @@ class CompactSparseTensor(Tensor):
         values = pack_dims(self._values, self._uncompressed_dims + self._compressed_dims, instance('entries'))
         return CompressedSparseMatrix(indices, pointers, values, self._compressed_dims, self._uncompressed_dims, self._indices_constant, m_rank=self._matrix_rank)
 
-    def __pack_dims__(self, dims: Tuple[str, ...], packed_dim: Shape, pos: Union[int, None], **kwargs) -> 'Tensor':
+    def __pack_dims__(self, dims: Shape, packed_dim: Shape, pos: Union[int, None], **kwargs) -> 'Tensor':
         raise NotImplementedError
-        dims = self._shape.only(dims)
         assert dims in self._dense_shape, f"Can only pack sparse dimensions on SparseCoordinateTensor but got {dims} of which {dims.without(self._dense_shape)} are not sparse"
         assert self._indices.default_backend is NUMPY, "Can only pack NumPy indices as of yet"
         inst_dim_order = instance(self._indices)

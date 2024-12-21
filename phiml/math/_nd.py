@@ -6,7 +6,7 @@ from . import _ops as math
 from . import extrapolation as extrapolation
 from ._magic_ops import stack, rename_dims, concat, tree_map, value_attributes
 from ._ops import choose_backend_t, reshaped_native, reshaped_tensor
-from ._shape import Shape, channel, batch, spatial, DimFilter, parse_dim_order, instance, dual, auto, non_batch
+from ._shape import Shape, channel, batch, spatial, DimFilter, parse_dim_order, instance, dual, auto, non_batch, after_gather
 from ._tensors import Tensor, wrap, tensor, reshaped_numpy
 from .extrapolation import Extrapolation
 from .magic import PhiTreeNode
@@ -910,6 +910,6 @@ def find_closest(vectors: Tensor, query: Tensor, method='kd', index_dim=channel(
             def perform_query(np_vectors, np_query):
                 return KDTree(np_vectors).query(np_query)[1]
             native_idx = b.numpy_call(perform_query, (query.shape.without(batch(vectors)).non_channel.volume,), DType(int, 64), native_vectors, native_query)
-        native_multi_idx = choose_backend(native_idx).unravel_index(native_idx, vectors.shape.after_gather(i).non_channel.sizes)
+        native_multi_idx = choose_backend(native_idx).unravel_index(native_idx, after_gather(vectors.shape, i).non_channel.sizes)
         result.append(reshaped_tensor(native_multi_idx, [query_i.shape.non_channel, index_dim or math.EMPTY_SHAPE]))
     return stack(result, batch(vectors))

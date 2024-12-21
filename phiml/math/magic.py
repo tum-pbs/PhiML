@@ -246,7 +246,7 @@ class Shapable(metaclass=_ShapableType):
         """
         raise NotImplementedError
 
-    def __pack_dims__(self, dims: Tuple[str, ...], packed_dim: Shape, pos: Union[int, None], **kwargs) -> 'Shapable':
+    def __pack_dims__(self, dims: Shape, packed_dim: Shape, pos: Union[int, None], **kwargs) -> 'Shapable':
         """
         Compresses multiple dimensions into a single dimension by concatenating the elements.
         Elements along the new dimensions are laid out according to the order of `dims`.

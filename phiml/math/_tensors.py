@@ -3,7 +3,8 @@ from numbers import Number
 import traceback
 import warnings
 from contextlib import contextmanager
-from typing import Union, TypeVar, Sequence, Any, Dict
+import typing
+from typing import Union, TypeVar, Sequence, Any
 
 from dataclasses import dataclass
 from typing import Tuple, Callable, List
@@ -16,7 +17,7 @@ from ._shape import (Shape,
                      CHANNEL_DIM, BATCH_DIM, SPATIAL_DIM, EMPTY_SHAPE,
                      parse_dim_order, shape_stack, merge_shapes, channel, concat_shapes, primal,
                      SUPERSCRIPT, IncompatibleShapes, INSTANCE_DIM, batch, spatial, dual, instance, shape, shape as shape_, DimFilter, non_batch, DEBUG_CHECKS, parse_shape_spec,
-                     prepare_renaming_gather, after_gather)
+                     prepare_renaming_gather, after_gather, concat_shapes_, Dim, PureShape)
 from ..backend import NoBackendFound, choose_backend, BACKENDS, get_precision, default_backend, convert as convert_, \
     Backend, ComputeDevice, OBJECTS, NUMPY
 from ..backend._dtype import DType, combine_types
@@ -554,23 +555,21 @@ class Tensor:
                 return tensors[0]
             raise NotImplementedError
 
-    def __pack_dims__(self, dims: Tuple[str, ...], packed_dim: Shape, pos: Union[int, None], **kwargs) -> 'Tensor':
-        order = self.shape._order_group(dims)  # ToDo only occurrence
-        # if isinstance(names, Shape):
-        #     names = names.names
-        # result = []
-        # for dim in self.names:
-        #     if dim not in result:
-        #         if dim in names:
-        #             result.extend(names)
-        #         else:
-        #             result.append(dim)
-
+    def __pack_dims__(self, dims: Shape, packed_dim: Shape, pos: Union[int, None], **kwargs) -> 'Tensor':
         if self.shape.is_uniform:
+            order = []
+            for dim in self.shape.names:
+                if dim not in order:
+                    if dim in dims:
+                        order.extend(dims.names)
+                    else:
+                        order.append(dim)
             native = self._transposed_native(order, force_expand=True)
             if pos is None:
                 pos = min(self.shape.indices(dims))
-            new_shape = self.shape.without(dims)._expand(packed_dim.with_sizes([self.shape.only(dims).volume]), pos)
+            packed_dim = packed_dim.with_sizes([dims.volume])
+            remaining = self.shape - dims
+            new_shape = concat_shapes_(remaining[:pos], packed_dim, remaining[pos:])
             native = choose_backend(native).reshape(native, new_shape.sizes)
             return NativeTensor(native, new_shape)
         else:
@@ -1120,15 +1119,15 @@ class Layout(Tensor):
         new_stack_dim = self._stack_dim.replace(dims, new_dims)
         return Layout(self._obj, new_stack_dim)
 
-    def __pack_dims__(self, dims: Tuple[str, ...], packed_dim: Shape, pos: Union[int, None], **kwargs) -> 'Layout':
-        if dims == self._stack_dim.names:
+    def __pack_dims__(self, dims: Shape, packed_dim: Shape, pos: Union[int, None], **kwargs) -> 'Layout':
+        if dims.names == self._stack_dim.names:
             native = self._as_list()
             return Layout(native, packed_dim.with_size(len(native)))
         else:
             obj = []
-            for i in self._shape.only(dims, reorder=True).meshgrid():
+            for i in dims.meshgrid():
                 obj.append(self[i].native())
-            return Layout(obj, concat_shapes(packed_dim.with_size(self.shape.only(dims).volume), self._stack_dim.without(dims)))
+            return Layout(obj, concat_shapes(packed_dim.with_size(dims.volume), self._stack_dim - dims))
 
     def __unpack_dim__(self, dim: str, unpacked_dims: Shape, **kwargs) -> 'Layout':
         return NotImplemented
@@ -1256,7 +1255,7 @@ class NativeTensor(Tensor):
             else:
                 return backend.cast(self._native, DType(self.dtype.kind, precision=get_precision()))
         # --- Transpose ---
-        perm = [self._native_shape.index(dim) for dim in self._native_shape.only(order, reorder=True).names]
+        perm = [self._native_shape.index(dim) for dim in order if dim in self._native_shape]
         if perm != list(range(len(perm))):
             transposed = backend.transpose(self._native, perm)  # this will cast automatically
         else:
@@ -1306,9 +1305,9 @@ class NativeTensor(Tensor):
     def _with_shape_replaced(self, new_shape):
         if new_shape.rank != self._shape.rank:
             raise IncompatibleShapes(f"Tensor {self} is not compatible with shape {new_shape}", self._shape, new_shape)
-        new_shape = Shape(self._shape.sizes, new_shape.names, new_shape.types, new_shape.item_names)
+        new_shape = new_shape.with_sizes(self._shape.sizes)
         native_indices = self._shape.indices(self._native_shape)
-        new_native_shape = new_shape[native_indices]
+        new_native_shape = concat_shapes_(*[new_shape[i] for i in native_indices])
         return NativeTensor(self._native, new_native_shape, new_shape)
 
     def _with_natives_replaced(self, natives: list):
@@ -1953,7 +1952,8 @@ def disassemble_tree(obj: PhiTreeNodeType, cache: bool, attr_type=variable_attri
             if backend == OBJECTS:
                 return obj, []
             sizes = backend.staticshape(obj)
-            shape = Shape(sizes, tuple([f"dim{i}" for i in range(len(sizes))]), (None,) * len(sizes), (None,) * len(sizes))
+            dims = [Dim(f"dim{i}", s, CHANNEL_DIM, None) for i, s in enumerate(sizes)]
+            shape = PureShape(CHANNEL_DIM, {dim.name: dim for dim in dims})
             return NATIVE_TENSOR, [NativeTensor(obj, shape)]
         except NoBackendFound:
             return obj, []
@@ -2877,8 +2877,8 @@ def _format_vector(self: Tensor, options: PrintOptions) -> str:
     colors = options.get_colors()
     if self.shape.rank > 1:
         self = flatten(self, channel('flat'))
-    if self.shape.get_item_names(0) is not None and options.include_shape is not False:
-        content = ", ".join([f"{item}={_format_number(number, options, self.dtype)}" for number, item in zip(self, self.shape.get_item_names(0))])
+    if self.shape.item_names[0] is not None and options.include_shape is not False:
+        content = ", ".join([f"{item}={_format_number(number, options, self.dtype)}" for number, item in zip(self, self.shape.item_names[0])])
     else:
         content = ", ".join([_format_number(num, options, self.dtype) for num in self])
     return colors.value(f"({content})")
