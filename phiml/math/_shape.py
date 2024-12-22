@@ -1981,45 +1981,42 @@ def shape(obj, allow_unshaped=False) -> Shape:
     Returns:
         `Shape`
     """
-    from .magic import PhiTreeNode, Shaped, BoundDim
     if isinstance(obj, Shape):
         return obj
-    elif isinstance(obj, BoundDim):
-        return shape(obj.obj)[obj.name]
-    elif hasattr(obj, '__shape__'):
-        return obj.__shape__()
-    elif hasattr(obj, 'shape') and isinstance(obj.shape, Shape):
+    if hasattr(obj, 'shape') and isinstance(obj.shape, Shape):
         return obj.shape
-    elif isinstance(obj, (int, float, complex, bool)):
+    if hasattr(obj, '__shape__'):
+        return obj.__shape__()
+    if isinstance(obj, (Number, bool)):
         return EMPTY_SHAPE
-    elif isinstance(obj, (tuple, list)) and all(isinstance(item, (int, float, complex, bool)) for item in obj):
+    if obj is None:
+        return EMPTY_SHAPE
+    if isinstance(obj, (tuple, list)) and all(isinstance(item, (int, float, complex, bool)) for item in obj):
         return channel(vector=len(obj))
-    elif isinstance(obj, (Number, bool)):
-        return EMPTY_SHAPE
-    elif obj is None:
-        return EMPTY_SHAPE
-    elif isinstance(obj, (tuple, list)) and all(isinstance(item, (PhiTreeNode, Shaped)) for item in obj):
+    from .magic import PhiTreeNode, Shaped, BoundDim
+    if isinstance(obj, BoundDim):
+        return shape(obj.obj)[obj.name]
+    if isinstance(obj, (tuple, list)) and all(isinstance(item, (PhiTreeNode, Shaped)) for item in obj):
         return merge_shapes(*obj, allow_varying_sizes=True)
     if isinstance(obj, dict) and all(isinstance(item, (PhiTreeNode, Shaped)) for item in obj):
         return merge_shapes(*obj.values(), allow_varying_sizes=True)
-    elif isinstance(obj, PhiTreeNode):
+    if isinstance(obj, PhiTreeNode):
         from ._magic_ops import all_attributes
         return merge_shapes(*[getattr(obj, a) for a in all_attributes(obj, assert_any=True)], allow_varying_sizes=True)
-    else:
-        from ..backend import choose_backend, NoBackendFound
-        try:
-            backend = choose_backend(obj)
-            shape_tuple = backend.staticshape(obj)
-            if len(shape_tuple) == 0:
-                return EMPTY_SHAPE
-            elif len(shape_tuple) == 1:
-                return channel('vector')
-            else:
-                raise ValueError(f"Cannot auto-complete shape of {backend} tensor with shape {shape_tuple}. Only 0D and 1D tensors have a Φ-ML shape by default.")
-        except NoBackendFound:
-            if allow_unshaped:
-                return EMPTY_SHAPE
-            raise ValueError(f'shape() requires Shaped or Shape argument but got {type(obj)}')
+    from ..backend import choose_backend, NoBackendFound
+    try:
+        backend = choose_backend(obj)
+        shape_tuple = backend.staticshape(obj)
+        if len(shape_tuple) == 0:
+            return EMPTY_SHAPE
+        elif len(shape_tuple) == 1:
+            return channel('vector')
+        else:
+            raise ValueError(f"Cannot auto-complete shape of {backend} tensor with shape {shape_tuple}. Only 0D and 1D tensors have a Φ-ML shape by default.")
+    except NoBackendFound:
+        if allow_unshaped:
+            return EMPTY_SHAPE
+        raise ValueError(f'shape() requires Shaped or Shape argument but got {type(obj)}')
 
 
 def spatial(*args, **dims: Union[int, str, tuple, list, Shape, 'Tensor']) -> Shape:
@@ -2058,10 +2055,8 @@ def spatial(*args, **dims: Union[int, str, tuple, list, Shape, 'Tensor']) -> Sha
         return _construct_shape(SPATIAL_DIM, *args, **dims)
     elif len(args) == 1 and isinstance(args[0], Shape):
         return args[0].spatial
-    elif len(args) == 1 and isinstance(args[0], Shaped):
-        return shape(args[0]).spatial
-    else:
-        raise AssertionError(f"spatial() must be called either as a selector spatial(Shape) or spatial(Tensor) or as a constructor spatial(*names, **dims). Got *args={args}, **dims={dims}")
+    assert len(args) == 1, f"spatial() must be called either as a selector spatial(Shape) or spatial(Tensor) or as a constructor spatial(*names, **dims). Got *args={args}, **dims={dims}"
+    return shape(args[0]).spatial
 
 
 def channel(*args, **dims: Union[int, str, tuple, list, Shape, 'Tensor']) -> Shape:
@@ -2100,10 +2095,8 @@ def channel(*args, **dims: Union[int, str, tuple, list, Shape, 'Tensor']) -> Sha
         return _construct_shape(CHANNEL_DIM, *args, **dims)
     elif len(args) == 1 and isinstance(args[0], Shape):
         return args[0].channel
-    elif len(args) == 1 and isinstance(args[0], Shaped):
-        return shape(args[0]).channel
-    else:
-        raise AssertionError(f"channel() must be called either as a selector channel(Shape) or channel(Tensor) or as a constructor channel(*names, **dims). Got *args={args}, **dims={dims}")
+    assert len(args) == 1, f"channel() must be called either as a selector channel(Shape) or channel(Tensor) or as a constructor channel(*names, **dims). Got *args={args}, **dims={dims}"
+    return shape(args[0]).channel
 
 
 def batch(*args, **dims: Union[int, str, tuple, list, Shape, 'Tensor']) -> Shape:
@@ -2142,10 +2135,8 @@ def batch(*args, **dims: Union[int, str, tuple, list, Shape, 'Tensor']) -> Shape
         return _construct_shape(BATCH_DIM, *args, **dims)
     elif len(args) == 1 and isinstance(args[0], Shape):
         return args[0].batch
-    elif len(args) == 1 and isinstance(args[0], Shaped):
-        return shape(args[0]).batch
-    else:
-        raise AssertionError(f"batch() must be called either as a selector batch(Shape) or batch(Tensor) or as a constructor batch(*names, **dims). Got *args={args}, **dims={dims}")
+    assert len(args) == 1, f"batch() must be called either as a selector batch(Shape) or batch(Tensor) or as a constructor batch(*names, **dims). Got *args={args}, **dims={dims}"
+    return shape(args[0]).batch
 
 
 def instance(*args, **dims: Union[int, str, tuple, list, Shape, 'Tensor']) -> Shape:
@@ -2184,10 +2175,8 @@ def instance(*args, **dims: Union[int, str, tuple, list, Shape, 'Tensor']) -> Sh
         return _construct_shape(INSTANCE_DIM, *args, **dims)
     elif len(args) == 1 and isinstance(args[0], Shape):
         return args[0].instance
-    elif len(args) == 1 and isinstance(args[0], Shaped):
-        return shape(args[0]).instance
-    else:
-        raise AssertionError(f"instance() must be called either as a selector instance(Shape) or instance(Tensor) or as a constructor instance(*names, **dims). Got *args={args}, **dims={dims}")
+    assert len(args) == 1, f"instance() must be called either as a selector instance(Shape) or instance(Tensor) or as a constructor instance(*names, **dims). Got *args={args}, **dims={dims}"
+    return shape(args[0]).instance
 
 
 def dual(*args, **dims: Union[int, str, tuple, list, Shape, 'Tensor']) -> Shape:
@@ -2235,11 +2224,9 @@ def dual(*args, **dims: Union[int, str, tuple, list, Shape, 'Tensor']) -> Shape:
         return _construct_shape(DUAL_DIM, *args, **dims)
     elif len(args) == 1 and isinstance(args[0], Shape):
         return args[0].dual
-    elif len(args) == 1 and isinstance(args[0], Shaped):
-        return shape(args[0]).dual
-    else:
-        raise AssertionError(f"dual() must be called either as a selector dual(Shape) or dual(Tensor) or as a constructor dual(*names, **dims). Got *args={args}, **dims={dims}")
-    
+    assert len(args) == 1, f"dual() must be called either as a selector dual(Shape) or dual(Tensor) or as a constructor dual(*names, **dims). Got *args={args}, **dims={dims}"
+    return shape(args[0]).dual
+
 
 def auto(spec: Union[str, Shape], default_type: Callable = None) -> Shape:
     """
@@ -2427,13 +2414,7 @@ def non_batch(obj) -> Shape:
     Returns:
         `Shape`
     """
-    from .magic import Shaped
-    if isinstance(obj, Shape):
-        return obj.non_batch
-    elif isinstance(obj, Shaped):
-        return shape(obj).non_batch
-    else:
-        raise AssertionError(f"non_batch() must be called either on a Shape or an object with a 'shape' property but got {obj}")
+    return shape(obj).non_batch
 
 
 def non_spatial(obj) -> Shape:
@@ -2446,13 +2427,7 @@ def non_spatial(obj) -> Shape:
     Returns:
         `Shape`
     """
-    from .magic import Shaped
-    if isinstance(obj, Shape):
-        return obj.non_spatial
-    elif isinstance(obj, Shaped):
-        return shape(obj).non_spatial
-    else:
-        raise AssertionError(f"non_spatial() must be called either on a Shape or an object with a 'shape' property but got {obj}")
+    return shape(obj).non_spatial
 
 
 def non_instance(obj) -> Shape:
@@ -2465,13 +2440,7 @@ def non_instance(obj) -> Shape:
     Returns:
         `Shape`
     """
-    from .magic import Shaped
-    if isinstance(obj, Shape):
-        return obj.non_instance
-    elif isinstance(obj, Shaped):
-        return shape(obj).non_instance
-    else:
-        raise AssertionError(f"non_instance() must be called either on a Shape or an object with a 'shape' property but got {obj}")
+    return shape(obj).non_instance
 
 
 def non_channel(obj) -> Shape:
@@ -2484,13 +2453,7 @@ def non_channel(obj) -> Shape:
     Returns:
         `Shape`
     """
-    from .magic import Shaped
-    if isinstance(obj, Shape):
-        return obj.non_channel
-    elif isinstance(obj, Shaped):
-        return shape(obj).non_channel
-    else:
-        raise AssertionError(f"non_channel() must be called either on a Shape or an object with a 'shape' property but got {obj}")
+    return shape(obj).non_channel
 
 
 def non_dual(obj) -> Shape:
@@ -2503,13 +2466,7 @@ def non_dual(obj) -> Shape:
     Returns:
         `Shape`
     """
-    from .magic import Shaped
-    if isinstance(obj, Shape):
-        return obj.non_dual
-    elif isinstance(obj, Shaped):
-        return shape(obj).non_dual
-    else:
-        raise AssertionError(f"non_dual() must be called either on a Shape or an object with a 'shape' property but got {obj}")
+    return shape(obj).non_dual
 
 
 def non_primal(obj) -> Shape:
@@ -2522,13 +2479,7 @@ def non_primal(obj) -> Shape:
     Returns:
         `Shape`
     """
-    from .magic import Shaped
-    if isinstance(obj, Shape):
-        return obj.non_primal
-    elif isinstance(obj, Shaped):
-        return shape(obj).non_primal
-    else:
-        raise AssertionError(f"non_dual() must be called either on a Shape or an object with a 'shape' property but got {obj}")
+    return shape(obj).non_primal
 
 
 def primal(obj) -> Shape:
@@ -2541,13 +2492,7 @@ def primal(obj) -> Shape:
     Returns:
         `Shape`
     """
-    from .magic import Shaped
-    if isinstance(obj, Shape):
-        return obj.primal
-    elif isinstance(obj, Shaped):
-        return shape(obj).primal
-    else:
-        raise AssertionError(f"primal() must be called either on a Shape or an object with a 'shape' property but got {obj}")
+    return shape(obj).primal
 
 
 def _size_equal(s1, s2):

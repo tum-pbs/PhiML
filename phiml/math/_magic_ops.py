@@ -7,7 +7,7 @@ from typing import TypeVar, Tuple, Dict, Union, Optional, Sequence, Any, Callabl
 
 from . import channel, EMPTY_SHAPE
 from ._shape import Shape, DimFilter, batch, instance, shape, non_batch, merge_shapes, concat_shapes, spatial, parse_dim_order, dual, auto, parse_shape_spec, DIM_FUNCTIONS, \
-    INV_CHAR, concat_shapes_, Dim
+    INV_CHAR, concat_shapes_, Dim, DEBUG_CHECKS
 from .magic import Sliceable, Shaped, Shapable, PhiTreeNode
 from ..backend import choose_backend, NoBackendFound
 from ..backend._dtype import DType
@@ -88,7 +88,8 @@ def unstack(value, dim: DimFilter) -> tuple:
         >>> unstack(expand(0, spatial(x=5)), 'x')
         (0.0, 0.0, 0.0, 0.0, 0.0)
     """
-    assert isinstance(value, Sliceable) and isinstance(value, Shaped), f"Cannot unstack {type(value).__name__}. Must be Sliceable and Shaped, see https://tum-pbs.github.io/PhiML/phiml/math/magic.html"
+    if DEBUG_CHECKS:
+        assert isinstance(value, Sliceable) and isinstance(value, Shaped), f"Cannot unstack {type(value).__name__}. Must be Sliceable and Shaped, see https://tum-pbs.github.io/PhiML/phiml/math/magic.html"
     dims = shape(value).only(dim, reorder=True)
     if dims.rank == 0:
         return value,
@@ -96,8 +97,9 @@ def unstack(value, dim: DimFilter) -> tuple:
         if hasattr(value, '__unstack__'):
             result = value.__unstack__(dims.names)
             if result is not NotImplemented:
-                assert isinstance(result, tuple), f"__unstack__ must return a tuple but got {type(result)}"
-                assert all([isinstance(item, Sliceable) for item in result]), f"__unstack__ must return a tuple of Sliceable objects but not all items were sliceable in {result}"
+                if DEBUG_CHECKS:
+                    assert isinstance(result, tuple), f"__unstack__ must return a tuple but got {type(result)}"
+                    assert all([isinstance(item, Sliceable) for item in result]), f"__unstack__ must return a tuple of Sliceable objects but not all items were sliceable in {result}"
                 return result
         return tuple([slice_(value, {dims.name: i}) for i in range(dims.size)])
     else:  # multiple dimensions
@@ -211,7 +213,8 @@ def stack(values: Union[Sequence[PhiTreeNodeType], Dict[str, PhiTreeNodeType]], 
             if hasattr(v, '__stack__'):
                 result = v.__stack__(values, dim, **kwargs)
                 if result is not NotImplemented:
-                    assert isinstance(result, Shape) if isinstance(v, Shape) else isinstance(result, Shapable), "__stack__ must return a Shapable object"
+                    if DEBUG_CHECKS:
+                        assert isinstance(result, Shape) if isinstance(v, Shape) else isinstance(result, Shapable), "__stack__ must return a Shapable object"
                     return result
         # --- Next: try stacking attributes for tree nodes ---
         if any(dataclasses.is_dataclass(v) for v in values):
@@ -552,7 +555,8 @@ def rename_dims(value: PhiTreeNodeType,
         return value.replace(old_dims, new_dims)
     elif isinstance(value, (Number, bool)):
         return value
-    assert isinstance(value, Shapable) and isinstance(value, Shaped), f"value must be a Shape or Shapable but got {type(value).__name__}"
+    if DEBUG_CHECKS:
+        assert isinstance(value, Shapable) and isinstance(value, Shaped), f"value must be a Shape or Shapable but got {type(value).__name__}"
     old_dims, new_dims = _shape_replace(shape(value), dims, names)
     if not new_dims:
         return value
@@ -669,7 +673,8 @@ def pack_dims(value, dims: DimFilter, packed_dim: Union[Shape, str], pos: Option
     """
     if isinstance(value, (Number, bool)):
         return value
-    assert isinstance(value, Shapable) and isinstance(value, Sliceable) and isinstance(value, Shaped), f"value must be Shapable but got {type(value)}"
+    if DEBUG_CHECKS:
+        assert isinstance(value, Shapable) and isinstance(value, Sliceable) and isinstance(value, Shaped), f"value must be Shapable but got {type(value)}"
     packed_dim = auto(packed_dim, dims if callable(dims) else None) if isinstance(packed_dim, str) else packed_dim
     dims = shape(value).only(dims, reorder=True)
     if packed_dim in shape(value):
@@ -747,7 +752,8 @@ def unpack_dim(value, dim: DimFilter, *unpacked_dims: Union[Shape, Sequence[Shap
         return unflatten_unpack(value, dim, unpacked_dims[0])
     if isinstance(value, (Number, bool)):
         return value
-    assert isinstance(value, Shapable) and isinstance(value, Sliceable) and isinstance(value, Shaped), f"value must be Shapable but got {type(value)}"
+    if DEBUG_CHECKS:
+        assert isinstance(value, Shapable) and isinstance(value, Sliceable) and isinstance(value, Shaped), f"value must be Shapable but got {type(value)}"
     dim = shape(value).only(dim)
     if dim.is_empty:
         return value  # Nothing to do, maybe expand?
