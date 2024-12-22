@@ -1111,7 +1111,7 @@ class Dim:
         return Dim(_apply_prefix(self.name, dim_type), self.size, dim_type, self.slice_names)
 
 
-@dataclass(frozen=True, **_dataclass_kwargs)  # slots not compatible with @cached_property
+@dataclass(frozen=True)  # slots not compatible with @cached_property
 class PureShape:
     dim_type: str
     dims: Dict[str, Dim]
