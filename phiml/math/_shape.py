@@ -1331,6 +1331,8 @@ class PureShape:
         elif isinstance(other, (Dim, PureShape)):
             if not self:
                 return other
+            if not other:
+                return self
             by_type = [EMPTY_SHAPE] * len(DIM_TYPES)
             by_type[TYPE_INDEX[self.dim_type]] = self
             by_type[TYPE_INDEX[other.dim_type]] = other

@@ -1341,7 +1341,7 @@ class NativeTensor(Tensor):
                 assert isinstance(sel, int), f"Attempting slice missing dimension {name} with {selection}"
         gathered = self.default_backend.multi_slice(self._native, tuple(selections)) if selections else self._native
         new_native_shape = after_gather(self._shape[self._names], selection)
-        new_shape = self.collapsed_dims & new_native_shape
+        new_shape = after_gather(self.collapsed_dims, selection) & new_native_shape
         return NativeTensor(gathered, new_native_shape.names, new_shape)
 
     def _unstack(self, dim: str):

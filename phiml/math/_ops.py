@@ -1567,7 +1567,7 @@ def _mean(value: Tensor, dims: Shape) -> Tensor:
     if not dims:
         return value
     if isinstance(value, NativeTensor):
-        result = value.default_backend.mean(value._native, tuple(value._names.index(n) for n in dims.names))
+        result = value.default_backend.mean(value._native, tuple(value._names.index(n) for n in dims.names if n in value._names))
         return NativeTensor(result, [n for n in value._names if n not in dims], value.shape - dims)
     elif isinstance(value, TensorStack):
         if value._stack_dim in dims:

@@ -8,7 +8,8 @@ from scipy.sparse import csr_matrix
 
 from ..backend import choose_backend, NUMPY, Backend
 from ._ops import choose_backend_t, concat_tensor, scatter, zeros_like
-from ._shape import Shape, parse_dim_order, merge_shapes, spatial, instance, batch, concat_shapes, EMPTY_SHAPE, dual, channel, non_batch, primal, non_channel, DEBUG_CHECKS
+from ._shape import Shape, parse_dim_order, merge_shapes, spatial, instance, batch, concat_shapes, EMPTY_SHAPE, dual, channel, non_batch, primal, non_channel, DEBUG_CHECKS, \
+    after_gather
 from ._magic_ops import stack, expand, rename_dims, unpack_dim, unstack, value_attributes
 from ._tensors import Tensor, wrap, disassemble_tree, disassemble_tensors, assemble_tree, TensorStack, may_vary_along, \
     discard_constant_dims, variable_shape, NativeTensor, equality_by_shape_and_value
@@ -122,7 +123,7 @@ class ShiftLinTracer(Tensor):
 
     def _getitem(self, selection: dict):
         starts = {dim: (item.start or 0) if isinstance(item, slice) else item for dim, item in selection.items()}
-        new_shape = math.zeros(self._shape)[selection].shape
+        new_shape = after_gather(self._shape, selection)
         return self.shift(starts, new_shape, lambda v: v[selection], lambda b: b[selection], nonzero_edge=False)
 
     def shift(self, shifts: Dict[str, int],
