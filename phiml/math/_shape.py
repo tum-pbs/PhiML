@@ -1,4 +1,5 @@
 import re
+import sys
 import warnings
 from dataclasses import dataclass, replace
 from functools import cached_property
@@ -22,6 +23,14 @@ CHAR = {SPATIAL_DIM: "s", CHANNEL_DIM: "c", INSTANCE_DIM: "i", BATCH_DIM: "b", D
 INV_CHAR = {v: k for k, v in CHAR.items()}
 
 DEBUG_CHECKS = []
+
+
+def enable_debug_checks():
+    """
+    Once called, additional type checks are enabled.
+    This may result in a noticeable drop in performance.
+    """
+    DEBUG_CHECKS.append(True)
 
 
 class ShapeMeta(type(Protocol)):
@@ -732,15 +741,13 @@ except AttributeError:  # on older Python versions, this is not possible
     pass
 
 
-def enable_debug_checks():
-    """
-    Once called, additional type checks are enabled.
-    This may result in a noticeable drop in performance.
-    """
-    DEBUG_CHECKS.append(True)
+if sys.version_info >= (3, 10):
+    _dataclass_kwargs = {'slots': True}
+else:
+    _dataclass_kwargs = {}
 
 
-@dataclass(frozen=True, slots=True)
+@dataclass(frozen=True, **_dataclass_kwargs)
 class Dim:
     name: str
     size: Union[int, Any]
@@ -1104,7 +1111,7 @@ class Dim:
         return Dim(_apply_prefix(self.name, dim_type), self.size, dim_type, self.slice_names)
 
 
-@dataclass(frozen=True, slots=False)  # slots not compatible with @cached_property
+@dataclass(frozen=True, **_dataclass_kwargs)  # slots not compatible with @cached_property
 class PureShape:
     dim_type: str
     dims: Dict[str, Dim]
@@ -1469,7 +1476,7 @@ class PureShape:
         return {batch: self.as_batch, dual: self.as_dual, instance: self.as_instance, spatial: self.as_spatial, channel: self.as_channel}[new_type]()
 
 
-@dataclass(frozen=True, slots=True)
+@dataclass(frozen=True, **_dataclass_kwargs)
 class MixedShape:
     batch: Union[PureShape, Dim]
     dual: Union[PureShape, Dim]
