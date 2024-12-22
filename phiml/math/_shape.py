@@ -1310,10 +1310,9 @@ class PureShape:
         elif isinstance(selection, Shape):
             selection = selection.names
         if isinstance(selection, (tuple, list)):
-            raise NotImplementedError  # this is expensive. Can we replace these calls?
-            # names = [self.names[s] if isinstance(s, int) else s for s in selection]
-            # dims = {name: self.dims[name] for name in names}
-            # selection = [self.index(s) if isinstance(s, str) else s for s in selection]
+            if DEBUG_CHECKS:
+                assert all(isinstance(s, str) for s in selection)
+            return concat_shapes_(*[self.dims[n] for n in selection])
         raise AssertionError("Can only access shape elements as shape[int], shape[str], shape[slice], shape[Sequence] or shape[Shape]")
 
     def __iter__(self):
@@ -1438,7 +1437,10 @@ class PureShape:
         raise AssertionError(f"Shape.with_size() is only defined for shapes of rank 1 but got {self}")
 
     def with_dim_size(self, dim: Union[str, 'Shape'], size: Union[int, 'math.Tensor', str, tuple, list], keep_item_names=True):
-        raise NotImplementedError
+        name = dim.name if isinstance(dim, Shape) else dim
+        dims = dict(self.dims)
+        dims[dim] = dims[dim].with_size(size)
+        return PureShape(self.dim_type, {n: dim.with_size(size) if n == name else dim for n, dim in self.dims.items()})
 
     def with_sizes(self, sizes: Union[Sequence[int], Sequence[Tuple[str, ...]], 'Shape', int], keep_item_names=True):
         if not self.dims:
@@ -1455,7 +1457,16 @@ class PureShape:
         return PureShape(self.dim_type, {n: dim.without_sizes() for n, dim in self.dims.items()})
 
     def replace(self, dims: Union['Shape', str, tuple, list], new: 'Shape', replace_item_names: 'DimFilter' = None):
-        raise NotImplementedError
+        dims = parse_dim_order(dims)
+        dim_list = list(self.dims.values())
+        if len(dims) == len(new):
+            for old, new_dim in zip(dims, new):
+                new_dim = self.dims[old]._replace(new_dim, replace_item_names)
+                dim_list[self.index(old)] = new_dim
+        elif len(new) > 1 and len(dims) == 1:
+            i = self.index(dims[0])
+            dim_list[i:i+1] = new
+        return concat_shapes(*dim_list)
 
     def as_batch(self):
         dims = [dim.as_batch() for dim in self.dims.values()]
@@ -1582,12 +1593,10 @@ class MixedShape:
         return True
     @property
     def defined(self):
-        dims = {n: dim for n, dim in self.dims.items() if dim.size is not None}
-        raise NotImplementedError
+        return concat_shapes_(*[dim for dim in self.dims.values() if dim.size is not None])
     @property
     def undefined(self):
-        dims = {n: dim for n, dim in self.dims.items() if dim.size is None}
-        raise NotImplementedError
+        return concat_shapes_(*[dim for dim in self.dims.values() if dim.size is None])
 
     @property
     def batch_rank(self) -> int:
@@ -1676,7 +1685,8 @@ class MixedShape:
         elif isinstance(selection, Shape):
             selection = selection.names
         if isinstance(selection, (tuple, list)):
-            assert all(isinstance(s, str) for s in selection)
+            if DEBUG_CHECKS:
+                assert all(isinstance(s, str) for s in selection)
             return concat_shapes_(*[self.dims[n] for n in selection])
         raise AssertionError("Can only access shape elements as shape[int], shape[str], shape[slice], shape[Sequence] or shape[Shape]")
 
@@ -1740,13 +1750,13 @@ class MixedShape:
     def __add__(self, other):
         if isinstance(other, int):
             assert not self.batch, f"Shape arithmetic not allowed for batch dims {self}"
-            raise NotImplementedError
+            return concat_shapes_(*[dim + other for dim in self.dims.values()])
         return concat_shapes(self, other)
 
     def __sub__(self, other):
         if isinstance(other, int):
             assert not self.batch, f"Shape arithmetic not allowed for batch dims {self}"
-            raise NotImplementedError
+            return concat_shapes_(*[dim - other for dim in self.dims.values()])
         return self.without(other)
 
     def without(self, dims: 'DimFilter'):
@@ -1783,25 +1793,31 @@ class MixedShape:
         return next(iter(self.dims.values())).with_size(size, keep_item_names=keep_item_names)
 
     def with_dim_size(self, dim: Union[str, 'Shape'], size: Union[int, 'math.Tensor', str, tuple, list], keep_item_names=True):
-        raise NotImplementedError
+        dim = dim.name if isinstance(dim, Shape) else dim
+        dims = dict(self.dims)
+        dims[dim] = dims[dim].with_size(size)
+        return concat_shapes_(*[dims[n] for n in self.dims])
 
     def with_sizes(self, sizes: Union[Sequence[int], Sequence[Tuple[str, ...]], 'Shape', int], keep_item_names=True):
-        if isinstance(sizes, int):
-            raise NotImplementedError
-        elif isinstance(sizes, Shape):
-            raise NotImplementedError
-        assert len(sizes) == len(self.dims)
-        sizes = {n: s for n, s in zip(self.dims, sizes)}
-        b = self.batch.with_sizes([sizes[n] for n in self.batch.names])
-        d = self.dual.with_sizes([sizes[n] for n in self.dual.names])
-        i = self.instance.with_sizes([sizes[n] for n in self.instance.names])
-        s = self.spatial.with_sizes([sizes[n] for n in self.spatial.names])
-        c = self.channel.with_sizes([sizes[n] for n in self.channel.names])
+        if isinstance(sizes, (int, Shape)):
+            b = self.batch.with_sizes(sizes)
+            d = self.dual.with_sizes(sizes)
+            i = self.instance.with_sizes(sizes)
+            s = self.spatial.with_sizes(sizes)
+            c = self.channel.with_sizes(sizes)
+        else:
+            assert len(sizes) == len(self.dims)
+            sizes = {n: s for n, s in zip(self.dims, sizes)}
+            b = self.batch.with_sizes([sizes[n] for n in self.batch.names])
+            d = self.dual.with_sizes([sizes[n] for n in self.dual.names])
+            i = self.instance.with_sizes([sizes[n] for n in self.instance.names])
+            s = self.spatial.with_sizes([sizes[n] for n in self.spatial.names])
+            c = self.channel.with_sizes([sizes[n] for n in self.channel.names])
         dims = {**b.dims, **d.dims, **i.dims, **s.dims, **c.dims}
         return MixedShape(b, d, i, s, c, {n: dims[n] for n in self.dims})
 
     def without_sizes(self):
-        raise NotImplementedError
+        return concat_shapes_(*[dim.without_sizes() for dim in self.dims.values()])
 
     def replace(self, dims: Union['Shape', str, tuple, list], new: 'Shape', replace_item_names: 'DimFilter' = None):
         dims = parse_dim_order(dims)
@@ -2502,7 +2518,11 @@ def concat_shapes_(*shapes: Shape) -> Shape:
             if isinstance(s, (Dim, PureShape)):
                 by_type[s.dim_type] &= s
             else:
-                raise NotImplementedError
+                by_type[BATCH_DIM] &= s.batch
+                by_type[DUAL_DIM] &= s.dual
+                by_type[INSTANCE_DIM] &= s.instance
+                by_type[SPATIAL_DIM] &= s.spatial
+                by_type[CHANNEL_DIM] &= s.channel
     dims = {dim.name: dim for dim in all_dims}
     if len(dims) != len(all_dims):
         raise IncompatibleShapes(f"Cannot concatenate shapes {list(shapes)}. Duplicate dimension names are not allowed.")
@@ -2517,11 +2537,11 @@ def shape_stack(stack_dim: Shape, *shapes: Shape, stack_dim_first=False):
         return stack_dim
     if len(shapes) == 1:
         return stack_dim & shapes[0]
+    raise NotImplementedError  # ToDo
     # for each dim: if new name -> add   else -> merge item names, note conflicting
     # delete conflicting item names
     # for each merged dim: gather sizes, filter present/None, if conflicting: stack replacing missing/None by 1
 
-    raise NotImplementedError
 
     names = list(stack_dim.names)
     types = list(stack_dim.types)
@@ -2788,11 +2808,10 @@ def transposed(self):
     return self._with_types(tuple([replacement.get(t, t) for t in self.types]))
 
 
-def to_dict(self, include_sizes=True):
+def to_dict(self: Shape, include_sizes=True):
     result = dict(names=self.names, types=self.types, item_names=self.item_names)
     if include_sizes:
-        if not all([isinstance(s, int)] for s in self.sizes):
-            raise NotImplementedError()
+        assert self.is_uniform, f"do_dict(Shape) only supports uniform shapes but got {self}"
         result['sizes'] = self.sizes
     return result
 

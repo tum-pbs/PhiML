@@ -1269,8 +1269,12 @@ class NativeTensor(Tensor):
             elif not g:
                 order.append('__new__')
             else:  # pack
-                raise NotImplementedError
+                # assert all present, else ...
+                # put all dims next to each other in order
+                raise NotImplementedError  # ToDo pack (don't call pack())
         native = self._transposed_native(order, False)
+
+        self.backend.reshape()  # for packing
         # --- Expand ---
         if force_expand:
             multiples = [g.volume if len(g) > 1 or (len(g) == 1 and g.name not in self._names) else 1 for g in groups]
@@ -2402,7 +2406,9 @@ def reshaped_native(value: Tensor,
     return value.numpy(groups, force_expand=force_expand) if to_numpy else value.native(groups, force_expand=force_expand)
 
 
-def process_groups_for(shape: Shape, groups: Sequence[Any]) -> List[Shape]:
+def process_groups_for(shape: Shape, groups: Any) -> List[Shape]:
+    if callable(groups):
+        return list(groups(shape))
     def process_group(g) -> Union[Shape, Ellipsis]:
         if g is None or (isinstance(g, tuple) and len(g) == 0):
             return EMPTY_SHAPE
