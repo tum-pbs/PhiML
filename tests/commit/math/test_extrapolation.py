@@ -148,10 +148,10 @@ class TestExtrapolation(TestCase):
         # --- Shapes ---
         a = math.zeros(spatial(b=2, x=10, y=10) & batch(batch=10))
         p = math.pad(a, {'x': (1, 2)}, ZERO)
-        self.assertEqual(0, p._native_shape.rank)
+        self.assertEqual(0, len(p._names))
         self.assertEqual((10, 2, 13, 10), p.shape.sizes)
         p = math.pad(a, {'x': (1, 2)}, PERIODIC)
-        self.assertEqual(0, p._native_shape.rank)
+        self.assertEqual(0, len(p._names))
         self.assertEqual((10, 2, 13, 10), p.shape.sizes)
         # --- 1D ---
         p = math.pad(math.ones(spatial(x=3)), {'x': (1, 1)}, 0)

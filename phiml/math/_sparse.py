@@ -1279,7 +1279,7 @@ def stored_values(x: Tensor, list_dim=instance('entries'), invalid='discard') ->
     """
     assert invalid in ['discard', 'clamp', 'keep'], f"invalid handling must be one of 'discard', 'clamp', 'keep' but got {invalid}"
     if isinstance(x, NativeTensor):
-        x = NativeTensor(x._native, x._native_shape, x._native_shape)
+        x = NativeTensor(x._native, x._names, x._shape[x._names])
         entries_dims = x.shape.non_batch
         return pack_dims(x, entries_dims, list_dim)
     if isinstance(x, TensorStack):
@@ -1318,7 +1318,7 @@ def stored_indices(x: Tensor, list_dim=instance('entries'), index_dim=channel('i
         from ._ops import meshgrid
         if batch(x):
             raise NotImplementedError
-        indices = meshgrid(x._native_shape.non_batch.non_channel, stack_dim=index_dim)
+        indices = meshgrid(x._shape[x._names].non_batch.non_channel, stack_dim=index_dim)
         return pack_dims(indices, non_channel, list_dim)
     if isinstance(x, TensorStack):
         if x.is_cached or not x.requires_broadcast:

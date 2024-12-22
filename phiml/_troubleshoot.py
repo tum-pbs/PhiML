@@ -196,9 +196,9 @@ def cache_all_tensors(print=print):
     from .math._tensors import NativeTensor, TensorStack
     for obj in gc.get_objects():
         if isinstance(obj, NativeTensor):
-            if obj._shape != obj._native_shape:
+            if len(obj._shape) > len(obj._names):
                 if print is not None:
-                    print(f"Expanding tensor with shape {obj._shape} from {obj._native_shape} {type(obj._native).__name__} {obj._native}")
+                    print(f"Expanding tensor with shape {obj._shape} from {obj._names} {type(obj._native).__name__} {obj._native}")
                 _check_for_tracers(obj)
         elif isinstance(obj, TensorStack):
             if not obj.requires_broadcast:

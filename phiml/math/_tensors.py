@@ -1279,12 +1279,12 @@ class NativeTensor(Tensor):
     def _cached(self, dims: Shape = None) -> 'NativeTensor':
         if len(self._names) == len(self._shape):  # nothing to expand
             return self
-        elif dims is None or self._shape in (dims & self._native_shape):  # expand all
+        elif dims is None or len(self._shape) == len(set(self._names) | set(dims.names)):  # expand all
             return NativeTensor(self.native(order=self._shape), self._shape, self._shape)
         else:  # expand specific dims
-            new_native_shape = dims & self._native_shape
-            tmp_tensor = NativeTensor(self._native, self._native_shape, new_native_shape)
-            return NativeTensor(tmp_tensor.native(new_native_shape), new_native_shape, self._shape)
+            new_native_shape = dims & self._shape[self._names]
+            tmp_tensor = NativeTensor(self._native, self._names, new_native_shape)
+            return NativeTensor(tmp_tensor.native(new_native_shape), new_native_shape.names, self._shape)
 
     @property
     def collapsed_dims(self):
@@ -1359,21 +1359,22 @@ class NativeTensor(Tensor):
         return NativeTensor(native, self._names, self._shape) if native is not None else self
 
     def _op2(self, other, operator, native_function, op_name: str = 'unknown', op_symbol: str = '?', switch_args=False):
-        try:
-            other_tensor = self._tensor(other)
-            was_converted = not isinstance(other, Tensor)
-        except NoBackendFound:
+        was_other_tensor = isinstance(other, Tensor)
+        if not was_other_tensor:
+            try:
+                other = self._tensor(other)
+            except NoBackendFound:
+                return NotImplemented
+        if not isinstance(other, NativeTensor) and was_other_tensor:
             return NotImplemented
-        if not isinstance(other_tensor, NativeTensor) and not was_converted:
-            return NotImplemented
-        if not isinstance(other_tensor, NativeTensor):
-            other_tensor = NativeTensor(other_tensor.native(other_tensor.shape), other_tensor.shape, other_tensor.shape)
-        broadcast_names = tuple(set(self._names) | set(other_tensor._names))
-        natives = [t.native(order=broadcast_names, force_expand=False) if t.rank > 0 else t.native() for t in [self, other_tensor]]
+        if not isinstance(other, NativeTensor):
+            other = NativeTensor(other.native(other.shape), other.shape.names, other.shape)
+        broadcast_names = tuple(set(self._names) | set(other._names))
+        natives = [t.native(order=broadcast_names, force_expand=False) if t.rank > 0 else t.native() for t in [self, other]]
         if switch_args:
             natives = natives[::-1]
         result_tensor = native_function(*natives)
-        return NativeTensor(result_tensor, broadcast_names, self._shape & other_tensor._shape)
+        return NativeTensor(result_tensor, broadcast_names, self._shape & other._shape)
 
     def _natives(self) -> tuple:
         return self._native,
@@ -1383,13 +1384,13 @@ class NativeTensor(Tensor):
 
     @classmethod
     def _from_spec_and_natives(cls, spec: dict, natives: list):
-        native_shape: Shape = spec['native_shape']
+        names: Sequence[str] = spec['names']
         expanded_shape: Shape = spec['shape']
         native = natives.pop(0)
         # --- update sizes in case JIT compilation gave None or outdated size ---
-        native_shape = native_shape.with_sizes(choose_backend(native).staticshape(native))
-        expanded_shape = expanded_shape.with_sizes(native_shape)
-        return NativeTensor(native, native_shape, expanded_shape)
+        sizes = {n: s for n, s in zip(names, choose_backend(native).staticshape(native))}
+        expanded_shape = expanded_shape.with_sizes([sizes.get(n, s) for n, s in zip(expanded_shape.names, expanded_shape.sizes)])
+        return NativeTensor(native, names, expanded_shape)
 
 
 class TensorStack(Tensor):
@@ -1440,7 +1441,7 @@ class TensorStack(Tensor):
         elif all([t.shape.is_uniform for t in self._tensors]):
             natives = [t.native(order=self._shape.names) for t in self._tensors]
             native = choose_backend(*natives).concat(natives, axis=self.shape.index(self._stack_dim.name))
-            return NativeTensor(native, self._shape)
+            return NativeTensor(native, self._shape.names, self._shape)
         else:  # cache stack_dim on inner tensors
             non_uniform_dim = self._tensors[0].shape.shape.without('dims')
             if len(non_uniform_dim) > 1:
@@ -1528,7 +1529,7 @@ class TensorStack(Tensor):
         elif isinstance(other, NativeTensor) or (isinstance(other, TensorStack) and not other.requires_broadcast):
             new_shape, (native1, native2) = broadcastable_native_tensors(self, other)  # ToDo we don't have to expand all
             result_tensor = native_function(native1, native2)
-            return NativeTensor(result_tensor, new_shape, new_shape)
+            return NativeTensor(result_tensor, new_shape.names, new_shape)
         elif isinstance(other, TensorStack) and other.requires_broadcast:
             if other._stack_dim.name in self.shape:
                 self_slices = self._unstack(other._stack_dim.name)
@@ -1698,7 +1699,7 @@ def tensor(data,
             data = convert_(data, use_dlpack=False)
         if 0 in sizes:
             present_shape = shape[:len(sizes)].with_sizes(sizes)
-            return NativeTensor(data, present_shape, shape.with_sizes(shape.undefined.with_sizes(0)).with_sizes(present_shape))
+            return NativeTensor(data, present_shape.names, shape.with_sizes(shape.undefined.with_sizes(0)).with_sizes(present_shape))
         return NativeTensor(data, shape.names, shape)
     except NoBackendFound:
         raise ValueError(f"{type(data)} is not supported. Only (Tensor, tuple, list, np.ndarray, native tensors) are allowed.\nCurrent backends: {BACKENDS}")
@@ -1804,7 +1805,7 @@ def compatible_tensor(data, compat_shape: Shape = None, compat_natives=(), conve
         elif len(shape) == compat_shape.rank:
             if len(shape) > 1:
                 warnings.warn(f"Combining a phiml.math.Tensor with a {data_type} of same shape is not invariant under shape permutations. Please convert the {data_type} to a phiml.math.Tensor first. Shapes: {shape} and {compat_shape}", SyntaxWarning, stacklevel=5)
-            return NativeTensor(data, compat_shape.with_sizes(shape))
+            return NativeTensor(data, compat_shape.names, compat_shape.with_sizes(shape))
         else:
             raise ValueError(f"Cannot combine tensor of shape {shape} with tensor of shape {compat_shape}")
 
@@ -2068,7 +2069,7 @@ def cached(t: TensorOrTree) -> TensorOrTree:
         else:
             natives = [t.native(order=t.shape.names) for t in inners]
             native = choose_backend(*natives).stack(natives, axis=t.shape.index(t._stack_dim.name))
-            return NativeTensor(native, t.shape)
+            return NativeTensor(native, t.shape.names, t.shape)
     elif isinstance(t, SparseCoordinateTensor):
         return SparseCoordinateTensor(cached(t._indices), cached(t._values), t._dense_shape, t._can_contain_double_entries, t._indices_sorted, t._indices_constant, t._matrix_rank)
     elif isinstance(t, CompressedSparseMatrix):
@@ -2098,9 +2099,9 @@ def expand_tensor(value: Tensor, dims: Shape):
             unstacked_dims = [after_gather(dims, i) for i in stack_dim.meshgrid()]
             if stack_dim in value.shape:
                 unstacked = unstack(value, stack_dim)
-                components = [NativeTensor(inner._native, inner._names, inner_shape & inner._native_shape) for inner_shape, inner in zip(unstacked_dims, unstacked)]
+                components = [NativeTensor(inner._native, inner._names, inner_shape & inner._shape[inner._names]) for inner_shape, inner in zip(unstacked_dims, unstacked)]
             else:
-                components = [NativeTensor(value._native, value._names, inner_shape & value._native_shape) for inner_shape in unstacked_dims]
+                components = [NativeTensor(value._native, value._names, inner_shape & value._shape[value._names]) for inner_shape in unstacked_dims]
             return TensorStack(components, stack_dim)
     if isinstance(value, TensorStack):
         expanded = [expand_tensor(v, after_gather(dims, {value._stack_dim.name: i})) for i, v in enumerate(value._tensors)]

@@ -168,7 +168,7 @@ class TestTensors(TestCase):
         b = math.ones(batch(batch=3))
         c = a + b
         self.assertEqual(c.shape.volume, 12)
-        self.assertEqual(c._native_shape.volume, 1)
+        self.assertEqual(0, len(c._names))
         # Collapsed + Native
         n = math.ones(channel(vector=3)) + (0, 1, 2)
         math.assert_close(n, (1, 2, 3))

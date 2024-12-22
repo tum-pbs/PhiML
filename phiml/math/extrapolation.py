@@ -301,14 +301,14 @@ class ConstantExtrapolation(Extrapolation):
                 if not equal_values:
                     required_dims = value._shape.only(tuple(widths.keys()))
                     value = value._cached(required_dims)
-                should_pad_native = any(dim in value._native_shape for dim in widths) and pad_value.shape.volume == 1
+                should_pad_native = any(dim in value._names for dim in widths) and pad_value.shape.volume == 1
                 if should_pad_native:
-                    ordered_pad_widths = order_by_shape(value._native_shape, widths, default=(0, 0))
+                    ordered_pad_widths = order_by_shape(value._names, widths, default=(0, 0))
                     result_native = backend.pad(value._native, ordered_pad_widths, 'constant', pad_value.native())
                 else:
                     result_native = value._native
                 if result_native is not NotImplemented:
-                    return NativeTensor(result_native, after_pad(value._native_shape, widths), after_pad(value._shape, widths))
+                    return NativeTensor(result_native, value._names, after_pad(value._shape, widths))
             return Extrapolation.pad(self, value, widths, already_padded=already_padded, **kwargs)
         elif isinstance(value, TensorStack):
             if not value.requires_broadcast:
@@ -466,14 +466,14 @@ class _CopyExtrapolation(Extrapolation, ABC):
             if not self._is_dim_separable:
                 required_dims = value._shape.only(tuple(widths.keys()))
                 value = value._cached(required_dims)
-            should_pad_native = any(dim in value._native_shape for dim in widths)
+            should_pad_native = any(dim in value._names for dim in widths)
             if should_pad_native:
-                ordered_pad_widths = order_by_shape(value._native_shape, widths, default=(0, 0))
+                ordered_pad_widths = order_by_shape(value._names, widths, default=(0, 0))
                 result_native = value.default_backend.pad(value._native, ordered_pad_widths, self.backend_pad_mode)
             else:
                 result_native = value._native
             if result_native is not NotImplemented:
-                return NativeTensor(result_native, after_pad(value._native_shape, widths), after_pad(value._shape, widths))
+                return NativeTensor(result_native, value._names, after_pad(value._shape, widths))
             return Extrapolation.pad(self, value, widths)
         elif isinstance(value, TensorStack):
             if not value.requires_broadcast:
@@ -675,8 +675,10 @@ class _PeriodicExtrapolation(_CopyExtrapolation):
             return value[{dim: slice(-width, None)}]
 
     def _pad_linear_tracer(self, value: 'ShiftLinTracer', widths: dict) -> 'ShiftLinTracer':
-        if value.shape.get_sizes(tuple(widths.keys())) != value._source.shape.get_sizes(tuple(widths.keys())):
-            raise NotImplementedError("Periodicity does not match input: %s but input has %s. This can happen when padding an already padded or sliced tensor." % (value.shape.only(tuple(widths.keys())), value._source.shape.only(tuple(widths.keys()))))
+        value_sizes = [value.shape.get_size(n) for n in widths]
+        source_sizes = [value._source.shape.get_size(n) for n in widths]
+        if value_sizes != source_sizes:
+            raise NotImplementedError("Periodicity does not match input: %s but input has %s. This can happen when padding an already padded or sliced tensor." % (value.shape.only(tuple(widths)), value._source.shape.only(tuple(widths))))
         lower = {dim: -lo for dim, (lo, _) in widths.items()}
         return value.shift(lower, new_shape=after_pad(value.shape, widths), val_fun=lambda v: self.pad(v, widths), bias_fun=lambda b: ZERO.pad(b, widths))
 
@@ -1704,7 +1706,7 @@ def from_dict(dictionary: dict) -> Extrapolation:
         raise ValueError(dictionary)
 
 
-def order_by_shape(shape: Shape, sequence, default=None) -> Union[tuple, list]:
+def order_by_shape(names: Sequence[str], sequence, default=None) -> Union[tuple, list]:
     """
     If sequence is a dict with dimension names as keys, orders its values according to this shape.
 
@@ -1718,10 +1720,10 @@ def order_by_shape(shape: Shape, sequence, default=None) -> Union[tuple, list]:
       ordered sequence of values
     """
     if isinstance(sequence, dict):
-        result = [sequence.get(dim, default) for dim in shape.names]
+        result = [sequence.get(dim, default) for dim in names]
         return result
     elif isinstance(sequence, (tuple, list)):
-        assert len(sequence) == shape.rank
+        assert len(sequence) == len(names)
         return sequence
     else:  # just a constant
         return sequence

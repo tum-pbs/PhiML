@@ -123,8 +123,6 @@ class Shape(Protocol, metaclass=ShapeMeta):
 
     def get_size(self, dim: Union[str, 'Shape', int], default=None):
         """
-        See Also:
-            `Shape.get_sizes()`, `Shape.size`
 
         Args:
             dim: Dimension, either as name `str` or single-dimension `Shape` or index `int`.
@@ -132,19 +130,6 @@ class Shape(Protocol, metaclass=ShapeMeta):
 
         Returns:
             Size associated with `dim` as `int` or `Tensor`.
-        """
-        ...
-
-    def get_sizes(self, dims: Union[tuple, list, 'Shape']) -> tuple:
-        """
-        See Also:
-            `Shape.get_size()`
-
-        Args:
-            dims: Dimensions as `tuple`, `list` or `Shape`.
-
-        Returns:
-            `tuple`
         """
         ...
 
@@ -1741,36 +1726,7 @@ class MixedShape:
             return dims(self)
         if isinstance(dims, str) and ',' not in dims:
             return self.dims.get(dims, EMPTY_SHAPE)
-        b = self.batch.only(dims, reorder=reorder)
-        d = self.dual.only(dims, reorder=reorder)
-        i = self.instance.only(dims, reorder=reorder)
-        s = self.spatial.only(dims, reorder=reorder)
-        c = self.channel.only(dims, reorder=reorder)
-        type_count = bool(b) + bool(d) + bool(i) + bool(s) + bool(c)
-        if type_count == 0:
-            return EMPTY_SHAPE
-        if type_count == 1:
-            return b if b else (d if d else (i if i else (s if s else c)))  # if only one has entries, return it
-        order = {**b.dims, **d.dims, **i.dims, **s.dims, **c.dims}
-        if reorder:
-            raise NotImplementedError  # this is expensive
-            # names = []
-            # for d in dims:
-            #     if isinstance(d, str):
-            #         names.append(d)
-            #     elif isinstance(d, Shape):
-            #         names.extend(d.names)
-            #     elif callable(d):
-            #         names.extend(d(self).names)
-            #     else:
-            #         raise ValueError(f"Format not understood for Shape.only(): {dims}")
-            # names = [d for d in names if d in self.dims]
-            # if not names:
-            #     return EMPTY_SHAPE
-            # if len(names) == 1:
-            #     return self.dims[names[0]]
-            # order = {d: order[d] for d in names}
-        return MixedShape(b, d, i, s, c, order)
+        return concat_shapes_(*[dim for dim in self.dims.values() if dim.only(dims)])
 
     def __add__(self, other):
         if isinstance(other, int):
