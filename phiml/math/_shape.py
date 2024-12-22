@@ -2798,3 +2798,13 @@ def from_dict(dict_: dict):
         if n and sizes[i] is None:
             sizes[i] = len(n)
     return Shape(tuple(sizes), names, tuple(dict_['types']), item_names)
+
+
+def first_index(shape: Shape):
+    return next(iter(shape.meshgrid()))
+
+
+for cls in [Dim, PureShape, MixedShape]:
+    cls.after_gather = after_gather
+    cls.after_pad = after_pad
+    cls.first_index = first_index
