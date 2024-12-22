@@ -39,7 +39,7 @@ from ._sparse import dense, get_sparsity, get_format, to_format, is_sparse, spar
 from .extrapolation import Extrapolation, as_extrapolation
 
 from ._ops import (
-    choose_backend_t as choose_backend, all_available, convert, seed, to_device,
+    backend_for as choose_backend, all_available, convert, seed, to_device,
     reshaped_native, reshaped_tensor, copy, native_call,
     print_ as print,
     slice_off,

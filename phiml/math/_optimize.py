@@ -13,9 +13,10 @@ from ..backend._linalg import IncompleteLU, incomplete_lu_dense, incomplete_lu_c
 from ._shape import EMPTY_SHAPE, Shape, merge_shapes, batch, non_batch, shape, dual, channel, non_dual, instance, spatial
 from ._magic_ops import stack, copy_with, rename_dims, unpack_dim, unstack, expand, value_attributes, variable_attributes
 from ._sparse import native_matrix, SparseCoordinateTensor, CompressedSparseMatrix, stored_values, is_sparse, matrix_rank, _stored_matrix_rank
-from ._tensors import Tensor, disassemble_tree, assemble_tree, wrap, cached, NativeTensor, layout, reshaped_numpy, reshaped_native, reshaped_tensor, NATIVE_TENSOR
+from ._tensors import Tensor, disassemble_tree, assemble_tree, wrap, cached, NativeTensor, layout, reshaped_numpy, reshaped_native, reshaped_tensor, NATIVE_TENSOR, \
+    preferred_backend_for
 from . import _ops as math
-from ._ops import choose_backend_t, zeros_like, all_available, to_float
+from ._ops import backend_for, zeros_like, all_available, to_float
 from ._functional import custom_gradient, LinearFunction, f_name, _TRACING_JIT, map_
 
 X = TypeVar('X')
@@ -372,7 +373,7 @@ def minimize(f: Callable[[X], Y], solve: Solve[X, Y]) -> X:
     assert solve.preprocess_y is None, "minimize() does not allow preprocess_y"
     x0_nest, x0_tensors = disassemble_tree(solve.x0, cache=True, attr_type=variable_attributes)
     x0_tensors = [to_float(t) for t in x0_tensors]
-    backend = choose_backend_t(*x0_tensors, prefer_default=True)
+    backend = preferred_backend_for(*x0_tensors)
     batch_dims = merge_shapes(*[batch(t) for t in x0_tensors])
     x0_natives = []
     x0_native_shapes = []
@@ -613,7 +614,7 @@ def solve_linear(f: Union[Callable[[X], Y], Tensor],
                 solve = copy_with(solve, x0=x0)
                 solution = solve_linear(f, y, solve, *f_args, grad_for_f=grad_for_f, f_kwargs=f_kwargs, **f_kwargs_)
                 return solution.native(','.join([f'batch{i}' for i in range(rank - 1)]) + ',vector')
-    backend = choose_backend_t(*y_tensors, *x0_tensors)
+    backend = backend_for(*y_tensors, *x0_tensors)
     prefer_explicit = backend.supports(Backend.sparse_coo_tensor) or backend.supports(Backend.csr_matrix) or grad_for_f
 
     if isinstance(f, Tensor) or (isinstance(f, LinearFunction) and prefer_explicit):  # Matrix solve
@@ -635,13 +636,13 @@ def solve_linear(f: Union[Callable[[X], Y], Tensor],
         preconditioner = compute_preconditioner(solve.preconditioner, matrix, rank_deficiency=solve.rank_deficiency, target_backend=NUMPY if solve.method.startswith('scipy-') else backend, solver=solve.method) if solve.preconditioner is not None else None
 
         def _matrix_solve_forward(y, solve: Solve, matrix: Tensor, is_backprop=False):
-            backend_matrix = native_matrix(matrix, choose_backend_t(*y_tensors, matrix))
+            backend_matrix = native_matrix(matrix, backend_for(*y_tensors, matrix))
             pattern_dims_in = dual(matrix).as_channel().names
             pattern_dims_out = non_dual(matrix).names  # batch dims can be sparse or batched matrices
             result = _linear_solve_forward(y, solve, backend_matrix, pattern_dims_in, pattern_dims_out, preconditioner, backend, is_backprop)
             return result  # must return exactly `x` so gradient isn't computed w.r.t. other quantities
 
-        _matrix_solve = attach_gradient_solve(_matrix_solve_forward, auxiliary_args=f'is_backprop,solve{",matrix" if matrix.default_backend == NUMPY else ""}', matrix_adjoint=grad_for_f)
+        _matrix_solve = attach_gradient_solve(_matrix_solve_forward, auxiliary_args=f'is_backprop,solve{",matrix" if matrix.backend == NUMPY else ""}', matrix_adjoint=grad_for_f)
         return _matrix_solve(y - bias, solve, matrix)
     else:  # Matrix-free solve
         f_args = cached(f_args)

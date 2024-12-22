@@ -11,7 +11,7 @@ from scipy.sparse.linalg import aslinearoperator
 from ._magic_ops import concat, pack_dims, expand, rename_dims, stack, unpack_dim, unstack
 from ._shape import Shape, non_batch, merge_shapes, instance, batch, non_instance, shape, channel, spatial, DimFilter, \
     concat_shapes, EMPTY_SHAPE, dual, non_channel, DEBUG_CHECKS, primal
-from ._tensors import Tensor, TensorStack, NativeTensor, cached, wrap, reshaped_native, reshaped_tensor, reshaped_numpy, tensor
+from ._tensors import Tensor, TensorStack, NativeTensor, cached, wrap, reshaped_native, reshaped_tensor, reshaped_numpy, tensor, backend_for
 from ..backend import choose_backend, NUMPY, Backend, get_precision
 from ..backend._dtype import DType
 
@@ -189,6 +189,10 @@ class SparseCoordinateTensor(Tensor):
     @property
     def dtype(self) -> DType:
         return self._values.dtype
+
+    @property
+    def backend(self) -> Backend:
+        return backend_for(self._indices, self._values)
 
     @property
     def sparse_dims(self):
@@ -541,16 +545,20 @@ class CompressedSparseMatrix(Tensor):
         return self._shape
 
     @property
+    def dtype(self) -> DType:
+        return self._values.dtype
+
+    @property
+    def backend(self) -> Backend:
+        return backend_for(self._indices, self._pointers, self._values)
+
+    @property
     def sparse_dims(self):
         return self._compressed_dims & self._uncompressed_dims
 
     @property
     def sparsity_batch(self):
         return batch(self._indices) & batch(self._pointers)
-
-    @property
-    def dtype(self) -> DType:
-        return self._values.dtype
 
     @property
     def _is_tracer(self) -> bool:
@@ -849,6 +857,10 @@ class CompactSparseTensor(Tensor):
     @property
     def dtype(self) -> DType:
         return self._values.dtype
+
+    @property
+    def backend(self) -> Backend:
+        return backend_for(self._indices, self._values)
 
     @property
     def sparse_dims(self):

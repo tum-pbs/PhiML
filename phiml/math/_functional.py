@@ -12,7 +12,8 @@ from . import _ops as math, all_available, stop_gradient
 from ._magic_ops import stack, slice_, find_differences, rename_dims, all_attributes
 from ._shape import Shape, spatial, instance, batch, channel, merge_shapes, DimFilter, shape, dual
 from ._sparse import SparseCoordinateTensor
-from ._tensors import Tensor, disassemble_tree, assemble_tree, disassemble_tensors, assemble_tensors, variable_attributes, wrap, specs_equal, equality_by_shape_and_value, object_dims
+from ._tensors import Tensor, disassemble_tree, assemble_tree, disassemble_tensors, assemble_tensors, variable_attributes, wrap, specs_equal, equality_by_shape_and_value, \
+    object_dims, backend_for
 from ._trace import ShiftLinTracer, matrix_from_function, LinearTraceInProgress
 from .magic import PhiTreeNode, Shapable
 from ..backend import Backend
@@ -137,7 +138,7 @@ def key_from_args(args: tuple,
     tree, tensors = disassemble_tree(kwargs, cache=cache, attr_type=attr_type)
     _, aux_tensors = disassemble_tree(detached_aux_kwargs, cache=cache, attr_type=variable_attributes)
     tracing = not math.all_available(*tensors, *aux_tensors)
-    backend = math.choose_backend_t(*tensors, *aux_tensors)
+    backend = backend_for(*tensors, *aux_tensors)
     natives, shapes, specs = disassemble_tensors(tensors, expand=cache)
     if for_jit and backend.name == 'torch':  # for PyTorch, add tracers from aux to natives, but keep aux. PyTorch does not support using tensors with grad inside jit otherwise.
         _, aux_tensors = disassemble_tree(attached_aux_kwargs, cache=cache, attr_type=variable_attributes)

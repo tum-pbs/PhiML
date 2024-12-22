@@ -5,7 +5,7 @@ import numpy as np
 from . import _ops as math
 from . import extrapolation as extrapolation
 from ._magic_ops import stack, rename_dims, concat, tree_map, value_attributes
-from ._ops import choose_backend_t, reshaped_native, reshaped_tensor
+from ._ops import backend_for, reshaped_native, reshaped_tensor
 from ._shape import Shape, channel, batch, spatial, DimFilter, parse_dim_order, instance, dual, auto, non_batch, after_gather
 from ._tensors import Tensor, wrap, tensor, reshaped_numpy
 from .extrapolation import Extrapolation
@@ -198,7 +198,7 @@ def l1_loss(x, reduce: DimFilter = math.non_batch) -> Tensor:
         return sum([l1_loss(getattr(x, a), reduce) for a in value_attributes(x)])
     else:
         try:
-            backend = math.choose_backend(x)
+            backend = choose_backend(x)
             shape = backend.staticshape(x)
             if len(shape) == 0:
                 return abs(x)
@@ -230,7 +230,7 @@ def l2_loss(x, reduce: DimFilter = math.non_batch) -> Tensor:
         return sum([l2_loss(getattr(x, a), reduce) for a in value_attributes(x)])
     else:
         try:
-            backend = math.choose_backend(x)
+            backend = choose_backend(x)
             shape = backend.staticshape(x)
             if len(shape) == 0:
                 return x ** 2 * 0.5
@@ -905,7 +905,7 @@ def find_closest(vectors: Tensor, query: Tensor, method='kd', index_dim=channel(
                 return kd_tree.query(np_query)[1]
             native_idx = query.default_backend.numpy_call(perform_query, (query_i.shape.non_channel.volume,), DType(int, 64), native_query)
         else:
-            b = choose_backend_t(vectors, query)
+            b = backend_for(vectors, query)
             native_vectors = reshaped_native(vectors[i], [..., channel])
             def perform_query(np_vectors, np_query):
                 return KDTree(np_vectors).query(np_query)[1]

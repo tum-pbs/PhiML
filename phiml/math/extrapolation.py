@@ -308,7 +308,7 @@ class ConstantExtrapolation(Extrapolation):
                 else:
                     result_native = value._native
                 if result_native is not NotImplemented:
-                    return NativeTensor(result_native, value._names, after_pad(value._shape, widths))
+                    return NativeTensor(result_native, value._names, after_pad(value._shape, widths), value._backend)
             return Extrapolation.pad(self, value, widths, already_padded=already_padded, **kwargs)
         elif isinstance(value, TensorStack):
             if not value.requires_broadcast:
@@ -469,11 +469,11 @@ class _CopyExtrapolation(Extrapolation, ABC):
             should_pad_native = any(dim in value._names for dim in widths)
             if should_pad_native:
                 ordered_pad_widths = order_by_shape(value._names, widths, default=(0, 0))
-                result_native = value.default_backend.pad(value._native, ordered_pad_widths, self.backend_pad_mode)
+                result_native = value._backend.pad(value._native, ordered_pad_widths, self.backend_pad_mode)
             else:
                 result_native = value._native
             if result_native is not NotImplemented:
-                return NativeTensor(result_native, value._names, after_pad(value._shape, widths))
+                return NativeTensor(result_native, value._names, after_pad(value._shape, widths), value._backend)
             return Extrapolation.pad(self, value, widths)
         elif isinstance(value, TensorStack):
             if not value.requires_broadcast:

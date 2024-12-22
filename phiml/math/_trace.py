@@ -7,7 +7,7 @@ from phiml.backend import get_precision
 from scipy.sparse import csr_matrix
 
 from ..backend import choose_backend, NUMPY, Backend
-from ._ops import choose_backend_t, concat_tensor, scatter, zeros_like
+from ._ops import backend_for, concat_tensor, scatter, zeros_like
 from ._shape import Shape, parse_dim_order, merge_shapes, spatial, instance, batch, concat_shapes, EMPTY_SHAPE, dual, channel, non_batch, primal, non_channel, DEBUG_CHECKS, \
     after_gather
 from ._magic_ops import stack, expand, rename_dims, unpack_dim, unstack, value_attributes
@@ -700,7 +700,7 @@ def matrix_from_function(f: Callable,
     trace_args = {k: v for k, v in all_args.items() if k not in aux}
     tree, tensors = disassemble_tree(trace_args, cache=False, attr_type=value_attributes)
     assert len(tensors) == 1, f"Only one input tensor can be traced bot got {tensors}"
-    target_backend = choose_backend_t(*tensors)
+    target_backend = backend_for(*tensors)
     # --- Trace function ---
     with NUMPY:
         src = TracerSource(tensors[0].shape, tensors[0].dtype, tuple(trace_args.keys())[0], 0)
@@ -726,7 +726,7 @@ def matrix_from_function(f: Callable,
     else:
         matrix, bias = tracer_to_coo(tracer, sparsify_batch, separate_independent)
     # --- Compress ---
-    if auto_compress and matrix.default_backend.supports(Backend.mul_csr_dense) and target_backend.supports(Backend.mul_csr_dense) and isinstance(matrix, SparseCoordinateTensor):
+    if auto_compress and matrix.backend.supports(Backend.mul_csr_dense) and target_backend.supports(Backend.mul_csr_dense) and isinstance(matrix, SparseCoordinateTensor):
         matrix = matrix.compress_rows()
     # elif backend.supports(Backend.mul_csc_dense):
     #     return matrix.compress_cols(), tracer._bias
