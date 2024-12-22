@@ -2341,7 +2341,7 @@ def pure_merge(*shapes: Shape, allow_varying_sizes: bool) -> Shape:
         return EMPTY_SHAPE
     if len(non_empty) == 1:
         return non_empty[0]
-    dims = dict[str, Dim]()
+    dims = {}
     for dim in all_dims:
         if dim.name not in dims:
             dims[dim.name] = dim
