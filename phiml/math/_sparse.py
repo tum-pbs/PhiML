@@ -352,11 +352,11 @@ class SparseCoordinateTensor(Tensor):
 
     def _with_shape_replaced(self, new_shape: Shape):
         assert self._shape.rank == new_shape.rank
-        dense_shape = new_shape[self._shape.indices(self._dense_shape)]
+        dense_shape = new_shape[self._shape.indices(self._dense_shape.names)]
         new_item_names = new_shape[self._shape.indices(self._indices.shape.get_item_names('sparse_idx'))].names
         values = self._values._with_shape_replaced(self._values.shape.replace(self._shape, new_shape))
         non_vec = self._shape.without('sparse_idx')
-        new_non_vec = new_shape[self._shape.indices(non_vec)]
+        new_non_vec = new_shape[self._shape.indices(non_vec.names)]
         indices = self._indices._with_shape_replaced(self._indices.shape.replace(non_vec, new_non_vec).with_dim_size('sparse_idx', new_item_names))
         m_rank = self._matrix_rank._with_shape_replaced(self._matrix_rank.shape.replace(self._shape, new_shape))
         return SparseCoordinateTensor(indices, values, dense_shape, self._can_contain_double_entries, self._indices_sorted, self._indices_constant, m_rank)
@@ -932,7 +932,7 @@ class CompactSparseTensor(Tensor):
 
     def _with_shape_replaced(self, new_shape: Shape):
         assert self._shape.rank == new_shape.rank
-        compressed_dims = new_shape[self._shape.indices(self._compressed_dims)]
+        compressed_dims = new_shape[self._shape.indices(self._compressed_dims.names)]
         values = self._values._with_shape_replaced(self._values.shape.replace(self._shape, new_shape))
         indices = self._indices._with_shape_replaced(self._indices.shape.replace(self._shape, new_shape))
         m_rank = self._matrix_rank._with_shape_replaced(self._matrix_rank.shape.replace(self._shape, new_shape))
@@ -1479,7 +1479,7 @@ def dot_coordinate_dense(sparse: SparseCoordinateTensor, sdims: Shape, dense: Te
 
 
 def dot_compact_dense(compact: CompactSparseTensor, cdims, dense: Tensor, ddims: Shape):
-    gather_dims = ddims[cdims.indices(compact._compact_dims)]
+    gather_dims = ddims[cdims.indices(compact._compact_dims.names)]
     indices = expand(compact._indices, channel(_idx=gather_dims))
     dense_gathered = dense[indices]
     from ._ops import dot

@@ -3,7 +3,7 @@ import warnings
 from dataclasses import dataclass, replace
 from functools import cached_property
 from numbers import Number
-from typing import Tuple, Callable, List, Union, Any, Sequence, Optional, Dict, Protocol, runtime_checkable
+from typing import Tuple, Callable, List, Union, Any, Sequence, Optional, Dict, Protocol, runtime_checkable, Iterable
 
 from .. import math
 
@@ -106,7 +106,7 @@ class Shape(Protocol, metaclass=ShapeMeta):
         """
         ...
 
-    def indices(self, dims: 'Shape') -> Tuple[int]:
+    def indices(self, names: Sequence[str]) -> Tuple[int, ...]:
         """
         Finds the indices of the given dimensions within this `Shape`.
 
@@ -114,7 +114,7 @@ class Shape(Protocol, metaclass=ShapeMeta):
             `Shape.index()`.
 
         Args:
-            dims: Sequence of dimensions as `tuple`, `list` or `Shape`.
+            names: Sequence of dim names as `tuple` or `list`. No name can occur in `names` more than once.
 
         Returns:
             Indices as `tuple[int]`.
@@ -936,8 +936,8 @@ class Dim:
             return 0
         raise ValueError(f"index() requires a single dimension as input but got {dim}")
 
-    def indices(self, dims: Shape) -> Tuple[int, ...]:
-        return tuple([self.index(n) for n in dims.names])
+    def indices(self, names: Sequence[str]) -> Tuple[int, ...]:
+        return (0,) if names else ()
 
     def __getitem__(self, selection):
         if isinstance(selection, Shape):
@@ -1300,8 +1300,9 @@ class PureShape:
             return self.names.index(dim.name)
         raise ValueError(f"index() requires a single dimension as input but got {dim}")
 
-    def indices(self, dims: Shape) -> Tuple[int, ...]:
-        return tuple([self.index(n) for n in dims.names])
+    def indices(self, names: Sequence[str]) -> Tuple[int, ...]:
+        order = self.names
+        return tuple(order.index(n) for n in names)
 
     def __getitem__(self, selection):
         if isinstance(selection, int):
@@ -1663,8 +1664,9 @@ class MixedShape:
             return self.names.index(dim.name)
         raise ValueError(f"index() requires a single dimension as input but got {dim}")
 
-    def indices(self, dims: Shape) -> Tuple[int, ...]:
-        return tuple([self.index(n) for n in dims.names])
+    def indices(self, names: Sequence[str]) -> Tuple[int, ...]:
+        order = self.names
+        return tuple(order.index(n) for n in names)
 
     def __getitem__(self, selection):
         if isinstance(selection, int):
@@ -1680,10 +1682,8 @@ class MixedShape:
         elif isinstance(selection, Shape):
             selection = selection.names
         if isinstance(selection, (tuple, list)):
-            raise NotImplementedError  # this is expensive. Can we replace these calls?
-            # names = [self.names[s] if isinstance(s, int) else s for s in selection]
-            # dims = {name: self.dims[name] for name in names}
-            # selection = [self.index(s) if isinstance(s, str) else s for s in selection]
+            assert all(isinstance(s, str) for s in selection)
+            return concat_shapes_(*[self.dims[n] for n in selection])
         raise AssertionError("Can only access shape elements as shape[int], shape[str], shape[slice], shape[Sequence] or shape[Shape]")
 
     def __iter__(self):
