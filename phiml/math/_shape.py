@@ -2231,7 +2231,7 @@ SPEC_PATTERNS = {
 
 
 def parse_shape_spec(input_string, default_type: Callable = None) -> Shape:
-    dims = list[Dim]()
+    dims = []
     pos = 0
     while pos < len(input_string):
         if match := SPEC_PATTERNS['name_type_items'].match(input_string, pos):
@@ -2326,8 +2326,8 @@ def merge_shapes(*objs: Union[Shape, Any], allow_varying_sizes=False) -> Shape:
 
 
 def pure_merge(*shapes: Shape, allow_varying_sizes: bool) -> Shape:
-    all_dims = list[Dim]()
-    non_empty = list[Shape]()
+    all_dims = []
+    non_empty = []
     for s in shapes:
         if isinstance(s, Dim):
             all_dims.append(s)
@@ -2494,7 +2494,7 @@ def concat_shapes_(*shapes: Shape) -> Shape:
         return EMPTY_SHAPE
     if len(shapes) == 1:
         return shapes[0]
-    all_dims = list[Dim]()
+    all_dims = []
     by_type = {BATCH_DIM: EMPTY_SHAPE, DUAL_DIM: EMPTY_SHAPE, INSTANCE_DIM: EMPTY_SHAPE, SPATIAL_DIM: EMPTY_SHAPE, CHANNEL_DIM: EMPTY_SHAPE}
     for s in shapes:
         if s:
