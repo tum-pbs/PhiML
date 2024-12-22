@@ -1059,7 +1059,7 @@ class Dim:
     def with_size(self, size, keep_item_names=True):
         if isinstance(size, (tuple, list)):
             assert all(isinstance(s, str) for s in size)
-            return Dim(self.name, len(size), self.dim_type, size)
+            return Dim(self.name, len(size), self.dim_type, tuple(size))
         if isinstance(size, Shape):
             size = size.get_size(self.name)
         if size is None:
@@ -2310,7 +2310,7 @@ def merge_shapes(*objs: Union[Shape, Any], allow_varying_sizes=False) -> Shape:
     """
     if not objs:
         return EMPTY_SHAPE
-    shapes = [obj if isinstance(obj, Shape) else shape(obj) for obj in objs]
+    shapes = [shape(obj) for obj in objs]
     is_pure = not any(isinstance(s, MixedShape) for s in shapes)
     if is_pure:
         is_pure = len(set([s.dim_type for s in shapes])) == 1

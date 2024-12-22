@@ -48,7 +48,7 @@ class Tensor:
         if DEBUG_CHECKS:
             self._init_stack = traceback.extract_stack()
 
-    def native(self, order: Union[str, tuple, list, Shape] = None, force_expand=True, to_numpy=False):
+    def native(self, order: Union[str, tuple, list, Shape] = None, force_expand=True):
         """
         Returns a native tensor object with the dimensions ordered according to `order`.
         
@@ -60,7 +60,6 @@ class Tensor:
         Args:
             order: (Optional) Order of dimension names as comma-separated string, list or `Shape`.
             force_expand: If `False`, dimensions along which values are guaranteed to be constant will not be expanded to their true size but returned as singleton dimensions.
-            to_numpy: Whether to convert the tensor to a NumPy `ndarray`.
 
         Returns:
             Native tensor representation, such as PyTorch tensor or NumPy array.
@@ -68,18 +67,17 @@ class Tensor:
         Raises:
             ValueError if the tensor cannot be transposed to match target_shape
         """
-        if isinstance(order, (tuple, list)):
-            return reshaped_native(self, order, force_expand=force_expand, to_numpy=to_numpy)
-        elif order is None:
-            assert self.rank <= 1, f"When calling Tensor.native() or Tensor.numpy(), the dimension order must be specified for Tensors with more than one dimension, e.g. '{','.join(self._shape.names)}'. The listed default dimension order can vary depending on the chosen backend. Consider using math.reshaped_native(Tensor) instead."
-            order = self._shape.names
-        else:
-            order = parse_dim_order(order)
-        native = self._transposed_native(order, force_expand)
-        return choose_backend(native).numpy(native) if to_numpy else native
+        raise NotImplementedError
+
+    def _reshaped_native(self, groups: Sequence[Shape], force_expand: Union[bool, Shape]):
+        """constant (collapsed) dims may be left out of groups to avoid expanding."""
+        raise NotImplementedError
 
     def _transposed_native(self, order: Sequence[str], force_expand: bool):
-        raise NotImplementedError(self.__class__)
+        """Returns the native tensor, transposing it to match `order`.
+        New names in `order` are added as singleton dims.
+        Constant dims may be dropped to avoid expanding. If present, they will be included as singleton, not expanded to their full size."""
+        raise NotImplementedError
 
     def numpy(self, order: Union[str, tuple, list, Shape] = None, force_expand=True) -> np.ndarray:
         """
@@ -98,6 +96,7 @@ class Tensor:
 
         Args:
             order: (Optional) Order of dimension names as comma-separated string, list or `Shape`.
+            force_expand: If `False`, dimensions along which values are guaranteed to be constant will not be expanded to their true size but returned as singleton dimensions.
 
         Returns:
             NumPy representation
@@ -105,7 +104,7 @@ class Tensor:
         Raises:
             ValueError if the tensor cannot be transposed to match target_shape
         """
-        return self.native(order, force_expand, to_numpy=True)
+        return self.backend.numpy(self.native(order, force_expand))
 
     def __array__(self, dtype=None):  # NumPy conversion
         if self.rank > 1:
@@ -527,7 +526,7 @@ class Tensor:
 
     def __unpack_dim__(self, dim: str, unpacked_dims: Shape, **kwargs) -> 'Tensor':
         if self.shape.is_uniform:
-            native = self._transposed_native(self.shape.names, True)
+            native = self.native(shape_, True)
             new_shape = self.shape.replace(dim, unpacked_dims)
             if not new_shape.well_defined:
                 assert new_shape.undefined.rank <= 1, f"At most one dim can have an undefined size to be inferred during un-packing but got {new_shape}"
@@ -565,7 +564,7 @@ class Tensor:
                         order.extend(dims.names)
                     else:
                         order.append(dim)
-            native = self._transposed_native(order, force_expand=True)
+            native = self.native(order, force_expand=True)
             if pos is None:
                 pos = min(self.shape.indices(dims.names))
             packed_dim = packed_dim.with_sizes([dims.volume])
@@ -1249,8 +1248,36 @@ class NativeTensor(Tensor):
             shape_sizes = [expanded_shape.get_size(n) for n in names]
             assert backend.staticshape(native_tensor) == tuple(shape_sizes), f"Shape {expanded_shape} at {names} does not match native tensor with shape {backend.staticshape(native_tensor)}"
 
+    def native(self, order: Union[str, tuple, list, Shape] = None, force_expand=True):
+        if order is None:
+            assert len(self._shape) <= 1, f"When calling Tensor.native() or Tensor.numpy(), the dimension order must be specified for Tensors with more than one dimension, e.g. '{','.join(self._shape.names)}'. The listed default dimension order can vary depending on the chosen backend. Consider using math.reshaped_native(Tensor) instead."
+            return self._native if len(self._names) <= 1 or not force_expand else self.backend.tile(self._native, (self._shape.size,))
+        if isinstance(order, str):
+            return self._transposed_native(parse_dim_order(order), force_expand)
+        if isinstance(order, (tuple, list)) and all(isinstance(o, str) for o in order):
+            return self._transposed_native(parse_dim_order(order), force_expand)
+        groups = process_groups_for(self._shape, order)
+        return self._reshaped_native(groups, force_expand)
+
+    def _reshaped_native(self, groups: Sequence[Shape], force_expand: bool):
+        if len(self._names) == len(groups) and all(len(g) == 1 and n == g.name for n, g in zip(self._names, groups)):
+            return self._native
+        order = []
+        for g in groups:
+            if len(g) == 1:
+                order.append(g.name)  # could be existing or new dim
+            elif not g:
+                order.append('__new__')
+            else:  # pack
+                raise NotImplementedError
+        native = self._transposed_native(order, False)
+        # --- Expand ---
+        if force_expand:
+            multiples = [g.volume if len(g) > 1 or (len(g) == 1 and g.name not in self._names) else 1 for g in groups]
+            native = self.backend.tile(native, multiples)
+        return native
+
     def _transposed_native(self, order: Sequence[str], force_expand: bool):
-        assert all([n in order for n in self._names]), f"Failed to get native tensor because dims {[n for n in self._names if n not in order]} were not specified in the dim order. Got {order} for tensor {self.shape}"
         backend = self.default_backend
         if order == self._names:
             if self.dtype.precision in [None, get_precision()]:
@@ -1375,7 +1402,7 @@ class NativeTensor(Tensor):
         if not isinstance(other, NativeTensor):
             other = NativeTensor(other.native(other.shape), other.shape.names, other.shape, self._backend)
         broadcast_names = tuple(set(self._names) | set(other._names))
-        natives = [t.native(order=broadcast_names, force_expand=False) if t.rank > 0 else t.native() for t in [self, other]]
+        natives = [t._transposed_native(broadcast_names, False) if t.rank > 0 else t._native for t in [self, other]]
         if switch_args:
             natives = natives[::-1]
         result_tensor = native_function(*natives)
@@ -1441,10 +1468,37 @@ class TensorStack(Tensor):
         warnings.warn("TensorStack.stack_dim is deprecated. Use Shape.non_uniform instead.", DeprecationWarning, stacklevel=2)
         return self._stack_dim
 
-    def _contiguous(self):
-        if self.requires_broadcast:
-            return None
-        elif all([t.shape.is_uniform for t in self._tensors]):
+    @property
+    def dtype(self):
+        return combine_types(*[t.dtype for t in self._tensors])
+
+    @property
+    def shape(self):
+        return self._shape
+
+    @property
+    def backend(self) -> Backend:
+        return self._backend
+
+    def native(self, order: Union[str, tuple, list, Shape] = None, force_expand=True):
+        return self._reshaped_native(process_groups_for(self._shape), force_expand=force_expand)
+
+    def _reshaped_native(self, groups: Sequence[Shape], force_expand: bool):
+
+    # def _transposed_native(self, order: tuple, force_expand: bool):
+        # Is only the stack dimension shifted?
+        if self._shape.without(self._stack_dim).names == tuple(filter(lambda name: name != self._stack_dim.name, order)):
+            inner_order = [dim for dim in order if dim != self._stack_dim.name]
+            natives = [t.native(inner_order) for t in self._tensors]
+            assert self._stack_dim.name in order, f"Dimension {self._stack_dim} missing from 'order'. Got {order} but tensor has shape {self.shape}."
+            native = choose_backend(*natives).stack(natives, axis=order.index(self._stack_dim.name))
+            return native
+        assert not self.shape.is_non_uniform, f"Cannot convert non-uniform tensor with shape {self.shape} to native tensor."
+        return self._contiguous().native(order=order, force_expand=force_expand)
+
+    def _contiguous(self) -> Tensor:
+        assert not self.requires_broadcast
+        if all([t.shape.is_uniform for t in self._tensors]):
             natives = [t.native(order=self._shape.names) for t in self._tensors]
             b = choose_backend(*natives)
             native = b.concat(natives, axis=self.shape.index(self._stack_dim.name))
@@ -1459,29 +1513,6 @@ class TensorStack(Tensor):
                 tensor = TensorStack(to_stack, self._stack_dim)._contiguous()
                 stacked.append(tensor)
             return TensorStack(stacked, non_uniform_dim)
-
-    @property
-    def dtype(self):
-        return combine_types(*[t.dtype for t in self._tensors])
-
-    @property
-    def shape(self):
-        return self._shape
-
-    @property
-    def backend(self) -> Backend:
-        return self._backend
-
-    def _transposed_native(self, order: tuple, force_expand: bool):
-        # Is only the stack dimension shifted?
-        if self._shape.without(self._stack_dim).names == tuple(filter(lambda name: name != self._stack_dim.name, order)):
-            inner_order = [dim for dim in order if dim != self._stack_dim.name]
-            natives = [t.native(inner_order) for t in self._tensors]
-            assert self._stack_dim.name in order, f"Dimension {self._stack_dim} missing from 'order'. Got {order} but tensor has shape {self.shape}."
-            native = choose_backend(*natives).stack(natives, axis=order.index(self._stack_dim.name))
-            return native
-        assert not self.shape.is_non_uniform, f"Cannot convert non-uniform tensor with shape {self.shape} to native tensor."
-        return self._contiguous()._transposed_native(order=order, force_expand=force_expand)
 
     def _with_shape_replaced(self, new_shape: Shape):
         new_stack_dim = new_shape[self._shape.index(self._stack_dim.name)]
@@ -1538,9 +1569,9 @@ class TensorStack(Tensor):
                 tensors = [operator(t, other) for t in self._tensors]
             return TensorStack(tensors, self._stack_dim)
         elif isinstance(other, NativeTensor) or (isinstance(other, TensorStack) and not other.requires_broadcast):
-            new_shape, (native1, native2) = broadcastable_native_tensors(self, other)  # ToDo we don't have to expand all
+            names, new_shape, (native1, native2) = broadcastable_native_tensors(self, other)  # ToDo we don't have to expand all
             native_result = native_function(native1, native2)
-            return NativeTensor(native_result, new_shape.names, new_shape, backend_for(self, other))
+            return NativeTensor(native_result, names, new_shape, backend_for(self, other))
         elif isinstance(other, TensorStack) and other.requires_broadcast:
             if other._stack_dim.name in self.shape:
                 self_slices = self._unstack(other._stack_dim.name)
@@ -1822,23 +1853,15 @@ def compatible_tensor(data, compat_shape: Shape = None, compat_natives=(), conve
             raise ValueError(f"Cannot combine tensor of shape {shape} with tensor of shape {compat_shape}")
 
 
-def broadcastable_native_tensors(*tensors):
-    """
-    Expands and transposes the dimensions of the given tensors so that they all have the same dimension order.
-
-    Args:
-      *tensors: sequence of Tensors
-
-    Returns:
-      shape, native tensors)
-
-    """
+def broadcastable_native_tensors(*tensors) -> Tuple[Sequence[str], Shape, Sequence]:
+    """ Adds missing dims but does not expand to full size. """
     from ._sparse import SparseCoordinateTensor, CompressedSparseMatrix, dense
     if any(isinstance(t, (SparseCoordinateTensor, CompressedSparseMatrix)) for t in tensors) and not all(isinstance(t, (SparseCoordinateTensor, CompressedSparseMatrix)) for t in tensors):
         tensors = [dense(t) for t in tensors]
-    broadcast_shape = merge_shapes(*[t.shape for t in tensors])
-    natives = [t.native(order=broadcast_shape.names) if t.rank > 0 else t.native() for t in tensors]
-    return broadcast_shape, natives
+    var_names = tuple(set.union(*[set(variable_dim_names(t)) for t in tensors]))
+    natives = [t._transposed_native(var_names, False) if t.rank > 0 else t.native(None, False) for t in tensors]
+    broadcast_shape = merge_shapes(tensors)
+    return var_names, broadcast_shape, natives
 
 
 def custom_op2(x: Union[Tensor, float], y: Union[Tensor, float], l_operator, l_native_function, r_operator=None, r_native_function=None, op_name: str = 'unknown', op_symbol: str = None) -> Tensor:
@@ -2376,11 +2399,11 @@ def reshaped_native(value: Tensor,
     """
     assert isinstance(value, Tensor), f"value must be a Tensor but got {value} {type(value)}"
     assert not value._is_tracer, f"Failed accessing native values because tensor {value.shape} is a tracer"
-    assert isinstance(groups, (tuple, list)), f"groups must be a tuple or list but got {type(value)}"
-    from ._sparse import is_sparse, dense
-    if is_sparse(value):
-        value = dense(value)
-    def process_group(g):
+    return value.numpy(groups, force_expand=force_expand) if to_numpy else value.native(groups, force_expand=force_expand)
+
+
+def process_groups_for(shape: Shape, groups: Sequence[Any]) -> List[Shape]:
+    def process_group(g) -> Union[Shape, Ellipsis]:
         if g is None or (isinstance(g, tuple) and len(g) == 0):
             return EMPTY_SHAPE
         if isinstance(g, Shape):
@@ -2388,35 +2411,45 @@ def reshaped_native(value: Tensor,
         if g is Ellipsis:
             return g
         if callable(g):
-            return g(value)
+            return g(shape)
         g = parse_dim_order(g)
         if len(g) > 1:
             for name in g:
-                assert name in value.shape, f"When specifying a group by dim names, all dims must be present but {name} is not part of {value.shape}"
-        return value.shape.only(g, reorder=True)
+                assert name in shape, f"When specifying a group by dim names, all dims must be present but {name} is not part of {shape}"
+        return shape.only(g, reorder=True)
     groups = [process_group(g) for g in groups]
-    order = []
     if Ellipsis in groups:
-        ellipsis_dims = value.shape.without([g for g in groups if g is not Ellipsis])
+        ellipsis_dims = shape.without([g for g in groups if g is not Ellipsis])
         groups = [ellipsis_dims if g is Ellipsis else g for g in groups]
-    # --- Only transpose, no packing ---
-    if isinstance(value, NativeTensor) and all(len(group) <= 1 for group in groups):
-        native = value._transposed_native([g.name if g else f'new{i}' for i, g in enumerate(groups)], force_expand=force_expand)
-        return choose_backend(native).numpy(native) if to_numpy else native
-    # --- Pack and transpose---
-    for i, group in enumerate(groups):
-        if isinstance(group, Shape):
-            present = value.shape.only(group)
-            if force_expand is True or present.volume > 1 or (force_expand is not False and group.only(force_expand).volume > 1):
-                value = expand(value, group)
-            value = pack_dims(value, group, batch(f"group{i}"))
-            order.append(f"group{i}")
-        else:
-            assert isinstance(group, str), f"Groups must be either single-dim str or Shape but got {group}"
-            assert ',' not in group, f"When packing multiple dimensions, pass a well-defined Shape instead of a comma-separated str. Got {group}"
-            order.append(group)
-    native = value._transposed_native(order, force_expand=force_expand)
-    return choose_backend(native).numpy(native) if to_numpy else native
+    return groups
+
+
+    # from ._sparse import is_sparse, dense
+    # if is_sparse(value):
+    #     value = dense(value)
+
+
+# def reshaped_native_(value: Tensor, groups: Sequence[Shape], force_expand: Any = True):
+#     # private version of reshaped_native where all groups must be well-defined Shapes
+#     backend = value.backend
+#     # --- Only transpose, no packing ---
+#     if isinstance(value, NativeTensor) and all(len(group) <= 1 for group in groups):
+#         native = value._transposed_native([g.name if g else f'new{i}' for i, g in enumerate(groups)], force_expand=force_expand)
+#         return native
+#     # --- Pack and transpose---
+#     order = []
+#     for i, group in enumerate(groups):
+#         if isinstance(group, Shape):
+#             present = value.shape.only(group)
+#             if force_expand is True or present.volume > 1 or (force_expand is not False and group.only(force_expand).volume > 1):
+#                 value = expand(value, group)
+#             value = pack_dims(value, group, batch(f"group{i}"))
+#             order.append(f"group{i}")
+#         else:
+#             assert isinstance(group, str), f"Groups must be either single-dim str or Shape but got {group}"
+#             assert ',' not in group, f"When packing multiple dimensions, pass a well-defined Shape instead of a comma-separated str. Got {group}"
+#             order.append(group)
+#     native = value._transposed_native(order, force_expand=force_expand)
 
 
 def reshaped_numpy(value: Tensor, groups: Union[tuple, list], force_expand: Any = True) -> np.ndarray:
