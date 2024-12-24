@@ -2537,67 +2537,38 @@ def shape_stack(stack_dim: Shape, *shapes: Shape, stack_dim_first=False):
         return stack_dim
     if len(shapes) == 1:
         return stack_dim & shapes[0]
-    raise NotImplementedError  # ToDo
-    # for each dim: if new name -> add   else -> merge item names, note conflicting
-    # delete conflicting item names
-    # for each merged dim: gather sizes, filter present/None, if conflicting: stack replacing missing/None by 1
-
-
-    names = list(stack_dim.names)
-    types = list(stack_dim.types)
-    item_names = list(stack_dim.item_names)
-    incompatible_item_names = []
-    for other in shapes:
-        for size, name, type, items in other._dimensions:
-            if name not in names:
-                if type in types:
-                    index = len(types) - types[::-1].index(type)
-                elif type == BATCH_DIM:
-                    index = 0
-                elif type == DUAL_DIM:
-                    index = min([len(names), *[i for i in range(len(names)) if types[i] == DUAL_DIM]])
-                elif type == CHANNEL_DIM:
-                    index = len(names)
-                elif type == SPATIAL_DIM:
-                    index = min([len(names), *[i for i in range(len(names)) if types[i] == CHANNEL_DIM]])
-                elif type == INSTANCE_DIM:
-                    index = min([len(names), *[i for i in range(len(names)) if types[i] == INSTANCE_DIM]])
-                else:
-                    raise ValueError(type)
-                if stack_dim_first:
-                    index = max(index, stack_dim.rank)
-                names.insert(index, name)
-                types.insert(index, type)
-                item_names.insert(index, items)
-            else:
-                index = names.index(name)
-                if items != item_names[index]:
-                    if item_names[index] is None:
-                        item_names[index] = items
+    dims = {}
+    conflicts = set()  # names with conflicting item names
+    # --- Find conflicting slice names (only where sizes match up) ---
+    for s in shapes:
+        for dim in s:
+            prev = dims.get(dim.name, None)
+            if prev:
+                if dim.slice_names != prev.slice_names:
+                    if prev.slice_names is None:
+                        if dim.name not in conflicts:
+                            dims[dim.name] = dim  # update with item names
                     else:
-                        warnings.warn(f"Stacking shapes with incompatible item names will result in item names being lost. For {name} Got {item_names[index]} and {items}", RuntimeWarning)
-                        incompatible_item_names.append(index)
-    if incompatible_item_names:
-        for index in incompatible_item_names:
-            item_names[index] = None
-    sizes = []
-    for name in names:
-        if name in stack_dim.names:
-            if stack_dim.rank == 1:
-                size = len(shapes)
+                        warnings.warn(f"Stacking shapes with incompatible item names will result in item names being lost. For {dim.name} Got {prev.slice_names} and {dim.slice_names}", RuntimeWarning)
+                        conflicts.add(dim.name)
+                        dims[dim.name] = Dim(dim.name, dim.size, dim.dim_type, None)
+                # merge item names, not conflicts
+                pass
             else:
-                size = stack_dim.get_size(name)
+                dims[dim.name] = dim
+    # --- Stack sizes ---
+    sdims = []
+    for name, dim in dims.items():
+        dim_sizes = [(s.get_size(name) if name in s else None) for s in shapes]
+        valid_dim_sizes = [s.get_size(name) for s in shapes if name in s]
+        if all([math.close(s, valid_dim_sizes[0]) for s in valid_dim_sizes[1:]]):
+            sdims.append(dim)  # all equal, keep as is
         else:
-            dim_sizes = [(s.get_size(name) if name in s else None) for s in shapes]
-            valid_dim_sizes = [s.get_size(name) for s in shapes if name in s]
-            if all([math.close(s, valid_dim_sizes[0]) for s in valid_dim_sizes[1:]]):
-                size = valid_dim_sizes[0]
-            else:
-                from ._magic_ops import stack
-                dim_sizes_or_1 = [1 if s is None else s for s in dim_sizes]
-                size = stack(dim_sizes_or_1, stack_dim, expand_values=True)
-        sizes.append(size)
-    return Shape(tuple(sizes), tuple(names), tuple(types), tuple(item_names))
+            from ._magic_ops import stack
+            dim_sizes_or_1 = [1 if s is None else s for s in dim_sizes]
+            size = stack(dim_sizes_or_1, stack_dim, expand_values=True)
+            sdims.append(Dim(name, size, dim.dim_type, None))
+    return concat_shapes_(stack_dim, *sdims) if stack_dim_first else concat_shapes_(*sdims, stack_dim)
 
 
 def vector_add(*shapes: Shape):

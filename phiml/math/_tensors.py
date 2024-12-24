@@ -69,8 +69,9 @@ class Tensor:
         """
         raise NotImplementedError
 
-    def _reshaped_native(self, groups: Sequence[Shape], force_expand: Union[bool, Shape]):
-        """constant (collapsed) dims may be left out of groups to avoid expanding."""
+    def _reshaped_native(self, groups: Sequence[Shape]):
+        """constant (collapsed) dims may be left out of groups to avoid expanding.
+        All present dims will be expanded to match `groups`"""
         raise NotImplementedError
 
     def _transposed_native(self, order: Sequence[str], force_expand: bool):
@@ -1259,30 +1260,27 @@ class NativeTensor(Tensor):
         groups = process_groups_for(self._shape, order)
         return self._reshaped_native(groups, force_expand)
 
-    def _reshaped_native(self, groups: Sequence[Shape], force_expand: bool):
-        if len(self._names) == len(groups) and all(len(g) == 1 and n == g.name for n, g in zip(self._names, groups)):
-            return self._native
-        order = []
-        for g in groups:
-            if len(g) == 1:
-                order.append(g.name)  # could be existing or new dim
-            elif not g:
-                order.append('__new__')
-            else:  # pack
-                # assert all present, else ...
-                # put all dims next to each other in order
-                raise NotImplementedError  # ToDo pack (don't call pack())
-        native = self._transposed_native(order, False)
-
-        self.backend.reshape()  # for packing
-        # --- Expand ---
-        if force_expand:
-            multiples = [g.volume if len(g) > 1 or (len(g) == 1 and g.name not in self._names) else 1 for g in groups]
-            native = self.backend.tile(native, multiples)
+    def _reshaped_native(self, groups: Sequence[Shape], _force_expand):
+        perm = []
+        slices = []
+        tile = []
+        for group in groups:
+            for dim in group:
+                if dim.name in self._names:
+                    perm.append(self._names.index(dim.name))
+                    slices.append(slice(None))
+                    tile.append(1)
+                else:
+                    slices.append(None)
+                    tile.append(dim.size)
+        native = self._backend.transpose(self._native, perm)  # this will cast automatically
+        native = native[tuple(slices)]
+        native = self._backend.tile(native, tile)
+        native = self._backend.reshape(native, [g.volume for g in groups])
         return native
 
     def _transposed_native(self, order: Sequence[str], force_expand: bool):
-        backend = self.default_backend
+        backend = self._backend
         if order == self._names:
             if self.dtype.precision in [None, get_precision()]:
                 return self._native
@@ -1487,7 +1485,7 @@ class TensorStack(Tensor):
     def native(self, order: Union[str, tuple, list, Shape] = None, force_expand=True):
         return self._reshaped_native(process_groups_for(self._shape), force_expand=force_expand)
 
-    def _reshaped_native(self, groups: Sequence[Shape], force_expand: bool):
+    def _reshaped_native(self, groups: Sequence[Shape]):
 
     # def _transposed_native(self, order: tuple, force_expand: bool):
         # Is only the stack dimension shifted?
