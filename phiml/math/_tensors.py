@@ -1403,12 +1403,14 @@ class NativeTensor(Tensor):
             return NotImplemented
         if not isinstance(other, NativeTensor):
             other = NativeTensor(other.native(other.shape), other.shape.names, other.shape, self._backend)
-        broadcast_names = tuple(set(self._names) | set(other._names))
-        natives = [t._transposed_native(broadcast_names, False) if t.rank > 0 else t._native for t in [self, other]]
+        first_names = [n for n in self._names if n not in other._names]
+        names = first_names + list(other._names)
+        nat1 = self._transposed_native(names, False)
+        nat2 = other._native
         if switch_args:
-            natives = natives[::-1]
-        result_tensor = native_function(*natives)
-        return NativeTensor(result_tensor, broadcast_names, self._shape & other._shape, backend_for(self, other))
+            nat1, nat2 = nat2, nat1
+        result_nat = native_function(nat1, nat2)
+        return NativeTensor(result_nat, names, self._shape & other._shape, backend_for(self, other))
 
     def _natives(self) -> tuple:
         return self._native,
