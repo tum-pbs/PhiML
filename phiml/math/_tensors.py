@@ -1258,9 +1258,9 @@ class NativeTensor(Tensor):
         if isinstance(order, (tuple, list)) and all(isinstance(o, str) for o in order):
             return self._transposed_native(parse_dim_order(order), force_expand)
         groups = process_groups_for(self._shape, order)
-        return self._reshaped_native(groups, force_expand)
+        return self._reshaped_native(groups)
 
-    def _reshaped_native(self, groups: Sequence[Shape], _force_expand):
+    def _reshaped_native(self, groups: Sequence[Shape]):
         perm = []
         slices = []
         tile = []
@@ -2426,34 +2426,6 @@ def process_groups_for(shape: Shape, groups: Any) -> List[Shape]:
         ellipsis_dims = shape.without([g for g in groups if g is not Ellipsis])
         groups = [ellipsis_dims if g is Ellipsis else g for g in groups]
     return groups
-
-
-    # from ._sparse import is_sparse, dense
-    # if is_sparse(value):
-    #     value = dense(value)
-
-
-# def reshaped_native_(value: Tensor, groups: Sequence[Shape], force_expand: Any = True):
-#     # private version of reshaped_native where all groups must be well-defined Shapes
-#     backend = value.backend
-#     # --- Only transpose, no packing ---
-#     if isinstance(value, NativeTensor) and all(len(group) <= 1 for group in groups):
-#         native = value._transposed_native([g.name if g else f'new{i}' for i, g in enumerate(groups)], force_expand=force_expand)
-#         return native
-#     # --- Pack and transpose---
-#     order = []
-#     for i, group in enumerate(groups):
-#         if isinstance(group, Shape):
-#             present = value.shape.only(group)
-#             if force_expand is True or present.volume > 1 or (force_expand is not False and group.only(force_expand).volume > 1):
-#                 value = expand(value, group)
-#             value = pack_dims(value, group, batch(f"group{i}"))
-#             order.append(f"group{i}")
-#         else:
-#             assert isinstance(group, str), f"Groups must be either single-dim str or Shape but got {group}"
-#             assert ',' not in group, f"When packing multiple dimensions, pass a well-defined Shape instead of a comma-separated str. Got {group}"
-#             order.append(group)
-#     native = value._transposed_native(order, force_expand=force_expand)
 
 
 def reshaped_numpy(value: Tensor, groups: Union[tuple, list], force_expand: Any = True) -> np.ndarray:

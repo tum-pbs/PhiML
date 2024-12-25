@@ -2,7 +2,7 @@ from unittest import TestCase
 
 from phiml import math
 from phiml.math import spatial, channel, batch, instance, non_instance, non_channel, non_spatial, non_batch
-from phiml.math._shape import shape_stack, vector_add, EMPTY_SHAPE, Shape, dual, resolve_index
+from phiml.math._shape import shape_stack, EMPTY_SHAPE, Shape, dual, resolve_index
 
 
 class ShapedDummy:
@@ -13,7 +13,7 @@ class ShapedDummy:
 class TestShape(TestCase):
 
     def test_dimension_types(self):
-        v = math.ones(batch(batch=10) & spatial(x=4, y=3) & channel(vector=2) & dual(d=1))
+        v = math.ones(batch(batch=10) + dual(d=1) + spatial(x=4, y=3) + channel(vector=2))
         self.assertEqual(v.x.index, 2)
         self.assertEqual(v.x.name, 'x')
         self.assertEqual(('batch', 'dual', 'spatial', 'spatial', 'channel'), v.shape.types)
@@ -24,16 +24,15 @@ class TestShape(TestCase):
         self.assertEqual(batch(batch=10) & spatial(y=4, x=3) & channel(vector=2), batch(batch=10) & channel(vector=2) & spatial(y=4, x=3))
 
     def test_stack(self):
-        stacked = shape_stack(batch('stack'), batch(time=1) & spatial(x=3, y=3), spatial(x=3, y=4), EMPTY_SHAPE)
+        stacked = shape_stack(batch('stack'), batch(time=1) & spatial(x=3, y=3), spatial(x=3, y=4), EMPTY_SHAPE, stack_dim_first=True)
         print(stacked)
         self.assertEqual(('stack', 'time', 'x', 'y'), stacked.names)
         self.assertEqual(3, stacked.get_size('stack'))
         self.assertEqual(1, stacked.get_size('time'))
         math.assert_close(3, stacked.get_size('x'))
         math.assert_close([3, 4, 1], stacked.get_size('y'))
-        print(stacked.shape)
-        self.assertEqual(('stack', 'dims'), stacked.shape.names)
-        self.assertEqual(12, stacked.shape.volume)
+        self.assertEqual(('stack',), stacked.non_uniform_shape.names)
+        self.assertEqual(3, stacked.non_uniform_shape.size)
         stacked = shape_stack(batch('stack'), channel(vector='x,y') & spatial(x=3, y=3), spatial(x=3, y=4), math.EMPTY_SHAPE)
         self.assertEqual(('x', 'y'), stacked['vector'].item_names[0])
 
@@ -51,26 +50,16 @@ class TestShape(TestCase):
     def test_indexing(self):
         s = batch(batch=10) & spatial(x=4, y=3) & channel(vector=2)
         self.assertEqual(batch(batch=10), s[0:1])
-        self.assertEqual(batch(batch=10), s[[0]])
+        self.assertEqual(batch(batch=10), s[0])
         self.assertEqual(spatial(x=4, y=3), s[1:3])
         self.assertEqual(spatial(x=4), s['x'])
-        self.assertEqual(spatial(x=4, y=3), s['x, y'])
+        self.assertEqual(spatial(x=4, y=3), s.only('x, y', reorder=True))
 
     def test_after_gather(self):
         self.assertEqual(spatial(x=2), spatial(x=3).after_gather({'x': slice(None, None, 2)}))
         self.assertEqual(EMPTY_SHAPE, spatial(x=3).after_gather({'x': 0}))
 
-    def test_vector_add(self):
-        self.assertEqual(vector_add(batch(batch=10) & spatial(x=4, y=3), spatial(x=1, y=-1, z=2)), batch(batch=10) & spatial(x=5, y=2, z=2))
-
     def test_item_names(self):
-        s = spatial(x=4, y=3)
-        named = s.shape
-        self.assertEqual(named.get_item_names('dims'), ('x', 'y'))
-        shape = math.concat_shapes(batch(b=10), named)
-        self.assertEqual(shape.get_item_names('dims'), ('x', 'y'))
-        shape = math.merge_shapes(batch(b=10), named)
-        self.assertEqual(shape.get_item_names('dims'), ('x', 'y'))
         c = channel(vector='r,g,b')
         self.assertEqual(('r', 'g', 'b'), c.get_item_names('vector'))
 
@@ -185,7 +174,7 @@ class TestShape(TestCase):
     def test_only(self):
         s = batch(b=10) & channel(vector='x,y')
         self.assertEqual(batch(b=10), s.only([batch, spatial]))
-        self.assertEqual(s[(1, 0)], s.only([channel, batch], reorder=True))
+        self.assertEqual(('vector', 'b'), s.only([channel, batch], reorder=True).names)
 
     def test_without(self):
         s = batch(b=10) & channel(vector='x,y')
@@ -206,4 +195,3 @@ class TestShape(TestCase):
         self.assertEqual(shape.as_dual(), and_dual[3:])
         dual_and = dual & shape
         self.assertEqual(shape.as_dual(), dual_and.dual)
-        self.assertEqual(shape.as_dual(), dual_and[:3])

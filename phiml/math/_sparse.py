@@ -749,7 +749,7 @@ class CompressedSparseMatrix(Tensor):
         values = self._values._with_shape_replaced(self._values.shape.replace(self._shape, new_shape))
         indices = self._indices._with_shape_replaced(self._indices.shape.replace(self._shape, new_shape))
         pointers = self._pointers._with_shape_replaced(self._pointers.shape.replace(self._shape, new_shape))
-        uncompressed_indices = self._uncompressed_indices._with_shape_replaced(self._uncompressed_indices.shape.replace(self._shape, new_shape, replace_item_names=channel)) if self._uncompressed_indices is not None else None
+        uncompressed_indices = self._uncompressed_indices._with_shape_replaced(self._uncompressed_indices.shape.replace(self._shape, new_shape)) if self._uncompressed_indices is not None else None
         m_rank = self._matrix_rank._with_shape_replaced(self._matrix_rank.shape.replace(self._shape, new_shape))
         return CompressedSparseMatrix(indices, pointers, values, self._uncompressed_dims.replace(self._shape, new_shape), self._compressed_dims.replace(self._shape, new_shape), self._indices_constant, self._uncompressed_offset, uncompressed_indices, self._uncompressed_indices_perm, m_rank)
 

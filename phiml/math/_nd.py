@@ -4,7 +4,7 @@ import numpy as np
 
 from . import _ops as math
 from . import extrapolation as extrapolation
-from ._magic_ops import stack, rename_dims, concat, tree_map, value_attributes
+from ._magic_ops import stack, rename_dims, concat, tree_map, value_attributes, pack_dims
 from ._ops import backend_for, reshaped_native, reshaped_tensor
 from ._shape import Shape, channel, batch, spatial, DimFilter, parse_dim_order, instance, dual, auto, non_batch, after_gather
 from ._tensors import Tensor, wrap, tensor, reshaped_numpy
@@ -831,7 +831,7 @@ def upsample2x(grid: Tensor,
         interp_left = 0.25 * left + 0.75 * center
         interp_right = 0.75 * center + 0.25 * right
         stacked = math.stack_tensors([interp_left, interp_right], channel(_interleave='left,right'))
-        grid = math.pack_dims(stacked, (dim.name, '_interleave'), dim)
+        grid = pack_dims(stacked, (dim.name, '_interleave'), dim)
     return grid
 
 

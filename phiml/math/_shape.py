@@ -655,7 +655,7 @@ class Shape(Protocol, metaclass=ShapeMeta):
         """
         ...
 
-    def replace(self, dims: Union['Shape', str, tuple, list], new: 'Shape', replace_item_names: 'DimFilter' = None) -> 'Shape':
+    def replace(self, dims: Union['Shape', str, tuple, list], new: 'Shape') -> 'Shape':
         """
         Returns a copy of `self` with `dims` replaced by `new`.
         Dimensions that are not present in `self` are ignored.
@@ -666,7 +666,6 @@ class Shape(Protocol, metaclass=ShapeMeta):
             dims: Dimensions to replace.
             new: New dimensions, must have same length as `dims` if `len(dims) > 1`.
                 If a `Shape` is given, replaces the dimension types and item names as well.
-            replace_item_names: For which dims the item names should be replaced as well.
 
         Returns:
             `Shape` with same rank and dimension order as `self`.
@@ -761,6 +760,8 @@ class Dim:
             from ._tensors import Tensor
             if isinstance(self.size, Tensor):
                 assert self.size.rank > 0
+            else:
+                assert self.size is None or isinstance(self.size, int)
             if self.dim_type == DUAL_DIM:
                 assert self.name.startswith('~'), f"Dual dimensions must start with '~' but got '{self.name}' in {self}"
             assert isinstance(self.slice_names, tuple) or self.slice_names is None
@@ -908,6 +909,13 @@ class Dim:
             size_str = self.size
         return f"({self.name}{SUPERSCRIPT.get(self.dim_type, '?')}={size_str})"
 
+    def __eq__(self, other):
+        if isinstance(other, Dim):
+            return self.name == other.name and self.dim_type == other.dim_type and self.slice_names == other.slice_names and _size_equal(self.size, other.size)
+        if isinstance(other, MixedShape):
+            return len(other) == 1 and self == getattr(other, self.dim_type)
+        return False
+
     def __contains__(self, item):
         if isinstance(item, Dim):
             return item.name == self.name
@@ -1022,7 +1030,7 @@ class Dim:
     def __add__(self, other):
         if isinstance(other, int):
             return Dim(self.name, self.size + other, self.dim_type, None)
-        return concat_shapes(self, other)
+        return concat_shapes_(self, other)
 
     def __sub__(self, other):
         if isinstance(other, int):
@@ -1057,11 +1065,15 @@ class Dim:
                 yield {self.name: i}
 
     def with_size(self, size, keep_item_names=True):
+        if isinstance(size, Shape):
+            names = size.get_item_names(self.name)
+            size = names if names is not None else size.get_size(self.name)
+        if isinstance(size, str):
+            names = parse_dim_order(size)
+            return Dim(self.name, len(names), self.dim_type, names)
         if isinstance(size, (tuple, list)):
             assert all(isinstance(s, str) for s in size)
             return Dim(self.name, len(size), self.dim_type, tuple(size))
-        if isinstance(size, Shape):
-            size = size.get_size(self.name)
         if size is None:
             return Dim(self.name, None, self.dim_type, None)
         if keep_item_names and _size_equal(self.size, size):
@@ -1080,14 +1092,14 @@ class Dim:
     def without_sizes(self):
         return Dim(self.name, None, self.dim_type, None)
 
-    def replace(self, dims: Union['Shape', str, tuple, list], new: 'Shape', replace_item_names: 'DimFilter' = None):
+    def replace(self, dims: Union['Shape', str, tuple, list], new: 'Shape'):
         assert self.name == parse_dim_names(dims, 1)[0]
-        return self._replace(new, replace_item_names)
+        return self._replace(new)
 
-    def _replace(self, new: 'Shape', replace_item_names: 'DimFilter' = None):
-        if self.slice_names is None:
+    def _replace(self, new: 'Shape'):
+        if self.slice_names is None or new.slice_names is not None:
             return new
-        if self.only(replace_item_names) or self.slice_names is None or len(new) != 1 or not _size_equal(len(self.slice_names), new.size):
+        if len(new) != 1 or not _size_equal(self.size, new.size):
             return new
         else:  # keep item names from self
             return Dim(new.name, new.size, new.dim_type, self.slice_names)
@@ -1272,6 +1284,13 @@ class PureShape:
         strings = [repr(dim)[1:-1] for dim in self.dims.values()]
         return '(' + ', '.join(strings) + ')'
 
+    def __eq__(self, other):
+        if isinstance(other, PureShape):
+            return self.dim_type == other.dim_type and self.dims == other.dims
+        if isinstance(other, MixedShape):
+            return other.__eq__(self)
+        return False
+
     def __contains__(self, item):
         if isinstance(item, Dim):
             return item.name in self.dims
@@ -1300,7 +1319,7 @@ class PureShape:
         if isinstance(selection, int):
             return list(self.dims.values())[selection]
         elif isinstance(selection, slice):
-            return concat_shapes(*list(self.dims.values())[selection])
+            return concat_shapes_(*list(self.dims.values())[selection])
         elif isinstance(selection, str):
             if ',' in selection:
                 selection = [self.index(s.strip()) for s in selection.split(',')]
@@ -1331,7 +1350,7 @@ class PureShape:
 
     def __and__(self, other):
         if other is dual:
-            return concat_shapes(self, self.primal.as_dual())
+            return concat_shapes_(self, self.primal.as_dual())
         if isinstance(other, (Dim, PureShape)) and other.dim_type == self.dim_type:
             return pure_merge(self, other, allow_varying_sizes=False)
         elif isinstance(other, (Dim, PureShape)):
@@ -1390,7 +1409,7 @@ class PureShape:
         if isinstance(other, int):
             assert self.dim_type != BATCH_DIM, f"Shape arithmetic not allowed for batch dims {self}"
             return PureShape(self.dim_type, {n: dim + other for n, dim in self.dims.items()})
-        return concat_shapes(self, other)
+        return concat_shapes_(self, other)
 
     def __sub__(self, other):
         if isinstance(other, int):
@@ -1456,17 +1475,17 @@ class PureShape:
     def without_sizes(self):
         return PureShape(self.dim_type, {n: dim.without_sizes() for n, dim in self.dims.items()})
 
-    def replace(self, dims: Union['Shape', str, tuple, list], new: 'Shape', replace_item_names: 'DimFilter' = None):
+    def replace(self, dims: Union['Shape', str, tuple, list], new: 'Shape'):
         dims = parse_dim_order(dims)
         dim_list = list(self.dims.values())
         if len(dims) == len(new):
             for old, new_dim in zip(dims, new):
-                new_dim = self.dims[old]._replace(new_dim, replace_item_names)
+                new_dim = self.dims[old]._replace(new_dim)
                 dim_list[self.index(old)] = new_dim
         elif len(new) > 1 and len(dims) == 1:
             i = self.index(dims[0])
             dim_list[i:i+1] = new
-        return concat_shapes(*dim_list)
+        return concat_shapes_(*dim_list)
 
     def as_batch(self):
         dims = [dim.as_batch() for dim in self.dims.values()]
@@ -1647,6 +1666,16 @@ class MixedShape:
     def __repr__(self):
         return '(' + ', '.join([repr(dim)[1:-1] for dim in self.dims.values()]) + ')'
 
+    def __eq__(self, other):
+        if isinstance(other, (Dim, PureShape)):
+            pure = getattr(self, other.dim_type)
+            if len(pure) != len(self.dims):
+                return False
+            return pure == other
+        if isinstance(other, MixedShape):
+            return self.dims == other.dims
+        return False
+
     def __contains__(self, item):
         if isinstance(item, Dim):
             return item.name in self.dims
@@ -1675,7 +1704,7 @@ class MixedShape:
         if isinstance(selection, int):
             return list(self.dims.values())[selection]
         elif isinstance(selection, slice):
-            return concat_shapes(list(self.dims.values())[selection])
+            return concat_shapes_(*list(self.dims.values())[selection])
         elif isinstance(selection, str):
             if ',' in selection:
                 selection = [self.index(s.strip()) for s in selection.split(',')]
@@ -1745,13 +1774,18 @@ class MixedShape:
             return dims(self)
         if isinstance(dims, str) and ',' not in dims:
             return self.dims.get(dims, EMPTY_SHAPE)
+        if reorder and isinstance(dims, (tuple, list)):
+            result = []
+            for sel in dims:
+                result.append(self.only(sel))
+            return concat_shapes_(*result)
         return concat_shapes_(*[dim for dim in self.dims.values() if dim.only(dims)])
 
     def __add__(self, other):
         if isinstance(other, int):
             assert not self.batch, f"Shape arithmetic not allowed for batch dims {self}"
             return concat_shapes_(*[dim + other for dim in self.dims.values()])
-        return concat_shapes(self, other)
+        return concat_shapes_(self, other)
 
     def __sub__(self, other):
         if isinstance(other, int):
@@ -1819,17 +1853,17 @@ class MixedShape:
     def without_sizes(self):
         return concat_shapes_(*[dim.without_sizes() for dim in self.dims.values()])
 
-    def replace(self, dims: Union['Shape', str, tuple, list], new: 'Shape', replace_item_names: 'DimFilter' = None):
+    def replace(self, dims: Union['Shape', str, tuple, list], new: 'Shape'):
         dims = parse_dim_order(dims)
         dim_list = list(self.dims.values())
         if len(dims) == len(new):
             for old, new_dim in zip(dims, new):
-                new_dim = self.dims[old]._replace(new_dim, replace_item_names)
+                new_dim = self.dims[old]._replace(new_dim)
                 dim_list[self.index(old)] = new_dim
         elif len(new) > 1 and len(dims) == 1:
             i = self.index(dims[0])
             dim_list[i:i+1] = new
-        return concat_shapes(*dim_list)
+        return concat_shapes_(*dim_list)
 
     def as_batch(self):
         dims = [dim.as_batch() for dim in self.dims.values()]
@@ -2296,7 +2330,7 @@ def parse_shape_spec(input_string, default_type: Callable = None) -> Shape:
             pos = match.end() + 1
         else:
             raise InvalidShapeSpec(input_string, f"Failed to parse from index {pos}: '{input_string[pos:]}'. Dims must be specified as name:type or name:type=(item_names...). Names and types may only be omitted if component names are given.")
-    return concat_shapes(*dims)
+    return concat_shapes_(*dims)
 
 
 DIM_FUNCTIONS = {BATCH_DIM: batch, SPATIAL_DIM: spatial, INSTANCE_DIM: instance, CHANNEL_DIM: channel, DUAL_DIM: dual}
@@ -2370,8 +2404,8 @@ def pure_merge(*shapes: Shape, allow_varying_sizes: bool) -> Shape:
             else:
                 if not sizes_match:
                     raise IncompatibleShapes(f"Cannot merge shapes {shapes} because dimension '{dim.name}' exists with different sizes.", *shapes)
-                names1 = prev_dim.item_names
-                names2 = dim.item_names
+                names1 = prev_dim.slice_names
+                names2 = dim.slice_names
                 if names1 is not None and names2 is not None and len(names1) > 1:
                     if names1 != names2:
                         if set(names1) == set(names2):
@@ -2529,14 +2563,14 @@ def concat_shapes_(*shapes: Shape) -> Shape:
     return MixedShape(dims=dims, **by_type)
 
 
-def shape_stack(stack_dim: Shape, *shapes: Shape, stack_dim_first=False):
+def shape_stack(stack_dim: Shape, *shapes: Shape, stack_dim_first=True):
     """ Returns the shape of a tensor created by stacking tensors with `shapes`. """
-    if stack_dim.rank > 1:
-        assert stack_dim.volume == len(shapes), f"stack_dim {stack_dim} does not match number of shapes: {len(shapes)}"
+    assert stack_dim.rank == 1, f"stack_dim must be a single dim but got {stack_dim}"
+    stack_dim = Dim(stack_dim.name, len(shapes), stack_dim.dim_type, stack_dim.item_names[0])
     if not shapes:
         return stack_dim
     if len(shapes) == 1:
-        return stack_dim & shapes[0]
+        return (stack_dim + shapes[0]) if stack_dim_first else (shapes[0] + stack_dim)
     dims = {}
     conflicts = set()  # names with conflicting item names
     # --- Find conflicting slice names (only where sizes match up) ---
@@ -2569,22 +2603,6 @@ def shape_stack(stack_dim: Shape, *shapes: Shape, stack_dim_first=False):
             size = stack(dim_sizes_or_1, stack_dim, expand_values=True)
             sdims.append(Dim(name, size, dim.dim_type, None))
     return concat_shapes_(stack_dim, *sdims) if stack_dim_first else concat_shapes_(*sdims, stack_dim)
-
-
-def vector_add(*shapes: Shape):
-    if not shapes:
-        return EMPTY_SHAPE
-    names = shapes[0].names
-    types = shapes[0].types
-    item_names = shapes[0].item_names
-    for shape in shapes[1:]:
-        for name in shape.names:
-            if name not in names:
-                names += (name,)
-                types += (shape.get_type(name),)
-                item_names += (shape.get_item_names(name),)
-    sizes = [sum(sh.get_size(dim) if dim in sh else 0 for sh in shapes) for dim in names]
-    return Shape(tuple(sizes), names, types, item_names)
 
 
 def prepare_gather(self: Shape, dim: str, selection: Union[slice, int, 'Shape', str, tuple, list]) -> Union[slice, List[int]]:
@@ -2788,13 +2806,17 @@ def to_dict(self: Shape, include_sizes=True):
 
 
 def from_dict(dict_: dict):
-    names = tuple(dict_['names'])
+    names = dict_['names']
     sizes = list(dict_['sizes']) if 'sizes' in dict_ else [None] * len(names)
+    types = dict_['types']
     item_names = tuple([None if n is None else tuple(n) for n in dict_['item_names']])
     for i, n in enumerate(item_names):
         if n and sizes[i] is None:
             sizes[i] = len(n)
-    return Shape(tuple(sizes), names, tuple(dict_['types']), item_names)
+    return concat_shapes_(*[Dim(n, s, t, i) for n, s, t, i in zip(names, sizes, types, item_names)])
+
+
+Shape._from_dict = from_dict
 
 
 def first_index(shape: Shape):
@@ -2805,3 +2827,5 @@ for cls in [Dim, PureShape, MixedShape]:
     cls.after_gather = after_gather
     cls.after_pad = after_pad
     cls.first_index = first_index
+    cls.prepare_gather = prepare_gather
+    cls._to_dict = to_dict
