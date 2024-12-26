@@ -1692,9 +1692,9 @@ def tensor(data,
             data = data.sizes
     if isinstance(data, Tensor):
         if convert:
-            backend = data.default_backend
+            backend = data.backend
             if backend != default_backend():
-                data = data._op1(lambda n: convert_(n, use_dlpack=False))
+                data = data._from_spec_and_natives(data._spec_dict(), [convert_(n, use_dlpack=False) for n in data._natives()])
         if shape is None:
             return data
         else:

@@ -71,6 +71,7 @@ class TestTensors(TestCase):
                 self.assertEqual(2, tens.shape.get_size('stack'))
                 self.assertEqual(('stack', 'x'), tens.shape.names)
                 tens = math.tensor(ref)
+                print(tens.backend)
                 self.assertEqual(backend, math.choose_backend(tens))
                 self.assertEqual(backend, math.choose_backend(tens.stack[0]))
                 self.assertEqual(backend, math.choose_backend(tens.stack[1]))
