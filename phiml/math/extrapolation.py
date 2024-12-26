@@ -1314,7 +1314,7 @@ class _MixedExtrapolation(Extrapolation):
 
     def transform_coordinates(self, coordinates: Tensor, shape: Shape, **kwargs) -> Tensor:
         result = []
-        for dim in shape.spatial.unstack():
+        for dim in shape.spatial:
             dim_coords = coordinates[[dim.name]]
             le = self._at_boundary(dim.name+'-')
             ue = self._at_boundary(dim.name+'+')

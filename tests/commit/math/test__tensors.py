@@ -679,7 +679,7 @@ class TestTensors(TestCase):
 
     def test_expand_non_uniform(self):
         size = vec(batch('dataset_size'), 2, 4, 8, 16, 64, 256)
-        b = batch(example=size, seed=64) & size
+        b = batch(example=size, seed=64) & size.shape
         t = math.random_uniform(b)
         curves = vec(dataset_size=size, fraction=t)
         print(curves.shape)

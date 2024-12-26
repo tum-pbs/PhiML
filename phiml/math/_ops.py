@@ -353,7 +353,7 @@ def _initialize(uniform_initializer, shapes: Tuple[Shape]) -> Tensor:
     shape = concat_shapes(*shapes)
     assert shape.well_defined, f"When creating a Tensor, shape needs to have definitive sizes but got {shape}"
     if shape.is_non_uniform:
-        stack_dim = shape.shape.without('dims')[0:1]
+        stack_dim = shape.non_uniform_shape[0]
         shapes = shape.unstack(stack_dim.name)
         tensors = [_initialize(uniform_initializer, s) for s in shapes]
         return stack_tensors(tensors, stack_dim)

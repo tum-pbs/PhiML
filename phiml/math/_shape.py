@@ -1092,6 +1092,11 @@ class Dim:
     def without_sizes(self):
         return Dim(self.name, None, self.dim_type, None)
 
+    def flipped(self, dims: Union[List[str], Tuple[str]]):
+        if self.slice_names is None or self.name not in dims:
+            return self
+        return Dim(self.name, self.size, self.dim_type, self.slice_names[::-1])
+
     def replace(self, dims: Union['Shape', str, tuple, list], new: 'Shape'):
         assert self.name == parse_dim_names(dims, 1)[0]
         return self._replace(new)
@@ -1329,6 +1334,7 @@ class PureShape:
         elif isinstance(selection, Shape):
             selection = selection.names
         if isinstance(selection, (tuple, list)):
+            selection = [self.names[sel] if isinstance(sel, int) else sel for sel in selection]
             if DEBUG_CHECKS:
                 assert all(isinstance(s, str) for s in selection)
             return concat_shapes_(*[self.dims[n] for n in selection])
@@ -1474,6 +1480,10 @@ class PureShape:
 
     def without_sizes(self):
         return PureShape(self.dim_type, {n: dim.without_sizes() for n, dim in self.dims.items()})
+
+    def flipped(self, dims: Union[List[str], Tuple[str]]):
+        dims = {n: dim.flipped(dims) for n, dim in self.dims.items()}
+        return PureShape(self.dim_type, dims)
 
     def replace(self, dims: Union['Shape', str, tuple, list], new: 'Shape'):
         dims = parse_dim_order(dims)
@@ -1636,32 +1646,32 @@ class MixedShape:
     @property
     def primal(self):
         dims = {**self.instance.dims, **self.spatial.dims, **self.channel.dims}
-        return MixedShape(EMPTY_SHAPE, EMPTY_SHAPE, self.instance, self.spatial, self.channel, dims)
+        return MixedShape(EMPTY_SHAPE, EMPTY_SHAPE, self.instance, self.spatial, self.channel, dims) if dims else EMPTY_SHAPE
     @property
     def non_primal(self):
         dims = {**self.batch.dims, **self.dual.dims}
-        return MixedShape(self.batch, self.dual, EMPTY_SHAPE, EMPTY_SHAPE, EMPTY_SHAPE, dims)
+        return MixedShape(self.batch, self.dual, EMPTY_SHAPE, EMPTY_SHAPE, EMPTY_SHAPE, dims) if dims else EMPTY_SHAPE
 
     @property
     def non_batch(self):
         dims = {n: dim for n, dim in self.dims.items() if dim.dim_type != BATCH_DIM}
-        return MixedShape(EMPTY_SHAPE, self.dual, self.instance, self.spatial, self.channel, dims)
+        return MixedShape(EMPTY_SHAPE, self.dual, self.instance, self.spatial, self.channel, dims) if dims else EMPTY_SHAPE
     @property
     def non_dual(self):
         dims = {n: dim for n, dim in self.dims.items() if dim.dim_type != DUAL_DIM}
-        return MixedShape(self.batch, EMPTY_SHAPE, self.instance, self.spatial, self.channel, dims)
+        return MixedShape(self.batch, EMPTY_SHAPE, self.instance, self.spatial, self.channel, dims) if dims else EMPTY_SHAPE
     @property
     def non_instance(self):
         dims = {n: dim for n, dim in self.dims.items() if dim.dim_type != INSTANCE_DIM}
-        return MixedShape(self.batch, self.dual, EMPTY_SHAPE, self.spatial, self.channel, dims)
+        return MixedShape(self.batch, self.dual, EMPTY_SHAPE, self.spatial, self.channel, dims) if dims else EMPTY_SHAPE
     @property
     def non_spatial(self):
         dims = {n: dim for n, dim in self.dims.items() if dim.dim_type != SPATIAL_DIM}
-        return MixedShape(self.batch, self.dual, self.instance, EMPTY_SHAPE, self.channel, dims)
+        return MixedShape(self.batch, self.dual, self.instance, EMPTY_SHAPE, self.channel, dims) if dims else EMPTY_SHAPE
     @property
     def non_channel(self):
         dims = {n: dim for n, dim in self.dims.items() if dim.dim_type != CHANNEL_DIM}
-        return MixedShape(self.batch, self.dual, self.instance, self.spatial, EMPTY_SHAPE, dims)
+        return MixedShape(self.batch, self.dual, self.instance, self.spatial, EMPTY_SHAPE, dims) if dims else EMPTY_SHAPE
 
     def __repr__(self):
         return '(' + ', '.join([repr(dim)[1:-1] for dim in self.dims.values()]) + ')'
@@ -1714,6 +1724,7 @@ class MixedShape:
         elif isinstance(selection, Shape):
             selection = selection.names
         if isinstance(selection, (tuple, list)):
+            selection = [self.names[sel] if isinstance(sel, int) else sel for sel in selection]
             if DEBUG_CHECKS:
                 assert all(isinstance(s, str) for s in selection)
             return concat_shapes_(*[self.dims[n] for n in selection])
@@ -1852,6 +1863,9 @@ class MixedShape:
 
     def without_sizes(self):
         return concat_shapes_(*[dim.without_sizes() for dim in self.dims.values()])
+
+    def flipped(self, dims: Union[List[str], Tuple[str]]):
+        return concat_shapes_(*[dim.flipped(dims) for n, dim in self.dims.items()])
 
     def replace(self, dims: Union['Shape', str, tuple, list], new: 'Shape'):
         dims = parse_dim_order(dims)
@@ -2565,8 +2579,13 @@ def concat_shapes_(*shapes: Shape) -> Shape:
 
 def shape_stack(stack_dim: Shape, *shapes: Shape, stack_dim_first=True):
     """ Returns the shape of a tensor created by stacking tensors with `shapes`. """
-    assert stack_dim.rank == 1, f"stack_dim must be a single dim but got {stack_dim}"
-    stack_dim = Dim(stack_dim.name, len(shapes), stack_dim.dim_type, stack_dim.item_names[0])
+    if stack_dim.rank > 1:
+        assert stack_dim.volume == len(shapes), f"stack_dim {stack_dim} does not match number of shapes: {len(shapes)}"
+    elif len(stack_dim) == 1:
+        stack_dim = Dim(stack_dim.name, len(shapes), stack_dim.dim_type, stack_dim.item_names[0])
+    else:
+        assert len(shapes) == 1
+        return shapes[0]
     if not shapes:
         return stack_dim
     if len(shapes) == 1:
@@ -2603,6 +2622,48 @@ def shape_stack(stack_dim: Shape, *shapes: Shape, stack_dim_first=True):
             size = stack(dim_sizes_or_1, stack_dim, expand_values=True)
             sdims.append(Dim(name, size, dim.dim_type, None))
     return concat_shapes_(stack_dim, *sdims) if stack_dim_first else concat_shapes_(*sdims, stack_dim)
+
+
+def unstack(self: Shape, dim: str) -> Sequence[Shape]:
+    """
+    Slices this `Shape` along a dimension.
+    The dimension listing the sizes of the shape is referred to as `'dims'`.
+
+    Non-uniform tensor shapes may be unstacked along other dimensions as well, see
+    https://tum-pbs.github.io/PhiML/Non_Uniform.html
+
+    Args:
+        dim: dimension to unstack
+
+    Returns:
+        slices of this shape
+    """
+    assert dim != 'dims'
+    if dim not in self and self.is_uniform:
+        return self,
+    elif self.is_uniform:
+        return (self-dim,) * self.get_size(dim)
+    # --- non-uniform case ---
+    from ._tensors import Tensor
+    if dim in self:
+        inner = self.without(dim)
+        dim_size = self.get_size(dim)
+    else:
+        inner = self
+        dim_size = self.shape.get_size(dim)
+    sizes = []
+    for size in inner.sizes:
+        if isinstance(size, Tensor) and dim in size.shape:
+            sizes.append(size._unstack(dim))
+            dim_size = size.shape.get_size(dim)
+        else:
+            sizes.append(size)
+    assert isinstance(dim_size, int)
+    result = []
+    for i in range(dim_size):
+        sizes_i = [int(size[i]) if isinstance(size, tuple) else size for size in sizes]
+        result.append(inner.with_sizes(sizes_i))
+    return result
 
 
 def prepare_gather(self: Shape, dim: str, selection: Union[slice, int, 'Shape', str, tuple, list]) -> Union[slice, List[int]]:
@@ -2736,43 +2797,6 @@ def after_pad(self, widths: dict) -> 'Shape':
     return self.with_sizes(sizes)
 
 
-def unstack(self, dim='dims') -> Tuple['Shape']:
-    """
-    Slices this `Shape` along a dimension.
-    The dimension listing the sizes of the shape is referred to as `'dims'`.
-
-    Non-uniform tensor shapes may be unstacked along other dimensions as well, see
-    https://tum-pbs.github.io/PhiML/Non_Uniform.html
-
-    Args:
-        dim: dimension to unstack
-
-    Returns:
-        slices of this shape
-    """
-    if dim == 'dims':
-        return tuple(Shape((self.sizes[i],), (self.names[i],), (self.types[i],), (self.item_names[i],)) for i in range(self.rank))
-    if dim not in self and self.is_uniform:
-        return tuple([self])
-    from ._tensors import Tensor
-    if dim in self:
-        inner = self.without(dim)
-        dim_size = self.get_size(dim)
-    else:
-        inner = self
-        dim_size = self.shape.get_size(dim)
-    sizes = []
-    for size in inner.sizes:
-        if isinstance(size, Tensor) and dim in size.shape:
-            sizes.append(size._unstack(dim))
-            dim_size = size.shape.get_size(dim)
-        else:
-            sizes.append(size)
-    assert isinstance(dim_size, int)
-    shapes = tuple(Shape(tuple([int(size[i]) if isinstance(size, tuple) else size for size in sizes]), inner.names, inner.types, inner.item_names) for i in range(dim_size))
-    return shapes
-
-
 def transpose(self, dims: DimFilter):
     if callable(dims) and dims in TYPE_BY_FUNCTION:
         dims = TYPE_BY_FUNCTION[dims]
@@ -2824,6 +2848,7 @@ def first_index(shape: Shape):
 
 
 for cls in [Dim, PureShape, MixedShape]:
+    cls.unstack = unstack
     cls.after_gather = after_gather
     cls.after_pad = after_pad
     cls.first_index = first_index

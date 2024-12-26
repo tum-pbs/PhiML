@@ -19,7 +19,7 @@ from ._shape import (Shape,
                      SUPERSCRIPT, IncompatibleShapes, INSTANCE_DIM, batch, spatial, dual, instance, shape, shape as shape_, DimFilter, non_batch, DEBUG_CHECKS, parse_shape_spec,
                      prepare_renaming_gather, after_gather, concat_shapes_, Dim, PureShape)
 from ..backend import NoBackendFound, choose_backend, BACKENDS, get_precision, default_backend, convert as convert_, \
-    Backend, ComputeDevice, OBJECTS, NUMPY
+    Backend, ComputeDevice, OBJECTS, NUMPY, ML_LOGGER
 from ..backend._dtype import DType, combine_types
 from .magic import BoundDim, PhiTreeNode, slicing_dict, Shaped, _BoundDims
 from .magic import Shapable
@@ -1236,8 +1236,8 @@ class NativeTensor(Tensor):
         self._names = names
         self._backend = backend
         if DEBUG_CHECKS:
-            assert isinstance(names, (tuple, list))
-            assert all(isinstance(n, str) for n in names)
+            assert isinstance(names, (tuple, list)), f"names must be a tuple or list[str] but got {type(names)}"
+            assert all(isinstance(n, str) for n in names), f"names must be a tuple or list[str] but got {names}"
             assert isinstance(backend, Backend)
             for dim in expanded_shape:
                 if dim.size is not None and isinstance(dim.size, Tensor):
@@ -1252,7 +1252,10 @@ class NativeTensor(Tensor):
     def native(self, order: Union[str, tuple, list, Shape] = None, force_expand=True):
         if order is None:
             assert len(self._shape) <= 1, f"When calling Tensor.native() or Tensor.numpy(), the dimension order must be specified for Tensors with more than one dimension, e.g. '{','.join(self._shape.names)}'. The listed default dimension order can vary depending on the chosen backend. Consider using math.reshaped_native(Tensor) instead."
-            return self._native if len(self._names) <= 1 or not force_expand else self.backend.tile(self._native, (self._shape.size,))
+            if len(self._names) == len(self._shape):
+                return self.backend.auto_cast(self._native)[0]
+            assert len(self._names) == 0  # shape.rank is 1
+            return self.backend.tile(self.backend.expand_dims(self.backend.auto_cast(self._native)[0]), (self._shape.size,))
         if isinstance(order, str):
             return self._transposed_native(parse_dim_order(order), force_expand)
         if isinstance(order, (tuple, list)) and all(isinstance(o, str) for o in order):
@@ -1312,7 +1315,7 @@ class NativeTensor(Tensor):
         if len(self._names) == len(self._shape):  # nothing to expand
             return self
         elif dims is None or len(self._shape) == len(set(self._names) | set(dims.names)):  # expand all
-            return NativeTensor(self.native(order=self._shape), self._shape, self._shape, self._backend)
+            return NativeTensor(self.native(order=self._shape), self._shape.names, self._shape, self._backend)
         else:  # expand specific dims
             new_native_shape = dims & self._shape[self._names]
             tmp_tensor = NativeTensor(self._native, self._names, new_native_shape, self._backend)
@@ -1696,7 +1699,7 @@ def tensor(data,
             return data
         else:
             if None in shape.sizes:
-                shape = shape.with_sizes(data.shape)
+                shape = shape.with_sizes(data.shape.sizes)
             return data._with_shape_replaced(shape)
     elif isinstance(data, str) or data is None:
         return layout(data)
@@ -2133,7 +2136,7 @@ def expand_tensor(value: Tensor, dims: Shape):
         if dims.is_uniform:
             return NativeTensor(value._native, value._names, dims & value._shape, value._backend)
         else:
-            stack_dim = dims.shape.without('dims')
+            stack_dim = dims.non_uniform_shape
             if stack_dim.rank > 1:
                 raise NotImplementedError(f"Higher-order non-uniform expand() not yet supported. Tried expanding {value.shape} by {dims}")
             unstacked_dims = [after_gather(dims, i) for i in stack_dim.meshgrid()]
@@ -3095,7 +3098,7 @@ def backend_for(*values: Tensor):
         return result
     natives = sum([v._natives() if isinstance(v, Tensor) else (v,) for v in values], ())
     result = _BACKEND_RULES[backends] = choose_backend(*natives)
-    print(f"New backend combination: {backends} -> {result}")
+    ML_LOGGER.debug(f"Caching new backend combination: {backends} -> {result}")
     return result
 
 
