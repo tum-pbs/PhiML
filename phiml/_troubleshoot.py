@@ -193,9 +193,9 @@ def count_tensors_in_memory(min_print_size: int = None):
 def cache_all_tensors(print=print):
     import gc
     gc.collect()
-    from .math._tensors import NativeTensor, TensorStack
+    from .math._tensors import Dense, TensorStack
     for obj in gc.get_objects():
-        if isinstance(obj, NativeTensor):
+        if isinstance(obj, Dense):
             if len(obj._shape) > len(obj._names):
                 if print is not None:
                     print(f"Expanding tensor with shape {obj._shape} from {obj._names} {type(obj._native).__name__} {obj._native}")

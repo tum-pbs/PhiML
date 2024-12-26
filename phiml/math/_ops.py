@@ -14,7 +14,7 @@ from ._shape import (Shape, EMPTY_SHAPE,
                      spatial, batch, channel, instance, merge_shapes, parse_dim_order, concat_shapes,
                      IncompatibleShapes, DimFilter, non_batch, dual, shape, shape as get_shape, primal, auto, non_spatial, non_dual, resolve_index)
 from . import extrapolation as e_
-from ._tensors import (Tensor, wrap, tensor, broadcastable_native_tensors, NativeTensor, TensorStack,
+from ._tensors import (Tensor, wrap, tensor, broadcastable_native_tensors, Dense, TensorStack,
                        custom_op2, compatible_tensor, variable_attributes, disassemble_tree, assemble_tree,
                        is_scalar, Layout, expand_tensor, TensorOrTree, cached, variable_shape,
                        reshaped_native, reshaped_tensor, discard_constant_dims, variable_dim_names, backend_for, preferred_backend_for)
@@ -377,7 +377,7 @@ def zeros(*shape: Shape, dtype: Union[DType, tuple, type] = None) -> Tensor:
     Returns:
         `Tensor`
     """
-    return _initialize(lambda shape: expand_tensor(NativeTensor(default_backend().zeros((), dtype=DType.as_dtype(dtype)), (), EMPTY_SHAPE, default_backend()), shape), shape)
+    return _initialize(lambda shape: expand_tensor(Dense(default_backend().zeros((), dtype=DType.as_dtype(dtype)), (), EMPTY_SHAPE, default_backend()), shape), shape)
 
 
 def zeros_like(obj: Union[Tensor, PhiTreeNode]) -> Union[Tensor, PhiTreeNode]:
@@ -407,7 +407,7 @@ def ones(*shape: Shape, dtype: Union[DType, tuple, type] = None) -> Tensor:
     Returns:
         `Tensor`
     """
-    return _initialize(lambda shape: expand_tensor(NativeTensor(default_backend().ones((), dtype=DType.as_dtype(dtype)), (), EMPTY_SHAPE, default_backend()), shape), shape)
+    return _initialize(lambda shape: expand_tensor(Dense(default_backend().ones((), dtype=DType.as_dtype(dtype)), (), EMPTY_SHAPE, default_backend()), shape), shape)
 
 
 def ones_like(value: Tensor) -> Tensor:
@@ -437,7 +437,7 @@ def random_normal(*shape: Shape, dtype: Union[DType, tuple, type] = None) -> Ten
     def uniform_random_normal(shape):
         backend = choose_backend(*shape.sizes, prefer_default=True)
         native = backend.random_normal(shape.sizes, DType.as_dtype(dtype))
-        return NativeTensor(native, shape.names, shape, backend)
+        return Dense(native, shape.names, shape, backend)
 
     return _initialize(uniform_random_normal, shape)
 
@@ -465,13 +465,13 @@ def random_uniform(*shape: Shape,
         def uniform_random_uniform(shape):
             backend = choose_backend(low, high, *shape.sizes, prefer_default=True)
             native = backend.random_uniform(shape.sizes, low, high, DType.as_dtype(dtype))
-            return NativeTensor(native, shape.names, shape, backend)
+            return Dense(native, shape.names, shape, backend)
         return _initialize(uniform_random_uniform, shape)
     else:
         def uniform_random_uniform(shape):
             backend = choose_backend(*shape.sizes, prefer_default=True)
             native = backend.random_uniform(shape.sizes, 0, 1, DType.as_dtype(dtype))
-            return NativeTensor(native, shape.names, shape, backend)
+            return Dense(native, shape.names, shape, backend)
         return _initialize(uniform_random_uniform, shape) * (high - low) + low
 
 
@@ -602,12 +602,12 @@ def sort(x: Tensor, dim: DimFilter = non_batch) -> Tensor:
         return x  # nothing to do; x is constant along dim
     assert dim.rank == 1, f"Can only sort one dimension at a time. Use pack_dims() to jointly sort over multiple dimensions."
     axis = v_names.index(dim.name)
-    x_native = x._native if isinstance(x, NativeTensor) else x.native(x.shape)
+    x_native = x._native if isinstance(x, Dense) else x.native(x.shape)
     sorted_native = x.backend.sort(x_native, axis=axis)
     if x.shape.get_item_names(dim):
         warnings.warn(f"sort() removes item names along sorted axis '{dim}'. Was {x.shape.get_item_names(dim)}", RuntimeWarning, stacklevel=2)
         x_shape = x_shape.with_dim_size(dim, x_shape.get_size(dim), keep_item_names=False)
-    return NativeTensor(sorted_native, v_names, x_shape, x.backend)
+    return Dense(sorted_native, v_names, x_shape, x.backend)
 
 
 def cumulative_sum(x: Tensor, dim: DimFilter, include_0=False, include_sum=True, index_dim: Union[str, Shape, None] = None):
@@ -728,7 +728,7 @@ def meshgrid(dims: Union[Callable, Shape] = spatial, stack_dim=channel('vector')
         grid_shape = dim_type(**{dim: size for dim, size in zip(dimensions.keys(), dim_sizes)})
     backend = choose_backend(*dim_values, prefer_default=True)
     indices_list = backend.meshgrid(*dim_values)
-    channels = [NativeTensor(t, grid_shape.names, grid_shape, backend) for t in indices_list]
+    channels = [Dense(t, grid_shape.names, grid_shape, backend) for t in indices_list]
     if not stack_dim:
         assert len(channels) == 1, f"meshgrid with multiple dimension requires a valid stack_dim but got {stack_dim}"
         return channels[0]
@@ -772,7 +772,7 @@ def linspace(start: Union[float, Tensor, tuple, list], stop: Union[float, Tensor
     if is_scalar(start) and is_scalar(stop):
         backend = preferred_backend_for(start, stop)
         native_linspace = backend.linspace(start.native(), stop.native(), dim.size)
-        return NativeTensor(native_linspace, dim.names, dim, backend)
+        return Dense(native_linspace, dim.names, dim, backend)
     else:
         from ._functional import map_
         return map_(linspace, start, stop, dim=dim)
@@ -821,7 +821,7 @@ def arange(dim: Shape, start_or_stop: Union[int, None] = None, stop: Union[int, 
             return stack(ranges, b0)
         b = backend or preferred_backend_for(start, stop)
         native = b.range(start.native(), stop.native(), step.native(), DType(int, 32))
-        return NativeTensor(native, range_dim.names, range_dim.with_size(len(native)), b)
+        return Dense(native, range_dim.names, range_dim.with_size(len(native)), b)
     return batched_range(dim, start, stop, step)
 
 
@@ -854,8 +854,8 @@ def stack_tensors(values: Union[tuple, list], dim: Shape):
     if any(isinstance(t, (SparseCoordinateTensor, CompressedSparseMatrix)) for t in values) and not all(isinstance(t, (SparseCoordinateTensor, CompressedSparseMatrix)) for t in values):
         values = [dense(v) for v in values]
     # --- trivial case ---
-    if len(values) == 1 and isinstance(values[0], NativeTensor):
-        return NativeTensor(values[0]._native, values[0]._names, values[0].shape & dim.with_size(1), values[0]._backend)
+    if len(values) == 1 and isinstance(values[0], Dense):
+        return Dense(values[0]._native, values[0]._names, values[0].shape & dim.with_size(1), values[0]._backend)
     # --- not directly stackable ---
     non_stackable = broadcast_dims(*values)
     if non_stackable or any(is_sparse(v) for v in values):  # stackable sparse would have been handled by __stack__() before calling this function
@@ -873,7 +873,7 @@ def stack_tensors(values: Union[tuple, list], dim: Shape):
     b = choose_backend(*natives)
     native_stacked = b.stack(natives, axis=names.index(dim.name))
     expanded_shape = merge_shapes(*[v.shape for v in values]) & dim
-    return NativeTensor(native_stacked, names, expanded_shape, b)
+    return Dense(native_stacked, names, expanded_shape, b)
 
 
 def concat_tensor(values: Union[tuple, list], dim: str) -> Tensor:
@@ -893,7 +893,7 @@ def concat_tensor(values: Union[tuple, list], dim: str) -> Tensor:
             broadcast_shape = broadcast_shape.with_dim_size(dim, sum([v.shape.get_item_names(dim) or () for v in values], ()))
         else:
             broadcast_shape = broadcast_shape.with_dim_size(dim, sum([v.shape.get_size(dim) for v in values]))
-        return NativeTensor(concatenated, broadcast_shape.names, broadcast_shape, backend)
+        return Dense(concatenated, broadcast_shape.names, broadcast_shape, backend)
 
     result = broadcast_op(inner_concat, values)
     return result
@@ -1246,7 +1246,7 @@ def where(condition: Union[Tensor, float, int],
         names, shape, (c, vt, vf) = broadcastable_native_tensors(c, vt, vf)
         backend = choose_backend(c, vt, vf)
         result = backend.where(c, vt, vf)
-        return NativeTensor(result, names, shape, backend)
+        return Dense(result, names, shape, backend)
 
     return broadcast_op(inner_where, [condition, value_true, value_false])
 
@@ -1439,9 +1439,9 @@ csum.__doc__ = """Sum channel dims of `value`, see `phiml.math.sum`."""
 def _sum(value: Tensor, dims: Shape) -> Tensor:
     if not dims:
         return value
-    if isinstance(value, NativeTensor):
+    if isinstance(value, Dense):
         result = value.backend.sum(value._native, tuple(value._names.index(n) for n in dims.names if n in value._names)) * value.collapsed_dims.only(dims).volume
-        return NativeTensor(result, [n for n in value._names if n not in dims], value.shape - dims, value._backend)
+        return Dense(result, [n for n in value._names if n not in dims], value.shape - dims, value._backend)
     elif isinstance(value, TensorStack):
         reduced_inners = [_sum(t, dims.without(value._stack_dim)) for t in value._tensors]
         return functools.reduce(lambda x, y: x + y, reduced_inners) if value._stack_dim in dims else TensorStack(reduced_inners, value._stack_dim)
@@ -1490,9 +1490,9 @@ cprod.__doc__ = """Compute the product along channel dims of `value`, see `phiml
 
 
 def _prod(value: Tensor, dims: Shape) -> Tensor:
-    if isinstance(value, NativeTensor):
+    if isinstance(value, Dense):
         result = value.backend.prod(value._native, tuple(value._names.index(n) for n in dims.names if n in value._names)) ** value.collapsed_dims.only(dims).volume
-        return NativeTensor(result, [n for n in value._names if n not in dims], value.shape - dims, value._backend)
+        return Dense(result, [n for n in value._names if n not in dims], value.shape - dims, value._backend)
     elif isinstance(value, TensorStack):
         reduced_inners = [_prod(t, dims.without(value._stack_dim)) for t in value._tensors]
         return functools.reduce(lambda x, y: x * y, reduced_inners) if value._stack_dim in dims else TensorStack(reduced_inners, value._stack_dim)
@@ -1555,9 +1555,9 @@ cmean.__doc__ = """Compute the mean along channel dims of `value`, see `phiml.ma
 def _mean(value: Tensor, dims: Shape) -> Tensor:
     if not dims:
         return value
-    if isinstance(value, NativeTensor):
+    if isinstance(value, Dense):
         result = value.backend.mean(value._native, tuple(value._names.index(n) for n in dims.names if n in value._names))
-        return NativeTensor(result, [n for n in value._names if n not in dims], value.shape - dims, value._backend)
+        return Dense(result, [n for n in value._names if n not in dims], value.shape - dims, value._backend)
     elif isinstance(value, TensorStack):
         if value._stack_dim in dims:
             total = _sum(value, dims)
@@ -1599,7 +1599,7 @@ def std(value, dim: DimFilter = non_batch) -> Tensor:
 def _std(value: Tensor, dims: Shape) -> Tensor:
     if value.shape.is_uniform:
         result = value.backend.std(value.native(value.shape), value.shape.indices(dims.names))
-        return NativeTensor(result, [n for n in value._names if n not in dims], value.shape - dims, value._backend)
+        return Dense(result, [n for n in value._names if n not in dims], value.shape - dims, value._backend)
     else:
         non_uniform_dims = value.shape.shape.without('dims')
         if non_uniform_dims.only(dims).is_empty:  # reduce uniform dims only
@@ -1633,9 +1633,9 @@ def any_(boolean_value, dim: DimFilter = non_batch) -> Tensor:
 
 
 def _any(value: Tensor, dims: Shape) -> Tensor:
-    if isinstance(value, NativeTensor):
+    if isinstance(value, Dense):
         result = value.backend.any(value._native, tuple(value._names.index(n) for n in dims.names if n in value._names))
-        return NativeTensor(result, [n for n in value._names if n not in dims], value.shape - dims, value._backend)
+        return Dense(result, [n for n in value._names if n not in dims], value.shape - dims, value._backend)
     elif isinstance(value, TensorStack):
         reduced_inners = [_any(t, dims.without(value._stack_dim)) for t in value._tensors]
         return functools.reduce(lambda x, y: x | y, reduced_inners) if value._stack_dim in dims else TensorStack(reduced_inners, value._stack_dim)
@@ -1667,9 +1667,9 @@ def all_(boolean_value, dim: DimFilter = non_batch) -> Tensor:
 
 
 def _all(value: Tensor, dims: Shape) -> Tensor:
-    if isinstance(value, NativeTensor):
+    if isinstance(value, Dense):
         result = value.backend.all(value.native(value.shape), value.shape.indices(dims.names))
-        return NativeTensor(result, [n for n in value._names if n not in dims], value.shape - dims, value._backend)
+        return Dense(result, [n for n in value._names if n not in dims], value.shape - dims, value._backend)
     elif isinstance(value, TensorStack):
         reduced_inners = [_all(t, dims.without(value._stack_dim)) for t in value._tensors]
         return functools.reduce(lambda x, y: x & y, reduced_inners) if value._stack_dim in dims else TensorStack(reduced_inners, value._stack_dim)
@@ -1724,9 +1724,9 @@ cmax.__doc__ = """Compute the maximum along channel dims of `value`, see `phiml.
 def _max(value: Tensor, dims: Shape) -> Tensor:
     if value.shape.volume == 0:
         return zeros(value.shape.without(dims), dtype=value.dtype)
-    if isinstance(value, NativeTensor):
+    if isinstance(value, Dense):
         result = value.backend.max(value.native(value.shape), value.shape.indices(dims.names))
-        return NativeTensor(result, [n for n in value._names if n not in dims], value.shape - dims, value._backend)
+        return Dense(result, [n for n in value._names if n not in dims], value.shape - dims, value._backend)
     elif isinstance(value, TensorStack):
         reduced_inners = [_max(t, dims.without(value._stack_dim)) for t in value._tensors]
         return functools.reduce(lambda x, y: maximum(x, y), reduced_inners) if value._stack_dim in dims else TensorStack(reduced_inners, value._stack_dim)
@@ -1776,10 +1776,10 @@ cmin.__doc__ = """Compute the minimum along channel dims of `value`, see `phiml.
 def _min(value: Tensor, dims: Shape) -> Tensor:
     if value.shape.volume == 0:
         return zeros(value.shape.without(dims), dtype=value.dtype)
-    if isinstance(value, NativeTensor):
+    if isinstance(value, Dense):
         result = value.backend.min(value.native(value.shape), value.shape.indices(dims.names))
         new_shape = value.shape.without(dims)
-        return NativeTensor(result, new_shape.names, new_shape, value._backend)
+        return Dense(result, new_shape.names, new_shape, value._backend)
     elif isinstance(value, TensorStack):
         reduced_inners = [_min(t, dims.without(value._stack_dim)) for t in value._tensors]
         return functools.reduce(lambda x, y: minimum(x, y), reduced_inners) if value._stack_dim in dims else TensorStack(reduced_inners, value._stack_dim)
@@ -2104,7 +2104,7 @@ def median(value, dim: DimFilter = non_batch):
 def _median(value: Tensor, dims: Shape) -> Tensor:
     if not dims:
         return value
-    if isinstance(value, NativeTensor):
+    if isinstance(value, Dense):
         return quantile(value, 0.5, dims)
     elif isinstance(value, TensorStack):
         reduced_inners = [_median(t, dims.without(value._stack_dim)) for t in value._tensors]
@@ -2192,7 +2192,7 @@ def dot(x: Tensor,
             keep_letters = [letter_map[dim] for dim in result_shape.names]
             subscripts = f'{"".join(x_letters)},{"".join(y_letters)}->{"".join(keep_letters)}'
             result_native = backend.einsum(subscripts, x_native, y_native)
-        return NativeTensor(result_native, result_shape.names, result_shape, backend)
+        return Dense(result_native, result_shape.names, result_shape, backend)
 
     return broadcast_op(tensor_dot, [x, y])
 
@@ -2715,7 +2715,7 @@ def boolean_mask(x, dim: DimFilter, mask: Tensor, preserve_names=False):
             if preserve_names and dim.item_names[0]:
                 sel_names = [n for n, sel in zip(dim.item_names[0], mask_native) if sel]
                 new_shape = new_shape.with_dim_size(dim, sel_names)
-            return NativeTensor(result_native, new_shape.names, new_shape, backend)
+            return Dense(result_native, new_shape.names, new_shape, backend)
         else:
             total = int(sum_(to_int64(mask_1d), mask_1d.shape))
             new_shape = mask_1d.shape.with_sizes([total])
@@ -3116,7 +3116,7 @@ def fft(x: Tensor, dims: DimFilter = spatial) -> Tensor:
     dims = x.shape.only(dims)
     x_native = x.native(x.shape)
     result_native = x.backend.fft(x_native, x.shape.indices(dims.names))
-    return NativeTensor(result_native, x.shape.names, x.shape, x.backend)
+    return Dense(result_native, x.shape.names, x.shape, x.backend)
 
 
 def ifft(k: Tensor, dims: DimFilter = spatial):
@@ -3134,7 +3134,7 @@ def ifft(k: Tensor, dims: DimFilter = spatial):
     dims = k.shape.only(dims)
     k_native = k.native(k.shape)
     result_native = k.backend.ifft(k_native, k.shape.indices(dims.names))
-    return NativeTensor(result_native, k.shape.names, k.shape, k.backend)
+    return Dense(result_native, k.shape.names, k.shape, k.backend)
 
 
 def dtype(x) -> DType:
@@ -3188,7 +3188,7 @@ def always_close(t1: Union[Number, Tensor, bool], t2: Union[Number, Tensor, bool
             return close(t1, t2, rel_tolerance=rel_tolerance, abs_tolerance=abs_tolerance, equal_nan=equal_nan)
         except IncompatibleShapes:
             return False
-    elif isinstance(t1, NativeTensor) and isinstance(t2, NativeTensor):
+    elif isinstance(t1, Dense) and isinstance(t2, Dense):
         return t1._native is t2._native
     else:
         return t1 is t2

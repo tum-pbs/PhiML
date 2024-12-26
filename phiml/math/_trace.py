@@ -12,7 +12,7 @@ from ._shape import Shape, parse_dim_order, merge_shapes, spatial, instance, bat
     after_gather
 from ._magic_ops import stack, expand, rename_dims, unpack_dim, unstack, value_attributes
 from ._tensors import Tensor, wrap, disassemble_tree, disassemble_tensors, assemble_tree, TensorStack, may_vary_along, \
-    discard_constant_dims, variable_shape, NativeTensor, equality_by_shape_and_value
+    discard_constant_dims, variable_shape, Dense, equality_by_shape_and_value
 from ._sparse import SparseCoordinateTensor, is_sparse, sparse_dims, same_sparsity_pattern, sparse_tensor, stored_indices, stored_values, add_sparse_batch_dim
 from . import _ops as math
 from ..backend._dtype import combine_types
@@ -923,7 +923,7 @@ def expand_matrix(matrix: Tensor, dims: Shape) -> Tensor:
     src_dims = [d for d in missing if d.name.startswith('~') and d.name.endswith('_src')]
     out_dims = [d.name[1:-4] for d in src_dims]
     out_dims = [missing[d] for d in out_dims]
-    if isinstance(matrix, NativeTensor):
+    if isinstance(matrix, Dense):
         if len(src_dims) > 1:
             raise NotImplementedError
         for src_dim, out_dim in zip(src_dims, out_dims):

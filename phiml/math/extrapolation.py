@@ -15,7 +15,7 @@ from ..backend._backend import get_spatial_derivative_order
 from ..backend import choose_backend
 from ._shape import Shape, channel, spatial, EMPTY_SHAPE, merge_shapes, dual, non_dual, instance, parse_dim_names, parse_dim_order, after_pad
 from ._magic_ops import concat, stack, expand, rename_dims
-from ._tensors import Tensor, NativeTensor, TensorStack, wrap, to_dict as tensor_to_dict, from_dict as tensor_from_dict
+from ._tensors import Tensor, Dense, TensorStack, wrap, to_dict as tensor_to_dict, from_dict as tensor_from_dict
 from . import _ops as math  # TODO this executes _ops.py, can we avoid this?
 
 
@@ -291,7 +291,7 @@ class ConstantExtrapolation(Extrapolation):
     def pad(self, value: Tensor, widths: dict, already_padded: Optional[dict] = None, **kwargs) -> Tensor:
         """Pads a tensor using constant values."""
         value = value._simplify()
-        if isinstance(value, NativeTensor):
+        if isinstance(value, Dense):
             pad_value = self._get_pad_value(already_padded)
             backend = choose_backend(value._native, *pad_value._natives())
             for dim in pad_value.shape.non_batch.names:
@@ -308,7 +308,7 @@ class ConstantExtrapolation(Extrapolation):
                 else:
                     result_native = value._native
                 if result_native is not NotImplemented:
-                    return NativeTensor(result_native, value._names, after_pad(value._shape, widths), value._backend)
+                    return Dense(result_native, value._names, after_pad(value._shape, widths), value._backend)
             return Extrapolation.pad(self, value, widths, already_padded=already_padded, **kwargs)
         elif isinstance(value, TensorStack):
             if not value.requires_broadcast:
@@ -462,7 +462,7 @@ class _CopyExtrapolation(Extrapolation, ABC):
     def pad(self, value: Tensor, widths: dict, already_padded: Optional[dict] = None, **kwargs) -> Tensor:
         value = value._simplify()
         from ._trace import ShiftLinTracer
-        if isinstance(value, NativeTensor):
+        if isinstance(value, Dense):
             if not self._is_dim_separable:
                 required_dims = value._shape.only(tuple(widths.keys()))
                 value = value._cached(required_dims)
@@ -473,7 +473,7 @@ class _CopyExtrapolation(Extrapolation, ABC):
             else:
                 result_native = value._native
             if result_native is not NotImplemented:
-                return NativeTensor(result_native, value._names, after_pad(value._shape, widths), value._backend)
+                return Dense(result_native, value._names, after_pad(value._shape, widths), value._backend)
             return Extrapolation.pad(self, value, widths)
         elif isinstance(value, TensorStack):
             if not value.requires_broadcast:

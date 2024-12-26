@@ -13,7 +13,7 @@ from ..backend._linalg import IncompleteLU, incomplete_lu_dense, incomplete_lu_c
 from ._shape import EMPTY_SHAPE, Shape, merge_shapes, batch, non_batch, shape, dual, channel, non_dual, instance, spatial
 from ._magic_ops import stack, copy_with, rename_dims, unpack_dim, unstack, expand, value_attributes, variable_attributes
 from ._sparse import native_matrix, SparseCoordinateTensor, CompressedSparseMatrix, stored_values, is_sparse, matrix_rank, _stored_matrix_rank
-from ._tensors import Tensor, disassemble_tree, assemble_tree, wrap, cached, NativeTensor, layout, reshaped_numpy, reshaped_native, reshaped_tensor, NATIVE_TENSOR, \
+from ._tensors import Tensor, disassemble_tree, assemble_tree, wrap, cached, Dense, layout, reshaped_numpy, reshaped_native, reshaped_tensor, NATIVE_TENSOR, \
     preferred_backend_for
 from . import _ops as math
 from ._ops import backend_for, zeros_like, all_available, to_float
@@ -770,7 +770,7 @@ def attach_gradient_solve(forward_solve: Callable, auxiliary_args: str, matrix_a
                 dm_values = dy_tensors[0][col] * x_tensors[0][row]
                 dm = matrix._with_values(dm_values)
                 dm = -dm
-            elif isinstance(matrix, NativeTensor):
+            elif isinstance(matrix, Dense):
                 dy_dual = rename_dims(dy, shape(dy), shape(dy).as_dual())
                 dm = dy_dual * x  # outer product
                 raise NotImplementedError("Matrix adjoint not yet supported for dense matrices")

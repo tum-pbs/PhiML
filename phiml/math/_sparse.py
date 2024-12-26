@@ -11,7 +11,7 @@ from scipy.sparse.linalg import aslinearoperator
 from ._magic_ops import concat, pack_dims, expand, rename_dims, stack, unpack_dim, unstack
 from ._shape import Shape, non_batch, merge_shapes, instance, batch, non_instance, shape, channel, spatial, DimFilter, \
     concat_shapes, EMPTY_SHAPE, dual, non_channel, DEBUG_CHECKS, primal
-from ._tensors import Tensor, TensorStack, NativeTensor, cached, wrap, reshaped_native, reshaped_tensor, reshaped_numpy, tensor, backend_for
+from ._tensors import Tensor, TensorStack, Dense, cached, wrap, reshaped_native, reshaped_tensor, reshaped_numpy, tensor, backend_for
 from ..backend import choose_backend, NUMPY, Backend, get_precision
 from ..backend._dtype import DType
 
@@ -1290,8 +1290,8 @@ def stored_values(x: Tensor, list_dim=instance('entries'), invalid='discard') ->
         `Tensor` representing all values stored to represent `x`.
     """
     assert invalid in ['discard', 'clamp', 'keep'], f"invalid handling must be one of 'discard', 'clamp', 'keep' but got {invalid}"
-    if isinstance(x, NativeTensor):
-        x = NativeTensor(x._native, x._names, x._shape[x._names])
+    if isinstance(x, Dense):
+        x = Dense(x._native, x._names, x._shape[x._names])
         entries_dims = x.shape.non_batch
         return pack_dims(x, entries_dims, list_dim)
     if isinstance(x, TensorStack):
@@ -1326,7 +1326,7 @@ def stored_indices(x: Tensor, list_dim=instance('entries'), index_dim=channel('i
         `Tensor` representing all indices of stored values.
     """
     assert invalid in ['discard', 'clamp', 'keep'], f"invalid handling must be one of 'discard', 'clamp', 'keep' but got {invalid}"
-    if isinstance(x, NativeTensor):
+    if isinstance(x, Dense):
         from ._ops import meshgrid
         if batch(x):
             raise NotImplementedError
@@ -1365,7 +1365,7 @@ def same_sparsity_pattern(t1: Tensor, t2: Tensor, allow_const=False):
         raise NotImplementedError
     if type(t1) != type(t2):
         return False
-    if isinstance(t1, NativeTensor) and isinstance(t2, NativeTensor):
+    if isinstance(t1, Dense) and isinstance(t2, Dense):
         return True
     from ._ops import always_close
     if isinstance(t1, CompressedSparseMatrix):
@@ -1398,7 +1398,7 @@ def dense(x: Tensor) -> Tensor:
         ind_batch, channels, native_indices, native_pointers, native_values, native_shape = x._native_csr_components()
         native_dense = x.default_backend.csr_to_dense(native_indices, native_pointers, native_values, native_shape, contains_duplicates=x._uncompressed_offset is not None)
         return reshaped_tensor(native_dense, [ind_batch, x._compressed_dims, x._uncompressed_dims, channels])
-    elif isinstance(x, NativeTensor):
+    elif isinstance(x, Dense):
         return x
     elif isinstance(x, Tensor):
         return cached(x)
