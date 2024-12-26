@@ -55,17 +55,29 @@ class Tensor:
         Transposes the underlying tensor to match the name order and adds singleton dimensions for new dimension names.
         If a dimension of the tensor is not listed in `order`, a `ValueError` is raised.
 
-        Additionally, groups of dimensions can be specified to pack dims, see `phiml.math.reshaped_native()`.
+        Additionally, groups of dims can be specified for `order` to pack dims.
+        To do this, pass a `tuple` or `list` of dims to be packed into one native axis. Each entry must be one of the following:
+
+        * `str`: the name of one dimension that is present on `value`.
+        * `Shape`: Dimensions to be packed. If `force_expand`, missing dimensions are first added, otherwise they are ignored.
+        * Filter function: Packs all dimensions of this type that are present on `value`.
+        * Ellipsis `...`: Packs all remaining dimensions into this slot. Can only be passed once.
+        * `None` or `()`: Adds a singleton dimension.
+
+        Collections of or comma-separated dims may also be used but only if all dims are present on `value`.
 
         Args:
             order: (Optional) Order of dimension names as comma-separated string, list or `Shape`.
             force_expand: If `False`, dimensions along which values are guaranteed to be constant will not be expanded to their true size but returned as singleton dimensions.
+                If `True`, repeats the tensor along missing dimensions.
+                If `False`, puts singleton dimensions where possible.
+                If a sequence of dimensions is provided, only forces the expansion for groups containing those dimensions.
 
         Returns:
             Native tensor representation, such as PyTorch tensor or NumPy array.
 
         Raises:
-            ValueError if the tensor cannot be transposed to match target_shape
+            `ValueError` if the tensor cannot be transposed to match target_shape
         """
         raise NotImplementedError
 
@@ -794,7 +806,7 @@ class Tensor:
         elif self.rank == 0:
             return iter([self.native()])
         else:
-            native = reshaped_native(self, [self.shape])
+            native = self.native([self.shape])
             return iter(native)
 
     def __matmul__(self, other):
@@ -2381,7 +2393,7 @@ def reshaped_native(value: Tensor,
     Returns a native representation of `value` where dimensions are laid out according to `groups`.
 
     See Also:
-        `native()`, `pack_dims()`, `reshaped_tensor()`, `reshaped_numpy()`.
+        `native()`, `pack_dims()`.
 
     Args:
         value: `Tensor`
@@ -2404,6 +2416,7 @@ def reshaped_native(value: Tensor,
     Returns:
         Native tensor with dimensions matching `groups`.
     """
+    warnings.warn("phiml.math.reshaped_native() is deprecated. Use Tensor.native() instead.", DeprecationWarning, stacklevel=2)
     assert isinstance(value, Tensor), f"value must be a Tensor but got {value} {type(value)}"
     assert not value._is_tracer, f"Failed accessing native values because tensor {value.shape} is a tracer"
     return value.numpy(groups, force_expand=force_expand) if to_numpy else value.native(groups, force_expand=force_expand)
@@ -2451,6 +2464,7 @@ def reshaped_numpy(value: Tensor, groups: Union[tuple, list], force_expand: Any 
     Returns:
         NumPy `ndarray` with dimensions matching `groups`.
     """
+    warnings.warn("phiml.math.reshaped_numpy() is deprecated. Use Tensor.numpy() instead.", DeprecationWarning, stacklevel=2)
     return reshaped_native(value, groups, force_expand=force_expand, to_numpy=True)
 
 

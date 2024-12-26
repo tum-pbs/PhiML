@@ -5,9 +5,9 @@ import numpy as np
 from . import _ops as math
 from . import extrapolation as extrapolation
 from ._magic_ops import stack, rename_dims, concat, tree_map, value_attributes, pack_dims
-from ._ops import backend_for, reshaped_native, reshaped_tensor
+from ._ops import backend_for, reshaped_tensor
 from ._shape import Shape, channel, batch, spatial, DimFilter, parse_dim_order, instance, dual, auto, non_batch, after_gather
-from ._tensors import Tensor, wrap, tensor, reshaped_numpy
+from ._tensors import Tensor, wrap, tensor
 from .extrapolation import Extrapolation
 from .magic import PhiTreeNode
 from ..backend import choose_backend
@@ -898,15 +898,15 @@ def find_closest(vectors: Tensor, query: Tensor, method='kd', index_dim=channel(
     result = []
     for i in batch(vectors).meshgrid():
         query_i = query[i]
-        native_query = reshaped_native(query_i, [..., channel])
+        native_query = query_i.native([..., channel])
         if vectors.available:
-            kd_tree = KDTree(reshaped_numpy(vectors[i], [..., channel]))
+            kd_tree = KDTree(vectors[i].numpy([..., channel]))
             def perform_query(np_query):
                 return kd_tree.query(np_query)[1]
             native_idx = query.default_backend.numpy_call(perform_query, (query_i.shape.non_channel.volume,), DType(int, 64), native_query)
         else:
             b = backend_for(vectors, query)
-            native_vectors = reshaped_native(vectors[i], [..., channel])
+            native_vectors = vectors[i].native([..., channel])
             def perform_query(np_vectors, np_query):
                 return KDTree(np_vectors).query(np_query)[1]
             native_idx = b.numpy_call(perform_query, (query.shape.without(batch(vectors)).non_channel.volume,), DType(int, 64), native_vectors, native_query)

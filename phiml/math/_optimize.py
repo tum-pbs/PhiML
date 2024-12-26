@@ -13,7 +13,7 @@ from ..backend._linalg import IncompleteLU, incomplete_lu_dense, incomplete_lu_c
 from ._shape import EMPTY_SHAPE, Shape, merge_shapes, batch, non_batch, shape, dual, channel, non_dual, instance, spatial
 from ._magic_ops import stack, copy_with, rename_dims, unpack_dim, unstack, expand, value_attributes, variable_attributes
 from ._sparse import native_matrix, SparseCoordinateTensor, CompressedSparseMatrix, stored_values, is_sparse, matrix_rank, _stored_matrix_rank
-from ._tensors import Tensor, disassemble_tree, assemble_tree, wrap, cached, Dense, layout, reshaped_numpy, reshaped_native, reshaped_tensor, NATIVE_TENSOR, \
+from ._tensors import Tensor, disassemble_tree, assemble_tree, wrap, cached, Dense, layout, reshaped_tensor, NATIVE_TENSOR, \
     preferred_backend_for
 from . import _ops as math
 from ._ops import backend_for, zeros_like, all_available, to_float
@@ -380,11 +380,11 @@ def minimize(f: Callable[[X], Y], solve: Solve[X, Y]) -> X:
     for t in x0_tensors:
         t = cached(t)
         if t.shape.is_uniform:
-            x0_natives.append(reshaped_native(t, [batch_dims, t.shape.non_batch]))
+            x0_natives.append(t.native([batch_dims, t.shape.non_batch]))
             x0_native_shapes.append(t.shape.non_batch)
         else:
             for ut in unstack(t, t.shape.shape.without('dims')):
-                x0_natives.append(reshaped_native(ut, [batch_dims, ut.shape.non_batch]))
+                x0_natives.append(ut.native([batch_dims, ut.shape.non_batch]))
                 x0_native_shapes.append(ut.shape.non_batch)
     x0_flat = backend.concat(x0_natives, -1)
 
@@ -424,11 +424,11 @@ def minimize(f: Callable[[X], Y], solve: Solve[X, Y]) -> X:
                 raise NewBatchDims(loss_tensor.shape, extra_batch)
             else:
                 loss_tensor = loss_tensor[next(iter(extra_batch.meshgrid()))]
-        loss_native = reshaped_native(loss_tensor, [batch_dims], force_expand=False)
+        loss_native = loss_tensor.native([batch_dims], force_expand=False)
         return loss_tensor.sum, (loss_native,)
 
-    atol = backend.to_float(reshaped_native(solve.abs_tol, [batch_dims]))
-    maxi = reshaped_numpy(solve.max_iterations, [batch_dims])
+    atol = backend.to_float(solve.abs_tol.native([batch_dims]))
+    maxi = solve.max_iterations.numpy([batch_dims])
     trj = _SOLVE_TAPES and any(t.should_record_trajectory_for(solve) for t in _SOLVE_TAPES)
     t = time.perf_counter()
     try:
@@ -663,7 +663,7 @@ def solve_linear(f: Union[Callable[[X], Y], Tensor],
                 y_ = f(x, *f_args, **f_kwargs)
                 _, (y_tensor_,) = disassemble_tree(y_, cache=False, attr_type=value_attributes)
                 assert set(non_batch(y_tensor_)) == set(non_batch(y_tensor)), f"Function returned dimensions {y_tensor_.shape} but right-hand-side has shape {y_tensor.shape}"
-                y_native = reshaped_native(y_tensor_, [batches, non_batch(y_tensor)] if backend.ndims(native_x) >= 2 else [non_batch(y_tensor)])  # order like right-hand-side
+                y_native = y_tensor_.native([batches, non_batch(y_tensor)] if backend.ndims(native_x) >= 2 else [non_batch(y_tensor)])  # order like right-hand-side
                 if batch_index is not None and batches.volume > 1:
                     y_native = y_native[batch_index]
                 return y_native
@@ -694,15 +694,15 @@ def _linear_solve_forward(y: Tensor,
         warnings.warn(f"right-hand-side has shape {y_tensor.shape} but output dimensions are {pattern_dims_out}. This may result in unexpected behavior", RuntimeWarning, stacklevel=3)
     pattern_dims_out = y_tensor.shape.only(pattern_dims_out, reorder=True)
     batch_dims = merge_shapes(y_tensor.shape.without(pattern_dims_out), x0_tensor.shape.without(pattern_dims_in))
-    x0_native = backend.as_tensor(reshaped_native(x0_tensor, [batch_dims, pattern_dims_in]))
-    y_native = backend.as_tensor(reshaped_native(y_tensor, [batch_dims, y_tensor.shape.only(pattern_dims_out)]))
-    rtol = backend.as_tensor(reshaped_native(math.to_float(solve.rel_tol), [batch_dims]))
-    atol = backend.as_tensor(reshaped_native(solve.abs_tol, [batch_dims]))
+    x0_native = backend.as_tensor(x0_tensor.native([batch_dims, pattern_dims_in]))
+    y_native = backend.as_tensor(y_tensor.native([batch_dims, y_tensor.shape.only(pattern_dims_out)]))
+    rtol = backend.as_tensor(math.to_float(solve.rel_tol).native([batch_dims]))
+    atol = backend.as_tensor(solve.abs_tol.native([batch_dims]))
     trj = _SOLVE_TAPES and any(t.should_record_trajectory_for(solve) for t in _SOLVE_TAPES)
     if trj:
         max_iter = np.expand_dims(np.arange(int(solve.max_iterations)+1), -1)
     else:
-        max_iter = reshaped_numpy(solve.max_iterations, [shape(solve.max_iterations).without(batch_dims), batch_dims])
+        max_iter = solve.max_iterations.numpy([shape(solve.max_iterations).without(batch_dims), batch_dims])
     matrix_offset = None
     if solve.rank_deficiency is not None and (wrap(solve.rank_deficiency) > 0).any:
         # with x in [0, 1] and matrix entries m in [-a, a], y has: std = N a^2 / 9
@@ -712,7 +712,7 @@ def _linear_solve_forward(y: Tensor,
         avg_entries_per_row = pattern_dims_out.volume  # or use only non-zero values? ~ 2 * pattern_dims_out.rank
         approx_matrix_vals = backend.sqrt(random_y_std * 9 / avg_entries_per_row)
         matrix_offset = reshaped_tensor(approx_matrix_vals, [batch_dims])
-        matrix_offset = math.reshaped_native(math.where(solve.rank_deficiency > 0, matrix_offset, 0), [batch_dims])
+        matrix_offset = math.where(solve.rank_deficiency > 0, matrix_offset, 0).native([batch_dims])
     method = solve.method
     if not callable(native_lin_op) and is_sparse(native_lin_op) and y.default_backend.name == 'torch' and preconditioner and not all_available(y):
         warnings.warn(f"Preconditioners are not supported for sparse {method} in {y.default_backend} JIT mode. Disabling preconditioner. Use Jax or TensorFlow to enable preconditioners in JIT mode.", RuntimeWarning)
@@ -883,7 +883,7 @@ def factor_ilu(matrix: Tensor, iterations: int, safe=False):
         lower = SparseCoordinateTensor(l_indices, l_values, matrix._dense_shape, matrix._can_contain_double_entries, matrix._indices_sorted, matrix._indices_constant)
         upper = SparseCoordinateTensor(u_indices, u_values, matrix._dense_shape, matrix._can_contain_double_entries, matrix._indices_sorted, matrix._indices_constant)
     else:  # dense matrix
-        native_matrix = reshaped_native(matrix, [batch, non_batch(matrix).non_dual, dual, EMPTY_SHAPE])
+        native_matrix = matrix.native([batch, non_batch(matrix).non_dual, dual, EMPTY_SHAPE])
         l_native, u_native = incomplete_lu_dense(native_matrix, iterations, safe)
         lower = reshaped_tensor(l_native, [batch(matrix), non_batch(matrix).non_dual, dual(matrix), EMPTY_SHAPE])
         upper = reshaped_tensor(u_native, [batch(matrix), non_batch(matrix).non_dual, dual(matrix), EMPTY_SHAPE])
@@ -907,7 +907,7 @@ def explicit_coarse(matrix: Tensor,
             cluster_count = int(np.prod(clusters_by_axis))
             clusters_nd = math.meshgrid(axes) / axes * clusters_by_axis
             clusters_nd = math.to_int32(clusters_nd)
-            clusters = math.reshaped_native(clusters_nd, [batch, spatial(matrix), 'vector'])
+            clusters = clusters_nd.native([batch, spatial(matrix), 'vector'])
             clusters = b0.ravel_multi_index(clusters, clusters_by_axis)
     else:  # arbitrary clusters
         assert cluster_hint is not None

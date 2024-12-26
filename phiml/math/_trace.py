@@ -766,7 +766,7 @@ def tracer_to_coo(tracer: Tensor, sparsify_batch: bool, separate_independent: bo
     values = []
     for shift_, shift_val in tracer.val.items():
         if shift_val.default_backend is NUMPY:  # sparsify stencil further
-            native_shift_values = math.reshaped_native(shift_val, [batch_val, *out_shape])
+            native_shift_values = shift_val.native([batch_val, *out_shape])
             mask = np.sum(abs(native_shift_values), 0)  # only 0 where no batch entry has a non-zero value
             out_idx = numpy.nonzero(mask)
             src_idx = [(component + shift_[dim]) % typed_src_shape.get_size(dim) for component, dim in zip(out_idx, original_out_names)]
@@ -774,7 +774,7 @@ def tracer_to_coo(tracer: Tensor, sparsify_batch: bool, separate_independent: bo
         else:  # add full stencil tensor
             out_idx = np.unravel_index(np.arange(out_shape.volume), out_shape.sizes) if out_shape else 0
             src_idx = [(component + shift_[dim]) % typed_src_shape.get_size(dim) for component, dim in zip(out_idx, original_out_names)]
-            values.append(math.reshaped_native(shift_val, [batch_val, out_shape]))
+            values.append(shift_val.native([batch_val, out_shape]))
         out_indices.append(out_idx)
         src_idx_all = []
         for dim in typed_src_shape:

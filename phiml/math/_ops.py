@@ -17,7 +17,7 @@ from . import extrapolation as e_
 from ._tensors import (Tensor, wrap, tensor, broadcastable_native_tensors, Dense, TensorStack,
                        custom_op2, compatible_tensor, variable_attributes, disassemble_tree, assemble_tree,
                        is_scalar, Layout, expand_tensor, TensorOrTree, cached, variable_shape,
-                       reshaped_native, reshaped_tensor, discard_constant_dims, variable_dim_names, backend_for, preferred_backend_for)
+                       reshaped_tensor, discard_constant_dims, variable_dim_names, backend_for, preferred_backend_for)
 from ._sparse import (CompressedSparseMatrix, dense, SparseCoordinateTensor, get_format, to_format, stored_indices,
                       tensor_like, sparse_dims, same_sparsity_pattern, is_sparse, sparse_dot, sparse_sum, sparse_gather, sparse_max,
                       sparse_min, dense_dims, sparse_mean, stored_values, sparse_matrix_dims, CompactSparseTensor)
@@ -186,7 +186,7 @@ def native_call(f: Callable, *inputs: Tensor, channels_last=None, channel_dim='v
     natives = []
     for i in inputs:
         groups = [b_dims, *i.shape.spatial.names, i.shape.channel] if channels_last else [b_dims, i.shape.channel, *i.shape.spatial.names]
-        natives.append(reshaped_native(i, groups, force_expand=False))
+        natives.append(i.native(groups, force_expand=False))
     output = f(*natives)
     if isinstance(channel_dim, str):
         channel_dim = channel(channel_dim)
@@ -1107,11 +1107,11 @@ def _grid_sample(grid: Tensor, coordinates: Tensor, extrap: Union['e_.Extrapolat
         backend = backend_for(grid, coordinates)
         result = NotImplemented
         if extrap is None:
-            result = backend.grid_sample(reshaped_native(grid, [batch_dims, *dims, grid.shape.non_batch.without(dims)]),
+            result = backend.grid_sample(grid.native([batch_dims, *dims, grid.shape.non_batch.without(dims)]),
                                          coordinates._reshaped_native([batch_dims, *coordinates.shape.instance, *coordinates.shape.spatial, 'vector']),
                                          'undefined')
         elif extrap.native_grid_sample_mode:
-            result = backend.grid_sample(reshaped_native(grid, [batch_dims, *dims, grid.shape.non_batch.without(dims)]),
+            result = backend.grid_sample(grid.native([batch_dims, *dims, grid.shape.non_batch.without(dims)]),
                                          coordinates._reshaped_native([batch_dims, *coordinates.shape.instance, *coordinates.shape.spatial, 'vector']),
                                          extrap.native_grid_sample_mode)
         if result is NotImplemented:
@@ -1125,7 +1125,7 @@ def _grid_sample(grid: Tensor, coordinates: Tensor, extrap: Union['e_.Extrapolat
                     inner_coordinates = extrap.transform_coordinates(coordinates + 1, grid_padded.shape)
             else:
                 inner_coordinates = coordinates + 1
-            result = backend.grid_sample(reshaped_native(grid_padded, [batch_dims, *dims.names, grid.shape.non_batch.without(dims)]),
+            result = backend.grid_sample(grid_padded.native([batch_dims, *dims.names, grid.shape.non_batch.without(dims)]),
                                          inner_coordinates._reshaped_native([batch_dims, *coordinates.shape.instance, *coordinates.shape.spatial, 'vector']),
                                          'boundary')
         if result is not NotImplemented:
@@ -3570,7 +3570,7 @@ def pairwise_differences(positions: Tensor,
             return CompressedSparseMatrix(indices, pointers, deltas, uncompressed, compressed, indices_constant=False)
         # elif method == 'semi-sparse':
         #     from phiml.backend._partition import find_neighbors_semi_sparse
-        #     native_positions = reshaped_native(positions, [primal_dims, channel(positions)])
+        #     native_positions = positions.native([primal_dims, channel(positions)])
         #     native_max_dist = max_distance.native()
         #     nat_rows, nat_cols, nat_vals, req_pair_count, req_max_occupancy = find_neighbors_semi_sparse(native_positions, native_max_dist, None, periodic=False, default=default)
         # elif method == 'matscipy':
