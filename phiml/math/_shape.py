@@ -1296,6 +1296,9 @@ class PureShape:
             return other.__eq__(self)
         return False
 
+    def __hash__(self):
+        return hash(tuple(self.dims.values()))
+
     def __contains__(self, item):
         if isinstance(item, Dim):
             return item.name in self.dims
@@ -1685,6 +1688,9 @@ class MixedShape:
         if isinstance(other, MixedShape):
             return self.dims == other.dims
         return False
+
+    def __hash__(self):
+        return hash(tuple(self.dims.values()))
 
     def __contains__(self, item):
         if isinstance(item, Dim):

@@ -195,3 +195,17 @@ class TestShape(TestCase):
         self.assertEqual(shape.as_dual(), and_dual[3:])
         dual_and = dual & shape
         self.assertEqual(shape.as_dual(), dual_and.dual)
+
+    def test_hash(self):
+        s = spatial(x=3, y=2)
+        c = channel(vector='x,y')
+        sc = s + c
+        assert hash(s) == hash(sc[:2])
+        assert hash(c) == hash(sc[2:])
+
+    def test_eq(self):
+        s = spatial(x=3, y=2)
+        c = channel(vector='x,y')
+        sc = s + c
+        assert s == sc[:2]
+        assert c == sc[2:]
