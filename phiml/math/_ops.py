@@ -12,7 +12,7 @@ from .magic import PhiTreeNode
 from ._magic_ops import expand, pack_dims, unpack_dim, cast, value_attributes, bool_to_int, tree_map, concat, stack, unstack, rename_dims, slice_, all_attributes, squeeze, ipack
 from ._shape import (Shape, EMPTY_SHAPE,
                      spatial, batch, channel, instance, merge_shapes, parse_dim_order, concat_shapes,
-                     IncompatibleShapes, DimFilter, non_batch, dual, shape, shape as get_shape, primal, auto, non_spatial, non_dual, resolve_index)
+                     IncompatibleShapes, DimFilter, non_batch, dual, shape, shape as get_shape, primal, auto, non_spatial, non_dual, resolve_index, concat_shapes_)
 from . import extrapolation as e_
 from ._tensors import (Tensor, wrap, tensor, broadcastable_native_tensors, Dense, TensorStack,
                        custom_op2, compatible_tensor, variable_attributes, disassemble_tree, assemble_tree,
@@ -350,7 +350,7 @@ def _includes_slice(s_dict: dict, dim: Shape, i: int):
 
 
 def _initialize(uniform_initializer, shapes: Tuple[Shape]) -> Tensor:
-    shape = concat_shapes(*shapes)
+    shape = concat_shapes_(*shapes)
     assert shape.well_defined, f"When creating a Tensor, shape needs to have definitive sizes but got {shape}"
     if shape.is_non_uniform:
         stack_dim = shape.non_uniform_shape[0]
@@ -492,7 +492,7 @@ def random_permutation(*shape: Union[Shape, Any], dims=non_batch, index_dim=chan
         `Tensor`
     """
     assert dims is not batch, f"dims cannot include all batch dims because that violates the batch principle. Specify batch dims by name instead."
-    shape = concat_shapes(*shape)
+    shape = concat_shapes_(*shape)
     assert not shape.dual_rank, f"random_permutation does not support dual dims but got {shape}"
     perm_dims = shape.only(dims)
     batches = shape - perm_dims
@@ -839,7 +839,7 @@ def range_tensor(*shape: Shape):
     Returns:
         `Tensor`
     """
-    shape = concat_shapes(*shape)
+    shape = concat_shapes_(*shape)
     data = arange(spatial('range'), 0, shape.volume)
     return unpack_dim(data, 'range', shape)
 
@@ -2170,7 +2170,7 @@ def dot(x: Tensor,
         assert x_dims.volume == y_dims.volume, f"Failed to reduce {x_dims} against {y_dims} in dot product of {x.shape} and {y.shape}. Sizes do not match."
         if remaining_shape_y.isdisjoint(remaining_shape_x):  # no shared batch dimensions -> tensordot
             result_native = backend.tensordot(x_native, x.shape.indices(x_dims.names), y_native, y.shape.indices(y_dims.names))
-            result_shape = concat_shapes(remaining_shape_x, remaining_shape_y)
+            result_shape = remaining_shape_x + remaining_shape_y
         else:  # shared batch dimensions -> einsum
             result_shape = merge_shapes(x.shape.without(x_dims), y.shape.without(y_dims))
             REDUCE_LETTERS = list('ijklmn')

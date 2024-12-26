@@ -10,7 +10,7 @@ from scipy.sparse.linalg import aslinearoperator
 
 from ._magic_ops import concat, pack_dims, expand, rename_dims, stack, unpack_dim, unstack
 from ._shape import Shape, non_batch, merge_shapes, instance, batch, non_instance, shape, channel, spatial, DimFilter, \
-    concat_shapes, EMPTY_SHAPE, dual, non_channel, DEBUG_CHECKS, primal
+    concat_shapes, EMPTY_SHAPE, dual, non_channel, DEBUG_CHECKS, primal, concat_shapes_
 from ._tensors import Tensor, TensorStack, Dense, cached, wrap, reshaped_tensor, tensor, backend_for
 from ..backend import choose_backend, NUMPY, Backend, get_precision
 from ..backend._dtype import DType
@@ -72,7 +72,7 @@ def sparse_tensor(indices: Optional[Tensor],
         indices_constant = True
     # --- type of sparse tensor ---
     if dense_shape in indices:  # compact
-        compressed = concat_shapes([dim for dim in dense_shape if dim.size > indices.shape.get_size(dim)])
+        compressed = concat_shapes_(*[dim for dim in dense_shape if dim.size > indices.shape.get_size(dim)])
         values = expand(1, non_batch(indices))
         sparse = CompactSparseTensor(indices, values, compressed, indices_constant)
     else:
@@ -349,7 +349,7 @@ class SparseCoordinateTensor(Tensor):
         idx_packed = np.ravel_multi_index(idx_to_pack.native([channel, instance(idx_to_pack)]), dims.sizes)
         idx_packed = expand(reshaped_tensor(idx_packed, [instance('sp_entries')]), channel(sparse_idx=packed_dim.name))
         indices = concat([indices.sparse_idx[list(self._dense_shape.without(dims).names)], idx_packed], 'sparse_idx')
-        dense_shape = concat_shapes(self._dense_shape.without(dims), packed_dim.with_size(dims.volume))
+        dense_shape = self._dense_shape.without(dims) + packed_dim.with_size(dims.volume)
         idx_sorted = self._indices_sorted and False  # ToDo still sorted if dims are ordered correctly and no other dim in between and inserted at right point
         return SparseCoordinateTensor(indices, values, dense_shape, self._can_contain_double_entries, idx_sorted, self._indices_constant)
 
@@ -812,7 +812,7 @@ class CompressedSparseMatrix(Tensor):
                 values = reshaped_tensor(native_values, [ind_batch & batch(self._values), instance(self._values), channel(self._values)], convert=False)
             else:
                 raise NotImplementedError()
-            return SparseCoordinateTensor(indices, values, concat_shapes(self._compressed_dims, self._uncompressed_dims), False, True, self._indices_constant, self._matrix_rank)
+            return SparseCoordinateTensor(indices, values, self._compressed_dims + self._uncompressed_dims, False, True, self._indices_constant, self._matrix_rank)
         if self._uncompressed_indices_perm is not None:
             self._uncompressed_indices = self._uncompressed_indices[self._uncompressed_indices_perm]
             self._uncompressed_indices_perm = None
@@ -938,7 +938,7 @@ class CompactSparseTensor(Tensor):
         idx_packed = np.ravel_multi_index(idx_to_pack.native([channel, instance(idx_to_pack)]), dims.sizes)
         idx_packed = expand(reshaped_tensor(idx_packed, [instance('sp_entries')]), channel(sparse_idx=packed_dim.name))
         indices = concat([indices.sparse_idx[list(self._dense_shape.without(dims).names)], idx_packed], 'sparse_idx')
-        dense_shape = concat_shapes(self._dense_shape.without(dims), packed_dim.with_size(dims.volume))
+        dense_shape = self._dense_shape.without(dims) + packed_dim.with_size(dims.volume)
         return CompactSparseTensor(indices, values, dense_shape, self._indices_constant)
 
     def _with_shape_replaced(self, new_shape: Shape):
@@ -1640,7 +1640,7 @@ def add_sparse_batch_dim(matrix: Tensor, in_dims: Shape, out_dims: Shape):
 #             #         offset = wrap([*idx.values()] * 2 + [0] * non_instance(matrix._indices).volume, channel(indices))
 #             #         all_indices.append(indices + offset)
 #             # indices = concat(all_indices, instance(indices))
-#             # values = pack_dims(matrix._values, concat_shapes(dims, instance(matrix._values)), instance(matrix._values))
+#             # values = pack_dims(matrix._values, dims + instance(matrix._values), instance(matrix._values))
 #             dense_shape = in_dims & matrix._dense_shape & out_dims
 #             return SparseCoordinateTensor(indices, values, dense_shape, matrix._can_contain_double_entries, matrix._indices_sorted, matrix._indices_constant)
 #     raise NotImplementedError

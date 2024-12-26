@@ -1108,7 +1108,7 @@ class Layout(Tensor):
 
     def __stack__(self, values: tuple, dim: Shape, **kwargs) -> 'Layout':
         obj = [v.native(self._stack_dim) for v in values]
-        new_stack_dim = concat_shapes(dim, self._stack_dim)
+        new_stack_dim = dim + self._stack_dim
         return Layout(obj, new_stack_dim)
 
     @staticmethod
@@ -1126,7 +1126,7 @@ class Layout(Tensor):
         for dim in reversed(new_stack_dims):
             assert isinstance(dim.size, int), "Can only expand layouts by integer-sized dimensions"
             obj = [obj] * dim.size
-        return Layout(obj, concat_shapes(new_stack_dims, self._stack_dim))
+        return Layout(obj, new_stack_dims + self._stack_dim)
 
     def __replace_dims__(self, dims: Tuple[str, ...], new_dims: Shape, **kwargs) -> 'Tensor':
         new_stack_dim = self._stack_dim.replace(dims, new_dims)
@@ -1140,7 +1140,7 @@ class Layout(Tensor):
             obj = []
             for i in dims.meshgrid():
                 obj.append(self[i].native())
-            return Layout(obj, concat_shapes(packed_dim.with_size(dims.volume), self._stack_dim - dims))
+            return Layout(obj, packed_dim.with_size(dims.volume) + (self._stack_dim - dims))
 
     def __unpack_dim__(self, dim: str, unpacked_dims: Shape, **kwargs) -> 'Layout':
         return NotImplemented
@@ -1177,7 +1177,7 @@ class Layout(Tensor):
 
     def _op2(self, other, operator: Callable, native_function: Callable, op_name: str = 'unknown', op_symbol: str = '?') -> Tensor:
         obj = self._recursive_op2(self._obj, self._stack_dim, other, operator, native_function, op_name)
-        new_stack = concat_shapes(self._stack_dim, other._stack_dim.without(self._stack_dim)) if isinstance(other, Layout) else self._stack_dim
+        new_stack = self._stack_dim + (other._stack_dim - self._stack_dim) if isinstance(other, Layout) else self._stack_dim
         return Layout(obj, new_stack)
 
     @staticmethod
@@ -1689,7 +1689,7 @@ def tensor(data,
     if len(shape) == 1 and isinstance(shape[0], list):
         return reshaped_tensor(data, shape[0], convert=convert)
     shape = [parse_shape_spec(s) if isinstance(s, str) else s for s in shape]
-    shape = None if len(shape) == 0 else concat_shapes(*shape)
+    shape = None if len(shape) == 0 else concat_shapes_(*shape)
     if isinstance(data, Shape):
         if shape is None:
             shape = channel('dims')
@@ -1800,7 +1800,7 @@ def layout(objects, *shape: Union[Shape, str]) -> Tensor:
     """
     shape = [parse_shape_spec(s) if isinstance(s, str) else s for s in shape]
     assert all(isinstance(s, Shape) for s in shape), f"shape needs to be one or multiple Shape instances but got {shape}"
-    shape = EMPTY_SHAPE if len(shape) == 0 else concat_shapes(*shape)
+    shape = EMPTY_SHAPE if len(shape) == 0 else concat_shapes_(*shape)
     if isinstance(objects, Layout):
         assert objects.shape == shape
         return objects

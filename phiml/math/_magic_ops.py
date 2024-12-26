@@ -476,7 +476,7 @@ def expand(value, *dims: Union[Shape, str], **kwargs):
     """
     if not dims:
         return value
-    dims = concat_shapes(*[d if isinstance(d, Shape) else parse_shape_spec(d) for d in dims])
+    dims = concat_shapes_(*[d if isinstance(d, Shape) else parse_shape_spec(d) for d in dims])
     combined = merge_shapes(value, dims)  # check that existing sizes match
     if not dims.without(shape(value)):  # no new dims to add
         if set(dims) == set(shape(value).only(dims)):  # sizes and item names might differ, though
@@ -759,7 +759,7 @@ def unpack_dim(value, dim: DimFilter, *unpacked_dims: Union[Shape, Sequence[Shap
         return value  # Nothing to do, maybe expand?
     assert dim.rank == 1, f"unpack_dim requires as single dimension to be unpacked but got {dim}"
     dim = dim.name
-    unpacked_dims = concat_shapes(*unpacked_dims)
+    unpacked_dims = concat_shapes_(*unpacked_dims)
     if unpacked_dims.rank == 0:
         return value[{dim: 0}]  # remove dim
     elif unpacked_dims.rank == 1:

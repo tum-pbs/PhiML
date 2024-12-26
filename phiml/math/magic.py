@@ -20,7 +20,7 @@ from typing import Tuple, Callable, Union
 
 import dataclasses
 
-from ._shape import Shape, shape, channel, non_batch, batch, spatial, instance, concat_shapes, dual, PureShape, Dim, MixedShape, DEBUG_CHECKS
+from ._shape import Shape, shape, channel, non_batch, batch, spatial, instance, concat_shapes, dual, PureShape, Dim, MixedShape, DEBUG_CHECKS, concat_shapes_
 from ..backend._dtype import DType
 
 
@@ -745,7 +745,7 @@ class _BoundDims:
             `phiml.math.rename_dims()`
         """
         s = shape(self.obj)
-        new_dims = concat_shapes(*[dim_type(**{dim: s.get_item_names(dim) or s.get_size(dim)}) for dim in self.dims])
+        new_dims = concat_shapes_(*[dim_type(**{dim: s.get_item_names(dim) or s.get_size(dim)}) for dim in self.dims])
         from ._magic_ops import rename_dims
         return rename_dims(self.obj, self.dims, new_dims, **kwargs)
 

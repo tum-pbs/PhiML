@@ -9,7 +9,7 @@ from scipy.sparse import csr_matrix
 from ..backend import choose_backend, NUMPY, Backend
 from ._ops import backend_for, concat_tensor, scatter, zeros_like
 from ._shape import Shape, parse_dim_order, merge_shapes, spatial, instance, batch, concat_shapes, EMPTY_SHAPE, dual, channel, non_batch, primal, non_channel, DEBUG_CHECKS, \
-    after_gather
+    after_gather, concat_shapes_
 from ._magic_ops import stack, expand, rename_dims, unpack_dim, unstack, value_attributes
 from ._tensors import Tensor, wrap, disassemble_tree, disassemble_tensors, assemble_tree, TensorStack, may_vary_along, \
     discard_constant_dims, variable_shape, Dense, equality_by_shape_and_value
@@ -465,7 +465,7 @@ class SparseLinTracer(Tensor):
         from ._ops import dot
         missing_self_dims = self_dims.without(self._matrix.shape)
         if missing_self_dims:
-            new_source_dims = concat_shapes([dual(**{n + '_src': v for n, v in d.untyped_dict.items()}) for d in missing_self_dims])
+            new_source_dims = concat_shapes_(*[dual(**{n + '_src': v for n, v in d.untyped_dict.items()}) for d in missing_self_dims])
             batched = add_sparse_batch_dim(self._matrix, new_source_dims, missing_self_dims)  # to preserve the source dim
         else:
             batched = self._matrix
@@ -745,7 +745,7 @@ def tracer_to_coo(tracer: Tensor, sparsify_batch: bool, separate_independent: bo
             indices = math.concat_tensor(indices, 'entries')
             values = math.concat_tensor([m._values for m in matrices], 'entries')
             # matrix = stack(matrices, tracer._stack_dim)
-            dense_shape = concat_shapes(matrices[0]._dense_shape, tracer._stack_dim)
+            dense_shape = matrices[0]._dense_shape + tracer._stack_dim
             matrix = SparseCoordinateTensor(indices, values, dense_shape, can_contain_double_entries=False, indices_sorted=False, indices_constant=True)
         else:
             matrix = stack(matrices, tracer._stack_dim)
@@ -790,7 +790,7 @@ def tracer_to_coo(tracer: Tensor, sparsify_batch: bool, separate_independent: bo
     indices = wrap(indices_np, instance('entries'), channel(sparse_idx=(sliced_src_shape if separate_independent else src_shape).names + out_shape.names))
     backend = choose_backend(*values)
     values = math.reshaped_tensor(backend.concat(values, axis=-1), [batch_val, instance('entries')], convert=False)
-    dense_shape = concat_shapes((sliced_src_shape if separate_independent else src_shape) & out_shape)
+    dense_shape = (sliced_src_shape if separate_independent else src_shape) & out_shape
     max_rank = out_shape.volume - tracer.min_rank_deficiency()
     matrix = SparseCoordinateTensor(indices, values, dense_shape, can_contain_double_entries=False, indices_sorted=False, indices_constant=True, m_rank=max_rank)
     return matrix, tracer._bias

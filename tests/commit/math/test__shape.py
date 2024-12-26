@@ -108,7 +108,7 @@ class TestShape(TestCase):
             self.assertEqual(spatial(obj), s)
             self.assertEqual(instance(obj), i)
             self.assertEqual(channel(obj), c)
-            self.assertEqual(set(non_batch(obj)), set(math.concat_shapes(s, i, c)))
+            self.assertEqual(set(non_batch(obj)), set(s + i + c))
             self.assertEqual(set(non_spatial(obj)), set(math.concat_shapes(b, i, c)))
             self.assertEqual(set(non_instance(obj)), set(math.concat_shapes(b, s, c)))
             self.assertEqual(set(non_channel(obj)), set(math.concat_shapes(b, s, i)))
