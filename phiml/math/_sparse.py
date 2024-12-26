@@ -360,8 +360,8 @@ class SparseCoordinateTensor(Tensor):
         values = self._values._with_shape_replaced(self._values.shape.replace(self._shape, new_shape))
         non_vec = self._shape.without('sparse_idx')
         new_non_vec = new_shape[self._shape.indices(non_vec.names)]
-        indices = self._indices._with_shape_replaced(self._indices.shape.replace(non_vec, new_non_vec).with_dim_size('sparse_idx', new_item_names))
-        m_rank = self._matrix_rank._with_shape_replaced(self._matrix_rank.shape.replace(self._shape, new_shape))
+        indices = self._indices._with_shape_replaced(self._indices.shape.replace_selection(non_vec.names, new_non_vec).with_dim_size('sparse_idx', new_item_names))
+        m_rank = self._matrix_rank._with_shape_replaced(self._matrix_rank.shape.replace_selection(self._shape.names, new_shape))
         return SparseCoordinateTensor(indices, values, dense_shape, self._can_contain_double_entries, self._indices_sorted, self._indices_constant, m_rank)
 
     def _op1(self, native_function):
@@ -1290,7 +1290,7 @@ def stored_values(x: Tensor, list_dim=instance('entries'), invalid='discard') ->
     """
     assert invalid in ['discard', 'clamp', 'keep'], f"invalid handling must be one of 'discard', 'clamp', 'keep' but got {invalid}"
     if isinstance(x, Dense):
-        x = Dense(x._native, x._names, x._shape[x._names])
+        x = Dense(x._native, x._names, x._shape[x._names], x._backend)
         entries_dims = x.shape.non_batch
         return pack_dims(x, entries_dims, list_dim)
     if isinstance(x, TensorStack):

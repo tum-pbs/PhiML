@@ -2883,7 +2883,7 @@ def format_row(self: Tensor, options: PrintOptions) -> str:  # all values in a s
         is_vector = self.shape.name == 'vector' and self.shape.channel_rank == 1
         is_dual_vector = self.shape.name == '~vector'
         if (not is_vector and not is_dual_vector) if options.include_shape is None else options.include_shape:
-            content += f" along {colors.shape(f'{self.shape.name}{SUPERSCRIPT[self.shape.type]}')}"
+            content += f" along {colors.shape(f'{self.shape.name}{SUPERSCRIPT[self.shape.dim_type]}')}"
         elif is_dual_vector:
             content = "~" + content
     else:
@@ -3105,7 +3105,20 @@ def unserialize_spec(spec: dict):
 _BACKEND_RULES = {}  # Tuple[Backend...] -> Backend
 
 
-def backend_for(*values: Tensor):
+def backend_for(*values: Tensor) -> Backend:
+    """
+    Chooses an appropriate backend based on the backends of `values`.
+
+    Args:
+        *values: Input tensors to some operation.
+
+    Returns:
+        `Backend` that is compatible with all `values´.
+
+    Raises:
+        `NoBackendFound`: If no backend exists that can handle all `values`.
+
+    """
     backends = tuple([v.backend for v in values])
     result = _BACKEND_RULES.get(backends, None)
     if result is not None:

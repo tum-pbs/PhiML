@@ -676,6 +676,19 @@ class Shape(Protocol, metaclass=ShapeMeta):
         """
         ...
 
+    def replace_selection(self, names: Sequence[str], new: 'Shape') -> 'Shape':
+        """
+        Replace some of the dims of this shape.
+
+        Args:
+            names: Sequence of dim names.
+            new: Replacement dims, must have same length as `old`.
+
+        Returns:
+            Copy of `self` with replaced dims.
+        """
+        ...
+
     @property
     def volume(self) -> Union[int, None]:
         """
@@ -1006,7 +1019,9 @@ class Dim:
         return self.dim_type == dim.dim_type
 
     def isdisjoint(self, other) -> bool:
-        return self.name not in other
+        if isinstance(other, SHAPE_TYPES):
+            return self.name not in other
+        return self.name not in parse_dim_order(other)
 
     def only(self, dims: 'DimFilter', reorder=False):
         if dims is None:  # keep none
@@ -1105,8 +1120,14 @@ class Dim:
         return Dim(self.name, self.size, self.dim_type, self.slice_names[::-1])
 
     def replace(self, dims: Union['Shape', str, tuple, list], new: 'Shape'):
-        assert self.name == parse_dim_names(dims, 1)[0]
-        return self._replace(new)
+        old_names = parse_dim_order(dims)
+        if len(old_names) == 1 and self.name == old_names[0]:
+            return self._replace(new)
+        elif self.name in old_names:
+            idx = old_names.index(self.name)
+            return self._replace(new[idx])
+        else:
+            return self
 
     def _replace(self, new: 'Shape'):
         if self.slice_names is None or new.slice_names is not None:
@@ -1115,6 +1136,14 @@ class Dim:
             return new
         else:  # keep item names from self
             return Dim(new.name, new.size, new.dim_type, self.slice_names)
+
+    def replace_selection(self, names: Sequence[str], new: Shape):
+        if self.name not in names:
+            return self
+        new = new[names.index(self.name)]
+        if self.slice_names is None or new.item_names[0] is not None or not _size_equal(self.size, new.size):
+            return new
+        return Dim(new.name, new.size, new.dim_type, self.slice_names)
 
     def as_batch(self):
         name = _apply_prefix(self.name, BATCH_DIM) if self.dim_type == DUAL_DIM else self.name
@@ -1391,7 +1420,9 @@ class PureShape:
             return other.name in self.dims
         if isinstance(other, PureShape):
             return other.dim_type != self.dim_type or self.dims.keys().isdisjoint(other.dims)
-        return other.isdisjoint(self)
+        elif isinstance(other, MixedShape):
+            return other.isdisjoint(self)
+        return self.dims.keys().isdisjoint(set(parse_dim_order(other)))
 
     def only(self, dims: 'DimFilter', reorder=False):
         if not self.dims or dims is None:
@@ -1516,6 +1547,14 @@ class PureShape:
             i0 = self.index(dims[0])
             dim_list = [d for n, d in self.dims.items() if n not in dims]
             dim_list.insert(i0, new)
+        return concat_shapes_(*dim_list)
+
+    def replace_selection(self, names: Sequence[str], new: Shape):
+        dim_list = list(self.dims.values())
+        for old_name, new_dim in zip(names, new):
+            if old_name in self.dims:
+                new_dim = self.dims[old_name]._replace(new_dim)
+                dim_list[self.index(old_name)] = new_dim
         return concat_shapes_(*dim_list)
 
     def as_batch(self):
@@ -1798,8 +1837,9 @@ class MixedShape:
             return other.name in self.dims
         if isinstance(other, PureShape):
             return other.isdisjoint(getattr(self, other.dim_type))
-        assert isinstance(other, MixedShape)
-        return self.dims.keys().isdisjoint(other.dims)
+        if isinstance(other, MixedShape):
+            return self.dims.keys().isdisjoint(other.dims)
+        return self.dims.keys().isdisjoint(set(parse_dim_order(other)))
 
     @property
     def __empty__(self):
@@ -1910,6 +1950,14 @@ class MixedShape:
             i0 = self.index(dims[0])
             dim_list = [d for n, d in self.dims.items() if n not in dims]
             dim_list.insert(i0, new)
+        return concat_shapes_(*dim_list)
+
+    def replace_selection(self, names: Sequence[str], new: Shape):
+        dim_list = list(self.dims.values())
+        for old_name, new_dim in zip(names, new):
+            if old_name in self.dims:
+                new_dim = self.dims[old_name].replace_selection(old_name, new_dim)
+                dim_list[self.index(old_name)] = new_dim
         return concat_shapes_(*dim_list)
 
     def as_batch(self):
@@ -2421,7 +2469,8 @@ def merge_shapes(*objs: Union[Shape, Any], allow_varying_sizes=False) -> Shape:
         i = pure_merge(*[s.instance for s in shapes], allow_varying_sizes=allow_varying_sizes)
         s = pure_merge(*[s.spatial for s in shapes], allow_varying_sizes=allow_varying_sizes)
         c = pure_merge(*[s.channel for s in shapes], allow_varying_sizes=allow_varying_sizes)
-        return MixedShape(b, d, i, s, c, {**b.dims, **d.dims, **i.dims, **s.dims, **c.dims})
+        dims = {**b.dims, **d.dims, **i.dims, **s.dims, **c.dims}
+        return MixedShape(b, d, i, s, c, dims) if dims else EMPTY_SHAPE
 
 
 def pure_merge(*shapes: Shape, allow_varying_sizes: bool) -> Shape:
@@ -2857,7 +2906,7 @@ def transposed(self):
 
 
 def to_dict(self: Shape, include_sizes=True):
-    result = dict(names=self.names, types=self.types, item_names=self.item_names)
+    result = dict(names=self.names, types=self.dim_types, item_names=self.item_names)
     if include_sizes:
         assert self.is_uniform, f"do_dict(Shape) only supports uniform shapes but got {self}"
         result['sizes'] = self.sizes

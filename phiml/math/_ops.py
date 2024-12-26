@@ -12,7 +12,8 @@ from .magic import PhiTreeNode
 from ._magic_ops import expand, pack_dims, unpack_dim, cast, value_attributes, bool_to_int, tree_map, concat, stack, unstack, rename_dims, slice_, all_attributes, squeeze, ipack
 from ._shape import (Shape, EMPTY_SHAPE,
                      spatial, batch, channel, instance, merge_shapes, parse_dim_order, concat_shapes,
-                     IncompatibleShapes, DimFilter, non_batch, dual, shape, shape as get_shape, primal, auto, non_spatial, non_dual, resolve_index, concat_shapes_, SHAPE_TYPES)
+                     IncompatibleShapes, DimFilter, non_batch, dual, shape, shape as get_shape, primal, auto, non_spatial, non_dual, resolve_index, concat_shapes_, SHAPE_TYPES,
+                     Dim)
 from . import extrapolation as e_
 from ._tensors import (Tensor, wrap, tensor, broadcastable_native_tensors, Dense, TensorStack,
                        custom_op2, compatible_tensor, variable_attributes, disassemble_tree, assemble_tree,
@@ -1164,31 +1165,32 @@ def broadcast_op(operation: Callable,
     else:
         if isinstance(iter_dims, SHAPE_TYPES):
             iter_dims = iter_dims.names
-        dim = next(iter(iter_dims))
+        dim_name = next(iter(iter_dims))
         dim_type = None
         size = None
         item_names = None
         unstacked = []
         for tensor in tensors:
-            if dim in tensor.shape.names:
-                unstacked_tensor = tensor._unstack(dim)
+            if dim_name in tensor.shape:
+                dim = tensor.shape[dim_name]
+                unstacked_tensor = tensor._unstack(dim_name)
                 unstacked.append(unstacked_tensor)
                 if size is None:
                     size = len(unstacked_tensor)
-                    dim_type = tensor.shape.get_type(dim)
+                    dim_type = dim.dim_type
                 else:
                     assert size == len(unstacked_tensor)
-                    assert dim_type == tensor.shape.get_type(dim)
+                    assert dim_type == dim.dim_type
                 if item_names is None:
-                    item_names = tensor.shape.get_item_names(dim)
+                    item_names = dim.slice_names
             else:
                 unstacked.append(tensor)
         result_unstacked = []
         for i in range(size):
             gathered = [t[i] if isinstance(t, tuple) else t for t in unstacked]
-            result_unstacked.append(broadcast_op(operation, gathered, iter_dims=set(iter_dims) - {dim}))
+            result_unstacked.append(broadcast_op(operation, gathered, iter_dims=set(iter_dims) - {dim_name}))
         if not no_return:
-            return stack(result_unstacked, Shape((size,), (dim,), (dim_type,), (item_names,)))
+            return stack(result_unstacked, Dim(dim_name, size, item_names, dim_type))
 
 
 def where(condition: Union[Tensor, float, int],
@@ -2695,7 +2697,7 @@ def boolean_mask(x, dim: DimFilter, mask: Tensor, preserve_names=False):
     if is_sparse(x):
         indices = nonzero(mask, list_dim=instance('_boolean_mask'))
         result = x[indices]
-        return rename_dims(result, '_boolean_mask', mask.shape.non_channel)
+        return result.__replace_dims__(('_boolean_mask',), mask.shape.non_channel)
     if not isinstance(x, Tensor) or is_sparse(x):
         keep_slices = nonzero_slices(mask)
         x_slices = [x[s] for s in keep_slices]
@@ -2986,7 +2988,7 @@ def scatter(base_grid: Union[Tensor, Shape],
         backend = backend_for(indices, values, base_grid)
         native_grid = base_grid._reshaped_native([batches, *indexed_dims, channels])
         native_values = values._reshaped_native([batches, lists, channels])
-        native_indices = indices._reshaped_native([batches, lists, channel])
+        native_indices = indices._reshaped_native([batches, lists, indices.shape.channel])
         if mode != 'mean':
             native_result = backend.scatter(native_grid, native_indices, native_values, mode=mode)
         else:  # mean
