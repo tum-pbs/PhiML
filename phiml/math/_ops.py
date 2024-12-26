@@ -12,7 +12,7 @@ from .magic import PhiTreeNode
 from ._magic_ops import expand, pack_dims, unpack_dim, cast, value_attributes, bool_to_int, tree_map, concat, stack, unstack, rename_dims, slice_, all_attributes, squeeze, ipack
 from ._shape import (Shape, EMPTY_SHAPE,
                      spatial, batch, channel, instance, merge_shapes, parse_dim_order, concat_shapes,
-                     IncompatibleShapes, DimFilter, non_batch, dual, shape, shape as get_shape, primal, auto, non_spatial, non_dual, resolve_index, concat_shapes_)
+                     IncompatibleShapes, DimFilter, non_batch, dual, shape, shape as get_shape, primal, auto, non_spatial, non_dual, resolve_index, concat_shapes_, SHAPE_TYPES)
 from . import extrapolation as e_
 from ._tensors import (Tensor, wrap, tensor, broadcastable_native_tensors, Dense, TensorStack,
                        custom_op2, compatible_tensor, variable_attributes, disassemble_tree, assemble_tree,
@@ -190,7 +190,7 @@ def native_call(f: Callable, *inputs: Tensor, channels_last=None, channel_dim='v
     output = f(*natives)
     if isinstance(channel_dim, str):
         channel_dim = channel(channel_dim)
-    assert isinstance(channel_dim, Shape), "channel_dim must be a Shape or str"
+    assert isinstance(channel_dim, SHAPE_TYPES), "channel_dim must be a Shape or str"
     if isinstance(output, (tuple, list)):
         raise NotImplementedError()
     if spatial_dim is None:
@@ -204,7 +204,7 @@ def native_call(f: Callable, *inputs: Tensor, channels_last=None, channel_dim='v
     else:
         if isinstance(spatial_dim, str):
             spatial_dim = spatial(spatial_dim)
-        assert isinstance(spatial_dim, Shape), "spatial_dim must be a Shape or str"
+        assert isinstance(spatial_dim, SHAPE_TYPES), "spatial_dim must be a Shape or str"
         groups = [b_dims, *spatial_dim, channel_dim] if channels_last else [b_dims, channel_dim, *spatial_dim]
     result = reshaped_tensor(output, groups, convert=False)
     if result.shape.get_size(channel_dim.name) == 1 and not channel_dim.item_names[0]:
@@ -530,10 +530,10 @@ def pick_random(value: TensorOrTree, dim: DimFilter, count: Union[int, Shape, No
     dim = v_shape.only(dim)
     if count is None and dim.well_defined:
         count = dim.size
-    n = dim.volume if count is None else (count.volume if isinstance(count, Shape) else count)
+    n = dim.volume if count is None else (count.volume if isinstance(count, SHAPE_TYPES) else count)
     if n == dim.volume and weight is None:
         idx = random_permutation(dim & v_shape.batch & dim.non_uniform_shape, dims=dim)
-        idx = unpack_dim(idx, dim, count) if isinstance(count, Shape) else idx
+        idx = unpack_dim(idx, dim, count) if isinstance(count, SHAPE_TYPES) else idx
     else:
         nu_dims = v_shape.non_uniform_shape
         idx_slices = []
@@ -546,7 +546,7 @@ def pick_random(value: TensorOrTree, dim: DimFilter, count: Union[int, Shape, No
                 np_idx = np.arange(n) % u_dim.volume
             else:
                 raise ValueError(f"Cannot pick random from empty tensor {u_dim}")
-            idx = wrap(np_idx, count if isinstance(count, Shape) else u_dim.without_sizes())
+            idx = wrap(np_idx, count if isinstance(count, SHAPE_TYPES) else u_dim.without_sizes())
             # idx = ravel_index()
             idx_slices.append(expand(idx, channel(index=u_dim.name)))
         idx = stack(idx_slices, nu_dims)
@@ -701,7 +701,7 @@ def meshgrid(dims: Union[Callable, Shape] = spatial, stack_dim=channel('vector')
     """
     assert 'dim_type' not in dimensions, f"dim_type has been renamed to dims"
     assert not stack_dim or stack_dim.name not in dimensions
-    if isinstance(dims, Shape):
+    if isinstance(dims, SHAPE_TYPES):
         assert not dimensions, f"When passing a Shape to meshgrid(), no kwargs are allowed"
         dimensions = {d: s for d, s in zip(dims.names, dims.sizes)}
         grid_shape = dims
@@ -763,7 +763,7 @@ def linspace(start: Union[float, Tensor, tuple, list], stop: Union[float, Tensor
         >>> math.linspace(0, (-1, 1), spatial(x=3))
         (0.000, 0.000); (-0.500, 0.500); (-1.000, 1.000) (xˢ=3, vectorᶜ=2)
     """
-    assert isinstance(dim, Shape), f"dim must be a Shape but got {dim}"
+    assert isinstance(dim, SHAPE_TYPES), f"dim must be a Shape but got {dim}"
     assert dim.is_uniform, f"dim must be uniform but got {dim}"
     start = wrap(start)
     stop = wrap(stop)
@@ -1162,7 +1162,7 @@ def broadcast_op(operation: Callable,
     if len(iter_dims) == 0:
         return operation(*tensors)
     else:
-        if isinstance(iter_dims, Shape):
+        if isinstance(iter_dims, SHAPE_TYPES):
             iter_dims = iter_dims.names
         dim = next(iter(iter_dims))
         dim_type = None
@@ -2606,7 +2606,7 @@ def minimum(x: Union[Tensor, float], y: Union[Tensor, float], allow_none=False):
 
 def clip(x: Tensor, lower_limit: Union[float, Tensor] = 0, upper_limit: Union[float, Tensor, Shape] = 1):
     """ Limits the values of the `Tensor` `x` to lie between `lower_limit` and `upper_limit` (inclusive). """
-    if isinstance(upper_limit, Shape):
+    if isinstance(upper_limit, SHAPE_TYPES):
         assert x.shape.channel_rank == 1, f"When passing a Shape for upper_limit, x must have exactly one channel dim but got {x.shape}"
         upper_limit = wrap(upper_limit.sizes, channel(x))
     if isinstance(lower_limit, Number) and isinstance(upper_limit, Number):
@@ -2917,7 +2917,7 @@ def scatter(base_grid: Union[Tensor, Shape],
             return concat(parts, dim)
         else:
             raise NotImplementedError("scattering into non-continuous values not yet supported by dimension")
-    grid_shape = base_grid if isinstance(base_grid, Shape) else base_grid.shape
+    grid_shape = base_grid if isinstance(base_grid, SHAPE_TYPES) else base_grid.shape
     assert channel(indices).rank < 2
     if channel(indices) and channel(indices).item_names[0]:
         indexed_dims = channel(indices).item_names[0]
@@ -2933,7 +2933,7 @@ def scatter(base_grid: Union[Tensor, Shape],
     batches = values.shape.non_channel.non_instance & indices.shape.non_channel.non_instance
     batches &= values.shape.only(treat_as_batch) & indices.shape.only(treat_as_batch)
     # --- Set up grid ---
-    if isinstance(base_grid, Shape):
+    if isinstance(base_grid, SHAPE_TYPES):
         with backend_for(indices, values):
             base_grid = zeros(base_grid & batches & values.shape.channel, dtype=values.dtype)
         if default is not None:
@@ -3059,7 +3059,7 @@ def histogram(values: Tensor, bins: Shape or Tensor = spatial(bins=30), weights=
     assert channel(values).is_empty, f"Only 1D histograms supported but values have a channel dimension: {values.shape}"
     assert dual(values).is_empty, f"values cannot contain dual dimensions but got shape {values.shape}"
     weights = wrap(weights)
-    if isinstance(bins, Shape):
+    if isinstance(bins, SHAPE_TYPES):
         def equal_bins(v):
             return linspace(finite_min(v, shape), finite_max(v, shape), bins.with_size(bins.size + 1))
         bins = broadcast_op(equal_bins, [values], iter_dims=(batch(values) & batch(weights)).without(same_bins))
@@ -3416,7 +3416,7 @@ def stop_gradient(x):
     Returns:
         Copy of `x`.
     """
-    if isinstance(x, Shape):
+    if isinstance(x, SHAPE_TYPES):
         return x
     return _backend_op1(x, Backend.stop_gradient, attr_type=variable_attributes)
 

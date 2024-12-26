@@ -6,7 +6,7 @@ from . import _ops as math
 from . import extrapolation as extrapolation
 from ._magic_ops import stack, rename_dims, concat, tree_map, value_attributes, pack_dims
 from ._ops import backend_for, reshaped_tensor
-from ._shape import Shape, channel, batch, spatial, DimFilter, parse_dim_order, instance, dual, auto, non_batch, after_gather
+from ._shape import Shape, channel, batch, spatial, DimFilter, parse_dim_order, instance, dual, auto, non_batch, after_gather, SHAPE_TYPES
 from ._tensors import Tensor, wrap, tensor
 from .extrapolation import Extrapolation
 from .magic import PhiTreeNode
@@ -47,7 +47,7 @@ def vec(name: Union[str, Shape] = 'vector', *sequence, tuple_dim=spatial('sequen
         (x=0, y=0); (x=0, y=1) (sequenceˢ=2, vectorᶜ=x,y)
     """
     dim = auto(name, channel)
-    assert isinstance(dim, Shape), f"name must be a str or Shape but got '{type(name)}'"
+    assert isinstance(dim, SHAPE_TYPES), f"name must be a str or Shape but got '{type(name)}'"
     if sequence:
         assert not components, "vec() must be given either positional or keyword arguments but not both"
         if len(sequence) == 1 and isinstance(sequence[0], (tuple, list)):
@@ -81,7 +81,7 @@ def const_vec(value: Union[float, Tensor], dim: Union[Shape, tuple, list, str]):
     Returns:
         `Tensor`
     """
-    if isinstance(dim, Shape):
+    if isinstance(dim, SHAPE_TYPES):
         if dim.spatial:
             assert not dim.non_spatial, f"When creating a vector given spatial dimensions, the shape may only contain spatial dimensions but got {dim}"
             shape = channel(vector=dim.names)
@@ -153,7 +153,7 @@ def dim_mask(all_dims: Union[Shape, tuple, list], dims: DimFilter, mask_dim=chan
         `Tensor`
     """
     assert isinstance(all_dims, (Shape, tuple, list)), f"all_dims must be a tuple or Shape but got {type(all_dims)}"
-    assert isinstance(mask_dim, Shape) and mask_dim.rank == 1, f"mask_dim must be a single-dimension Shape but got {mask_dim}"
+    assert isinstance(mask_dim, SHAPE_TYPES) and mask_dim.rank == 1, f"mask_dim must be a single-dimension Shape but got {mask_dim}"
     if isinstance(all_dims, (tuple, list)):
         all_dims = spatial(*all_dims)
     dims = all_dims.only(dims)

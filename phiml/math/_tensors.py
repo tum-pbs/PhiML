@@ -17,7 +17,7 @@ from ._shape import (Shape,
                      CHANNEL_DIM, BATCH_DIM, SPATIAL_DIM, EMPTY_SHAPE,
                      parse_dim_order, shape_stack, merge_shapes, channel, concat_shapes, primal,
                      SUPERSCRIPT, IncompatibleShapes, INSTANCE_DIM, batch, spatial, dual, instance, shape, shape as shape_, DimFilter, non_batch, DEBUG_CHECKS, parse_shape_spec,
-                     prepare_renaming_gather, after_gather, concat_shapes_, Dim, PureShape)
+                     prepare_renaming_gather, after_gather, concat_shapes_, Dim, PureShape, SHAPE_TYPES)
 from ..backend import NoBackendFound, choose_backend, BACKENDS, get_precision, default_backend, convert as convert_, \
     Backend, ComputeDevice, OBJECTS, NUMPY, ML_LOGGER
 from ..backend._dtype import DType, combine_types
@@ -401,7 +401,7 @@ class Tensor:
         return int(self.native())
 
     def __contains__(self, item):
-        if isinstance(item, Shape):
+        if isinstance(item, SHAPE_TYPES):
             return item in self.shape
         elif isinstance(item, BoundDim):
             return item.name in self.shape
@@ -610,7 +610,7 @@ class Tensor:
         """
         if isinstance(name, str):
             return TensorDim(self, name)
-        elif isinstance(name, Shape):
+        elif isinstance(name, SHAPE_TYPES):
             return TensorDim(self, name.name)
         else:
             raise ValueError(name)
@@ -1456,7 +1456,7 @@ class TensorStack(Tensor):
     """
 
     def __init__(self, components: Union[tuple, list], stack_dim: Shape):
-        assert isinstance(stack_dim, Shape) and stack_dim.rank == 1, f"stack_dim must be a single-dimension Shape object but got {type(stack_dim)}"
+        assert isinstance(stack_dim, SHAPE_TYPES) and stack_dim.rank == 1, f"stack_dim must be a single-dimension Shape object but got {type(stack_dim)}"
         # assert len(components) > 1, "Use a CollapsedTensor instead"
         for t in components:
             assert isinstance(t, Tensor)
@@ -1690,7 +1690,7 @@ def tensor(data,
         return reshaped_tensor(data, shape[0], convert=convert)
     shape = [parse_shape_spec(s) if isinstance(s, str) else s for s in shape]
     shape = None if len(shape) == 0 else concat_shapes_(*shape)
-    if isinstance(data, Shape):
+    if isinstance(data, SHAPE_TYPES):
         if shape is None:
             shape = channel('dims')
             shape = shape.with_size(data.names)
@@ -1799,7 +1799,7 @@ def layout(objects, *shape: Union[Shape, str]) -> Tensor:
         Calling `Tensor.native()` on the returned tensor will return `objects`.
     """
     shape = [parse_shape_spec(s) if isinstance(s, str) else s for s in shape]
-    assert all(isinstance(s, Shape) for s in shape), f"shape needs to be one or multiple Shape instances but got {shape}"
+    assert all(isinstance(s, SHAPE_TYPES) for s in shape), f"shape needs to be one or multiple Shape instances but got {shape}"
     shape = EMPTY_SHAPE if len(shape) == 0 else concat_shapes_(*shape)
     if isinstance(objects, Layout):
         assert objects.shape == shape
@@ -1841,7 +1841,7 @@ def layout(objects, *shape: Union[Shape, str]) -> Tensor:
 def compatible_tensor(data, compat_shape: Shape = None, compat_natives=(), convert=False):
     if isinstance(data, Tensor):
         return data
-    elif isinstance(data, Shape):
+    elif isinstance(data, SHAPE_TYPES):
         if data.spatial.rank == 1:
             return wrap(data.spatial.size)
         assert compat_shape.channel.rank == 1, "Only single-channel tensors support implicit casting from Shape to tensor"
@@ -2428,7 +2428,7 @@ def process_groups_for(shape: Shape, groups: Any) -> List[Shape]:
     def process_group(g) -> Union[Shape, Ellipsis]:
         if g is None or (isinstance(g, tuple) and len(g) == 0):
             return EMPTY_SHAPE
-        if isinstance(g, Shape):
+        if isinstance(g, SHAPE_TYPES):
             return g
         if g is Ellipsis:
             return g
@@ -2488,7 +2488,7 @@ def reshaped_tensor(value: Any,
     Returns:
         `Tensor` with all dimensions from `groups`
     """
-    assert all(isinstance(g, Shape) for g in groups), "groups must be a sequence of Shapes"
+    assert all(isinstance(g, SHAPE_TYPES) for g in groups), "groups must be a sequence of Shapes"
     v_shape = choose_backend(value).staticshape(value)
     dims = [batch(f'group{i}') if group.rank != 1 else (group if check_sizes else group.with_size(v_shape[i])) for i, group in enumerate(groups)]
     try:
@@ -2520,7 +2520,7 @@ def to_dict(value: Union[Tensor, Shape]):
     Returns:
         Serializable Python tree of primitives
     """
-    if isinstance(value, Shape):
+    if isinstance(value, SHAPE_TYPES):
         return value._to_dict(include_sizes=True)
     elif isinstance(value, Tensor):
         return value._to_dict()

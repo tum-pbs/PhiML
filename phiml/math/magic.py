@@ -20,7 +20,7 @@ from typing import Tuple, Callable, Union
 
 import dataclasses
 
-from ._shape import Shape, shape, channel, non_batch, batch, spatial, instance, concat_shapes, dual, PureShape, Dim, MixedShape, DEBUG_CHECKS, concat_shapes_
+from ._shape import Shape, shape, channel, non_batch, batch, spatial, instance, concat_shapes, dual, PureShape, Dim, MixedShape, DEBUG_CHECKS, concat_shapes_, SHAPE_TYPES
 from ..backend._dtype import DType
 
 
@@ -787,7 +787,7 @@ def slicing_dict(obj, item, existing_only=True) -> dict:
     Returns:
         `dict` mapping dimension names to slices.
     """
-    if isinstance(item, Shape):
+    if isinstance(item, SHAPE_TYPES):
         item = item.name_list
     if isinstance(item, dict):
         def valid_key(key):
@@ -795,7 +795,7 @@ def slicing_dict(obj, item, existing_only=True) -> dict:
                 key = key(obj)
             if isinstance(key, str):
                 return key
-            elif isinstance(key, Shape):
+            elif isinstance(key, SHAPE_TYPES):
                 return key.name
             else:
                 raise ValueError(f"Illegal slicing dim: {key}. Only str and single-dim Shape and filters are allowed. While trying to slice {obj} by {item}")

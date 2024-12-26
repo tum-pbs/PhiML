@@ -928,7 +928,7 @@ class Dim:
     def index(self, dim: Union[str, 'Shape', None]) -> Optional[int]:
         if dim is None:
             return None
-        if isinstance(dim, Shape):
+        if isinstance(dim, SHAPE_TYPES):
             dim = dim.name
         if isinstance(dim, str):
             if dim != self.name:
@@ -940,7 +940,7 @@ class Dim:
         return (0,) if names else ()
 
     def __getitem__(self, selection):
-        if isinstance(selection, Shape):
+        if isinstance(selection, SHAPE_TYPES):
             selection = selection.names
         if isinstance(selection, (tuple, list)):
             if not selection:
@@ -963,7 +963,7 @@ class Dim:
         return iter([self])
 
     def get_size(self, dim: Union[str, 'Shape'], default=None):
-        dim = dim.name if isinstance(dim, Shape) else dim
+        dim = dim.name if isinstance(dim, SHAPE_TYPES) else dim
         if dim == self.name:
             return self.size
         if default is not None:
@@ -971,7 +971,7 @@ class Dim:
         raise KeyError(f"get_size() failed because '{dim}' is not part of {self} and no default value was provided")
 
     def get_item_names(self, dim: Union[str, 'Shape'], fallback_spatial=False) -> Union[tuple, None]:
-        dim = dim.name if isinstance(dim, Shape) else dim
+        dim = dim.name if isinstance(dim, SHAPE_TYPES) else dim
         if dim != self.name:
             raise KeyError(f"get_item_names() failed because '{dim}' is not part of {self}")
         return self.slice_names  # fallback_spatial requires shape.spatial and dim.type==channel
@@ -1008,7 +1008,7 @@ class Dim:
             return dims(self)
         if isinstance(dims, str):
             dims = parse_dim_order(dims)
-        if isinstance(dims, Shape):
+        if isinstance(dims, SHAPE_TYPES):
             return self if self.name in dims else EMPTY_SHAPE
         assert isinstance(dims, (tuple, list, set))
         if all(isinstance(d, int) for d in dims):
@@ -1020,7 +1020,7 @@ class Dim:
             elif isinstance(d, str):
                 if d == self.name:
                     return self
-            elif isinstance(d, Shape):
+            elif isinstance(d, SHAPE_TYPES):
                 if self.name in d:
                     return self
             else:
@@ -1042,7 +1042,7 @@ class Dim:
             return self
         elif callable(dims):
             dims = dims(self)
-        if isinstance(dims, (str, Shape)):
+        if isinstance(dims, (str, SHAPE_TYPES)):
             dims = parse_dim_order(dims)
             return EMPTY_SHAPE if self.name in dims else self
         if isinstance(dims, (tuple, list, set)) and all([isinstance(d, str) for d in dims]):
@@ -1065,7 +1065,7 @@ class Dim:
                 yield {self.name: i}
 
     def with_size(self, size, keep_item_names=True):
-        if isinstance(size, Shape):
+        if isinstance(size, SHAPE_TYPES):
             names = size.get_item_names(self.name)
             size = names if names is not None else size.get_size(self.name)
         if isinstance(size, str):
@@ -1081,7 +1081,7 @@ class Dim:
         return Dim(self.name, size, self.dim_type, None)
 
     def with_dim_size(self, dim: Union[str, 'Shape'], size: Union[int, 'math.Tensor', str, tuple, list], keep_item_names=True):
-        name = dim.name if isinstance(dim, Shape) else dim
+        name = dim.name if isinstance(dim, SHAPE_TYPES) else dim
         assert name == self.name, f"Cannot set dim size of {dim} on {self}"
         return self.with_size(size, keep_item_names=keep_item_names)
 
@@ -1311,7 +1311,7 @@ class PureShape:
             if dim not in self.dims:
                 raise ValueError(f"Shape {self} has no dimension '{dim}'")
             return self.names.index(dim)
-        elif isinstance(dim, Shape):
+        elif isinstance(dim, SHAPE_TYPES):
             assert len(dim) == 1, f"index() requires a single dimension as input but got {dim}. Use indices() for multiple dimensions."
             return self.names.index(dim.name)
         raise ValueError(f"index() requires a single dimension as input but got {dim}")
@@ -1331,7 +1331,7 @@ class PureShape:
             else:
                 selection = self.index(selection)
             return self[selection]
-        elif isinstance(selection, Shape):
+        elif isinstance(selection, SHAPE_TYPES):
             selection = selection.names
         if isinstance(selection, (tuple, list)):
             selection = [self.names[sel] if isinstance(sel, int) else sel for sel in selection]
@@ -1344,14 +1344,14 @@ class PureShape:
         return iter(self.dims.values())
 
     def get_size(self, dim: Union[str, 'Shape'], default=None):
-        name = dim.name if isinstance(dim, Shape) else dim
+        name = dim.name if isinstance(dim, SHAPE_TYPES) else dim
         if default is None:
             return self.dims[name].size
         else:
             return self.dims[name].size if name in self.dims else default
 
     def get_item_names(self, dim: Union[str, 'Shape'], fallback_spatial=False) -> Union[tuple, None]:
-        name = dim.name if isinstance(dim, Shape) else dim
+        name = dim.name if isinstance(dim, SHAPE_TYPES) else dim
         return self.dims[name].slice_names  # fallback_spatial requires shape.spatial and dim.type==channel
 
     def __and__(self, other):
@@ -1389,13 +1389,13 @@ class PureShape:
             return dims(self)
         if isinstance(dims, str):
             dims = parse_dim_order(dims)
-        elif isinstance(dims, Shape):
+        elif isinstance(dims, SHAPE_TYPES):
             dims = [dims]
         names = []
         for d in dims:
             if isinstance(d, str):
                 names.append(d)
-            elif isinstance(d, Shape):
+            elif isinstance(d, SHAPE_TYPES):
                 names.extend(d.names)
             elif callable(d):
                 names.extend(d(self).names)
@@ -1428,7 +1428,7 @@ class PureShape:
             return self
         elif callable(dims):
             dims = dims(self)
-        if isinstance(dims, (str, Shape)):
+        if isinstance(dims, (str, SHAPE_TYPES)):
             names = parse_dim_order(dims)
             dims = {n: dim for n, dim in self.dims.items() if n not in names}
             return next(iter(dims.values())) if len(dims) == 1 else PureShape(self.dim_type, dims)
@@ -1462,7 +1462,7 @@ class PureShape:
         raise AssertionError(f"Shape.with_size() is only defined for shapes of rank 1 but got {self}")
 
     def with_dim_size(self, dim: Union[str, 'Shape'], size: Union[int, 'math.Tensor', str, tuple, list], keep_item_names=True):
-        name = dim.name if isinstance(dim, Shape) else dim
+        name = dim.name if isinstance(dim, SHAPE_TYPES) else dim
         dims = dict(self.dims)
         dims[dim] = dims[dim].with_size(size)
         return PureShape(self.dim_type, {n: dim.with_size(size) if n == name else dim for n, dim in self.dims.items()})
@@ -1473,7 +1473,7 @@ class PureShape:
             return self
         if isinstance(sizes, int):
             sizes = (sizes,) * len(self.dims)
-        elif isinstance(sizes, Shape):
+        elif isinstance(sizes, SHAPE_TYPES):
             sizes = tuple([sizes.get_size(dim.name) for dim in self.dims.values()])
         dims = {dim.name: dim.with_size(size, keep_item_names) for dim, size in zip(self.dims.values(), sizes)}
         return PureShape(self.dim_type, dims)
@@ -1701,7 +1701,7 @@ class MixedShape:
             if dim not in self.dims:
                 raise ValueError(f"Shape {self} has no dimension '{dim}'")
             return self.names.index(dim)
-        elif isinstance(dim, Shape):
+        elif isinstance(dim, SHAPE_TYPES):
             assert len(dim) == 1, f"index() requires a single dimension as input but got {dim}. Use indices() for multiple dimensions."
             return self.names.index(dim.name)
         raise ValueError(f"index() requires a single dimension as input but got {dim}")
@@ -1721,7 +1721,7 @@ class MixedShape:
             else:
                 selection = self.index(selection)
             return self[selection]
-        elif isinstance(selection, Shape):
+        elif isinstance(selection, SHAPE_TYPES):
             selection = selection.names
         if isinstance(selection, (tuple, list)):
             selection = [self.names[sel] if isinstance(sel, int) else sel for sel in selection]
@@ -1734,14 +1734,14 @@ class MixedShape:
         return iter(self.dims.values())
 
     def get_size(self, dim: Union[str, 'Shape'], default=None):
-        name = dim.name if isinstance(dim, Shape) else dim
+        name = dim.name if isinstance(dim, SHAPE_TYPES) else dim
         if default is None:
             return self.dims[name].size
         else:
             return self.dims[name].size if name in self.dims else default
 
     def get_item_names(self, dim: Union[str, 'Shape'], fallback_spatial=False) -> Union[tuple, None]:
-        name = dim.name if isinstance(dim, Shape) else dim
+        name = dim.name if isinstance(dim, SHAPE_TYPES) else dim
         dim = self.dims[name]
         if dim.slice_names is not None:
             return dim.slice_names
@@ -1838,13 +1838,13 @@ class MixedShape:
         return next(iter(self.dims.values())).with_size(size, keep_item_names=keep_item_names)
 
     def with_dim_size(self, dim: Union[str, 'Shape'], size: Union[int, 'math.Tensor', str, tuple, list], keep_item_names=True):
-        dim = dim.name if isinstance(dim, Shape) else dim
+        dim = dim.name if isinstance(dim, SHAPE_TYPES) else dim
         dims = dict(self.dims)
         dims[dim] = dims[dim].with_size(size)
         return concat_shapes_(*[dims[n] for n in self.dims])
 
     def with_sizes(self, sizes: Union[Sequence[int], Sequence[Tuple[str, ...]], 'Shape', int], keep_item_names=True):
-        if isinstance(sizes, (int, Shape)):
+        if isinstance(sizes, (int, SHAPE_TYPES)):
             b = self.batch.with_sizes(sizes)
             d = self.dual.with_sizes(sizes)
             i = self.instance.with_sizes(sizes)
@@ -1901,6 +1901,8 @@ class MixedShape:
 EMPTY_SHAPE = PureShape('__empty__', {})
 """ Empty shape, `()` """
 
+SHAPE_TYPES = (Dim, PureShape, MixedShape)
+
 
 class IncompatibleShapes(Exception):
     """
@@ -1925,7 +1927,7 @@ def parse_dim_names(obj: Union[str, Sequence[str], Shape], count: int) -> tuple:
                 result.append(part)
         assert len(result) == count, f"Number of specified names in '{obj}' does not match number of dimensions ({count})"
         return tuple(result)
-    elif isinstance(obj, Shape):
+    elif isinstance(obj, SHAPE_TYPES):
         assert len(obj) == count, f"Number of specified names in {obj} does not match number of dimensions ({count})"
         return obj.names
     elif isinstance(obj, Sequence):
@@ -1935,7 +1937,7 @@ def parse_dim_names(obj: Union[str, Sequence[str], Shape], count: int) -> tuple:
 
 
 def parse_dim_order(order: Union[str, tuple, list, Shape]) -> Sequence[str]:
-    if isinstance(order, Shape):
+    if isinstance(order, SHAPE_TYPES):
         return order.names
     if isinstance(order, str) and ',' not in order:
         return order,
@@ -1968,7 +1970,7 @@ def _construct_shape(dim_type: str, *args, **kwargs):
             assert all(isinstance(s, str) for s in size), f"Item names must all be of type 'str' but got '{size}'"
             items = tuple(size)
             size = len(items)
-        elif isinstance(size, Shape):
+        elif isinstance(size, SHAPE_TYPES):
             items = size.names
             size = size.rank
         elif size is None or isinstance(size, int):
@@ -2010,9 +2012,9 @@ def shape(obj, allow_unshaped=False) -> Shape:
     Returns:
         `Shape`
     """
-    if isinstance(obj, Shape):
+    if isinstance(obj, SHAPE_TYPES):
         return obj
-    if hasattr(obj, 'shape') and isinstance(obj.shape, Shape):
+    if hasattr(obj, 'shape') and isinstance(obj.shape, SHAPE_TYPES):
         return obj.shape
     if hasattr(obj, '__shape__'):
         return obj.__shape__()
@@ -2082,7 +2084,7 @@ def spatial(*args, **dims: Union[int, str, tuple, list, Shape, 'Tensor']) -> Sha
     from .magic import Shaped
     if all(isinstance(arg, str) for arg in args) or dims:
         return _construct_shape(SPATIAL_DIM, *args, **dims)
-    elif len(args) == 1 and isinstance(args[0], Shape):
+    elif len(args) == 1 and isinstance(args[0], SHAPE_TYPES):
         return args[0].spatial
     assert len(args) == 1, f"spatial() must be called either as a selector spatial(Shape) or spatial(Tensor) or as a constructor spatial(*names, **dims). Got *args={args}, **dims={dims}"
     return shape(args[0]).spatial
@@ -2122,7 +2124,7 @@ def channel(*args, **dims: Union[int, str, tuple, list, Shape, 'Tensor']) -> Sha
     from .magic import Shaped
     if all(isinstance(arg, str) for arg in args) or dims:
         return _construct_shape(CHANNEL_DIM, *args, **dims)
-    elif len(args) == 1 and isinstance(args[0], Shape):
+    elif len(args) == 1 and isinstance(args[0], SHAPE_TYPES):
         return args[0].channel
     assert len(args) == 1, f"channel() must be called either as a selector channel(Shape) or channel(Tensor) or as a constructor channel(*names, **dims). Got *args={args}, **dims={dims}"
     return shape(args[0]).channel
@@ -2162,7 +2164,7 @@ def batch(*args, **dims: Union[int, str, tuple, list, Shape, 'Tensor']) -> Shape
     from .magic import Shaped
     if all(isinstance(arg, str) for arg in args) or dims:
         return _construct_shape(BATCH_DIM, *args, **dims)
-    elif len(args) == 1 and isinstance(args[0], Shape):
+    elif len(args) == 1 and isinstance(args[0], SHAPE_TYPES):
         return args[0].batch
     assert len(args) == 1, f"batch() must be called either as a selector batch(Shape) or batch(Tensor) or as a constructor batch(*names, **dims). Got *args={args}, **dims={dims}"
     return shape(args[0]).batch
@@ -2202,7 +2204,7 @@ def instance(*args, **dims: Union[int, str, tuple, list, Shape, 'Tensor']) -> Sh
     from .magic import Shaped
     if all(isinstance(arg, str) for arg in args) or dims:
         return _construct_shape(INSTANCE_DIM, *args, **dims)
-    elif len(args) == 1 and isinstance(args[0], Shape):
+    elif len(args) == 1 and isinstance(args[0], SHAPE_TYPES):
         return args[0].instance
     assert len(args) == 1, f"instance() must be called either as a selector instance(Shape) or instance(Tensor) or as a constructor instance(*names, **dims). Got *args={args}, **dims={dims}"
     return shape(args[0]).instance
@@ -2251,7 +2253,7 @@ def dual(*args, **dims: Union[int, str, tuple, list, Shape, 'Tensor']) -> Shape:
     from .magic import Shaped
     if all(isinstance(arg, str) for arg in args) or dims:
         return _construct_shape(DUAL_DIM, *args, **dims)
-    elif len(args) == 1 and isinstance(args[0], Shape):
+    elif len(args) == 1 and isinstance(args[0], SHAPE_TYPES):
         return args[0].dual
     assert len(args) == 1, f"dual() must be called either as a selector dual(Shape) or dual(Tensor) or as a constructor dual(*names, **dims). Got *args={args}, **dims={dims}"
     return shape(args[0]).dual
@@ -2272,7 +2274,7 @@ def auto(spec: Union[str, Shape], default_type: Callable = None) -> Shape:
     Returns:
         `Shape`
     """
-    if isinstance(spec, Shape):
+    if isinstance(spec, SHAPE_TYPES):
         return spec  # allow multi-dim Shapes as well, as the main application is stacking
     assert isinstance(spec, str), f"spec must be a Shape or str but got {type(spec)}"
     assert ',' not in spec, f"auto dim only supported for single dimensions"
@@ -2548,7 +2550,7 @@ def concat_shapes(*shapes: Union[Shape, Any]) -> Shape:
     Returns:
         Combined `Shape`.
     """
-    shapes = [obj if isinstance(obj, Shape) else shape(obj) for obj in shapes]
+    shapes = [obj if isinstance(obj, SHAPE_TYPES) else shape(obj) for obj in shapes]
     return concat_shapes_(*shapes)
 
 
@@ -2677,7 +2679,7 @@ def prepare_gather(self: Shape, dim: str, selection: Union[slice, int, 'Shape', 
     Returns:
 
     """
-    if isinstance(selection, Shape):
+    if isinstance(selection, SHAPE_TYPES):
         selection = selection.name if selection.rank == 1 else selection.names
     if isinstance(selection, str) and ',' in selection:
         selection = parse_dim_order(selection)
