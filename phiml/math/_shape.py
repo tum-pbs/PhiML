@@ -67,7 +67,11 @@ class Shape(Protocol, metaclass=ShapeMeta):
         ...
 
     @property
-    def types(self) -> Sequence[str]:
+    def types(self) -> Sequence[Callable]:
+        ...
+
+    @property
+    def dim_types(self) -> Sequence[str]:
         ...
 
     @property
@@ -398,7 +402,7 @@ class Shape(Protocol, metaclass=ShapeMeta):
         ...
 
     @property
-    def type(self) -> str:
+    def type(self) -> Callable:
         """
         Only for Shapes containing exactly one single dimension.
         Returns the type of the dimension.
@@ -809,6 +813,9 @@ class Dim:
     def types(self):
         return self.type,
     @property
+    def dim_types(self):
+        return self.dim_type,
+    @property
     def item_names(self):
         return self.slice_names,
 
@@ -818,7 +825,7 @@ class Dim:
 
     @property
     def type(self) -> str:
-        return self.dim_type
+        return DIM_FUNCTIONS[self.dim_type]
 
     @property
     def is_uniform(self) -> bool:
@@ -1175,6 +1182,9 @@ class PureShape:
         return tuple([d.size for d in self.dims.values()])
     @property
     def types(self):
+        return [d.type for d in self.dims.values()]
+    @property
+    def dim_types(self):
         return [d.dim_type for d in self.dims.values()]
     @property
     def item_names(self):
@@ -1490,14 +1500,22 @@ class PureShape:
 
     def replace(self, dims: Union['Shape', str, tuple, list], new: 'Shape'):
         dims = parse_dim_order(dims)
-        dim_list = list(self.dims.values())
         if len(dims) == len(new):
+            dim_list = list(self.dims.values())
             for old, new_dim in zip(dims, new):
                 new_dim = self.dims[old]._replace(new_dim)
                 dim_list[self.index(old)] = new_dim
         elif len(new) > 1 and len(dims) == 1:
+            dim_list = list(self.dims.values())
             i = self.index(dims[0])
             dim_list[i:i+1] = new
+        else:
+            assert len(new) == 1
+            if len(dims) == len(self.dims):
+                return new
+            i0 = self.index(dims[0])
+            dim_list = [d for n, d in self.dims.items() if n not in dims]
+            dim_list.insert(i0, new)
         return concat_shapes_(*dim_list)
 
     def as_batch(self):
@@ -1565,7 +1583,10 @@ class MixedShape:
         return sum([dim.sizes for dim in self.dims.values()], ())
     @property
     def types(self):
-        return sum([dim.types for dim in self.dims.values()], ())
+        return [d.type for d in self.dims.values()]
+    @property
+    def dim_types(self):
+        return [d.dim_type for d in self.dims.values()]
     @property
     def item_names(self):
         return sum([dim.item_names for dim in self.dims.values()], ())
@@ -1585,7 +1606,7 @@ class MixedShape:
     @property
     def type(self) -> str:
         assert len(self.dims) == 1, f"Shape.type is only defined for shapes of rank 1 but has dims {self}"
-        return next(iter(self.dims.values())).dim_type
+        return next(iter(self.dims.values())).type
     @property
     def dim_type(self):
         assert len(self.dims) == 1, f"Shape.dim_type is only defined for shapes of rank 1 but has dims {self}"
@@ -1883,6 +1904,12 @@ class MixedShape:
         elif len(new) > 1 and len(dims) == 1:
             i = self.index(dims[0])
             dim_list[i:i+1] = new
+        else:
+            if len(dims) == len(self.dims):
+                return new
+            i0 = self.index(dims[0])
+            dim_list = [d for n, d in self.dims.items() if n not in dims]
+            dim_list.insert(i0, new)
         return concat_shapes_(*dim_list)
 
     def as_batch(self):

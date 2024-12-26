@@ -1163,7 +1163,7 @@ def map_types(f: Callable, dims: Union[Shape, tuple, list, str, Callable], dim_t
             originals = t.shape.only(dims)
             new_dims = originals.as_type(dim_type)
             for o, n in zip(originals, new_dims):
-                input_types[n.name] = o.dim_type
+                input_types[n.name] = o.type
             retyped.append(rename_dims(t, originals, new_dims))
         return assemble_tree(tree, retyped), input_types
 

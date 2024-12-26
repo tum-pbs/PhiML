@@ -826,8 +826,8 @@ class Tensor:
             assert non_batch(other).non_dual.size == match_primal.volume, f"Cannot multiply {self.shape} @ {other.shape} because dual dims of arg1 have no match"
             match_primal = non_batch(other).non_dual
         match_dual = self.shape.dual.only(match_primal.as_dual(), reorder=True)
-        left_arg = pack_dims(self, match_dual, dual('_reduce'))
-        right_arg = pack_dims(other, match_primal, channel('_reduce'))
+        left_arg = self.__pack_dims__(match_dual, dual('_reduce'), None)
+        right_arg = other.__pack_dims__(match_primal, channel('_reduce'), None)
         return dot(left_arg, '~_reduce', right_arg, '_reduce')
 
     # def __rmatmul__(self, other):

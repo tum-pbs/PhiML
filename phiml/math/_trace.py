@@ -121,6 +121,10 @@ class ShiftLinTracer(Tensor):
     def _is_tracer(self) -> bool:
         return True
 
+    @property
+    def backend(self) -> Backend:
+        return backend_for(self._bias, *self.val.values())
+
     def _getitem(self, selection: dict):
         starts = {dim: (item.start or 0) if isinstance(item, slice) else item for dim, item in selection.items()}
         new_shape = after_gather(self._shape, selection)
