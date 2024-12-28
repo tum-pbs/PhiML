@@ -596,6 +596,18 @@ def _shape_replace(shape: Shape, dims: DimFilter, new: DimFilter) -> Tuple[Shape
     elif callable(new):
         new = new(**existing.untyped_dict)
         assert len(existing) == len(new), f"Number of names {new} does not match dims to replace {dims}"
+    elif isinstance(new, (tuple, list)):
+        assert len(new) == len(existing), f"Number of names {new} does not match dims to replace {dims}"
+        new_dims = []
+        for dim, n in zip(existing, new):
+            if isinstance(n, str):
+                new_dims.append(Dim(n, dim.size, dim.dim_type, dim.slice_names))
+            elif isinstance(n, Shape):
+                new_dims.append(n)
+            else:
+                raise ValueError(f"Invalid item in names: {n}")
+        new = concat_shapes_(*new_dims)
+    assert isinstance(new, Shape)
     return existing, new
 
 

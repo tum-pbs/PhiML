@@ -146,7 +146,7 @@ class Shape(Protocol, metaclass=ShapeMeta):
         """
         ...
 
-    def get_dim_type(self, dim: Union[str, 'Shape']) -> Callable:
+    def get_dim_type(self, dim: str) -> str:
         """
         Args:
             dim: Dimension, either as name `str` or single-dimension `Shape`.
@@ -990,6 +990,9 @@ class Dim:
             return default
         raise KeyError(f"get_size() failed because '{dim}' is not part of {self} and no default value was provided")
 
+    def get_dim_type(self, dim: str) -> str:
+        return self.dim_type
+
     def get_item_names(self, dim: Union[str, 'Shape'], fallback_spatial=False) -> Union[tuple, None]:
         dim = dim.name if isinstance(dim, SHAPE_TYPES) else dim
         if dim != self.name:
@@ -1108,6 +1111,10 @@ class Dim:
         return self.with_size(size, keep_item_names=keep_item_names)
 
     def with_sizes(self, sizes: Union[Sequence[int], Sequence[Tuple[str, ...]], 'Shape', int], keep_item_names=True):
+        if isinstance(sizes, SHAPE_TYPES):
+            if self.name not in sizes:
+                return self
+            return self.with_size(sizes.get_size(self.name))
         assert len(sizes) == 1, f"Too many sizes for shape {self}: {sizes}"
         return self.with_size(sizes[0])
 
@@ -1392,6 +1399,9 @@ class PureShape:
         else:
             return self.dims[name].size if name in self.dims else default
 
+    def get_dim_type(self, dim: str) -> str:
+        return self.dim_type
+
     def get_item_names(self, dim: Union[str, 'Shape'], fallback_spatial=False) -> Union[tuple, None]:
         name = dim.name if isinstance(dim, SHAPE_TYPES) else dim
         return self.dims[name].slice_names  # fallback_spatial requires shape.spatial and dim.type==channel
@@ -1513,7 +1523,7 @@ class PureShape:
 
     def with_sizes(self, sizes: Union[Sequence[int], Sequence[Tuple[str, ...]], 'Shape', int], keep_item_names=True):
         if not self.dims:
-            assert not sizes
+            assert not sizes or isinstance(sizes, SHAPE_TYPES)
             return self
         if isinstance(sizes, int):
             sizes = (sizes,) * len(self.dims)
@@ -1806,6 +1816,9 @@ class MixedShape:
         else:
             return self.dims[name].size if name in self.dims else default
 
+    def get_dim_type(self, dim: str) -> str:
+        return self.dims[dim].dim_type
+
     def get_item_names(self, dim: Union[str, 'Shape'], fallback_spatial=False) -> Union[tuple, None]:
         name = dim.name if isinstance(dim, SHAPE_TYPES) else dim
         dim = self.dims[name]
@@ -1834,7 +1847,7 @@ class MixedShape:
 
     def isdisjoint(self, other) -> bool:
         if isinstance(other, Dim):
-            return other.name in self.dims
+            return other.name not in self.dims
         if isinstance(other, PureShape):
             return other.isdisjoint(getattr(self, other.dim_type))
         if isinstance(other, MixedShape):
@@ -1962,19 +1975,19 @@ class MixedShape:
 
     def as_batch(self):
         dims = [dim.as_batch() for dim in self.dims.values()]
-        return PureShape(BATCH_DIM, {dim.name: dim for dim in dims})
+        return PureShape(BATCH_DIM, {dim.name: dim for dim in dims}) if len(dims) > 1 else dims[0]
     def as_dual(self):
         dims = [dim.as_dual() for dim in self.dims.values()]
-        return PureShape(DUAL_DIM, {dim.name: dim for dim in dims})
+        return PureShape(DUAL_DIM, {dim.name: dim for dim in dims}) if len(dims) > 1 else dims[0]
     def as_instance(self):
         dims = [dim.as_instance() for dim in self.dims.values()]
-        return PureShape(INSTANCE_DIM, {dim.name: dim for dim in dims})
+        return PureShape(INSTANCE_DIM, {dim.name: dim for dim in dims}) if len(dims) > 1 else dims[0]
     def as_spatial(self):
         dims = [dim.as_spatial() for dim in self.dims.values()]
-        return PureShape(SPATIAL_DIM, {dim.name: dim for dim in dims})
+        return PureShape(SPATIAL_DIM, {dim.name: dim for dim in dims}) if len(dims) > 1 else dims[0]
     def as_channel(self):
         dims = [dim.as_channel() for dim in self.dims.values()]
-        return PureShape(CHANNEL_DIM, {dim.name: dim for dim in dims})
+        return PureShape(CHANNEL_DIM, {dim.name: dim for dim in dims}) if len(dims) > 1 else dims[0]
     def as_type(self, new_type: Callable):
         return {batch: self.as_batch, dual: self.as_dual, instance: self.as_instance, spatial: self.as_spatial, channel: self.as_channel}[new_type]()
 
@@ -2877,7 +2890,7 @@ def after_pad(self, widths: dict) -> 'Shape':
     sizes = list(self.sizes)
     for dim, (lo, up) in widths.items():
         if dim in self.names:
-            sizes[self.index(dim)] += lo + up
+            sizes[self.index(dim)] += int(lo + up)
     return self.with_sizes(sizes)
 
 

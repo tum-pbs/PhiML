@@ -575,6 +575,8 @@ def swap_axes(x, axes):
         `Tensor` or native tensor, depending on `x`.
     """
     if isinstance(x, Tensor):
+        if isinstance(axes, (tuple, list)) and all(isinstance(a, int) for a in axes):
+            axes = [x.shape.names[a] for a in axes]
         if x.shape[axes].names == x.shape.only(axes).names:  # order is correct
             return x
         new_shape = x.shape[axes]
@@ -873,7 +875,7 @@ def stack_tensors(values: Union[tuple, list], dim: Shape):
     names = (native_broadcast_shape & dim).names
     b = choose_backend(*natives)
     native_stacked = b.stack(natives, axis=names.index(dim.name))
-    expanded_shape = dim + merge_shapes(*[v.shape for v in values])
+    expanded_shape = merge_shapes(dim, *[v.shape for v in values])  # put dim to its group
     return Dense(native_stacked, names, expanded_shape, b)
 
 

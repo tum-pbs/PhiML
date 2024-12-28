@@ -135,7 +135,7 @@ class TestTensors(TestCase):
         tensors = math.unstack(t0, 'vector')
         stacked = math.stack(tensors, channel('vector2'))
         math.assert_close(stacked, t0)
-        self.assertEqual((10, 4, 3, 2), stacked.native(stacked.shape).shape)
+        self.assertEqual((10, 4, 3, 2), stacked.native('batch,x,y,vector2').shape)
         self.assertEqual((4, 3, 2, 10), stacked.native(order=('x', 'y', 'vector2', 'batch')).shape)
         self.assertEqual((2, 10, 3, 4), stacked.native(order=('vector2', 'batch', 'y', 'x')).shape)  # this should re-stack since only the stacked dimension position is different
 

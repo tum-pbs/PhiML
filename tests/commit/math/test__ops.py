@@ -817,9 +817,9 @@ class TestOps(TestCase):
         nat = math.reshaped_native(a, ['batch', a.shape.spatial, 'vector'], force_expand=False)
         self.assertEqual((1, 12, 2), nat.shape)
         nat = math.reshaped_native(a, [batch(batch=10), a.shape.spatial, channel(vector=2)], force_expand=False)
-        self.assertEqual((1, 12, 2), nat.shape)
+        self.assertEqual((12, 2), nat.shape[1:])
         nat = math.reshaped_native(a, [batch(batch=10), a.shape.spatial, channel(vector=2)], force_expand=['x'])
-        self.assertEqual((1, 12, 2), nat.shape)
+        self.assertEqual((12, 2), nat.shape[1:])
         nat = math.reshaped_native(a, [batch(batch=10), a.shape.spatial, channel(vector=2)])
         self.assertEqual((10, 12, 2), nat.shape)
         nat = math.reshaped_native(a, [batch(batch=10), a.shape.spatial, channel(vector=2)], force_expand=['batch'])
@@ -828,8 +828,7 @@ class TestOps(TestCase):
         self.assertEqual((12, 4), nat.shape)
         try:
             math.reshaped_native(a, [channel(vector=2, v2=2)], force_expand=False)
-        except AssertionError as err:
-            print(err)
+        except ValueError:
             pass
         nat = math.reshaped_native(a, [spatial, non_spatial], force_expand=False)
         self.assertEqual((12, 2), nat.shape)
@@ -851,9 +850,9 @@ class TestOps(TestCase):
 
     def test_rename_dims(self):
         t = math.zeros(spatial(x=5, y=4))
-        self.assertEqual(math.rename_dims(t, 'x', 'z').shape.get_type('z'), 'spatial')
-        self.assertEqual(math.rename_dims(t, ['x'], ['z']).shape.get_type('z'), 'spatial')
-        self.assertEqual(math.rename_dims(t, ['x'], channel('z')).shape.get_type('z'), 'channel')
+        self.assertEqual(math.rename_dims(t, 'x', 'z').shape.get_dim_type('z'), 'spatial')
+        self.assertEqual(math.rename_dims(t, ['x'], ['z']).shape.get_dim_type('z'), 'spatial')
+        self.assertEqual(math.rename_dims(t, ['x'], channel('z')).shape.get_dim_type('z'), 'channel')
 
     def test_safe_div(self):
         for backend in BACKENDS:

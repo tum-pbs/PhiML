@@ -16,9 +16,9 @@ class TestShape(TestCase):
         v = math.ones(batch(batch=10) + dual(d=1) + spatial(x=4, y=3) + channel(vector=2))
         self.assertEqual(v.x.index, 2)
         self.assertEqual(v.x.name, 'x')
-        self.assertEqual(('batch', 'dual', 'spatial', 'spatial', 'channel'), v.shape.types)
+        self.assertEqual(('batch', 'dual', 'spatial', 'spatial', 'channel'), tuple(v.shape.dim_types))
         b = v.x.as_batch()
-        self.assertEqual(('batch', 'dual', 'batch', 'spatial', 'channel'), b.shape.types)
+        self.assertEqual(('batch', 'dual', 'batch', 'spatial', 'channel'), tuple(b.shape.dim_types))
 
     def test_combine(self):
         self.assertEqual(batch(batch=10) & spatial(y=4, x=3) & channel(vector=2), batch(batch=10) & channel(vector=2) & spatial(y=4, x=3))
