@@ -329,7 +329,7 @@ def _edge_slice(x_shape: Shape, dim: str, s):
 def _preferred_unstack_dim(x, dims: Collection[str]) -> str:
     if shape(x).is_non_uniform:
         nu = shape(x).non_uniform
-        return nu.shape.without('dims').names[0]
+        return nu.non_uniform_shape.names[0]
     else:
         return min(dims, key=lambda d: x.shape.get_size(d))
 
@@ -575,10 +575,10 @@ def swap_axes(x, axes):
         `Tensor` or native tensor, depending on `x`.
     """
     if isinstance(x, Tensor):
-        if x.shape[axes] == x.shape.only(axes):  # order is correct
+        if x.shape[axes].names == x.shape.only(axes).names:  # order is correct
             return x
         new_shape = x.shape[axes]
-        packed = pack_dims(x, new_shape, instance('_t_flat'))
+        packed = x.__pack_dims__(new_shape, instance('_t_flat'), None)
         return unpack_dim(packed, '_t_flat', new_shape)
     else:
         return choose_backend(x).transpose(x, axes)
@@ -873,7 +873,7 @@ def stack_tensors(values: Union[tuple, list], dim: Shape):
     names = (native_broadcast_shape & dim).names
     b = choose_backend(*natives)
     native_stacked = b.stack(natives, axis=names.index(dim.name))
-    expanded_shape = merge_shapes(*[v.shape for v in values]) & dim
+    expanded_shape = dim + merge_shapes(*[v.shape for v in values])
     return Dense(native_stacked, names, expanded_shape, b)
 
 
@@ -1109,11 +1109,11 @@ def _grid_sample(grid: Tensor, coordinates: Tensor, extrap: Union['e_.Extrapolat
         result = NotImplemented
         if extrap is None:
             result = backend.grid_sample(grid.native([batch_dims, *dims, grid.shape.non_batch.without(dims)]),
-                                         coordinates._reshaped_native([batch_dims, *coordinates.shape.instance, *coordinates.shape.spatial, 'vector']),
+                                         coordinates._reshaped_native([batch_dims, *coordinates.shape.instance, *coordinates.shape.spatial, coordinates.shape['vector']]),
                                          'undefined')
         elif extrap.native_grid_sample_mode:
             result = backend.grid_sample(grid.native([batch_dims, *dims, grid.shape.non_batch.without(dims)]),
-                                         coordinates._reshaped_native([batch_dims, *coordinates.shape.instance, *coordinates.shape.spatial, 'vector']),
+                                         coordinates._reshaped_native([batch_dims, *coordinates.shape.instance, *coordinates.shape.spatial, coordinates.shape['vector']]),
                                          extrap.native_grid_sample_mode)
         if result is NotImplemented:
             # pad one layer
@@ -1127,7 +1127,7 @@ def _grid_sample(grid: Tensor, coordinates: Tensor, extrap: Union['e_.Extrapolat
             else:
                 inner_coordinates = coordinates + 1
             result = backend.grid_sample(grid_padded.native([batch_dims, *dims.names, grid.shape.non_batch.without(dims)]),
-                                         inner_coordinates._reshaped_native([batch_dims, *coordinates.shape.instance, *coordinates.shape.spatial, 'vector']),
+                                         inner_coordinates._reshaped_native([batch_dims, *coordinates.shape.instance, *coordinates.shape.spatial, coordinates.shape['vector']]),
                                          'boundary')
         if result is not NotImplemented:
             result = reshaped_tensor(result, [batch_dims, *coordinates.shape.instance, *coordinates.shape.spatial, grid.shape.non_batch.without(dims)])
@@ -1166,7 +1166,6 @@ def broadcast_op(operation: Callable,
         if isinstance(iter_dims, SHAPE_TYPES):
             iter_dims = iter_dims.names
         dim_name = next(iter(iter_dims))
-        dim_type = None
         size = None
         item_names = None
         unstacked = []
@@ -1177,10 +1176,8 @@ def broadcast_op(operation: Callable,
                 unstacked.append(unstacked_tensor)
                 if size is None:
                     size = len(unstacked_tensor)
-                    dim_type = dim.dim_type
                 else:
                     assert size == len(unstacked_tensor)
-                    assert dim_type == dim.dim_type
                 if item_names is None:
                     item_names = dim.slice_names
             else:
@@ -1190,7 +1187,7 @@ def broadcast_op(operation: Callable,
             gathered = [t[i] if isinstance(t, tuple) else t for t in unstacked]
             result_unstacked.append(broadcast_op(operation, gathered, iter_dims=set(iter_dims) - {dim_name}))
         if not no_return:
-            return stack(result_unstacked, Dim(dim_name, size, item_names, dim_type))
+            return stack(result_unstacked, Dim(dim_name, size, dim.dim_type, item_names))
 
 
 def where(condition: Union[Tensor, float, int],
@@ -1603,7 +1600,7 @@ def _std(value: Tensor, dims: Shape) -> Tensor:
         result = value.backend.std(value.native(value.shape), value.shape.indices(dims.names))
         return Dense(result, [n for n in value._names if n not in dims], value.shape - dims, value._backend)
     else:
-        non_uniform_dims = value.shape.shape.without('dims')
+        non_uniform_dims = value.shape.non_uniform_shape
         if non_uniform_dims.only(dims).is_empty:  # reduce uniform dims only
             return stack([_std(t, dims) for t in value._unstack(non_uniform_dims.name)], non_uniform_dims)
         else:
@@ -2647,8 +2644,8 @@ def convolve(value: Tensor,
     if extrapolation is not None and extrapolation != e_.ZERO:
         value = pad(value, {dim: (kernel.shape.get_size(dim) // 2, (kernel.shape.get_size(dim) - 1) // 2) for dim in dims.names}, extrapolation)
     backend = backend_for(value, kernel)
-    native_kernel = kernel._reshaped_native((batch_dims, out_dims, dual(kernel), *dims.names))  # ToDo force_expand=in_dims + dims
-    native_value = value._reshaped_native((batch_dims, in_dims, *dims.names))  # ToDo force_expand=batch_dims
+    native_kernel = kernel.native((batch_dims if batch(kernel) else EMPTY_SHAPE, out_dims, dual(kernel), *dims))
+    native_value = value.native((batch_dims, in_dims, *dims.names))
     native_result = backend.conv(native_value, native_kernel, zero_padding=extrapolation == e_.ZERO)
     result = reshaped_tensor(native_result, (batch_dims, out_dims, *dims))
     return result

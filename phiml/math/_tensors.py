@@ -1500,30 +1500,55 @@ class TensorStack(Tensor):
         return self._backend
 
     def native(self, order: Union[str, tuple, list, Shape] = None, force_expand=True):
-        return self._reshaped_native(process_groups_for(self._shape), force_expand=force_expand)
+        if force_expand:
+            return self._reshaped_native(process_groups_for(self._shape, order))
+        # ToDo
+        return self._reshaped_native(process_groups_for(self._shape, order))
+
+    def _transposed_native(self, order: Sequence[str], force_expand: bool):
+        assert not self.requires_broadcast, f"_transposed_native requires uniform Tensor but has shape {self._shape}"
+        return self._contiguous()._transposed_native()
 
     def _reshaped_native(self, groups: Sequence[Shape]):
+        if not self.requires_broadcast:
+            return self._contiguous()._reshaped_native(groups)
+        stack_group = [g for g in groups if self._stack_dim in g]
+        assert len(stack_group) == 1
+        stack_group = stack_group[0]
+        stack_index = groups.index(stack_group)
+        stack_dim = stack_group.only(self._stack_dim, reorder=True)
+        # ToDo assert self._stack_dim are first dims of stack_group
+        other_packed = stack_group[len(stack_dim):]
+        assert other_packed, f"Getting native of non-uniform tensors requires non-uniform dims {self._shape.non_uniform_shape} to be grouped with stack dim {self._stack_dim} but got {groups}"
+        inner_groups = list(groups)
+        if len(other_packed) > 1:
+            raise NotImplementedError
+            # tensors = [t.__pack_dims__() for t in self._tensors]
+        natives = []
+        for idx, t in zip(self._stack_dim.meshgrid(), self._tensors):
+            inner_groups[stack_index] = other_packed.after_gather(idx)
+            natives.append(t._reshaped_native(inner_groups))
+        native = self.backend.concat(natives, stack_index)
+        return native
 
-    # def _transposed_native(self, order: tuple, force_expand: bool):
-        # Is only the stack dimension shifted?
-        if self._shape.without(self._stack_dim).names == tuple(filter(lambda name: name != self._stack_dim.name, order)):
-            inner_order = [dim for dim in order if dim != self._stack_dim.name]
-            natives = [t.native(inner_order) for t in self._tensors]
-            assert self._stack_dim.name in order, f"Dimension {self._stack_dim} missing from 'order'. Got {order} but tensor has shape {self.shape}."
-            native = choose_backend(*natives).stack(natives, axis=order.index(self._stack_dim.name))
-            return native
-        assert not self.shape.is_non_uniform, f"Cannot convert non-uniform tensor with shape {self.shape} to native tensor."
-        return self._contiguous().native(order=order, force_expand=force_expand)
+        # # Is only the stack dimension shifted?
+        # if self._shape.without(self._stack_dim).names == tuple(filter(lambda name: name != self._stack_dim.name, order)):
+        #     inner_order = [dim for dim in order if dim != self._stack_dim.name]
+        #     natives = [t.native(inner_order) for t in self._tensors]
+        #     assert self._stack_dim.name in order, f"Dimension {self._stack_dim} missing from 'order'. Got {order} but tensor has shape {self.shape}."
+        #     native = choose_backend(*natives).stack(natives, axis=order.index(self._stack_dim.name))
+        #     return native
+        # assert not self.shape.is_non_uniform, f"Cannot convert non-uniform tensor with shape {self.shape} to native tensor."
+        # return self._contiguous().native(order=order, force_expand=force_expand)
 
     def _contiguous(self) -> Tensor:
         assert not self.requires_broadcast
         if all([t.shape.is_uniform for t in self._tensors]):
             natives = [t.native(order=self._shape.names) for t in self._tensors]
-            b = choose_backend(*natives)
-            native = b.concat(natives, axis=self.shape.index(self._stack_dim.name))
-            return Dense(native, self._shape.names, self._shape, b)
+            native = self.backend.concat(natives, axis=self.shape.index(self._stack_dim.name))
+            return Dense(native, self._shape.names, self._shape, self.backend)
         else:  # cache stack_dim on inner tensors
-            non_uniform_dim = self._tensors[0].shape.shape.without('dims')
+            non_uniform_dim = self._tensors[0].shape.non_uniform_shape
             if len(non_uniform_dim) > 1:
                 raise NotImplementedError
             unstacked = [t._unstack(non_uniform_dim.name) for t in self._tensors]

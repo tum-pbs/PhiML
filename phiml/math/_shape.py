@@ -968,7 +968,7 @@ class Dim:
             assert len(selection) == 1, f"Only one dim contained in {self} but tried to access {selection}"
             selection = selection[0]
         if isinstance(selection, int):
-            assert selection == 0, f"Tried to access index {selection} in {self}"
+            assert selection in {0, -1}, f"Tried to access index {selection} in {self}"
             return self
         elif isinstance(selection, slice):
             if selection.start in {0, None} and selection.stop in {1, None}:
@@ -1907,7 +1907,7 @@ class MixedShape:
     def with_dim_size(self, dim: Union[str, 'Shape'], size: Union[int, 'math.Tensor', str, tuple, list], keep_item_names=True):
         dim = dim.name if isinstance(dim, SHAPE_TYPES) else dim
         dims = dict(self.dims)
-        dims[dim] = dims[dim].with_size(size)
+        dims[dim] = dims[dim].with_size(size, keep_item_names=keep_item_names)
         return concat_shapes_(*[dims[n] for n in self.dims])
 
     def with_sizes(self, sizes: Union[Sequence[int], Sequence[Tuple[str, ...]], 'Shape', int], keep_item_names=True):
@@ -2405,12 +2405,12 @@ def parse_shape_spec(input_string, default_type: Callable = None) -> Shape:
         elif match := SPEC_PATTERNS['name_items'].match(input_string, pos):
             tilde, n, values = match.groups()
             items = [n.strip() for n in values.split(',') if n.strip()]
-            dims.append(Dim('~' + n if tilde else n, len(items), 'd' if tilde else 'c', tuple(items)))
+            dims.append(Dim('~' + n if tilde else n, len(items), DUAL_DIM if tilde else CHANNEL_DIM, tuple(items)))
             pos = match.end() + 1
         elif match := SPEC_PATTERNS['items'].match(input_string, pos):
             tilde, values = match.groups()
             items = [n.strip() for n in values.split(',') if n.strip()]
-            dims.append(Dim('~vector' if tilde else 'vector', len(items), 'd' if tilde else 'c', tuple(items)))
+            dims.append(Dim('~vector' if tilde else 'vector', len(items), DUAL_DIM if tilde else CHANNEL_DIM, tuple(items)))
             pos = match.end() + 1
         elif match := SPEC_PATTERNS['dual_name'].match(input_string, pos):
             n, = match.groups()
