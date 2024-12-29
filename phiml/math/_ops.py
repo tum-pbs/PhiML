@@ -3036,7 +3036,7 @@ def ravel_index(index: Tensor, resolution: Shape, dim=channel, mode='undefined')
 
 
 
-def histogram(values: Tensor, bins: Shape or Tensor = spatial(bins=30), weights=1, same_bins: DimFilter = None):
+def histogram(values: Tensor, bins: Shape or Tensor = spatial(bins=30), weights=1, same_bins: DimFilter = None, eps=1e-5):
     """
     Compute a histogram of a distribution of values.
 
@@ -3062,7 +3062,9 @@ def histogram(values: Tensor, bins: Shape or Tensor = spatial(bins=30), weights=
     weights = wrap(weights)
     if isinstance(bins, SHAPE_TYPES):
         def equal_bins(v):
-            return linspace(finite_min(v, shape), finite_max(v, shape), bins.with_size(bins.size + 1))
+            lo, up = finite_min(v, shape), finite_max(v, shape)
+            margin = eps * (up - lo)
+            return linspace(lo, up+margin, bins.with_size(bins.size + 1))
         bins = broadcast_op(equal_bins, [values], iter_dims=(batch(values) & batch(weights)).without(same_bins))
     assert isinstance(bins, Tensor), f"bins must be a Tensor but got {type(bins)}"
     assert non_batch(bins).rank == 1, f"bins must contain exactly one spatial or instance dimension listing the bin edges but got shape {bins.shape}"

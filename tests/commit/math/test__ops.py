@@ -628,9 +628,9 @@ class TestOps(TestCase):
     def test_histogram_1d(self):
         for backend in BACKENDS:
             with backend:
-                data = vec(instance('losses'), 0, .1, .1, .2, .1, .2, .3, .5)
+                data = vec(instance('losses'), 0, .11, .11, .21, .11, .21, .31, .51)
                 hist, bin_edges, bin_center = math.histogram(data, instance(loss=10))
-                assert_close(hist, [1, 0, 3, 0, 2, 0, 1, 0, 0, 1])
+                assert_close(hist, [1, 0, 3, 0, 2, 0, 1, 0, 0, 1], msg=backend.name)
 
     def test_sin(self):
         for backend in BACKENDS:
