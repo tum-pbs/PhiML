@@ -355,6 +355,8 @@ class TorchBackend(Backend):
         return result
 
     def reshape(self, value, shape):
+        if not shape:
+            return value
         value = self.as_tensor(value)
         if value.is_contiguous():
             return value.view(*shape)
