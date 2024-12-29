@@ -977,7 +977,7 @@ Traces can be avoided by jit-compiling the code that calls custom gradient funct
         if tree is None:
             c_shape = complete_shapes.pop(0)
             if incomplete is None:
-                return [None] * c_shape.shape.without('dims').volume
+                return [None] * c_shape.non_uniform_shape.volume
             else:
                 assert isinstance(incomplete, Tensor)
                 return list(incomplete._natives())

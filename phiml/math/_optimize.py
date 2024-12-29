@@ -383,7 +383,7 @@ def minimize(f: Callable[[X], Y], solve: Solve[X, Y]) -> X:
             x0_natives.append(t.native([batch_dims, t.shape.non_batch]))
             x0_native_shapes.append(t.shape.non_batch)
         else:
-            for ut in unstack(t, t.shape.shape.without('dims')):
+            for ut in unstack(t, t.shape.non_uniform_shape):
                 x0_natives.append(ut.native([batch_dims, ut.shape.non_batch]))
                 x0_native_shapes.append(ut.shape.non_batch)
     x0_flat = backend.concat(x0_natives, -1)
@@ -403,7 +403,7 @@ def minimize(f: Callable[[X], Y], solve: Solve[X, Y]) -> X:
             if t.shape.is_uniform:
                 x_tensors.append(partial_tensors.pop(0))
             else:
-                stack_dims = t.shape.shape.without('dims')
+                stack_dims = t.shape.non_uniform_shape
                 x_tensors.append(stack(partial_tensors[:stack_dims.volume], stack_dims))
                 partial_tensors = partial_tensors[stack_dims.volume:]
         x = assemble_tree(x0_nest, x_tensors, attr_type=variable_attributes)
