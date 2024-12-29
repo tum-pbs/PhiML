@@ -607,7 +607,11 @@ def _shape_replace(shape: Shape, dims: DimFilter, new: DimFilter) -> Tuple[Shape
             else:
                 raise ValueError(f"Invalid item in names: {n}")
         new = concat_shapes_(*new_dims)
-    assert isinstance(new, Shape)
+    elif isinstance(new, Shape):
+        if not new.well_defined:
+            new = new.with_sizes(existing.sizes)
+    else:
+        raise ValueError(new)
     return existing, new
 
 

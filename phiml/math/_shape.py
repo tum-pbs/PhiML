@@ -1114,7 +1114,8 @@ class Dim:
         if isinstance(sizes, SHAPE_TYPES):
             if self.name not in sizes:
                 return self
-            return self.with_size(sizes.get_size(self.name))
+            slices = sizes.get_item_names(self.name)
+            return self.with_size(slices if slices is not None else sizes.get_size(self.name))
         assert len(sizes) == 1, f"Too many sizes for shape {self}: {sizes}"
         return self.with_size(sizes[0])
 
@@ -1865,10 +1866,8 @@ class MixedShape:
             return dims(self)
         if isinstance(dims, str) and ',' not in dims:
             return self.dims.get(dims, EMPTY_SHAPE)
-        if reorder and isinstance(dims, (tuple, list)):
-            result = []
-            for sel in dims:
-                result.append(self.only(sel))
+        if reorder:
+            result = [self.only(sel) for sel in parse_dim_order(dims)]
             return concat_shapes_(*result)
         return concat_shapes_(*[dim for dim in self.dims.values() if dim.only(dims)])
 
@@ -1966,6 +1965,8 @@ class MixedShape:
         return concat_shapes_(*dim_list)
 
     def replace_selection(self, names: Sequence[str], new: Shape):
+        if DEBUG_CHECKS:
+            assert all(isinstance(n, str) for n in names)
         dim_list = list(self.dims.values())
         for old_name, new_dim in zip(names, new):
             if old_name in self.dims:

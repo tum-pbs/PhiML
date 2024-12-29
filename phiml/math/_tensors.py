@@ -568,30 +568,6 @@ class Tensor:
                 return tensors[0]
             raise NotImplementedError
 
-    def __pack_dims__(self, dims: Shape, packed_dim: Shape, pos: Union[int, None], **kwargs) -> 'Tensor':
-        if self.shape.is_uniform:
-            order = []
-            for dim in self.shape.names:
-                if dim not in order:
-                    if dim in dims:
-                        order.extend(dims.names)
-                    else:
-                        order.append(dim)
-            native = self.native(order, force_expand=True)
-            if pos is None:
-                pos = min(self.shape.indices(dims.names))
-            packed_dim = packed_dim.with_sizes([dims.volume])
-            remaining = self.shape - dims
-            new_shape = concat_shapes_(remaining[:pos], packed_dim, remaining[pos:])
-            native = choose_backend(native).reshape(native, new_shape.sizes)
-            return Dense(native, new_shape.names, new_shape, self.backend)
-        else:
-            from ._ops import concat_tensor
-            value = cached(self)
-            assert isinstance(value, TensorStack)
-            inner_packed = [pack_dims(t, dims, packed_dim) for t in value._tensors]
-            return concat_tensor(inner_packed, packed_dim.name)
-
     def __cast__(self, dtype: DType):
         return self._op1(lambda native: choose_backend(native).cast(native, dtype=dtype))
 
@@ -826,8 +802,8 @@ class Tensor:
             assert non_batch(other).non_dual.size == match_primal.volume, f"Cannot multiply {self.shape} @ {other.shape} because dual dims of arg1 have no match"
             match_primal = non_batch(other).non_dual
         match_dual = self.shape.dual.only(match_primal.as_dual(), reorder=True)
-        left_arg = self.__pack_dims__(match_dual, dual('_reduce'), None)
-        right_arg = other.__pack_dims__(match_primal, channel('_reduce'), None)
+        left_arg = pack_dims(self, match_dual, dual('_reduce'))
+        right_arg = pack_dims(other, match_primal, channel('_reduce'))
         return dot(left_arg, '~_reduce', right_arg, '_reduce')
 
     # def __rmatmul__(self, other):
@@ -1333,6 +1309,19 @@ class Dense(Tensor):
             tmp_tensor = Dense(self._native, self._names, new_native_shape, self._backend)
             return Dense(tmp_tensor.native(new_native_shape), new_native_shape.names, self._shape, self._backend)
 
+    def __pack_dims__(self, dims: Shape, packed_dim: Shape, pos: Union[int, None], **kwargs) -> 'Tensor':
+        groups = [dim for dim in self.shape if dim not in dims]
+        i0 = self.shape.index(dims[0])
+        groups.insert(i0, dims)
+        native = self._reshaped_native(groups)
+        if pos is None:
+            pos = min(self.shape.indices(dims.names))
+        packed_dim = packed_dim.with_sizes([dims.volume])
+        remaining = self.shape - dims
+        new_shape = concat_shapes_(remaining[:pos], packed_dim, remaining[pos:])
+        native = self.backend.reshape(native, new_shape.sizes)
+        return Dense(native, new_shape.names, new_shape, self.backend)
+
     @property
     def collapsed_dims(self):
         return self._shape.without(self._names)
@@ -1557,6 +1546,13 @@ class TensorStack(Tensor):
                 tensor = TensorStack(to_stack, self._stack_dim)._contiguous()
                 stacked.append(tensor)
             return TensorStack(stacked, non_uniform_dim)
+
+    def __pack_dims__(self, dims: Shape, packed_dim: Shape, pos: Union[int, None], **kwargs) -> 'Tensor':
+        from ._ops import concat_tensor
+        value = cached(self)
+        assert isinstance(value, TensorStack)
+        inner_packed = [pack_dims(t, dims, packed_dim) for t in value._tensors]
+        return concat_tensor(inner_packed, packed_dim.name)
 
     def _with_shape_replaced(self, new_shape: Shape):
         new_stack_dim = new_shape[self._shape.index(self._stack_dim.name)]

@@ -357,7 +357,7 @@ class SparseCoordinateTensor(Tensor):
         assert self._shape.rank == new_shape.rank
         dense_shape = new_shape[self._shape.indices(self._dense_shape.names)]
         new_item_names = new_shape[self._shape.indices(self._indices.shape.get_item_names('sparse_idx'))].names
-        values = self._values._with_shape_replaced(self._values.shape.replace(self._shape, new_shape))
+        values = self._values._with_shape_replaced(self._values.shape.replace_selection(self._shape.names, new_shape))
         non_vec = self._shape.without('sparse_idx')
         new_non_vec = new_shape[self._shape.indices(non_vec.names)]
         indices = self._indices._with_shape_replaced(self._indices.shape.replace_selection(non_vec.names, new_non_vec).with_dim_size('sparse_idx', new_item_names))
@@ -517,15 +517,6 @@ class CompressedSparseMatrix(Tensor):
                 The size of the slice is given by `compressed_dims.volume`.
         """
         super().__init__()
-        assert instance(indices), "indices must have an instance dimension"
-        assert instance(pointers), "pointers must have an instance dimension"
-        assert instance(values) == instance(indices), "Instance dimensions of values and indices must match exactly"
-        assert not channel(indices) and not spatial(indices), f"channel and spatial dimensions not allowed on indices but got {shape(indices)}"
-        assert not channel(pointers) and not spatial(pointers), f"channel and spatial dimensions not allowed on pointers but got {shape(pointers)}"
-        assert uncompressed_dims.isdisjoint(compressed_dims), f"Dimensions cannot be compressed and uncompressed at the same time but got compressed={compressed_dims}, uncompressed={uncompressed_dims}"
-        assert instance(pointers).size == compressed_dims.volume + 1
-        if uncompressed_indices is not None:
-            assert instance(uncompressed_indices) == instance(indices), f"Number of uncompressed indices {instance(uncompressed_offset)} does not match compressed indices {instance(indices)}"
         self._shape = merge_shapes(compressed_dims, uncompressed_dims, batch(indices), batch(pointers), non_instance(values))
         self._indices = indices
         self._pointers = rename_dims(pointers, instance, 'pointers')
@@ -537,7 +528,18 @@ class CompressedSparseMatrix(Tensor):
         self._uncompressed_indices = uncompressed_indices
         self._uncompressed_indices_perm = uncompressed_indices_perm
         self._matrix_rank = expand(wrap(m_rank), batch(indices), batch(pointers), non_instance(values))
-        assert self._matrix_rank.available, f"matrix_rank of sparse matrices cannot be traced"
+        if DEBUG_CHECKS:
+            assert instance(indices), "indices must have an instance dimension"
+            assert instance(pointers), "pointers must have an instance dimension"
+            assert instance(values) == instance(indices), "Instance dimensions of values and indices must match exactly"
+            assert not channel(indices) and not spatial(indices), f"channel and spatial dimensions not allowed on indices but got {shape(indices)}"
+            assert not channel(pointers) and not spatial(pointers), f"channel and spatial dimensions not allowed on pointers but got {shape(pointers)}"
+            assert uncompressed_dims.isdisjoint(compressed_dims), f"Dimensions cannot be compressed and uncompressed at the same time but got compressed={compressed_dims}, uncompressed={uncompressed_dims}"
+            assert instance(pointers).size == compressed_dims.volume + 1
+            if uncompressed_indices is not None:
+                assert instance(uncompressed_indices) == instance(indices), f"Number of uncompressed indices {instance(uncompressed_offset)} does not match compressed indices {instance(indices)}"
+                assert set(channel(uncompressed_indices).item_names[0]) == set(sparse_dims(self).names)
+                assert self._matrix_rank.available, f"matrix_rank of sparse matrices cannot be traced"
 
     @property
     def shape(self) -> Shape:
@@ -745,12 +747,16 @@ class CompressedSparseMatrix(Tensor):
 
     def _with_shape_replaced(self, new_shape: Shape):
         assert self._shape.rank == new_shape.rank
-        values = self._values._with_shape_replaced(self._values.shape.replace(self._shape, new_shape))
-        indices = self._indices._with_shape_replaced(self._indices.shape.replace(self._shape, new_shape))
-        pointers = self._pointers._with_shape_replaced(self._pointers.shape.replace(self._shape, new_shape))
-        uncompressed_indices = self._uncompressed_indices._with_shape_replaced(self._uncompressed_indices.shape.replace(self._shape, new_shape)) if self._uncompressed_indices is not None else None
-        m_rank = self._matrix_rank._with_shape_replaced(self._matrix_rank.shape.replace(self._shape, new_shape))
-        return CompressedSparseMatrix(indices, pointers, values, self._uncompressed_dims.replace(self._shape, new_shape), self._compressed_dims.replace(self._shape, new_shape), self._indices_constant, self._uncompressed_offset, uncompressed_indices, self._uncompressed_indices_perm, m_rank)
+        values = self._values._with_shape_replaced(self._values.shape.replace_selection(self._shape.names, new_shape))
+        indices = self._indices._with_shape_replaced(self._indices.shape.replace_selection(self._shape.names, new_shape))
+        pointers = self._pointers._with_shape_replaced(self._pointers.shape.replace_selection(self._shape.names, new_shape))
+        if self._uncompressed_indices is not None:
+            new_item_names = new_shape[self._shape.indices(self._uncompressed_indices.shape.get_item_names('sparse_idx'))].names
+            uncompressed_indices = self._uncompressed_indices._with_shape_replaced(self._uncompressed_indices.shape.replace_selection(self._shape.names, new_shape).with_dim_size('sparse_idx', new_item_names))
+        else:
+            uncompressed_indices = None
+        m_rank = self._matrix_rank._with_shape_replaced(self._matrix_rank.shape.replace_selection(self._shape.names, new_shape))
+        return CompressedSparseMatrix(indices, pointers, values, self._uncompressed_dims.replace_selection(self._shape.names, new_shape), self._compressed_dims.replace_selection(self._shape.names, new_shape), self._indices_constant, self._uncompressed_offset, uncompressed_indices, self._uncompressed_indices_perm, m_rank)
 
     def _native_csr_components(self, invalid='clamp', get_values=True):
         assert invalid in ['clamp', 'discard', 'keep']
@@ -838,16 +844,18 @@ class CompactSparseTensor(Tensor):
 
     def __init__(self, indices: Tensor, values: Tensor, compressed_dims: Shape, indices_constant: bool, m_rank: Union[float, Tensor] = -1):
         super().__init__()
-        assert isinstance(indices, Tensor), f"indices must be a Tensor but got {type(indices)}"
-        assert isinstance(values, Tensor), f"values must be a Tensor but got {type(values)}"
-        assert compressed_dims in indices.shape, f"compressed dims {compressed_dims} must be present in indices but got {indices.shape}"
         self._shape = merge_shapes(compressed_dims, indices.shape.without(compressed_dims), values.shape.without(compressed_dims))
         self._compressed_dims = compressed_dims
         self._indices = indices
         self._values = values
         self._indices_constant = indices_constant
         self._matrix_rank = expand(wrap(m_rank), batch(indices) & values.shape.without(non_batch(indices)))
-        assert self._matrix_rank.available, f"matrix_rank of sparse matrices cannot be traced"
+        if DEBUG_CHECKS:
+            assert compressed_dims.well_defined
+            assert isinstance(indices, Tensor), f"indices must be a Tensor but got {type(indices)}"
+            assert isinstance(values, Tensor), f"values must be a Tensor but got {type(values)}"
+            assert compressed_dims in indices.shape, f"compressed dims {compressed_dims} must be present in indices but got {indices.shape}"
+            assert self._matrix_rank.available, f"matrix_rank of sparse matrices cannot be traced"
 
     @property
     def shape(self) -> Shape:
@@ -944,9 +952,9 @@ class CompactSparseTensor(Tensor):
     def _with_shape_replaced(self, new_shape: Shape):
         assert self._shape.rank == new_shape.rank
         compressed_dims = new_shape[self._shape.indices(self._compressed_dims.names)]
-        values = self._values._with_shape_replaced(self._values.shape.replace(self._shape, new_shape))
-        indices = self._indices._with_shape_replaced(self._indices.shape.replace(self._shape, new_shape))
-        m_rank = self._matrix_rank._with_shape_replaced(self._matrix_rank.shape.replace(self._shape, new_shape))
+        values = self._values._with_shape_replaced(self._values.shape.replace_selection(self._shape.names, new_shape))
+        indices = self._indices._with_shape_replaced(self._indices.shape.replace_selection(self._shape.names, new_shape))
+        m_rank = self._matrix_rank._with_shape_replaced(self._matrix_rank.shape.replace_selection(self._shape.names, new_shape))
         return CompactSparseTensor(indices, values, compressed_dims, self._indices_constant, m_rank)
 
     def _op1(self, native_function):
@@ -1302,6 +1310,8 @@ def stored_values(x: Tensor, list_dim=instance('entries'), invalid='discard') ->
             return rename_dims(x._values, instance, list_dim)
         else:
             x = x.decompress()  # or apply slices, then return values
+    elif isinstance(x, CompactSparseTensor):
+        x = to_format(x, 'coo')
     if isinstance(x, SparseCoordinateTensor):
         if x._can_contain_double_entries:
             warnings.warn(f"stored_values of sparse tensor {x.shape} may contain multiple values for the same position.")
