@@ -444,6 +444,9 @@ class TorchBackend(Backend):
     def range(self, start, limit=None, delta=1, dtype: DType = DType(int, 32)):
         if limit is None:
             start, limit = 0, start
+        start = start.item() if isinstance(start, np.ndarray) else start
+        limit = limit.item() if isinstance(limit, np.ndarray) else limit
+        delta = delta.item() if isinstance(delta, np.ndarray) else delta
         return torch.arange(start, limit, delta, dtype=to_torch_dtype(dtype), device=self.get_default_device().ref)
 
     def zeros(self, shape, dtype=None):
