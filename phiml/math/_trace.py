@@ -881,7 +881,7 @@ def to_sparse_tracer(tracer: Tensor, ref: Optional[Tensor]) -> SparseLinTracer:
     if isinstance(tracer, ShiftLinTracer):
         matrix, bias = tracer_to_coo(tracer, sparsify_batch=False, separate_independent=False)
         src_dims = dual(matrix) - set(tracer._renamed)
-        matrix = rename_dims(matrix, src_dims, [n + '_src' for n in src_dims.as_batch().names])
+        matrix = rename_dims(matrix, src_dims, [f'~{n}_src' for n in src_dims.as_batch().names])
         return SparseLinTracer(tracer._source, matrix, bias, tracer.shape)
     assert isinstance(tracer, GatherLinTracer)
     if tracer._selection is None:

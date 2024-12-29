@@ -52,7 +52,9 @@ def vec(name: Union[str, Shape] = 'vector', *sequence, tuple_dim=spatial('sequen
         assert not components, "vec() must be given either positional or keyword arguments but not both"
         if len(sequence) == 1 and isinstance(sequence[0], (tuple, list)):
             sequence = sequence[0]
-        dim = dim.with_size([str(v) for v in sequence])
+        item_names = [str(v) for v in sequence]
+        if len(set(item_names)) == len(item_names):
+            dim = dim.with_size(item_names)
         return wrap(sequence, dim)
     else:
         def wrap_sequence(value):
