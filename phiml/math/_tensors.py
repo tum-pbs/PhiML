@@ -4,6 +4,7 @@ import traceback
 import warnings
 from contextlib import contextmanager
 import typing
+from types import EllipsisType
 from typing import Union, TypeVar, Sequence, Any
 
 from dataclasses import dataclass
@@ -2446,7 +2447,7 @@ def reshaped_native(value: Tensor,
 def process_groups_for(shape: Shape, groups: Any) -> List[Shape]:
     if callable(groups):
         return list(groups(shape))
-    def process_group(g) -> Union[Shape, Ellipsis]:
+    def process_group(g) -> Union[Shape, EllipsisType]:
         if g is None or (isinstance(g, tuple) and len(g) == 0):
             return EMPTY_SHAPE
         if isinstance(g, SHAPE_TYPES):
