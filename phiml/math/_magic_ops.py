@@ -283,7 +283,7 @@ def stack(values: Union[Sequence[PhiTreeNodeType], Dict[str, PhiTreeNodeType]], 
         return values[0]
 
 
-def concat(values: Sequence[PhiTreeNodeType], dim: Union[str, Shape], /, expand_values=False, **kwargs) -> PhiTreeNodeType:
+def concat(values: Sequence[PhiTreeNodeType], dim: Union[str, Shape], expand_values=False, **kwargs) -> PhiTreeNodeType:
     """
     Concatenates a sequence of `phiml.math.magic.Shapable` objects, e.g. `Tensor`, along one dimension.
     All values must have the same spatial, instance and channel dimensions and their sizes must be equal, except for `dim`.

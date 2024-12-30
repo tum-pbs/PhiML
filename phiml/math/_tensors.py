@@ -1240,7 +1240,7 @@ class Dense(Tensor):
         if order is None:
             assert len(self._shape) <= 1, f"When calling Tensor.native() or Tensor.numpy(), the dimension order must be specified for Tensors with more than one dimension, e.g. '{','.join(self._shape.names)}'. The listed default dimension order can vary depending on the chosen backend. Consider using math.reshaped_native(Tensor) instead."
             if len(self._names) == len(self._shape):
-                return self.backend.auto_cast(self._native)[0]
+                return self.backend.auto_cast1(self._native)
             assert len(self._names) == 0  # shape.rank is 1
             return self.backend.tile(self.backend.expand_dims(self.backend.auto_cast(self._native)[0]), (self._shape.size,))
         if isinstance(order, str):
@@ -1251,6 +1251,8 @@ class Dense(Tensor):
         return self._reshaped_native(groups)
 
     def _reshaped_native(self, groups: Sequence[Shape]):
+        if not groups:
+            return self.backend.auto_cast1(self._native)
         perm = []
         slices = []
         tile = []
