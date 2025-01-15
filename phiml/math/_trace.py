@@ -728,6 +728,8 @@ def matrix_from_function(f: Callable,
     else:
         matrix, bias = tracer_to_coo(tracer, sparsify, separate_independent)
     # --- Compress ---
+    if matrix.backend.name == 'torch' and matrix._values._native.requires_grad:
+        auto_compress = False  # PyTorch doesn't support gradient of bincount (used in compression)
     if auto_compress and matrix.backend.supports(Backend.mul_csr_dense) and target_backend.supports(Backend.mul_csr_dense) and isinstance(matrix, SparseCoordinateTensor):
         matrix = matrix.compress_rows()
     # elif backend.supports(Backend.mul_csc_dense):
