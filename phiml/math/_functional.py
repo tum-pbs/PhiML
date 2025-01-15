@@ -1,3 +1,4 @@
+import dataclasses
 import inspect
 import time
 import types
@@ -973,7 +974,7 @@ Traces can be avoided by jit-compiling the code that calls custom gradient funct
 
     @staticmethod
     def incomplete_tree_to_natives(incomplete, tree, complete_shapes: List[Shape]) -> list:
-        """ None in nest means there is a tensor. """
+        """ None in `tree` means there is a tensor. """
         if tree is None:
             c_shape = complete_shapes.pop(0)
             if incomplete is None:
@@ -993,7 +994,16 @@ Traces can be avoided by jit-compiling the code that calls custom gradient funct
             else:
                 assert type(tree) == type(incomplete) and len(tree) == len(incomplete) and set(tree.keys()) == set(incomplete.keys())
                 return sum([CustomGradientFunction.incomplete_tree_to_natives(incomplete[key], c_item, complete_shapes) for key, c_item in tree.items()], [])
-        elif isinstance(tree, PhiTreeNode):
+        elif dataclasses.is_dataclass(tree):
+            from ..dataclasses._dataclasses import DataclassTreeNode
+            if isinstance(tree, DataclassTreeNode):
+                natives = []
+                for attr, n_val in tree.extracted.items():
+                    i_val = getattr(incomplete, attr) if incomplete is not None else None
+                    natives_item = CustomGradientFunction.incomplete_tree_to_natives(i_val, n_val, complete_shapes)
+                    natives.extend(natives_item)
+                return natives
+        if isinstance(tree, PhiTreeNode):
             attributes = variable_attributes(tree)
             natives = []
             for attr in attributes:
