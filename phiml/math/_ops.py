@@ -1,3 +1,4 @@
+import dataclasses
 import functools
 import math
 import warnings
@@ -1172,7 +1173,7 @@ def broadcast_op(operation: Callable,
             return stack(result_unstacked, Dim(dim_name, size, dim.dim_type, item_names))
 
 
-def where(condition: Union[Tensor, float, int],
+def where(condition: Union[Tensor, bool],
           value_true: Union[Tensor, float, int, Any] = None,
           value_false: Union[Tensor, float, int, Any] = None):
     """
@@ -1190,13 +1191,23 @@ def where(condition: Union[Tensor, float, int],
     Returns:
         `Tensor` containing dimensions of all inputs.
     """
+    if isinstance(condition, bool):
+        return value_true if condition else value_false
     if value_true is None:
         assert value_false is None, f"where can be used either with value_true and value_false or without both but got only value_false"
         warnings.warn("Use nonzero() instead of where() to get indices of non-zero elements.", SyntaxWarning, stacklevel=2)
         return nonzero(condition)
-    from .extrapolation import Extrapolation, where as ext_where
-    if isinstance(value_true, Extrapolation) or isinstance(value_false, Extrapolation):
-        return ext_where(condition, value_true, value_false)
+    if not isinstance(value_true, Tensor) or not isinstance(value_false, Tensor):
+        from .extrapolation import Extrapolation, where as ext_where
+        if isinstance(value_true, Extrapolation) or isinstance(value_false, Extrapolation):
+            return ext_where(condition, value_true, value_false)
+        elif dataclasses.is_dataclass(value_true) or dataclasses.is_dataclass(value_false):
+            assert type(value_true) is type(value_false), f"Dataclasses must have the same type but got {type(value_true)} and {type(value_false)}"
+            from ..dataclasses import data_fields, replace
+            new_values = {f.name: where(condition, getattr(value_true, f.name), getattr(value_false, f.name)) for f in data_fields(value_true)}
+            return replace(value_true, **new_values)
+        elif isinstance(value_true, dict):
+            return {k: where(condition, value_true[k], value_false[k]) for k in value_true}
     condition = wrap(condition)
     value_true = wrap(value_true)
     value_false = wrap(value_false)
