@@ -946,6 +946,12 @@ class Dim:
             return len(other) == 1 and self == getattr(other, self.dim_type)
         return False
 
+    def __hash__(self):
+        if isinstance(self.size, int):
+            return hash((self.name, self.size, self.dim_type, self.slice_names))
+        else:
+            return hash((self.name, self.dim_type, self.slice_names))
+
     def __contains__(self, item):
         if isinstance(item, Dim):
             return item.name == self.name
