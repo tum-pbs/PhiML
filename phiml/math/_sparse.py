@@ -516,7 +516,7 @@ class CompressedSparseMatrix(Tensor):
                 The size of the slice is given by `compressed_dims.volume`.
         """
         super().__init__()
-        self._shape = merge_shapes(compressed_dims, uncompressed_dims, batch(indices), batch(pointers), non_instance(values))
+        self._shape = merge_shapes(compressed_dims, uncompressed_dims, batch(indices), batch(pointers), values.shape.without(indices.shape))
         self._indices = indices
         self._pointers = rename_dims(pointers, instance, 'pointers')
         self._values = values
@@ -823,9 +823,13 @@ class CompressedSparseMatrix(Tensor):
             self._uncompressed_indices_perm = None
         return SparseCoordinateTensor(self._uncompressed_indices, self._values, self._compressed_dims & self._uncompressed_dims, False, False, self._indices_constant, self._matrix_rank)
 
-    def native(self, order: Union[str, tuple, list, Shape] = None, force_expand=True, to_numpy=False):
+    def native(self, order: Union[str, tuple, list, Shape] = None, force_expand=True):
         assert order is None, f"sparse matrices are always ordered (primal, dual). For custom ordering, use math.dense(tensor).native() instead."
-        return native_matrix(self, NUMPY if to_numpy else self.default_backend)
+        return native_matrix(self, self.default_backend)
+
+    def numpy(self, order: Union[str, tuple, list, Shape] = None, force_expand=True) -> np.ndarray:
+        assert order is None, f"sparse matrices are always ordered (primal, dual). For custom ordering, use math.dense(tensor).native() instead."
+        return native_matrix(self, NUMPY)
 
     def __pack_dims__(self, dims: Shape, packed_dim: Shape, pos: Union[int, None], **kwargs) -> 'Tensor':
         assert all(d in self._shape for d in dims)
