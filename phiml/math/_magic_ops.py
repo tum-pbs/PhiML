@@ -5,6 +5,8 @@ from functools import partial
 from numbers import Number
 from typing import TypeVar, Tuple, Dict, Union, Optional, Sequence, Any, Callable
 
+import numpy as np
+
 from . import channel, EMPTY_SHAPE
 from ._shape import Shape, DimFilter, batch, instance, shape, non_batch, merge_shapes, concat_shapes, spatial, parse_dim_order, dual, auto, parse_shape_spec, DIM_FUNCTIONS, \
     INV_CHAR, concat_shapes_, Dim, DEBUG_CHECKS, SHAPE_TYPES, primal, NotCompatible
@@ -234,6 +236,14 @@ def stack(values: Union[Sequence[PhiTreeNodeType], Dict[str, PhiTreeNodeType]], 
                     new_dict[k] = stack(k_values, dim, expand_values=expand_values, simplify=simplify, **kwargs)
                 return new_dict
             raise NotImplementedError
+        if any(isinstance(v, (tuple, list, dict)) for v in values_):
+            from ._tensors import wrap, layout
+            if all(np.asarray(v).dtype != object for v in values_):
+                tensors = [wrap(v) for v in values_]
+                return stack(tensors, dim)
+            else:
+                assert len(dim) == 1, f"Cannot stack values with nested tuples, lists or dicts along multiple dimensions {dim}"
+                return layout(values_, dim)
         if all(isinstance(v, PhiTreeNode) for v in values):
             attributes = all_attributes(values[0])
             if attributes and all(all_attributes(v) == attributes for v in values):
