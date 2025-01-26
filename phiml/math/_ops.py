@@ -3283,7 +3283,9 @@ def equal(*objects, equal_nan=False) -> bool:
         if any(t.dtype.kind == object for t in tensors):
             raise ValueError
     except ValueError:  # not all are tensor-like
-        return all(o == objects[0] for o in objects)
+        if any(isinstance(o, Tensor) and o.dtype.kind != object for o in objects):
+            return False  # numeric tensor mixed not equal to non-tensor
+        return all(o == objects[0] for o in objects[1:])
     return close(*tensors, rel_tolerance=0, abs_tolerance=0, equal_nan=equal_nan)
 
 
