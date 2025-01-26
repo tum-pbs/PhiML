@@ -44,6 +44,6 @@ This affects which data_fields are optimized / traced by functions like `phiml.m
 
 from functools import cached_property
 
-from ._dataclasses import sliceable, data_fields, non_data_fields, config_fields, special_fields, replace, getitem, equal, data_eq
+from ._dataclasses import sliceable, data_fields, non_data_fields, config_fields, special_fields, replace, copy, getitem, equal, data_eq
 
 __all__ = [key for key in globals().keys() if not key.startswith('_')]

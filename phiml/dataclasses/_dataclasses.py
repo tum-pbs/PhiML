@@ -182,6 +182,18 @@ def replace(obj: PhiMLDataclass, /, call_metaclass=False, **changes) -> PhiMLDat
     return new_obj
 
 
+def copy(obj: PhiMLDataclass, /, call_metaclass=False) -> PhiMLDataclass:
+    """
+    Create a copy of `obj`, including cached properties.
+
+    Args:
+        obj: Dataclass instance.
+        call_metaclass: Whether to copy `obj` by invoking `type(obj).__call__`.
+            If `obj` defines a metaclass, this will allow users to define custom constructors for dataclasses.
+    """
+    return replace(obj, call_metaclass=call_metaclass)
+
+
 @dataclass
 class DataclassTreeNode:
     cls: type
