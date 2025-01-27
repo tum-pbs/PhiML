@@ -2459,6 +2459,8 @@ def process_groups_for(shape: Shape, groups: Any) -> List[Shape]:
             for name in g:
                 assert name in shape, f"When specifying a group by dim names, all dims must be present but {name} is not part of {shape}"
         return shape.only(g, reorder=True)
+    if isinstance(groups, str):
+        groups = groups.split(',')
     groups = [process_group(g) for g in groups]
     if Ellipsis in groups:
         ellipsis_dims = shape.without([g for g in groups if g is not Ellipsis])
