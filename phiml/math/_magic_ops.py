@@ -7,7 +7,7 @@ from typing import TypeVar, Tuple, Dict, Union, Optional, Sequence, Any, Callabl
 
 from . import channel, EMPTY_SHAPE
 from ._shape import Shape, DimFilter, batch, instance, shape, non_batch, merge_shapes, concat_shapes, spatial, parse_dim_order, dual, auto, parse_shape_spec, DIM_FUNCTIONS, \
-    INV_CHAR, concat_shapes_, Dim, DEBUG_CHECKS, SHAPE_TYPES, primal
+    INV_CHAR, concat_shapes_, Dim, DEBUG_CHECKS, SHAPE_TYPES, primal, NotCompatible
 from .magic import Sliceable, Shaped, Shapable, PhiTreeNode
 from ..backend import choose_backend, NoBackendFound
 from ..backend._dtype import DType
@@ -184,8 +184,7 @@ def stack(values: Union[Sequence[PhiTreeNodeType], Dict[str, PhiTreeNodeType]], 
                 if layout_non_matching:
                     from ._tensors import layout
                     return layout(values, dim)
-                else:
-                    raise ValueError(f"Non-batch dims must match but got: {v0_dims} and {s.non_batch.names}. Manually expand tensors or set expand_values=True")
+                raise ValueError(f"Non-batch dims must match but got: {v0_dims} and {s.non_batch.names}. Manually expand tensors or set expand_values=True")
     # --- Add missing dims ---
     if expand_values:
         all_dims = merge_shapes(*shapes, allow_varying_sizes=True)
@@ -219,7 +218,13 @@ def stack(values: Union[Sequence[PhiTreeNodeType], Dict[str, PhiTreeNodeType]], 
         # --- Next: try stacking attributes for tree nodes ---
         if any(dataclasses.is_dataclass(v) for v in values):
             from ..dataclasses._merge import dc_stack
-            return dc_stack(values, dim, expand_values=expand_values, simplify=simplify, layout_non_matching=layout_non_matching, **kwargs)
+            try:
+                return dc_stack(values, dim, expand_values=expand_values, simplify=simplify, layout_non_matching=layout_non_matching, **kwargs)
+            except NotCompatible as err:
+                if layout_non_matching:
+                    from ._tensors import layout
+                    return layout(values, dim)
+                raise err
         if all(isinstance(v, dict) for v in values):
             keys = set(values[0])
             if all(set(v) == keys for v in values[1:]):

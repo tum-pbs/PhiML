@@ -1373,13 +1373,13 @@ def map_(function: Callable[..., Y], *args, dims: DimFilter = shape, range=range
                 assert all(r[i] is None for r in results), f"map function returned None for some elements, {results}"
                 stacked.append(None)
             else:
-                stacked.append(math.stack([r[i] for r in results], dims_, expand_values=expand_results))
+                stacked.append(math.stack([r[i] for r in results], dims_, expand_values=expand_results, simplify=simplify, layout_non_matching=True))
         return tuple(stacked)
     else:
         if any(r is None for r in results):
             assert all(r is None for r in results), f"map function returned None for some elements, {results}"
             return None
-        return stack(results, dims_, expand_values=expand_results, simplify=simplify)
+        return stack(results, dims_, expand_values=expand_results, simplify=simplify, layout_non_matching=True)
 
 
 def identity(x):

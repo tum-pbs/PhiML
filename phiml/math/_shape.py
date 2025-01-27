@@ -2067,7 +2067,10 @@ EMPTY_SHAPE = PureShape('__empty__', {})
 SHAPE_TYPES = (Dim, PureShape, MixedShape)
 
 
-class IncompatibleShapes(Exception):
+class NotCompatible(Exception): ...
+
+
+class IncompatibleShapes(NotCompatible):
     """
     Raised when the shape of a tensor does not match the other arguments.
     """

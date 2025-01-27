@@ -5,7 +5,7 @@ from typing import Sequence, Union, Callable
 from phiml.dataclasses import replace
 from phiml.math import Tensor
 from phiml.math._magic_ops import stack
-from phiml.math._shape import Shape
+from phiml.math._shape import Shape, NotCompatible
 from phiml.dataclasses._dataclasses import is_data_field
 
 
@@ -71,7 +71,13 @@ def dc_stack(objs: Sequence, dim: Shape, expand_values=False, simplify=False, la
                 updates[f.name] = stack(values, dim, expand_values=expand_values, simplify=simplify, layout_non_matching=True)
             else:
                 value0 = getattr(objs[0], f.name)
-                assert all(getattr(obj, f.name) == value0 for obj in objs), f"Attribute '{f.name}' must match among all stacked objects"
+                try:
+                    configs_equal = all([getattr(obj, f.name) == value0 for obj in objs])
+                except ValueError as err:
+                    raise IncompatibleDataclassConfigs(f"Attribute '{f.name}' comparison failed for '{objs}'", err)
+                if not configs_equal:
+                    raise IncompatibleDataclassConfigs(f"Attribute '{f.name}' must match among all stacked objects")
+
     result = replace(objs[0], **updates)
     # --- stack cache ---
     c_names = set(k for k in objs[0].__dict__ if isinstance(getattr(type(objs[0]), k, None), cached_property))
@@ -89,3 +95,6 @@ def dc_concat(obj: Sequence, dim):
 
 def dc_expand(obj, dims):
     raise NotImplementedError  # expand cached Tensor properties
+
+
+class IncompatibleDataclassConfigs(NotCompatible): ...
