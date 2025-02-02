@@ -276,28 +276,7 @@ def bicg_stab_first_order(b: Backend, lin, y, x0, rtol, atol, max_iter, pre: Opt
 
 def scipy_sparse_solve(b: Backend, method: Union[str, Callable], lin, y, x0, rtol, atol, max_iter, pre: Optional[Preconditioner], matrix_offset) -> SolveResult:
     assert max_iter.shape[0] == 1, f"Trajectory recording not supported for scipy_spsolve"
-    was_row_added = False
-    if matrix_offset is not None:
-        if not callable(lin):
-            sparse_format = b.get_sparse_format(lin)
-            if sparse_format == 'coo':
-                _, (indices, values) = b.disassemble(lin)
-                rows, cols = b.shape(lin)
-                new_row = b.zeros((cols,), b.dtype(indices)) + rows
-                all_cols = b.range(0, cols, dtype=b.dtype(indices))
-                new_indices = b.stack([new_row, all_cols], -1)
-                indices = b.concat([indices, new_indices], 0)
-                values = b.concat([values, b.zeros((cols,), b.dtype(values)) + matrix_offset], 0)
-                lin = b.sparse_coo_tensor(indices, values, (rows+1, cols))
-                y = b.pad(y, [(0, 0), (0, 1)])
-                was_row_added = True
-                if method != 'lsqr':
-                    warnings.warn(f"Using scipy.sparse.linalg.lsqr instead of '{method}' to account for regularization")
-                    method = 'lsqr'
-            else:
-                raise NotImplementedError(f"matrix offset not yet supported by sparse scipy solvers for '{sparse_format}' matrices")
-        else:
-            raise NotImplementedError(f"matrix offset not yet supported by matrix-free sparse scipy solvers")
+    assert matrix_offset is None
     if method == 'direct' and pre:
         warnings.warn(f"Preconditioner {pre} was computed but is not used by SciPy direct solve.", RuntimeWarning)
     scipy_solvers = {
@@ -338,12 +317,7 @@ def scipy_sparse_solve(b: Backend, method: Union[str, Callable], lin, y, x0, rto
     fp = b.float_type
     i = INT32
     bo = BOOL
-    rsd_shape = list(x0.shape)
-    if was_row_added:
-        rsd_shape[1] += 1
-    x, residual, iterations, function_evaluations, converged, diverged = b.numpy_call(scipy_solve, (x0.shape, rsd_shape, x0.shape[:1], x0.shape[:1], x0.shape[:1], x0.shape[:1]), (fp, fp, i, i, bo, bo), y, x0, rtol, atol, *lin_tensors, *pre_tensors)
-    if was_row_added:
-        residual = residual[:, :-1]
+    x, residual, iterations, function_evaluations, converged, diverged = b.numpy_call(scipy_solve, (x0.shape, x0.shape, x0.shape[:1], x0.shape[:1], x0.shape[:1], x0.shape[:1]), (fp, fp, i, i, bo, bo), y, x0, rtol, atol, *lin_tensors, *pre_tensors)
     return SolveResult(method_name, x, residual, iterations, function_evaluations, converged, diverged, [""] * batch_size)
 
 
