@@ -2982,7 +2982,7 @@ def scatter(base_grid: Union[Tensor, Shape],
         batches = values.shape.non_channel.non_instance & indices.shape.non_channel.non_instance
         batches &= values.shape.only(treat_as_batch) & indices.shape.only(treat_as_batch)
         batches -= broadcast
-        channels = (grid_shape - indexed_dims - batches - broadcast) & values.shape.channel
+        channels = (base_grid.shape - indexed_dims - batches - broadcast) & values.shape.channel
         lists = indices.shape.instance & values.shape.instance
         if values._is_tracer:
             if indices._is_tracer or base_grid._is_tracer:
