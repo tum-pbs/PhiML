@@ -1193,7 +1193,11 @@ def map_types(f: Callable, dims: Union[Shape, tuple, list, str, Callable], dim_t
         for arg in args:
             retyped_arg, input_types = forward_retype(arg, input_types)
             retyped_args.append(retyped_arg)
-        output = f(*retyped_args, **kwargs)
+        retyped_kwargs = {}
+        for k, v in kwargs.items():
+            retyped_kwarg, input_types = forward_retype(v, input_types)
+            retyped_kwargs[k] = retyped_kwarg
+        output = f(*retyped_args, **retyped_kwargs)
         restored_output = reverse_retype(output, input_types)
         return restored_output
 
