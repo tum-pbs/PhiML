@@ -2821,7 +2821,7 @@ def format_full(value: Tensor, options: PrintOptions) -> str:  # multi-line cont
 
 def format_full_sparse(value: Tensor, options: PrintOptions) -> str:
     from ._ops import log10, ravel_index
-    from ._sparse import stored_indices, stored_values
+    from ._sparse import stored_indices, stored_values, sum_equal_entries
     colors = options.get_colors()
     right = dual(value) if dual(value) else non_batch(value)[-1]
     down = non_batch(value) - right
@@ -2837,6 +2837,7 @@ def format_full_sparse(value: Tensor, options: PrintOptions) -> str:
         if options.include_shape is not None:
             lines.append(colors.shape(value.shape))
     data = [[" "] * (str_max * right.volume) for _ in range(down.volume)]
+    value = sum_equal_entries(value)
     for b in batch(value).meshgrid(names=True):
         idx = stored_indices(value[b])
         vals = stored_values(value[b]).numpy()
