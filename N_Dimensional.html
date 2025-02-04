@@ -15132,8 +15132,8 @@ body[data-format='mobile'] .jp-OutputArea-child .jp-OutputArea-output {
 <div class=" highlight hl-ipython2"><pre><span></span><span class="o">%%capture</span>
 <span class="err">!</span><span class="n">pip</span> <span class="n">install</span> <span class="n">phiml</span>
 
-<span class="kn">from</span> <span class="nn">phiml</span> <span class="kn">import</span> <span class="n">math</span>
-<span class="kn">from</span> <span class="nn">phiml.math</span> <span class="kn">import</span> <span class="n">spatial</span><span class="p">,</span> <span class="n">channel</span><span class="p">,</span> <span class="n">instance</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">phiml</span><span class="w"> </span><span class="kn">import</span> <span class="n">math</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">phiml.math</span><span class="w"> </span><span class="kn">import</span> <span class="n">spatial</span><span class="p">,</span> <span class="n">channel</span><span class="p">,</span> <span class="n">instance</span>
 </pre></div>
 
      </div>
@@ -15195,7 +15195,7 @@ In 1D, this would be the stencil (.5, 0, .5) and in 2D (0, .25, 0; .25, 0, .25; 
 <div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[3]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython2"><pre><span></span><span class="k">def</span> <span class="nf">neighbor_mean</span><span class="p">(</span><span class="n">grid</span><span class="p">):</span>
+<div class=" highlight hl-ipython2"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">neighbor_mean</span><span class="p">(</span><span class="n">grid</span><span class="p">):</span>
     <span class="n">left</span><span class="p">,</span> <span class="n">right</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">shift</span><span class="p">(</span><span class="n">grid</span><span class="p">,</span> <span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="n">padding</span><span class="o">=</span><span class="n">math</span><span class="o">.</span><span class="n">extrapolation</span><span class="o">.</span><span class="n">PERIODIC</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">math</span><span class="o">.</span><span class="n">mean</span><span class="p">([</span><span class="n">left</span><span class="p">,</span> <span class="n">right</span><span class="p">],</span> <span class="n">math</span><span class="o">.</span><span class="n">non_spatial</span><span class="p">)</span>
 </pre></div>
@@ -15250,7 +15250,7 @@ Then we can take the mean of the <code>right</code> and the <code>left</code> va
 
 
 <div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre><span class="ansi-blue-intense-fg">(0.264, 0.277, 0.576, 0.125, 0.465)</span> along <span class="ansi-green-intense-fg">xˢ</span></pre>
+<pre><span class="ansi-blue-intense-fg">(0.571, 0.468, 0.463, 0.497, 0.853)</span> along <span class="ansi-green-intense-fg">xˢ</span></pre>
 </div>
 
 </div>
@@ -15289,7 +15289,7 @@ Then we can take the mean of the <code>right</code> and the <code>left</code> va
 
 
 <div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre><span class="ansi-green-intense-fg">(xˢ=3, yˢ=3)</span> <span class="ansi-blue-intense-fg">0.535 ± 0.102</span> <span class="ansi-white-fg">(4e-01...7e-01)</span></pre>
+<pre><span class="ansi-green-intense-fg">(xˢ=3, yˢ=3)</span> <span class="ansi-blue-intense-fg">0.590 ± 0.115</span> <span class="ansi-white-fg">(4e-01...9e-01)</span></pre>
 </div>
 
 </div>
@@ -15328,7 +15328,7 @@ Then we can take the mean of the <code>right</code> and the <code>left</code> va
 
 
 <div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre><span class="ansi-green-intense-fg">(xˢ=16, yˢ=16, zˢ=16)</span> <span class="ansi-blue-intense-fg">0.502 ± 0.117</span> <span class="ansi-white-fg">(1e-01...9e-01)</span></pre>
+<pre><span class="ansi-green-intense-fg">(xˢ=16, yˢ=16, zˢ=16)</span> <span class="ansi-blue-intense-fg">0.505 ± 0.118</span> <span class="ansi-white-fg">(1e-01...9e-01)</span></pre>
 </div>
 
 </div>
@@ -15479,7 +15479,7 @@ A 1D FFT will always be performed on our 1D grid, even if we add additional non-
 
 
 <div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre><span class="ansi-blue-intense-fg">((1.7072389+0j), (-0.23778898-0.27611923j), (0.14764684-0.6669498j), (0.14764684+0.6669498j), (-0.23778898+0.27611923j))</span> along <span class="ansi-green-intense-fg">xˢ</span> <span class="ansi-yellow-intense-fg">complex64</span></pre>
+<pre><span class="ansi-blue-intense-fg">((2.8520935+0j), (0.65755844+1.2508188j), (0.24940628-0.239405j), (0.24940628+0.239405j), (0.65755844-1.2508188j))</span> along <span class="ansi-green-intense-fg">xˢ</span> <span class="ansi-yellow-intense-fg">complex64</span></pre>
 </div>
 
 </div>
@@ -15518,7 +15518,7 @@ A 1D FFT will always be performed on our 1D grid, even if we add additional non-
 
 
 <div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre><span class="ansi-green-intense-fg">(xˢ=3, yˢ=3)</span> <span class="ansi-yellow-intense-fg">complex64</span> <span class="ansi-blue-intense-fg">|...| &lt; 4.818906784057617</span></pre>
+<pre><span class="ansi-green-intense-fg">(xˢ=3, yˢ=3)</span> <span class="ansi-yellow-intense-fg">complex64</span> <span class="ansi-blue-intense-fg">|...| &lt; 5.30993127822876</span></pre>
 </div>
 
 </div>
@@ -15557,7 +15557,7 @@ A 1D FFT will always be performed on our 1D grid, even if we add additional non-
 
 
 <div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre><span class="ansi-green-intense-fg">(xˢ=16, yˢ=16, zˢ=16)</span> <span class="ansi-yellow-intense-fg">complex64</span> <span class="ansi-blue-intense-fg">|...| &lt; 2054.209716796875</span></pre>
+<pre><span class="ansi-green-intense-fg">(xˢ=16, yˢ=16, zˢ=16)</span> <span class="ansi-yellow-intense-fg">complex64</span> <span class="ansi-blue-intense-fg">|...| &lt; 2067.45068359375</span></pre>
 </div>
 
 </div>
@@ -15619,7 +15619,7 @@ Take the following function that computes the pairwise distances.</p>
 <div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[13]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython2"><pre><span></span><span class="k">def</span> <span class="nf">pairwise_distances</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+<div class=" highlight hl-ipython2"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">pairwise_distances</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
     <span class="k">return</span> <span class="n">math</span><span class="o">.</span><span class="n">vec_length</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">rename_dims</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="s1">&#39;points&#39;</span><span class="p">,</span> <span class="s1">&#39;others&#39;</span><span class="p">)</span> <span class="o">-</span> <span class="n">x</span><span class="p">)</span>
 </pre></div>
 
@@ -15670,7 +15670,7 @@ Consequently, this function computes the correct distances in 1D, 2D and 3D.</p>
 
 
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="application/vnd.jupyter.stderr">
-<pre>/tmp/ipykernel_2579/2630121943.py:2: DeprecationWarning: phiml.math.length is deprecated in favor of phiml.math.norm
+<pre>/tmp/ipykernel_2823/2630121943.py:2: DeprecationWarning: phiml.math.length is deprecated in favor of phiml.math.norm
   return math.vec_length(math.rename_dims(x, &#39;points&#39;, &#39;others&#39;) - x)
 </pre>
 </div>
@@ -15683,7 +15683,7 @@ Consequently, this function computes the correct distances in 1D, 2D and 3D.</p>
 
 
 <div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre><span class="ansi-green-intense-fg">(othersⁱ=4, pointsⁱ=4)</span> <span class="ansi-blue-intense-fg">0.244 ± 0.231</span> <span class="ansi-white-fg">(0e+00...6e-01)</span></pre>
+<pre><span class="ansi-green-intense-fg">(othersⁱ=4, pointsⁱ=4)</span> <span class="ansi-blue-intense-fg">0.201 ± 0.171</span> <span class="ansi-white-fg">(0e+00...4e-01)</span></pre>
 </div>
 
 </div>
@@ -15720,7 +15720,7 @@ Consequently, this function computes the correct distances in 1D, 2D and 3D.</p>
 
 
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="application/vnd.jupyter.stderr">
-<pre>/tmp/ipykernel_2579/2630121943.py:2: DeprecationWarning: phiml.math.length is deprecated in favor of phiml.math.norm
+<pre>/tmp/ipykernel_2823/2630121943.py:2: DeprecationWarning: phiml.math.length is deprecated in favor of phiml.math.norm
   return math.vec_length(math.rename_dims(x, &#39;points&#39;, &#39;others&#39;) - x)
 </pre>
 </div>
@@ -15733,7 +15733,7 @@ Consequently, this function computes the correct distances in 1D, 2D and 3D.</p>
 
 
 <div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre><span class="ansi-green-intense-fg">(othersⁱ=4, pointsⁱ=4)</span> <span class="ansi-blue-intense-fg">0.440 ± 0.315</span> <span class="ansi-white-fg">(0e+00...8e-01)</span></pre>
+<pre><span class="ansi-green-intense-fg">(othersⁱ=4, pointsⁱ=4)</span> <span class="ansi-blue-intense-fg">0.339 ± 0.274</span> <span class="ansi-white-fg">(0e+00...8e-01)</span></pre>
 </div>
 
 </div>
@@ -15770,7 +15770,7 @@ Consequently, this function computes the correct distances in 1D, 2D and 3D.</p>
 
 
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="application/vnd.jupyter.stderr">
-<pre>/tmp/ipykernel_2579/2630121943.py:2: DeprecationWarning: phiml.math.length is deprecated in favor of phiml.math.norm
+<pre>/tmp/ipykernel_2823/2630121943.py:2: DeprecationWarning: phiml.math.length is deprecated in favor of phiml.math.norm
   return math.vec_length(math.rename_dims(x, &#39;points&#39;, &#39;others&#39;) - x)
 </pre>
 </div>
@@ -15783,7 +15783,7 @@ Consequently, this function computes the correct distances in 1D, 2D and 3D.</p>
 
 
 <div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre><span class="ansi-green-intense-fg">(othersⁱ=4, pointsⁱ=4)</span> <span class="ansi-blue-intense-fg">0.525 ± 0.406</span> <span class="ansi-white-fg">(0e+00...1e+00)</span></pre>
+<pre><span class="ansi-green-intense-fg">(othersⁱ=4, pointsⁱ=4)</span> <span class="ansi-blue-intense-fg">0.613 ± 0.395</span> <span class="ansi-white-fg">(0e+00...1e+00)</span></pre>
 </div>
 
 </div>

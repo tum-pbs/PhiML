@@ -86,6 +86,20 @@ These cannot hold any Tensors or shaped objects.</p>
 <h2 id="returns">Returns</h2>
 <p>Sequence of <code>dataclasses.Field</code>.</p></div>
 </dd>
+<dt id="phiml.dataclasses.copy"><code class="name flex">
+<span>def <span class="ident">copy</span></span>(<span>obj: ~PhiMLDataclass, /, call_metaclass=False) ‑> ~PhiMLDataclass</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Create a copy of <code>obj</code>, including cached properties.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>obj</code></strong></dt>
+<dd>Dataclass instance.</dd>
+<dt><strong><code>call_metaclass</code></strong></dt>
+<dd>Whether to copy <code>obj</code> by invoking <code>type(obj).__call__</code>.
+If <code>obj</code> defines a metaclass, this will allow users to define custom constructors for dataclasses.</dd>
+</dl></div>
+</dd>
 <dt id="phiml.dataclasses.data_eq"><code class="name flex">
 <span>def <span class="ident">data_eq</span></span>(<span>cls=None, /, *, rel_tolerance=0.0, abs_tolerance=0.0, equal_nan=True, compare_tensors_by_ref=False)</span>
 </code></dt>
@@ -120,7 +134,7 @@ equal_nan:
 Returns:</p></div>
 </dd>
 <dt id="phiml.dataclasses.getitem"><code class="name flex">
-<span>def <span class="ident">getitem</span></span>(<span>obj: ~PhiMLDataclass, item, keepdims: Union[str, Sequence[+T_co], set, ForwardRef('Shape'), Callable, None] = None) ‑> ~PhiMLDataclass</span>
+<span>def <span class="ident">getitem</span></span>(<span>obj: ~PhiMLDataclass, item, keepdims: Union[str, Sequence[+T_co], set, phiml.math._shape.Shape, Callable, None] = None) ‑> ~PhiMLDataclass</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Slice / gather a dataclass by broadcasting the operation to its data_fields.</p>
@@ -266,6 +280,7 @@ This enables slicing similar to tensors, gathering and boolean masking.</p>
 <li><h3><a href="#header-functions">Functions</a></h3>
 <ul class="two-column">
 <li><code><a title="phiml.dataclasses.config_fields" href="#phiml.dataclasses.config_fields">config_fields</a></code></li>
+<li><code><a title="phiml.dataclasses.copy" href="#phiml.dataclasses.copy">copy</a></code></li>
 <li><code><a title="phiml.dataclasses.data_eq" href="#phiml.dataclasses.data_eq">data_eq</a></code></li>
 <li><code><a title="phiml.dataclasses.data_fields" href="#phiml.dataclasses.data_fields">data_fields</a></code></li>
 <li><code><a title="phiml.dataclasses.equal" href="#phiml.dataclasses.equal">equal</a></code></li>

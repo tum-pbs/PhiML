@@ -15132,7 +15132,7 @@ body[data-format='mobile'] .jp-OutputArea-child .jp-OutputArea-output {
 <div class=" highlight hl-ipython2"><pre><span></span><span class="o">%%capture</span>
 <span class="err">!</span><span class="n">pip</span> <span class="n">install</span> <span class="n">phiml</span>
 
-<span class="kn">from</span> <span class="nn">phiml</span> <span class="kn">import</span> <span class="n">math</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">phiml</span><span class="w"> </span><span class="kn">import</span> <span class="n">math</span>
 
 <span class="n">math</span><span class="o">.</span><span class="n">use</span><span class="p">(</span><span class="s1">&#39;jax&#39;</span><span class="p">)</span>
 </pre></div>
@@ -15163,7 +15163,7 @@ body[data-format='mobile'] .jp-OutputArea-child .jp-OutputArea-output {
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython2"><pre><span></span><span class="nd">@math</span><span class="o">.</span><span class="n">jit_compile</span>
-<span class="k">def</span> <span class="nf">fun</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">fun</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
     <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Tracing fun with x = </span><span class="si">{</span><span class="n">x</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
     <span class="k">return</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">x</span>
 </pre></div>
@@ -15374,7 +15374,7 @@ NumPy-backed tensors always have concrete values and can be used in <code>if</co
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython2"><pre><span></span><span class="nd">@math</span><span class="o">.</span><span class="n">jit_compile</span>
-<span class="k">def</span> <span class="nf">fun</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">fun</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
     <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Tracing fun with x = </span><span class="si">{</span><span class="n">x</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
     <span class="n">y</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">wrap</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
     <span class="n">z</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">y</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span>
@@ -15405,7 +15405,7 @@ NumPy-backed tensors always have concrete values and can be used in <code>if</co
 
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
 <pre>Tracing fun with x = <span class="ansi-green-intense-fg">()</span> <span class="ansi-yellow-intense-fg">float32</span> <span class="ansi-blue-intense-fg">jax tracer</span>
-z = <span class="ansi-yellow-intense-fg">float64</span> <span class="ansi-blue-intense-fg">-0.7568025</span>
+z = <span class="ansi-yellow-intense-fg">float64</span> <span class="ansi-blue-intense-fg">-0.7568024953079282</span>
 </pre>
 </div>
 </div>
@@ -15448,7 +15448,7 @@ z = <span class="ansi-yellow-intense-fg">float64</span> <span class="ansi-blue-i
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython2"><pre><span></span><span class="nd">@math</span><span class="o">.</span><span class="n">jit_compile</span><span class="p">(</span><span class="n">auxiliary_args</span><span class="o">=</span><span class="s1">&#39;y&#39;</span><span class="p">)</span>
-<span class="k">def</span> <span class="nf">fun</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">fun</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
     <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Tracing fun with x = </span><span class="si">{</span><span class="n">x</span><span class="si">}</span><span class="s2">, y = </span><span class="si">{</span><span class="n">y</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
     <span class="n">z</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">y</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span>
     <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;z = </span><span class="si">{</span><span class="n">z</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
@@ -15478,7 +15478,7 @@ z = <span class="ansi-yellow-intense-fg">float64</span> <span class="ansi-blue-i
 
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
 <pre>Tracing fun with x = <span class="ansi-green-intense-fg">()</span> <span class="ansi-yellow-intense-fg">float32</span> <span class="ansi-blue-intense-fg">jax tracer</span>, y = <span class="ansi-blue-intense-fg">2</span>
-z = <span class="ansi-yellow-intense-fg">float64</span> <span class="ansi-blue-intense-fg">-0.7568025</span>
+z = <span class="ansi-yellow-intense-fg">float64</span> <span class="ansi-blue-intense-fg">-0.7568024953079282</span>
 </pre>
 </div>
 </div>

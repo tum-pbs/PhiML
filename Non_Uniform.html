@@ -15131,8 +15131,8 @@ body[data-format='mobile'] .jp-OutputArea-child .jp-OutputArea-output {
 <div class=" highlight hl-ipython2"><pre><span></span><span class="o">%%capture</span>
 <span class="err">!</span><span class="n">pip</span> <span class="n">install</span> <span class="n">phiml</span>
 
-<span class="kn">from</span> <span class="nn">phiml</span> <span class="kn">import</span> <span class="n">math</span>
-<span class="kn">from</span> <span class="nn">phiml.math</span> <span class="kn">import</span> <span class="n">stack</span><span class="p">,</span> <span class="n">zeros</span><span class="p">,</span> <span class="n">ones</span><span class="p">,</span> <span class="n">spatial</span><span class="p">,</span> <span class="n">channel</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">phiml</span><span class="w"> </span><span class="kn">import</span> <span class="n">math</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">phiml.math</span><span class="w"> </span><span class="kn">import</span> <span class="n">stack</span><span class="p">,</span> <span class="n">zeros</span><span class="p">,</span> <span class="n">ones</span><span class="p">,</span> <span class="n">spatial</span><span class="p">,</span> <span class="n">channel</span>
 </pre></div>
 
      </div>
@@ -15188,7 +15188,7 @@ Unlike with many other libraries, the result shape is still well-defined.</p>
 
 
 <div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre><span class="ansi-green-intense-fg">(xˢ=</span><span class="ansi-blue-intense-fg">(4, 5)</span><span class="ansi-green-intense-fg"> along </span><span class="ansi-green-intense-fg">sᶜ</span><span class="ansi-green-intense-fg"> </span><span class="ansi-yellow-intense-fg">int64</span><span class="ansi-green-intense-fg">, yˢ=2, sᶜ=2)</span> <span class="ansi-blue-intense-fg">0.556 ± 0.497</span> <span class="ansi-white-fg">(0e+00...1e+00)</span></pre>
+<pre><span class="ansi-green-intense-fg">(sᶜ=2, xˢ=</span><span class="ansi-blue-intense-fg">(4, 5)</span><span class="ansi-green-intense-fg"> along </span><span class="ansi-green-intense-fg">sᶜ</span><span class="ansi-green-intense-fg"> </span><span class="ansi-yellow-intense-fg">int64</span><span class="ansi-green-intense-fg">, yˢ=2)</span> <span class="ansi-blue-intense-fg">0.556 ± 0.497</span> <span class="ansi-white-fg">(0e+00...1e+00)</span></pre>
 </div>
 
 </div>
@@ -15374,17 +15374,20 @@ For non-uniform tensors, this is not the case, as can be seen with the second-or
 
 
 <div class="jp-OutputArea jp-Cell-outputArea">
-<div class="jp-OutputArea-child jp-OutputArea-executeResult">
+<div class="jp-OutputArea-child">
     
-    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[6]:</div>
+    <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
 
 
+<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="application/vnd.jupyter.stderr">
+<pre>
+<span class="ansi-red-fg">---------------------------------------------------------------------------</span>
+<span class="ansi-red-fg">AttributeError</span>                            Traceback (most recent call last)
+Cell <span class="ansi-green-fg">In[6], line 1</span>
+<span class="ansi-green-fg">----&gt; 1</span> <span class="ansi-yellow-bg">stacked</span><span class="ansi-yellow-bg" style="color: rgb(98,98,98)">.</span><span class="ansi-yellow-bg">shape</span><span class="ansi-yellow-bg" style="color: rgb(98,98,98)">.</span><span class="ansi-yellow-bg">shape</span>
 
-
-<div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre>(dimsᶜ=x,y,s, sᶜ=2)</pre>
+<span class="ansi-red-fg">AttributeError</span>: &#39;MixedShape&#39; object has no attribute &#39;shape&#39;</pre>
 </div>
-
 </div>
 
 </div>
@@ -15538,7 +15541,7 @@ While it may be confusing to think about at first, the second-order shape now co
 
 
 <div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre><span class="ansi-green-intense-fg">(xˢ=</span><span class="ansi-blue-intense-fg">(4, 5)</span><span class="ansi-green-intense-fg"> along </span><span class="ansi-green-intense-fg">sᶜ</span><span class="ansi-green-intense-fg"> </span><span class="ansi-yellow-intense-fg">int64</span><span class="ansi-green-intense-fg">, yˢ=</span><span class="ansi-blue-intense-fg">(2, 1)</span><span class="ansi-green-intense-fg"> along </span><span class="ansi-green-intense-fg">s2ᶜ</span><span class="ansi-green-intense-fg"> </span><span class="ansi-yellow-intense-fg">int64</span><span class="ansi-green-intense-fg">, s2ᶜ=2, sᶜ=2)</span> <span class="ansi-blue-intense-fg">0.556 ± 0.497</span> <span class="ansi-white-fg">(0e+00...1e+00)</span></pre>
+<pre><span class="ansi-green-intense-fg">(s2ᶜ=2, sᶜ=2, xˢ=</span><span class="ansi-blue-intense-fg">(4, 5)</span><span class="ansi-green-intense-fg"> along </span><span class="ansi-green-intense-fg">sᶜ</span><span class="ansi-green-intense-fg"> </span><span class="ansi-yellow-intense-fg">int64</span><span class="ansi-green-intense-fg">, yˢ=</span><span class="ansi-blue-intense-fg">(2, 1)</span><span class="ansi-green-intense-fg"> along </span><span class="ansi-green-intense-fg">s2ᶜ</span><span class="ansi-green-intense-fg"> </span><span class="ansi-yellow-intense-fg">int64</span><span class="ansi-green-intense-fg">)</span> <span class="ansi-blue-intense-fg">0.556 ± 0.497</span> <span class="ansi-white-fg">(0e+00...1e+00)</span></pre>
 </div>
 
 </div>
@@ -15589,7 +15592,7 @@ While it may be confusing to think about at first, the second-order shape now co
 
 
 <div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre><span class="ansi-blue-intense-fg">0.5555556</span></pre>
+<pre><span class="ansi-yellow-intense-fg">float64</span> <span class="ansi-blue-intense-fg">0.5555555555555556</span></pre>
 </div>
 
 </div>
@@ -15629,7 +15632,7 @@ While it may be confusing to think about at first, the second-order shape now co
 
 
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
-<pre>Cannot merge shapes [(xˢ=4, yˢ=2), (xˢ=4, yˢ=1)] because dimension &#39;y&#39; exists with different sizes.
+<pre>Cannot merge shapes ((xˢ=4, yˢ=2), (xˢ=4, yˢ=1)) because dimension &#39;y&#39; exists with different sizes.
 </pre>
 </div>
 </div>

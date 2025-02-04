@@ -15167,8 +15167,8 @@ When creating a Φ<sub>ML</sub> tensor, you need to specify the names and types 
 <div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[2]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython2"><pre><span></span><span class="kn">from</span> <span class="nn">phiml</span> <span class="kn">import</span> <span class="n">math</span>
-<span class="kn">from</span> <span class="nn">phiml.math</span> <span class="kn">import</span> <span class="n">channel</span><span class="p">,</span> <span class="n">batch</span><span class="p">,</span> <span class="n">spatial</span><span class="p">,</span> <span class="n">instance</span><span class="p">,</span> <span class="n">dual</span>  <span class="c1"># dimension types</span>
+<div class=" highlight hl-ipython2"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">phiml</span><span class="w"> </span><span class="kn">import</span> <span class="n">math</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">phiml.math</span><span class="w"> </span><span class="kn">import</span> <span class="n">channel</span><span class="p">,</span> <span class="n">batch</span><span class="p">,</span> <span class="n">spatial</span><span class="p">,</span> <span class="n">instance</span><span class="p">,</span> <span class="n">dual</span>  <span class="c1"># dimension types</span>
 
 <span class="n">math</span><span class="o">.</span><span class="n">wrap</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span> <span class="n">channel</span><span class="p">(</span><span class="s1">&#39;integers&#39;</span><span class="p">))</span>
 </pre></div>
@@ -15232,7 +15232,7 @@ When creating a Φ<sub>ML</sub> tensor, you need to specify the names and types 
 
 
 <div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre><span class="ansi-green-intense-fg">(examplesᵇ=2, xˢ=4, yˢ=3)</span> <span class="ansi-blue-intense-fg">0.495 ± 0.290</span> <span class="ansi-white-fg">(8e-02...1e+00)</span></pre>
+<pre><span class="ansi-green-intense-fg">(examplesᵇ=2, xˢ=4, yˢ=3)</span> <span class="ansi-blue-intense-fg">0.501 ± 0.288</span> <span class="ansi-white-fg">(3e-02...1e+00)</span></pre>
 </div>
 
 </div>
@@ -15283,7 +15283,7 @@ Here are some examples:</p>
 
 
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
-<pre><span class="ansi-green-intense-fg">(examplesᵇ=2, xˢ=4, yˢ=3)</span> <span class="ansi-yellow-intense-fg">float32</span> <span class="ansi-blue-intense-fg">4.94503e-01 ± 2.89850e-01</span> <span class="ansi-white-fg">(7.71975e-02...9.74600e-01)</span>
+<pre><span class="ansi-green-intense-fg">(examplesᵇ=2, xˢ=4, yˢ=3)</span> <span class="ansi-yellow-intense-fg">float32</span> <span class="ansi-blue-intense-fg">5.01421e-01 ± 2.88302e-01</span> <span class="ansi-white-fg">(3.32573e-02...9.52480e-01)</span>
 </pre>
 </div>
 </div>
@@ -15321,13 +15321,13 @@ Here are some examples:</p>
 
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
 <pre><span class="ansi-green-intense-fg">examples=0</span>  
-<span class="ansi-blue-intense-fg"> 0.405, 0.810, 0.866, 0.156,
- 0.111, 0.975, 0.871, 0.077,
- 0.288, 0.450, 0.495, 0.602</span>  along <span class="ansi-green-intense-fg">(xˢ=4, yˢ=3)</span>
+<span class="ansi-blue-intense-fg"> 0.674, 0.942, 0.151, 0.528,
+ 0.636, 0.610, 0.033, 0.905,
+ 0.798, 0.790, 0.952, 0.458</span>  along <span class="ansi-green-intense-fg">(xˢ=4, yˢ=3)</span>
 <span class="ansi-green-intense-fg">examples=1</span>  
-<span class="ansi-blue-intense-fg"> 0.399, 0.179, 0.237, 0.877,
- 0.462, 0.583, 0.824, 0.131,
- 0.361, 0.163, 0.607, 0.938</span>  along <span class="ansi-green-intense-fg">(xˢ=4, yˢ=3)</span>
+<span class="ansi-blue-intense-fg"> 0.124, 0.401, 0.801, 0.114,
+ 0.410, 0.313, 0.633, 0.189,
+ 0.773, 0.164, 0.481, 0.153</span>  along <span class="ansi-green-intense-fg">(xˢ=4, yˢ=3)</span>
 </pre>
 </div>
 </div>
@@ -15364,15 +15364,15 @@ Here are some examples:</p>
 
 
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
-<pre>[[[0.29 0.11 0.41]
-  [0.45 0.97 0.81]
-  [0.49 0.87 0.87]
-  [0.60 0.08 0.16]]
+<pre>[[[0.80 0.64 0.67]
+  [0.79 0.61 0.94]
+  [0.95 0.03 0.15]
+  [0.46 0.90 0.53]]
 
- [[0.36 0.46 0.40]
-  [0.16 0.58 0.18]
-  [0.61 0.82 0.24]
-  [0.94 0.13 0.88]]]
+ [[0.77 0.41 0.12]
+  [0.16 0.31 0.40]
+  [0.48 0.63 0.80]
+  [0.15 0.19 0.11]]]
 </pre>
 </div>
 </div>
@@ -15506,15 +15506,15 @@ In both cases, the requested dimension order needs to be specified.</p>
 
 
 <div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre>array([[[0.28807494, 0.11122419, 0.4050429 ],
-        [0.450335  , 0.9746001 , 0.8097292 ],
-        [0.4947539 , 0.87081677, 0.8657818 ],
-        [0.60230553, 0.07719752, 0.15571558]],
+<pre>array([[[0.79779387, 0.636208  , 0.6741249 ],
+        [0.790376  , 0.609896  , 0.94164175],
+        [0.9524803 , 0.03325728, 0.1513674 ],
+        [0.45783627, 0.9048626 , 0.52771956]],
 
-       [[0.3610983 , 0.4624843 , 0.39913565],
-        [0.16342373, 0.58331376, 0.17922853],
-        [0.60698134, 0.82416594, 0.23666404],
-        [0.9375892 , 0.13148437, 0.87692326]]], dtype=float32)</pre>
+       [[0.77255225, 0.4103721 , 0.12386371],
+        [0.16423401, 0.31295943, 0.40074036],
+        [0.4814828 , 0.63306046, 0.8005059 ],
+        [0.15290974, 0.18937057, 0.1144946 ]]], dtype=float32)</pre>
 </div>
 
 </div>
@@ -15565,15 +15565,15 @@ In both cases, the requested dimension order needs to be specified.</p>
 
 
 <div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre>array([[[0.28807494, 0.11122419, 0.4050429 ],
-        [0.450335  , 0.9746001 , 0.8097292 ],
-        [0.4947539 , 0.87081677, 0.8657818 ],
-        [0.60230553, 0.07719752, 0.15571558]],
+<pre>array([[[0.79779387, 0.636208  , 0.6741249 ],
+        [0.790376  , 0.609896  , 0.94164175],
+        [0.9524803 , 0.03325728, 0.1513674 ],
+        [0.45783627, 0.9048626 , 0.52771956]],
 
-       [[0.3610983 , 0.4624843 , 0.39913565],
-        [0.16342373, 0.58331376, 0.17922853],
-        [0.60698134, 0.82416594, 0.23666404],
-        [0.9375892 , 0.13148437, 0.87692326]]], dtype=float32)</pre>
+       [[0.77255225, 0.4103721 , 0.12386371],
+        [0.16423401, 0.31295943, 0.40074036],
+        [0.4814828 , 0.63306046, 0.8005059 ],
+        [0.15290974, 0.18937057, 0.1144946 ]]], dtype=float32)</pre>
 </div>
 
 </div>

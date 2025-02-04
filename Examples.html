@@ -15130,12 +15130,12 @@ You can select your preferred one by changing the below <code>math.use()</code> 
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython2"><pre><span></span><span class="c1"># !pip install phiml</span>
-<span class="kn">from</span> <span class="nn">phiml</span> <span class="kn">import</span> <span class="n">math</span><span class="p">,</span> <span class="n">nn</span>
-<span class="kn">from</span> <span class="nn">phiml.math</span> <span class="kn">import</span> <span class="n">channel</span><span class="p">,</span> <span class="n">spatial</span><span class="p">,</span> <span class="n">batch</span><span class="p">,</span> <span class="n">instance</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">phiml</span><span class="w"> </span><span class="kn">import</span> <span class="n">math</span><span class="p">,</span> <span class="n">nn</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">phiml.math</span><span class="w"> </span><span class="kn">import</span> <span class="n">channel</span><span class="p">,</span> <span class="n">spatial</span><span class="p">,</span> <span class="n">batch</span><span class="p">,</span> <span class="n">instance</span>
 
 <span class="n">math</span><span class="o">.</span><span class="n">use</span><span class="p">(</span><span class="s1">&#39;jax&#39;</span><span class="p">)</span>
 
-<span class="kn">from</span> <span class="nn">matplotlib</span> <span class="kn">import</span> <span class="n">pyplot</span> <span class="k">as</span> <span class="n">plt</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">matplotlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">pyplot</span> <span class="k">as</span> <span class="n">plt</span>
 </pre></div>
 
      </div>
@@ -15190,7 +15190,7 @@ You can select your preferred one by changing the below <code>math.use()</code> 
 <span class="n">data_x</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">random_uniform</span><span class="p">(</span><span class="n">batch</span><span class="p">(</span><span class="n">batch</span><span class="o">=</span><span class="mi">128</span><span class="p">),</span> <span class="n">low</span><span class="o">=-</span><span class="mi">2</span><span class="p">,</span> <span class="n">high</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
 <span class="n">data_y</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">data_x</span><span class="p">)</span> <span class="o">+</span> <span class="n">math</span><span class="o">.</span><span class="n">random_normal</span><span class="p">(</span><span class="n">batch</span><span class="p">(</span><span class="n">batch</span><span class="o">=</span><span class="mi">128</span><span class="p">))</span> <span class="o">*</span> <span class="mf">.2</span>
 
-<span class="k">def</span> <span class="nf">loss_function</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">loss_function</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
     <span class="k">return</span> <span class="n">math</span><span class="o">.</span><span class="n">l2_loss</span><span class="p">(</span><span class="n">y</span> <span class="o">-</span> <span class="n">math</span><span class="o">.</span><span class="n">native_call</span><span class="p">(</span><span class="n">net</span><span class="p">,</span> <span class="n">x</span><span class="p">))</span>
 
 <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">10</span><span class="p">):</span>
@@ -15280,7 +15280,7 @@ Decorating the function with <a href="phiml/math#phiml.math.jit_compile_linear">
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython2"><pre><span></span><span class="nd">@math</span><span class="o">.</span><span class="n">jit_compile_linear</span>
-<span class="k">def</span> <span class="nf">explicit_heat_step</span><span class="p">(</span><span class="n">u</span><span class="p">,</span> <span class="n">dt</span><span class="p">,</span> <span class="n">dx</span><span class="p">,</span> <span class="n">diffusivity</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">explicit_heat_step</span><span class="p">(</span><span class="n">u</span><span class="p">,</span> <span class="n">dt</span><span class="p">,</span> <span class="n">dx</span><span class="p">,</span> <span class="n">diffusivity</span><span class="p">):</span>
     <span class="k">return</span> <span class="n">u</span> <span class="o">+</span> <span class="n">dt</span> <span class="o">*</span> <span class="n">diffusivity</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">laplace</span><span class="p">(</span><span class="n">u</span><span class="p">,</span> <span class="n">dx</span><span class="p">,</span> <span class="s1">&#39;periodic&#39;</span><span class="p">)</span>
 </pre></div>
 
@@ -15315,7 +15315,7 @@ While an implicit step is technically linear, the corresponding matrix would be 
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython2"><pre><span></span><span class="nd">@math</span><span class="o">.</span><span class="n">jit_compile</span>
-<span class="k">def</span> <span class="nf">implicit_heat_step</span><span class="p">(</span><span class="n">u</span><span class="p">,</span> <span class="n">dx</span><span class="p">,</span> <span class="n">dt</span><span class="p">,</span> <span class="n">diffusivity</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">implicit_heat_step</span><span class="p">(</span><span class="n">u</span><span class="p">,</span> <span class="n">dx</span><span class="p">,</span> <span class="n">dt</span><span class="p">,</span> <span class="n">diffusivity</span><span class="p">):</span>
     <span class="k">return</span> <span class="n">math</span><span class="o">.</span><span class="n">solve_linear</span><span class="p">(</span><span class="n">explicit_heat_step</span><span class="p">,</span> <span class="n">u</span><span class="p">,</span> <span class="n">math</span><span class="o">.</span><span class="n">Solve</span><span class="p">(</span><span class="n">x0</span><span class="o">=</span><span class="n">u</span><span class="p">),</span> <span class="n">dt</span><span class="o">=-</span><span class="n">dt</span><span class="p">,</span> <span class="n">dx</span><span class="o">=</span><span class="n">dx</span><span class="p">,</span> <span class="n">diffusivity</span><span class="o">=</span><span class="n">diffusivity</span><span class="p">)</span>
 </pre></div>
 
@@ -15367,7 +15367,7 @@ While an implicit step is technically linear, the corresponding matrix would be 
 
 
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="application/vnd.jupyter.stderr">
-<pre>/opt/hostedtoolcache/Python/3.8.18/x64/lib/python3.8/site-packages/phiml/math/_optimize.py:631: UserWarning: Possible rank deficiency detected. Matrix might be singular which can lead to convergence problems. Please specify using Solve(rank_deficiency=...).
+<pre>/opt/hostedtoolcache/Python/3.8.18/x64/lib/python3.8/site-packages/phiml/math/_optimize.py:632: UserWarning: Possible rank deficiency detected. Matrix might be singular which can lead to convergence problems. Please specify using Solve(rank_deficiency=...).
   warnings.warn(&#34;Possible rank deficiency detected. Matrix might be singular which can lead to convergence problems. Please specify using Solve(rank_deficiency=...).&#34;)
 </pre>
 </div>
@@ -15437,9 +15437,9 @@ class="
 
 
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="application/vnd.jupyter.stderr">
-<pre>/tmp/ipykernel_2266/2300467920.py:2: DeprecationWarning: phiml.math.vec_squared is deprecated in favor of phiml.math.squared_norm
+<pre>/tmp/ipykernel_2445/2300467920.py:2: DeprecationWarning: phiml.math.vec_squared is deprecated in favor of phiml.math.squared_norm
   u0 = math.exp(-.5 * math.vec_squared(x-.5) / .1 ** 2)
-/opt/hostedtoolcache/Python/3.8.18/x64/lib/python3.8/site-packages/phiml/math/_optimize.py:631: UserWarning: Possible rank deficiency detected. Matrix might be singular which can lead to convergence problems. Please specify using Solve(rank_deficiency=...).
+/opt/hostedtoolcache/Python/3.8.18/x64/lib/python3.8/site-packages/phiml/math/_optimize.py:632: UserWarning: Possible rank deficiency detected. Matrix might be singular which can lead to convergence problems. Please specify using Solve(rank_deficiency=...).
   warnings.warn(&#34;Possible rank deficiency detected. Matrix might be singular which can lead to convergence problems. Please specify using Solve(rank_deficiency=...).&#34;)
 </pre>
 </div>
@@ -15490,7 +15490,7 @@ We use an upwind scheme.</p>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython2"><pre><span></span><span class="nd">@math</span><span class="o">.</span><span class="n">jit_compile_linear</span>
-<span class="k">def</span> <span class="nf">explicit_burgers</span><span class="p">(</span><span class="n">u</span><span class="p">,</span> <span class="n">u_prev</span><span class="p">,</span> <span class="n">dt</span><span class="p">,</span> <span class="n">diffusivity</span><span class="p">,</span> <span class="n">boundary</span><span class="o">=</span><span class="s1">&#39;periodic&#39;</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">explicit_burgers</span><span class="p">(</span><span class="n">u</span><span class="p">,</span> <span class="n">u_prev</span><span class="p">,</span> <span class="n">dt</span><span class="p">,</span> <span class="n">diffusivity</span><span class="p">,</span> <span class="n">boundary</span><span class="o">=</span><span class="s1">&#39;periodic&#39;</span><span class="p">):</span>
     <span class="n">dx</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">/</span> <span class="n">math</span><span class="o">.</span><span class="n">wrap</span><span class="p">(</span><span class="n">spatial</span><span class="p">(</span><span class="n">u</span><span class="p">),</span> <span class="n">channel</span><span class="p">(</span><span class="n">u</span><span class="p">))</span>
     <span class="n">left</span><span class="p">,</span> <span class="n">right</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">shift</span><span class="p">(</span><span class="n">u_prev</span><span class="p">,</span> <span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="n">padding</span><span class="o">=</span><span class="n">boundary</span><span class="p">,</span> <span class="n">stack_dim</span><span class="o">=</span><span class="n">channel</span><span class="p">(</span><span class="s1">&#39;adv&#39;</span><span class="p">))</span>
     <span class="n">positive_winds</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">maximum</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="p">(</span><span class="n">u_prev</span> <span class="o">+</span> <span class="n">left</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span>
@@ -15527,7 +15527,7 @@ We use an upwind scheme.</p>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython2"><pre><span></span><span class="nd">@math</span><span class="o">.</span><span class="n">jit_compile</span>
-<span class="k">def</span> <span class="nf">implicit_burgers</span><span class="p">(</span><span class="n">u_prev</span><span class="p">,</span> <span class="n">dt</span><span class="p">,</span> <span class="n">diffusivity</span><span class="o">=</span><span class="mf">1e-4</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">implicit_burgers</span><span class="p">(</span><span class="n">u_prev</span><span class="p">,</span> <span class="n">dt</span><span class="p">,</span> <span class="n">diffusivity</span><span class="o">=</span><span class="mf">1e-4</span><span class="p">):</span>
     <span class="k">return</span> <span class="n">math</span><span class="o">.</span><span class="n">solve_linear</span><span class="p">(</span><span class="n">explicit_burgers</span><span class="p">,</span> <span class="n">u_prev</span><span class="p">,</span> <span class="n">math</span><span class="o">.</span><span class="n">Solve</span><span class="p">(</span><span class="n">x0</span><span class="o">=</span><span class="n">u_prev</span><span class="p">),</span> <span class="n">u_prev</span><span class="o">=</span><span class="n">u_prev</span><span class="p">,</span> <span class="n">dt</span><span class="o">=-</span><span class="n">dt</span><span class="p">,</span> <span class="n">diffusivity</span><span class="o">=</span><span class="n">diffusivity</span><span class="p">)</span>
 </pre></div>
 
@@ -15613,9 +15613,9 @@ class="
 <div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[10]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython2"><pre><span></span><span class="kn">from</span> <span class="nn">phiml</span> <span class="kn">import</span> <span class="n">math</span>  <span class="c1"># uses NumPy by default</span>
+<div class=" highlight hl-ipython2"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">phiml</span><span class="w"> </span><span class="kn">import</span> <span class="n">math</span>  <span class="c1"># uses NumPy by default</span>
 
-<span class="k">def</span> <span class="nf">pairwise_distances</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="n">math</span><span class="o">.</span><span class="n">Tensor</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">pairwise_distances</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="n">math</span><span class="o">.</span><span class="n">Tensor</span><span class="p">):</span>
     <span class="n">dx</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">rename_dims</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="s1">&#39;points&#39;</span><span class="p">,</span> <span class="s1">&#39;others&#39;</span><span class="p">)</span> <span class="o">-</span> <span class="n">x</span>
     <span class="k">return</span> <span class="n">math</span><span class="o">.</span><span class="n">vec_length</span><span class="p">(</span><span class="n">dx</span><span class="p">)</span>
 
@@ -15652,7 +15652,7 @@ class="
 
 
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="application/vnd.jupyter.stderr">
-<pre>/tmp/ipykernel_2266/2042670748.py:5: DeprecationWarning: phiml.math.length is deprecated in favor of phiml.math.norm
+<pre>/tmp/ipykernel_2445/2042670748.py:5: DeprecationWarning: phiml.math.length is deprecated in favor of phiml.math.norm
   return math.vec_length(dx)
 </pre>
 </div>
@@ -15696,10 +15696,10 @@ An explanation of this automatic reshaping is given <a href="https://tum-pbs.git
 <div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[11]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython2"><pre><span></span><span class="kn">from</span> <span class="nn">phiml</span> <span class="kn">import</span> <span class="n">math</span>
+<div class=" highlight hl-ipython2"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">phiml</span><span class="w"> </span><span class="kn">import</span> <span class="n">math</span>
 <span class="n">math</span><span class="o">.</span><span class="n">use</span><span class="p">(</span><span class="s1">&#39;jax&#39;</span><span class="p">)</span>
 
-<span class="k">def</span> <span class="nf">function</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">function</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
     <span class="k">return</span> <span class="n">x</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">y</span>
 
 <span class="n">gradient_x</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">gradient</span><span class="p">(</span><span class="n">function</span><span class="p">,</span> <span class="n">wrt</span><span class="o">=</span><span class="s1">&#39;x&#39;</span><span class="p">,</span> <span class="n">get_output</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
@@ -15733,7 +15733,7 @@ An explanation of this automatic reshaping is given <a href="https://tum-pbs.git
 
 
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="application/vnd.jupyter.stderr">
-<pre>/opt/hostedtoolcache/Python/3.8.18/x64/lib/python3.8/site-packages/phiml/math/_functional.py:628: RuntimeWarning: Using jax for gradient computation because numpy does not support jacobian()
+<pre>/opt/hostedtoolcache/Python/3.8.18/x64/lib/python3.8/site-packages/phiml/math/_functional.py:630: RuntimeWarning: Using jax for gradient computation because numpy does not support jacobian()
   warnings.warn(f&#34;Using {math.default_backend()} for gradient computation because {key.backend} does not support jacobian()&#34;, RuntimeWarning)
 </pre>
 </div>
@@ -15763,11 +15763,11 @@ An explanation of this automatic reshaping is given <a href="https://tum-pbs.git
 <div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[12]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython2"><pre><span></span><span class="kn">from</span> <span class="nn">phiml</span> <span class="kn">import</span> <span class="n">math</span>
+<div class=" highlight hl-ipython2"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">phiml</span><span class="w"> </span><span class="kn">import</span> <span class="n">math</span>
 <span class="n">math</span><span class="o">.</span><span class="n">use</span><span class="p">(</span><span class="s1">&#39;tensorflow&#39;</span><span class="p">)</span>
 
 <span class="nd">@math</span><span class="o">.</span><span class="n">jit_compile</span><span class="p">(</span><span class="n">auxiliary_args</span><span class="o">=</span><span class="s1">&#39;divide_by_y&#39;</span><span class="p">)</span>
-<span class="k">def</span> <span class="nf">function</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">divide_by_y</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">function</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">divide_by_y</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
     <span class="k">if</span> <span class="n">divide_by_y</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">x</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">/</span> <span class="n">y</span>
     <span class="k">else</span><span class="p">:</span>
@@ -15793,7 +15793,7 @@ An explanation of this automatic reshaping is given <a href="https://tum-pbs.git
 
 
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="application/vnd.jupyter.stderr">
-<pre>2024-12-19 17:09:35.449165: W tensorflow/compiler/tf2tensorrt/utils/py_utils.cc:38] TF-TRT Warning: Could not find TensorRT
+<pre>2025-02-04 21:59:57.798271: W tensorflow/compiler/tf2tensorrt/utils/py_utils.cc:38] TF-TRT Warning: Could not find TensorRT
 </pre>
 </div>
 </div>
@@ -15836,11 +15836,11 @@ Otherwise, its concrete value would not be available inside the function and cou
 <div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[13]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython2"><pre><span></span><span class="kn">from</span> <span class="nn">phiml</span> <span class="kn">import</span> <span class="n">math</span>
+<div class=" highlight hl-ipython2"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">phiml</span><span class="w"> </span><span class="kn">import</span> <span class="n">math</span>
 <span class="n">math</span><span class="o">.</span><span class="n">use</span><span class="p">(</span><span class="s1">&#39;numpy&#39;</span><span class="p">)</span>
 
 <span class="nd">@math</span><span class="o">.</span><span class="n">jit_compile_linear</span><span class="p">(</span><span class="n">auxiliary_args</span><span class="o">=</span><span class="s1">&#39;compute_laplace&#39;</span><span class="p">)</span>
-<span class="k">def</span> <span class="nf">optional_sp_grad</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">compute_gradient</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">optional_sp_grad</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">compute_gradient</span><span class="p">):</span>
     <span class="k">if</span> <span class="n">compute_gradient</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">math</span><span class="o">.</span><span class="n">spatial_gradient</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
@@ -15874,49 +15874,47 @@ Cell <span class="ansi-green-fg">In[13], line 11</span>
 <span class="ansi-green-intense-fg ansi-bold">      9</span>         <span class="ansi-bold" style="color: rgb(0,135,0)">return</span> <span style="color: rgb(98,98,98)">-</span>x
 <span class="ansi-green-fg">---&gt; 11</span> <span class="ansi-yellow-bg">optional_sp_grad</span><span class="ansi-yellow-bg">(</span><span class="ansi-yellow-bg">math</span><span class="ansi-yellow-bg" style="color: rgb(98,98,98)">.</span><span class="ansi-yellow-bg">linspace</span><span class="ansi-yellow-bg">(</span><span class="ansi-yellow-bg" style="color: rgb(98,98,98)">0</span><span class="ansi-yellow-bg">,</span><span class="ansi-yellow-bg"> </span><span class="ansi-yellow-bg" style="color: rgb(98,98,98)">1</span><span class="ansi-yellow-bg">,</span><span class="ansi-yellow-bg"> </span><span class="ansi-yellow-bg">math</span><span class="ansi-yellow-bg" style="color: rgb(98,98,98)">.</span><span class="ansi-yellow-bg">spatial</span><span class="ansi-yellow-bg">(</span><span class="ansi-yellow-bg">x</span><span class="ansi-yellow-bg" style="color: rgb(98,98,98)">=</span><span class="ansi-yellow-bg" style="color: rgb(98,98,98)">10</span><span class="ansi-yellow-bg">)</span><span class="ansi-yellow-bg">)</span><span class="ansi-yellow-bg">,</span><span class="ansi-yellow-bg"> </span><span class="ansi-yellow-bg ansi-bold" style="color: rgb(0,135,0)">True</span><span class="ansi-yellow-bg">)</span>
 
-File <span class="ansi-green-fg">/opt/hostedtoolcache/Python/3.8.18/x64/lib/python3.8/site-packages/phiml/math/_functional.py:453</span>, in <span class="ansi-cyan-fg">LinearFunction.__call__</span><span class="ansi-blue-fg">(self, *args, **kwargs)</span>
-<span class="ansi-green-intense-fg ansi-bold">    451</span>     <span class="ansi-bold" style="color: rgb(0,135,0)">else</span>:
-<span class="ansi-green-intense-fg ansi-bold">    452</span>         <span class="ansi-bold" style="color: rgb(0,135,0)">return</span> <span style="color: rgb(0,135,0)">self</span><span style="color: rgb(98,98,98)">.</span>nl_jit(<span style="color: rgb(98,98,98)">*</span>args, <span style="color: rgb(98,98,98)">*</span><span style="color: rgb(98,98,98)">*</span>kwargs)
-<span class="ansi-green-fg">--&gt; 453</span> matrix, bias, (out_tree, out_tensors) <span style="color: rgb(98,98,98)">=</span> <span class="ansi-yellow-bg" style="color: rgb(0,135,0)">self</span><span class="ansi-yellow-bg" style="color: rgb(98,98,98)">.</span><span class="ansi-yellow-bg">_get_or_trace</span><span class="ansi-yellow-bg">(</span><span class="ansi-yellow-bg">key</span><span class="ansi-yellow-bg">,</span><span class="ansi-yellow-bg"> </span><span class="ansi-yellow-bg">args</span><span class="ansi-yellow-bg">,</span><span class="ansi-yellow-bg"> </span><span class="ansi-yellow-bg">aux_kwargs</span><span class="ansi-yellow-bg">)</span>
-<span class="ansi-green-intense-fg ansi-bold">    454</span> result <span style="color: rgb(98,98,98)">=</span> matrix <span style="color: rgb(98,98,98)">@</span> tensors[<span style="color: rgb(98,98,98)">0</span>] <span style="color: rgb(98,98,98)">+</span> bias
-<span class="ansi-green-intense-fg ansi-bold">    455</span> out_tensors <span style="color: rgb(98,98,98)">=</span> <span style="color: rgb(0,135,0)">list</span>(out_tensors)
+File <span class="ansi-green-fg">/opt/hostedtoolcache/Python/3.8.18/x64/lib/python3.8/site-packages/phiml/math/_functional.py:455</span>, in <span class="ansi-cyan-fg">LinearFunction.__call__</span><span class="ansi-blue-fg">(self, *args, **kwargs)</span>
+<span class="ansi-green-intense-fg ansi-bold">    453</span>     <span class="ansi-bold" style="color: rgb(0,135,0)">else</span>:
+<span class="ansi-green-intense-fg ansi-bold">    454</span>         <span class="ansi-bold" style="color: rgb(0,135,0)">return</span> <span style="color: rgb(0,135,0)">self</span><span style="color: rgb(98,98,98)">.</span>nl_jit(<span style="color: rgb(98,98,98)">*</span>args, <span style="color: rgb(98,98,98)">*</span><span style="color: rgb(98,98,98)">*</span>kwargs)
+<span class="ansi-green-fg">--&gt; 455</span> matrix, bias, (out_tree, out_tensors) <span style="color: rgb(98,98,98)">=</span> <span class="ansi-yellow-bg" style="color: rgb(0,135,0)">self</span><span class="ansi-yellow-bg" style="color: rgb(98,98,98)">.</span><span class="ansi-yellow-bg">_get_or_trace</span><span class="ansi-yellow-bg">(</span><span class="ansi-yellow-bg">key</span><span class="ansi-yellow-bg">,</span><span class="ansi-yellow-bg"> </span><span class="ansi-yellow-bg">args</span><span class="ansi-yellow-bg">,</span><span class="ansi-yellow-bg"> </span><span class="ansi-yellow-bg">aux_kwargs</span><span class="ansi-yellow-bg">)</span>
+<span class="ansi-green-intense-fg ansi-bold">    456</span> result <span style="color: rgb(98,98,98)">=</span> matrix <span style="color: rgb(98,98,98)">@</span> tensors[<span style="color: rgb(98,98,98)">0</span>] <span style="color: rgb(98,98,98)">+</span> bias
+<span class="ansi-green-intense-fg ansi-bold">    457</span> out_tensors <span style="color: rgb(98,98,98)">=</span> <span style="color: rgb(0,135,0)">list</span>(out_tensors)
 
-File <span class="ansi-green-fg">/opt/hostedtoolcache/Python/3.8.18/x64/lib/python3.8/site-packages/phiml/math/_functional.py:424</span>, in <span class="ansi-cyan-fg">LinearFunction._get_or_trace</span><span class="ansi-blue-fg">(self, key, args, f_kwargs)</span>
-<span class="ansi-green-intense-fg ansi-bold">    422</span> _TRACING_LINEAR<span style="color: rgb(98,98,98)">.</span>append(<span style="color: rgb(0,135,0)">self</span>)
-<span class="ansi-green-intense-fg ansi-bold">    423</span> <span class="ansi-bold" style="color: rgb(0,135,0)">try</span>:
-<span class="ansi-green-fg">--&gt; 424</span>     matrix, bias, raw_out <span style="color: rgb(98,98,98)">=</span> <span class="ansi-yellow-bg">matrix_from_function</span><span class="ansi-yellow-bg">(</span><span class="ansi-yellow-bg" style="color: rgb(0,135,0)">self</span><span class="ansi-yellow-bg" style="color: rgb(98,98,98)">.</span><span class="ansi-yellow-bg">f</span><span class="ansi-yellow-bg">,</span><span class="ansi-yellow-bg"> </span><span class="ansi-yellow-bg" style="color: rgb(98,98,98)">*</span><span class="ansi-yellow-bg">args</span><span class="ansi-yellow-bg">,</span><span class="ansi-yellow-bg"> </span><span class="ansi-yellow-bg" style="color: rgb(98,98,98)">*</span><span class="ansi-yellow-bg" style="color: rgb(98,98,98)">*</span><span class="ansi-yellow-bg">f_kwargs</span><span class="ansi-yellow-bg">,</span><span class="ansi-yellow-bg"> </span><span class="ansi-yellow-bg">auto_compress</span><span class="ansi-yellow-bg" style="color: rgb(98,98,98)">=</span><span class="ansi-yellow-bg ansi-bold" style="color: rgb(0,135,0)">True</span><span class="ansi-yellow-bg">,</span><span class="ansi-yellow-bg"> </span><span class="ansi-yellow-bg">_return_raw_output</span><span class="ansi-yellow-bg" style="color: rgb(98,98,98)">=</span><span class="ansi-yellow-bg ansi-bold" style="color: rgb(0,135,0)">True</span><span class="ansi-yellow-bg">)</span>
-<span class="ansi-green-intense-fg ansi-bold">    425</span> <span class="ansi-bold" style="color: rgb(0,135,0)">finally</span>:
-<span class="ansi-green-intense-fg ansi-bold">    426</span>     <span class="ansi-bold" style="color: rgb(0,135,0)">assert</span> _TRACING_LINEAR<span style="color: rgb(98,98,98)">.</span>pop(<span style="color: rgb(98,98,98)">-</span><span style="color: rgb(98,98,98)">1</span>) <span class="ansi-bold" style="color: rgb(175,0,255)">is</span> <span style="color: rgb(0,135,0)">self</span>
+File <span class="ansi-green-fg">/opt/hostedtoolcache/Python/3.8.18/x64/lib/python3.8/site-packages/phiml/math/_functional.py:426</span>, in <span class="ansi-cyan-fg">LinearFunction._get_or_trace</span><span class="ansi-blue-fg">(self, key, args, f_kwargs)</span>
+<span class="ansi-green-intense-fg ansi-bold">    424</span> _TRACING_LINEAR<span style="color: rgb(98,98,98)">.</span>append(<span style="color: rgb(0,135,0)">self</span>)
+<span class="ansi-green-intense-fg ansi-bold">    425</span> <span class="ansi-bold" style="color: rgb(0,135,0)">try</span>:
+<span class="ansi-green-fg">--&gt; 426</span>     matrix, bias, raw_out <span style="color: rgb(98,98,98)">=</span> <span class="ansi-yellow-bg">matrix_from_function</span><span class="ansi-yellow-bg">(</span><span class="ansi-yellow-bg" style="color: rgb(0,135,0)">self</span><span class="ansi-yellow-bg" style="color: rgb(98,98,98)">.</span><span class="ansi-yellow-bg">f</span><span class="ansi-yellow-bg">,</span><span class="ansi-yellow-bg"> </span><span class="ansi-yellow-bg" style="color: rgb(98,98,98)">*</span><span class="ansi-yellow-bg">args</span><span class="ansi-yellow-bg">,</span><span class="ansi-yellow-bg"> </span><span class="ansi-yellow-bg" style="color: rgb(98,98,98)">*</span><span class="ansi-yellow-bg" style="color: rgb(98,98,98)">*</span><span class="ansi-yellow-bg">f_kwargs</span><span class="ansi-yellow-bg">,</span><span class="ansi-yellow-bg"> </span><span class="ansi-yellow-bg">auto_compress</span><span class="ansi-yellow-bg" style="color: rgb(98,98,98)">=</span><span class="ansi-yellow-bg ansi-bold" style="color: rgb(0,135,0)">True</span><span class="ansi-yellow-bg">,</span><span class="ansi-yellow-bg"> </span><span class="ansi-yellow-bg">_return_raw_output</span><span class="ansi-yellow-bg" style="color: rgb(98,98,98)">=</span><span class="ansi-yellow-bg ansi-bold" style="color: rgb(0,135,0)">True</span><span class="ansi-yellow-bg">)</span>
+<span class="ansi-green-intense-fg ansi-bold">    427</span> <span class="ansi-bold" style="color: rgb(0,135,0)">finally</span>:
+<span class="ansi-green-intense-fg ansi-bold">    428</span>     <span class="ansi-bold" style="color: rgb(0,135,0)">assert</span> _TRACING_LINEAR<span style="color: rgb(98,98,98)">.</span>pop(<span style="color: rgb(98,98,98)">-</span><span style="color: rgb(98,98,98)">1</span>) <span class="ansi-bold" style="color: rgb(175,0,255)">is</span> <span style="color: rgb(0,135,0)">self</span>
 
-File <span class="ansi-green-fg">/opt/hostedtoolcache/Python/3.8.18/x64/lib/python3.8/site-packages/phiml/math/_trace.py:726</span>, in <span class="ansi-cyan-fg">matrix_from_function</span><span class="ansi-blue-fg">(f, auxiliary_args, auto_compress, sparsify_batch, separate_independent, _return_raw_output, *args, **kwargs)</span>
-<span class="ansi-green-intense-fg ansi-bold">    724</span>     matrix, bias <span style="color: rgb(98,98,98)">=</span> to_sparse_tracer(tracer, <span class="ansi-bold" style="color: rgb(0,135,0)">None</span>)<span style="color: rgb(98,98,98)">.</span>_get_matrix(sparsify_batch), tracer<span style="color: rgb(98,98,98)">.</span>_bias
-<span class="ansi-green-intense-fg ansi-bold">    725</span> <span class="ansi-bold" style="color: rgb(0,135,0)">else</span>:
-<span class="ansi-green-fg">--&gt; 726</span>     matrix, bias <span style="color: rgb(98,98,98)">=</span> <span class="ansi-yellow-bg">tracer_to_coo</span><span class="ansi-yellow-bg">(</span><span class="ansi-yellow-bg">tracer</span><span class="ansi-yellow-bg">,</span><span class="ansi-yellow-bg"> </span><span class="ansi-yellow-bg">sparsify_batch</span><span class="ansi-yellow-bg">,</span><span class="ansi-yellow-bg"> </span><span class="ansi-yellow-bg">separate_independent</span><span class="ansi-yellow-bg">)</span>
-<span class="ansi-green-intense-fg ansi-bold">    727</span> <span style="color: rgb(95,135,135)"># --- Compress ---</span>
-<span class="ansi-green-intense-fg ansi-bold">    728</span> <span class="ansi-bold" style="color: rgb(0,135,0)">if</span> auto_compress <span class="ansi-bold" style="color: rgb(175,0,255)">and</span> matrix<span style="color: rgb(98,98,98)">.</span>default_backend<span style="color: rgb(98,98,98)">.</span>supports(Backend<span style="color: rgb(98,98,98)">.</span>mul_csr_dense) <span class="ansi-bold" style="color: rgb(175,0,255)">and</span> target_backend<span style="color: rgb(98,98,98)">.</span>supports(Backend<span style="color: rgb(98,98,98)">.</span>mul_csr_dense) <span class="ansi-bold" style="color: rgb(175,0,255)">and</span> <span style="color: rgb(0,135,0)">isinstance</span>(matrix, SparseCoordinateTensor):
+File <span class="ansi-green-fg">/opt/hostedtoolcache/Python/3.8.18/x64/lib/python3.8/site-packages/phiml/math/_trace.py:729</span>, in <span class="ansi-cyan-fg">matrix_from_function</span><span class="ansi-blue-fg">(f, auxiliary_args, auto_compress, sparsify_batch, separate_independent, _return_raw_output, *args, **kwargs)</span>
+<span class="ansi-green-intense-fg ansi-bold">    727</span>     matrix, bias <span style="color: rgb(98,98,98)">=</span> to_sparse_tracer(tracer, <span class="ansi-bold" style="color: rgb(0,135,0)">None</span>)<span style="color: rgb(98,98,98)">.</span>_get_matrix(sparsify), tracer<span style="color: rgb(98,98,98)">.</span>_bias
+<span class="ansi-green-intense-fg ansi-bold">    728</span> <span class="ansi-bold" style="color: rgb(0,135,0)">else</span>:
+<span class="ansi-green-fg">--&gt; 729</span>     matrix, bias <span style="color: rgb(98,98,98)">=</span> <span class="ansi-yellow-bg">tracer_to_coo</span><span class="ansi-yellow-bg">(</span><span class="ansi-yellow-bg">tracer</span><span class="ansi-yellow-bg">,</span><span class="ansi-yellow-bg"> </span><span class="ansi-yellow-bg">sparsify</span><span class="ansi-yellow-bg">,</span><span class="ansi-yellow-bg"> </span><span class="ansi-yellow-bg">separate_independent</span><span class="ansi-yellow-bg">)</span>
+<span class="ansi-green-intense-fg ansi-bold">    730</span> <span style="color: rgb(95,135,135)"># --- Compress ---</span>
+<span class="ansi-green-intense-fg ansi-bold">    731</span> <span class="ansi-bold" style="color: rgb(0,135,0)">if</span> matrix<span style="color: rgb(98,98,98)">.</span>backend<span style="color: rgb(98,98,98)">.</span>name <span style="color: rgb(98,98,98)">==</span> <span style="color: rgb(175,0,0)">&#39;</span><span style="color: rgb(175,0,0)">torch</span><span style="color: rgb(175,0,0)">&#39;</span> <span class="ansi-bold" style="color: rgb(175,0,255)">and</span> matrix<span style="color: rgb(98,98,98)">.</span>_values<span style="color: rgb(98,98,98)">.</span>_native<span style="color: rgb(98,98,98)">.</span>requires_grad:
 
-File <span class="ansi-green-fg">/opt/hostedtoolcache/Python/3.8.18/x64/lib/python3.8/site-packages/phiml/math/_trace.py:771</span>, in <span class="ansi-cyan-fg">tracer_to_coo</span><span class="ansi-blue-fg">(tracer, sparsify_batch, separate_independent)</span>
-<span class="ansi-green-intense-fg ansi-bold">    769</span>     mask <span style="color: rgb(98,98,98)">=</span> np<span style="color: rgb(98,98,98)">.</span>sum(<span style="color: rgb(0,135,0)">abs</span>(native_shift_values), <span style="color: rgb(98,98,98)">0</span>)  <span style="color: rgb(95,135,135)"># only 0 where no batch entry has a non-zero value</span>
-<span class="ansi-green-intense-fg ansi-bold">    770</span>     out_idx <span style="color: rgb(98,98,98)">=</span> numpy<span style="color: rgb(98,98,98)">.</span>nonzero(mask)
-<span class="ansi-green-fg">--&gt; 771</span>     src_idx <span style="color: rgb(98,98,98)">=</span> [(component <span style="color: rgb(98,98,98)">+</span> shift_[dim]) <span style="color: rgb(98,98,98)">%</span> typed_src_shape<span style="color: rgb(98,98,98)">.</span>get_size(dim) <span class="ansi-bold" style="color: rgb(0,135,0)">for</span> component, dim <span class="ansi-bold" style="color: rgb(175,0,255)">in</span> <span style="color: rgb(0,135,0)">zip</span>(out_idx, original_out_names)]
-<span class="ansi-green-intense-fg ansi-bold">    772</span>     values<span style="color: rgb(98,98,98)">.</span>append(native_shift_values[(<span style="color: rgb(0,135,0)">slice</span>(<span class="ansi-bold" style="color: rgb(0,135,0)">None</span>), <span style="color: rgb(98,98,98)">*</span>out_idx)])
-<span class="ansi-green-intense-fg ansi-bold">    773</span> <span class="ansi-bold" style="color: rgb(0,135,0)">else</span>:  <span style="color: rgb(95,135,135)"># add full stencil tensor</span>
+File <span class="ansi-green-fg">/opt/hostedtoolcache/Python/3.8.18/x64/lib/python3.8/site-packages/phiml/math/_trace.py:773</span>, in <span class="ansi-cyan-fg">tracer_to_coo</span><span class="ansi-blue-fg">(tracer, sparsify, separate_independent)</span>
+<span class="ansi-green-intense-fg ansi-bold">    771</span>     mask <span style="color: rgb(98,98,98)">=</span> np<span style="color: rgb(98,98,98)">.</span>sum(<span style="color: rgb(0,135,0)">abs</span>(native_shift_values), <span style="color: rgb(98,98,98)">0</span>)  <span style="color: rgb(95,135,135)"># only 0 where no batch entry has a non-zero value</span>
+<span class="ansi-green-intense-fg ansi-bold">    772</span>     out_idx <span style="color: rgb(98,98,98)">=</span> numpy<span style="color: rgb(98,98,98)">.</span>nonzero(mask)
+<span class="ansi-green-fg">--&gt; 773</span>     src_idx <span style="color: rgb(98,98,98)">=</span> [(component <span style="color: rgb(98,98,98)">+</span> shift_[dim]) <span style="color: rgb(98,98,98)">%</span> typed_src_shape<span style="color: rgb(98,98,98)">.</span>get_size(dim) <span class="ansi-bold" style="color: rgb(0,135,0)">for</span> component, dim <span class="ansi-bold" style="color: rgb(175,0,255)">in</span> <span style="color: rgb(0,135,0)">zip</span>(out_idx, original_out_names)]
+<span class="ansi-green-intense-fg ansi-bold">    774</span>     values<span style="color: rgb(98,98,98)">.</span>append(native_shift_values[(<span style="color: rgb(0,135,0)">slice</span>(<span class="ansi-bold" style="color: rgb(0,135,0)">None</span>), <span style="color: rgb(98,98,98)">*</span>out_idx)])
+<span class="ansi-green-intense-fg ansi-bold">    775</span> <span class="ansi-bold" style="color: rgb(0,135,0)">else</span>:  <span style="color: rgb(95,135,135)"># add full stencil tensor</span>
 
-File <span class="ansi-green-fg">/opt/hostedtoolcache/Python/3.8.18/x64/lib/python3.8/site-packages/phiml/math/_trace.py:771</span>, in <span class="ansi-cyan-fg">&lt;listcomp&gt;</span><span class="ansi-blue-fg">(.0)</span>
-<span class="ansi-green-intense-fg ansi-bold">    769</span>     mask <span style="color: rgb(98,98,98)">=</span> np<span style="color: rgb(98,98,98)">.</span>sum(<span style="color: rgb(0,135,0)">abs</span>(native_shift_values), <span style="color: rgb(98,98,98)">0</span>)  <span style="color: rgb(95,135,135)"># only 0 where no batch entry has a non-zero value</span>
-<span class="ansi-green-intense-fg ansi-bold">    770</span>     out_idx <span style="color: rgb(98,98,98)">=</span> numpy<span style="color: rgb(98,98,98)">.</span>nonzero(mask)
-<span class="ansi-green-fg">--&gt; 771</span>     src_idx <span style="color: rgb(98,98,98)">=</span> [(component <span style="color: rgb(98,98,98)">+</span> shift_[dim]) <span style="color: rgb(98,98,98)">%</span> <span class="ansi-yellow-bg">typed_src_shape</span><span class="ansi-yellow-bg" style="color: rgb(98,98,98)">.</span><span class="ansi-yellow-bg">get_size</span><span class="ansi-yellow-bg">(</span><span class="ansi-yellow-bg">dim</span><span class="ansi-yellow-bg">)</span> <span class="ansi-bold" style="color: rgb(0,135,0)">for</span> component, dim <span class="ansi-bold" style="color: rgb(175,0,255)">in</span> <span style="color: rgb(0,135,0)">zip</span>(out_idx, original_out_names)]
-<span class="ansi-green-intense-fg ansi-bold">    772</span>     values<span style="color: rgb(98,98,98)">.</span>append(native_shift_values[(<span style="color: rgb(0,135,0)">slice</span>(<span class="ansi-bold" style="color: rgb(0,135,0)">None</span>), <span style="color: rgb(98,98,98)">*</span>out_idx)])
-<span class="ansi-green-intense-fg ansi-bold">    773</span> <span class="ansi-bold" style="color: rgb(0,135,0)">else</span>:  <span style="color: rgb(95,135,135)"># add full stencil tensor</span>
+File <span class="ansi-green-fg">/opt/hostedtoolcache/Python/3.8.18/x64/lib/python3.8/site-packages/phiml/math/_trace.py:773</span>, in <span class="ansi-cyan-fg">&lt;listcomp&gt;</span><span class="ansi-blue-fg">(.0)</span>
+<span class="ansi-green-intense-fg ansi-bold">    771</span>     mask <span style="color: rgb(98,98,98)">=</span> np<span style="color: rgb(98,98,98)">.</span>sum(<span style="color: rgb(0,135,0)">abs</span>(native_shift_values), <span style="color: rgb(98,98,98)">0</span>)  <span style="color: rgb(95,135,135)"># only 0 where no batch entry has a non-zero value</span>
+<span class="ansi-green-intense-fg ansi-bold">    772</span>     out_idx <span style="color: rgb(98,98,98)">=</span> numpy<span style="color: rgb(98,98,98)">.</span>nonzero(mask)
+<span class="ansi-green-fg">--&gt; 773</span>     src_idx <span style="color: rgb(98,98,98)">=</span> [(component <span style="color: rgb(98,98,98)">+</span> shift_[dim]) <span style="color: rgb(98,98,98)">%</span> <span class="ansi-yellow-bg">typed_src_shape</span><span class="ansi-yellow-bg" style="color: rgb(98,98,98)">.</span><span class="ansi-yellow-bg">get_size</span><span class="ansi-yellow-bg">(</span><span class="ansi-yellow-bg">dim</span><span class="ansi-yellow-bg">)</span> <span class="ansi-bold" style="color: rgb(0,135,0)">for</span> component, dim <span class="ansi-bold" style="color: rgb(175,0,255)">in</span> <span style="color: rgb(0,135,0)">zip</span>(out_idx, original_out_names)]
+<span class="ansi-green-intense-fg ansi-bold">    774</span>     values<span style="color: rgb(98,98,98)">.</span>append(native_shift_values[(<span style="color: rgb(0,135,0)">slice</span>(<span class="ansi-bold" style="color: rgb(0,135,0)">None</span>), <span style="color: rgb(98,98,98)">*</span>out_idx)])
+<span class="ansi-green-intense-fg ansi-bold">    775</span> <span class="ansi-bold" style="color: rgb(0,135,0)">else</span>:  <span style="color: rgb(95,135,135)"># add full stencil tensor</span>
 
-File <span class="ansi-green-fg">/opt/hostedtoolcache/Python/3.8.18/x64/lib/python3.8/site-packages/phiml/math/_shape.py:237</span>, in <span class="ansi-cyan-fg">Shape.get_size</span><span class="ansi-blue-fg">(self, dim, default)</span>
-<span class="ansi-green-intense-fg ansi-bold">    235</span> <span class="ansi-bold" style="color: rgb(0,135,0)">if</span> dim <span class="ansi-bold" style="color: rgb(175,0,255)">not</span> <span class="ansi-bold" style="color: rgb(175,0,255)">in</span> <span style="color: rgb(0,135,0)">self</span><span style="color: rgb(98,98,98)">.</span>names:
-<span class="ansi-green-intense-fg ansi-bold">    236</span>     <span class="ansi-bold" style="color: rgb(0,135,0)">if</span> default <span class="ansi-bold" style="color: rgb(175,0,255)">is</span> <span class="ansi-bold" style="color: rgb(0,135,0)">None</span>:
-<span class="ansi-green-fg">--&gt; 237</span>         <span class="ansi-bold" style="color: rgb(0,135,0)">raise</span> <span class="ansi-bold" style="color: rgb(215,95,95)">KeyError</span>(<span style="color: rgb(175,0,0)">f</span><span style="color: rgb(175,0,0)">&#34;</span><span style="color: rgb(175,0,0)">get_size() failed because </span><span style="color: rgb(175,0,0)">&#39;</span><span class="ansi-bold" style="color: rgb(175,95,135)">{</span>dim<span class="ansi-bold" style="color: rgb(175,95,135)">}</span><span style="color: rgb(175,0,0)">&#39;</span><span style="color: rgb(175,0,0)"> is not part of Shape </span><span class="ansi-bold" style="color: rgb(175,95,135)">{</span><span style="color: rgb(0,135,0)">self</span><span class="ansi-bold" style="color: rgb(175,95,135)">}</span><span style="color: rgb(175,0,0)"> and no default value was provided</span><span style="color: rgb(175,0,0)">&#34;</span>)
-<span class="ansi-green-intense-fg ansi-bold">    238</span>     <span class="ansi-bold" style="color: rgb(0,135,0)">else</span>:
-<span class="ansi-green-intense-fg ansi-bold">    239</span>         <span class="ansi-bold" style="color: rgb(0,135,0)">return</span> default
+File <span class="ansi-green-fg">/opt/hostedtoolcache/Python/3.8.18/x64/lib/python3.8/site-packages/phiml/math/_shape.py:1007</span>, in <span class="ansi-cyan-fg">Dim.get_size</span><span class="ansi-blue-fg">(self, dim, default)</span>
+<span class="ansi-green-intense-fg ansi-bold">   1005</span> <span class="ansi-bold" style="color: rgb(0,135,0)">if</span> default <span class="ansi-bold" style="color: rgb(175,0,255)">is</span> <span class="ansi-bold" style="color: rgb(175,0,255)">not</span> <span class="ansi-bold" style="color: rgb(0,135,0)">None</span>:
+<span class="ansi-green-intense-fg ansi-bold">   1006</span>     <span class="ansi-bold" style="color: rgb(0,135,0)">return</span> default
+<span class="ansi-green-fg">-&gt; 1007</span> <span class="ansi-bold" style="color: rgb(0,135,0)">raise</span> <span class="ansi-bold" style="color: rgb(215,95,95)">KeyError</span>(<span style="color: rgb(175,0,0)">f</span><span style="color: rgb(175,0,0)">&#34;</span><span style="color: rgb(175,0,0)">get_size() failed because </span><span style="color: rgb(175,0,0)">&#39;</span><span class="ansi-bold" style="color: rgb(175,95,135)">{</span>dim<span class="ansi-bold" style="color: rgb(175,95,135)">}</span><span style="color: rgb(175,0,0)">&#39;</span><span style="color: rgb(175,0,0)"> is not part of </span><span class="ansi-bold" style="color: rgb(175,95,135)">{</span><span style="color: rgb(0,135,0)">self</span><span class="ansi-bold" style="color: rgb(175,95,135)">}</span><span style="color: rgb(175,0,0)"> and no default value was provided</span><span style="color: rgb(175,0,0)">&#34;</span>)
 
-<span class="ansi-red-fg">KeyError</span>: &#34;get_size() failed because &#39;gradient&#39; is not part of Shape (xˢ=10) and no default value was provided&#34;</pre>
+<span class="ansi-red-fg">KeyError</span>: &#34;get_size() failed because &#39;gradient&#39; is not part of (xˢ=10) and no default value was provided&#34;</pre>
 </div>
 </div>
 
@@ -15958,10 +15956,10 @@ The following example solves the 1D Poisson problem ∇x = b with b=1 with incom
 <div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[14]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython2"><pre><span></span><span class="kn">from</span> <span class="nn">phiml</span> <span class="kn">import</span> <span class="n">math</span>
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<div class=" highlight hl-ipython2"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">phiml</span><span class="w"> </span><span class="kn">import</span> <span class="n">math</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 
-<span class="k">def</span> <span class="nf">laplace_1d</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">laplace_1d</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
     <span class="k">return</span> <span class="n">math</span><span class="o">.</span><span class="n">pad</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">:],</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span> <span class="o">+</span> <span class="n">math</span><span class="o">.</span><span class="n">pad</span><span class="p">(</span><span class="n">x</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span> <span class="o">-</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">x</span>
 
 <span class="n">b</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="mi">6</span><span class="p">,))</span>
@@ -16032,7 +16030,7 @@ We can inspect the derived factors by printing the function as a matrix.</p>
 <div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[15]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython2"><pre><span></span><span class="k">def</span> <span class="nf">neighbor_mean</span><span class="p">(</span><span class="n">grid</span><span class="p">):</span>
+<div class=" highlight hl-ipython2"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">neighbor_mean</span><span class="p">(</span><span class="n">grid</span><span class="p">):</span>
     <span class="n">left</span><span class="p">,</span> <span class="n">right</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">shift</span><span class="p">(</span><span class="n">grid</span><span class="p">,</span> <span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="n">padding</span><span class="o">=</span><span class="n">math</span><span class="o">.</span><span class="n">extrapolation</span><span class="o">.</span><span class="n">PERIODIC</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">math</span><span class="o">.</span><span class="n">mean</span><span class="p">([</span><span class="n">left</span><span class="p">,</span> <span class="n">right</span><span class="p">],</span> <span class="n">math</span><span class="o">.</span><span class="n">non_spatial</span><span class="p">)</span>
 

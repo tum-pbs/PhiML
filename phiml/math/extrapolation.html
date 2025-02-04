@@ -193,7 +193,7 @@ Non-leaves are those created by <code><a title="phiml.math.extrapolation.combine
 <p><code><a title="phiml.math.extrapolation.Extrapolation" href="#phiml.math.extrapolation.Extrapolation">Extrapolation</a></code></p></div>
 </dd>
 <dt id="phiml.math.extrapolation.order_by_shape"><code class="name flex">
-<span>def <span class="ident">order_by_shape</span></span>(<span>shape: phiml.math._shape.Shape, sequence, default=None) ‑> Union[tuple, list]</span>
+<span>def <span class="ident">order_by_shape</span></span>(<span>names: Sequence[str], sequence, default=None) ‑> Union[tuple, list]</span>
 </code></dt>
 <dd>
 <div class="desc"><p>If sequence is a dict with dimension names as keys, orders its values according to this shape.</p>
@@ -309,7 +309,7 @@ The typical order is periodic=1, boundary=2, symmetric=3, reflect=4, constant=5.
     def pad(self, value: Tensor, widths: dict, already_padded: Optional[dict] = None, **kwargs) -&gt; Tensor:
         &#34;&#34;&#34;Pads a tensor using constant values.&#34;&#34;&#34;
         value = value._simplify()
-        if isinstance(value, NativeTensor):
+        if isinstance(value, Dense):
             pad_value = self._get_pad_value(already_padded)
             backend = choose_backend(value._native, *pad_value._natives())
             for dim in pad_value.shape.non_batch.names:
@@ -319,14 +319,14 @@ The typical order is periodic=1, boundary=2, symmetric=3, reflect=4, constant=5.
                 if not equal_values:
                     required_dims = value._shape.only(tuple(widths.keys()))
                     value = value._cached(required_dims)
-                should_pad_native = any(dim in value._native_shape for dim in widths) and pad_value.shape.volume == 1
+                should_pad_native = any(dim in value._names for dim in widths) and pad_value.shape.volume == 1
                 if should_pad_native:
-                    ordered_pad_widths = order_by_shape(value._native_shape, widths, default=(0, 0))
+                    ordered_pad_widths = order_by_shape(value._names, widths, default=(0, 0))
                     result_native = backend.pad(value._native, ordered_pad_widths, &#39;constant&#39;, pad_value.native())
                 else:
                     result_native = value._native
                 if result_native is not NotImplemented:
-                    return NativeTensor(result_native, value._native_shape.after_pad(widths), value._shape.after_pad(widths))
+                    return Dense(result_native, value._names, after_pad(value._shape, widths), value._backend)
             return Extrapolation.pad(self, value, widths, already_padded=already_padded, **kwargs)
         elif isinstance(value, TensorStack):
             if not value.requires_broadcast:
@@ -621,7 +621,7 @@ The typical order is periodic=1, boundary=2, symmetric=3, reflect=4, constant=5.
         from ._trace import ShiftLinTracer
         if isinstance(value, ShiftLinTracer):
             lower = {dim: -lo for dim, (lo, _) in widths.items()}
-            return value.shift(lower, new_shape=value.shape.after_pad(widths), val_fun=lambda v: ZERO.pad(v, widths, already_padded=already_padded, **kwargs), bias_fun=lambda b: self.pad(b, widths, already_padded=already_padded, **kwargs), nonzero_edge=False)
+            return value.shift(lower, new_shape=after_pad(value.shape, widths), val_fun=lambda v: ZERO.pad(v, widths, already_padded=already_padded, **kwargs), bias_fun=lambda b: self.pad(b, widths, already_padded=already_padded, **kwargs), nonzero_edge=False)
         already_padded = {} if already_padded is None else dict(already_padded)
         for dim, width in widths.items():
             assert (w &gt; 0 for w in width), &#34;Negative widths not allowed in Extrapolation.pad(). Use math.pad() instead.&#34;

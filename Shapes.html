@@ -15129,7 +15129,7 @@ body[data-format='mobile'] .jp-OutputArea-child .jp-OutputArea-output {
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython2"><pre><span></span><span class="c1"># !pip install phiml</span>
-<span class="kn">from</span> <span class="nn">phiml</span> <span class="kn">import</span> <span class="n">math</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">phiml</span><span class="w"> </span><span class="kn">import</span> <span class="n">math</span>
 </pre></div>
 
      </div>
@@ -15167,7 +15167,7 @@ To learn why this is useful, see <a href="Dimension_Names_Types.html">here</a>.<
 <div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[2]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython2"><pre><span></span><span class="kn">from</span> <span class="nn">phiml.math</span> <span class="kn">import</span> <span class="n">batch</span><span class="p">,</span> <span class="n">channel</span><span class="p">,</span> <span class="n">spatial</span><span class="p">,</span> <span class="n">instance</span><span class="p">,</span> <span class="n">dual</span>
+<div class=" highlight hl-ipython2"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">phiml.math</span><span class="w"> </span><span class="kn">import</span> <span class="n">batch</span><span class="p">,</span> <span class="n">channel</span><span class="p">,</span> <span class="n">spatial</span><span class="p">,</span> <span class="n">instance</span><span class="p">,</span> <span class="n">dual</span>
 <span class="n">BATCH</span> <span class="o">=</span> <span class="n">batch</span><span class="p">(</span><span class="n">examples</span><span class="o">=</span><span class="mi">100</span><span class="p">)</span>
 <span class="n">BATCH</span>
 </pre></div>
@@ -15430,7 +15430,7 @@ We can pass multiple shapes to tensor constructors and can construct multiple di
 <div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[7]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython2"><pre><span></span><span class="kn">from</span> <span class="nn">phiml.math</span> <span class="kn">import</span> <span class="n">non_batch</span><span class="p">,</span> <span class="n">non_channel</span><span class="p">,</span> <span class="n">non_spatial</span><span class="p">,</span> <span class="n">non_instance</span><span class="p">,</span> <span class="n">non_dual</span><span class="p">,</span> <span class="n">primal</span><span class="p">,</span> <span class="n">non_primal</span>
+<div class=" highlight hl-ipython2"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">phiml.math</span><span class="w"> </span><span class="kn">import</span> <span class="n">non_batch</span><span class="p">,</span> <span class="n">non_channel</span><span class="p">,</span> <span class="n">non_spatial</span><span class="p">,</span> <span class="n">non_instance</span><span class="p">,</span> <span class="n">non_dual</span><span class="p">,</span> <span class="n">primal</span><span class="p">,</span> <span class="n">non_primal</span>
 <span class="n">math</span><span class="o">.</span><span class="n">random_uniform</span><span class="p">(</span><span class="n">non_batch</span><span class="p">(</span><span class="n">x</span><span class="p">))</span>
 </pre></div>
 
@@ -15453,7 +15453,7 @@ We can pass multiple shapes to tensor constructors and can construct multiple di
 
 
 <div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre><span class="ansi-green-intense-fg">(xˢ=28, yˢ=28)</span> <span class="ansi-blue-intense-fg">0.507 ± 0.298</span> <span class="ansi-white-fg">(3e-04...1e+00)</span></pre>
+<pre><span class="ansi-green-intense-fg">(xˢ=28, yˢ=28)</span> <span class="ansi-blue-intense-fg">0.496 ± 0.286</span> <span class="ansi-white-fg">(2e-03...1e+00)</span></pre>
 </div>
 
 </div>
@@ -15534,7 +15534,7 @@ Assuming we have a tensor with dimensions <code>a,b</code> and another with the 
 
 
 <div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre><span class="ansi-blue-intense-fg">(1.635, 0.772, 0.120, 2.131, -0.400, 1.809)</span> <span class="ansi-green-intense-fg">(aᶜ=2, bᶜ=3)</span></pre>
+<pre><span class="ansi-blue-intense-fg">(-2.745, 0.636, 0.506, 0.103, 1.304, 1.561)</span> <span class="ansi-green-intense-fg">(aᶜ=2, bᶜ=3)</span></pre>
 </div>
 
 </div>
@@ -15590,7 +15590,7 @@ In these cases, you can think of the value being constant along the missing dime
 
 
 <div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre><span class="ansi-blue-intense-fg">(0.782, 1.116, 1.929, -1.176, -0.842, -0.029)</span> <span class="ansi-green-intense-fg">(aᶜ=2, bᶜ=3)</span></pre>
+<pre><span class="ansi-blue-intense-fg">(0.527, 0.164, -0.129, 0.494, 0.131, -0.162)</span> <span class="ansi-green-intense-fg">(aᶜ=2, bᶜ=3)</span></pre>
 </div>
 
 </div>
@@ -16291,12 +16291,15 @@ To get the size of a specific dimension, you can use one of the following method
     <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
 
 
-<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
-<pre>examples 16 batch
-x 28 spatial
-y 28 spatial
-channels 3 channel
-</pre>
+<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="application/vnd.jupyter.stderr">
+<pre>
+<span class="ansi-red-fg">---------------------------------------------------------------------------</span>
+<span class="ansi-red-fg">AttributeError</span>                            Traceback (most recent call last)
+Cell <span class="ansi-green-fg">In[25], line 2</span>
+<span class="ansi-green-intense-fg ansi-bold">      1</span> <span class="ansi-bold" style="color: rgb(0,135,0)">for</span> dim <span class="ansi-bold" style="color: rgb(175,0,255)">in</span> s:
+<span class="ansi-green-fg">----&gt; 2</span>     <span style="color: rgb(0,135,0)">print</span>(dim<span style="color: rgb(98,98,98)">.</span>name, dim<span style="color: rgb(98,98,98)">.</span>size, <span class="ansi-yellow-bg">dim</span><span class="ansi-yellow-bg" style="color: rgb(98,98,98)">.</span><span class="ansi-yellow-bg">dim_type</span><span class="ansi-yellow-bg" style="color: rgb(98,98,98)">.</span><span class="ansi-yellow-bg" style="color: rgb(0,0,135)">__name__</span>)
+
+<span class="ansi-red-fg">AttributeError</span>: &#39;str&#39; object has no attribute &#39;__name__&#39;</pre>
 </div>
 </div>
 
@@ -16539,7 +16542,7 @@ Assume, we want to rename the <code>channels</code> dimension from above to <cod
 
 
 <div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre>(examplesᵇ=16, xˢ=28, yˢ=28, channelsᵇ=3)</pre>
+<pre>(examplesᵇ=16, xˢ=28, yˢ=28, channelsᵇ=3:red...)</pre>
 </div>
 
 </div>

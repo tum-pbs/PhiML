@@ -172,7 +172,8 @@ This supports the following operations:</p>
             raise AttributeError(f&#34;Object of type {type(obj)} has no shape&#34;)
         if name == &#39;is_tensor_like&#39;:
             raise AttributeError(f&#34;Trying to access {type(obj)}.is_tensor_like which does not exist. This is likely a TensorFlow JIT compile check. This name is reserved.&#34;)
-        assert isinstance(obj, Sliceable) and isinstance(obj, Shaped), f&#34;Cannot create BoundDim for {type(obj).__name__}. Objects must be Sliceable and Shaped, see https://tum-pbs.github.io/PhiML/phiml/math/magic.html&#34;
+        if DEBUG_CHECKS:
+            assert isinstance(obj, Sliceable) and isinstance(obj, Shaped), f&#34;Cannot create BoundDim for {type(obj).__name__}. Objects must be Sliceable and Shaped, see https://tum-pbs.github.io/PhiML/phiml/math/magic.html&#34;
         self.obj = obj
         self.name = name
 
@@ -218,11 +219,15 @@ This supports the following operations:</p>
         Returns:
 
         &#34;&#34;&#34;
-        return shape(self.obj).get_dim_type(self.name)
+        return shape(self.obj)[self.name].type
 
     @property
     def item_names(self):
         return shape(self.obj).get_item_names(self.name)
+
+    @property
+    def item_name_list(self):
+        return list(shape(self.obj).get_item_names(self.name))
 
     @property
     def name_tensor(self):
@@ -281,6 +286,13 @@ This supports the following operations:</p>
             return iter(self.unstack())
         else:
             return iter([self.obj])
+
+    def items(self):
+        keys = self.item_names
+        if keys is None:
+            keys = range(self.size)
+        values = self.unstack()
+        return {k: v for k, v in zip(keys, values)}.items()
 
     def __call__(self, *args, **kwargs):
         raise TypeError(f&#34;Method {type(self.obj).__name__}.{self.name}() does not exist.&#34;)
@@ -410,6 +422,18 @@ def exists(self):
     return self.name in shape(self.obj)</code></pre>
 </details>
 </dd>
+<dt id="phiml.math.magic.BoundDim.item_name_list"><code class="name">prop <span class="ident">item_name_list</span></code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def item_name_list(self):
+    return list(shape(self.obj).get_item_names(self.name))</code></pre>
+</details>
+</dd>
 <dt id="phiml.math.magic.BoundDim.item_names"><code class="name">prop <span class="ident">item_names</span></code></dt>
 <dd>
 <div class="desc"></div>
@@ -477,7 +501,7 @@ def type(self) -&gt; Callable:
     Returns:
 
     &#34;&#34;&#34;
-    return shape(self.obj).get_dim_type(self.name)</code></pre>
+    return shape(self.obj)[self.name].type</code></pre>
 </details>
 </dd>
 <dt id="phiml.math.magic.BoundDim.volume"><code class="name">prop <span class="ident">volume</span></code></dt>
@@ -533,6 +557,12 @@ def size(self):
 <div class="desc"><p>Returns a shallow copy of the <code>Tensor</code> where this dimension has the specified type.</p>
 <p>See Also:
 <code><a title="phiml.math.rename_dims" href="index.html#phiml.math.rename_dims">rename_dims()</a></code></p></div>
+</dd>
+<dt id="phiml.math.magic.BoundDim.items"><code class="name flex">
+<span>def <span class="ident">items</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
 </dd>
 <dt id="phiml.math.magic.BoundDim.keys"><code class="name flex">
 <span>def <span class="ident">keys</span></span>(<span>self)</span>
@@ -919,7 +949,7 @@ If this method is not implemented, tensor attributes are replaced using <code>se
         &#34;&#34;&#34;
         raise NotImplementedError
 
-    def __pack_dims__(self, dims: Tuple[str, ...], packed_dim: Shape, pos: Union[int, None], **kwargs) -&gt; &#39;Shapable&#39;:
+    def __pack_dims__(self, dims: Shape, packed_dim: Shape, pos: Union[int, None], **kwargs) -&gt; &#39;Shapable&#39;:
         &#34;&#34;&#34;
         Compresses multiple dimensions into a single dimension by concatenating the elements.
         Elements along the new dimensions are laid out according to the order of `dims`.
@@ -1066,7 +1096,7 @@ Adding batch dimensions must always work without keyword arguments.</dd>
 <p>New instance of <code><a title="phiml.math.magic.Shapable" href="#phiml.math.magic.Shapable">Shapable</a></code> or <code>NotImplemented</code> to revert to default behavior for this object.</p></div>
 </dd>
 <dt id="phiml.math.magic.Shapable.__pack_dims__"><code class="name flex">
-<span>def <span class="ident">__pack_dims__</span></span>(<span>self, dims: Tuple[str, ...], packed_dim: phiml.math._shape.Shape, pos: Optional[int], **kwargs) ‑> <a title="phiml.math.magic.Shapable" href="#phiml.math.magic.Shapable">Shapable</a></span>
+<span>def <span class="ident">__pack_dims__</span></span>(<span>self, dims: phiml.math._shape.Shape, packed_dim: phiml.math._shape.Shape, pos: Optional[int], **kwargs) ‑> <a title="phiml.math.magic.Shapable" href="#phiml.math.magic.Shapable">Shapable</a></span>
 </code></dt>
 <dd>
 <div class="desc"><p>Compresses multiple dimensions into a single dimension by concatenating the elements.
@@ -1350,7 +1380,9 @@ Un-stacking along multiple dimensions is equal to first packing the dimensions a
 <li><code><a title="phiml.math.magic.BoundDim.as_type" href="#phiml.math.magic.BoundDim.as_type">as_type</a></code></li>
 <li><code><a title="phiml.math.magic.BoundDim.dual" href="#phiml.math.magic.BoundDim.dual">dual</a></code></li>
 <li><code><a title="phiml.math.magic.BoundDim.exists" href="#phiml.math.magic.BoundDim.exists">exists</a></code></li>
+<li><code><a title="phiml.math.magic.BoundDim.item_name_list" href="#phiml.math.magic.BoundDim.item_name_list">item_name_list</a></code></li>
 <li><code><a title="phiml.math.magic.BoundDim.item_names" href="#phiml.math.magic.BoundDim.item_names">item_names</a></code></li>
+<li><code><a title="phiml.math.magic.BoundDim.items" href="#phiml.math.magic.BoundDim.items">items</a></code></li>
 <li><code><a title="phiml.math.magic.BoundDim.keys" href="#phiml.math.magic.BoundDim.keys">keys</a></code></li>
 <li><code><a title="phiml.math.magic.BoundDim.name_tensor" href="#phiml.math.magic.BoundDim.name_tensor">name_tensor</a></code></li>
 <li><code><a title="phiml.math.magic.BoundDim.rename" href="#phiml.math.magic.BoundDim.rename">rename</a></code></li>
