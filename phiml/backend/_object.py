@@ -40,6 +40,9 @@ class ObjectBackend(Backend):
     def equal(self, x, y):
         return x == y
 
+    def not_equal(self, x, y):
+        return x != y
+
     def isnan(self, x):
         return False
 
