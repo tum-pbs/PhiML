@@ -11,8 +11,8 @@ from ..backend import get_precision, NUMPY, Backend
 from ..backend._backend import SolveResult, ML_LOGGER, default_backend, convert, Preconditioner, choose_backend
 from ..backend._linalg import IncompleteLU, incomplete_lu_dense, incomplete_lu_coo, coarse_explicit_preconditioner_coo
 from ._shape import EMPTY_SHAPE, Shape, merge_shapes, batch, non_batch, shape, dual, channel, non_dual, instance, spatial, primal
-from ._magic_ops import stack, copy_with, rename_dims, unpack_dim, unstack, expand, value_attributes, variable_attributes
-from ._sparse import native_matrix, SparseCoordinateTensor, CompressedSparseMatrix, stored_values, is_sparse, matrix_rank, _stored_matrix_rank
+from ._magic_ops import stack, copy_with, rename_dims, unpack_dim, unstack, expand, value_attributes, variable_attributes, pack_dims
+from ._sparse import native_matrix, SparseCoordinateTensor, CompressedSparseMatrix, stored_values, is_sparse, matrix_rank, _stored_matrix_rank, sparse_dims
 from ._tensors import Tensor, disassemble_tree, assemble_tree, wrap, cached, Dense, layout, reshaped_tensor, NATIVE_TENSOR, \
     preferred_backend_for
 from . import _ops as math
@@ -65,6 +65,7 @@ class Solve(Generic[X, Y]):
         self.suppress: tuple = tuple(suppress)
         """ Error types to suppress; `tuple` of `ConvergenceException` types. For these errors, the solve function will instead return the partial result without raising the error. """
         self.preconditioner = preconditioner
+        assert isinstance(rank_deficiency, int) or rank_deficiency is None, f"rank_deficiency must be an integer but got {rank_deficiency}"
         self.rank_deficiency: int = rank_deficiency
         """Rank deficiency of matrix or linear function. If not specified, will be determined for (implicit or explicit) matrix solves and assumed 0 for function-based solves."""
         self._gradient_solve: Solve[Y, X] = gradient_solve
@@ -636,11 +637,15 @@ def solve_linear(f: Union[Callable[[X], Y], Tensor],
         preconditioner = compute_preconditioner(solve.preconditioner, matrix, rank_deficiency=solve.rank_deficiency, target_backend=NUMPY if solve.method.startswith('scipy-') else backend, solver=solve.method) if solve.preconditioner is not None else None
 
         def _matrix_solve_forward(y, solve: Solve, matrix: Tensor, is_backprop=False):
-            if solve.rank_deficiency:
-                matrix = matrix[{dual: slice(-solve.rank_deficiency), primal: slice(-solve.rank_deficiency)}]
-            backend_matrix = native_matrix(matrix, backend_for(*y_tensors, matrix))
             pattern_dims_in = dual(matrix).as_channel().names
             pattern_dims_out = non_dual(matrix).names  # batch dims can be sparse or batched matrices
+            if solve.rank_deficiency:
+                if primal(matrix).rank > 1:
+                    matrix = pack_dims(matrix, primal, channel('_primal'))
+                if dual(matrix).rank > 1:
+                    matrix = pack_dims(matrix, dual, dual('_dual'))
+                matrix = matrix[{dual: slice(-solve.rank_deficiency), primal: slice(-solve.rank_deficiency)}]
+            backend_matrix = native_matrix(matrix, backend_for(*y_tensors, matrix))
             result = _linear_solve_forward(y, solve, backend_matrix, pattern_dims_in, pattern_dims_out, preconditioner, backend, is_backprop)
             return result  # must return exactly `x` so gradient isn't computed w.r.t. other quantities
 
