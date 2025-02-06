@@ -43,7 +43,7 @@ def convert(x, backend: Backend = None, use_dlpack=True):
         `Tensor` with native representation belonging to `backend`.
     """
     if isinstance(x, Tensor):
-        return x._from_spec_and_natives(x._spec_dict(), [b_convert(n, use_dlpack=False) for n in x._natives()])
+        return x._from_spec_and_natives(x._spec_dict(), [b_convert(n, backend=backend, use_dlpack=False) for n in x._natives()])
     elif isinstance(x, PhiTreeNode):
         return tree_map(convert, x, backend=backend, use_dlpack=use_dlpack)
     else:
