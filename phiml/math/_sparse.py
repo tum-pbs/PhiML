@@ -348,7 +348,7 @@ class SparseCoordinateTensor(Tensor):
         values = pack_dims(self._values, inst_dim_order, instance('sp_entries'))
         idx_to_pack = indices.sparse_idx[dims.names]
         idx_packed = np.ravel_multi_index(idx_to_pack.native([channel, instance(idx_to_pack)]), dims.sizes)
-        idx_packed = expand(reshaped_tensor(idx_packed, [instance('sp_entries')]), channel(sparse_idx=packed_dim.name))
+        idx_packed = expand(reshaped_tensor(idx_packed, [instance('sp_entries')], convert=False), channel(sparse_idx=packed_dim.name))
         indices = concat([indices.sparse_idx[list(self._dense_shape.without(dims).names)], idx_packed], 'sparse_idx')
         dense_shape = self._dense_shape.without(dims) + packed_dim.with_size(dims.volume)
         idx_sorted = self._indices_sorted and False  # ToDo still sorted if dims are ordered correctly and no other dim in between and inserted at right point
