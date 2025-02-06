@@ -706,7 +706,9 @@ def _linear_solve_forward(y: Tensor,
     y_native = backend.as_tensor(y_tensor.native([batch_dims, y_tensor.shape.only(pattern_dims_out)]))
     if solve.rank_deficiency:
         x0_native = x0_native[:, :-solve.rank_deficiency]
-        y_native = y_native[:, :-solve.rank_deficiency]
+        y_cutoff = y_native[:, -solve.rank_deficiency:]
+        cutoff_sum = backend.sum(y_cutoff, -1, True)
+        y_native = y_native[:, :-solve.rank_deficiency] - cutoff_sum / y_native.shape[1]
     rtol = backend.as_tensor(math.to_float(solve.rel_tol).native([batch_dims]))
     atol = backend.as_tensor(solve.abs_tol.native([batch_dims]))
     trj = _SOLVE_TAPES and any(t.should_record_trajectory_for(solve) for t in _SOLVE_TAPES)
