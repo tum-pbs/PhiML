@@ -210,7 +210,9 @@ def _default_solve_info_msg(msg: str, converged: bool, diverged: bool, iteration
     if msg:
         return msg
     if diverged:
-        return f"Solve diverged within {iterations if iterations is not None else '?'} iterations using {method}."
+        if iterations < 0:
+            return f"Solve failed using {method}" + (': '+msg if msg else '')
+        return f"Solve diverged within {iterations if iterations is not None else '?'} iterations using {method}" + (': '+msg if msg else '')
     elif not converged:
         max_res = f"{math.max_(residual.trajectory[-1]):no-color:no-dtype}"
         return f"{method} did not converge to rel_tol={float(solve.rel_tol):.0e}, abs_tol={float(solve.abs_tol):.0e} within {int(solve.max_iterations)} iterations. Max residual: {max_res}"

@@ -275,7 +275,8 @@ def bicg_stab_first_order(b: Backend, lin, y, x0, rtol, atol, max_iter, pre: Opt
 
 
 def scipy_sparse_solve(b: Backend, method: Union[str, Callable], lin, y, x0, rtol, atol, max_iter, pre: Optional[Preconditioner], matrix_offset) -> SolveResult:
-    assert max_iter.shape[0] == 1, f"Trajectory recording not supported for scipy_spsolve"
+    if method in {'direct', 'lsqr'}:
+        assert max_iter.shape[0] == 1, f"Trajectory recording not supported for scipy_spsolve"
     assert matrix_offset is None
     if method == 'direct' and pre:
         warnings.warn(f"Preconditioner {pre} was computed but is not used by SciPy direct solve.", RuntimeWarning)
@@ -294,6 +295,7 @@ def scipy_sparse_solve(b: Backend, method: Union[str, Callable], lin, y, x0, rto
     function = scipy_solvers[method] if isinstance(method, str) and method != 'direct' else method
     method_name = 'scipy.sparse.linalg.spsolve' if method == 'direct' else f'scipy.sparse.linalg.{function.__name__}'
     batch_size = b.staticshape(y)[0]
+    messages = []
     if not callable(lin):
         assemble_lin, lin_tensors = b.disassemble(lin)
         assemble_pre, pre_tensors = disassemble_dataclass(pre)
@@ -305,6 +307,7 @@ def scipy_sparse_solve(b: Backend, method: Union[str, Callable], lin, y, x0, rto
                 npr = scipy_direct_linear_solve(NUMPY, np_lin, np_y, np_rtol, np_atol)
             else:
                 npr = scipy_iterative_sparse_solve(NUMPY, np_lin, np_y, np_x0, np_rtol, np_atol, max_iter, np_pre, function)
+            messages.extend(npr.message)
             return npr.x, npr.residual, npr.iterations, npr.function_evaluations, npr.converged, npr.diverged
     else:
         assert method != 'direct', "scipy direct matrix solve cannot be used in matrix-free mode"
@@ -313,12 +316,16 @@ def scipy_sparse_solve(b: Backend, method: Union[str, Callable], lin, y, x0, rto
         def scipy_solve(np_y, np_x0, np_rtol, np_atol, *np_pre_tensors):
             np_pre = assemble_pre(NUMPY, *np_pre_tensors)
             npr = scipy_iterative_sparse_solve(NUMPY, lin, np_y, np_x0, np_rtol, np_atol, max_iter, np_pre, function)
+            messages.extend(npr.message)
             return npr.x, npr.residual, npr.iterations, npr.function_evaluations, npr.converged, npr.diverged
     fp = b.float_type
     i = INT32
     bo = BOOL
-    x, residual, iterations, function_evaluations, converged, diverged = b.numpy_call(scipy_solve, (x0.shape, x0.shape, x0.shape[:1], x0.shape[:1], x0.shape[:1], x0.shape[:1]), (fp, fp, i, i, bo, bo), y, x0, rtol, atol, *lin_tensors, *pre_tensors)
-    return SolveResult(method_name, x, residual, iterations, function_evaluations, converged, diverged, [""] * batch_size)
+    input_shapes = (x0.shape, x0.shape, x0.shape[:1], x0.shape[:1], x0.shape[:1], x0.shape[:1])
+    if max_iter.shape[0] > 1:
+        input_shapes = [(max_iter.shape[0],) + s for s in input_shapes]
+    x, residual, iterations, function_evaluations, converged, diverged = b.numpy_call(scipy_solve, input_shapes, (fp, fp, i, i, bo, bo), y, x0, rtol, atol, *lin_tensors, *pre_tensors)
+    return SolveResult(method_name, x, residual, iterations, function_evaluations, converged, diverged, messages or [""] * batch_size)
 
 
 def scipy_direct_linear_solve(b: Backend, lin, y, rtol, atol) -> SolveResult:
@@ -332,6 +339,7 @@ def scipy_direct_linear_solve(b: Backend, lin, y, rtol, atol) -> SolveResult:
         assert issparse(lin)
         lin = [lin] * batch_size
     # Solve each example independently
+    messages = []
     for batch in range(batch_size):
         # use_umfpack=self.precision == 64
         x = spsolve(lin[batch], y[batch])  # returns nan when diverges
@@ -341,27 +349,26 @@ def scipy_direct_linear_solve(b: Backend, lin, y, rtol, atol) -> SolveResult:
         xs.append(x)
         converged.append(residual_norm <= np.maximum(atol[batch], rtol[batch] * y_norm))
         residuals.append(residual)
+        messages.append(f"Direct solution does not satisfy tolerance: norm(residual)={residual_norm}")
     x = np.stack(xs)
     converged = np.stack(converged)
     residual = np.stack(residuals)
     diverged = ~converged
     iterations = np.asarray([-1] * batch_size, np.int32)  # spsolve does not perform iterations
-    return SolveResult('scipy.sparse.linalg.spsolve', x, residual, iterations, iterations, converged, diverged, [""] * batch_size)
+    return SolveResult('scipy.sparse.linalg.spsolve', x, residual, iterations, iterations, converged, diverged, messages)
 
 
 def scipy_iterative_sparse_solve(b: Backend, lin, y, x0, rtol, atol, max_iter, pre, scipy_function: Callable) -> SolveResult:
-    if max_iter.shape[0] > 1:
-        raise RuntimeError(f"SciPy's sparse solvers (like {scipy_function.__name__}) do not record trajectories. Use a different solver instead.")
     bs_y = b.staticshape(y)[0]
     bs_x0 = b.staticshape(x0)[0]
     batch_size = combined_dim(bs_y, bs_x0)
     dtype = combine_types(b.dtype(y), b.dtype(x0))
     # if callable(A):
     #     A = LinearOperator(dtype=y.dtype, shape=(self.staticshape(y)[-1], self.staticshape(x0)[-1]), matvec=A)
-
     def count_callback(x_n):  # called after each step, not with x0
         iterations[bi] += 1
-
+        if max_iter.shape[0] > 1 and iterations[bi] in max_iter:
+            x_trj_b.append(x_n)
     xs = []
     iterations = [0] * batch_size
     converged = []
@@ -392,21 +399,35 @@ def scipy_iterative_sparse_solve(b: Backend, lin, y, x0, rtol, atol, max_iter, p
             iterations[bi] = n_iter
             residual.append(lin_b @ x - y[bi])
         else:
+            x_trj_b = [x0[bi]]  # filled in count_callback
             try:
                 x, ret_val = scipy_function(lin_b, y[bi], x0=x0[bi], rtol=rtol[bi], atol=atol[bi], maxiter=max_iter[-1, bi], M=pre_op, callback=count_callback)
             except TypeError:
                 x, ret_val = scipy_function(lin_b, y[bi], x0=x0[bi], tol=rtol[bi], atol=atol[bi], maxiter=max_iter[-1, bi], M=pre_op, callback=count_callback)  # for old SciPy versions
             # ret_val: 0=success, >0=not converged, <0=error
-            messages.append(f"code {ret_val} (SciPy {scipy_function.__name__})")
-            xs.append(x)
-            converged.append(ret_val == 0)
-            diverged.append(ret_val < 0 or np.any(~np.isfinite(x)))
-            residual.append(lin_b @ x - y[bi])
-    x = np.stack(xs).astype(to_numpy_dtype(dtype))
-    residual = np.stack(residual).astype(to_numpy_dtype(dtype))
-    iterations = np.asarray(iterations, np.int32)
-    converged = np.stack(converged)
-    diverged = np.stack(diverged)
+            ret_str = "Converged" if ret_val == 0 else (f"Error code {ret_val}" if ret_val < 0 else f"Not converged in {ret_val} iterations")
+            messages.append(f"{ret_str} (SciPy {scipy_function.__name__})")
+            if max_iter.shape[0] == 1:  # no trajectory
+                xs.append(x)
+                converged.append(ret_val == 0)
+                diverged.append(ret_val < 0 or np.any(~np.isfinite(x)))
+                residual.append(lin_b @ x - y[bi])
+            else:  # trajectory
+                x_trj_b[-1] = x  # pad to max_iter?
+                x = np.stack(x_trj_b)
+                xs.append(x)
+                residual_b = (lin_b @ (x - y[bi]).T).T
+                residual.append(residual_b)
+                residual_norm = np.linalg.norm(residual_b, axis=-1)
+                y_norm = np.linalg.norm(y[bi])
+                converged.append(residual_norm <= np.maximum(atol[bi], rtol[bi] * y_norm))
+                diverged.append(np.any(~np.isfinite(x), -1))
+                iterations[bi] = np.minimum(max_iter[:, bi], iterations[bi])
+    x = np.stack(xs, -2).astype(to_numpy_dtype(dtype))
+    residual = np.stack(residual, -2).astype(to_numpy_dtype(dtype))
+    iterations = np.stack(iterations, -1).astype(np.int32)
+    converged = np.stack(converged, -1)
+    diverged = np.stack(diverged, -1)
     return SolveResult(f'scipy.sparse.linalg.{scipy_function.__name__}', x, residual, iterations, iterations + 1, converged, diverged, messages)
 
 

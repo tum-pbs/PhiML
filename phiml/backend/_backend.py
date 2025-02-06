@@ -24,10 +24,10 @@ TensorOrArray = Union[TensorType, np.ndarray]
 @dataclass
 class SolveResult:
     method: str
-    x: TensorType
-    residual: TensorType
-    iterations: TensorType
-    function_evaluations: TensorType
+    x: TensorType  # (max_iter+1, batch, vec) or (max_iter+1, vec)
+    residual: TensorType  # (max_iter+1, batch, vec) or (batch, vec)
+    iterations: TensorType  # (max_iter+1, batch) or (batch,)
+    function_evaluations: TensorType  # (max_iter+1, batch) or (batch,)
     converged: TensorType  # (max_iter+1, batch) or (batch,)
     diverged: TensorType  # (max_iter+1, batch) or (batch,)
     message: List[str]  # (batch,)
