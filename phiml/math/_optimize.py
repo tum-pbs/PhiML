@@ -15,7 +15,7 @@ from ._magic_ops import stack, copy_with, rename_dims, unpack_dim, unstack, expa
 from ._sparse import native_matrix, SparseCoordinateTensor, CompressedSparseMatrix, stored_values, is_sparse, matrix_rank, _stored_matrix_rank, sparse_dims
 from ._tensors import Tensor, disassemble_tree, assemble_tree, wrap, cached, Dense, layout, reshaped_tensor, NATIVE_TENSOR, \
     preferred_backend_for
-from . import _ops as math
+from . import _ops as math, get_format
 from ._ops import backend_for, zeros_like, all_available, to_float
 from ._functional import custom_gradient, LinearFunction, f_name, _TRACING_JIT, map_
 
@@ -568,6 +568,8 @@ def solve_linear(f: Union[Callable[[X], Y], Tensor],
         Diverged: If the solve failed prematurely.
     """
     assert solve.x0 is not None, "Please specify the initial guess as Solve(..., x0=initial_guess)"
+    if solve.method == 'auto' and solve.rank_deficiency:
+        solve = copy_with(solve, method='scipy-direct')
     # --- Handle parameters ---
     f_kwargs = f_kwargs or {}
     f_kwargs.update(f_kwargs_)
@@ -639,14 +641,25 @@ def solve_linear(f: Union[Callable[[X], Y], Tensor],
         def _matrix_solve_forward(y, solve: Solve, matrix: Tensor, is_backprop=False):
             pattern_dims_in = dual(matrix).as_channel().names
             pattern_dims_out = non_dual(matrix).names  # batch dims can be sparse or batched matrices
+            b = backend_for(*y_tensors, matrix)
+            nat_matrix = native_matrix(matrix, b)
             if solve.rank_deficiency:
-                if primal(matrix).rank > 1:
-                    matrix = pack_dims(matrix, primal, channel('_primal'))
-                if dual(matrix).rank > 1:
-                    matrix = pack_dims(matrix, dual, dual('_dual'))
-                matrix = matrix[{dual: slice(-solve.rank_deficiency), primal: slice(-solve.rank_deficiency)}]
-            backend_matrix = native_matrix(matrix, backend_for(*y_tensors, matrix))
-            result = _linear_solve_forward(y, solve, backend_matrix, pattern_dims_in, pattern_dims_out, preconditioner, backend, is_backprop)
+                N = dual(matrix).volume
+                if get_format(matrix) == 'csr':
+                    _, (data, idx, ptr) = b.disassemble(nat_matrix)
+                    idx = b.csr_to_coo(idx[None, :], ptr[None, :])[0, :]
+                elif get_format(matrix) == 'coo':
+                    _, (idx, data) = b.disassemble(nat_matrix)
+                else:
+                    raise NotImplementedError
+                data = b.pad(data, [(0, 2*N)], constant_values=1)
+                i = b.range(N, dtype=b.dtype(idx))
+                j = N + b.zeros((N,), dtype=b.dtype(idx))
+                new_col = b.stack([i, j], -1)
+                new_row = b.stack([j, i], -1)
+                idx = b.concat([idx, new_col, new_row], 0)
+                nat_matrix = b.sparse_coo_tensor(idx, data, (N+1, N+1))
+            result = _linear_solve_forward(y, solve, nat_matrix, pattern_dims_in, pattern_dims_out, preconditioner, backend, is_backprop)
             return result  # must return exactly `x` so gradient isn't computed w.r.t. other quantities
 
         _matrix_solve = attach_gradient_solve(_matrix_solve_forward, auxiliary_args=f'is_backprop,solve{",matrix" if matrix.backend == NUMPY else ""}', matrix_adjoint=grad_for_f)
@@ -705,10 +718,8 @@ def _linear_solve_forward(y: Tensor,
     x0_native = backend.as_tensor(x0_tensor.native([batch_dims, pattern_dims_in]))
     y_native = backend.as_tensor(y_tensor.native([batch_dims, y_tensor.shape.only(pattern_dims_out)]))
     if solve.rank_deficiency:
-        x0_native = x0_native[:, :-solve.rank_deficiency]
-        y_cutoff = y_native[:, -solve.rank_deficiency:]
-        cutoff_sum = backend.sum(y_cutoff, -1, True)
-        y_native = y_native[:, :-solve.rank_deficiency] - cutoff_sum / y_native.shape[1]
+        x0_native = backend.pad(x0_native, [(0, 0), (0, 1)], constant_values=0)  # add initial guess for Lagrange multiplier (lambda)
+        y_native = backend.pad(y_native, [(0, 0), (0, 1)])  # constrain sum of entries to zero
     rtol = backend.as_tensor(math.to_float(solve.rel_tol).native([batch_dims]))
     atol = backend.as_tensor(solve.abs_tol.native([batch_dims]))
     trj = _SOLVE_TAPES and any(t.should_record_trajectory_for(solve) for t in _SOLVE_TAPES)
@@ -742,7 +753,7 @@ def _linear_solve_forward(y: Tensor,
     diverged = reshaped_tensor(ret.diverged, [*trj_dims, batch_dims])
     x = ret.x
     if solve.rank_deficiency:
-        x = backend.concat([x, y_native[:, -solve.rank_deficiency:]], -1)
+        x = x[:, :-1]
     x = assemble_tree(x0_nest, [reshaped_tensor(x, [*trj_dims, batch_dims, pattern_dims_in])], attr_type=variable_attributes)
     final_x = x if not trj_dims else assemble_tree(x0_nest, [reshaped_tensor(ret.x[-1, ...], [batch_dims, pattern_dims_out])], attr_type=variable_attributes)
     iterations = reshaped_tensor(ret.iterations, [*trj_dims, batch_dims])
@@ -750,7 +761,7 @@ def _linear_solve_forward(y: Tensor,
     if ret.residual is not None:
         residual = ret.residual
         if solve.rank_deficiency:
-            residual = backend.pad(residual, [(0, 0), (0, solve.rank_deficiency)])
+            residual = residual[:, :-1]
         residual = assemble_tree(y_nest, [reshaped_tensor(residual, [*trj_dims, batch_dims, pattern_dims_out])], attr_type=value_attributes)
     elif _SOLVE_TAPES:
         residual = backend.linear(native_lin_op, ret.x) - y_native
