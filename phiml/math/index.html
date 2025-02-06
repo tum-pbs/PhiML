@@ -7838,6 +7838,7 @@ Dimensions in <code>dims</code> that are not part of this Shape are ignored.</p>
         self.suppress: tuple = tuple(suppress)
         &#34;&#34;&#34; Error types to suppress; `tuple` of `ConvergenceException` types. For these errors, the solve function will instead return the partial result without raising the error. &#34;&#34;&#34;
         self.preconditioner = preconditioner
+        assert isinstance(rank_deficiency, int) or rank_deficiency is None, f&#34;rank_deficiency must be an integer but got {rank_deficiency}&#34;
         self.rank_deficiency: int = rank_deficiency
         &#34;&#34;&#34;Rank deficiency of matrix or linear function. If not specified, will be determined for (implicit or explicit) matrix solves and assumed 0 for function-based solves.&#34;&#34;&#34;
         self._gradient_solve: Solve[Y, X] = gradient_solve
