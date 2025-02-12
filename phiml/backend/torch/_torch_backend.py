@@ -701,7 +701,7 @@ class TorchBackend(Backend):
                 indices = indices.squeeze(-1)
             if indices.shape[0] > 1:  # need to iterate over batches
                 result = []
-                for b in range(len(batch_size)):
+                for b in range(batch_size):
                     result_b = torch.index_reduce(base_grid[b], 0, indices[b], values[b], 'a'+mode)
                     result.append(result_b)
                 result = self.stack(result)
