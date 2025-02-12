@@ -278,7 +278,7 @@ def scipy_sparse_solve(b: Backend, method: Union[str, Callable], lin, y, x0, rto
     if method in {'direct', 'lsqr'}:
         assert max_iter.shape[0] == 1, f"Trajectory recording not supported for scipy_spsolve"
     assert matrix_offset is None
-    if method == 'direct' and pre:
+    if method in ['direct', 'lsqr'] and pre:
         warnings.warn(f"Preconditioner {pre} was computed but is not used by SciPy direct solve.", RuntimeWarning)
     scipy_solvers = {
         'CG': scipy.sparse.linalg.cg,
