@@ -1130,8 +1130,6 @@ def broadcast_dims(*tensors: Tensor) -> Set[str]:
     iter_dims = set()
     for tensor in tensors:
         iter_dims.update(shape(tensor).non_uniform_shape.names)
-        if isinstance(tensor, TensorStack) and tensor.requires_broadcast:
-            iter_dims.add(tensor._stack_dim.name)
         # --- remove iter_dims for which the sizes vary among tensors ---
         for dim in tuple(iter_dims):
             sizes = [t.shape.get_size(dim) for t in tensors if dim in t.shape]
@@ -2202,6 +2200,8 @@ def dot(x: Tensor,
             result_native = backend.einsum(subscripts, x_native, y_native)
         return Dense(result_native, result_shape.names, result_shape, backend)
 
+    broadcast = broadcast_dims(x, y)
+    assert x_dims.only(broadcast).is_empty and y_dims.only(broadcast).is_empty, f"Broadcasting reduction dims not supported for dot product along {x_dims} and {y_dims}."
     return broadcast_op(tensor_dot, [x, y])
 
 
