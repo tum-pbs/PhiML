@@ -129,9 +129,9 @@ class TFBackend(Backend):
             return result
 
     def vectorized_call(self, f, *args, output_dtypes=None, **aux_args):
-        with self.device_of(args[0]):
+        with self._device_for(*args):
             batch_size = self.determine_size(args, 0)
-            args = [self.tile_to(t, 0, batch_size) for t in args]
+            args = [self.tile_to(self.as_tensor(t), 0, batch_size) for t in args]
             if output_dtypes is None:
                 output0 = f(*[t[0] for t in args], **aux_args)  # Call f to determine its output signature.
                 output_dtypes = tf.nest.map_structure(lambda x: x.dtype, output0)
