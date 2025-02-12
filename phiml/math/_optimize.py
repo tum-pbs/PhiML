@@ -800,6 +800,7 @@ def attach_gradient_solve(forward_solve: Callable, auxiliary_args: str, matrix_a
                 _, dy_tensors = disassemble_tree(dy, cache=False, attr_type=value_attributes)
                 _, x_tensors = disassemble_tree(x, cache=False, attr_type=variable_attributes)
                 dm_values = dy_tensors[0][col] * x_tensors[0][row]
+                dm_values = math.sum_(dm_values, dm_values.shape.non_instance - matrix.shape)
                 dm = matrix._with_values(dm_values)
                 dm = -dm
             elif isinstance(matrix, Dense):
