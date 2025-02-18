@@ -922,7 +922,8 @@ class CompactSparseTensor(Tensor):
             indices = indices_or_spec
         else:
             indices = spec['indices']['type']._from_spec_and_natives(spec['indices'], natives)
-        return CompactSparseTensor(indices, values, spec['compressed_dims'], spec['indices_constant'], spec['matrix_rank'])
+        full_shape = spec['shape']
+        return CompactSparseTensor(indices, values, full_shape.only(spec['compressed_dims']), spec['indices_constant'], spec['matrix_rank'])
 
     def _with_values(self, new_values: Tensor, matrix_rank=-1):
         return CompactSparseTensor(self._indices, new_values, self._compressed_dims, self._indices_constant, matrix_rank)
