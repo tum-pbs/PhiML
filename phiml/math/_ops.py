@@ -1094,11 +1094,11 @@ def _grid_sample(grid: Tensor, coordinates: Tensor, extrap: Union['e_.Extrapolat
         result = NotImplemented
         if extrap is None:
             result = backend.grid_sample(grid.native([batch_dims, *dims, grid.shape.non_batch.without(dims)]),
-                                         coordinates._reshaped_native([batch_dims, *coordinates.shape.instance, *coordinates.shape.spatial, coordinates.shape['vector']]),
+                                         coordinates._reshaped_native([batch_dims, *coordinates.shape.non_batch.non_channel, coordinates.shape['vector']]),
                                          'undefined')
         elif extrap.native_grid_sample_mode:
             result = backend.grid_sample(grid.native([batch_dims, *dims, grid.shape.non_batch.without(dims)]),
-                                         coordinates._reshaped_native([batch_dims, *coordinates.shape.instance, *coordinates.shape.spatial, coordinates.shape['vector']]),
+                                         coordinates._reshaped_native([batch_dims, *coordinates.shape.non_batch.non_channel, coordinates.shape['vector']]),
                                          extrap.native_grid_sample_mode)
         if result is NotImplemented:
             # pad one layer
@@ -1112,10 +1112,10 @@ def _grid_sample(grid: Tensor, coordinates: Tensor, extrap: Union['e_.Extrapolat
             else:
                 inner_coordinates = coordinates + 1
             result = backend.grid_sample(grid_padded.native([batch_dims, *dims.names, grid.shape.non_batch.without(dims)]),
-                                         inner_coordinates._reshaped_native([batch_dims, *coordinates.shape.instance, *coordinates.shape.spatial, coordinates.shape['vector']]),
+                                         inner_coordinates._reshaped_native([batch_dims, *coordinates.shape.non_batch.non_channel, coordinates.shape['vector']]),
                                          'boundary')
         if result is not NotImplemented:
-            result = reshaped_tensor(result, [batch_dims, *coordinates.shape.instance, *coordinates.shape.spatial, grid.shape.non_batch.without(dims)])
+            result = reshaped_tensor(result, [batch_dims, *coordinates.shape.non_batch.non_channel, grid.shape.non_batch.without(dims)])
             return result
     # fallback to slower grid sampling
     neighbors = _closest_grid_values(grid, coordinates, extrap or e_.ZERO, '_closest_', pad_kwargs)
