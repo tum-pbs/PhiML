@@ -1776,21 +1776,21 @@ def sum_equal_entries(matrix: Tensor, flatten_entries=True):
     indices = pack_dims(matrix._indices, entries_dims, instance('sp_entries'))
     dims = matrix._dense_shape.only(channel(indices).item_names[0], reorder=True)
     assert not batch(indices), f"sparse compress() not supported for batched indices"
-    idx_packed = b.ravel_multi_index(indices.native([instance, channel]), dims.sizes)
+    idx_packed = b.ravel_multi_index(b.to_int64(indices.native([instance, channel])), dims.sizes)
     u_idx, u_ptr = b.unique(idx_packed, return_inverse=True, return_counts=False, axis=-1)
     num_entries = u_idx.shape[-1]
     if num_entries == instance(values).volume:
         matrix._can_contain_double_entries = False
         return matrix
-    bv = matrix.default_backend
+    b = matrix.default_backend
     if non_instance(values):
         batched_values = values.native([non_instance, 'sp_entries'])
-        values_nat = bv.batched_bincount(u_ptr[None, :], weights=batched_values, bins=num_entries)
+        values_nat = b.batched_bincount(u_ptr[None, :], weights=batched_values, bins=num_entries)
         values = wrap(values_nat, non_instance(values), instance('sp_entries'))
     else:
-        values = bv.bincount(u_ptr, weights=values.native(), bins=num_entries)
-        values = reshaped_tensor(values, [instance('sp_entries')], convert=False)
-    idx_packed = b.unravel_index(u_idx, dims.sizes)
+        values = b.bincount(u_ptr, weights=values.native(), bins=num_entries)
+        values = reshaped_tensor(values, [instance('sp_entries')])
+    idx_packed = b.cast(b.unravel_index(u_idx, dims.sizes), indices.dtype)
     indices = wrap(idx_packed, instance('sp_entries'), channel(matrix._indices))
     return SparseCoordinateTensor(indices, values, matrix._dense_shape, False, True, matrix._indices_constant, matrix._matrix_rank)
 
