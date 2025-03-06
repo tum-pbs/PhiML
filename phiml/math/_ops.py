@@ -191,7 +191,9 @@ def native_call(f: Callable, *inputs: Tensor, channels_last=None, channel_dim='v
         groups = [b_dims, *i.shape.spatial.names, i.shape.channel] if channels_last else [b_dims, i.shape.channel, *i.shape.spatial.names]
         natives.append(i.native(groups, force_expand=False))
     output = f(*natives)
-    if isinstance(channel_dim, str):
+    if not channel_dim:
+        channel_dim = EMPTY_SHAPE
+    elif isinstance(channel_dim, str):
         channel_dim = channel(channel_dim)
     assert isinstance(channel_dim, SHAPE_TYPES), "channel_dim must be a Shape or str"
     if isinstance(output, (tuple, list)):
@@ -201,16 +203,16 @@ def native_call(f: Callable, *inputs: Tensor, channels_last=None, channel_dim='v
         if ndim == 1:
             groups = [b_dims]
         elif ndim == 2:
-            groups = [b_dims, channel_dim]
+            groups = [b_dims, *channel_dim]
         else:
-            groups = [b_dims, *s_dims, channel_dim] if channels_last else [b_dims, channel_dim, *s_dims]
+            groups = [b_dims, *s_dims, *channel_dim] if channels_last else [b_dims, *channel_dim, *s_dims]
     else:
         if isinstance(spatial_dim, str):
             spatial_dim = spatial(spatial_dim)
         assert isinstance(spatial_dim, SHAPE_TYPES), "spatial_dim must be a Shape or str"
-        groups = [b_dims, *spatial_dim, channel_dim] if channels_last else [b_dims, channel_dim, *spatial_dim]
+        groups = [b_dims, *spatial_dim, *channel_dim] if channels_last else [b_dims, *channel_dim, *spatial_dim]
     result = reshaped_tensor(output, groups, convert=False)
-    if result.shape.get_size(channel_dim.name) == 1 and not channel_dim.item_names[0]:
+    if channel_dim.rank == 1 and result.shape.get_size(channel_dim.name) == 1 and not channel_dim.item_names[0]:
         result = result.dimension(channel_dim.name)[0]  # remove vector dim if not required
     return result
 
