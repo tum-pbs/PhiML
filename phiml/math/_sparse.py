@@ -1033,24 +1033,10 @@ class CompactSparseTensor(Tensor):
             # else:
             #     raise NotImplementedError
         if uncompressed.only(tuple(selection)):
-            raise NotImplementedError
-            # if self._uncompressed_dims.rank > 1:
-            #     raise NotImplementedError
-            # ind_sel = selection[uncompressed.name]
-            # if isinstance(ind_sel, int):
-            #     raise NotImplementedError(f"Slicing with int not yet supported for sparse tensors. Use a range instead, e.g. [{ind_sel}:{ind_sel + 1}] instead of [{ind_sel}]")
-            # elif isinstance(ind_sel, slice):
-            #     assert ind_sel.step in (None, 1), f"Only step size 1 supported for sparse indexing but got {ind_sel.step}"
-            #     start = ind_sel.start or 0
-            #     stop = uncompressed.volume if ind_sel.stop is None else ind_sel.stop
-            #     keep = (start <= indices) & (indices < stop)
-            #     from ._ops import where
-            #     values = where(keep, values, 0)
-            #     m_rank = -1
-            #     uncompressed_offset = start
-            #     uncompressed = uncompressed.after_gather({uncompressed.name: ind_sel})
-            # else:
-            #     raise NotImplementedError
+            row_slices = {k: v for k, v in selection.items() if k in uncompressed}
+            indices = indices[row_slices]
+            values = values[row_slices]
+            assert all(k in indices.shape for k in selection)
         return CompactSparseTensor(indices, values, compressed, self._indices_constant, m_rank)
 
     def __concat__(self, tensors: tuple, dim: str, **kwargs) -> 'SparseCoordinateTensor':
