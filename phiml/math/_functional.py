@@ -578,7 +578,7 @@ def simplify_wrt(f, wrt: Union[str, int, tuple, list]):
             wrt = tuple(f_params[i] for i in wrt)
         else:
             raise ValueError(f"Invalid value given as wrt: {wrt}. Please pass a comma-separated string of parameter names.")
-        warnings.warn("Specifying wrt by position is deprecated in phiml.math.funcitonal_gradient() and phiml.math.jacobian(). Please pass a list or comma-separated string of parameter names.",
+        warnings.warn("Specifying wrt by position is deprecated in phiml.math.functional_gradient() and phiml.math.jacobian(). Please pass a list or comma-separated string of parameter names.",
                       SyntaxWarning, stacklevel=4)
     return f_params, wrt
 
@@ -1372,7 +1372,7 @@ def map_(function: Callable[..., Y], *args, dims: DimFilter = shape, range=range
         results.append(f_output)
     if isinstance(results[0], tuple):
         stacked: List[Optional[Tensor]] = []
-        for i in range(len(results[0])):
+        for i in builtin_range(len(results[0])):
             if any(r[i] is None for r in results):
                 assert all(r[i] is None for r in results), f"map function returned None for some elements, {results}"
                 stacked.append(None)
