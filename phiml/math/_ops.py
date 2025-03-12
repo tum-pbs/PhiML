@@ -867,7 +867,7 @@ def stack_tensors(values: Union[tuple, list], dim: Shape):
 def concat_tensor(values: Union[tuple, list], dim: str) -> Tensor:
     assert len(values) > 0, "concat() got empty sequence"
     assert isinstance(dim, str), f"dim must be a single-dimension Shape but got '{dim}' of type {type(dim)}"
-    if any(v._is_tracer for v in values):
+    if any([v._is_tracer for v in values]):
         from ._trace import concat_tracers
         return concat_tracers(values, dim)
 
@@ -1245,7 +1245,7 @@ def where(condition: Union[Tensor, bool],
     return broadcast_op(inner_where, [condition, value_true, value_false])
 
 
-def nonzero(value: Tensor, list_dim: Union[Shape, str, int] = instance('nonzero'), index_dim: Shape = channel('vector'), element_dims: DimFilter = channel, list_dims: DimFilter = non_batch, preserve_names=False):
+def nonzero(value: Union[Tensor, bool], list_dim: Union[Shape, str, int] = instance('nonzero'), index_dim: Shape = channel('vector'), element_dims: DimFilter = channel, list_dims: DimFilter = non_batch, preserve_names=False):
     """
     Get spatial indices of non-zero / True values.
 

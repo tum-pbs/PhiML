@@ -580,6 +580,7 @@ def solve_linear(f: Union[Callable[[X], Y], Tensor],
     y_tree, y_tensors = disassemble_tree(y, cache=False, attr_type=value_attributes)
     x0_tree, x0_tensors = disassemble_tree(solve.x0, cache=False, attr_type=variable_attributes)
     assert len(x0_tensors) == len(y_tensors) == 1, "Only single-tensor linear solves are currently supported"
+    # --- If native tensors passed, return native tensor ---
     if isinstance(y_tree, str) and y_tree == NATIVE_TENSOR and isinstance(x0_tree, str) and x0_tree == NATIVE_TENSOR:
         if callable(f):  # assume batch + 1 dim
             rank = y_tensors[0].rank
@@ -619,9 +620,9 @@ def solve_linear(f: Union[Callable[[X], Y], Tensor],
                 solve = copy_with(solve, x0=x0)
                 solution = solve_linear(f, y, solve, *f_args, grad_for_f=grad_for_f, f_kwargs=f_kwargs, **f_kwargs_)
                 return solution.native(','.join([f'batch{i}' for i in range(rank - 1)]) + ',vector')
+    # --- PhiML Tensors ---
     backend = backend_for(*y_tensors, *x0_tensors)
     prefer_explicit = backend.supports(Backend.sparse_coo_tensor) or backend.supports(Backend.csr_matrix) or grad_for_f
-
     if isinstance(f, Tensor) or (isinstance(f, LinearFunction) and prefer_explicit):  # Matrix solve
         if isinstance(f, LinearFunction):
             x0 = math.convert(solve.x0, backend)
