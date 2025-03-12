@@ -2688,6 +2688,58 @@ def primal(obj) -> Shape:
     return shape(obj).primal
 
 
+def dsize(obj) -> Optional[int]:
+    """
+    Returns the total number of elements listed along dual dims of an object, equal to the product of the sizes of all dual dims.
+
+    Args:
+        obj: `Shape` or object with a valid `shape` property.
+
+    Returns:
+        Size as `int`. If `obj` is an undefined `Shape`, returns `None`.
+    """
+    return dual(obj).volume
+
+
+def isize(obj) -> Optional[int]:
+    """
+    Returns the total number of elements listed along instance dims of an object, equal to the product of the sizes of all instance dims.
+
+    Args:
+        obj: `Shape` or object with a valid `shape` property.
+
+    Returns:
+        Size as `int`. If `obj` is an undefined `Shape`, returns `None`.
+    """
+    return instance(obj).volume
+
+
+def ssize(obj) -> Optional[int]:
+    """
+    Returns the total number of elements listed along spatial dims of an object, equal to the product of the sizes of all spatial dims.
+
+    Args:
+        obj: `Shape` or object with a valid `shape` property.
+
+    Returns:
+        Size as `int`. If `obj` is an undefined `Shape`, returns `None`.
+    """
+    return spatial(obj).volume
+
+
+def csize(obj) -> Optional[int]:
+    """
+    Returns the total number of elements listed along channel dims of an object, equal to the product of the sizes of all channel dims.
+
+    Args:
+        obj: `Shape` or object with a valid `shape` property.
+
+    Returns:
+        Size as `int`. If `obj` is an undefined `Shape`, returns `None`.
+    """
+    return channel(obj).volume
+
+
 def _size_equal(s1, s2):
     if s1 is None:
         return s2 is None
