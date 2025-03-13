@@ -51,7 +51,7 @@ def load_state(obj: Union[nn.Module, optim.Optimizer], path: str):
     obj.load_state_dict(torch.load(path))
 
 
-def update_weights(net: nn.Module, optimizer: optim.Optimizer, loss_function: Callable, *loss_args, check_nan=False, **loss_kwargs):
+def update_weights(net: Union[nn.Module, Sequence[nn.Module]], optimizer: optim.Optimizer, loss_function: Callable, *loss_args, check_nan=False, **loss_kwargs):
     optimizer.zero_grad()
     output = loss_function(*loss_args, **loss_kwargs)
     loss = output[0] if isinstance(output, tuple) else output
@@ -64,27 +64,46 @@ def update_weights(net: nn.Module, optimizer: optim.Optimizer, loss_function: Ca
         optimizer.step(closure=closure)
     else:
         if check_nan:
-            for p in net.parameters():
-                if not torch.all(torch.isfinite(p.grad)):
-                    raise RuntimeError(f"NaN in network gradient detected. Parameter: {p}")
+            nets = [net] if isinstance(net, nn.Module) else net
+            for subnet in nets:
+                for p in subnet.parameters():
+                    if not torch.all(torch.isfinite(p.grad)):
+                        raise RuntimeError(f"NaN in network gradient detected. Parameter: {p}")
         optimizer.step()
     return output
 
 
-def adam(net: nn.Module, learning_rate: float = 1e-3, betas=(0.9, 0.999), epsilon=1e-07):
-    return optim.Adam(net.parameters(), learning_rate, betas, epsilon)
+def _as_module(net: Union[nn.Module, Sequence[nn.Module]]) -> nn.Module:
+    if isinstance(net, nn.Module):
+        return net
+    elif isinstance(net, (list, tuple)):
+        class ModuleContainer(nn.Module):
+            def __init__(self, modules):
+                super(ModuleContainer, self).__init__()
+                for i, module in enumerate(modules):
+                    self.add_module(f'module{i}', module)
+
+            def forward(self, x):
+                raise AssertionError("Container module must not be called.")
+        return ModuleContainer(net)
+    else:
+        raise ValueError(f"Invalid network type {type(net)}.")
 
 
-def sgd(net: nn.Module, learning_rate: float = 1e-3, momentum=0., dampening=0., weight_decay=0., nesterov=False):
-    return optim.SGD(net.parameters(), learning_rate, momentum, dampening, weight_decay, nesterov)
+def adam(net: Union[nn.Module, Sequence[nn.Module]], learning_rate: float = 1e-3, betas=(0.9, 0.999), epsilon=1e-07):
+    return optim.Adam(_as_module(net).parameters(), learning_rate, betas, epsilon)
 
 
-def adagrad(net: nn.Module, learning_rate: float = 1e-3, lr_decay=0., weight_decay=0., initial_accumulator_value=0., eps=1e-10):
-    return optim.Adagrad(net.parameters(), learning_rate, lr_decay, weight_decay, initial_accumulator_value, eps)
+def sgd(net: Union[nn.Module, Sequence[nn.Module]], learning_rate: float = 1e-3, momentum=0., dampening=0., weight_decay=0., nesterov=False):
+    return optim.SGD(_as_module(net).parameters(), learning_rate, momentum, dampening, weight_decay, nesterov)
 
 
-def rmsprop(net: nn.Module, learning_rate: float = 1e-3, alpha=0.99, eps=1e-08, weight_decay=0., momentum=0., centered=False):
-    return optim.RMSprop(net.parameters(), learning_rate, alpha, eps, weight_decay, momentum, centered)
+def adagrad(net: Union[nn.Module, Sequence[nn.Module]], learning_rate: float = 1e-3, lr_decay=0., weight_decay=0., initial_accumulator_value=0., eps=1e-10):
+    return optim.Adagrad(_as_module(net).parameters(), learning_rate, lr_decay, weight_decay, initial_accumulator_value, eps)
+
+
+def rmsprop(net: Union[nn.Module, Sequence[nn.Module]], learning_rate: float = 1e-3, alpha=0.99, eps=1e-08, weight_decay=0., momentum=0., centered=False):
+    return optim.RMSprop(_as_module(net).parameters(), learning_rate, alpha, eps, weight_decay, momentum, centered)
 
 
 def _bias0(conv):
