@@ -545,7 +545,10 @@ class Backend:
 
     def random_permutations(self, permutations: int, n: int):
         """Generate `permutations` stacked arrays of shuffled integers between `0` and `n`."""
-        raise NotImplementedError
+        raise NotImplementedError(self)
+
+    def random_subsets(self, element_count: int, subset_size: int, subset_count: int, allow_duplicates: bool, element_weights=None):
+        raise NotImplementedError(self)
 
     def stack(self, values, axis=0):
         raise NotImplementedError(self)

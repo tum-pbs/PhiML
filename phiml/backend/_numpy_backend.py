@@ -202,6 +202,12 @@ class NumPyBackend(Backend):
     def random_permutations(self, permutations: int, n: int):
         return np.stack([np.random.permutation(n) for _ in range(permutations)])
 
+    def random_subsets(self, element_count: int, subset_size: int, subset_count: int, allow_duplicates: bool, element_weights=None):
+        if element_weights is not None:
+            assert element_weights.ndim == 1
+            element_weights /= element_weights.sum()
+        return np.stack([np.random.choice(element_count, size=subset_size, replace=allow_duplicates, p=element_weights) for _ in range(subset_count)])
+
     def range(self, start, limit=None, delta=1, dtype: DType = INT32):
         if limit is None:
             start, limit = 0, start

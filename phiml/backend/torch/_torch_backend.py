@@ -280,6 +280,13 @@ class TorchBackend(Backend):
     def random_permutations(self, permutations: int, n: int):
         return torch.stack([torch.randperm(n, device=self.get_default_device().ref) for _ in range(permutations)])
 
+    def random_subsets(self, element_count: int, subset_size: int, subset_count: int, allow_duplicates: bool, element_weights=None):
+        if element_weights is None:
+            element_weights = self.ones((subset_count, element_count,), self.float_type)
+        else:
+            element_weights = self.zeros((subset_count, 1)) + element_weights  # add subset_count rows
+        return torch.multinomial(element_weights, num_samples=subset_size, replacement=allow_duplicates)
+
     def stack(self, values, axis=0):
         values = [self.as_tensor(v) for v in values]
         return torch.stack(values, dim=axis)
