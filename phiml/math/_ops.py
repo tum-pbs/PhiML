@@ -832,6 +832,36 @@ def range_tensor(*shape: Shape):
     return unpack_dim(data, 'range', shape)
 
 
+def brange(start: int = 0, **stop: int):
+    """ Construct a range `Tensor` along one batch dim. """
+    assert len(stop) == 1, f"brange() requires exactly one stop dimension but got {stop}"
+    return arange(batch(next(iter(stop))), start, next(iter(stop.values())))
+
+
+def drange(start: int = 0, **stop: int):
+    """ Construct a range `Tensor` along one dual dim. """
+    assert len(stop) == 1, f"drange() requires exactly one stop dimension but got {stop}"
+    return arange(dual(next(iter(stop))), start, next(iter(stop.values())))
+
+
+def irange(start: int = 0, **stop: int):
+    """ Construct a range `Tensor` along one instance dim. """
+    assert len(stop) == 1, f"irange() requires exactly one stop dimension but got {stop}"
+    return arange(instance(next(iter(stop))), start, next(iter(stop.values())))
+
+
+def srange(start: int = 0, **stop: int):
+    """ Construct a range `Tensor` along one spatial dim. """
+    assert len(stop) == 1, f"srange() requires exactly one stop dimension but got {stop}"
+    return arange(spatial(next(iter(stop))), start, next(iter(stop.values())))
+
+
+def crange(start: int = 0, **stop: int):
+    """ Construct a range `Tensor` along one channel dim. """
+    assert len(stop) == 1, f"crange() requires exactly one stop dimension but got {stop}"
+    return arange(channel(next(iter(stop))), start, next(iter(stop.values())))
+
+
 def stack_tensors(values: Union[tuple, list], dim: Shape):
     if len(values) == 1 and not dim:
         return values[0]
