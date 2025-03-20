@@ -590,17 +590,19 @@ class TorchBackend(Backend):
     def argmin(self, x, axis: int, keepdims=False):
         return x.argmin(dim=axis, keepdim=keepdims)
 
-    def conv(self, value, kernel, zero_padding=True):
+    def conv(self, value, kernel, strides: tuple, zero_padding=True):
         value = self.as_tensor(value)
         kernel = self.as_tensor(kernel)
         value, kernel = self.auto_cast(value, kernel)
         if self.dtype(value).kind in (bool, int):
             value = self.to_float(value)
             kernel = self.to_float(kernel)
+        ndim = len(value.shape) - 2  # Number of spatial dimensions
+        assert len(strides) == ndim, f"Expected {ndim} stride values, got {len(strides)}"
         if zero_padding:
-            if all(s % 2 == 1 for s in kernel.shape[3:]):
+            if all(s % 2 == 1 for s in kernel.shape[3:]):  # For odd kernel sizes, we can use PyTorch's padding
                 padding = [s // 2 for s in kernel.shape[3:]]
-            else:
+            else:  # For even kernel sizes, we need to manually pad
                 padding = 0
                 value_padding = sum([[s // 2, (s - 1) // 2] for s in kernel.shape[3:]], [])
                 value = torchf.pad(value, value_padding)
@@ -608,11 +610,11 @@ class TorchBackend(Backend):
             padding = 0
         convf = {3: torchf.conv1d, 4: torchf.conv2d, 5: torchf.conv3d}[len(value.shape)]
         if kernel.shape[0] == 1:
-            result = convf(value, kernel[0, ...], padding=padding)
+            result = convf(value, kernel[0, ...], padding=padding, stride=strides)
         else:
             result = []
             for b in range(kernel.shape[0]):
-                result.append(convf(value[b:b+1, ...], kernel[b, ...], padding=padding))
+                result.append(convf(value[b:b + 1, ...], kernel[b, ...], padding=padding, stride=strides))
             result = torch.cat(result, 0)
         return result
 

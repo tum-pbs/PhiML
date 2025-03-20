@@ -776,7 +776,7 @@ class Backend:
         else:
             return self.exp(self.log_gamma(self.to_float(x) + 1))
 
-    def conv(self, value, kernel, zero_padding=True):
+    def conv(self, value, kernel, strides: tuple, zero_padding=True):
         """
         Convolve value with kernel.
         Depending on the tensor rank, the convolution is either 1D (rank=3), 2D (rank=4) or 3D (rank=5).

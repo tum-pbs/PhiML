@@ -2653,8 +2653,10 @@ def clip(x: Tensor, lower_limit: Union[float, Tensor] = 0, upper_limit: Union[fl
 
 def convolve(value: Tensor,
              kernel: Tensor,
+             /,
              extrapolation: 'e_.Extrapolation' = None,
-             dims: DimFilter = spatial) -> Tensor:
+             dims: DimFilter = spatial,
+             strides: Union[int, Dict[str, int]] = 1) -> Tensor:
     """
     Computes the convolution of `value` and `kernel` along the specified dims.
 
@@ -2666,6 +2668,7 @@ def convolve(value: Tensor,
         kernel: `Tensor` used as convolutional filter.
         dims: Which dimensions to convolve over. Defaults to all spatial dims.
         extrapolation: If not None, pads `value` so that the result has the same shape as `value`.
+        strides: Convolution strides for applying `kernel` to a subset of `value` only. This will result in a smaller output. The stride can be specified per dim, with missing dims defaulting to `1`.
 
     Returns:
         `Tensor` with all non-reduced dims of `value` and additional non-dual dims from `kernel`.
@@ -2681,7 +2684,8 @@ def convolve(value: Tensor,
     backend = backend_for(value, kernel)
     native_kernel = kernel.native((batch_dims if batch(kernel) else EMPTY_SHAPE, out_dims, dual(kernel), *dims))
     native_value = value.native((batch_dims, in_dims, *dims.names))
-    native_result = backend.conv(native_value, native_kernel, zero_padding=extrapolation == e_.ZERO)
+    native_strides = (strides,) * len(dims) if isinstance(strides, int) else [strides.get(dim, 1) for dim in dims.names]
+    native_result = backend.conv(native_value, native_kernel, native_strides, zero_padding=extrapolation == e_.ZERO)
     result = reshaped_tensor(native_result, (batch_dims, out_dims, *dims))
     return result
 

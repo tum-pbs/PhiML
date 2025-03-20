@@ -289,22 +289,23 @@ class NumPyBackend(Backend):
     def min(self, x, axis=None, keepdims=False):
         return np.min(x, axis, keepdims=keepdims)
 
-    def conv(self, value, kernel, zero_padding=True):
+    def conv(self, value, kernel, strides: tuple, zero_padding=True):
         assert kernel.shape[0] in (1, value.shape[0])
         assert value.shape[1] == kernel.shape[2], f"value has {value.shape[1]} channels but kernel has {kernel.shape[2]}"
         assert value.ndim + 1 == kernel.ndim
         value, kernel = self.auto_cast(value, kernel, bool_to_int=True)
         if zero_padding:
-            result = np.zeros((value.shape[0], kernel.shape[1], *value.shape[2:]), dtype=to_numpy_dtype(self.float_type))
+            output_sp = [(d-1)//s + 1 for d, s in zip(value.shape[2:], strides)]
         else:
-            valid = [value.shape[i + 2] - kernel.shape[i + 3] + 1 for i in range(value.ndim - 2)]
-            result = np.zeros([value.shape[0], kernel.shape[1], *valid], dtype=to_numpy_dtype(self.float_type))
+            output_sp = [(value.shape[i + 2] - kernel.shape[i + 3])//strides[i] + 1 for i in range(value.ndim - 2)]
+        result = np.zeros((value.shape[0], kernel.shape[1], *output_sp), dtype=to_numpy_dtype(self.float_type))
         mode = 'same' if zero_padding else 'valid'
         for b in range(value.shape[0]):
             b_kernel = kernel[min(b, kernel.shape[0] - 1)]
             for o in range(kernel.shape[1]):
                 for i in range(value.shape[1]):
-                    result[b, o, ...] += scipy.signal.correlate(value[b, i, ...], b_kernel[o, i, ...], mode=mode)
+                    full = scipy.signal.correlate(value[b, i, ...], b_kernel[o, i, ...], mode=mode)
+                    result[b, o, ...] += full[tuple(slice(None, None, stride) for stride in strides)]
         return result
 
     def expand_dims(self, a, axis=0, number=1):

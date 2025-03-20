@@ -457,7 +457,7 @@ class JaxBackend(Backend):
     def min(self, x, axis=None, keepdims=False):
         return jnp.min(x, axis, keepdims=keepdims)
 
-    def conv(self, value, kernel, zero_padding=True):
+    def conv(self, value, kernel, strides: tuple, zero_padding=True):
         assert kernel.shape[0] in (1, value.shape[0])
         assert value.shape[1] == kernel.shape[2], f"value has {value.shape[1]} channels but kernel has {kernel.shape[2]}"
         assert value.ndim + 1 == kernel.ndim
@@ -470,8 +470,9 @@ class JaxBackend(Backend):
             for o in range(kernel.shape[1]):
                 result_b.append(0)
                 for i in range(value.shape[1]):
+                    full = scipy.signal.correlate(value[b, i, ...], b_kernel[o, i, ...], mode='same' if zero_padding else 'valid')
                     # result.at[b, o, ...].set(scipy.signal.correlate(value[b, i, ...], b_kernel[o, i, ...], mode='same' if zero_padding else 'valid'))
-                    result_b[-1] += scipy.signal.correlate(value[b, i, ...], b_kernel[o, i, ...], mode='same' if zero_padding else 'valid')
+                    result_b[-1] += full[tuple(slice(None, None, stride) for stride in strides)]
             result.append(jnp.stack(result_b, 0))
         return jnp.stack(result, 0)
 
