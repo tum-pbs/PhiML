@@ -1246,7 +1246,7 @@ def broadcast(function=None, dims=shape, range=range, unwrap_scalars=True, simpl
         return partial(broadcast, **kwargs)
     @wraps(function)
     def broadcast_(*args, **kwargs):
-        return map_(function, *args, dims=dims, range=range, unwrap_scalars=unwrap_scalars, simplify=simplify, **kwargs)
+        return map_(function, *args, dims=dims, range=range, unwrap_scalars=unwrap_scalars, simplify=simplify, map_name=f_name(function), **kwargs)
     return broadcast_
 
 
@@ -1326,7 +1326,15 @@ def iterate(map_function: Callable,
         raise ValueError(f"iterations must be an int or Shape but got {type(iterations)}")
 
 
-def map_(function: Callable[..., Y], *args, dims: DimFilter = shape, range=range, unwrap_scalars=True, expand_results=False, simplify=False, **kwargs) -> Union[None, Tensor, Y]:
+_DEFAULT_RANGE = None
+try:
+    import tqdm
+    _DEFAULT_RANGE = tqdm.trange
+except ImportError:
+    pass
+
+
+def map_(function: Callable[..., Y], *args, dims: DimFilter = shape, range=range, unwrap_scalars=True, expand_results=False, simplify=False, map_name=None, **kwargs) -> Union[None, Tensor, Y]:
     """
     Calls `function` on slices of the arguments and returns the stacked result.
 
@@ -1360,6 +1368,8 @@ def map_(function: Callable[..., Y], *args, dims: DimFilter = shape, range=range
     assert dims_.well_defined, f"All arguments must have consistent sizes for all mapped dimensions. Trying to map along {dims} but some have varying sizes (marked as None)."
     assert dims_.volume > 0, f"map dims must have volume > 0 but got {dims_}"
     results = []
+    if _DEFAULT_RANGE is not None and map_name is not None and range is builtin_range and dims_.volume > 1:
+        range = partial(_DEFAULT_RANGE, desc=map_name)
     for _, idx in zip(range(dims_.volume), dims_.meshgrid()):
         idx_args = [slice_(v, idx) for v in sliceable_args]
         idx_kwargs = {k: slice_(v, idx) for k, v in sliceable_kwargs.items()}
