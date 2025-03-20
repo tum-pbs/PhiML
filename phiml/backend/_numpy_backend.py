@@ -149,7 +149,7 @@ class NumPyBackend(Backend):
     def numpy_call(self, f, output_shapes, output_dtypes, *args, **aux_args):
         output = f(*args, **aux_args)
         if isinstance(output_dtypes, DType):
-            assert output.shape == output_shapes
+            assert output.shape == output_shapes, f"numpy_call: output has shape {output.shape} but was promised to be {output_shapes}"
             assert self.dtype(output) == output_dtypes, f"{self.dtype(output)} != {output_dtypes}"
         else:
             assert len(output) == len(output_dtypes) == len(output_shapes)
