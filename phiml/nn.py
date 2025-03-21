@@ -144,6 +144,17 @@ def rmsprop(net: Network, learning_rate: float = 1e-3, alpha=0.99, eps=1e-08, we
     return _native_lib().rmsprop(**locals())
 
 
+def set_learning_rate(optimizer: Optimizer, learning_rate: Union[float, Tensor]):
+    """
+    Sets the global learning rate for the given optimizer.
+
+    Args:
+        optimizer (optim.Optimizer): The optimizer whose learning rate needs to be updated.
+        learning_rate (float): The new learning rate to set.
+    """
+    _native_lib().set_learning_rate(optimizer, float(learning_rate))
+
+
 def mlp(in_channels: int,
               out_channels: int,
               layers: Sequence[int],

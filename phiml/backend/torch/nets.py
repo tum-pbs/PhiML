@@ -106,6 +106,18 @@ def rmsprop(net: Union[nn.Module, Sequence[nn.Module]], learning_rate: float = 1
     return optim.RMSprop(_as_module(net).parameters(), learning_rate, alpha, eps, weight_decay, momentum, centered)
 
 
+def set_learning_rate(optimizer: optim.Optimizer, learning_rate: float):
+    """
+    Sets the global learning rate for the given optimizer.
+
+    Args:
+        optimizer (optim.Optimizer): The optimizer whose learning rate needs to be updated.
+        learning_rate (float): The new learning rate to set.
+    """
+    for param_group in optimizer.param_groups:
+        param_group['lr'] = learning_rate
+
+
 def _bias0(conv):
     def initialize(*args, **kwargs):
         module = conv(*args, **kwargs)

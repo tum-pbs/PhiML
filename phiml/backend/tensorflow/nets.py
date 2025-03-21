@@ -123,6 +123,17 @@ def rmsprop(net: keras.Model, learning_rate: float = 1e-3, alpha=0.99, eps=1e-08
     return keras.optimizers.RMSprop(learning_rate, alpha, momentum, eps, centered)
 
 
+def set_learning_rate(optimizer: keras.optimizers.Optimizer, learning_rate: float):
+    """
+    Sets the global learning rate for the given optimizer.
+
+    Args:
+        optimizer (optim.Optimizer): The optimizer whose learning rate needs to be updated.
+        learning_rate (float): The new learning rate to set.
+    """
+    keras.backend.set_value(optimizer.lr, learning_rate)
+
+
 def mlp(in_channels: int,
               out_channels: int,
               layers: Sequence[int],
