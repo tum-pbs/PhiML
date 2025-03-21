@@ -816,6 +816,63 @@ class TestOps(TestCase):
                 assert_close(x_odd.x[::2], math.convolve(x_odd, identity_kernel3, strides=2, extrapolation=math.extrapolation.PERIODIC), msg=backend.name)
                 assert_close(x_odd.x[::2], math.convolve(x_odd, identity_kernel2, strides=2, extrapolation=math.extrapolation.PERIODIC), msg=backend.name)
                 assert_close([2, 4, 1], math.convolve(x_odd, shift_kernel3, strides=2, extrapolation=math.extrapolation.PERIODIC), msg=backend.name)
+                # full, no padding even
+                assert_close(x_even, math.convolve(x_even, identity_kernel1, full=True, extrapolation=0), msg=backend.name)
+                assert_close(math.pad(x_even, (1, 1)), math.convolve(x_even, identity_kernel3, full=True, extrapolation=0), msg=backend.name)
+                assert_close(math.pad(x_even, (0, 1)), math.convolve(x_even, identity_kernel2, full=True, extrapolation=0), msg=backend.name)
+                assert_close(math.pad(x_even, (0, 2)), math.convolve(x_even, shift_kernel3, full=True, extrapolation=0), msg=backend.name)
+
+                for size, out_size in zip([256, 257, 258, 259], [136, 137, 137, 138]):
+                    t = math.convolve(srange(x=size), srange(x=18), 0, strides=2, full=True)
+                    math.assert_close([17, 98, 235, 420], t[:4])
+                    assert t.shape.size == out_size, f"{t.shape.size} != {out_size}"
+
+                for size, out_size in zip([256, 257, 258, 259], [136, 136, 137, 137]):
+                    t = math.convolve(srange(x=size), srange(x=17), 0, strides=2, full=True)
+                    math.assert_close([16, 92, 220, 392], t[:4])
+                    assert t.shape.size == out_size, f"{t.shape.size} != {out_size}"
+
+                # full, zero-padding even
+                assert_close(x_even, math.convolve(x_even, identity_kernel1, 0, full=True))
+                assert_close(math.pad(x_even, (1, 1)), math.convolve(x_even, identity_kernel3, 0, full=True))
+                assert_close(math.pad(x_even, (0, 1)), math.convolve(x_even, identity_kernel2, 0, full=True))
+                assert_close(math.pad(x_even, (0, 2)), math.convolve(x_even, shift_kernel3, 0, full=True))
+                # # full, zero-padding odd
+                # assert_close(x_odd, math.convolve(x_odd, identity_kernel1, 0, full=True))
+                # assert_close(math.pad(x_odd, (1, 1)), math.convolve(x_odd, identity_kernel3, 0, full=True))
+                # assert_close(math.pad(x_odd, (0, 1)), math.convolve(x_odd, identity_kernel2, 0, full=True))
+                # assert_close(math.pad(x_odd, (0, 2)), math.convolve(x_odd, shift_kernel3, 0, full=True))
+                # # periodic padding even
+                # assert_close(x_even, math.convolve(x_even, identity_kernel1, math.extrapolation.PERIODIC))
+                # assert_close(x_even, math.convolve(x_even, identity_kernel3, math.extrapolation.PERIODIC))
+                # assert_close(x_even, math.convolve(x_even, identity_kernel2, math.extrapolation.PERIODIC))
+                # assert_close([2, 3, 4, 1], math.convolve(x_even, shift_kernel3, math.extrapolation.PERIODIC))
+                # # periodic padding odd
+                # assert_close(x_odd, math.convolve(x_odd, identity_kernel1, math.extrapolation.PERIODIC))
+                # assert_close(x_odd, math.convolve(x_odd, identity_kernel3, math.extrapolation.PERIODIC))
+                # assert_close(x_odd, math.convolve(x_odd, identity_kernel2, math.extrapolation.PERIODIC))
+                # assert_close([2, 3, 4, 5, 1], math.convolve(x_odd, shift_kernel3, math.extrapolation.PERIODIC))
+                # --- strided ---
+                # full, strided zero-padding even
+                assert_close([1, 3], math.convolve(x_even, identity_kernel1, 0, strides=2, full=True))
+                assert_close([1, 3, 0], math.convolve(x_even, identity_kernel3, 0, strides=2, full=True))
+                assert_close([2, 4], math.convolve(x_even, identity_kernel2, 0, strides=2, full=True))
+                assert_close([2, 4, 0], math.convolve(x_even, shift_kernel3, 0, strides=2, full=True))
+                # strided zero-padding odd
+                assert_close([1, 3, 5], math.convolve(x_odd, identity_kernel1, strides=2, extrapolation=0, full=True))
+                assert_close([1, 3, 5], math.convolve(x_odd, identity_kernel3, strides=2, extrapolation=0, full=True))
+                assert_close([2, 4, 0], math.convolve(x_odd, identity_kernel2, strides=2, extrapolation=0, full=True))
+                assert_close([2, 4, 0], math.convolve(x_odd, shift_kernel3, strides=2, extrapolation=0, full=True))
+                # # strided periodic padding even
+                # assert_close(x_even.x[::2], math.convolve(x_even, identity_kernel1, strides=2, extrapolation=math.extrapolation.PERIODIC))
+                # assert_close(x_even.x[::2], math.convolve(x_even, identity_kernel3, strides=2, extrapolation=math.extrapolation.PERIODIC))
+                # assert_close(x_even.x[::2], math.convolve(x_even, identity_kernel2, strides=2, extrapolation=math.extrapolation.PERIODIC))
+                # assert_close([2, 4], math.convolve(x_even, shift_kernel3, strides=2, extrapolation=math.extrapolation.PERIODIC))
+                # # strided periodic padding odd
+                # assert_close(x_odd.x[::2], math.convolve(x_odd, identity_kernel1, strides=2, extrapolation=math.extrapolation.PERIODIC))
+                # assert_close(x_odd.x[::2], math.convolve(x_odd, identity_kernel3, strides=2, extrapolation=math.extrapolation.PERIODIC))
+                # assert_close(x_odd.x[::2], math.convolve(x_odd, identity_kernel2, strides=2, extrapolation=math.extrapolation.PERIODIC))
+                # assert_close([2, 4, 1], math.convolve(x_odd, shift_kernel3, strides=2, extrapolation=math.extrapolation.PERIODIC))
 
     def test_convolution_1d_batched(self):
         for backend in BACKENDS:

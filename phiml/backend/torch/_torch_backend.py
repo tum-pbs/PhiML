@@ -604,7 +604,7 @@ class TorchBackend(Backend):
     def argmin(self, x, axis: int, keepdims=False):
         return x.argmin(dim=axis, keepdim=keepdims)
 
-    def conv(self, value, kernel, strides: tuple, zero_padding=True):
+    def conv(self, value, kernel, strides: tuple, mode: str, transpose: bool):
         value = self.as_tensor(value)
         kernel = self.as_tensor(kernel)
         value, kernel = self.auto_cast(value, kernel)
@@ -613,18 +613,41 @@ class TorchBackend(Backend):
             kernel = self.to_float(kernel)
         ndim = len(value.shape) - 2  # Number of spatial dimensions
         assert len(strides) == ndim, f"Expected {ndim} stride values, got {len(strides)}"
-        if zero_padding:
-            if all(s % 2 == 1 for s in kernel.shape[3:]):  # For odd kernel sizes, we can use PyTorch's padding
-                padding = [s // 2 for s in kernel.shape[3:]]
-            else:  # For even kernel sizes, we need to manually pad
+
+        if not transpose:
+            convf = {3: torchf.conv1d, 4: torchf.conv2d, 5: torchf.conv3d}[len(value.shape)]
+            if mode == 'same':
+                if all(s % 2 == 1 for s in kernel.shape[3:]):  # For odd kernel sizes, we can use PyTorch's padding
+                    padding = [s // 2 for s in kernel.shape[3:]]
+                else:  # For even kernel sizes, we need to manually pad
+                    padding = 0
+                    value_padding = sum([[s // 2, (s - 1) // 2] for s in kernel.shape[3:]], [])
+                    value = torchf.pad(value, value_padding)
+            elif mode == 'full':
+                default_size = [int(np.ceil((vs - ks + 1) / st)) for vs, ks, st in zip(value.shape[2:], kernel.shape[3:], strides)]  # size if no padding is used
+                outsize = [max(ds, (vs + ks - 1) // st) for ds, vs, ks, st in zip(default_size, value.shape[2:], kernel.shape[3:], strides)]
+                lr_padding = [max(0, st * (os-1) - vs + ks) for st, os, vs, ks in zip(strides, outsize, value.shape[2:], kernel.shape[3:])]
+                padding = [p//2 for p in lr_padding]
+                if any(p % 2 != 0 for p in lr_padding):  # PyTorch conv only supports symmetric left-right (even) padding
+                    value_padding = sum([(0, int(p%2!=0)) for p in lr_padding], ())
+                    if any(value_padding) > 0:
+                        value = torchf.pad(value, value_padding)
+            else:  # valid
                 padding = 0
-                value_padding = sum([[s // 2, (s - 1) // 2] for s in kernel.shape[3:]], [])
-                value = torchf.pad(value, value_padding)
-        else:
-            padding = 0
-        convf = {3: torchf.conv1d, 4: torchf.conv2d, 5: torchf.conv3d}[len(value.shape)]
+        else:  # transpose convolution, padding makes output smaller here
+            convf = {3: torchf.conv_transpose1d, 4: torchf.conv_transpose2d, 5: torchf.conv_transpose3d}[len(value.shape)]
+            if mode == 'same':
+                padding = [ks // 2 for ks in kernel.shape[3:]]
+                raise NotImplementedError
+            elif mode == 'full':
+                padding = [max(0, ks - st) for st, ks in zip(strides, kernel.shape[3:])]
+                # padding = [2]; print(convf(value, kernel[0, ...], padding=padding, stride=strides).shape)
+            else:  # valid
+                raise NotImplementedError
+        # --- Run the (transposed) convolution ---
         if kernel.shape[0] == 1:
             result = convf(value, kernel[0, ...], padding=padding, stride=strides)
+            # assert result.shape[-1] == outsize[0], f"PyTorch outputted shape {result.shape}, expected {outsize}. value.shape={value.shape[-1]}, kernel.shape={kernel.shape[-1]}, strides={strides}, default={default_size}, padding={padding}"
         else:
             result = []
             for b in range(kernel.shape[0]):

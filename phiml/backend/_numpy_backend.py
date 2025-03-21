@@ -289,23 +289,26 @@ class NumPyBackend(Backend):
     def min(self, x, axis=None, keepdims=False):
         return np.min(x, axis, keepdims=keepdims)
 
-    def conv(self, value, kernel, strides: tuple, zero_padding=True):
+    def conv(self, value, kernel, strides: tuple, mode: str):
         assert kernel.shape[0] in (1, value.shape[0])
         assert value.shape[1] == kernel.shape[2], f"value has {value.shape[1]} channels but kernel has {kernel.shape[2]}"
         assert value.ndim + 1 == kernel.ndim
         value, kernel = self.auto_cast(value, kernel, bool_to_int=True)
-        if zero_padding:
+        if mode == 'same':
             output_sp = [(d-1)//s + 1 for d, s in zip(value.shape[2:], strides)]
-        else:
+        elif mode == 'valid':
             output_sp = [(value.shape[i + 2] - kernel.shape[i + 3])//strides[i] + 1 for i in range(value.ndim - 2)]
+        elif mode == 'full':
+            output_sp = [int(np.ceil((vs + ks - 1) / st)) for vs, ks, st in zip(value.shape[2:], kernel.shape[3:], strides)]
+        has_strides = not all(st == 1 for st in strides)
         result = np.zeros((value.shape[0], kernel.shape[1], *output_sp), dtype=to_numpy_dtype(self.float_type))
-        mode = 'same' if zero_padding else 'valid'
         for b in range(value.shape[0]):
             b_kernel = kernel[min(b, kernel.shape[0] - 1)]
             for o in range(kernel.shape[1]):
                 for i in range(value.shape[1]):
                     full = scipy.signal.correlate(value[b, i, ...], b_kernel[o, i, ...], mode=mode)
-                    result[b, o, ...] += full[tuple(slice(None, None, stride) for stride in strides)]
+                    offset = [2*os < full.size for os in output_sp]
+                    result[b, o, ...] += full[tuple(slice(0, None, st) for o, st in zip(offset, strides))] if has_strides else full
         return result
 
     def expand_dims(self, a, axis=0, number=1):

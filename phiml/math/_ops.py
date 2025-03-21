@@ -2653,10 +2653,11 @@ def clip(x: Tensor, lower_limit: Union[float, Tensor] = 0, upper_limit: Union[fl
 
 def convolve(value: Tensor,
              kernel: Tensor,
-             /,
-             extrapolation: 'e_.Extrapolation' = None,
+             extrapolation: 'Union[e_.Extrapolation, float]' = None,
              dims: DimFilter = spatial,
-             strides: Union[int, Dict[str, int]] = 1) -> Tensor:
+             strides: Union[int, Dict[str, int]] = 1,
+             full=False,
+             transpose=False) -> Tensor:
     """
     Computes the convolution of `value` and `kernel` along the specified dims.
 
@@ -2679,14 +2680,26 @@ def convolve(value: Tensor,
     in_dims = value.shape.only(dual(kernel).as_batch().names)
     out_dims = non_dual(kernel) - dims - batch(value)
     batch_dims = (value.shape - dims - in_dims) & (non_dual(kernel) - dims - out_dims)
-    if extrapolation is not None and extrapolation != e_.ZERO:
-        value = pad(value, {dim: (kernel.shape.get_size(dim) // 2, (kernel.shape.get_size(dim) - 1) // 2) for dim in dims.names}, extrapolation)
+    extrapolation = e_.as_extrapolation(extrapolation)
+    if extrapolation == e_.PERIODIC:
+        full = False
+    if extrapolation is not None and extrapolation != e_.ZERO:  # custom padding, cannot be handled by backend
+        mode = 'valid'
+        if full:
+            value = pad(value, {dim: (kernel.shape.get_size(dim) - 1, kernel.shape.get_size(dim) - 1) for dim in dims.names}, extrapolation)
+        else:
+            value = pad(value, {dim: (kernel.shape.get_size(dim) // 2, (kernel.shape.get_size(dim) - 1) // 2) for dim in dims.names}, extrapolation)
+    elif extrapolation is None:
+        assert not full, f"full convolution requires extrapolation but got None"
+        mode = 'valid'
+    else:  # zero padding to be performed by backend
+        mode = 'full' if full else 'same'
     backend = backend_for(value, kernel)
     native_kernel = kernel.native((batch_dims if batch(kernel) else EMPTY_SHAPE, out_dims, dual(kernel), *dims))
     native_value = value.native((batch_dims, in_dims, *dims.names))
     native_strides = (strides,) * len(dims) if isinstance(strides, int) else [strides.get(dim, 1) for dim in dims.names]
-    native_result = backend.conv(native_value, native_kernel, native_strides, zero_padding=extrapolation == e_.ZERO)
-    result = reshaped_tensor(native_result, (batch_dims, out_dims, *dims))
+    native_result = backend.conv(native_value, native_kernel, native_strides, mode=mode, transpose=transpose)
+    result = reshaped_tensor(native_result, (batch_dims, out_dims, *dims), convert=False)
     return result
 
 
