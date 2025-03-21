@@ -1,7 +1,7 @@
 import numbers
 import warnings
 from functools import wraps
-from typing import List, Callable, Optional, Set, Tuple, Any, Union, Sequence
+from typing import List, Callable, Optional, Set, Tuple, Any, Union, Sequence, Dict
 
 import numpy as np
 import torch
@@ -95,6 +95,20 @@ class TorchBackend(Backend):
             raise NotImplementedError()
         else:
             return self.as_tensor(obj)
+
+    def variable(self, x):
+        return torch.nn.Parameter(self.as_tensor(x))
+
+    def module(self, variables: Dict[str, TensorType], forward: Callable = None):
+        class CustomTorchModule(torch.nn.Module):
+            def __init__(self):
+                super().__init__()
+                for name, var in variables.items():
+                    assert isinstance(var, torch.nn.Parameter)
+                    setattr(self, name, var)
+            def forward(self, *args, **kwargs):
+                return forward(*args, **kwargs)
+        return CustomTorchModule()
 
     def auto_cast(self, *tensors, **kwargs) -> list:
         tensors = [t if isinstance(t, (numbers.Number, bool)) else self.as_tensor(t, True) for t in tensors]

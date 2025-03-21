@@ -8,7 +8,7 @@ from contextlib import contextmanager
 from dataclasses import dataclass
 from numbers import Number
 from types import ModuleType
-from typing import List, Callable, TypeVar, Tuple, Union, Optional, Sequence
+from typing import List, Callable, TypeVar, Tuple, Union, Optional, Sequence, Dict
 
 import numpy
 import numpy as np
@@ -361,6 +361,12 @@ class Backend:
           tensor representation of `x`
 
         """
+        raise NotImplementedError(self.__class__)
+
+    def variable(self, x):
+        raise NotImplementedError(self.__class__)
+
+    def module(self, variables: Dict[str, TensorType], forward: Callable = None):
         raise NotImplementedError(self.__class__)
 
     def is_available(self, tensor) -> bool:
@@ -1620,9 +1626,6 @@ class Backend:
         Returns:
             sampled values with linear interpolation
         """
-        return NotImplemented
-
-    def variable(self, value):
         return NotImplemented
 
     def ndims(self, tensor):
