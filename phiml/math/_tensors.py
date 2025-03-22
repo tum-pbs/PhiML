@@ -1048,7 +1048,7 @@ class Layout(Tensor):
 
     def __stack__(self, values: tuple, dim: Shape, **kwargs) -> 'Layout':
         obj = [v.native(self._stack_dim) for v in values]
-        new_stack_dim = dim + self._stack_dim
+        new_stack_dim = shape_stack(dim, *[v._stack_dim for v in values])
         return Layout(obj, new_stack_dim)
 
     @staticmethod
