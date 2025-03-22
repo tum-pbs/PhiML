@@ -134,6 +134,7 @@ setup(
               'phiml.backend.tensorflow',
               'phiml.dataclasses',
               'phiml.math',
+              'phiml.os',
           ],
     cmdclass={
         'tf_cuda': CudaCommand,
