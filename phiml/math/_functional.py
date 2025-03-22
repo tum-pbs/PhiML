@@ -279,7 +279,7 @@ class JitFunction:
         if isinstance(self.f, GradientFunction) and key.backend.supports(Backend.jit_compile_grad):
             return self.grad_jit(*args, **kwargs)
         if not key.backend.supports(Backend.jit_compile):
-            warnings.warn(f"jit_copmile() not supported by {key.backend}. Running function '{f_name(self.f)}' as-is.", RuntimeWarning)
+            warnings.warn(f"jit_copmile() not supported by {key.backend}. Running function '{f_name(self.f)}' as-is.", RuntimeWarning, stacklevel=2)
             return self.f(*args, **kwargs)
         # --- do we need to trace? ---
         if key in self.traces:
@@ -1219,7 +1219,7 @@ map_c2d = partial(map_types, dims=channel, dim_type=dual)
 map_c2d.__doc__ = "Map channel dims to type dual. Short for `map_types(f, spatial, batch)`."
 
 
-def broadcast(function=None, dims=shape, range=range, unwrap_scalars=True, simplify=False):
+def broadcast(function=None, dims=shape, range=range, unwrap_scalars=True, simplify=False, name: Union[str, bool] = True):
     """
     Function decorator for non-vectorized functions.
     When passing `Tensor` arguments to a broadcast function, the function is called once for each slice of the tensor.
@@ -1237,6 +1237,7 @@ def broadcast(function=None, dims=shape, range=range, unwrap_scalars=True, simpl
         range: Optional range function. Can be used to generate `tqdm` output by passing `trange`.
         unwrap_scalars: If `True`, passes the contents of scalar `Tensor`s instead of the tensor objects.
         simplify: If `True`, reduces constant dims of output tensors that don't vary across broadcast slices.
+        name: Name to pass to `phiml.math.map()`. This may be displayed using `tqdm`. If `True`, uses the function name.
 
     Returns:
         Broadcast function
@@ -1244,9 +1245,13 @@ def broadcast(function=None, dims=shape, range=range, unwrap_scalars=True, simpl
     if function is None:
         kwargs = {k: v for k, v in locals().items() if v is not None}
         return partial(broadcast, **kwargs)
+    if name is True:
+        name = f_name(function)
+    elif name is False:
+        name = None
     @wraps(function)
     def broadcast_(*args, **kwargs):
-        return map_(function, *args, dims=dims, range=range, unwrap_scalars=unwrap_scalars, simplify=simplify, map_name=f_name(function), **kwargs)
+        return map_(function, *args, dims=dims, range=range, unwrap_scalars=unwrap_scalars, simplify=simplify, map_name=name, **kwargs)
     return broadcast_
 
 
