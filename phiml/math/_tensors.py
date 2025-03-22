@@ -1,5 +1,6 @@
 import dataclasses
 import operator
+import os.path
 from numbers import Number
 import traceback
 import warnings
@@ -3043,56 +3044,90 @@ def specs_equal(spec1, spec2):
     return spec1 == spec2
 
 
-def save(file: str, obj):
+def save(file: Union[Tensor, str], obj: TensorOrTree, mkdir=True):
     """
     Saves a `Tensor` or tree using NumPy.
     This function converts all tensors contained in `obj` to NumPy tensors before storing.
     Each tensor is given a name corresponding to its path within `obj`, allowing reading only specific arrays from the file later on.
     Pickle is used for structures, but no reference to `Tensor` or its sub-classes is included.
 
+    Examples:
+
+        >>> B = batch(b=3)
+        >>> files = -f-f"data/test_{arange(B)}.npz"
+        >>> data = randn(B, spatial(x=10))
+        >>> save(files, data)  # store 10 values per file
+        >>> assert_close(data, load(files))
+
     See Also:
         `load()`.
 
     Args:
-        file: Target file, will be stored as `.npz`.
+        file: Either single file to read as `str` or a batch of files as a string `Tensor`. The file ending will be completed to `.npz`.
+            When a batch of paths is provided, the data `obj` is sliced along the dims of `file` and broken up to be stored among the multiple files.
+            For obtaining a batch of files, see `wrap()`, `phiml.os.listdir()`, `phiml.math.f`.
         obj: `Tensor` or tree to store.
+        mkdir: Whether to create the file's directory if it doesn't exist.
     """
     tree, tensors = disassemble_tree(obj, False, all_attributes)
     paths = attr_paths(obj, all_attributes, 'root')
     assert len(paths) == len(tensors)
-    natives = [t._natives() for t in tensors]
-    specs = [serialize_spec(t._spec_dict()) for t in tensors]
-    native_paths = [[f'{p}:{i}' for i in range(len(ns))] for p, ns in zip(paths, natives)]
-    all_natives = sum(natives, ())
-    all_paths = sum(native_paths, [])
-    all_np = [choose_backend(n).numpy(n) for n in all_natives]
-    np.savez(file, tree=np.asarray(tree, dtype=object), specs=specs, paths=paths, **{p: n for p, n in zip(all_paths, all_np)})
+    for idx in shape(file).meshgrid():
+        file_i = file[idx].native() if isinstance(file, Tensor) else file
+        tensors_i = [t[idx] for t in tensors]
+        natives = [t._natives() for t in tensors_i]
+        specs = [serialize_spec(t._spec_dict()) for t in tensors_i]
+        native_paths = [[f'{p}:{i}' for i in range(len(ns))] for p, ns in zip(paths, natives)]
+        all_natives = sum(natives, ())
+        all_paths = sum(native_paths, [])
+        all_np = [choose_backend(n).numpy(n) for n in all_natives]
+        if mkdir:
+            os.makedirs(os.path.basename(os.path.dirname(file_i)), exist_ok=True)
+        np.savez(file_i, tree=np.asarray(tree, dtype=object), specs=specs, paths=paths, **{p: n for p, n in zip(all_paths, all_np)})
 
 
-def load(file: str):
+def load(file: Union[str, Tensor]):
     """
-    Loads a `Tensor` or tree from a file previously written using `save`.
+    Loads a `Tensor` or tree from one or multiple files previously written using `save`.
 
     All tensors are restored as NumPy arrays, not the backend-specific tensors they may have been written as.
     Use `convert()` to convert all or some of the tensors to a different backend.
 
+    Examples:
+
+        >>> B = batch(b=3)
+        >>> files = -f-f"data/test_{arange(B)}.npz"
+        >>> data = randn(B, spatial(x=10))
+        >>> save(files, data)  # store 10 values per file
+        >>> assert_close(data, load(files))
+
+    See Also:
+        `save()`.
+
     Args:
-        file: File to read.
+        file: Either single file to read as `str` or a batch of files as a string `Tensor`.
+            When a batch of paths is provided, each file is loaded and the results are stacked according to the dims of `file`.
+            For obtaining a batch of files, see `wrap()`, `phiml.os.listdir()`, `phiml.math.f`.
 
     Returns:
         Same type as what was written.
     """
-    data = np.load(file, allow_pickle=True)
-    all_np = {k: data[k] for k in data if k not in ['tree', 'specs', 'paths']}
-    specs = [unserialize_spec(spec) for spec in data['specs'].tolist()]
-    tensors = assemble_tensors(list(all_np.values()), specs)
-    tree = data['tree'].tolist()  # this may require outside classes via pickle
-    stored_paths = data['paths'].tolist()
-    new_paths = attr_paths_from_container(tree, all_attributes, 'root')
-    if tuple(stored_paths) != tuple(new_paths):
-        lookup = {path: t for path, t in zip(stored_paths, tensors)}
-        tensors = [lookup[p] for p in new_paths]
-    return assemble_tree(tree, tensors, attr_type=all_attributes)
+    def load_single(file: str):
+        data = np.load(file, allow_pickle=True)
+        all_np = {k: data[k] for k in data if k not in ['tree', 'specs', 'paths']}
+        specs = [unserialize_spec(spec) for spec in data['specs'].tolist()]
+        tensors = assemble_tensors(list(all_np.values()), specs)
+        tree = data['tree'].tolist()  # this may require outside classes via pickle
+        stored_paths = data['paths'].tolist()
+        new_paths = attr_paths_from_container(tree, all_attributes, 'root')
+        if tuple(stored_paths) != tuple(new_paths):
+            lookup = {path: t for path, t in zip(stored_paths, tensors)}
+            tensors = [lookup[p] for p in new_paths]
+        return assemble_tree(tree, tensors, attr_type=all_attributes)
+    if isinstance(file, str):
+        return load_single(file)
+    from ._functional import map_
+    return map_(load_single, file)
 
 
 def serialize_spec(spec: dict):
