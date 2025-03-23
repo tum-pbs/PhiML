@@ -2438,8 +2438,9 @@ def auto(spec: Union[str, Shape], default_type: Callable = None) -> Shape:
     if isinstance(spec, SHAPE_TYPES):
         return spec  # allow multi-dim Shapes as well, as the main application is stacking
     assert isinstance(spec, str), f"spec must be a Shape or str but got {type(spec)}"
-    assert ',' not in spec, f"auto dim only supported for single dimensions"
-    return parse_shape_spec(spec, default_type=default_type)
+    result = parse_shape_spec(spec, default_type=default_type)
+    assert result.rank == 1, f"Single dim required but got {result.rank} dims from spec '{spec}'"
+    return result
 
 
 class InvalidShapeSpec(ValueError):

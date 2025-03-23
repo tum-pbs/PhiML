@@ -18,7 +18,7 @@ from ._shape import (Shape,
                      CHANNEL_DIM, BATCH_DIM, SPATIAL_DIM, EMPTY_SHAPE,
                      parse_dim_order, shape_stack, merge_shapes, channel, concat_shapes, primal,
                      SUPERSCRIPT, IncompatibleShapes, INSTANCE_DIM, batch, spatial, dual, instance, shape, shape as shape_, DimFilter, non_batch, DEBUG_CHECKS, parse_shape_spec,
-                     prepare_renaming_gather, after_gather, concat_shapes_, Dim, PureShape, SHAPE_TYPES)
+                     prepare_renaming_gather, after_gather, concat_shapes_, Dim, PureShape, SHAPE_TYPES, auto)
 from ..backend import NoBackendFound, choose_backend, BACKENDS, get_precision, default_backend, convert as convert_, \
     Backend, ComputeDevice, OBJECTS, NUMPY, ML_LOGGER
 from ..backend._backend import get_operator
@@ -1680,8 +1680,9 @@ def tensor(data,
     Args:
         data: native tensor, sparse COO / CSR / CSC matrix, scalar, sequence, `Shape` or `Tensor`
         shape: Ordered dimensions and types. If sizes are defined, they will be checked against `data`.`
-            You may also pass a single `str` specifying dimension in the format `name:t` or `name:t=(item_names)` where `t` refers to the type letter, one of s,i,c,d,b.
-            Alternatively, you can pass a `list` of shapes which will call `reshaped_tensor`.
+            When passing multiple shapes, they will be concatenated. Duplicate names are not allowed.
+            Instead of `Shape` instances, you may pass strings specifying dims in the format `name:t` or `name:t=(item_names)` where `t` refers to the type letter, one of s,i,c,d,b.
+            Alternatively, you can pass a single `list` of shapes which will call `reshaped_tensor`. This allows for unpacking native dims into multiple dims.
         convert: If True, converts the data to the native format of the current default backend.
             If False, wraps the data in a `Tensor` but keeps the given data reference if possible.
 
@@ -1709,7 +1710,7 @@ def tensor(data,
         (vectorᶜ=10) float64 -0.128 ± 1.197 (-2e+00...2e+00)
     """
     if len(shape) == 1 and isinstance(shape[0], list):
-        return reshaped_tensor(data, shape[0], convert=convert)
+        return reshaped_tensor(data, shape[0], convert=convert, check_sizes=True)
     shape = [parse_shape_spec(s) if isinstance(s, str) else s for s in shape]
     shape = None if len(shape) == 0 else concat_shapes_(*shape)
     if isinstance(data, SHAPE_TYPES):
@@ -2492,7 +2493,7 @@ def reshaped_numpy(value: Tensor, groups: Union[tuple, list], force_expand: Any 
 
 
 def reshaped_tensor(value: Any,
-                    groups: Union[tuple, list],
+                    groups: Sequence[Union[Shape, str]],
                     check_sizes=False,
                     convert=True):
     """
@@ -2511,8 +2512,9 @@ def reshaped_tensor(value: Any,
     Returns:
         `Tensor` with all dimensions from `groups`
     """
-    assert all(isinstance(g, SHAPE_TYPES) for g in groups), "groups must be a sequence of Shapes"
+    assert all(isinstance(g, SHAPE_TYPES+(str,)) for g in groups), "groups must be a sequence of Shapes"
     v_shape = choose_backend(value).staticshape(value)
+    groups = [g if isinstance(g, Shape) else auto(g) for g in groups]
     dims = [batch(f'group{i}') if group.rank != 1 else (group if check_sizes else group.with_size(v_shape[i])) for i, group in enumerate(groups)]
     try:
         value = tensor(value, *dims, convert=convert)
