@@ -2668,8 +2668,10 @@ def convolve(value: Tensor,
         value: `Tensor` whose shape includes all spatial dimensions of `kernel`.
         kernel: `Tensor` used as convolutional filter.
         dims: Which dimensions to convolve over. Defaults to all spatial dims.
-        extrapolation: If not None, pads `value` so that the result has the same shape as `value`.
+        extrapolation: If `None`, convolve only where `kernel` fits into `value`, i.e. 'valid'. Otherwise, pads `value` with the specified extrapolation. The amount of padding depends on `full`.
         strides: Convolution strides for applying `kernel` to a subset of `value` only. This will result in a smaller output. The stride can be specified per dim, with missing dims defaulting to `1`.
+        full: If `True`, the output contains all values of the convolution, including those where the kernel extends beyond the input. If `False`, the output is the same size as the input.
+        transpose: If `True`, the kernel is transposed before convolution, and strides are replaced by up-sampling.
 
     Returns:
         `Tensor` with all non-reduced dims of `value` and additional non-dual dims from `kernel`.

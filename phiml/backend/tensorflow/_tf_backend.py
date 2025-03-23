@@ -478,12 +478,14 @@ class TFBackend(Backend):
         with self._device_for(a, x):
             return tf.math.igammac(a, x)
 
-    def conv(self, value, kernel, strides: tuple, zero_padding=True):
+    def conv(self, value, kernel, strides: tuple, mode: str, transpose: bool):
+        assert not transpose, "transpose conv not yet supported for TensorFlow"
+        assert mode in ['same', 'valid'], "full conv not yet supported for TensorFlow"
         assert all(s == 1 for s in strides), f"Strided convolution not supported in TensorFlow backend, got strides={strides}"
         with self._device_for(value, kernel):
             value = self.to_float(value)
             kernel = self.to_float(kernel)  # should use auto_cast but TensorFlow only supports DT_HALF, DT_BFLOAT16, DT_FLOAT, DT_DOUBLE, DT_INT32
-            if zero_padding:
+            if mode == 'same':
                 value_padding = [[0, 0]] * 2 + [[s // 2, (s - 1) // 2] for s in kernel.shape[3:]]
                 value = tf.pad(value, value_padding)
             convf = {3: partial(tf.nn.conv1d, stride=1),
