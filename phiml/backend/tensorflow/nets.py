@@ -134,6 +134,16 @@ def set_learning_rate(optimizer: keras.optimizers.Optimizer, learning_rate: floa
     keras.backend.set_value(optimizer.lr, learning_rate)
 
 
+def get_learning_rate(optimizer: keras.optimizers.Optimizer):
+    """
+    Gets the global learning rate for the given optimizer.
+
+    Args:
+        optimizer (optim.Optimizer): The optimizer whose learning rate needs to be updated.
+    """
+    return keras.backend.get_value(optimizer.lr)
+
+
 def mlp(in_channels: int,
               out_channels: int,
               layers: Sequence[int],

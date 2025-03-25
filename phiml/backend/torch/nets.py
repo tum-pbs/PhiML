@@ -118,6 +118,19 @@ def set_learning_rate(optimizer: optim.Optimizer, learning_rate: float):
         param_group['lr'] = learning_rate
 
 
+def get_learning_rate(optimizer: optim.Optimizer):
+    """
+    Returns the current learning rate of the optimizer.
+
+    Args:
+        optimizer (optim.Optimizer): The optimizer whose learning rate needs to be retrieved.
+
+    Returns:
+        float: The current learning rate of the optimizer.
+    """
+    return optimizer.param_groups[0]['lr']
+
+
 def _bias0(conv):
     def initialize(*args, **kwargs):
         module = conv(*args, **kwargs)

@@ -155,6 +155,19 @@ def set_learning_rate(optimizer: Optimizer, learning_rate: Union[float, Tensor])
     _native_lib().set_learning_rate(optimizer, float(learning_rate))
 
 
+def get_learning_rate(optimizer: Optimizer) -> float:
+    """
+    Returns the global learning rate of the given optimizer.
+
+    Args:
+        optimizer (optim.Optimizer): The optimizer whose learning rate needs to be retrieved.
+
+    Returns:
+        float: The learning rate of the optimizer.
+    """
+    return _native_lib().get_learning_rate(optimizer)
+
+
 def mlp(in_channels: int,
               out_channels: int,
               layers: Sequence[int],
