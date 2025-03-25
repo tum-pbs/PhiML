@@ -3083,7 +3083,7 @@ def save(file: Union[Tensor, str], obj: TensorOrTree, mkdir=True):
         all_natives = sum(natives, ())
         all_paths = sum(native_paths, [])
         all_np = [choose_backend(n).numpy(n) for n in all_natives]
-        if mkdir:
+        if mkdir and os.path.dirname(file_i):
             os.makedirs(os.path.basename(os.path.dirname(file_i)), exist_ok=True)
         np.savez(file_i, tree=np.asarray(tree, dtype=object), specs=specs, paths=paths, **{p: n for p, n in zip(all_paths, all_np)})
 
