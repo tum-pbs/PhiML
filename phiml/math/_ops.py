@@ -149,7 +149,7 @@ def copy(value: Tensor):
     return value._op1(lambda native: choose_backend(native).copy(native))
 
 
-def native_call(f: Callable, *inputs: Tensor, channels_last=None, channel_dim='vector', spatial_dim=None):
+def native_call(f: Callable, *inputs: Tensor, channels_last=None, channel_dim='vector', spatial_dim=None, **f_kwargs):
     """
     Calls `f` with the native representations of the `inputs` tensors in standard layout and returns the result as a `Tensor`.
 
@@ -190,7 +190,7 @@ def native_call(f: Callable, *inputs: Tensor, channels_last=None, channel_dim='v
     for i in inputs:
         groups = [b_dims, *i.shape.spatial.names, i.shape.channel] if channels_last else [b_dims, i.shape.channel, *i.shape.spatial.names]
         natives.append(i.native(groups, force_expand=False))
-    output = f(*natives)
+    output = f(*natives, **f_kwargs)
     if not channel_dim:
         channel_dim = EMPTY_SHAPE
     elif isinstance(channel_dim, str):
