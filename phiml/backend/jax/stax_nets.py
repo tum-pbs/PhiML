@@ -168,6 +168,7 @@ def save_state(obj: Union[StaxNet, JaxOptimizer], path: str):
         np.savez(path, state=np.array(data, dtype=object), allow_pickle=True)
     else:
         raise ValueError(f"obj must be a network or optimizer but got {type(obj)}")
+    return path
 
 
 def load_state(obj: Union[StaxNet, JaxOptimizer], path: str):

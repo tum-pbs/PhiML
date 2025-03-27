@@ -43,6 +43,7 @@ def save_state(obj: Union[nn.Module, optim.Optimizer], path: str):
     if not path.endswith('.pth'):
         path += '.pth'
     torch.save(obj.state_dict(), path)
+    return path
 
 
 def load_state(obj: Union[nn.Module, optim.Optimizer], path: str):

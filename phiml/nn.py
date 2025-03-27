@@ -65,7 +65,7 @@ def get_parameters(net: Network) -> Dict[str, Tensor]:
     return _native_lib().get_parameters(net)
 
 
-def save_state(obj: Union[Network, Optimizer], path: str):
+def save_state(obj: Union[Network, Optimizer], path: str) -> str:
     """
     Write the state of a module or optimizer to a file.
 
@@ -75,6 +75,9 @@ def save_state(obj: Union[Network, Optimizer], path: str):
     Args:
         obj: `torch.Network or torch.optim.Optimizer`
         path: File path as `str`.
+
+    Returns:
+        Path to the saved file.
     """
     return _native_lib().save_state(**locals())
 

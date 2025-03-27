@@ -68,12 +68,14 @@ def save_state(obj: Union[keras.models.Model, keras.optimizers.Optimizer], path:
         if not path.endswith('.h5'):
             path += '.h5'
         obj.save_weights(path)
+        return path
     elif isinstance(obj, keras.optimizers.Optimizer):
         if not path.endswith('.pkl'):
             path += '.pkl'
         weights = obj.get_weights()
         with open(path, 'wb') as f:
             pickle.dump(weights, f)
+        return path
     else:
         raise ValueError("obj must be a Keras model or optimizer")
 
