@@ -808,6 +808,8 @@ def slicing_dict(obj, item, existing_only=True) -> dict:
                 return key
             elif isinstance(key, SHAPE_TYPES):
                 return key.name
+            elif isinstance(key, tuple) and all(isinstance(k, str) for k in key):
+                return key
             else:
                 raise ValueError(f"Illegal slicing dim: {key}. Only str and single-dim Shape and filters are allowed. While trying to slice {obj} by {item}")
         result = {valid_key(k): v for k, v in item.items()}
@@ -831,10 +833,11 @@ def slicing_dict(obj, item, existing_only=True) -> dict:
         mask_dim = item.shape.non_batch or item.shape
         return {mask_dim.name: item}
     elif isinstance(item, Tensor) and item.dtype.kind == int and channel(item):  # gather
-        if channel(item).size > 1:
-            raise NotImplementedError("Gathering multiple dims using data[indices] not supported yet.")
         assert channel(item).item_names[0], f"When gathering using data[indices], indices Tensor must declare the indexed dimension as the item name of its channel dim but got {item.shape}"
-        return {channel(item).item_names[0][0]: item}
+        if channel(item).size == 1:
+            return {channel(item).item_names[0][0]: item}
+        else:
+            return {tuple(channel(item).item_names[0]): item}
     elif isinstance(item, str):
         items = item.split('->', 1)[0] if '->' in item else item
         item_names = set([s.strip() for s in items.split(",")])
