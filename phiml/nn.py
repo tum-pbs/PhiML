@@ -8,13 +8,18 @@ Includes
 * Parameter access
 * Saving and loading networks and optimizer states.
 """
+import os
+import time
 import warnings
+from dataclasses import dataclass
+from itertools import count
 from typing import Callable, Union, Sequence, Dict, TypeVar
 
-from .backend import default_backend, Backend, BACKENDS
+from .backend import default_backend, Backend, BACKENDS, ComputeDevice
 from .backend._backend import init_backend
-from .math import Tensor, use as _use
-
+from . import math, non_channel
+from .math import Tensor, Shape, use as _use, batch, layout, load, shape, convert, to_device, pack_dims, EMPTY_SHAPE
+from .math.perm import random_permutation
 
 use = _use
 
@@ -343,3 +348,79 @@ def invertible_net(num_blocks: int = 3,
 #         Fourier Neural Operator model as specified by input arguments.
 #     """
 #     return _native_lib().fno(**locals())
+
+
+@dataclass
+class TrainingResult:
+    model_file: str
+    final_loss: Union[float, Tensor]
+
+
+def train(name: str, model, optimizer, loss_fn: Callable,
+          *files_or_data: Union[str, Tensor],
+          max_epochs: int = None, max_iter: int = None, max_hours: float = None, stop_on_loss: float = None,
+          batch_size: int = 1, file_shape: Shape = EMPTY_SHAPE, dataset_dims: Shape = batch, device: ComputeDevice = None, drop_last=False, loss_kwargs=None,
+          lr_schedule_iter=None, checkpoint_frequency=None, loader=math.load):
+    """
+    Call `update_weights()` for each batch in a loop for each epoch.
+
+    Args:
+        name: Name of the model. This is used as a name to save the model and optimizer states.
+        model:
+        optimizer:
+        loss_fn:
+        files:
+        epochs:
+        batch_size:
+        file_shape: Shape of data stored in each file.
+        dataset_dims:
+        device:
+        loader: Function `(file: str) -> data`.
+
+    Returns:
+
+    """
+    files_or_data = [layout(fs) if isinstance(fs, str) else fs for fs in files_or_data]
+    data_shape = shape(files_or_data) & file_shape
+    loss_kwargs = {} if loss_kwargs is None else loss_kwargs
+    device = device if device is not None else default_backend().get_default_device()
+    default_backend().set_default_device('CPU')
+    data = [convert(math.map(lambda f: loader(f), fs, map_name="Loading data")) if isinstance(fs, str) or (isinstance(fs, Tensor) and fs.dtype.kind == object) else fs for fs in files_or_data]
+    data_shape = shape(data)
+    dataset_dims = data_shape.only(dataset_dims)
+    batch_size = min(batch_size, dataset_dims.volume)
+    batch_count = dataset_dims.volume // batch_size if drop_last else (dataset_dims.volume + batch_size - 1) // batch_size
+    niter = 0
+    os.makedirs(name, exist_ok=True)
+    termination_reason = None
+    t0 = time.perf_counter()
+    for epoch in range(max_epochs) if max_epochs is not None else count():
+        default_backend().set_default_device('CPU')
+        indices = pack_dims(random_permutation(dataset_dims, dims=dataset_dims), non_channel, batch('dset_linear'))
+        default_backend().set_default_device(device)
+        for i in range(batch_count):
+            if lr_schedule_iter is not None:
+                set_learning_rate(optimizer, lr_schedule_iter(niter))
+            batch_idx = indices.dset_linear[i * batch_size:(i + 1) * batch_size]
+            data_batch = to_device(math.slice(data, batch_idx), device)
+            output = update_weights(model, optimizer, loss_fn, *data_batch, **loss_kwargs)
+            loss = output[0] if isinstance(output, (tuple, list)) else output
+            print(f"Epoch {epoch + 1}, Batch {i + 1}/{batch_count}, {loss}")
+            niter += 1
+            if max_iter is not None and niter >= max_iter:
+                termination_reason = 'max_iter'
+                break
+            if stop_on_loss is not None and (loss.mean < stop_on_loss):
+                termination_reason = 'stop_on_loss'
+                break
+            if max_hours is not None and time.perf_counter() - t0 > max_hours * 3600:
+                termination_reason = 'max_hours'
+                break
+        if termination_reason is not None:
+            break
+        if checkpoint_frequency is not None and (epoch + 1) % checkpoint_frequency == 0:
+            save_state(model, f"{name}/model_{epoch + 1}")
+            save_state(optimizer, f"{name}/optimizer_{epoch + 1}")
+    path = save_state(model, f"{name}/model")
+    print(f"Saved {name} to {path}")
+    return TrainingResult(path, loss)
