@@ -26,7 +26,12 @@ def sparse_tensor(indices: Optional[Tensor],
                   indices_constant: bool = True) -> Tensor:
     """
     Construct a sparse tensor that stores `values` at the corresponding `indices` and is 0 everywhere else.
+    Duplicate entries (entries with the same indices) are identical to one entry with the sum of the corresponding values.
+    This can be performed explicitly using `sum_equal_entries()`.
+
     In addition to the sparse dimensions indexed by `indices`, the tensor inherits all batch and channel dimensions from `values`.
+
+    Sparse tensors can be used to implement `bincount`, i.e. `bincount = dense(sparse_tensor(indices, weights, dims))`.
 
     Args:
         indices: `Tensor` encoding the positions of stored values. It can either list the individual stored indices (COO format) or encode only part of the index while containing other dimensions directly (compact format).
