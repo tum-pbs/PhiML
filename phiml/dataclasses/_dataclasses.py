@@ -1,27 +1,28 @@
 import collections
 import dataclasses
-import inspect
 from dataclasses import dataclass
-from functools import cached_property
+from functools import cached_property, partial
 from typing import TypeVar, Callable, Tuple, List, Set, Iterable, Optional, get_origin, get_args, Dict, Sequence, Union, Any
 
+from phiml import rename_dims
 from phiml.dataclasses._dep import get_unchanged_cache
 from phiml.math import DimFilter, shape, Shape
 from phiml.math._magic_ops import slice_, variable_attributes
-from phiml.math._shape import SHAPE_TYPES
+from phiml.math._shape import SHAPE_TYPES, INSTANCE_DIM, CHANNEL_DIM, SPATIAL_DIM
 from phiml.math._tensors import disassemble_tree, Tensor, assemble_tree, equality_by_shape_and_value, equality_by_ref
 from phiml.math.magic import slicing_dict, BoundDim
 
 PhiMLDataclass = TypeVar("PhiMLDataclass")
 
 
-def sliceable(cls=None, /, *, dim_attrs=True, keepdims=None, dim_repr=True):
+def sliceable(cls=None, /, *, dim_attrs=True, t_props=True, keepdims=None, dim_repr=True):
     """
     Decorator for frozen dataclasses, adding slicing functionality by defining `__getitem__`.
     This enables slicing similar to tensors, gathering and boolean masking.
 
     Args:
         dim_attrs: Whether to generate `__getattr__` that allows slicing via the syntax `instance.dim[...]` where `dim` is the name of any dim present on `instance`.
+        t_props: Whether to generate the properties `Tc`, `Ts` and `Ti` for transposing channel/spatial/instance dims.
         keepdims: Which dimensions should be kept with size 1 taking a single slice along them. This will preserve item names.
         dim_repr: Whether to replace the default `repr` of a dataclass by a simplified one based on the object's shape.
     """
@@ -33,6 +34,14 @@ def sliceable(cls=None, /, *, dim_attrs=True, keepdims=None, dim_repr=True):
             def __dataclass_getitem__(obj, item):
                 return getitem(obj, item, keepdims=keepdims)
             cls.__getitem__ = __dataclass_getitem__
+        if t_props:
+            def transpose(obj, dim_type):
+                old_shape = shape(obj)
+                new_shape = old_shape.transpose(dim_type)
+                return rename_dims(obj, old_shape, new_shape)
+            cls.Tc = property(partial(transpose, dim_type=CHANNEL_DIM))
+            cls.Ts = property(partial(transpose, dim_type=SPATIAL_DIM))
+            cls.Ti = property(partial(transpose, dim_type=INSTANCE_DIM))
         if dim_attrs and not hasattr(cls, '__getattr__'):
             def __dataclass_getattr__(obj, name: str):
                 if name in ('shape', '__shape__', '__all_attrs__', '__variable_attrs__', '__value_attrs__', '__setstate__'):  # these can cause infinite recursion
