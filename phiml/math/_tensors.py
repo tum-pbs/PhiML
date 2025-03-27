@@ -571,7 +571,8 @@ class Tensor:
 
     @property
     def T(self):
-        return self._with_shape_replaced(self.shape.transposed())
+        raise NotImplementedError("Tensor.T is deprecated. Use dim.Ti .Tc or .Ts instead")
+        # return self._with_shape_replaced(self.shape.transposed())
 
     @property
     def Ti(self):
