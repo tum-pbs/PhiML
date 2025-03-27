@@ -1994,6 +1994,8 @@ def disassemble_tree(obj: PhiTreeNodeType, cache: bool, attr_type=variable_attri
         return {'__layout__': 1, 'stack_dim': obj._stack_dim._to_dict(False), 'obj': keys}, values
     elif isinstance(obj, Tensor):
         return None, [cached(obj) if cache else obj]
+    elif isinstance(obj, Shape):
+        return obj, []
     elif isinstance(obj, (tuple, list)):
         keys = []
         values = []
@@ -2052,6 +2054,8 @@ def assemble_tree(obj: PhiTreeNodeType, values: List[Tensor], attr_type=variable
         value = values.pop(0)
         assert isinstance(value, Tensor)
         return value
+    elif isinstance(obj, Shape):
+        return obj
     elif isinstance(obj, list):
         return [assemble_tree(item, values, attr_type) for item in obj]
     elif isinstance(obj, tuple):
@@ -2081,6 +2085,8 @@ def attr_paths(obj: PhiTreeNodeType, attr_type: Callable, root: str) -> List[str
         return attr_paths(obj._obj, attr_type, f'{root}._obj')
     elif isinstance(obj, Tensor):
         return [root]
+    elif isinstance(obj, Shape):
+        return []
     elif isinstance(obj, (tuple, list)):
         paths = []
         for i, item in enumerate(obj):
@@ -2114,6 +2120,8 @@ def attr_paths_from_container(obj: PhiTreeNodeType, attr_type: Callable, root: s
         return [root]
     elif obj is None:
         return [root]
+    elif isinstance(obj, Shape):
+        return []
     elif isinstance(obj, (tuple, list)):
         return sum([attr_paths_from_container(v, attr_type, f'{root}[{i}]') for i, v in enumerate(obj)], [])
     elif isinstance(obj, dict) and '__layout__' in obj:
@@ -2514,7 +2522,7 @@ def reshaped_tensor(value: Any,
     """
     assert all(isinstance(g, SHAPE_TYPES+(str,)) for g in groups), "groups must be a sequence of Shapes"
     v_shape = choose_backend(value).staticshape(value)
-    groups = [g if isinstance(g, Shape) else auto(g) for g in groups]
+    groups = [g if isinstance(g, Shape) else (EMPTY_SHAPE if not g else auto(g)) for g in groups]
     dims = [batch(f'group{i}') if group.rank != 1 else (group if check_sizes else group.with_size(v_shape[i])) for i, group in enumerate(groups)]
     try:
         value = tensor(value, *dims, convert=convert)
@@ -3085,7 +3093,7 @@ def save(file: Union[Tensor, str], obj: TensorOrTree, mkdir=True):
         all_np = [choose_backend(n).numpy(n) for n in all_natives]
         if mkdir and os.path.dirname(file_i):
             os.makedirs(os.path.basename(os.path.dirname(file_i)), exist_ok=True)
-        np.savez(file_i, tree=np.asarray(tree, dtype=object), specs=specs, paths=paths, **{p: n for p, n in zip(all_paths, all_np)})
+        np.savez(file_i, tree=np.asarray({'tree': tree}, dtype=object), specs=specs, paths=paths, **{p: n for p, n in zip(all_paths, all_np)})
 
 
 def load(file: Union[str, Tensor]):
@@ -3119,7 +3127,7 @@ def load(file: Union[str, Tensor]):
         all_np = {k: data[k] for k in data if k not in ['tree', 'specs', 'paths']}
         specs = [unserialize_spec(spec) for spec in data['specs'].tolist()]
         tensors = assemble_tensors(list(all_np.values()), specs)
-        tree = data['tree'].tolist()  # this may require outside classes via pickle
+        tree = data['tree'].tolist()['tree']  # this may require outside classes via pickle
         stored_paths = data['paths'].tolist()
         new_paths = attr_paths_from_container(tree, all_attributes, 'root')
         if tuple(stored_paths) != tuple(new_paths):
