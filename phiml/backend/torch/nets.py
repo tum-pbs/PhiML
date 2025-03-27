@@ -56,7 +56,8 @@ def update_weights(net: Union[nn.Module, Sequence[nn.Module]], optimizer: optim.
     optimizer.zero_grad()
     output = loss_function(*loss_args, **loss_kwargs)
     loss = output[0] if isinstance(output, tuple) else output
-    loss.sum.backward()
+    loss = loss if isinstance(loss, torch.Tensor) else loss.sum
+    loss.backward()
     if isinstance(optimizer, optim.LBFGS):
         def closure():
             result = loss_function(*loss_args, **loss_kwargs)
