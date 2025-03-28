@@ -12,7 +12,7 @@ from os import curdir, pardir, sep, pathsep, defpath, extsep, altsep, devnull
 
 # --- Functions ---
 
-def listdir(path: Union[str, Tensor], list_dim: Shape = batch('files'), file_filter: Callable[[str, str], bool] = None) -> Tensor:
+def listdir(path: Union[str, Tensor], list_dim: Shape = batch('files'), file_filter: Callable[[str, str], bool] = None, full_paths=False) -> Tensor:
     """
     Returns a `Tensor` of all entries in the directory or directory batch given by `path`.
 
@@ -20,6 +20,7 @@ def listdir(path: Union[str, Tensor], list_dim: Shape = batch('files'), file_fil
         path: Single directory as `str` or multiple directories as string `Tensor`.
         list_dim: Dim along which to list entries.
         file_filter: (Optional) Function with signature `(directory: str, filename: str) -> bool` used for filtering the files.
+        full_paths: Whether to return the full paths or just the file names.
 
     Returns:
         `Tensor` with all dims of `path` and `list_dim`. If directories contain different numbers of entries, the result `Tensor` will be non-uniform.
@@ -30,12 +31,13 @@ def listdir(path: Union[str, Tensor], list_dim: Shape = batch('files'), file_fil
         files = impl.listdir(path)
         if file_filter is not None:
             files = filter(lambda f: file_filter(path, f), files)
-        paths = [impl.path.join(path, f) for f in files]
-        return layout(paths, list_dim)
+        if full_paths:
+            files = [impl.path.join(path, f) for f in files]
+        return layout(files, list_dim)
     return map(list_single, path)
 
 
-def list_files(directory: Union[str, Tensor], list_dim: Shape = batch('files'), startswith: str = None, endswith: str = None):
+def list_files(directory: Union[str, Tensor], list_dim: Shape = batch('files'), startswith: str = None, endswith: str = None, full_paths=True):
     """
     List all files contained directly in `directory`. Unlike `listdir`, only returns a list of files, excluding folders.
 
@@ -44,6 +46,7 @@ def list_files(directory: Union[str, Tensor], list_dim: Shape = batch('files'), 
         list_dim: Dim along which to list entries.
         startswith: (Optional) List only files whose names start with this string.
         endswith: (Optional) List only files whose names end with this string.
+        full_paths: Whether to return the full paths or just the file names.
 
     Returns:
         `Tensor` with all dims of `path` and `list_dim`. If directories contain different numbers of entries, the result `Tensor` will be non-uniform.
@@ -55,10 +58,10 @@ def list_files(directory: Union[str, Tensor], list_dim: Shape = batch('files'), 
             return False
         path = impl.path.join(dir, name)
         return impl.path.isfile(path)
-    return listdir(directory, list_dim=list_dim, file_filter=file_filter)
+    return listdir(directory, list_dim=list_dim, file_filter=file_filter, full_paths=full_paths)
 
 
-def list_directories(directory: Union[str, Tensor], list_dim: Shape = batch('subdirs'), startswith: str = None, endswith: str = None):
+def list_directories(directory: Union[str, Tensor], list_dim: Shape = batch('subdirs'), startswith: str = None, endswith: str = None, full_paths=True):
     """
     List all directories contained directly in `directory`. Unlike `listdir`, only returns a list of folders, excluding files.
 
@@ -67,6 +70,7 @@ def list_directories(directory: Union[str, Tensor], list_dim: Shape = batch('sub
         list_dim: Dim along which to list entries.
         startswith: (Optional) List only directories whose names start with this string.
         endswith: (Optional) List only directories whose names end with this string.
+        full_paths: Whether to return the full paths or just the file names.
 
     Returns:
         `Tensor` with all dims of `path` and `list_dim`. If directories contain different numbers of entries, the result `Tensor` will be non-uniform.
@@ -78,7 +82,7 @@ def list_directories(directory: Union[str, Tensor], list_dim: Shape = batch('sub
             return False
         path = impl.path.join(dir, name)
         return impl.path.isdir(path)
-    return listdir(directory, list_dim=list_dim, file_filter=dir_filter)
+    return listdir(directory, list_dim=list_dim, file_filter=dir_filter, full_paths=full_paths)
 
 
 makedirs = broadcast(impl.makedirs, name=False)
