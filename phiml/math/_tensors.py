@@ -2521,7 +2521,6 @@ def reshaped_tensor(value: Any,
     Returns:
         `Tensor` with all dimensions from `groups`
     """
-    assert all(isinstance(g, SHAPE_TYPES+(str,)) for g in groups), "groups must be a sequence of Shapes"
     v_shape = choose_backend(value).staticshape(value)
     groups = [g if isinstance(g, Shape) else (EMPTY_SHAPE if not g else auto(g)) for g in groups]
     dims = [batch(f'group{i}') if group.rank != 1 else (group if check_sizes else group.with_size(v_shape[i])) for i, group in enumerate(groups)]
