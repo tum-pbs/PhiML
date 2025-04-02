@@ -80,7 +80,7 @@ class Solve(Generic[X, Y]):
         In any case, the gradient solve information will be stored in `gradient_solve.result`.
         """
         if self._gradient_solve is None:
-            self._gradient_solve = Solve(self.method, self.rel_tol, self.abs_tol, None, self.max_iterations, self.suppress, self.preprocess_y, self.preprocess_y_args)
+            self._gradient_solve = copy_with(self, x0=None)
         return self._gradient_solve
 
     def __repr__(self):
@@ -94,7 +94,9 @@ class Solve(Generic[X, Y]):
                 or not math.equal(self.rel_tol, other.rel_tol) \
                 or (self.max_iterations != other.max_iterations).any \
                 or self.preprocess_y is not other.preprocess_y \
-                or self.suppress != other.suppress:
+                or self.suppress != other.suppress \
+                or self.preconditioner != other.preconditioner \
+                or self.rank_deficiency != other.rank_deficiency:
             return False
         return self.x0 == other.x0
 
