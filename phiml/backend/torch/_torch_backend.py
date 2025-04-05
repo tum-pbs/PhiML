@@ -638,7 +638,6 @@ class TorchBackend(Backend):
             convf = {3: torchf.conv_transpose1d, 4: torchf.conv_transpose2d, 5: torchf.conv_transpose3d}[len(value.shape)]
             if mode == 'same':
                 padding = [ks // 2 for ks in kernel.shape[3:]]
-                raise NotImplementedError
             elif mode == 'full':
                 padding = [max(0, ks - st) for st, ks in zip(strides, kernel.shape[3:])]
                 # padding = [2]; print(convf(value, kernel[0, ...], padding=padding, stride=strides).shape)

@@ -294,6 +294,8 @@ class NumPyBackend(Backend):
         assert value.shape[1] == kernel.shape[2], f"value has {value.shape[1]} channels but kernel has {kernel.shape[2]}"
         assert value.ndim + 1 == kernel.ndim
         value, kernel = self.auto_cast(value, kernel, bool_to_int=True)
+        if transpose:
+            return self._conv_transpose(value, kernel, strides, mode)
         if mode == 'same':
             output_sp = [(d-1)//s + 1 for d, s in zip(value.shape[2:], strides)]
         elif mode == 'valid':
@@ -314,6 +316,37 @@ class NumPyBackend(Backend):
                     offset = [1 if ks >= 2 else 0 for os, ks, st in zip(value.shape[2:], kernel.shape[3:], strides)]  # 0 for ks=1, 1 for ks=2,3
                     strided = full[tuple(slice(o, None, st) for o, st in zip(offset, strides))] if has_strides else full
                     result_o += strided
+                result_b.append(result_o)
+            result.append(np.stack(result_b))
+        return np.stack(result)
+
+    def _conv_transpose(self, value: np.ndarray, kernel: np.ndarray, strides: tuple, mode: str):
+        kernel = np.flip(kernel, axis=tuple(range(3, kernel.ndim)))
+        has_strides = not all(st == 1 for st in strides)
+        if mode == 'same':
+            output_sp = [(d-1)//s + 1 for d, s in zip(value.shape[2:], strides)]
+            sp_mode = 'same'
+        elif mode == 'valid':
+            output_sp = [(value.shape[i + 2] - kernel.shape[i + 3])//strides[i] + 1 for i in range(value.ndim - 2)]
+            sp_mode = 'full'
+        elif mode == 'full':
+            default_size = [int(np.ceil((vs - ks + 1) / st)) for vs, ks, st in zip(value.shape[2:], kernel.shape[3:], strides)]  # size if no padding is used
+            output_sp = [max(ds, (vs + ks - 1) // st) for ds, vs, ks, st in zip(default_size, value.shape[2:], kernel.shape[3:], strides)]
+            output_sp = [(vs - ks//2 + 1) * st for ds, vs, ks, st in zip(default_size, value.shape[2:], kernel.shape[3:], strides)]
+            sp_mode = 'same'
+        result = []
+        upsampled = np.zeros([st*vs for st, vs in zip(strides, value.shape[2:])])  # Create a zero-initialized array with upsampled input
+        for b in range(value.shape[0]):
+            result_b = []
+            b_kernel = kernel[min(b, kernel.shape[0] - 1)]
+            for o in range(kernel.shape[1]):
+                result_o = 0
+                for i in range(value.shape[1]):
+                    upsampled[tuple([slice(0, None, st) for st in strides])] = value[b, i, ...]  # Place input values with stride
+                    result_o_i = scipy.signal.correlate(upsampled, b_kernel[o, i, ...], mode=sp_mode)
+                    if mode == 'full':
+                        result_o_i = result_o_i[tuple([slice((ks+1)//2-1, -ks//2+1) for ks in kernel.shape[3:]])]
+                    result_o += result_o_i
                 result_b.append(result_o)
             result.append(np.stack(result_b))
         return np.stack(result)

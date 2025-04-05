@@ -884,6 +884,23 @@ class TestOps(TestCase):
                 # assert_close(x_odd.x[::2], math.convolve(x_odd, identity_kernel2, strides=2, extrapolation=math.extrapolation.PERIODIC))
                 # assert_close([2, 4, 1], math.convolve(x_odd, shift_kernel3, strides=2, extrapolation=math.extrapolation.PERIODIC))
 
+    def test_transpose_convolution_1d_strided(self):
+        for backend in [b for b in BACKENDS if b.name in ['numpy', 'torch']]:
+            with backend:
+                # --- Same ---
+                t = math.convolve(srange(x=100), srange(x=9), 0, transpose=True)
+                assert t.shape.size == 100, f"{t.shape.size} != {out_size}"
+                math.assert_close([10, 20, 35, 56], t[:4])
+                # --- Full ---
+                t = math.convolve(srange(x=100), srange(x=9), 0, full=True, transpose=True)
+                assert t.shape.size == 92, f"{t.shape.size} != {out_size}"
+                math.assert_close([84, 120, 156, 192], t[:4])
+                # --- Stride 2 ---
+                for size, out_size in zip([136, 137, 137, 138], [256, 258, 258, 260]):
+                    t = math.convolve(srange(x=size), srange(x=18), 0, strides=2, full=True, transpose=True)
+                    assert t.shape.size == out_size, f"{t.shape.size} != {out_size}"
+                    math.assert_close([168, 204, 240, 285], t[:4])
+
     def test_convolution_1d_batched(self):
         for backend in BACKENDS:
             with backend:
