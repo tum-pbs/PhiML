@@ -457,26 +457,28 @@ class JaxBackend(Backend):
     def min(self, x, axis=None, keepdims=False):
         return jnp.min(x, axis, keepdims=keepdims)
 
-    def conv(self, value, kernel, strides: tuple, mode: str, transpose: bool):
+    def conv(self, value, kernel, strides: Sequence[int], out_sizes: Sequence[int], transpose: bool):
         assert not transpose, "transpose conv not yet supported for Jax"
-        assert mode in ['same', 'valid'], "full conv not yet supported for Jax"
         assert kernel.shape[0] in (1, value.shape[0])
         assert value.shape[1] == kernel.shape[2], f"value has {value.shape[1]} channels but kernel has {kernel.shape[2]}"
         assert value.ndim + 1 == kernel.ndim
         value, kernel = self.auto_cast(value, kernel, bool_to_int=True)
-        # AutoDiff may require jax.lax.conv_general_dilated
-        result = []
-        for b in range(value.shape[0]):
-            b_kernel = kernel[min(b, kernel.shape[0] - 1)]
-            result_b = []
-            for o in range(kernel.shape[1]):
-                result_b.append(0)
-                for i in range(value.shape[1]):
-                    full = scipy.signal.correlate(value[b, i, ...], b_kernel[o, i, ...], mode=mode)
-                    # result.at[b, o, ...].set(scipy.signal.correlate(value[b, i, ...], b_kernel[o, i, ...], mode='same' if zero_padding else 'valid'))
-                    result_b[-1] += full[tuple(slice(None, None, stride) for stride in strides)]
-            result.append(jnp.stack(result_b, 0))
-        return jnp.stack(result, 0)
+        ndim = len(value.shape) - 2  # Number of spatial dimensions
+        assert len(strides) == ndim, f"Expected {ndim} stride values, got {len(strides)}"
+        # --- Determine padding ---
+        # default_size = [int(np.ceil((vs - ks + 1) / st)) for vs, ks, st in zip(value.shape[2:], kernel.shape[3:], strides)]  # size if no padding is used
+        lr_padding = [max(0, st * (os - 1) - vs + ks) for st, os, vs, ks in zip(strides, out_sizes, value.shape[2:], kernel.shape[3:])]
+        padding = [((p+1) // 2, p // 2) for p in lr_padding]
+        # --- Run the (transposed) convolution ---
+        sp = ''.join(['WHD'[i] for i in range(len(strides))])
+        dim_num = jax.lax.conv_dimension_numbers(value.shape, kernel.shape[1:], ('NC'+sp, 'OI'+sp, 'NC'+sp))
+        if kernel.shape[0] == 1:
+            return jax.lax.conv_general_dilated(value, kernel[0], strides, padding, None, None, dim_num)
+        else:
+            result = []
+            for b in range(kernel.shape[0]):
+                result.append(jax.lax.conv_general_dilated(value[b:b + 1], kernel[b], strides, padding, None, None, dim_num))
+            return jnp.concatenate(result, 0)
 
     def expand_dims(self, a, axis=0, number=1):
         for _i in range(number):

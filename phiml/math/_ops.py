@@ -2653,10 +2653,10 @@ def clip(x: Tensor, lower_limit: Union[float, Tensor] = 0, upper_limit: Union[fl
 
 def convolve(value: Tensor,
              kernel: Tensor,
-             extrapolation: 'Union[e_.Extrapolation, float]' = None,
+             size: Union[str, Shape] = 'same',
+             extrapolation: 'Union[e_.Extrapolation, float]' = 0,
              dims: DimFilter = spatial,
              strides: Union[int, Dict[str, int]] = 1,
-             full=False,
              transpose=False) -> Tensor:
     """
     Computes the convolution of `value` and `kernel` along the specified dims.
@@ -2683,24 +2683,43 @@ def convolve(value: Tensor,
     out_dims = non_dual(kernel) - dims - batch(value)
     batch_dims = (value.shape - dims - in_dims) & (non_dual(kernel) - dims - out_dims)
     extrapolation = e_.as_extrapolation(extrapolation)
-    if extrapolation == e_.PERIODIC:
-        full = False
-    if extrapolation is not None and extrapolation != e_.ZERO:  # custom padding, cannot be handled by backend
-        mode = 'valid'
-        if full:
-            value = pad(value, {dim: (kernel.shape.get_size(dim) - 1, kernel.shape.get_size(dim) - 1) for dim in dims.names}, extrapolation)
+    # --- Resolve output size ---
+    native_strides = (strides,) * len(dims) if isinstance(strides, int) else [strides.get(dim, 1) for dim in dims.names]
+    if isinstance(size, str):
+        if size == 'valid':
+            if not transpose:
+                out_sizes = [int(np.ceil((abs(value.shape.get_size(d) - d.size) + 1) / st)) for d, st in zip(dims, native_strides)]
+            else:
+                raise NotImplementedError
+        elif size == 'same':
+            if not transpose:
+                out_sizes = [int(np.ceil(value.shape.get_size(d) / st)) for d, st in zip(dims, native_strides)]
+            else:
+                out_sizes = [value.shape.get_size(d) * st for d, st in zip(dims, native_strides)]
+        elif size == 'full':
+            if not transpose:
+                out_sizes = [(value.shape.get_size(d) + d.size - 1) // st for d, st in zip(dims, native_strides)]
+            else:
+                out_sizes = [(value.shape.get_size(d) + 1) * st - d.size for d, st in zip(dims, native_strides)]
         else:
-            value = pad(value, {dim: (kernel.shape.get_size(dim) // 2, (kernel.shape.get_size(dim) - 1) // 2) for dim in dims.names}, extrapolation)
-    elif extrapolation is None:
-        assert not full, f"full convolution requires extrapolation but got None"
-        mode = 'valid'
-    else:  # zero padding to be performed by backend
-        mode = 'full' if full else 'same'
+            raise ValueError(f"Unsupported output size: {size}")
+    elif isinstance(size, Shape):
+        out_sizes = [size.get_size(d) for d in dims.names]
+    else:
+        raise ValueError(f"size must be of type str or Shape but got {size}")
+    # --- Apply extrapolation if not 0 ---
+    if extrapolation is None:
+        ...  # check that out_sizes does not exceed valid size
+    if extrapolation == e_.PERIODIC:
+        ...  # limit to same size, else we are repeating computations
+    if extrapolation is not None and extrapolation != e_.ZERO:  # custom padding, cannot be handled by backend
+        value = pad(value, {dim: (kernel.shape.get_size(dim) // 2, (kernel.shape.get_size(dim) - 1) // 2) for dim in dims.names}, extrapolation)
+    # --- Perform conv ---
     backend = backend_for(value, kernel)
     native_kernel = kernel.native((batch_dims if batch(kernel) else EMPTY_SHAPE, out_dims, dual(kernel), *dims))
     native_value = value.native((batch_dims, in_dims, *dims.names))
-    native_strides = (strides,) * len(dims) if isinstance(strides, int) else [strides.get(dim, 1) for dim in dims.names]
-    native_result = backend.conv(native_value, native_kernel, native_strides, mode=mode, transpose=transpose)
+    native_result = backend.conv(native_value, native_kernel, native_strides, out_sizes, transpose)
+    assert tuple(out_sizes) == backend.staticshape(native_result)[2:], f"Internal shape mismatch in conv(). Expected shape {out_sizes} but got {backend.staticshape(native_result)[2:]} from {backend}"
     result = reshaped_tensor(native_result, (batch_dims, out_dims, *dims), convert=False)
     return result
 

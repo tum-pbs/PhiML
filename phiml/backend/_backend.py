@@ -782,7 +782,7 @@ class Backend:
         else:
             return self.exp(self.log_gamma(self.to_float(x) + 1))
 
-    def conv(self, value, kernel, strides: tuple, mode: str, transpose: bool):
+    def conv(self, value, kernel, strides: Sequence[int], out_sizes: Sequence[int], transpose: bool):
         """
         Convolve value with kernel.
         Depending on the tensor rank, the convolution is either 1D (rank=3), 2D (rank=4) or 3D (rank=5).
@@ -792,7 +792,7 @@ class Backend:
             value: tensor of shape (batch_size, in_channel, spatial...)
             kernel: tensor of shape (batch_size or 1, out_channel, in_channel, spatial...)
             strides: Convolution strides, one `int` for each spatial dim. For transpose, they act as upsampling factors.
-            mode: Determines zero-padding mode, one of 'valid', 'same', 'full'.
+            out_sizes: Spatial shape of the output tensor. This determines how much zero-padding or slicing is used.
             transpose: If `True`, performs a transposed convolution, according to PyTorch's definition.
 
         Returns:
