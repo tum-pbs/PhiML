@@ -242,9 +242,9 @@ class UNet(nn.Module):
         self._levels = len(filters)
         self._spatial_rank = d
         if use_res_blocks:
-            self.add_module('inc', ResNetBlock(d, in_channels, filters[0], batch_norm, activation, periodic, down_kernel_size))
+            self.inc = ResNetBlock(d, in_channels, filters[0], batch_norm, activation, periodic, down_kernel_size)
         else:
-            self.add_module('inc', DoubleConv(d, in_channels, filters[0], filters[0], batch_norm, activation, periodic, down_kernel_size))
+            self.inc = DoubleConv(d, in_channels, filters[0], filters[0], batch_norm, activation, periodic, down_kernel_size)
         for i in range(1, self._levels):
             self.add_module(f'down{i}', Down(d, filters[i - 1], filters[i], batch_norm, activation, periodic, use_res_blocks, down_kernel_size))
             self.add_module(f'up{i}', Up(d, filters[-i] + filters[-i - 1], filters[-i - 1], batch_norm, activation, periodic, use_res_blocks, up_kernel_size))
@@ -253,8 +253,6 @@ class UNet(nn.Module):
     def forward(self, x):
         register_module_call(self)
         x = TORCH.as_tensor(x)
-        for size in x.shape[2:]:
-            assert size % 2 ** (self._levels-1) == 0, f"All spatial dims must be divisible by {2 ** (self._levels-1)} for U-Nets with {self._levels} levels but got {x.shape}. Please pad the input."
         x = self.inc(x)
         xs = [x]
         for i in range(1, self._levels):
@@ -310,13 +308,11 @@ class Up(nn.Module):
 
     def __init__(self, d: int, in_channels: int, out_channels: int, batch_norm: bool, activation: type, periodic: bool, use_res_blocks: bool, kernel_size: int):
         super().__init__()
-        up = nn.Upsample(scale_factor=2, mode=Up._MODES[d])
+        self.up = nn.Upsample(scale_factor=2, mode=Up._MODES[d])
         if use_res_blocks:
-            conv = ResNetBlock(d, in_channels, out_channels, batch_norm, activation, periodic, kernel_size)
+            self.conv = ResNetBlock(d, in_channels, out_channels, batch_norm, activation, periodic, kernel_size)
         else:
-            conv = DoubleConv(d, in_channels, out_channels, in_channels // 2, batch_norm, activation, periodic, kernel_size)
-        self.add_module('up', up)
-        self.add_module('conv', conv)
+            self.conv = DoubleConv(d, in_channels, out_channels, in_channels // 2, batch_norm, activation, periodic, kernel_size)
 
     def forward(self, x1, x2):
         x1 = self.up(x1)
