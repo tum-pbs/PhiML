@@ -3,7 +3,7 @@ Stand-in replacement for `os.path` with vectorization support.
 All functions accept `Tensor` as inputs, broadcasting the function call.
 """
 from os import path as impl
-from typing import Union, Sequence, LiteralString, Optional
+from typing import Union, Sequence
 
 from ..math import Tensor, broadcast, map
 
@@ -11,14 +11,14 @@ from ..math import Tensor, broadcast, map
 # --- Constants ---
 supports_unicode_filenames: bool = impl.supports_unicode_filenames
 # aliases (also in os)
-curdir: LiteralString = impl.curdir
-pardir: LiteralString = impl.pardir
-sep: LiteralString = impl.sep
-altsep: Optional[LiteralString] = impl.altsep
-extsep: LiteralString = impl.extsep
-pathsep: LiteralString = impl.pathsep
-defpath: LiteralString = impl.defpath
-devnull: LiteralString = impl.devnull
+curdir = impl.curdir
+pardir = impl.pardir
+sep = impl.sep
+altsep = impl.altsep
+extsep = impl.extsep
+pathsep = impl.pathsep
+defpath = impl.defpath
+devnull = impl.devnull
 
 # --- Functions ---
 split = broadcast(impl.split, name=False)

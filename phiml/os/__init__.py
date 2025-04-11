@@ -166,12 +166,13 @@ from os import (
     truncate,
     umask,
     uname_result,
-    unsetenv,
     urandom,
     utime,
     waitpid,
-    waitstatus_to_exitcode,
     walk,
     write,
 )
-
+try:
+    from os import unsetenv, waitstatus_to_exitcode
+except ImportError:
+    pass
