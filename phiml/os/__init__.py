@@ -104,7 +104,6 @@ readlink = broadcast(impl.readlink, name=False)
 
 from os import (
     abort,
-    add_dll_directory,
     chdir,
     close,
     closerange,
@@ -174,5 +173,9 @@ from os import (
 )
 try:
     from os import unsetenv, waitstatus_to_exitcode
+except ImportError:
+    pass
+try:
+    from os import add_dll_directory
 except ImportError:
     pass
