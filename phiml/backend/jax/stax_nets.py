@@ -12,7 +12,8 @@ import jax
 import jax.numpy as jnp
 import numpy
 import numpy as np
-from jax import random, tree_flatten, tree_unflatten
+from jax import random
+from jax.tree_util import tree_flatten, tree_unflatten
 from packaging import version
 
 if version.parse(jax.__version__) >= version.parse(
