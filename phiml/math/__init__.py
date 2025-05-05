@@ -18,7 +18,7 @@ from ..backend import NUMPY, precision, set_global_precision, get_precision, set
 
 from ._shape import (
     shape, Shape, EMPTY_SHAPE, DimFilter,
-    spatial, channel, batch, instance, dual,
+    spatial, channel, batch, instance, dual, dsize, isize, ssize, csize,
     non_batch, non_spatial, non_instance, non_channel, non_dual, non_primal, primal,
     merge_shapes, concat_shapes, IncompatibleShapes,
     enable_debug_checks,
@@ -44,7 +44,7 @@ from ._ops import (
     print_ as print,
     slice_off,
     zeros, ones, fftfreq, random_normal, random_normal as randn, random_uniform, random_uniform as rand,
-    meshgrid, linspace, arange, arange as range, range_tensor,  # creation operators (use default backend)
+    meshgrid, linspace, arange, arange as range, range_tensor, brange, drange, irange, srange, crange,  # creation operators (use default backend)
     zeros_like, ones_like,
     pad,
     swap_axes,  # reshape operations

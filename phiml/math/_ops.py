@@ -149,7 +149,7 @@ def copy(value: Tensor):
     return value._op1(lambda native: choose_backend(native).copy(native))
 
 
-def native_call(f: Callable, *inputs: Tensor, channels_last=None, channel_dim='vector', spatial_dim=None):
+def native_call(f: Callable, *inputs: Tensor, channels_last=None, channel_dim='vector', spatial_dim=None, **f_kwargs):
     """
     Calls `f` with the native representations of the `inputs` tensors in standard layout and returns the result as a `Tensor`.
 
@@ -190,8 +190,10 @@ def native_call(f: Callable, *inputs: Tensor, channels_last=None, channel_dim='v
     for i in inputs:
         groups = [b_dims, *i.shape.spatial.names, i.shape.channel] if channels_last else [b_dims, i.shape.channel, *i.shape.spatial.names]
         natives.append(i.native(groups, force_expand=False))
-    output = f(*natives)
-    if isinstance(channel_dim, str):
+    output = f(*natives, **f_kwargs)
+    if not channel_dim:
+        channel_dim = EMPTY_SHAPE
+    elif isinstance(channel_dim, str):
         channel_dim = channel(channel_dim)
     assert isinstance(channel_dim, SHAPE_TYPES), "channel_dim must be a Shape or str"
     if isinstance(output, (tuple, list)):
@@ -201,16 +203,16 @@ def native_call(f: Callable, *inputs: Tensor, channels_last=None, channel_dim='v
         if ndim == 1:
             groups = [b_dims]
         elif ndim == 2:
-            groups = [b_dims, channel_dim]
+            groups = [b_dims, *channel_dim]
         else:
-            groups = [b_dims, *s_dims, channel_dim] if channels_last else [b_dims, channel_dim, *s_dims]
+            groups = [b_dims, *s_dims, *channel_dim] if channels_last else [b_dims, *channel_dim, *s_dims]
     else:
         if isinstance(spatial_dim, str):
             spatial_dim = spatial(spatial_dim)
         assert isinstance(spatial_dim, SHAPE_TYPES), "spatial_dim must be a Shape or str"
-        groups = [b_dims, *spatial_dim, channel_dim] if channels_last else [b_dims, channel_dim, *spatial_dim]
+        groups = [b_dims, *spatial_dim, *channel_dim] if channels_last else [b_dims, *channel_dim, *spatial_dim]
     result = reshaped_tensor(output, groups, convert=False)
-    if result.shape.get_size(channel_dim.name) == 1 and not channel_dim.item_names[0]:
+    if channel_dim.rank == 1 and result.shape.get_size(channel_dim.name) == 1 and not channel_dim.item_names[0]:
         result = result.dimension(channel_dim.name)[0]  # remove vector dim if not required
     return result
 
@@ -830,6 +832,36 @@ def range_tensor(*shape: Shape):
     return unpack_dim(data, 'range', shape)
 
 
+def brange(start: int = 0, **stop: int):
+    """ Construct a range `Tensor` along one batch dim. """
+    assert len(stop) == 1, f"brange() requires exactly one stop dimension but got {stop}"
+    return arange(batch(next(iter(stop))), start, next(iter(stop.values())))
+
+
+def drange(start: int = 0, **stop: int):
+    """ Construct a range `Tensor` along one dual dim. """
+    assert len(stop) == 1, f"drange() requires exactly one stop dimension but got {stop}"
+    return arange(dual(next(iter(stop))), start, next(iter(stop.values())))
+
+
+def irange(start: int = 0, **stop: int):
+    """ Construct a range `Tensor` along one instance dim. """
+    assert len(stop) == 1, f"irange() requires exactly one stop dimension but got {stop}"
+    return arange(instance(next(iter(stop))), start, next(iter(stop.values())))
+
+
+def srange(start: int = 0, **stop: int):
+    """ Construct a range `Tensor` along one spatial dim. """
+    assert len(stop) == 1, f"srange() requires exactly one stop dimension but got {stop}"
+    return arange(spatial(next(iter(stop))), start, next(iter(stop.values())))
+
+
+def crange(start: int = 0, **stop: int):
+    """ Construct a range `Tensor` along one channel dim. """
+    assert len(stop) == 1, f"crange() requires exactly one stop dimension but got {stop}"
+    return arange(channel(next(iter(stop))), start, next(iter(stop.values())))
+
+
 def stack_tensors(values: Union[tuple, list], dim: Shape):
     if len(values) == 1 and not dim:
         return values[0]
@@ -865,7 +897,7 @@ def stack_tensors(values: Union[tuple, list], dim: Shape):
 def concat_tensor(values: Union[tuple, list], dim: str) -> Tensor:
     assert len(values) > 0, "concat() got empty sequence"
     assert isinstance(dim, str), f"dim must be a single-dimension Shape but got '{dim}' of type {type(dim)}"
-    if any(v._is_tracer for v in values):
+    if any([v._is_tracer for v in values]):
         from ._trace import concat_tracers
         return concat_tracers(values, dim)
 
@@ -1094,11 +1126,11 @@ def _grid_sample(grid: Tensor, coordinates: Tensor, extrap: Union['e_.Extrapolat
         result = NotImplemented
         if extrap is None:
             result = backend.grid_sample(grid.native([batch_dims, *dims, grid.shape.non_batch.without(dims)]),
-                                         coordinates._reshaped_native([batch_dims, *coordinates.shape.instance, *coordinates.shape.spatial, coordinates.shape['vector']]),
+                                         coordinates._reshaped_native([batch_dims, *coordinates.shape.non_batch.non_channel, coordinates.shape['vector']]),
                                          'undefined')
         elif extrap.native_grid_sample_mode:
             result = backend.grid_sample(grid.native([batch_dims, *dims, grid.shape.non_batch.without(dims)]),
-                                         coordinates._reshaped_native([batch_dims, *coordinates.shape.instance, *coordinates.shape.spatial, coordinates.shape['vector']]),
+                                         coordinates._reshaped_native([batch_dims, *coordinates.shape.non_batch.non_channel, coordinates.shape['vector']]),
                                          extrap.native_grid_sample_mode)
         if result is NotImplemented:
             # pad one layer
@@ -1112,10 +1144,10 @@ def _grid_sample(grid: Tensor, coordinates: Tensor, extrap: Union['e_.Extrapolat
             else:
                 inner_coordinates = coordinates + 1
             result = backend.grid_sample(grid_padded.native([batch_dims, *dims.names, grid.shape.non_batch.without(dims)]),
-                                         inner_coordinates._reshaped_native([batch_dims, *coordinates.shape.instance, *coordinates.shape.spatial, coordinates.shape['vector']]),
+                                         inner_coordinates._reshaped_native([batch_dims, *coordinates.shape.non_batch.non_channel, coordinates.shape['vector']]),
                                          'boundary')
         if result is not NotImplemented:
-            result = reshaped_tensor(result, [batch_dims, *coordinates.shape.instance, *coordinates.shape.spatial, grid.shape.non_batch.without(dims)])
+            result = reshaped_tensor(result, [batch_dims, *coordinates.shape.non_batch.non_channel, grid.shape.non_batch.without(dims)])
             return result
     # fallback to slower grid sampling
     neighbors = _closest_grid_values(grid, coordinates, extrap or e_.ZERO, '_closest_', pad_kwargs)
@@ -1130,8 +1162,6 @@ def broadcast_dims(*tensors: Tensor) -> Set[str]:
     iter_dims = set()
     for tensor in tensors:
         iter_dims.update(shape(tensor).non_uniform_shape.names)
-        if isinstance(tensor, TensorStack) and tensor.requires_broadcast:
-            iter_dims.add(tensor._stack_dim.name)
         # --- remove iter_dims for which the sizes vary among tensors ---
         for dim in tuple(iter_dims):
             sizes = [t.shape.get_size(dim) for t in tensors if dim in t.shape]
@@ -1245,7 +1275,7 @@ def where(condition: Union[Tensor, bool],
     return broadcast_op(inner_where, [condition, value_true, value_false])
 
 
-def nonzero(value: Tensor, list_dim: Union[Shape, str, int] = instance('nonzero'), index_dim: Shape = channel('vector'), element_dims: DimFilter = channel, list_dims: DimFilter = non_batch, preserve_names=False):
+def nonzero(value: Union[Tensor, bool], list_dim: Union[Shape, str, int] = instance('nonzero'), index_dim: Shape = channel('vector'), element_dims: DimFilter = channel, list_dims: DimFilter = non_batch, preserve_names=False):
     """
     Get spatial indices of non-zero / True values.
 
@@ -2202,6 +2232,8 @@ def dot(x: Tensor,
             result_native = backend.einsum(subscripts, x_native, y_native)
         return Dense(result_native, result_shape.names, result_shape, backend)
 
+    broadcast = broadcast_dims(x, y)
+    assert x_dims.only(broadcast).is_empty and y_dims.only(broadcast).is_empty, f"Broadcasting reduction dims not supported for dot product along {x_dims} and {y_dims}."
     return broadcast_op(tensor_dot, [x, y])
 
 
@@ -2621,8 +2653,11 @@ def clip(x: Tensor, lower_limit: Union[float, Tensor] = 0, upper_limit: Union[fl
 
 def convolve(value: Tensor,
              kernel: Tensor,
-             extrapolation: 'e_.Extrapolation' = None,
-             dims: DimFilter = spatial) -> Tensor:
+             size: Union[str, Shape] = 'same',
+             extrapolation: 'Union[e_.Extrapolation, float]' = 0,
+             dims: DimFilter = spatial,
+             strides: Union[int, Dict[str, int]] = 1,
+             transpose=False) -> Tensor:
     """
     Computes the convolution of `value` and `kernel` along the specified dims.
 
@@ -2633,7 +2668,10 @@ def convolve(value: Tensor,
         value: `Tensor` whose shape includes all spatial dimensions of `kernel`.
         kernel: `Tensor` used as convolutional filter.
         dims: Which dimensions to convolve over. Defaults to all spatial dims.
-        extrapolation: If not None, pads `value` so that the result has the same shape as `value`.
+        extrapolation: If `None`, convolve only where `kernel` fits into `value`, i.e. 'valid'. Otherwise, pads `value` with the specified extrapolation. The amount of padding depends on `full`.
+        strides: Convolution strides for applying `kernel` to a subset of `value` only. This will result in a smaller output. The stride can be specified per dim, with missing dims defaulting to `1`.
+        full: If `True`, the output contains all values of the convolution, including those where the kernel extends beyond the input. If `False`, the output is the same size as the input.
+        transpose: If `True`, the kernel is transposed before convolution, and strides are replaced by up-sampling.
 
     Returns:
         `Tensor` with all non-reduced dims of `value` and additional non-dual dims from `kernel`.
@@ -2644,13 +2682,45 @@ def convolve(value: Tensor,
     in_dims = value.shape.only(dual(kernel).as_batch().names)
     out_dims = non_dual(kernel) - dims - batch(value)
     batch_dims = (value.shape - dims - in_dims) & (non_dual(kernel) - dims - out_dims)
-    if extrapolation is not None and extrapolation != e_.ZERO:
+    extrapolation = e_.as_extrapolation(extrapolation)
+    # --- Resolve output size ---
+    native_strides = (strides,) * len(dims) if isinstance(strides, int) else [strides.get(dim, 1) for dim in dims.names]
+    if isinstance(size, str):
+        if size == 'valid':
+            if not transpose:
+                out_sizes = [int(np.ceil((abs(value.shape.get_size(d) - d.size) + 1) / st)) for d, st in zip(dims, native_strides)]
+            else:
+                raise NotImplementedError
+        elif size == 'same':
+            if not transpose:
+                out_sizes = [int(np.ceil(value.shape.get_size(d) / st)) for d, st in zip(dims, native_strides)]
+            else:
+                out_sizes = [value.shape.get_size(d) * st for d, st in zip(dims, native_strides)]
+        elif size == 'full':
+            if not transpose:
+                out_sizes = [(value.shape.get_size(d) + d.size - 1) // st for d, st in zip(dims, native_strides)]
+            else:
+                out_sizes = [(value.shape.get_size(d) + 1) * st - d.size for d, st in zip(dims, native_strides)]
+        else:
+            raise ValueError(f"Unsupported output size: {size}")
+    elif isinstance(size, Shape):
+        out_sizes = [size.get_size(d) for d in dims.names]
+    else:
+        raise ValueError(f"size must be of type str or Shape but got {size}")
+    # --- Apply extrapolation if not 0 ---
+    if extrapolation is None:
+        ...  # check that out_sizes does not exceed valid size
+    if extrapolation == e_.PERIODIC:
+        ...  # limit to same size, else we are repeating computations
+    if extrapolation is not None and extrapolation != e_.ZERO:  # custom padding, cannot be handled by backend
         value = pad(value, {dim: (kernel.shape.get_size(dim) // 2, (kernel.shape.get_size(dim) - 1) // 2) for dim in dims.names}, extrapolation)
+    # --- Perform conv ---
     backend = backend_for(value, kernel)
     native_kernel = kernel.native((batch_dims if batch(kernel) else EMPTY_SHAPE, out_dims, dual(kernel), *dims))
     native_value = value.native((batch_dims, in_dims, *dims.names))
-    native_result = backend.conv(native_value, native_kernel, zero_padding=extrapolation == e_.ZERO)
-    result = reshaped_tensor(native_result, (batch_dims, out_dims, *dims))
+    native_result = backend.conv(native_value, native_kernel, native_strides, out_sizes, transpose)
+    assert tuple(out_sizes) == backend.staticshape(native_result)[2:], f"Internal shape mismatch in conv(). Expected shape {out_sizes} but got {backend.staticshape(native_result)[2:]} from {backend}"
+    result = reshaped_tensor(native_result, (batch_dims, out_dims, *dims), convert=False)
     return result
 
 
@@ -2981,11 +3051,11 @@ def scatter(base_grid: Union[Tensor, Shape],
     broadcast = broadcast_dims(base_grid, indices, values)
     def scatter_forward(base_grid: Tensor, indices: Tensor, values: Tensor, indexed_dims=indexed_dims):
         indexed_dims = base_grid.shape[indexed_dims] - broadcast
-        batches = values.shape.non_channel.non_instance & indices.shape.non_channel.non_instance
+        batches = (values.shape.non_channel.non_instance & indices.shape.non_channel.non_instance & (indices.shape.instance.only(base_grid.shape.instance))) - indexed_dims
         batches &= values.shape.only(treat_as_batch) & indices.shape.only(treat_as_batch)
         batches -= broadcast
         channels = (base_grid.shape - indexed_dims - batches - broadcast) & values.shape.channel
-        lists = indices.shape.instance & values.shape.instance
+        lists = (indices.shape.non_channel & values.shape.non_channel) - batches - broadcast - channels
         if values._is_tracer:
             if indices._is_tracer or base_grid._is_tracer:
                 raise NotImplementedError("scattering linear tracer into linear tracer not supported")

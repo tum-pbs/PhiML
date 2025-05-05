@@ -1,7 +1,7 @@
 import numbers
 import warnings
 from functools import wraps
-from typing import List, Callable, Optional, Set, Tuple, Any, Union, Sequence
+from typing import List, Callable, Optional, Set, Tuple, Any, Union, Sequence, Dict
 
 import numpy as np
 import torch
@@ -95,6 +95,20 @@ class TorchBackend(Backend):
             raise NotImplementedError()
         else:
             return self.as_tensor(obj)
+
+    def variable(self, x):
+        return torch.nn.Parameter(self.as_tensor(x))
+
+    def module(self, variables: Dict[str, TensorType], forward: Callable = None):
+        class CustomTorchModule(torch.nn.Module):
+            def __init__(self):
+                super().__init__()
+                for name, var in variables.items():
+                    assert isinstance(var, torch.nn.Parameter)
+                    setattr(self, name, var)
+            def forward(self, *args, **kwargs):
+                return forward(*args, **kwargs)
+        return CustomTorchModule()
 
     def auto_cast(self, *tensors, **kwargs) -> list:
         tensors = [t if isinstance(t, (numbers.Number, bool)) else self.as_tensor(t, True) for t in tensors]
@@ -278,7 +292,14 @@ class TorchBackend(Backend):
         return torch.randn(size=shape, dtype=to_torch_dtype(dtype or self.float_type), device=self.get_default_device().ref)
 
     def random_permutations(self, permutations: int, n: int):
-        return torch.stack([torch.randperm(n) for _ in range(permutations)])
+        return torch.stack([torch.randperm(n, device=self.get_default_device().ref) for _ in range(permutations)])
+
+    def random_subsets(self, element_count: int, subset_size: int, subset_count: int, allow_duplicates: bool, element_weights=None):
+        if element_weights is None:
+            element_weights = self.ones((subset_count, element_count,), self.float_type)
+        else:
+            element_weights = self.zeros((subset_count, 1)) + element_weights  # add subset_count rows
+        return torch.multinomial(element_weights, num_samples=subset_size, replacement=allow_duplicates)
 
     def stack(self, values, axis=0):
         values = [self.as_tensor(v) for v in values]
@@ -583,31 +604,37 @@ class TorchBackend(Backend):
     def argmin(self, x, axis: int, keepdims=False):
         return x.argmin(dim=axis, keepdim=keepdims)
 
-    def conv(self, value, kernel, zero_padding=True):
+    def conv(self, value, kernel, strides: Sequence[int], out_sizes: Sequence[int], transpose: bool):
         value = self.as_tensor(value)
         kernel = self.as_tensor(kernel)
         value, kernel = self.auto_cast(value, kernel)
         if self.dtype(value).kind in (bool, int):
             value = self.to_float(value)
             kernel = self.to_float(kernel)
-        if zero_padding:
-            if all(s % 2 == 1 for s in kernel.shape[3:]):
-                padding = [s // 2 for s in kernel.shape[3:]]
-            else:
-                padding = 0
-                value_padding = sum([[s // 2, (s - 1) // 2] for s in kernel.shape[3:]], [])
-                value = torchf.pad(value, value_padding)
-        else:
-            padding = 0
-        convf = {3: torchf.conv1d, 4: torchf.conv2d, 5: torchf.conv3d}[len(value.shape)]
+        ndim = len(value.shape) - 2  # Number of spatial dimensions
+        assert len(strides) == ndim, f"Expected {ndim} stride values, got {len(strides)}"
+        # --- Determine padding ---
+        if not transpose:
+            convf = {3: torchf.conv1d, 4: torchf.conv2d, 5: torchf.conv3d}[len(value.shape)]
+            # default_size = [int(np.ceil((vs - ks + 1) / st)) for vs, ks, st in zip(value.shape[2:], kernel.shape[3:], strides)]  # size if no padding is used
+            lr_padding = [max(0, st * (os - 1) - vs + ks) for st, os, vs, ks in zip(strides, out_sizes, value.shape[2:], kernel.shape[3:])]
+            padding = [p // 2 for p in lr_padding]
+            if any(p % 2 != 0 for p in lr_padding):  # PyTorch conv only supports symmetric left-right (even) padding
+                value_padding = sum([(0, int(p % 2 != 0)) if st > 1 else (int(p % 2 != 0), 0) for p, st in zip(lr_padding, strides)], ())
+                if any(value_padding) > 0:
+                    value = torchf.pad(value, value_padding)
+        else:  # transpose convolution, padding makes output smaller here
+            convf = {3: torchf.conv_transpose1d, 4: torchf.conv_transpose2d, 5: torchf.conv_transpose3d}[len(value.shape)]
+            default_size = [(vs - 1) * st + ks for st, os, vs, ks in zip(strides, out_sizes, value.shape[2:], kernel.shape[3:])]  # size if no padding is used
+            padding = [(ds - os) // 2 for os, ds in zip(out_sizes, default_size)]
+        # --- Run the (transposed) convolution ---
         if kernel.shape[0] == 1:
-            result = convf(value, kernel[0, ...], padding=padding)
+            return convf(value, kernel[0], padding=padding, stride=strides)
         else:
             result = []
             for b in range(kernel.shape[0]):
-                result.append(convf(value[b:b+1, ...], kernel[b, ...], padding=padding))
-            result = torch.cat(result, 0)
-        return result
+                result.append(convf(value[b:b + 1, ...], kernel[b, ...], padding=padding, stride=strides))
+            return torch.cat(result, 0)
 
     def expand_dims(self, a, axis=0, number=1):
         for _ in range(number):
@@ -701,7 +728,7 @@ class TorchBackend(Backend):
                 indices = indices.squeeze(-1)
             if indices.shape[0] > 1:  # need to iterate over batches
                 result = []
-                for b in range(len(batch_size)):
+                for b in range(batch_size):
                     result_b = torch.index_reduce(base_grid[b], 0, indices[b], values[b], 'a'+mode)
                     result.append(result_b)
                 result = self.stack(result)

@@ -26,7 +26,12 @@ def sparse_tensor(indices: Optional[Tensor],
                   indices_constant: bool = True) -> Tensor:
     """
     Construct a sparse tensor that stores `values` at the corresponding `indices` and is 0 everywhere else.
+    Duplicate entries (entries with the same indices) are identical to one entry with the sum of the corresponding values.
+    This can be performed explicitly using `sum_equal_entries()`.
+
     In addition to the sparse dimensions indexed by `indices`, the tensor inherits all batch and channel dimensions from `values`.
+
+    Sparse tensors can be used to implement `bincount`, i.e. `bincount = dense(sparse_tensor(indices, weights, dims))`.
 
     Args:
         indices: `Tensor` encoding the positions of stored values. It can either list the individual stored indices (COO format) or encode only part of the index while containing other dimensions directly (compact format).
@@ -922,7 +927,8 @@ class CompactSparseTensor(Tensor):
             indices = indices_or_spec
         else:
             indices = spec['indices']['type']._from_spec_and_natives(spec['indices'], natives)
-        return CompactSparseTensor(indices, values, spec['compressed_dims'], spec['indices_constant'], spec['matrix_rank'])
+        full_shape = spec['shape']
+        return CompactSparseTensor(indices, values, full_shape.only(spec['compressed_dims']), spec['indices_constant'], spec['matrix_rank'])
 
     def _with_values(self, new_values: Tensor, matrix_rank=-1):
         return CompactSparseTensor(self._indices, new_values, self._compressed_dims, self._indices_constant, matrix_rank)
@@ -1032,24 +1038,10 @@ class CompactSparseTensor(Tensor):
             # else:
             #     raise NotImplementedError
         if uncompressed.only(tuple(selection)):
-            raise NotImplementedError
-            # if self._uncompressed_dims.rank > 1:
-            #     raise NotImplementedError
-            # ind_sel = selection[uncompressed.name]
-            # if isinstance(ind_sel, int):
-            #     raise NotImplementedError(f"Slicing with int not yet supported for sparse tensors. Use a range instead, e.g. [{ind_sel}:{ind_sel + 1}] instead of [{ind_sel}]")
-            # elif isinstance(ind_sel, slice):
-            #     assert ind_sel.step in (None, 1), f"Only step size 1 supported for sparse indexing but got {ind_sel.step}"
-            #     start = ind_sel.start or 0
-            #     stop = uncompressed.volume if ind_sel.stop is None else ind_sel.stop
-            #     keep = (start <= indices) & (indices < stop)
-            #     from ._ops import where
-            #     values = where(keep, values, 0)
-            #     m_rank = -1
-            #     uncompressed_offset = start
-            #     uncompressed = uncompressed.after_gather({uncompressed.name: ind_sel})
-            # else:
-            #     raise NotImplementedError
+            row_slices = {k: v for k, v in selection.items() if k in uncompressed}
+            indices = indices[row_slices]
+            values = values[row_slices]
+            assert all(k in indices.shape for k in selection)
         return CompactSparseTensor(indices, values, compressed, self._indices_constant, m_rank)
 
     def __concat__(self, tensors: tuple, dim: str, **kwargs) -> 'SparseCoordinateTensor':
@@ -1775,7 +1767,7 @@ def sum_equal_entries(matrix: Tensor, flatten_entries=True):
     indices = pack_dims(matrix._indices, entries_dims, instance('sp_entries'))
     dims = matrix._dense_shape.only(channel(indices).item_names[0], reorder=True)
     assert not batch(indices), f"sparse compress() not supported for batched indices"
-    idx_packed = b.ravel_multi_index(indices.native([instance, channel]), dims.sizes)
+    idx_packed = b.ravel_multi_index(b.to_int64(indices.native([instance, channel])), dims.sizes)
     u_idx, u_ptr = b.unique(idx_packed, return_inverse=True, return_counts=False, axis=-1)
     num_entries = u_idx.shape[-1]
     if num_entries == instance(values).volume:
@@ -1789,7 +1781,7 @@ def sum_equal_entries(matrix: Tensor, flatten_entries=True):
     else:
         values = b.bincount(u_ptr, weights=values.native(), bins=num_entries)
         values = reshaped_tensor(values, [instance('sp_entries')])
-    idx_packed = b.unravel_index(u_idx, dims.sizes)
+    idx_packed = b.cast(b.unravel_index(u_idx, dims.sizes), indices.dtype)
     indices = wrap(idx_packed, instance('sp_entries'), channel(matrix._indices))
     return SparseCoordinateTensor(indices, values, matrix._dense_shape, False, True, matrix._indices_constant, matrix._matrix_rank)
 

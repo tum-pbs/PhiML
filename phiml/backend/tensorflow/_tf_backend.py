@@ -129,9 +129,9 @@ class TFBackend(Backend):
             return result
 
     def vectorized_call(self, f, *args, output_dtypes=None, **aux_args):
-        with self.device_of(args[0]):
+        with self._device_for(*args):
             batch_size = self.determine_size(args, 0)
-            args = [self.tile_to(t, 0, batch_size) for t in args]
+            args = [self.tile_to(self.as_tensor(t), 0, batch_size) for t in args]
             if output_dtypes is None:
                 output0 = f(*[t[0] for t in args], **aux_args)  # Call f to determine its output signature.
                 output_dtypes = tf.nest.map_structure(lambda x: x.dtype, output0)
@@ -478,20 +478,22 @@ class TFBackend(Backend):
         with self._device_for(a, x):
             return tf.math.igammac(a, x)
 
-    def conv(self, value, kernel, zero_padding=True):
+    def conv(self, value, kernel, strides: Sequence[int], out_sizes: Sequence[int], transpose: bool):
+        assert not transpose, "transpose conv not yet supported for TensorFlow"
+        assert all(s == 1 for s in strides), f"Strided convolution not supported in TensorFlow backend, got strides={strides}"
         with self._device_for(value, kernel):
             value = self.to_float(value)
             kernel = self.to_float(kernel)  # should use auto_cast but TensorFlow only supports DT_HALF, DT_BFLOAT16, DT_FLOAT, DT_DOUBLE, DT_INT32
-            if zero_padding:
-                value_padding = [[0, 0]] * 2 + [[s // 2, (s - 1) // 2] for s in kernel.shape[3:]]
-                value = tf.pad(value, value_padding)
-            convf = {3: partial(tf.nn.conv1d, stride=1),
-                     4: partial(tf.nn.conv2d, strides=[1, 1, 1, 1]),
-                     5: partial(tf.nn.conv3d, strides=[1, 1, 1, 1, 1])}[len(value.shape)]
+            # --- Pad value ---
+            default_size = [int(np.ceil((vs - ks + 1) / st)) for vs, ks, st in zip(value.shape[2:], kernel.shape[3:], strides)]  # size if no padding is used
+            value_padding = [[0, 0]] * 2 + [[(os-ds + 1) // 2, (os - ds) // 2] for ds, os in zip(default_size, out_sizes)]
+            value = tf.pad(value, value_padding)
+            # --- conv ---
+            convf = {3: partial(tf.nn.conv1d, stride=1), 4: partial(tf.nn.conv2d, strides=[1, 1, 1, 1]), 5: partial(tf.nn.conv3d, strides=[1, 1, 1, 1, 1])}[len(value.shape)]
             value = tf.transpose(value, [0, *range(2, self.ndims(value)), 1])  # could use data_format='NC...' but it's supported neither on CPU and for int tensors
             kernel = tf.transpose(kernel, [0, *range(3, self.ndims(kernel)), 2, 1])
             if kernel.shape[0] == 1:
-                result = convf(value, kernel[0, ...], padding='VALID')
+                result = convf(value, kernel[0, ...], padding='VALID')  # 'SAME' or 'VALID'
             else:
                 result = []
                 for b in range(kernel.shape[0]):

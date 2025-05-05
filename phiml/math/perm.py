@@ -6,7 +6,7 @@ from typing import Union, Optional, Any
 import numpy as np
 
 from ..backend import default_backend
-from ._shape import concat_shapes_, batch, DimFilter, Shape, SHAPE_TYPES, shape, non_batch, channel, dual, primal
+from ._shape import concat_shapes_, batch, DimFilter, Shape, SHAPE_TYPES, shape, non_batch, channel, dual, primal, EMPTY_SHAPE
 from ._magic_ops import unpack_dim, expand, stack, slice_, squeeze
 from ._tensors import reshaped_tensor, TensorOrTree, Tensor, wrap
 from ._ops import unravel_index, psum, dmin
@@ -49,7 +49,7 @@ def random_permutation(*shape: Union[Shape, Any], dims=non_batch, index_dim=chan
     return stack(result, nu)
 
 
-def pick_random(value: TensorOrTree, dim: DimFilter, count: Union[int, Shape, None] = 1, weight: Optional[Tensor] = None) -> TensorOrTree:
+def pick_random(value: TensorOrTree, dim: DimFilter, count: Union[int, Shape, None] = 1, weight: Optional[Tensor] = None, same_selection_dims: DimFilter = non_batch, selections: Shape = EMPTY_SHAPE) -> TensorOrTree:
     """
     Pick one or multiple random entries from `value`.
 
@@ -59,36 +59,39 @@ def pick_random(value: TensorOrTree, dim: DimFilter, count: Union[int, Shape, No
         dim: Dimension along which to pick random entries. `Shape` with one dim.
         count: Number of entries to pick. When specified as a `Shape`, lists picked values along `count` instead of `dim`.
         weight: Probability weight of each item along `dim`. Will be normalized to sum to 1.
+        same_selection_dims: Dims along which to use the same random selection for each element. All other dims except `dim` are treated as batch.
+        selections: Additional dims to generate more random subsets. These will be part of the output.
 
     Returns:
         `Tensor` or tree equal to `value`.
     """
     v_shape = shape(value)
-    dim = v_shape.only(dim)
+    dim = dim if isinstance(dim, Shape) else v_shape.only(dim)
+    same_selection_dims = v_shape.only(same_selection_dims) - dim
+    batches = selections + v_shape - dim - same_selection_dims
+    nu_dims = v_shape.non_uniform_shape
+    u_batches = batches - nu_dims
+    assert nu_dims in batches, f"Cannot use same random selection across non-uniform dims but got {nu_dims} while batches are {batches}"
     if count is None and dim.well_defined:
         count = dim.size
     n = dim.volume if count is None else (count.volume if isinstance(count, SHAPE_TYPES) else count)
-    if n == dim.volume and weight is None:
-        idx = random_permutation(dim & v_shape.batch & dim.non_uniform_shape, dims=dim)
-        idx = unpack_dim(idx, dim, count) if isinstance(count, SHAPE_TYPES) else idx
-    else:
-        nu_dims = v_shape.non_uniform_shape
-        idx_slices = []
-        for nui in nu_dims.meshgrid():
-            u_dim = dim.after_gather(nui)
-            weight_np = weight.numpy([u_dim]) if weight is not None else None
-            if u_dim.volume >= n:
-                np_idx = np.random.choice(u_dim.volume, size=n, replace=False, p=weight_np / weight_np.sum() if weight is not None else None)
-            elif u_dim.volume > 0:
-                np_idx = np.arange(n) % u_dim.volume
-            else:
-                raise ValueError(f"Cannot pick random from empty tensor {u_dim}")
-            idx = wrap(np_idx, count if isinstance(count, SHAPE_TYPES) else u_dim.without_sizes())
-            if count == 1:
-                idx = squeeze(count, u_dim)
-            # idx = ravel_index()
-            idx_slices.append(expand(idx, channel(index=u_dim.name)))
-        idx = stack(idx_slices, nu_dims)
+    b = default_backend()
+    idx_slices = []
+    for nui in nu_dims.meshgrid():
+        u_dim = dim.after_gather(nui)
+        nat_weight = weight.native([u_dim]) if weight is not None else None
+        if u_dim.volume >= n:
+            nat_idx = b.random_subsets(u_dim.volume, subset_size=n, subset_count=u_batches.volume, allow_duplicates=False, element_weights=nat_weight)
+        elif u_dim.volume > 0:
+            nat_idx = b.range(n) % u_dim.volume
+        else:
+            raise ValueError(f"Cannot pick random from empty tensor {u_dim}")
+        idx = reshaped_tensor(nat_idx, [u_batches, count if isinstance(count, SHAPE_TYPES) else u_dim.without_sizes()], convert=False)
+        if count == 1:
+            idx = squeeze(count, u_dim)
+        # idx = ravel_index()
+        idx_slices.append(expand(idx, channel(index=u_dim.name)))
+    idx = stack(idx_slices, nu_dims)
     return slice_(value, idx)
 
 

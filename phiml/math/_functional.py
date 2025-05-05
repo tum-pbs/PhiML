@@ -279,7 +279,7 @@ class JitFunction:
         if isinstance(self.f, GradientFunction) and key.backend.supports(Backend.jit_compile_grad):
             return self.grad_jit(*args, **kwargs)
         if not key.backend.supports(Backend.jit_compile):
-            warnings.warn(f"jit_compile() not supported by {key.backend}. Running function '{f_name(self.f)}' as-is.", RuntimeWarning)
+            warnings.warn(f"jit_compile() not supported by {key.backend}. Running function '{f_name(self.f)}' as-is.", RuntimeWarning, stacklevel=2)
             return self.f(*args, **kwargs)
         # --- do we need to trace? ---
         if key in self.traces:
@@ -578,7 +578,7 @@ def simplify_wrt(f, wrt: Union[str, int, tuple, list]):
             wrt = tuple(f_params[i] for i in wrt)
         else:
             raise ValueError(f"Invalid value given as wrt: {wrt}. Please pass a comma-separated string of parameter names.")
-        warnings.warn("Specifying wrt by position is deprecated in phiml.math.funcitonal_gradient() and phiml.math.jacobian(). Please pass a list or comma-separated string of parameter names.",
+        warnings.warn("Specifying wrt by position is deprecated in phiml.math.functional_gradient() and phiml.math.jacobian(). Please pass a list or comma-separated string of parameter names.",
                       SyntaxWarning, stacklevel=4)
     return f_params, wrt
 
@@ -1219,7 +1219,7 @@ map_c2d = partial(map_types, dims=channel, dim_type=dual)
 map_c2d.__doc__ = "Map channel dims to type dual. Short for `map_types(f, spatial, batch)`."
 
 
-def broadcast(function=None, dims=shape, range=range, unwrap_scalars=True, simplify=False):
+def broadcast(function=None, dims=shape, range=range, unwrap_scalars=True, simplify=False, name: Union[str, bool] = True):
     """
     Function decorator for non-vectorized functions.
     When passing `Tensor` arguments to a broadcast function, the function is called once for each slice of the tensor.
@@ -1237,6 +1237,7 @@ def broadcast(function=None, dims=shape, range=range, unwrap_scalars=True, simpl
         range: Optional range function. Can be used to generate `tqdm` output by passing `trange`.
         unwrap_scalars: If `True`, passes the contents of scalar `Tensor`s instead of the tensor objects.
         simplify: If `True`, reduces constant dims of output tensors that don't vary across broadcast slices.
+        name: Name to pass to `phiml.math.map()`. This may be displayed using `tqdm`. If `True`, uses the function name.
 
     Returns:
         Broadcast function
@@ -1244,9 +1245,13 @@ def broadcast(function=None, dims=shape, range=range, unwrap_scalars=True, simpl
     if function is None:
         kwargs = {k: v for k, v in locals().items() if v is not None}
         return partial(broadcast, **kwargs)
+    if name is True:
+        name = f_name(function)
+    elif name is False:
+        name = None
     @wraps(function)
     def broadcast_(*args, **kwargs):
-        return map_(function, *args, dims=dims, range=range, unwrap_scalars=unwrap_scalars, simplify=simplify, **kwargs)
+        return map_(function, *args, dims=dims, range=range, unwrap_scalars=unwrap_scalars, simplify=simplify, map_name=name, **kwargs)
     return broadcast_
 
 
@@ -1326,7 +1331,15 @@ def iterate(map_function: Callable,
         raise ValueError(f"iterations must be an int or Shape but got {type(iterations)}")
 
 
-def map_(function: Callable[..., Y], *args, dims: DimFilter = shape, range=range, unwrap_scalars=True, expand_results=False, simplify=False, **kwargs) -> Union[None, Tensor, Y]:
+_DEFAULT_RANGE = None
+try:
+    import tqdm
+    _DEFAULT_RANGE = tqdm.trange
+except ImportError:
+    pass
+
+
+def map_(function: Callable[..., Y], *args, dims: DimFilter = shape, range=range, unwrap_scalars=True, expand_results=False, simplify=False, map_name=None, **kwargs) -> Union[None, Tensor, Y]:
     """
     Calls `function` on slices of the arguments and returns the stacked result.
 
@@ -1360,6 +1373,8 @@ def map_(function: Callable[..., Y], *args, dims: DimFilter = shape, range=range
     assert dims_.well_defined, f"All arguments must have consistent sizes for all mapped dimensions. Trying to map along {dims} but some have varying sizes (marked as None)."
     assert dims_.volume > 0, f"map dims must have volume > 0 but got {dims_}"
     results = []
+    if _DEFAULT_RANGE is not None and map_name is not None and range is builtin_range and dims_.volume > 1:
+        range = partial(_DEFAULT_RANGE, desc=map_name)
     for _, idx in zip(range(dims_.volume), dims_.meshgrid()):
         idx_args = [slice_(v, idx) for v in sliceable_args]
         idx_kwargs = {k: slice_(v, idx) for k, v in sliceable_kwargs.items()}
@@ -1372,7 +1387,7 @@ def map_(function: Callable[..., Y], *args, dims: DimFilter = shape, range=range
         results.append(f_output)
     if isinstance(results[0], tuple):
         stacked: List[Optional[Tensor]] = []
-        for i in range(len(results[0])):
+        for i in builtin_range(len(results[0])):
             if any(r[i] is None for r in results):
                 assert all(r[i] is None for r in results), f"map function returned None for some elements, {results}"
                 stacked.append(None)

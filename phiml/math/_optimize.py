@@ -80,7 +80,7 @@ class Solve(Generic[X, Y]):
         In any case, the gradient solve information will be stored in `gradient_solve.result`.
         """
         if self._gradient_solve is None:
-            self._gradient_solve = Solve(self.method, self.rel_tol, self.abs_tol, None, self.max_iterations, self.suppress, self.preprocess_y, self.preprocess_y_args)
+            self._gradient_solve = copy_with(self, x0=None)
         return self._gradient_solve
 
     def __repr__(self):
@@ -94,7 +94,9 @@ class Solve(Generic[X, Y]):
                 or not math.equal(self.rel_tol, other.rel_tol) \
                 or (self.max_iterations != other.max_iterations).any \
                 or self.preprocess_y is not other.preprocess_y \
-                or self.suppress != other.suppress:
+                or self.suppress != other.suppress \
+                or self.preconditioner != other.preconditioner \
+                or self.rank_deficiency != other.rank_deficiency:
             return False
         return self.x0 == other.x0
 
@@ -210,7 +212,9 @@ def _default_solve_info_msg(msg: str, converged: bool, diverged: bool, iteration
     if msg:
         return msg
     if diverged:
-        return f"Solve diverged within {iterations if iterations is not None else '?'} iterations using {method}."
+        if iterations < 0:
+            return f"Solve failed using {method}" + (': '+msg if msg else '')
+        return f"Solve diverged within {iterations if iterations is not None else '?'} iterations using {method}" + (': '+msg if msg else '')
     elif not converged:
         max_res = f"{math.max_(residual.trajectory[-1]):no-color:no-dtype}"
         return f"{method} did not converge to rel_tol={float(solve.rel_tol):.0e}, abs_tol={float(solve.abs_tol):.0e} within {int(solve.max_iterations)} iterations. Max residual: {max_res}"
@@ -578,6 +582,7 @@ def solve_linear(f: Union[Callable[[X], Y], Tensor],
     y_tree, y_tensors = disassemble_tree(y, cache=False, attr_type=value_attributes)
     x0_tree, x0_tensors = disassemble_tree(solve.x0, cache=False, attr_type=variable_attributes)
     assert len(x0_tensors) == len(y_tensors) == 1, "Only single-tensor linear solves are currently supported"
+    # --- If native tensors passed, return native tensor ---
     if isinstance(y_tree, str) and y_tree == NATIVE_TENSOR and isinstance(x0_tree, str) and x0_tree == NATIVE_TENSOR:
         if callable(f):  # assume batch + 1 dim
             rank = y_tensors[0].rank
@@ -617,9 +622,9 @@ def solve_linear(f: Union[Callable[[X], Y], Tensor],
                 solve = copy_with(solve, x0=x0)
                 solution = solve_linear(f, y, solve, *f_args, grad_for_f=grad_for_f, f_kwargs=f_kwargs, **f_kwargs_)
                 return solution.native(','.join([f'batch{i}' for i in range(rank - 1)]) + ',vector')
+    # --- PhiML Tensors ---
     backend = backend_for(*y_tensors, *x0_tensors)
     prefer_explicit = backend.supports(Backend.sparse_coo_tensor) or backend.supports(Backend.csr_matrix) or grad_for_f
-
     if isinstance(f, Tensor) or (isinstance(f, LinearFunction) and prefer_explicit):  # Matrix solve
         if isinstance(f, LinearFunction):
             x0 = math.convert(solve.x0, backend)
@@ -798,6 +803,7 @@ def attach_gradient_solve(forward_solve: Callable, auxiliary_args: str, matrix_a
                 _, dy_tensors = disassemble_tree(dy, cache=False, attr_type=value_attributes)
                 _, x_tensors = disassemble_tree(x, cache=False, attr_type=variable_attributes)
                 dm_values = dy_tensors[0][col] * x_tensors[0][row]
+                dm_values = math.sum_(dm_values, dm_values.shape.non_instance - matrix.shape)
                 dm = matrix._with_values(dm_values)
                 dm = -dm
             elif isinstance(matrix, Dense):

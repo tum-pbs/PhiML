@@ -870,7 +870,7 @@ def sample_subgrid(grid: Tensor, start: Tensor, size: Shape) -> Tensor:
     return grid
 
 
-def find_closest(vectors: Tensor, query: Tensor, method='kd', index_dim=channel('index')):
+def find_closest(vectors: Tensor, query: Tensor = None, /, method='kd', index_dim=channel('index')):
     """
     Finds the closest vector to `query` from `vectors`.
     This is implemented using a k-d tree built from `vectors`.
@@ -878,7 +878,7 @@ def find_closest(vectors: Tensor, query: Tensor, method='kd', index_dim=channel(
 
     Args:
         vectors: Points to find.
-        query: Target locations.
+        query: (Optional) Target locations. If not specified, returns a function (query) -> index which caches the acceleration structure. Otherwise, returns the index tensor.
         method: One of the following:
 
             * `'dense'`: compute the pair-wise distances between all vectors and query points, then return the index of the smallest distance for each query point.
@@ -889,29 +889,40 @@ def find_closest(vectors: Tensor, query: Tensor, method='kd', index_dim=channel(
     Returns:
         Index tensor `idx` so that the closest points to `query` are `vectors[idx]`.
     """
+
     assert not dual(vectors), f"vectors cannot have dual dims"
     index_dim = None if index_dim is None else index_dim.with_size(non_batch(vectors).non_channel.names)
     if method == 'dense':
-        dist = math.sum_((query - vectors) ** 2, channel)
-        idx = math.argmin(dist, non_batch(vectors).non_channel)
-        return rename_dims(idx, '_index', index_dim) if index_dim is not None else idx._index[0]
-    # --- k-d tree ---
-    from scipy.spatial import KDTree
-    result = []
-    for i in batch(vectors).meshgrid():
-        query_i = query[i]
-        native_query = query_i.native([..., channel])
-        if vectors.available:
-            kd_tree = KDTree(vectors[i].numpy([..., channel]))
-            def perform_query(np_query):
-                return kd_tree.query(np_query)[1]
-            native_idx = query.default_backend.numpy_call(perform_query, (query_i.shape.non_channel.volume,), INT64, native_query)
-        else:
-            b = backend_for(vectors, query)
-            native_vectors = vectors[i].native([..., channel])
-            def perform_query(np_vectors, np_query):
-                return KDTree(np_vectors).query(np_query)[1]
-            native_idx = b.numpy_call(perform_query, (query.shape.without(batch(vectors)).non_channel.volume,), INT64, native_vectors, native_query)
-        native_multi_idx = choose_backend(native_idx).unravel_index(native_idx, after_gather(vectors.shape, i).non_channel.sizes)
-        result.append(reshaped_tensor(native_multi_idx, [query_i.shape.non_channel, index_dim or math.EMPTY_SHAPE]))
-    return stack(result, batch(vectors))
+        def find_fun(query: Tensor):
+            dist = math.sum_((query - vectors) ** 2, channel)
+            idx = math.argmin(dist, non_batch(vectors).non_channel)
+            return rename_dims(idx, '_index', index_dim) if index_dim is not None else idx._index[0]
+    elif method == 'kd':
+        # try:
+        #     from sklearn.neighbors import KDTree
+        # except ImportError:
+        from scipy.spatial import cKDTree as KDTree
+        def find_fun(query: Tensor):
+            result = []
+            for i in batch(vectors).meshgrid():
+                query_i = query[i]
+                native_query = query_i.native([..., channel])
+                if vectors.available:
+                    kd_tree = KDTree(vectors[i].numpy([..., channel]))
+                    def perform_query(np_query):
+                        return kd_tree.query(np_query)[1]
+                    native_idx = query.default_backend.numpy_call(perform_query, (query_i.shape.non_channel.volume,), INT64, native_query)
+                else:
+                    b = backend_for(vectors, query)
+                    native_vectors = vectors[i].native([..., channel])
+                    def perform_query(np_vectors, np_query):
+                        return KDTree(np_vectors).query(np_query)[1]
+                    native_idx = b.numpy_call(perform_query, (query.shape.without(batch(vectors)).non_channel.volume,), INT64, native_vectors, native_query)
+                native_multi_idx = choose_backend(native_idx).unravel_index(native_idx, after_gather(vectors.shape, i).non_channel.sizes)
+                result.append(reshaped_tensor(native_multi_idx, [query_i.shape.non_channel, index_dim or math.EMPTY_SHAPE]))
+            return stack(result, batch(vectors))
+    else:
+        raise ValueError(f"Unsupported method: {method}")
+    if query is not None:
+        return find_fun(query)
+    return find_fun

@@ -6,7 +6,7 @@ import numpy as np
 from phiml import math
 from phiml.backend import Backend
 from phiml.backend._backend import init_installed_backends
-from phiml.math import channel, batch, DType, vec, stack, expand
+from phiml.math import channel, batch, DType, vec, stack, expand, arange, randn, f
 from phiml.math._shape import shape_stack, spatial, instance, dual
 from phiml.math._tensors import wrap, tensor, cached, disassemble_tensors, assemble_tensors, \
     Layout, equality_by_ref, equality_by_shape_and_value
@@ -695,3 +695,11 @@ class TestTensors(TestCase):
         loaded = math.load("files.npz")
         self.assertEqual(loaded.example[0].native(), "A")
         self.assertTrue((loaded.example[2] == 1).all)
+
+    def test_batched_save_load(self):
+        B = batch(b=3)
+        files = -f-f"data/test_{arange(B)}.npz"
+        for data in [randn(B, spatial(x=10)), randn(spatial(x=10))]:
+            math.save(files, data)
+            math.assert_close(data.b[0], math.load("data/test_0.npz"))
+            math.assert_close(data, math.load(files))

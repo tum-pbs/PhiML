@@ -12,7 +12,8 @@ import jax
 import jax.numpy as jnp
 import numpy
 import numpy as np
-from jax import random, tree_flatten, tree_unflatten
+from jax import random
+from jax.tree_util import tree_flatten, tree_unflatten
 from packaging import version
 
 if version.parse(jax.__version__) >= version.parse(
@@ -168,6 +169,7 @@ def save_state(obj: Union[StaxNet, JaxOptimizer], path: str):
         np.savez(path, state=np.array(data, dtype=object), allow_pickle=True)
     else:
         raise ValueError(f"obj must be a network or optimizer but got {type(obj)}")
+    return path
 
 
 def load_state(obj: Union[StaxNet, JaxOptimizer], path: str):

@@ -43,6 +43,7 @@ def save_state(obj: Union[nn.Module, optim.Optimizer], path: str):
     if not path.endswith('.pth'):
         path += '.pth'
     torch.save(obj.state_dict(), path)
+    return path
 
 
 def load_state(obj: Union[nn.Module, optim.Optimizer], path: str):
@@ -51,11 +52,12 @@ def load_state(obj: Union[nn.Module, optim.Optimizer], path: str):
     obj.load_state_dict(torch.load(path))
 
 
-def update_weights(net: nn.Module, optimizer: optim.Optimizer, loss_function: Callable, *loss_args, check_nan=False, **loss_kwargs):
+def update_weights(net: Union[nn.Module, Sequence[nn.Module]], optimizer: optim.Optimizer, loss_function: Callable, *loss_args, check_nan=False, **loss_kwargs):
     optimizer.zero_grad()
     output = loss_function(*loss_args, **loss_kwargs)
     loss = output[0] if isinstance(output, tuple) else output
-    loss.sum.backward()
+    loss = loss if isinstance(loss, torch.Tensor) else loss.sum
+    loss.backward()
     if isinstance(optimizer, optim.LBFGS):
         def closure():
             result = loss_function(*loss_args, **loss_kwargs)
@@ -64,27 +66,71 @@ def update_weights(net: nn.Module, optimizer: optim.Optimizer, loss_function: Ca
         optimizer.step(closure=closure)
     else:
         if check_nan:
-            for p in net.parameters():
-                if not torch.all(torch.isfinite(p.grad)):
-                    raise RuntimeError(f"NaN in network gradient detected. Parameter: {p}")
+            nets = [net] if isinstance(net, nn.Module) else net
+            for subnet in nets:
+                for p in subnet.parameters():
+                    if not torch.all(torch.isfinite(p.grad)):
+                        raise RuntimeError(f"NaN in network gradient detected. Parameter: {p}")
         optimizer.step()
     return output
 
 
-def adam(net: nn.Module, learning_rate: float = 1e-3, betas=(0.9, 0.999), epsilon=1e-07):
-    return optim.Adam(net.parameters(), learning_rate, betas, epsilon)
+def _as_module(net: Union[nn.Module, Sequence[nn.Module]]) -> nn.Module:
+    if isinstance(net, nn.Module):
+        return net
+    elif isinstance(net, (list, tuple)):
+        class ModuleContainer(nn.Module):
+            def __init__(self, modules):
+                super(ModuleContainer, self).__init__()
+                for i, module in enumerate(modules):
+                    self.add_module(f'module{i}', module)
+
+            def forward(self, x):
+                raise AssertionError("Container module must not be called.")
+        return ModuleContainer(net)
+    else:
+        raise ValueError(f"Invalid network type {type(net)}.")
 
 
-def sgd(net: nn.Module, learning_rate: float = 1e-3, momentum=0., dampening=0., weight_decay=0., nesterov=False):
-    return optim.SGD(net.parameters(), learning_rate, momentum, dampening, weight_decay, nesterov)
+def adam(net: Union[nn.Module, Sequence[nn.Module]], learning_rate: float = 1e-3, betas=(0.9, 0.999), epsilon=1e-07):
+    return optim.Adam(_as_module(net).parameters(), learning_rate, betas, epsilon)
 
 
-def adagrad(net: nn.Module, learning_rate: float = 1e-3, lr_decay=0., weight_decay=0., initial_accumulator_value=0., eps=1e-10):
-    return optim.Adagrad(net.parameters(), learning_rate, lr_decay, weight_decay, initial_accumulator_value, eps)
+def sgd(net: Union[nn.Module, Sequence[nn.Module]], learning_rate: float = 1e-3, momentum=0., dampening=0., weight_decay=0., nesterov=False):
+    return optim.SGD(_as_module(net).parameters(), learning_rate, momentum, dampening, weight_decay, nesterov)
 
 
-def rmsprop(net: nn.Module, learning_rate: float = 1e-3, alpha=0.99, eps=1e-08, weight_decay=0., momentum=0., centered=False):
-    return optim.RMSprop(net.parameters(), learning_rate, alpha, eps, weight_decay, momentum, centered)
+def adagrad(net: Union[nn.Module, Sequence[nn.Module]], learning_rate: float = 1e-3, lr_decay=0., weight_decay=0., initial_accumulator_value=0., eps=1e-10):
+    return optim.Adagrad(_as_module(net).parameters(), learning_rate, lr_decay, weight_decay, initial_accumulator_value, eps)
+
+
+def rmsprop(net: Union[nn.Module, Sequence[nn.Module]], learning_rate: float = 1e-3, alpha=0.99, eps=1e-08, weight_decay=0., momentum=0., centered=False):
+    return optim.RMSprop(_as_module(net).parameters(), learning_rate, alpha, eps, weight_decay, momentum, centered)
+
+
+def set_learning_rate(optimizer: optim.Optimizer, learning_rate: float):
+    """
+    Sets the global learning rate for the given optimizer.
+
+    Args:
+        optimizer (optim.Optimizer): The optimizer whose learning rate needs to be updated.
+        learning_rate (float): The new learning rate to set.
+    """
+    for param_group in optimizer.param_groups:
+        param_group['lr'] = learning_rate
+
+
+def get_learning_rate(optimizer: optim.Optimizer):
+    """
+    Returns the current learning rate of the optimizer.
+
+    Args:
+        optimizer (optim.Optimizer): The optimizer whose learning rate needs to be retrieved.
+
+    Returns:
+        float: The current learning rate of the optimizer.
+    """
+    return optimizer.param_groups[0]['lr']
 
 
 def _bias0(conv):
@@ -196,9 +242,9 @@ class UNet(nn.Module):
         self._levels = len(filters)
         self._spatial_rank = d
         if use_res_blocks:
-            self.add_module('inc', ResNetBlock(d, in_channels, filters[0], batch_norm, activation, periodic, down_kernel_size))
+            self.inc = ResNetBlock(d, in_channels, filters[0], batch_norm, activation, periodic, down_kernel_size)
         else:
-            self.add_module('inc', DoubleConv(d, in_channels, filters[0], filters[0], batch_norm, activation, periodic, down_kernel_size))
+            self.inc = DoubleConv(d, in_channels, filters[0], filters[0], batch_norm, activation, periodic, down_kernel_size)
         for i in range(1, self._levels):
             self.add_module(f'down{i}', Down(d, filters[i - 1], filters[i], batch_norm, activation, periodic, use_res_blocks, down_kernel_size))
             self.add_module(f'up{i}', Up(d, filters[-i] + filters[-i - 1], filters[-i - 1], batch_norm, activation, periodic, use_res_blocks, up_kernel_size))
@@ -207,8 +253,6 @@ class UNet(nn.Module):
     def forward(self, x):
         register_module_call(self)
         x = TORCH.as_tensor(x)
-        for size in x.shape[2:]:
-            assert size % 2 ** (self._levels-1) == 0, f"All spatial dims must be divisible by {2 ** (self._levels-1)} for U-Nets with {self._levels} levels but got {x.shape}. Please pad the input."
         x = self.inc(x)
         xs = [x]
         for i in range(1, self._levels):
@@ -264,13 +308,11 @@ class Up(nn.Module):
 
     def __init__(self, d: int, in_channels: int, out_channels: int, batch_norm: bool, activation: type, periodic: bool, use_res_blocks: bool, kernel_size: int):
         super().__init__()
-        up = nn.Upsample(scale_factor=2, mode=Up._MODES[d])
+        self.up = nn.Upsample(scale_factor=2, mode=Up._MODES[d])
         if use_res_blocks:
-            conv = ResNetBlock(d, in_channels, out_channels, batch_norm, activation, periodic, kernel_size)
+            self.conv = ResNetBlock(d, in_channels, out_channels, batch_norm, activation, periodic, kernel_size)
         else:
-            conv = DoubleConv(d, in_channels, out_channels, in_channels // 2, batch_norm, activation, periodic, kernel_size)
-        self.add_module('up', up)
-        self.add_module('conv', conv)
+            self.conv = DoubleConv(d, in_channels, out_channels, in_channels // 2, batch_norm, activation, periodic, kernel_size)
 
     def forward(self, x1, x2):
         x1 = self.up(x1)

@@ -383,7 +383,7 @@ def concat(values: Sequence[PhiTreeNodeType], dim: Union[str, Shape], expand_val
             for a in attributes:
                 common_shape = merge_shapes(*[shape(getattr(v, a)).without(dim) for v in values])
                 a_values = [expand(getattr(v, a), common_shape & shape(v).only(dim)) for v in values]  # expand by dim if missing, and dims of others
-                new_attrs[a] = concat(a_values, dim, **kwargs)
+                new_attrs[a] = concat(a_values, dim, expand_values=expand_values, **kwargs)
             return copy_with(values[0], **new_attrs)
         else:
             warnings.warn(f"Failed to concat values using value attributes because attributes differ among values {values}")
@@ -469,13 +469,13 @@ def tcat(values: Sequence[PhiTreeNodeType], dim_type: Callable, expand_values=Fa
     return concat(flat_values, dim_name, expand_values=expand_values)
 
 
-ccat = partial(tcat, dim_type=channel, default_name='ccat')
+ccat = partial(tcat, dim_type=channel, expand_values=True, default_name='ccat')
 ccat.__doc__ = "Concatenate values along their channel dim, see `tcat`."
-icat = partial(tcat, dim_type=instance, default_name='icat')
+icat = partial(tcat, dim_type=instance, expand_values=True, default_name='icat')
 icat.__doc__ = "Concatenate values along their instance dim, see `tcat`."
-dcat = partial(tcat, dim_type=dual, default_name='dcat')
+dcat = partial(tcat, dim_type=dual, expand_values=True, default_name='dcat')
 dcat.__doc__ = "Concatenate values along their dual dim, see `tcat`."
-scat = partial(tcat, dim_type=spatial, default_name='scat')
+scat = partial(tcat, dim_type=spatial, expand_values=True, default_name='scat')
 scat.__doc__ = "Concatenate values along their spatial dim, see `tcat`."
 
 

@@ -68,12 +68,14 @@ def save_state(obj: Union[keras.models.Model, keras.optimizers.Optimizer], path:
         if not path.endswith('.h5'):
             path += '.h5'
         obj.save_weights(path)
+        return path
     elif isinstance(obj, keras.optimizers.Optimizer):
         if not path.endswith('.pkl'):
             path += '.pkl'
         weights = obj.get_weights()
         with open(path, 'wb') as f:
             pickle.dump(weights, f)
+        return path
     else:
         raise ValueError("obj must be a Keras model or optimizer")
 
@@ -121,6 +123,27 @@ def adagrad(net: keras.Model, learning_rate: float = 1e-3, lr_decay=0., weight_d
 def rmsprop(net: keras.Model, learning_rate: float = 1e-3, alpha=0.99, eps=1e-08, weight_decay=0., momentum=0., centered=False):
     assert weight_decay == 0
     return keras.optimizers.RMSprop(learning_rate, alpha, momentum, eps, centered)
+
+
+def set_learning_rate(optimizer: keras.optimizers.Optimizer, learning_rate: float):
+    """
+    Sets the global learning rate for the given optimizer.
+
+    Args:
+        optimizer (optim.Optimizer): The optimizer whose learning rate needs to be updated.
+        learning_rate (float): The new learning rate to set.
+    """
+    keras.backend.set_value(optimizer.lr, learning_rate)
+
+
+def get_learning_rate(optimizer: keras.optimizers.Optimizer):
+    """
+    Gets the global learning rate for the given optimizer.
+
+    Args:
+        optimizer (optim.Optimizer): The optimizer whose learning rate needs to be updated.
+    """
+    return keras.backend.get_value(optimizer.lr)
 
 
 def mlp(in_channels: int,

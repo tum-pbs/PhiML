@@ -1,5 +1,6 @@
 import dataclasses
 import operator
+import os.path
 from numbers import Number
 import traceback
 import warnings
@@ -17,7 +18,7 @@ from ._shape import (Shape,
                      CHANNEL_DIM, BATCH_DIM, SPATIAL_DIM, EMPTY_SHAPE,
                      parse_dim_order, shape_stack, merge_shapes, channel, concat_shapes, primal,
                      SUPERSCRIPT, IncompatibleShapes, INSTANCE_DIM, batch, spatial, dual, instance, shape, shape as shape_, DimFilter, non_batch, DEBUG_CHECKS, parse_shape_spec,
-                     prepare_renaming_gather, after_gather, concat_shapes_, Dim, PureShape, SHAPE_TYPES)
+                     prepare_renaming_gather, after_gather, concat_shapes_, Dim, PureShape, SHAPE_TYPES, auto)
 from ..backend import NoBackendFound, choose_backend, BACKENDS, get_precision, default_backend, convert as convert_, \
     Backend, ComputeDevice, OBJECTS, NUMPY, ML_LOGGER
 from ..backend._backend import get_operator
@@ -570,7 +571,8 @@ class Tensor:
 
     @property
     def T(self):
-        return self._with_shape_replaced(self.shape.transposed())
+        raise NotImplementedError("Tensor.T is deprecated. Use dim.Ti .Tc or .Ts instead")
+        # return self._with_shape_replaced(self.shape.transposed())
 
     @property
     def Ti(self):
@@ -1047,7 +1049,7 @@ class Layout(Tensor):
 
     def __stack__(self, values: tuple, dim: Shape, **kwargs) -> 'Layout':
         obj = [v.native(self._stack_dim) for v in values]
-        new_stack_dim = dim + self._stack_dim
+        new_stack_dim = shape_stack(dim, *[v._stack_dim for v in values])
         return Layout(obj, new_stack_dim)
 
     @staticmethod
@@ -1679,8 +1681,9 @@ def tensor(data,
     Args:
         data: native tensor, sparse COO / CSR / CSC matrix, scalar, sequence, `Shape` or `Tensor`
         shape: Ordered dimensions and types. If sizes are defined, they will be checked against `data`.`
-            You may also pass a single `str` specifying dimension in the format `name:t` or `name:t=(item_names)` where `t` refers to the type letter, one of s,i,c,d,b.
-            Alternatively, you can pass a `list` of shapes which will call `reshaped_tensor`.
+            When passing multiple shapes, they will be concatenated. Duplicate names are not allowed.
+            Instead of `Shape` instances, you may pass strings specifying dims in the format `name:t` or `name:t=(item_names)` where `t` refers to the type letter, one of s,i,c,d,b.
+            Alternatively, you can pass a single `list` of shapes which will call `reshaped_tensor`. This allows for unpacking native dims into multiple dims.
         convert: If True, converts the data to the native format of the current default backend.
             If False, wraps the data in a `Tensor` but keeps the given data reference if possible.
 
@@ -1708,7 +1711,7 @@ def tensor(data,
         (vectorᶜ=10) float64 -0.128 ± 1.197 (-2e+00...2e+00)
     """
     if len(shape) == 1 and isinstance(shape[0], list):
-        return reshaped_tensor(data, shape[0], convert=convert)
+        return reshaped_tensor(data, shape[0], convert=convert, check_sizes=True)
     shape = [parse_shape_spec(s) if isinstance(s, str) else s for s in shape]
     shape = None if len(shape) == 0 else concat_shapes_(*shape)
     if isinstance(data, SHAPE_TYPES):
@@ -1992,6 +1995,8 @@ def disassemble_tree(obj: PhiTreeNodeType, cache: bool, attr_type=variable_attri
         return {'__layout__': 1, 'stack_dim': obj._stack_dim._to_dict(False), 'obj': keys}, values
     elif isinstance(obj, Tensor):
         return None, [cached(obj) if cache else obj]
+    elif isinstance(obj, Shape):
+        return obj, []
     elif isinstance(obj, (tuple, list)):
         keys = []
         values = []
@@ -2050,6 +2055,8 @@ def assemble_tree(obj: PhiTreeNodeType, values: List[Tensor], attr_type=variable
         value = values.pop(0)
         assert isinstance(value, Tensor)
         return value
+    elif isinstance(obj, Shape):
+        return obj
     elif isinstance(obj, list):
         return [assemble_tree(item, values, attr_type) for item in obj]
     elif isinstance(obj, tuple):
@@ -2079,6 +2086,8 @@ def attr_paths(obj: PhiTreeNodeType, attr_type: Callable, root: str) -> List[str
         return attr_paths(obj._obj, attr_type, f'{root}._obj')
     elif isinstance(obj, Tensor):
         return [root]
+    elif isinstance(obj, Shape):
+        return []
     elif isinstance(obj, (tuple, list)):
         paths = []
         for i, item in enumerate(obj):
@@ -2112,6 +2121,8 @@ def attr_paths_from_container(obj: PhiTreeNodeType, attr_type: Callable, root: s
         return [root]
     elif obj is None:
         return [root]
+    elif isinstance(obj, Shape):
+        return []
     elif isinstance(obj, (tuple, list)):
         return sum([attr_paths_from_container(v, attr_type, f'{root}[{i}]') for i, v in enumerate(obj)], [])
     elif isinstance(obj, dict) and '__layout__' in obj:
@@ -2491,7 +2502,7 @@ def reshaped_numpy(value: Tensor, groups: Union[tuple, list], force_expand: Any 
 
 
 def reshaped_tensor(value: Any,
-                    groups: Union[tuple, list],
+                    groups: Sequence[Union[Shape, str]],
                     check_sizes=False,
                     convert=True):
     """
@@ -2510,8 +2521,8 @@ def reshaped_tensor(value: Any,
     Returns:
         `Tensor` with all dimensions from `groups`
     """
-    assert all(isinstance(g, SHAPE_TYPES) for g in groups), "groups must be a sequence of Shapes"
     v_shape = choose_backend(value).staticshape(value)
+    groups = [g if isinstance(g, Shape) else (EMPTY_SHAPE if not g else auto(g)) for g in groups]
     dims = [batch(f'group{i}') if group.rank != 1 else (group if check_sizes else group.with_size(v_shape[i])) for i, group in enumerate(groups)]
     try:
         value = tensor(value, *dims, convert=convert)
@@ -3043,56 +3054,90 @@ def specs_equal(spec1, spec2):
     return spec1 == spec2
 
 
-def save(file: str, obj):
+def save(file: Union[Tensor, str], obj: TensorOrTree, mkdir=True):
     """
     Saves a `Tensor` or tree using NumPy.
     This function converts all tensors contained in `obj` to NumPy tensors before storing.
     Each tensor is given a name corresponding to its path within `obj`, allowing reading only specific arrays from the file later on.
     Pickle is used for structures, but no reference to `Tensor` or its sub-classes is included.
 
+    Examples:
+
+        >>> B = batch(b=3)
+        >>> files = -f-f"data/test_{arange(B)}.npz"
+        >>> data = randn(B, spatial(x=10))
+        >>> save(files, data)  # store 10 values per file
+        >>> assert_close(data, load(files))
+
     See Also:
         `load()`.
 
     Args:
-        file: Target file, will be stored as `.npz`.
+        file: Either single file to read as `str` or a batch of files as a string `Tensor`. The file ending will be completed to `.npz`.
+            When a batch of paths is provided, the data `obj` is sliced along the dims of `file` and broken up to be stored among the multiple files.
+            For obtaining a batch of files, see `wrap()`, `phiml.os.listdir()`, `phiml.math.f`.
         obj: `Tensor` or tree to store.
+        mkdir: Whether to create the file's directory if it doesn't exist.
     """
     tree, tensors = disassemble_tree(obj, False, all_attributes)
     paths = attr_paths(obj, all_attributes, 'root')
     assert len(paths) == len(tensors)
-    natives = [t._natives() for t in tensors]
-    specs = [serialize_spec(t._spec_dict()) for t in tensors]
-    native_paths = [[f'{p}:{i}' for i in range(len(ns))] for p, ns in zip(paths, natives)]
-    all_natives = sum(natives, ())
-    all_paths = sum(native_paths, [])
-    all_np = [choose_backend(n).numpy(n) for n in all_natives]
-    np.savez(file, tree=np.asarray(tree, dtype=object), specs=specs, paths=paths, **{p: n for p, n in zip(all_paths, all_np)})
+    for idx in shape(file).meshgrid():
+        file_i = file[idx].native() if isinstance(file, Tensor) else file
+        tensors_i = [t[idx] for t in tensors]
+        natives = [t._natives() for t in tensors_i]
+        specs = [serialize_spec(t._spec_dict()) for t in tensors_i]
+        native_paths = [[f'{p}:{i}' for i in range(len(ns))] for p, ns in zip(paths, natives)]
+        all_natives = sum(natives, ())
+        all_paths = sum(native_paths, [])
+        all_np = [choose_backend(n).numpy(n) for n in all_natives]
+        if mkdir and os.path.dirname(file_i):
+            os.makedirs(os.path.basename(os.path.dirname(file_i)), exist_ok=True)
+        np.savez(file_i, tree=np.asarray({'tree': tree}, dtype=object), specs=specs, paths=paths, **{p: n for p, n in zip(all_paths, all_np)})
 
 
-def load(file: str):
+def load(file: Union[str, Tensor]):
     """
-    Loads a `Tensor` or tree from a file previously written using `save`.
+    Loads a `Tensor` or tree from one or multiple files previously written using `save`.
 
     All tensors are restored as NumPy arrays, not the backend-specific tensors they may have been written as.
     Use `convert()` to convert all or some of the tensors to a different backend.
 
+    Examples:
+
+        >>> B = batch(b=3)
+        >>> files = -f-f"data/test_{arange(B)}.npz"
+        >>> data = randn(B, spatial(x=10))
+        >>> save(files, data)  # store 10 values per file
+        >>> assert_close(data, load(files))
+
+    See Also:
+        `save()`.
+
     Args:
-        file: File to read.
+        file: Either single file to read as `str` or a batch of files as a string `Tensor`.
+            When a batch of paths is provided, each file is loaded and the results are stacked according to the dims of `file`.
+            For obtaining a batch of files, see `wrap()`, `phiml.os.listdir()`, `phiml.math.f`.
 
     Returns:
         Same type as what was written.
     """
-    data = np.load(file, allow_pickle=True)
-    all_np = {k: data[k] for k in data if k not in ['tree', 'specs', 'paths']}
-    specs = [unserialize_spec(spec) for spec in data['specs'].tolist()]
-    tensors = assemble_tensors(list(all_np.values()), specs)
-    tree = data['tree'].tolist()  # this may require outside classes via pickle
-    stored_paths = data['paths'].tolist()
-    new_paths = attr_paths_from_container(tree, all_attributes, 'root')
-    if tuple(stored_paths) != tuple(new_paths):
-        lookup = {path: t for path, t in zip(stored_paths, tensors)}
-        tensors = [lookup[p] for p in new_paths]
-    return assemble_tree(tree, tensors, attr_type=all_attributes)
+    def load_single(file: str):
+        data = np.load(file, allow_pickle=True)
+        all_np = {k: data[k] for k in data if k not in ['tree', 'specs', 'paths']}
+        specs = [unserialize_spec(spec) for spec in data['specs'].tolist()]
+        tensors = assemble_tensors(list(all_np.values()), specs)
+        tree = data['tree'].tolist()['tree']  # this may require outside classes via pickle
+        stored_paths = data['paths'].tolist()
+        new_paths = attr_paths_from_container(tree, all_attributes, 'root')
+        if tuple(stored_paths) != tuple(new_paths):
+            lookup = {path: t for path, t in zip(stored_paths, tensors)}
+            tensors = [lookup[p] for p in new_paths]
+        return assemble_tree(tree, tensors, attr_type=all_attributes)
+    if isinstance(file, str):
+        return load_single(file)
+    from ._functional import map_
+    return map_(load_single, file)
 
 
 def serialize_spec(spec: dict):

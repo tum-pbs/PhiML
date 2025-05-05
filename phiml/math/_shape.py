@@ -2438,8 +2438,9 @@ def auto(spec: Union[str, Shape], default_type: Callable = None) -> Shape:
     if isinstance(spec, SHAPE_TYPES):
         return spec  # allow multi-dim Shapes as well, as the main application is stacking
     assert isinstance(spec, str), f"spec must be a Shape or str but got {type(spec)}"
-    assert ',' not in spec, f"auto dim only supported for single dimensions"
-    return parse_shape_spec(spec, default_type=default_type)
+    result = parse_shape_spec(spec, default_type=default_type)
+    assert result.rank == 1, f"Single dim required but got {result.rank} dims from spec '{spec}'"
+    return result
 
 
 class InvalidShapeSpec(ValueError):
@@ -2686,6 +2687,58 @@ def primal(obj) -> Shape:
         `Shape`
     """
     return shape(obj).primal
+
+
+def dsize(obj) -> Optional[int]:
+    """
+    Returns the total number of elements listed along dual dims of an object, equal to the product of the sizes of all dual dims.
+
+    Args:
+        obj: `Shape` or object with a valid `shape` property.
+
+    Returns:
+        Size as `int`. If `obj` is an undefined `Shape`, returns `None`.
+    """
+    return dual(obj).volume
+
+
+def isize(obj) -> Optional[int]:
+    """
+    Returns the total number of elements listed along instance dims of an object, equal to the product of the sizes of all instance dims.
+
+    Args:
+        obj: `Shape` or object with a valid `shape` property.
+
+    Returns:
+        Size as `int`. If `obj` is an undefined `Shape`, returns `None`.
+    """
+    return instance(obj).volume
+
+
+def ssize(obj) -> Optional[int]:
+    """
+    Returns the total number of elements listed along spatial dims of an object, equal to the product of the sizes of all spatial dims.
+
+    Args:
+        obj: `Shape` or object with a valid `shape` property.
+
+    Returns:
+        Size as `int`. If `obj` is an undefined `Shape`, returns `None`.
+    """
+    return spatial(obj).volume
+
+
+def csize(obj) -> Optional[int]:
+    """
+    Returns the total number of elements listed along channel dims of an object, equal to the product of the sizes of all channel dims.
+
+    Args:
+        obj: `Shape` or object with a valid `shape` property.
+
+    Returns:
+        Size as `int`. If `obj` is an undefined `Shape`, returns `None`.
+    """
+    return channel(obj).volume
 
 
 def _size_equal(s1, s2):

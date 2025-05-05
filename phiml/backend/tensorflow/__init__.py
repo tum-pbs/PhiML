@@ -14,8 +14,11 @@ if _tf.__version__.startswith('1.'):
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'  # only errors
 if _platform.system().lower() == 'windows':  # prevent Blas GEMM launch failed on Windows
     for i, device in enumerate(_tf.config.list_physical_devices('GPU')):
-        _tf.config.experimental.set_memory_growth(device, True)
-        _LOGGER.info(f"phiml.backend.tf: Setting memory_growth on GPU {i} to True to prevent Blas errors")
+        try:
+            _tf.config.experimental.set_memory_growth(device, True)
+            _LOGGER.debug(f"phiml.backend.tf: Setting memory_growth on GPU {i} to True to prevent Blas errors")
+        except RuntimeError:
+            _LOGGER.debug(f"phiml.backend.tf: Failed to set memory_growth on GPU {i}")
 
 from ._compile_cuda import compile_cuda_ops
 

@@ -8,7 +8,7 @@ from contextlib import contextmanager
 from dataclasses import dataclass
 from numbers import Number
 from types import ModuleType
-from typing import List, Callable, TypeVar, Tuple, Union, Optional, Sequence
+from typing import List, Callable, TypeVar, Tuple, Union, Optional, Sequence, Dict
 
 import numpy
 import numpy as np
@@ -24,10 +24,10 @@ TensorOrArray = Union[TensorType, np.ndarray]
 @dataclass
 class SolveResult:
     method: str
-    x: TensorType
-    residual: TensorType
-    iterations: TensorType
-    function_evaluations: TensorType
+    x: TensorType  # (max_iter+1, batch, vec) or (max_iter+1, vec)
+    residual: TensorType  # (max_iter+1, batch, vec) or (batch, vec)
+    iterations: TensorType  # (max_iter+1, batch) or (batch,)
+    function_evaluations: TensorType  # (max_iter+1, batch) or (batch,)
     converged: TensorType  # (max_iter+1, batch) or (batch,)
     diverged: TensorType  # (max_iter+1, batch) or (batch,)
     message: List[str]  # (batch,)
@@ -363,6 +363,12 @@ class Backend:
         """
         raise NotImplementedError(self.__class__)
 
+    def variable(self, x):
+        raise NotImplementedError(self.__class__)
+
+    def module(self, variables: Dict[str, TensorType], forward: Callable = None):
+        raise NotImplementedError(self.__class__)
+
     def is_available(self, tensor) -> bool:
         """
         Tests if the value of the tensor is known and can be read at this point.
@@ -545,7 +551,10 @@ class Backend:
 
     def random_permutations(self, permutations: int, n: int):
         """Generate `permutations` stacked arrays of shuffled integers between `0` and `n`."""
-        raise NotImplementedError
+        raise NotImplementedError(self)
+
+    def random_subsets(self, element_count: int, subset_size: int, subset_count: int, allow_duplicates: bool, element_weights=None):
+        raise NotImplementedError(self)
 
     def stack(self, values, axis=0):
         raise NotImplementedError(self)
@@ -773,7 +782,7 @@ class Backend:
         else:
             return self.exp(self.log_gamma(self.to_float(x) + 1))
 
-    def conv(self, value, kernel, zero_padding=True):
+    def conv(self, value, kernel, strides: Sequence[int], out_sizes: Sequence[int], transpose: bool):
         """
         Convolve value with kernel.
         Depending on the tensor rank, the convolution is either 1D (rank=3), 2D (rank=4) or 3D (rank=5).
@@ -782,7 +791,9 @@ class Backend:
         Args:
             value: tensor of shape (batch_size, in_channel, spatial...)
             kernel: tensor of shape (batch_size or 1, out_channel, in_channel, spatial...)
-            zero_padding: If True, pads the edges of `value` with zeros so that the result has the same shape as `value`.
+            strides: Convolution strides, one `int` for each spatial dim. For transpose, they act as upsampling factors.
+            out_sizes: Spatial shape of the output tensor. This determines how much zero-padding or slicing is used.
+            transpose: If `True`, performs a transposed convolution, according to PyTorch's definition.
 
         Returns:
             Convolution result as tensor of shape (batch_size, out_channel, spatial...)
@@ -1617,9 +1628,6 @@ class Backend:
         Returns:
             sampled values with linear interpolation
         """
-        return NotImplemented
-
-    def variable(self, value):
         return NotImplemented
 
     def ndims(self, tensor):
