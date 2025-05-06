@@ -1,0 +1,2626 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1">
+<meta name="generator" content="pdoc3 0.11.0">
+<title>phiml.os API documentation</title>
+<meta name="description" content="">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/13.0.0/sanitize.min.css" integrity="sha512-y1dtMcuvtTMJc1yPgEqF0ZjQbhnc/bFhyvIyVNb9Zk5mIGtqVaAB1Ttl28su8AvFMOY0EwRbAe+HCLqj6W7/KA==" crossorigin>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/13.0.0/typography.min.css" integrity="sha512-Y1DYSb995BAfxobCkKepB1BqJJTPrOp3zPL74AWFugHHmmdcvO+C48WLrUOlhGMc0QG7AE3f7gmvvcrmX2fDoA==" crossorigin>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/default.min.css" crossorigin>
+<style>:root{--highlight-color:#fe9}.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:1.5em;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:2em 0 .50em 0}h3{font-size:1.4em;margin:1.6em 0 .7em 0}h4{margin:0;font-size:105%}h1:target,h2:target,h3:target,h4:target,h5:target,h6:target{background:var(--highlight-color);padding:.2em 0}a{color:#058;text-decoration:none;transition:color .2s ease-in-out}a:visited{color:#503}a:hover{color:#b62}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900;font-weight:bold}pre code{font-size:.8em;line-height:1.4em;padding:1em;display:block}code{background:#f3f3f3;font-family:"DejaVu Sans Mono",monospace;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}dt:target .name{background:var(--highlight-color)}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}td{padding:0 .5em}.admonition{padding:.1em 1em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul ul{padding-left:1em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js" integrity="sha512-D9gUyxqja7hBtkWpPWGt9wfbfaMGVt9gnyCvYa+jojwwPHLCzUm5i8rpk7vD7wNee9bA35eYIjobYPaQuKS1MQ==" crossorigin></script>
+<script>window.addEventListener('DOMContentLoaded', () => {
+hljs.configure({languages: ['bash', 'css', 'diff', 'graphql', 'ini', 'javascript', 'json', 'plaintext', 'python', 'python-repl', 'rust', 'shell', 'sql', 'typescript', 'xml', 'yaml']});
+hljs.highlightAll();
+})</script>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>phiml.os</code></h1>
+</header>
+<section id="section-intro">
+</section>
+<section>
+<h2 class="section-title" id="header-submodules">Sub-modules</h2>
+<dl>
+<dt><code class="name"><a title="phiml.os.path" href="path.html">phiml.os.path</a></code></dt>
+<dd>
+<div class="desc"><p>Stand-in replacement for <code>os.path</code> with vectorization support.
+All functions accept <code>Tensor</code> as inputs, broadcasting the function call.</p></div>
+</dd>
+</dl>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-functions">Functions</h2>
+<dl>
+<dt id="phiml.os.WCOREDUMP"><code class="name flex">
+<span>def <span class="ident">WCOREDUMP</span></span>(<span>status, /)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Return True if the process returning status was dumped to a core file.</p></div>
+</dd>
+<dt id="phiml.os.WEXITSTATUS"><code class="name flex">
+<span>def <span class="ident">WEXITSTATUS</span></span>(<span>status)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Return the process return code from status.</p></div>
+</dd>
+<dt id="phiml.os.WIFCONTINUED"><code class="name flex">
+<span>def <span class="ident">WIFCONTINUED</span></span>(<span>status)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Return True if a particular process was continued from a job control stop.</p>
+<p>Return True if the process returning status was continued from a
+job control stop.</p></div>
+</dd>
+<dt id="phiml.os.WIFEXITED"><code class="name flex">
+<span>def <span class="ident">WIFEXITED</span></span>(<span>status)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Return True if the process returning status exited via the exit() system call.</p></div>
+</dd>
+<dt id="phiml.os.WIFSIGNALED"><code class="name flex">
+<span>def <span class="ident">WIFSIGNALED</span></span>(<span>status)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Return True if the process returning status was terminated by a signal.</p></div>
+</dd>
+<dt id="phiml.os.WIFSTOPPED"><code class="name flex">
+<span>def <span class="ident">WIFSTOPPED</span></span>(<span>status)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Return True if the process returning status was stopped.</p></div>
+</dd>
+<dt id="phiml.os.WSTOPSIG"><code class="name flex">
+<span>def <span class="ident">WSTOPSIG</span></span>(<span>status)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Return the signal that stopped the process that provided the status value.</p></div>
+</dd>
+<dt id="phiml.os.WTERMSIG"><code class="name flex">
+<span>def <span class="ident">WTERMSIG</span></span>(<span>status)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Return the signal that terminated the process that provided the status value.</p></div>
+</dd>
+<dt id="phiml.os._exit"><code class="name flex">
+<span>def <span class="ident">_exit</span></span>(<span>status)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Exit to the system with specified status, without normal exit processing.</p></div>
+</dd>
+<dt id="phiml.os.abort"><code class="name flex">
+<span>def <span class="ident">abort</span></span>(<span>)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Abort the interpreter immediately.</p>
+<p>This function 'dumps core' or otherwise fails in the hardest way possible
+on the hosting operating system.
+This function never returns.</p></div>
+</dd>
+<dt id="phiml.os.access"><code class="name flex">
+<span>def <span class="ident">access</span></span>(<span>path, mode, *, dir_fd=None, effective_ids=False, follow_symlinks=True)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Use the real uid/gid to test for access to a path.</p>
+<p>path
+Path to be tested; can be string, bytes, or a path-like object.
+mode
+Operating-system mode bitfield.
+Can be F_OK to test existence,
+or the inclusive-OR of R_OK, W_OK, and X_OK.
+dir_fd
+If not None, it should be a file descriptor open to a directory,
+and path should be relative; path will then be relative to that
+directory.
+effective_ids
+If True, access will use the effective uid/gid instead of
+the real uid/gid.
+follow_symlinks
+If False, and the last element of the path is a symbolic link,
+access will examine the symbolic link itself instead of the file
+the link points to.</p>
+<p>dir_fd, effective_ids, and follow_symlinks may not be implemented
+on your platform.
+If they are unavailable, using them will raise a
+NotImplementedError.</p>
+<p>Note that most operations will use the effective uid/gid, therefore this
+routine can be used in a suid/sgid environment to test if the invoking user
+has the specified access to the path.</p></div>
+</dd>
+<dt id="phiml.os.chdir"><code class="name flex">
+<span>def <span class="ident">chdir</span></span>(<span>path)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Change the current working directory to the specified path.</p>
+<p>path may always be specified as a string.
+On some platforms, path may also be specified as an open file descriptor.
+If this functionality is unavailable, using it raises an exception.</p></div>
+</dd>
+<dt id="phiml.os.chmod"><code class="name flex">
+<span>def <span class="ident">chmod</span></span>(<span>path, mode, *, dir_fd=None, follow_symlinks=True)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Change the access permissions of a file.</p>
+<p>path
+Path to be modified.
+May always be specified as a str, bytes, or a path-like object.
+On some platforms, path may also be specified as an open file descriptor.
+If this functionality is unavailable, using it raises an exception.
+mode
+Operating-system mode bitfield.
+dir_fd
+If not None, it should be a file descriptor open to a directory,
+and path should be relative; path will then be relative to that
+directory.
+follow_symlinks
+If False, and the last element of the path is a symbolic link,
+chmod will modify the symbolic link itself instead of the file
+the link points to.</p>
+<p>It is an error to use dir_fd or follow_symlinks when specifying path as
+an open file descriptor.
+dir_fd and follow_symlinks may not be implemented on your platform.
+If they are unavailable, using them will raise a NotImplementedError.</p></div>
+</dd>
+<dt id="phiml.os.chown"><code class="name flex">
+<span>def <span class="ident">chown</span></span>(<span>path, uid, gid, *, dir_fd=None, follow_symlinks=True)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Change the owner and group id of path to the numeric uid and gid.\</p>
+<p>path
+Path to be examined; can be string, bytes, a path-like object, or open-file-descriptor int.
+dir_fd
+If not None, it should be a file descriptor open to a directory,
+and path should be relative; path will then be relative to that
+directory.
+follow_symlinks
+If False, and the last element of the path is a symbolic link,
+stat will examine the symbolic link itself instead of the file
+the link points to.</p>
+<p>path may always be specified as a string.
+On some platforms, path may also be specified as an open file descriptor.
+If this functionality is unavailable, using it raises an exception.
+If dir_fd is not None, it should be a file descriptor open to a directory,
+and path should be relative; path will then be relative to that directory.
+If follow_symlinks is False, and the last element of the path is a symbolic
+link, chown will modify the symbolic link itself instead of the file the
+link points to.
+It is an error to use dir_fd or follow_symlinks when specifying path as
+an open file descriptor.
+dir_fd and follow_symlinks may not be implemented on your platform.
+If they are unavailable, using them will raise a NotImplementedError.</p></div>
+</dd>
+<dt id="phiml.os.chroot"><code class="name flex">
+<span>def <span class="ident">chroot</span></span>(<span>path)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Change root directory to path.</p></div>
+</dd>
+<dt id="phiml.os.close"><code class="name flex">
+<span>def <span class="ident">close</span></span>(<span>fd)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Close a file descriptor.</p></div>
+</dd>
+<dt id="phiml.os.closerange"><code class="name flex">
+<span>def <span class="ident">closerange</span></span>(<span>fd_low, fd_high, /)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Closes all file descriptors in [fd_low, fd_high), ignoring errors.</p></div>
+</dd>
+<dt id="phiml.os.confstr"><code class="name flex">
+<span>def <span class="ident">confstr</span></span>(<span>name, /)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Return a string-valued system configuration variable.</p></div>
+</dd>
+<dt id="phiml.os.copy_file_range"><code class="name flex">
+<span>def <span class="ident">copy_file_range</span></span>(<span>src, dst, count, offset_src=None, offset_dst=None)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Copy count bytes from one file descriptor to another.</p>
+<p>src
+Source file descriptor.
+dst
+Destination file descriptor.
+count
+Number of bytes to copy.
+offset_src
+Starting offset in src.
+offset_dst
+Starting offset in dst.</p>
+<p>If offset_src is None, then src is read from the current position;
+respectively for offset_dst.</p></div>
+</dd>
+<dt id="phiml.os.cpu_count"><code class="name flex">
+<span>def <span class="ident">cpu_count</span></span>(<span>)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Return the number of CPUs in the system; return None if indeterminable.</p>
+<p>This number is not equivalent to the number of CPUs the current process can
+use.
+The number of usable CPUs can be obtained with
+<code>len(os.sched_getaffinity(0))</code></p></div>
+</dd>
+<dt id="phiml.os.ctermid"><code class="name flex">
+<span>def <span class="ident">ctermid</span></span>(<span>)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Return the name of the controlling terminal for this process.</p></div>
+</dd>
+<dt id="phiml.os.device_encoding"><code class="name flex">
+<span>def <span class="ident">device_encoding</span></span>(<span>fd)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Return a string describing the encoding of a terminal's file descriptor.</p>
+<p>The file descriptor must be attached to a terminal.
+If the device is not a terminal, return None.</p></div>
+</dd>
+<dt id="phiml.os.dup"><code class="name flex">
+<span>def <span class="ident">dup</span></span>(<span>fd, /)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Return a duplicate of a file descriptor.</p></div>
+</dd>
+<dt id="phiml.os.dup2"><code class="name flex">
+<span>def <span class="ident">dup2</span></span>(<span>fd, fd2, inheritable=True)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Duplicate file descriptor.</p></div>
+</dd>
+<dt id="phiml.os.execl"><code class="name flex">
+<span>def <span class="ident">execl</span></span>(<span>file, *args)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>execl(file, *args)</p>
+<p>Execute the executable file with argument list args, replacing the
+current process.</p></div>
+</dd>
+<dt id="phiml.os.execle"><code class="name flex">
+<span>def <span class="ident">execle</span></span>(<span>file, *args)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>execle(file, *args, env)</p>
+<p>Execute the executable file with argument list args and
+environment env, replacing the current process.</p></div>
+</dd>
+<dt id="phiml.os.execlp"><code class="name flex">
+<span>def <span class="ident">execlp</span></span>(<span>file, *args)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>execlp(file, *args)</p>
+<p>Execute the executable file (which is searched for along $PATH)
+with argument list args, replacing the current process.</p></div>
+</dd>
+<dt id="phiml.os.execlpe"><code class="name flex">
+<span>def <span class="ident">execlpe</span></span>(<span>file, *args)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>execlpe(file, *args, env)</p>
+<p>Execute the executable file (which is searched for along $PATH)
+with argument list args and environment env, replacing the current
+process.</p></div>
+</dd>
+<dt id="phiml.os.execv"><code class="name flex">
+<span>def <span class="ident">execv</span></span>(<span>path, argv, /)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Execute an executable path with arguments, replacing current process.</p>
+<p>path
+Path of executable file.
+argv
+Tuple or list of strings.</p></div>
+</dd>
+<dt id="phiml.os.execve"><code class="name flex">
+<span>def <span class="ident">execve</span></span>(<span>path, argv, env)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Execute an executable path with arguments, replacing current process.</p>
+<p>path
+Path of executable file.
+argv
+Tuple or list of strings.
+env
+Dictionary of strings mapping to strings.</p></div>
+</dd>
+<dt id="phiml.os.execvp"><code class="name flex">
+<span>def <span class="ident">execvp</span></span>(<span>file, args)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>execvp(file, args)</p>
+<p>Execute the executable file (which is searched for along $PATH)
+with argument list args, replacing the current process.
+args may be a list or tuple of strings.</p></div>
+</dd>
+<dt id="phiml.os.execvpe"><code class="name flex">
+<span>def <span class="ident">execvpe</span></span>(<span>file, args, env)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>execvpe(file, args, env)</p>
+<p>Execute the executable file (which is searched for along $PATH)
+with argument list args and environment env, replacing the
+current process.
+args may be a list or tuple of strings.</p></div>
+</dd>
+<dt id="phiml.os.fchdir"><code class="name flex">
+<span>def <span class="ident">fchdir</span></span>(<span>fd)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Change to the directory of the given file descriptor.</p>
+<p>fd must be opened on a directory, not a file.
+Equivalent to os.chdir(fd).</p></div>
+</dd>
+<dt id="phiml.os.fchmod"><code class="name flex">
+<span>def <span class="ident">fchmod</span></span>(<span>fd, mode)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Change the access permissions of the file given by file descriptor fd.</p>
+<p>Equivalent to os.chmod(fd, mode).</p></div>
+</dd>
+<dt id="phiml.os.fchown"><code class="name flex">
+<span>def <span class="ident">fchown</span></span>(<span>fd, uid, gid)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Change the owner and group id of the file specified by file descriptor.</p>
+<p>Equivalent to os.chown(fd, uid, gid).</p></div>
+</dd>
+<dt id="phiml.os.fdatasync"><code class="name flex">
+<span>def <span class="ident">fdatasync</span></span>(<span>fd)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Force write of fd to disk without forcing update of metadata.</p></div>
+</dd>
+<dt id="phiml.os.fdopen"><code class="name flex">
+<span>def <span class="ident">fdopen</span></span>(<span>fd, *args, **kwargs)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="phiml.os.fork"><code class="name flex">
+<span>def <span class="ident">fork</span></span>(<span>)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Fork a child process.</p>
+<p>Return 0 to child process and PID of child to parent process.</p></div>
+</dd>
+<dt id="phiml.os.forkpty"><code class="name flex">
+<span>def <span class="ident">forkpty</span></span>(<span>)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Fork a new process with a new pseudo-terminal as controlling tty.</p>
+<p>Returns a tuple of (pid, master_fd).
+Like fork(), return pid of 0 to the child process,
+and pid of child to the parent process.
+To both, return fd of newly opened pseudo-terminal.</p></div>
+</dd>
+<dt id="phiml.os.fpathconf"><code class="name flex">
+<span>def <span class="ident">fpathconf</span></span>(<span>fd, name, /)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Return the configuration limit name for the file descriptor fd.</p>
+<p>If there is no limit, return -1.</p></div>
+</dd>
+<dt id="phiml.os.fsdecode"><code class="name flex">
+<span>def <span class="ident">fsdecode</span></span>(<span>filename)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Decode filename (an os.PathLike, bytes, or str) from the filesystem
+encoding with 'surrogateescape' error handler, return str unchanged. On
+Windows, use 'strict' error handler if the file system encoding is
+'mbcs' (which is the default encoding).</p></div>
+</dd>
+<dt id="phiml.os.fsencode"><code class="name flex">
+<span>def <span class="ident">fsencode</span></span>(<span>filename)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Encode filename (an os.PathLike, bytes, or str) to the filesystem
+encoding with 'surrogateescape' error handler, return bytes unchanged.
+On Windows, use 'strict' error handler if the file system encoding is
+'mbcs' (which is the default encoding).</p></div>
+</dd>
+<dt id="phiml.os.fspath"><code class="name flex">
+<span>def <span class="ident">fspath</span></span>(<span>path)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Return the file system path representation of the object.</p>
+<p>If the object is str or bytes, then allow it to pass through as-is. If the
+object defines <strong>fspath</strong>(), then return the result of that method. All other
+types raise a TypeError.</p></div>
+</dd>
+<dt id="phiml.os.fstat"><code class="name flex">
+<span>def <span class="ident">fstat</span></span>(<span>fd)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Perform a stat system call on the given file descriptor.</p>
+<p>Like stat(), but for an open file descriptor.
+Equivalent to os.stat(fd).</p></div>
+</dd>
+<dt id="phiml.os.fstatvfs"><code class="name flex">
+<span>def <span class="ident">fstatvfs</span></span>(<span>fd, /)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Perform an fstatvfs system call on the given fd.</p>
+<p>Equivalent to statvfs(fd).</p></div>
+</dd>
+<dt id="phiml.os.fsync"><code class="name flex">
+<span>def <span class="ident">fsync</span></span>(<span>fd)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Force write of fd to disk.</p></div>
+</dd>
+<dt id="phiml.os.ftruncate"><code class="name flex">
+<span>def <span class="ident">ftruncate</span></span>(<span>fd, length, /)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Truncate a file, specified by file descriptor, to a specific length.</p></div>
+</dd>
+<dt id="phiml.os.fwalk"><code class="name flex">
+<span>def <span class="ident">fwalk</span></span>(<span>top='.', topdown=True, onerror=None, *, follow_symlinks=False, dir_fd=None)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Directory tree generator.</p>
+<p>This behaves exactly like walk(), except that it yields a 4-tuple</p>
+<pre><code>dirpath, dirnames, filenames, dirfd
+</code></pre>
+<p><code>dirpath</code>, <code>dirnames</code> and <code>filenames</code> are identical to walk() output,
+and <code>dirfd</code> is a file descriptor referring to the directory <code>dirpath</code>.</p>
+<p>The advantage of fwalk() over walk() is that it's safe against symlink
+races (when follow_symlinks is False).</p>
+<p>If dir_fd is not None, it should be a file descriptor open to a directory,
+and top should be relative; top will then be relative to that directory.
+(dir_fd is always supported for fwalk.)</p>
+<p>Caution:
+Since fwalk() yields file descriptors, those are only valid until the
+next iteration step, so you should dup() them if you want to keep them
+for a longer period.</p>
+<p>Example:</p>
+<p>import os
+for root, dirs, files, rootfd in os.fwalk('python/Lib/email'):
+print(root, "consumes", end="")
+print(sum(os.stat(name, dir_fd=rootfd).st_size for name in files),
+end="")
+print("bytes in", len(files), "non-directory files")
+if 'CVS' in dirs:
+dirs.remove('CVS')
+# don't visit CVS directories</p></div>
+</dd>
+<dt id="phiml.os.get_blocking"><code class="name flex">
+<span>def <span class="ident">get_blocking</span></span>(<span>fd, /)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Get the blocking mode of the file descriptor.</p>
+<p>Return False if the O_NONBLOCK flag is set, True if the flag is cleared.</p></div>
+</dd>
+<dt id="phiml.os.get_exec_path"><code class="name flex">
+<span>def <span class="ident">get_exec_path</span></span>(<span>env=None)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Returns the sequence of directories that will be searched for the
+named executable (similar to a shell) when launching a process.</p>
+<p><em>env</em> must be an environment variable dict or None.
+If <em>env</em> is None,
+os.environ will be used.</p></div>
+</dd>
+<dt id="phiml.os.get_inheritable"><code class="name flex">
+<span>def <span class="ident">get_inheritable</span></span>(<span>fd, /)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Get the close-on-exe flag of the specified file descriptor.</p></div>
+</dd>
+<dt id="phiml.os.get_terminal_size"><code class="name flex">
+<span>def <span class="ident">get_terminal_size</span></span>(<span>...)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Return the size of the terminal window as (columns, lines).</p>
+<p>The optional argument fd (default standard output) specifies
+which file descriptor should be queried.</p>
+<p>If the file descriptor is not connected to a terminal, an OSError
+is thrown.</p>
+<p>This function will only be defined if an implementation is
+available for this system.</p>
+<p>shutil.get_terminal_size is the high-level function which should
+normally be used, os.get_terminal_size is the low-level implementation.</p></div>
+</dd>
+<dt id="phiml.os.getcwd"><code class="name flex">
+<span>def <span class="ident">getcwd</span></span>(<span>)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Return a unicode string representing the current working directory.</p></div>
+</dd>
+<dt id="phiml.os.getcwdb"><code class="name flex">
+<span>def <span class="ident">getcwdb</span></span>(<span>)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Return a bytes string representing the current working directory.</p></div>
+</dd>
+<dt id="phiml.os.getegid"><code class="name flex">
+<span>def <span class="ident">getegid</span></span>(<span>)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Return the current process's effective group id.</p></div>
+</dd>
+<dt id="phiml.os.getenv"><code class="name flex">
+<span>def <span class="ident">getenv</span></span>(<span>key, default=None)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Get an environment variable, return None if it doesn't exist.
+The optional second argument can specify an alternate default.
+key, default and the result are str.</p></div>
+</dd>
+<dt id="phiml.os.getenvb"><code class="name flex">
+<span>def <span class="ident">getenvb</span></span>(<span>key, default=None)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Get an environment variable, return None if it doesn't exist.
+The optional second argument can specify an alternate default.
+key, default and the result are bytes.</p></div>
+</dd>
+<dt id="phiml.os.geteuid"><code class="name flex">
+<span>def <span class="ident">geteuid</span></span>(<span>)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Return the current process's effective user id.</p></div>
+</dd>
+<dt id="phiml.os.getgid"><code class="name flex">
+<span>def <span class="ident">getgid</span></span>(<span>)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Return the current process's group id.</p></div>
+</dd>
+<dt id="phiml.os.getgrouplist"><code class="name flex">
+<span>def <span class="ident">getgrouplist</span></span>(<span>user, group)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>getgrouplist(user, group) -&gt; list of groups to which a user belongs</p>
+<p>Returns a list of groups to which a user belongs.</p>
+<pre><code>user: username to lookup
+group: base group id of the user
+</code></pre></div>
+</dd>
+<dt id="phiml.os.getgroups"><code class="name flex">
+<span>def <span class="ident">getgroups</span></span>(<span>)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Return list of supplemental group IDs for the process.</p></div>
+</dd>
+<dt id="phiml.os.getloadavg"><code class="name flex">
+<span>def <span class="ident">getloadavg</span></span>(<span>)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Return average recent system load information.</p>
+<p>Return the number of processes in the system run queue averaged over
+the last 1, 5, and 15 minutes as a tuple of three floats.
+Raises OSError if the load average was unobtainable.</p></div>
+</dd>
+<dt id="phiml.os.getlogin"><code class="name flex">
+<span>def <span class="ident">getlogin</span></span>(<span>)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Return the actual login name.</p></div>
+</dd>
+<dt id="phiml.os.getpgid"><code class="name flex">
+<span>def <span class="ident">getpgid</span></span>(<span>pid)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Call the system call getpgid(), and return the result.</p></div>
+</dd>
+<dt id="phiml.os.getpgrp"><code class="name flex">
+<span>def <span class="ident">getpgrp</span></span>(<span>)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Return the current process group id.</p></div>
+</dd>
+<dt id="phiml.os.getpid"><code class="name flex">
+<span>def <span class="ident">getpid</span></span>(<span>)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Return the current process id.</p></div>
+</dd>
+<dt id="phiml.os.getppid"><code class="name flex">
+<span>def <span class="ident">getppid</span></span>(<span>)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Return the parent's process id.</p>
+<p>If the parent process has already exited, Windows machines will still
+return its id; others systems will return the id of the 'init' process (1).</p></div>
+</dd>
+<dt id="phiml.os.getpriority"><code class="name flex">
+<span>def <span class="ident">getpriority</span></span>(<span>which, who)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Return program scheduling priority.</p></div>
+</dd>
+<dt id="phiml.os.getrandom"><code class="name flex">
+<span>def <span class="ident">getrandom</span></span>(<span>size, flags=0)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Obtain a series of random bytes.</p></div>
+</dd>
+<dt id="phiml.os.getresgid"><code class="name flex">
+<span>def <span class="ident">getresgid</span></span>(<span>)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Return a tuple of the current process's real, effective, and saved group ids.</p></div>
+</dd>
+<dt id="phiml.os.getresuid"><code class="name flex">
+<span>def <span class="ident">getresuid</span></span>(<span>)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Return a tuple of the current process's real, effective, and saved user ids.</p></div>
+</dd>
+<dt id="phiml.os.getsid"><code class="name flex">
+<span>def <span class="ident">getsid</span></span>(<span>pid, /)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Call the system call getsid(pid) and return the result.</p></div>
+</dd>
+<dt id="phiml.os.getuid"><code class="name flex">
+<span>def <span class="ident">getuid</span></span>(<span>)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Return the current process's user id.</p></div>
+</dd>
+<dt id="phiml.os.getxattr"><code class="name flex">
+<span>def <span class="ident">getxattr</span></span>(<span>path, attribute, *, follow_symlinks=True)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Return the value of extended attribute attribute on path.</p>
+<p>path may be either a string, a path-like object, or an open file descriptor.
+If follow_symlinks is False, and the last element of the path is a symbolic
+link, getxattr will examine the symbolic link itself instead of the file
+the link points to.</p></div>
+</dd>
+<dt id="phiml.os.initgroups"><code class="name flex">
+<span>def <span class="ident">initgroups</span></span>(<span>username, gid)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Call the system initgroups() to initialize the group access list with all of
+the groups of which the specified username is a member, plus the specified
+group id.</p></div>
+</dd>
+<dt id="phiml.os.isatty"><code class="name flex">
+<span>def <span class="ident">isatty</span></span>(<span>fd, /)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Return True if the fd is connected to a terminal.</p>
+<p>Return True if the file descriptor is an open file descriptor
+connected to the slave end of a terminal.</p></div>
+</dd>
+<dt id="phiml.os.kill"><code class="name flex">
+<span>def <span class="ident">kill</span></span>(<span>pid, signal, /)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Kill a process with a signal.</p></div>
+</dd>
+<dt id="phiml.os.killpg"><code class="name flex">
+<span>def <span class="ident">killpg</span></span>(<span>pgid, signal, /)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Kill a process group with a signal.</p></div>
+</dd>
+<dt id="phiml.os.lchown"><code class="name flex">
+<span>def <span class="ident">lchown</span></span>(<span>path, uid, gid)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Change the owner and group id of path to the numeric uid and gid.</p>
+<p>This function will not follow symbolic links.
+Equivalent to os.chown(path, uid, gid, follow_symlinks=False).</p></div>
+</dd>
+<dt id="phiml.os.link"><code class="name flex">
+<span>def <span class="ident">link</span></span>(<span>src, dst, *, src_dir_fd=None, dst_dir_fd=None, follow_symlinks=True)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Create a hard link to a file.</p>
+<p>If either src_dir_fd or dst_dir_fd is not None, it should be a file
+descriptor open to a directory, and the respective path string (src or dst)
+should be relative; the path will then be relative to that directory.
+If follow_symlinks is False, and the last element of src is a symbolic
+link, link will create a link to the symbolic link itself instead of the
+file the link points to.
+src_dir_fd, dst_dir_fd, and follow_symlinks may not be implemented on your
+platform.
+If they are unavailable, using them will raise a
+NotImplementedError.</p></div>
+</dd>
+<dt id="phiml.os.listdir"><code class="name flex">
+<span>def <span class="ident">listdir</span></span>(<span>path: Union[str, phiml.math._tensors.Tensor], list_dim: phiml.math._shape.Shape = (filesᵇ=None), file_filter: Callable[[str, str], bool] = None, full_paths=False) ‑> phiml.math._tensors.Tensor</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Returns a <code>Tensor</code> of all entries in the directory or directory batch given by <code><a title="phiml.os.path" href="path.html">phiml.os.path</a></code>.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>path</code></strong></dt>
+<dd>Single directory as <code>str</code> or multiple directories as string <code>Tensor</code>.</dd>
+<dt><strong><code>list_dim</code></strong></dt>
+<dd>Dim along which to list entries.</dd>
+<dt><strong><code>file_filter</code></strong></dt>
+<dd>(Optional) Function with signature <code>(directory: str, filename: str) -&gt; bool</code> used for filtering the files.</dd>
+<dt><strong><code>full_paths</code></strong></dt>
+<dd>Whether to return the full paths or just the file names.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<p><code>Tensor</code> with all dims of <code><a title="phiml.os.path" href="path.html">phiml.os.path</a></code> and <code>list_dim</code>. If directories contain different numbers of entries, the result <code>Tensor</code> will be non-uniform.</p></div>
+</dd>
+<dt id="phiml.os.listxattr"><code class="name flex">
+<span>def <span class="ident">listxattr</span></span>(<span>path=None, *, follow_symlinks=True)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Return a list of extended attributes on path.</p>
+<p>path may be either None, a string, a path-like object, or an open file descriptor.
+if path is None, listxattr will examine the current directory.
+If follow_symlinks is False, and the last element of the path is a symbolic
+link, listxattr will examine the symbolic link itself instead of the file
+the link points to.</p></div>
+</dd>
+<dt id="phiml.os.lockf"><code class="name flex">
+<span>def <span class="ident">lockf</span></span>(<span>fd, command, length, /)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Apply, test or remove a POSIX lock on an open file descriptor.</p>
+<p>fd
+An open file descriptor.
+command
+One of F_LOCK, F_TLOCK, F_ULOCK or F_TEST.
+length
+The number of bytes to lock, starting at the current position.</p></div>
+</dd>
+<dt id="phiml.os.lseek"><code class="name flex">
+<span>def <span class="ident">lseek</span></span>(<span>fd, position, how, /)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Set the position of a file descriptor.
+Return the new position.</p>
+<p>Return the new cursor position in number of bytes
+relative to the beginning of the file.</p></div>
+</dd>
+<dt id="phiml.os.lstat"><code class="name flex">
+<span>def <span class="ident">lstat</span></span>(<span>path, *, dir_fd=None)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Perform a stat system call on the given path, without following symbolic links.</p>
+<p>Like stat(), but do not follow symbolic links.
+Equivalent to stat(path, follow_symlinks=False).</p></div>
+</dd>
+<dt id="phiml.os.major"><code class="name flex">
+<span>def <span class="ident">major</span></span>(<span>device, /)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Extracts a device major number from a raw device number.</p></div>
+</dd>
+<dt id="phiml.os.makedev"><code class="name flex">
+<span>def <span class="ident">makedev</span></span>(<span>major, minor, /)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Composes a raw device number from the major and minor device numbers.</p></div>
+</dd>
+<dt id="phiml.os.makedirs"><code class="name flex">
+<span>def <span class="ident">makedirs</span></span>(<span>name, mode=511, exist_ok=False)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>makedirs(name [, mode=0o777][, exist_ok=False])</p>
+<p>Super-mkdir; create a leaf directory and all intermediate ones.
+Works like
+mkdir, except that any intermediate path segment (not just the rightmost)
+will be created if it does not exist. If the target directory already
+exists, raise an OSError if exist_ok is False. Otherwise no exception is
+raised.
+This is recursive.</p></div>
+</dd>
+<dt id="phiml.os.memfd_create"><code class="name flex">
+<span>def <span class="ident">memfd_create</span></span>(<span>name, flags=1)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="phiml.os.minor"><code class="name flex">
+<span>def <span class="ident">minor</span></span>(<span>device, /)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Extracts a device minor number from a raw device number.</p></div>
+</dd>
+<dt id="phiml.os.mkdir"><code class="name flex">
+<span>def <span class="ident">mkdir</span></span>(<span>path, mode=511, *, dir_fd=None)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Create a directory.</p>
+<p>If dir_fd is not None, it should be a file descriptor open to a directory,
+and path should be relative; path will then be relative to that directory.
+dir_fd may not be implemented on your platform.
+If it is unavailable, using it will raise a NotImplementedError.</p>
+<p>The mode argument is ignored on Windows.</p></div>
+</dd>
+<dt id="phiml.os.mkfifo"><code class="name flex">
+<span>def <span class="ident">mkfifo</span></span>(<span>path, mode=438, *, dir_fd=None)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Create a "fifo" (a POSIX named pipe).</p>
+<p>If dir_fd is not None, it should be a file descriptor open to a directory,
+and path should be relative; path will then be relative to that directory.
+dir_fd may not be implemented on your platform.
+If it is unavailable, using it will raise a NotImplementedError.</p></div>
+</dd>
+<dt id="phiml.os.mknod"><code class="name flex">
+<span>def <span class="ident">mknod</span></span>(<span>path, mode=384, device=0, *, dir_fd=None)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Create a node in the file system.</p>
+<p>Create a node in the file system (file, device special file or named pipe)
+at path.
+mode specifies both the permissions to use and the
+type of node to be created, being combined (bitwise OR) with one of
+S_IFREG, S_IFCHR, S_IFBLK, and S_IFIFO.
+If S_IFCHR or S_IFBLK is set on mode,
+device defines the newly created device special file (probably using
+os.makedev()).
+Otherwise device is ignored.</p>
+<p>If dir_fd is not None, it should be a file descriptor open to a directory,
+and path should be relative; path will then be relative to that directory.
+dir_fd may not be implemented on your platform.
+If it is unavailable, using it will raise a NotImplementedError.</p></div>
+</dd>
+<dt id="phiml.os.nice"><code class="name flex">
+<span>def <span class="ident">nice</span></span>(<span>increment, /)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Add increment to the priority of process and return the new priority.</p></div>
+</dd>
+<dt id="phiml.os.open"><code class="name flex">
+<span>def <span class="ident">open</span></span>(<span>path, flags, mode=511, *, dir_fd=None)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Open a file for low level IO.
+Returns a file descriptor (integer).</p>
+<p>If dir_fd is not None, it should be a file descriptor open to a directory,
+and path should be relative; path will then be relative to that directory.
+dir_fd may not be implemented on your platform.
+If it is unavailable, using it will raise a NotImplementedError.</p></div>
+</dd>
+<dt id="phiml.os.openpty"><code class="name flex">
+<span>def <span class="ident">openpty</span></span>(<span>)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Open a pseudo-terminal.</p>
+<p>Return a tuple of (master_fd, slave_fd) containing open file descriptors
+for both the master and slave ends.</p></div>
+</dd>
+<dt id="phiml.os.pathconf"><code class="name flex">
+<span>def <span class="ident">pathconf</span></span>(<span>path, name)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Return the configuration limit name for the file or directory path.</p>
+<p>If there is no limit, return -1.
+On some platforms, path may also be specified as an open file descriptor.
+If this functionality is unavailable, using it raises an exception.</p></div>
+</dd>
+<dt id="phiml.os.pipe"><code class="name flex">
+<span>def <span class="ident">pipe</span></span>(<span>)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Create a pipe.</p>
+<p>Returns a tuple of two file descriptors:
+(read_fd, write_fd)</p></div>
+</dd>
+<dt id="phiml.os.pipe2"><code class="name flex">
+<span>def <span class="ident">pipe2</span></span>(<span>flags, /)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Create a pipe with flags set atomically.</p>
+<p>Returns a tuple of two file descriptors:
+(read_fd, write_fd)</p>
+<p>flags can be constructed by ORing together one or more of these values:
+O_NONBLOCK, O_CLOEXEC.</p></div>
+</dd>
+<dt id="phiml.os.popen"><code class="name flex">
+<span>def <span class="ident">popen</span></span>(<span>cmd, mode='r', buffering=-1)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="phiml.os.posix_fadvise"><code class="name flex">
+<span>def <span class="ident">posix_fadvise</span></span>(<span>fd, offset, length, advice, /)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Announce an intention to access data in a specific pattern.</p>
+<p>Announce an intention to access data in a specific pattern, thus allowing
+the kernel to make optimizations.
+The advice applies to the region of the file specified by fd starting at
+offset and continuing for length bytes.
+advice is one of POSIX_FADV_NORMAL, POSIX_FADV_SEQUENTIAL,
+POSIX_FADV_RANDOM, POSIX_FADV_NOREUSE, POSIX_FADV_WILLNEED, or
+POSIX_FADV_DONTNEED.</p></div>
+</dd>
+<dt id="phiml.os.posix_fallocate"><code class="name flex">
+<span>def <span class="ident">posix_fallocate</span></span>(<span>fd, offset, length, /)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Ensure a file has allocated at least a particular number of bytes on disk.</p>
+<p>Ensure that the file specified by fd encompasses a range of bytes
+starting at offset bytes from the beginning and continuing for length bytes.</p></div>
+</dd>
+<dt id="phiml.os.posix_spawn"><code class="name flex">
+<span>def <span class="ident">posix_spawn</span></span>(<span>...)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Execute the program specified by path in a new process.</p>
+<p>path
+Path of executable file.
+argv
+Tuple or list of strings.
+env
+Dictionary of strings mapping to strings.
+file_actions
+A sequence of file action tuples.
+setpgroup
+The pgroup to use with the POSIX_SPAWN_SETPGROUP flag.
+resetids
+If the value is <code>true</code> the POSIX_SPAWN_RESETIDS will be activated.
+setsid
+If the value is <code>true</code> the POSIX_SPAWN_SETSID or POSIX_SPAWN_SETSID_NP will be activated.
+setsigmask
+The sigmask to use with the POSIX_SPAWN_SETSIGMASK flag.
+setsigdef
+The sigmask to use with the POSIX_SPAWN_SETSIGDEF flag.
+scheduler
+A tuple with the scheduler policy (optional) and parameters.</p></div>
+</dd>
+<dt id="phiml.os.posix_spawnp"><code class="name flex">
+<span>def <span class="ident">posix_spawnp</span></span>(<span>...)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Execute the program specified by path in a new process.</p>
+<p>path
+Path of executable file.
+argv
+Tuple or list of strings.
+env
+Dictionary of strings mapping to strings.
+file_actions
+A sequence of file action tuples.
+setpgroup
+The pgroup to use with the POSIX_SPAWN_SETPGROUP flag.
+resetids
+If the value is <code>True</code> the POSIX_SPAWN_RESETIDS will be activated.
+setsid
+If the value is <code>True</code> the POSIX_SPAWN_SETSID or POSIX_SPAWN_SETSID_NP will be activated.
+setsigmask
+The sigmask to use with the POSIX_SPAWN_SETSIGMASK flag.
+setsigdef
+The sigmask to use with the POSIX_SPAWN_SETSIGDEF flag.
+scheduler
+A tuple with the scheduler policy (optional) and parameters.</p></div>
+</dd>
+<dt id="phiml.os.pread"><code class="name flex">
+<span>def <span class="ident">pread</span></span>(<span>fd, length, offset, /)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Read a number of bytes from a file descriptor starting at a particular offset.</p>
+<p>Read length bytes from file descriptor fd, starting at offset bytes from
+the beginning of the file.
+The file offset remains unchanged.</p></div>
+</dd>
+<dt id="phiml.os.preadv"><code class="name flex">
+<span>def <span class="ident">preadv</span></span>(<span>fd, buffers, offset, flags=0, /)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Reads from a file descriptor into a number of mutable bytes-like objects.</p>
+<p>Combines the functionality of readv() and pread(). As readv(), it will
+transfer data into each buffer until it is full and then move on to the next
+buffer in the sequence to hold the rest of the data. Its fourth argument,
+specifies the file offset at which the input operation is to be performed. It
+will return the total number of bytes read (which can be less than the total
+capacity of all the objects).</p>
+<p>The flags argument contains a bitwise OR of zero or more of the following flags:</p>
+<ul>
+<li>RWF_HIPRI</li>
+<li>RWF_NOWAIT</li>
+</ul>
+<p>Using non-zero flags requires Linux 4.6 or newer.</p></div>
+</dd>
+<dt id="phiml.os.putenv"><code class="name flex">
+<span>def <span class="ident">putenv</span></span>(<span>name, value, /)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Change or add an environment variable.</p></div>
+</dd>
+<dt id="phiml.os.pwrite"><code class="name flex">
+<span>def <span class="ident">pwrite</span></span>(<span>fd, buffer, offset, /)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Write bytes to a file descriptor starting at a particular offset.</p>
+<p>Write buffer to fd, starting at offset bytes from the beginning of
+the file.
+Returns the number of bytes writte.
+Does not change the
+current file offset.</p></div>
+</dd>
+<dt id="phiml.os.pwritev"><code class="name flex">
+<span>def <span class="ident">pwritev</span></span>(<span>fd, buffers, offset, flags=0, /)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Writes the contents of bytes-like objects to a file descriptor at a given offset.</p>
+<p>Combines the functionality of writev() and pwrite(). All buffers must be a sequence
+of bytes-like objects. Buffers are processed in array order. Entire contents of first
+buffer is written before proceeding to second, and so on. The operating system may
+set a limit (sysconf() value SC_IOV_MAX) on the number of buffers that can be used.
+This function writes the contents of each object to the file descriptor and returns
+the total number of bytes written.</p>
+<p>The flags argument contains a bitwise OR of zero or more of the following flags:</p>
+<ul>
+<li>RWF_DSYNC</li>
+<li>RWF_SYNC</li>
+</ul>
+<p>Using non-zero flags requires Linux 4.7 or newer.</p></div>
+</dd>
+<dt id="phiml.os.read"><code class="name flex">
+<span>def <span class="ident">read</span></span>(<span>fd, length, /)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Read from a file descriptor.
+Returns a bytes object.</p></div>
+</dd>
+<dt id="phiml.os.readlink"><code class="name flex">
+<span>def <span class="ident">readlink</span></span>(<span>path, *, dir_fd=None)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Return a string representing the path to which the symbolic link points.</p>
+<p>If dir_fd is not None, it should be a file descriptor open to a directory,
+and path should be relative; path will then be relative to that directory.</p>
+<p>dir_fd may not be implemented on your platform.
+If it is unavailable,
+using it will raise a NotImplementedError.</p></div>
+</dd>
+<dt id="phiml.os.readv"><code class="name flex">
+<span>def <span class="ident">readv</span></span>(<span>fd, buffers, /)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Read from a file descriptor fd into an iterable of buffers.</p>
+<p>The buffers should be mutable buffers accepting bytes.
+readv will transfer data into each buffer until it is full
+and then move on to the next buffer in the sequence to hold
+the rest of the data.</p>
+<p>readv returns the total number of bytes read,
+which may be less than the total capacity of all the buffers.</p></div>
+</dd>
+<dt id="phiml.os.register_at_fork"><code class="name flex">
+<span>def <span class="ident">register_at_fork</span></span>(<span>...)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Register callables to be called when forking a new process.</p>
+<p>before
+A callable to be called in the parent before the fork() syscall.
+after_in_child
+A callable to be called in the child after fork().
+after_in_parent
+A callable to be called in the parent after fork().</p>
+<p>'before' callbacks are called in reverse order.
+'after_in_child' and 'after_in_parent' callbacks are called in order.</p></div>
+</dd>
+<dt id="phiml.os.remove"><code class="name flex">
+<span>def <span class="ident">remove</span></span>(<span>path, *, dir_fd=None)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Remove a file (same as unlink()).</p>
+<p>If dir_fd is not None, it should be a file descriptor open to a directory,
+and path should be relative; path will then be relative to that directory.
+dir_fd may not be implemented on your platform.
+If it is unavailable, using it will raise a NotImplementedError.</p></div>
+</dd>
+<dt id="phiml.os.removedirs"><code class="name flex">
+<span>def <span class="ident">removedirs</span></span>(<span>name)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>removedirs(name)</p>
+<p>Super-rmdir; remove a leaf directory and all empty intermediate
+ones.
+Works like rmdir except that, if the leaf directory is
+successfully removed, directories corresponding to rightmost path
+segments will be pruned away until either the whole path is
+consumed or an error occurs.
+Errors during this latter phase are
+ignored &ndash; they generally mean that a directory was not empty.</p></div>
+</dd>
+<dt id="phiml.os.removexattr"><code class="name flex">
+<span>def <span class="ident">removexattr</span></span>(<span>path, attribute, *, follow_symlinks=True)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Remove extended attribute attribute on path.</p>
+<p>path may be either a string, a path-like object, or an open file descriptor.
+If follow_symlinks is False, and the last element of the path is a symbolic
+link, removexattr will modify the symbolic link itself instead of the file
+the link points to.</p></div>
+</dd>
+<dt id="phiml.os.rename"><code class="name flex">
+<span>def <span class="ident">rename</span></span>(<span>src, dst, *, src_dir_fd=None, dst_dir_fd=None)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Rename a file or directory.</p>
+<p>If either src_dir_fd or dst_dir_fd is not None, it should be a file
+descriptor open to a directory, and the respective path string (src or dst)
+should be relative; the path will then be relative to that directory.
+src_dir_fd and dst_dir_fd, may not be implemented on your platform.
+If they are unavailable, using them will raise a NotImplementedError.</p></div>
+</dd>
+<dt id="phiml.os.renames"><code class="name flex">
+<span>def <span class="ident">renames</span></span>(<span>old, new)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>renames(old, new)</p>
+<p>Super-rename; create directories as necessary and delete any left
+empty.
+Works like rename, except creation of any intermediate
+directories needed to make the new pathname good is attempted
+first.
+After the rename, directories corresponding to rightmost
+path segments of the old name will be pruned until either the
+whole path is consumed or a nonempty directory is found.</p>
+<p>Note: this function can fail with the new directory structure made
+if you lack permissions needed to unlink the leaf directory or
+file.</p></div>
+</dd>
+<dt id="phiml.os.replace"><code class="name flex">
+<span>def <span class="ident">replace</span></span>(<span>src, dst, *, src_dir_fd=None, dst_dir_fd=None)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Rename a file or directory, overwriting the destination.</p>
+<p>If either src_dir_fd or dst_dir_fd is not None, it should be a file
+descriptor open to a directory, and the respective path string (src or dst)
+should be relative; the path will then be relative to that directory.
+src_dir_fd and dst_dir_fd, may not be implemented on your platform.
+If they are unavailable, using them will raise a NotImplementedError.</p></div>
+</dd>
+<dt id="phiml.os.rmdir"><code class="name flex">
+<span>def <span class="ident">rmdir</span></span>(<span>path, *, dir_fd=None)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Remove a directory.</p>
+<p>If dir_fd is not None, it should be a file descriptor open to a directory,
+and path should be relative; path will then be relative to that directory.
+dir_fd may not be implemented on your platform.
+If it is unavailable, using it will raise a NotImplementedError.</p></div>
+</dd>
+<dt id="phiml.os.scandir"><code class="name flex">
+<span>def <span class="ident">scandir</span></span>(<span>path=None)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Return an iterator of DirEntry objects for given path.</p>
+<p>path can be specified as either str, bytes, or a path-like object.
+If path
+is bytes, the names of yielded DirEntry objects will also be bytes; in
+all other circumstances they will be str.</p>
+<p>If path is None, uses the path='.'.</p></div>
+</dd>
+<dt id="phiml.os.sched_get_priority_max"><code class="name flex">
+<span>def <span class="ident">sched_get_priority_max</span></span>(<span>policy)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Get the maximum scheduling priority for policy.</p></div>
+</dd>
+<dt id="phiml.os.sched_get_priority_min"><code class="name flex">
+<span>def <span class="ident">sched_get_priority_min</span></span>(<span>policy)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Get the minimum scheduling priority for policy.</p></div>
+</dd>
+<dt id="phiml.os.sched_getaffinity"><code class="name flex">
+<span>def <span class="ident">sched_getaffinity</span></span>(<span>pid, /)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Return the affinity of the process identified by pid (or the current process if zero).</p>
+<p>The affinity is returned as a set of CPU identifiers.</p></div>
+</dd>
+<dt id="phiml.os.sched_getparam"><code class="name flex">
+<span>def <span class="ident">sched_getparam</span></span>(<span>pid, /)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Returns scheduling parameters for the process identified by pid.</p>
+<p>If pid is 0, returns parameters for the calling process.
+Return value is an instance of sched_param.</p></div>
+</dd>
+<dt id="phiml.os.sched_getscheduler"><code class="name flex">
+<span>def <span class="ident">sched_getscheduler</span></span>(<span>pid, /)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Get the scheduling policy for the process identifiedy by pid.</p>
+<p>Passing 0 for pid returns the scheduling policy for the calling process.</p></div>
+</dd>
+<dt id="phiml.os.sched_rr_get_interval"><code class="name flex">
+<span>def <span class="ident">sched_rr_get_interval</span></span>(<span>pid, /)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Return the round-robin quantum for the process identified by pid, in seconds.</p>
+<p>Value returned is a float.</p></div>
+</dd>
+<dt id="phiml.os.sched_setaffinity"><code class="name flex">
+<span>def <span class="ident">sched_setaffinity</span></span>(<span>pid, mask, /)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Set the CPU affinity of the process identified by pid to mask.</p>
+<p>mask should be an iterable of integers identifying CPUs.</p></div>
+</dd>
+<dt id="phiml.os.sched_setparam"><code class="name flex">
+<span>def <span class="ident">sched_setparam</span></span>(<span>pid, param, /)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Set scheduling parameters for the process identified by pid.</p>
+<p>If pid is 0, sets parameters for the calling process.
+param should be an instance of sched_param.</p></div>
+</dd>
+<dt id="phiml.os.sched_setscheduler"><code class="name flex">
+<span>def <span class="ident">sched_setscheduler</span></span>(<span>pid, policy, param, /)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Set the scheduling policy for the process identified by pid.</p>
+<p>If pid is 0, the calling process is changed.
+param is an instance of sched_param.</p></div>
+</dd>
+<dt id="phiml.os.sched_yield"><code class="name flex">
+<span>def <span class="ident">sched_yield</span></span>(<span>)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Voluntarily relinquish the CPU.</p></div>
+</dd>
+<dt id="phiml.os.sendfile"><code class="name flex">
+<span>def <span class="ident">sendfile</span></span>(<span>...)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>sendfile(out, in, offset, count) -&gt; byteswritten
+sendfile(out, in, offset, count[, headers][, trailers], flags=0)
+-&gt; byteswritten
+Copy count bytes from file descriptor in to file descriptor out.</p></div>
+</dd>
+<dt id="phiml.os.set_blocking"><code class="name flex">
+<span>def <span class="ident">set_blocking</span></span>(<span>fd, blocking, /)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Set the blocking mode of the specified file descriptor.</p>
+<p>Set the O_NONBLOCK flag if blocking is False,
+clear the O_NONBLOCK flag otherwise.</p></div>
+</dd>
+<dt id="phiml.os.set_inheritable"><code class="name flex">
+<span>def <span class="ident">set_inheritable</span></span>(<span>fd, inheritable, /)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Set the inheritable flag of the specified file descriptor.</p></div>
+</dd>
+<dt id="phiml.os.setegid"><code class="name flex">
+<span>def <span class="ident">setegid</span></span>(<span>egid, /)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Set the current process's effective group id.</p></div>
+</dd>
+<dt id="phiml.os.seteuid"><code class="name flex">
+<span>def <span class="ident">seteuid</span></span>(<span>euid, /)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Set the current process's effective user id.</p></div>
+</dd>
+<dt id="phiml.os.setgid"><code class="name flex">
+<span>def <span class="ident">setgid</span></span>(<span>gid, /)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Set the current process's group id.</p></div>
+</dd>
+<dt id="phiml.os.setgroups"><code class="name flex">
+<span>def <span class="ident">setgroups</span></span>(<span>groups, /)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Set the groups of the current process to list.</p></div>
+</dd>
+<dt id="phiml.os.setpgid"><code class="name flex">
+<span>def <span class="ident">setpgid</span></span>(<span>pid, pgrp, /)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Call the system call setpgid(pid, pgrp).</p></div>
+</dd>
+<dt id="phiml.os.setpgrp"><code class="name flex">
+<span>def <span class="ident">setpgrp</span></span>(<span>)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Make the current process the leader of its process group.</p></div>
+</dd>
+<dt id="phiml.os.setpriority"><code class="name flex">
+<span>def <span class="ident">setpriority</span></span>(<span>which, who, priority)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Set program scheduling priority.</p></div>
+</dd>
+<dt id="phiml.os.setregid"><code class="name flex">
+<span>def <span class="ident">setregid</span></span>(<span>rgid, egid, /)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Set the current process's real and effective group ids.</p></div>
+</dd>
+<dt id="phiml.os.setresgid"><code class="name flex">
+<span>def <span class="ident">setresgid</span></span>(<span>rgid, egid, sgid, /)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Set the current process's real, effective, and saved group ids.</p></div>
+</dd>
+<dt id="phiml.os.setresuid"><code class="name flex">
+<span>def <span class="ident">setresuid</span></span>(<span>ruid, euid, suid, /)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Set the current process's real, effective, and saved user ids.</p></div>
+</dd>
+<dt id="phiml.os.setreuid"><code class="name flex">
+<span>def <span class="ident">setreuid</span></span>(<span>ruid, euid, /)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Set the current process's real and effective user ids.</p></div>
+</dd>
+<dt id="phiml.os.setsid"><code class="name flex">
+<span>def <span class="ident">setsid</span></span>(<span>)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Call the system call setsid().</p></div>
+</dd>
+<dt id="phiml.os.setuid"><code class="name flex">
+<span>def <span class="ident">setuid</span></span>(<span>uid, /)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Set the current process's user id.</p></div>
+</dd>
+<dt id="phiml.os.setxattr"><code class="name flex">
+<span>def <span class="ident">setxattr</span></span>(<span>path, attribute, value, flags=0, *, follow_symlinks=True)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Set extended attribute attribute on path to value.</p>
+<p>path may be either a string, a path-like object,
+or an open file descriptor.
+If follow_symlinks is False, and the last element of the path is a symbolic
+link, setxattr will modify the symbolic link itself instead of the file
+the link points to.</p></div>
+</dd>
+<dt id="phiml.os.spawnl"><code class="name flex">
+<span>def <span class="ident">spawnl</span></span>(<span>mode, file, *args)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>spawnl(mode, file, *args) -&gt; integer</p>
+<p>Execute file with arguments from args in a subprocess.
+If mode == P_NOWAIT return the pid of the process.
+If mode == P_WAIT return the process's exit code if it exits normally;
+otherwise return -SIG, where SIG is the signal that killed it.</p></div>
+</dd>
+<dt id="phiml.os.spawnle"><code class="name flex">
+<span>def <span class="ident">spawnle</span></span>(<span>mode, file, *args)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>spawnle(mode, file, *args, env) -&gt; integer</p>
+<p>Execute file with arguments from args in a subprocess with the
+supplied environment.
+If mode == P_NOWAIT return the pid of the process.
+If mode == P_WAIT return the process's exit code if it exits normally;
+otherwise return -SIG, where SIG is the signal that killed it.</p></div>
+</dd>
+<dt id="phiml.os.spawnlp"><code class="name flex">
+<span>def <span class="ident">spawnlp</span></span>(<span>mode, file, *args)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>spawnlp(mode, file, *args) -&gt; integer</p>
+<p>Execute file (which is looked for along $PATH) with arguments from
+args in a subprocess with the supplied environment.
+If mode == P_NOWAIT return the pid of the process.
+If mode == P_WAIT return the process's exit code if it exits normally;
+otherwise return -SIG, where SIG is the signal that killed it.</p></div>
+</dd>
+<dt id="phiml.os.spawnlpe"><code class="name flex">
+<span>def <span class="ident">spawnlpe</span></span>(<span>mode, file, *args)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>spawnlpe(mode, file, *args, env) -&gt; integer</p>
+<p>Execute file (which is looked for along $PATH) with arguments from
+args in a subprocess with the supplied environment.
+If mode == P_NOWAIT return the pid of the process.
+If mode == P_WAIT return the process's exit code if it exits normally;
+otherwise return -SIG, where SIG is the signal that killed it.</p></div>
+</dd>
+<dt id="phiml.os.spawnv"><code class="name flex">
+<span>def <span class="ident">spawnv</span></span>(<span>mode, file, args)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>spawnv(mode, file, args) -&gt; integer</p>
+<p>Execute file with arguments from args in a subprocess.
+If mode == P_NOWAIT return the pid of the process.
+If mode == P_WAIT return the process's exit code if it exits normally;
+otherwise return -SIG, where SIG is the signal that killed it.</p></div>
+</dd>
+<dt id="phiml.os.spawnve"><code class="name flex">
+<span>def <span class="ident">spawnve</span></span>(<span>mode, file, args, env)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>spawnve(mode, file, args, env) -&gt; integer</p>
+<p>Execute file with arguments from args in a subprocess with the
+specified environment.
+If mode == P_NOWAIT return the pid of the process.
+If mode == P_WAIT return the process's exit code if it exits normally;
+otherwise return -SIG, where SIG is the signal that killed it.</p></div>
+</dd>
+<dt id="phiml.os.spawnvp"><code class="name flex">
+<span>def <span class="ident">spawnvp</span></span>(<span>mode, file, args)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>spawnvp(mode, file, args) -&gt; integer</p>
+<p>Execute file (which is looked for along $PATH) with arguments from
+args in a subprocess.
+If mode == P_NOWAIT return the pid of the process.
+If mode == P_WAIT return the process's exit code if it exits normally;
+otherwise return -SIG, where SIG is the signal that killed it.</p></div>
+</dd>
+<dt id="phiml.os.spawnvpe"><code class="name flex">
+<span>def <span class="ident">spawnvpe</span></span>(<span>mode, file, args, env)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>spawnvpe(mode, file, args, env) -&gt; integer</p>
+<p>Execute file (which is looked for along $PATH) with arguments from
+args in a subprocess with the supplied environment.
+If mode == P_NOWAIT return the pid of the process.
+If mode == P_WAIT return the process's exit code if it exits normally;
+otherwise return -SIG, where SIG is the signal that killed it.</p></div>
+</dd>
+<dt id="phiml.os.stat"><code class="name flex">
+<span>def <span class="ident">stat</span></span>(<span>path, *, dir_fd=None, follow_symlinks=True)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Perform a stat system call on the given path.</p>
+<p>path
+Path to be examined; can be string, bytes, a path-like object or
+open-file-descriptor int.
+dir_fd
+If not None, it should be a file descriptor open to a directory,
+and path should be a relative string; path will then be relative to
+that directory.
+follow_symlinks
+If False, and the last element of the path is a symbolic link,
+stat will examine the symbolic link itself instead of the file
+the link points to.</p>
+<p>dir_fd and follow_symlinks may not be implemented
+on your platform.
+If they are unavailable, using them will raise a
+NotImplementedError.</p>
+<p>It's an error to use dir_fd or follow_symlinks when specifying path as
+an open file descriptor.</p></div>
+</dd>
+<dt id="phiml.os.statvfs"><code class="name flex">
+<span>def <span class="ident">statvfs</span></span>(<span>path)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Perform a statvfs system call on the given path.</p>
+<p>path may always be specified as a string.
+On some platforms, path may also be specified as an open file descriptor.
+If this functionality is unavailable, using it raises an exception.</p></div>
+</dd>
+<dt id="phiml.os.strerror"><code class="name flex">
+<span>def <span class="ident">strerror</span></span>(<span>code, /)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Translate an error code to a message string.</p></div>
+</dd>
+<dt id="phiml.os.symlink"><code class="name flex">
+<span>def <span class="ident">symlink</span></span>(<span>src, dst, target_is_directory=False, *, dir_fd=None)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Create a symbolic link pointing to src named dst.</p>
+<p>target_is_directory is required on Windows if the target is to be
+interpreted as a directory.
+(On Windows, symlink requires
+Windows 6.0 or greater, and raises a NotImplementedError otherwise.)
+target_is_directory is ignored on non-Windows platforms.</p>
+<p>If dir_fd is not None, it should be a file descriptor open to a directory,
+and path should be relative; path will then be relative to that directory.
+dir_fd may not be implemented on your platform.
+If it is unavailable, using it will raise a NotImplementedError.</p></div>
+</dd>
+<dt id="phiml.os.sync"><code class="name flex">
+<span>def <span class="ident">sync</span></span>(<span>)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Force write of everything to disk.</p></div>
+</dd>
+<dt id="phiml.os.sysconf"><code class="name flex">
+<span>def <span class="ident">sysconf</span></span>(<span>name, /)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Return an integer-valued system configuration variable.</p></div>
+</dd>
+<dt id="phiml.os.system"><code class="name flex">
+<span>def <span class="ident">system</span></span>(<span>command)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Execute the command in a subshell.</p></div>
+</dd>
+<dt id="phiml.os.tcgetpgrp"><code class="name flex">
+<span>def <span class="ident">tcgetpgrp</span></span>(<span>fd, /)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Return the process group associated with the terminal specified by fd.</p></div>
+</dd>
+<dt id="phiml.os.tcsetpgrp"><code class="name flex">
+<span>def <span class="ident">tcsetpgrp</span></span>(<span>fd, pgid, /)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Set the process group associated with the terminal specified by fd.</p></div>
+</dd>
+<dt id="phiml.os.times"><code class="name flex">
+<span>def <span class="ident">times</span></span>(<span>)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Return a collection containing process timing information.</p>
+<p>The object returned behaves like a named tuple with these fields:
+(utime, stime, cutime, cstime, elapsed_time)
+All fields are floating point numbers.</p></div>
+</dd>
+<dt id="phiml.os.truncate"><code class="name flex">
+<span>def <span class="ident">truncate</span></span>(<span>path, length)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Truncate a file, specified by path, to a specific length.</p>
+<p>On some platforms, path may also be specified as an open file descriptor.
+If this functionality is unavailable, using it raises an exception.</p></div>
+</dd>
+<dt id="phiml.os.ttyname"><code class="name flex">
+<span>def <span class="ident">ttyname</span></span>(<span>fd, /)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Return the name of the terminal device connected to 'fd'.</p>
+<p>fd
+Integer file descriptor handle.</p></div>
+</dd>
+<dt id="phiml.os.umask"><code class="name flex">
+<span>def <span class="ident">umask</span></span>(<span>mask, /)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Set the current numeric umask and return the previous umask.</p></div>
+</dd>
+<dt id="phiml.os.uname"><code class="name flex">
+<span>def <span class="ident">uname</span></span>(<span>)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Return an object identifying the current operating system.</p>
+<p>The object behaves like a named tuple with the following fields:
+(sysname, nodename, release, version, machine)</p></div>
+</dd>
+<dt id="phiml.os.unlink"><code class="name flex">
+<span>def <span class="ident">unlink</span></span>(<span>path, *, dir_fd=None)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Remove a file (same as remove()).</p>
+<p>If dir_fd is not None, it should be a file descriptor open to a directory,
+and path should be relative; path will then be relative to that directory.
+dir_fd may not be implemented on your platform.
+If it is unavailable, using it will raise a NotImplementedError.</p></div>
+</dd>
+<dt id="phiml.os.unsetenv"><code class="name flex">
+<span>def <span class="ident">unsetenv</span></span>(<span>name, /)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Delete an environment variable.</p></div>
+</dd>
+<dt id="phiml.os.urandom"><code class="name flex">
+<span>def <span class="ident">urandom</span></span>(<span>size, /)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Return a bytes object containing random bytes suitable for cryptographic use.</p></div>
+</dd>
+<dt id="phiml.os.utime"><code class="name flex">
+<span>def <span class="ident">utime</span></span>(<span>...)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Set the access and modified time of path.</p>
+<p>path may always be specified as a string.
+On some platforms, path may also be specified as an open file descriptor.
+If this functionality is unavailable, using it raises an exception.</p>
+<p>If times is not None, it must be a tuple (atime, mtime);
+atime and mtime should be expressed as float seconds since the epoch.
+If ns is specified, it must be a tuple (atime_ns, mtime_ns);
+atime_ns and mtime_ns should be expressed as integer nanoseconds
+since the epoch.
+If times is None and ns is unspecified, utime uses the current time.
+Specifying tuples for both times and ns is an error.</p>
+<p>If dir_fd is not None, it should be a file descriptor open to a directory,
+and path should be relative; path will then be relative to that directory.
+If follow_symlinks is False, and the last element of the path is a symbolic
+link, utime will modify the symbolic link itself instead of the file the
+link points to.
+It is an error to use dir_fd or follow_symlinks when specifying path
+as an open file descriptor.
+dir_fd and follow_symlinks may not be available on your platform.
+If they are unavailable, using them will raise a NotImplementedError.</p></div>
+</dd>
+<dt id="phiml.os.wait"><code class="name flex">
+<span>def <span class="ident">wait</span></span>(<span>)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Wait for completion of a child process.</p>
+<p>Returns a tuple of information about the child process:
+(pid, status)</p></div>
+</dd>
+<dt id="phiml.os.wait3"><code class="name flex">
+<span>def <span class="ident">wait3</span></span>(<span>options)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Wait for completion of a child process.</p>
+<p>Returns a tuple of information about the child process:
+(pid, status, rusage)</p></div>
+</dd>
+<dt id="phiml.os.wait4"><code class="name flex">
+<span>def <span class="ident">wait4</span></span>(<span>pid, options)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Wait for completion of a specific child process.</p>
+<p>Returns a tuple of information about the child process:
+(pid, status, rusage)</p></div>
+</dd>
+<dt id="phiml.os.waitid"><code class="name flex">
+<span>def <span class="ident">waitid</span></span>(<span>idtype, id, options, /)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Returns the result of waiting for a process or processes.</p>
+<p>idtype
+Must be one of be P_PID, P_PGID or P_ALL.
+id
+The id to wait on.
+options
+Constructed from the ORing of one or more of WEXITED, WSTOPPED
+or WCONTINUED and additionally may be ORed with WNOHANG or WNOWAIT.</p>
+<p>Returns either waitid_result or None if WNOHANG is specified and there are
+no children in a waitable state.</p></div>
+</dd>
+<dt id="phiml.os.waitpid"><code class="name flex">
+<span>def <span class="ident">waitpid</span></span>(<span>pid, options, /)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Wait for completion of a given child process.</p>
+<p>Returns a tuple of information regarding the child process:
+(pid, status)</p>
+<p>The options argument is ignored on Windows.</p></div>
+</dd>
+<dt id="phiml.os.walk"><code class="name flex">
+<span>def <span class="ident">walk</span></span>(<span>top, topdown=True, onerror=None, followlinks=False)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Directory tree generator.</p>
+<p>For each directory in the directory tree rooted at top (including top
+itself, but excluding '.' and '..'), yields a 3-tuple</p>
+<pre><code>dirpath, dirnames, filenames
+</code></pre>
+<p>dirpath is a string, the path to the directory.
+dirnames is a list of
+the names of the subdirectories in dirpath (excluding '.' and '..').
+filenames is a list of the names of the non-directory files in dirpath.
+Note that the names in the lists are just names, with no path components.
+To get a full path (which begins with top) to a file or directory in
+dirpath, do os.path.join(dirpath, name).</p>
+<p>If optional arg 'topdown' is true or not specified, the triple for a
+directory is generated before the triples for any of its subdirectories
+(directories are generated top down).
+If topdown is false, the triple
+for a directory is generated after the triples for all of its
+subdirectories (directories are generated bottom up).</p>
+<p>When topdown is true, the caller can modify the dirnames list in-place
+(e.g., via del or slice assignment), and walk will only recurse into the
+subdirectories whose names remain in dirnames; this can be used to prune the
+search, or to impose a specific order of visiting.
+Modifying dirnames when
+topdown is false has no effect on the behavior of os.walk(), since the
+directories in dirnames have already been generated by the time dirnames
+itself is generated. No matter the value of topdown, the list of
+subdirectories is retrieved before the tuples for the directory and its
+subdirectories are generated.</p>
+<p>By default errors from the os.scandir() call are ignored.
+If
+optional arg 'onerror' is specified, it should be a function; it
+will be called with one argument, an OSError instance.
+It can
+report the error to continue with the walk, or raise the exception
+to abort the walk.
+Note that the filename is available as the
+filename attribute of the exception object.</p>
+<p>By default, os.walk does not follow symbolic links to subdirectories on
+systems that support them.
+In order to get this functionality, set the
+optional argument 'followlinks' to true.</p>
+<p>Caution:
+if you pass a relative pathname for top, don't change the
+current working directory between resumptions of walk.
+walk never
+changes the current directory, and assumes that the client doesn't
+either.</p>
+<p>Example:</p>
+<p>import os
+from os.path import join, getsize
+for root, dirs, files in os.walk('python/Lib/email'):
+print(root, "consumes", end="")
+print(sum(getsize(join(root, name)) for name in files), end="")
+print("bytes in", len(files), "non-directory files")
+if 'CVS' in dirs:
+dirs.remove('CVS')
+# don't visit CVS directories</p></div>
+</dd>
+<dt id="phiml.os.write"><code class="name flex">
+<span>def <span class="ident">write</span></span>(<span>fd, data, /)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Write a bytes object to a file descriptor.</p></div>
+</dd>
+<dt id="phiml.os.writev"><code class="name flex">
+<span>def <span class="ident">writev</span></span>(<span>fd, buffers, /)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Iterate over buffers, and write the contents of each to a file descriptor.</p>
+<p>Returns the total number of bytes written.
+buffers must be a sequence of bytes-like objects.</p></div>
+</dd>
+</dl>
+</section>
+<section>
+<h2 class="section-title" id="header-classes">Classes</h2>
+<dl>
+<dt id="phiml.os.DirEntry"><code class="flex name class">
+<span>class <span class="ident">DirEntry</span></span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<h3>Instance variables</h3>
+<dl>
+<dt id="phiml.os.DirEntry.name"><code class="name">var <span class="ident">name</span></code></dt>
+<dd>
+<div class="desc"><p>the entry's base filename, relative to scandir() "path" argument</p></div>
+</dd>
+<dt id="phiml.os.DirEntry.path"><code class="name">var <span class="ident">path</span></code></dt>
+<dd>
+<div class="desc"><p>the entry's full path name; equivalent to os.path.join(scandir_path, entry.name)</p></div>
+</dd>
+</dl>
+<h3>Methods</h3>
+<dl>
+<dt id="phiml.os.DirEntry.inode"><code class="name flex">
+<span>def <span class="ident">inode</span></span>(<span>self, /)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Return inode of the entry; cached per entry.</p></div>
+</dd>
+<dt id="phiml.os.DirEntry.is_dir"><code class="name flex">
+<span>def <span class="ident">is_dir</span></span>(<span>self, /, *, follow_symlinks=True)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Return True if the entry is a directory; cached per entry.</p></div>
+</dd>
+<dt id="phiml.os.DirEntry.is_file"><code class="name flex">
+<span>def <span class="ident">is_file</span></span>(<span>self, /, *, follow_symlinks=True)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Return True if the entry is a file; cached per entry.</p></div>
+</dd>
+<dt id="phiml.os.DirEntry.is_symlink"><code class="name flex">
+<span>def <span class="ident">is_symlink</span></span>(<span>self, /)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Return True if the entry is a symbolic link; cached per entry.</p></div>
+</dd>
+<dt id="phiml.os.DirEntry.stat"><code class="name flex">
+<span>def <span class="ident">stat</span></span>(<span>self, /, *, follow_symlinks=True)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Return stat_result object for the entry; cached per entry.</p></div>
+</dd>
+</dl>
+</dd>
+<dt id="phiml.os.OSError"><code class="flex name class">
+<span>class <span class="ident">error</span></span>
+<span>(</span><span>*args, **kwargs)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Base class for I/O related errors.</p></div>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>builtins.Exception</li>
+<li>builtins.BaseException</li>
+</ul>
+<h3>Subclasses</h3>
+<ul class="hlist">
+<li>PIL.UnidentifiedImageError</li>
+<li>builtins.BlockingIOError</li>
+<li>builtins.ChildProcessError</li>
+<li>builtins.ConnectionError</li>
+<li>builtins.FileExistsError</li>
+<li>builtins.FileNotFoundError</li>
+<li>builtins.InterruptedError</li>
+<li>builtins.IsADirectoryError</li>
+<li>builtins.NotADirectoryError</li>
+<li>builtins.PermissionError</li>
+<li>builtins.ProcessLookupError</li>
+<li>builtins.TimeoutError</li>
+<li>gzip.BadGzipFile</li>
+<li>http.cookiejar.LoadError</li>
+<li>io.UnsupportedOperation</li>
+<li>requests.exceptions.RequestException</li>
+<li>shutil.Error</li>
+<li>shutil.ExecError</li>
+<li>shutil.ReadError</li>
+<li>shutil.SpecialFileError</li>
+<li>signal.ItimerError</li>
+<li>socket.gaierror</li>
+<li>socket.herror</li>
+<li>socket.timeout</li>
+<li>ssl.SSLError</li>
+<li>urllib.error.URLError</li>
+</ul>
+<h3>Instance variables</h3>
+<dl>
+<dt id="phiml.os.OSError.characters_written"><code class="name">var <span class="ident">characters_written</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="phiml.os.OSError.errno"><code class="name">var <span class="ident">errno</span></code></dt>
+<dd>
+<div class="desc"><p>POSIX exception code</p></div>
+</dd>
+<dt id="phiml.os.OSError.filename"><code class="name">var <span class="ident">filename</span></code></dt>
+<dd>
+<div class="desc"><p>exception filename</p></div>
+</dd>
+<dt id="phiml.os.OSError.filename2"><code class="name">var <span class="ident">filename2</span></code></dt>
+<dd>
+<div class="desc"><p>second exception filename</p></div>
+</dd>
+<dt id="phiml.os.OSError.strerror"><code class="name">var <span class="ident">strerror</span></code></dt>
+<dd>
+<div class="desc"><p>exception strerror</p></div>
+</dd>
+</dl>
+</dd>
+<dt id="phiml.os.sched_param"><code class="flex name class">
+<span>class <span class="ident">sched_param</span></span>
+<span>(</span><span>iterable=(), /)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Current has only one field: sched_priority");</p>
+<p>sched_priority
+A scheduling parameter.</p></div>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>builtins.tuple</li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="phiml.os.sched_param.n_fields"><code class="name">var <span class="ident">n_fields</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="phiml.os.sched_param.n_sequence_fields"><code class="name">var <span class="ident">n_sequence_fields</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="phiml.os.sched_param.n_unnamed_fields"><code class="name">var <span class="ident">n_unnamed_fields</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
+<h3>Instance variables</h3>
+<dl>
+<dt id="phiml.os.sched_param.sched_priority"><code class="name">var <span class="ident">sched_priority</span></code></dt>
+<dd>
+<div class="desc"><p>the scheduling priority</p></div>
+</dd>
+</dl>
+</dd>
+<dt id="phiml.os.stat_result"><code class="flex name class">
+<span>class <span class="ident">stat_result</span></span>
+<span>(</span><span>iterable=(), /)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>stat_result: Result from stat, fstat, or lstat.</p>
+<p>This object may be accessed either as a tuple of
+(mode, ino, dev, nlink, uid, gid, size, atime, mtime, ctime)
+or via the attributes st_mode, st_ino, st_dev, st_nlink, st_uid, and so on.</p>
+<p>Posix/windows: If your platform supports st_blksize, st_blocks, st_rdev,
+or st_flags, they are available as attributes only.</p>
+<p>See os.stat for more information.</p></div>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>builtins.tuple</li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="phiml.os.stat_result.n_fields"><code class="name">var <span class="ident">n_fields</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="phiml.os.stat_result.n_sequence_fields"><code class="name">var <span class="ident">n_sequence_fields</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="phiml.os.stat_result.n_unnamed_fields"><code class="name">var <span class="ident">n_unnamed_fields</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
+<h3>Instance variables</h3>
+<dl>
+<dt id="phiml.os.stat_result.st_atime"><code class="name">var <span class="ident">st_atime</span></code></dt>
+<dd>
+<div class="desc"><p>time of last access</p></div>
+</dd>
+<dt id="phiml.os.stat_result.st_atime_ns"><code class="name">var <span class="ident">st_atime_ns</span></code></dt>
+<dd>
+<div class="desc"><p>time of last access in nanoseconds</p></div>
+</dd>
+<dt id="phiml.os.stat_result.st_blksize"><code class="name">var <span class="ident">st_blksize</span></code></dt>
+<dd>
+<div class="desc"><p>blocksize for filesystem I/O</p></div>
+</dd>
+<dt id="phiml.os.stat_result.st_blocks"><code class="name">var <span class="ident">st_blocks</span></code></dt>
+<dd>
+<div class="desc"><p>number of blocks allocated</p></div>
+</dd>
+<dt id="phiml.os.stat_result.st_ctime"><code class="name">var <span class="ident">st_ctime</span></code></dt>
+<dd>
+<div class="desc"><p>time of last change</p></div>
+</dd>
+<dt id="phiml.os.stat_result.st_ctime_ns"><code class="name">var <span class="ident">st_ctime_ns</span></code></dt>
+<dd>
+<div class="desc"><p>time of last change in nanoseconds</p></div>
+</dd>
+<dt id="phiml.os.stat_result.st_dev"><code class="name">var <span class="ident">st_dev</span></code></dt>
+<dd>
+<div class="desc"><p>device</p></div>
+</dd>
+<dt id="phiml.os.stat_result.st_gid"><code class="name">var <span class="ident">st_gid</span></code></dt>
+<dd>
+<div class="desc"><p>group ID of owner</p></div>
+</dd>
+<dt id="phiml.os.stat_result.st_ino"><code class="name">var <span class="ident">st_ino</span></code></dt>
+<dd>
+<div class="desc"><p>inode</p></div>
+</dd>
+<dt id="phiml.os.stat_result.st_mode"><code class="name">var <span class="ident">st_mode</span></code></dt>
+<dd>
+<div class="desc"><p>protection bits</p></div>
+</dd>
+<dt id="phiml.os.stat_result.st_mtime"><code class="name">var <span class="ident">st_mtime</span></code></dt>
+<dd>
+<div class="desc"><p>time of last modification</p></div>
+</dd>
+<dt id="phiml.os.stat_result.st_mtime_ns"><code class="name">var <span class="ident">st_mtime_ns</span></code></dt>
+<dd>
+<div class="desc"><p>time of last modification in nanoseconds</p></div>
+</dd>
+<dt id="phiml.os.stat_result.st_nlink"><code class="name">var <span class="ident">st_nlink</span></code></dt>
+<dd>
+<div class="desc"><p>number of hard links</p></div>
+</dd>
+<dt id="phiml.os.stat_result.st_rdev"><code class="name">var <span class="ident">st_rdev</span></code></dt>
+<dd>
+<div class="desc"><p>device type (if inode device)</p></div>
+</dd>
+<dt id="phiml.os.stat_result.st_size"><code class="name">var <span class="ident">st_size</span></code></dt>
+<dd>
+<div class="desc"><p>total size, in bytes</p></div>
+</dd>
+<dt id="phiml.os.stat_result.st_uid"><code class="name">var <span class="ident">st_uid</span></code></dt>
+<dd>
+<div class="desc"><p>user ID of owner</p></div>
+</dd>
+</dl>
+</dd>
+<dt id="phiml.os.statvfs_result"><code class="flex name class">
+<span>class <span class="ident">statvfs_result</span></span>
+<span>(</span><span>iterable=(), /)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>statvfs_result: Result from statvfs or fstatvfs.</p>
+<p>This object may be accessed either as a tuple of
+(bsize, frsize, blocks, bfree, bavail, files, ffree, favail, flag, namemax),
+or via the attributes f_bsize, f_frsize, f_blocks, f_bfree, and so on.</p>
+<p>See os.statvfs for more information.</p></div>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>builtins.tuple</li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="phiml.os.statvfs_result.n_fields"><code class="name">var <span class="ident">n_fields</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="phiml.os.statvfs_result.n_sequence_fields"><code class="name">var <span class="ident">n_sequence_fields</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="phiml.os.statvfs_result.n_unnamed_fields"><code class="name">var <span class="ident">n_unnamed_fields</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
+<h3>Instance variables</h3>
+<dl>
+<dt id="phiml.os.statvfs_result.f_bavail"><code class="name">var <span class="ident">f_bavail</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="phiml.os.statvfs_result.f_bfree"><code class="name">var <span class="ident">f_bfree</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="phiml.os.statvfs_result.f_blocks"><code class="name">var <span class="ident">f_blocks</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="phiml.os.statvfs_result.f_bsize"><code class="name">var <span class="ident">f_bsize</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="phiml.os.statvfs_result.f_favail"><code class="name">var <span class="ident">f_favail</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="phiml.os.statvfs_result.f_ffree"><code class="name">var <span class="ident">f_ffree</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="phiml.os.statvfs_result.f_files"><code class="name">var <span class="ident">f_files</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="phiml.os.statvfs_result.f_flag"><code class="name">var <span class="ident">f_flag</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="phiml.os.statvfs_result.f_frsize"><code class="name">var <span class="ident">f_frsize</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="phiml.os.statvfs_result.f_fsid"><code class="name">var <span class="ident">f_fsid</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="phiml.os.statvfs_result.f_namemax"><code class="name">var <span class="ident">f_namemax</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
+</dd>
+<dt id="phiml.os.terminal_size"><code class="flex name class">
+<span>class <span class="ident">terminal_size</span></span>
+<span>(</span><span>iterable=(), /)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>A tuple of (columns, lines) for holding terminal window size</p></div>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>builtins.tuple</li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="phiml.os.terminal_size.n_fields"><code class="name">var <span class="ident">n_fields</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="phiml.os.terminal_size.n_sequence_fields"><code class="name">var <span class="ident">n_sequence_fields</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="phiml.os.terminal_size.n_unnamed_fields"><code class="name">var <span class="ident">n_unnamed_fields</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
+<h3>Instance variables</h3>
+<dl>
+<dt id="phiml.os.terminal_size.columns"><code class="name">var <span class="ident">columns</span></code></dt>
+<dd>
+<div class="desc"><p>width of the terminal window in characters</p></div>
+</dd>
+<dt id="phiml.os.terminal_size.lines"><code class="name">var <span class="ident">lines</span></code></dt>
+<dd>
+<div class="desc"><p>height of the terminal window in characters</p></div>
+</dd>
+</dl>
+</dd>
+<dt id="phiml.os.times_result"><code class="flex name class">
+<span>class <span class="ident">times_result</span></span>
+<span>(</span><span>iterable=(), /)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>times_result: Result from os.times().</p>
+<p>This object may be accessed either as a tuple of
+(user, system, children_user, children_system, elapsed),
+or via the attributes user, system, children_user, children_system,
+and elapsed.</p>
+<p>See os.times for more information.</p></div>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>builtins.tuple</li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="phiml.os.times_result.n_fields"><code class="name">var <span class="ident">n_fields</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="phiml.os.times_result.n_sequence_fields"><code class="name">var <span class="ident">n_sequence_fields</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="phiml.os.times_result.n_unnamed_fields"><code class="name">var <span class="ident">n_unnamed_fields</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
+<h3>Instance variables</h3>
+<dl>
+<dt id="phiml.os.times_result.children_system"><code class="name">var <span class="ident">children_system</span></code></dt>
+<dd>
+<div class="desc"><p>system time of children</p></div>
+</dd>
+<dt id="phiml.os.times_result.children_user"><code class="name">var <span class="ident">children_user</span></code></dt>
+<dd>
+<div class="desc"><p>user time of children</p></div>
+</dd>
+<dt id="phiml.os.times_result.elapsed"><code class="name">var <span class="ident">elapsed</span></code></dt>
+<dd>
+<div class="desc"><p>elapsed time since an arbitrary point in the past</p></div>
+</dd>
+<dt id="phiml.os.times_result.system"><code class="name">var <span class="ident">system</span></code></dt>
+<dd>
+<div class="desc"><p>system time</p></div>
+</dd>
+<dt id="phiml.os.times_result.user"><code class="name">var <span class="ident">user</span></code></dt>
+<dd>
+<div class="desc"><p>user time</p></div>
+</dd>
+</dl>
+</dd>
+<dt id="phiml.os.uname_result"><code class="flex name class">
+<span>class <span class="ident">uname_result</span></span>
+<span>(</span><span>iterable=(), /)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>uname_result: Result from os.uname().</p>
+<p>This object may be accessed either as a tuple of
+(sysname, nodename, release, version, machine),
+or via the attributes sysname, nodename, release, version, and machine.</p>
+<p>See os.uname for more information.</p></div>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>builtins.tuple</li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="phiml.os.uname_result.n_fields"><code class="name">var <span class="ident">n_fields</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="phiml.os.uname_result.n_sequence_fields"><code class="name">var <span class="ident">n_sequence_fields</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="phiml.os.uname_result.n_unnamed_fields"><code class="name">var <span class="ident">n_unnamed_fields</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
+<h3>Instance variables</h3>
+<dl>
+<dt id="phiml.os.uname_result.machine"><code class="name">var <span class="ident">machine</span></code></dt>
+<dd>
+<div class="desc"><p>hardware identifier</p></div>
+</dd>
+<dt id="phiml.os.uname_result.nodename"><code class="name">var <span class="ident">nodename</span></code></dt>
+<dd>
+<div class="desc"><p>name of machine on network (implementation-defined)</p></div>
+</dd>
+<dt id="phiml.os.uname_result.release"><code class="name">var <span class="ident">release</span></code></dt>
+<dd>
+<div class="desc"><p>operating system release</p></div>
+</dd>
+<dt id="phiml.os.uname_result.sysname"><code class="name">var <span class="ident">sysname</span></code></dt>
+<dd>
+<div class="desc"><p>operating system name</p></div>
+</dd>
+<dt id="phiml.os.uname_result.version"><code class="name">var <span class="ident">version</span></code></dt>
+<dd>
+<div class="desc"><p>operating system version</p></div>
+</dd>
+</dl>
+</dd>
+<dt id="phiml.os.waitid_result"><code class="flex name class">
+<span>class <span class="ident">waitid_result</span></span>
+<span>(</span><span>iterable=(), /)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>waitid_result: Result from waitid.</p>
+<p>This object may be accessed either as a tuple of
+(si_pid, si_uid, si_signo, si_status, si_code),
+or via the attributes si_pid, si_uid, and so on.</p>
+<p>See os.waitid for more information.</p></div>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>builtins.tuple</li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="phiml.os.waitid_result.n_fields"><code class="name">var <span class="ident">n_fields</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="phiml.os.waitid_result.n_sequence_fields"><code class="name">var <span class="ident">n_sequence_fields</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="phiml.os.waitid_result.n_unnamed_fields"><code class="name">var <span class="ident">n_unnamed_fields</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
+<h3>Instance variables</h3>
+<dl>
+<dt id="phiml.os.waitid_result.si_code"><code class="name">var <span class="ident">si_code</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="phiml.os.waitid_result.si_pid"><code class="name">var <span class="ident">si_pid</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="phiml.os.waitid_result.si_signo"><code class="name">var <span class="ident">si_signo</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="phiml.os.waitid_result.si_status"><code class="name">var <span class="ident">si_status</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="phiml.os.waitid_result.si_uid"><code class="name">var <span class="ident">si_uid</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
+</dd>
+</dl>
+</section>
+</article>
+<nav id="sidebar">
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="phiml" href="../index.html">phiml</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-submodules">Sub-modules</a></h3>
+<ul>
+<li><code><a title="phiml.os.path" href="path.html">phiml.os.path</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-functions">Functions</a></h3>
+<ul class="">
+<li><code><a title="phiml.os.WCOREDUMP" href="#phiml.os.WCOREDUMP">WCOREDUMP</a></code></li>
+<li><code><a title="phiml.os.WEXITSTATUS" href="#phiml.os.WEXITSTATUS">WEXITSTATUS</a></code></li>
+<li><code><a title="phiml.os.WIFCONTINUED" href="#phiml.os.WIFCONTINUED">WIFCONTINUED</a></code></li>
+<li><code><a title="phiml.os.WIFEXITED" href="#phiml.os.WIFEXITED">WIFEXITED</a></code></li>
+<li><code><a title="phiml.os.WIFSIGNALED" href="#phiml.os.WIFSIGNALED">WIFSIGNALED</a></code></li>
+<li><code><a title="phiml.os.WIFSTOPPED" href="#phiml.os.WIFSTOPPED">WIFSTOPPED</a></code></li>
+<li><code><a title="phiml.os.WSTOPSIG" href="#phiml.os.WSTOPSIG">WSTOPSIG</a></code></li>
+<li><code><a title="phiml.os.WTERMSIG" href="#phiml.os.WTERMSIG">WTERMSIG</a></code></li>
+<li><code><a title="phiml.os._exit" href="#phiml.os._exit">_exit</a></code></li>
+<li><code><a title="phiml.os.abort" href="#phiml.os.abort">abort</a></code></li>
+<li><code><a title="phiml.os.access" href="#phiml.os.access">access</a></code></li>
+<li><code><a title="phiml.os.chdir" href="#phiml.os.chdir">chdir</a></code></li>
+<li><code><a title="phiml.os.chmod" href="#phiml.os.chmod">chmod</a></code></li>
+<li><code><a title="phiml.os.chown" href="#phiml.os.chown">chown</a></code></li>
+<li><code><a title="phiml.os.chroot" href="#phiml.os.chroot">chroot</a></code></li>
+<li><code><a title="phiml.os.close" href="#phiml.os.close">close</a></code></li>
+<li><code><a title="phiml.os.closerange" href="#phiml.os.closerange">closerange</a></code></li>
+<li><code><a title="phiml.os.confstr" href="#phiml.os.confstr">confstr</a></code></li>
+<li><code><a title="phiml.os.copy_file_range" href="#phiml.os.copy_file_range">copy_file_range</a></code></li>
+<li><code><a title="phiml.os.cpu_count" href="#phiml.os.cpu_count">cpu_count</a></code></li>
+<li><code><a title="phiml.os.ctermid" href="#phiml.os.ctermid">ctermid</a></code></li>
+<li><code><a title="phiml.os.device_encoding" href="#phiml.os.device_encoding">device_encoding</a></code></li>
+<li><code><a title="phiml.os.dup" href="#phiml.os.dup">dup</a></code></li>
+<li><code><a title="phiml.os.dup2" href="#phiml.os.dup2">dup2</a></code></li>
+<li><code><a title="phiml.os.execl" href="#phiml.os.execl">execl</a></code></li>
+<li><code><a title="phiml.os.execle" href="#phiml.os.execle">execle</a></code></li>
+<li><code><a title="phiml.os.execlp" href="#phiml.os.execlp">execlp</a></code></li>
+<li><code><a title="phiml.os.execlpe" href="#phiml.os.execlpe">execlpe</a></code></li>
+<li><code><a title="phiml.os.execv" href="#phiml.os.execv">execv</a></code></li>
+<li><code><a title="phiml.os.execve" href="#phiml.os.execve">execve</a></code></li>
+<li><code><a title="phiml.os.execvp" href="#phiml.os.execvp">execvp</a></code></li>
+<li><code><a title="phiml.os.execvpe" href="#phiml.os.execvpe">execvpe</a></code></li>
+<li><code><a title="phiml.os.fchdir" href="#phiml.os.fchdir">fchdir</a></code></li>
+<li><code><a title="phiml.os.fchmod" href="#phiml.os.fchmod">fchmod</a></code></li>
+<li><code><a title="phiml.os.fchown" href="#phiml.os.fchown">fchown</a></code></li>
+<li><code><a title="phiml.os.fdatasync" href="#phiml.os.fdatasync">fdatasync</a></code></li>
+<li><code><a title="phiml.os.fdopen" href="#phiml.os.fdopen">fdopen</a></code></li>
+<li><code><a title="phiml.os.fork" href="#phiml.os.fork">fork</a></code></li>
+<li><code><a title="phiml.os.forkpty" href="#phiml.os.forkpty">forkpty</a></code></li>
+<li><code><a title="phiml.os.fpathconf" href="#phiml.os.fpathconf">fpathconf</a></code></li>
+<li><code><a title="phiml.os.fsdecode" href="#phiml.os.fsdecode">fsdecode</a></code></li>
+<li><code><a title="phiml.os.fsencode" href="#phiml.os.fsencode">fsencode</a></code></li>
+<li><code><a title="phiml.os.fspath" href="#phiml.os.fspath">fspath</a></code></li>
+<li><code><a title="phiml.os.fstat" href="#phiml.os.fstat">fstat</a></code></li>
+<li><code><a title="phiml.os.fstatvfs" href="#phiml.os.fstatvfs">fstatvfs</a></code></li>
+<li><code><a title="phiml.os.fsync" href="#phiml.os.fsync">fsync</a></code></li>
+<li><code><a title="phiml.os.ftruncate" href="#phiml.os.ftruncate">ftruncate</a></code></li>
+<li><code><a title="phiml.os.fwalk" href="#phiml.os.fwalk">fwalk</a></code></li>
+<li><code><a title="phiml.os.get_blocking" href="#phiml.os.get_blocking">get_blocking</a></code></li>
+<li><code><a title="phiml.os.get_exec_path" href="#phiml.os.get_exec_path">get_exec_path</a></code></li>
+<li><code><a title="phiml.os.get_inheritable" href="#phiml.os.get_inheritable">get_inheritable</a></code></li>
+<li><code><a title="phiml.os.get_terminal_size" href="#phiml.os.get_terminal_size">get_terminal_size</a></code></li>
+<li><code><a title="phiml.os.getcwd" href="#phiml.os.getcwd">getcwd</a></code></li>
+<li><code><a title="phiml.os.getcwdb" href="#phiml.os.getcwdb">getcwdb</a></code></li>
+<li><code><a title="phiml.os.getegid" href="#phiml.os.getegid">getegid</a></code></li>
+<li><code><a title="phiml.os.getenv" href="#phiml.os.getenv">getenv</a></code></li>
+<li><code><a title="phiml.os.getenvb" href="#phiml.os.getenvb">getenvb</a></code></li>
+<li><code><a title="phiml.os.geteuid" href="#phiml.os.geteuid">geteuid</a></code></li>
+<li><code><a title="phiml.os.getgid" href="#phiml.os.getgid">getgid</a></code></li>
+<li><code><a title="phiml.os.getgrouplist" href="#phiml.os.getgrouplist">getgrouplist</a></code></li>
+<li><code><a title="phiml.os.getgroups" href="#phiml.os.getgroups">getgroups</a></code></li>
+<li><code><a title="phiml.os.getloadavg" href="#phiml.os.getloadavg">getloadavg</a></code></li>
+<li><code><a title="phiml.os.getlogin" href="#phiml.os.getlogin">getlogin</a></code></li>
+<li><code><a title="phiml.os.getpgid" href="#phiml.os.getpgid">getpgid</a></code></li>
+<li><code><a title="phiml.os.getpgrp" href="#phiml.os.getpgrp">getpgrp</a></code></li>
+<li><code><a title="phiml.os.getpid" href="#phiml.os.getpid">getpid</a></code></li>
+<li><code><a title="phiml.os.getppid" href="#phiml.os.getppid">getppid</a></code></li>
+<li><code><a title="phiml.os.getpriority" href="#phiml.os.getpriority">getpriority</a></code></li>
+<li><code><a title="phiml.os.getrandom" href="#phiml.os.getrandom">getrandom</a></code></li>
+<li><code><a title="phiml.os.getresgid" href="#phiml.os.getresgid">getresgid</a></code></li>
+<li><code><a title="phiml.os.getresuid" href="#phiml.os.getresuid">getresuid</a></code></li>
+<li><code><a title="phiml.os.getsid" href="#phiml.os.getsid">getsid</a></code></li>
+<li><code><a title="phiml.os.getuid" href="#phiml.os.getuid">getuid</a></code></li>
+<li><code><a title="phiml.os.getxattr" href="#phiml.os.getxattr">getxattr</a></code></li>
+<li><code><a title="phiml.os.initgroups" href="#phiml.os.initgroups">initgroups</a></code></li>
+<li><code><a title="phiml.os.isatty" href="#phiml.os.isatty">isatty</a></code></li>
+<li><code><a title="phiml.os.kill" href="#phiml.os.kill">kill</a></code></li>
+<li><code><a title="phiml.os.killpg" href="#phiml.os.killpg">killpg</a></code></li>
+<li><code><a title="phiml.os.lchown" href="#phiml.os.lchown">lchown</a></code></li>
+<li><code><a title="phiml.os.link" href="#phiml.os.link">link</a></code></li>
+<li><code><a title="phiml.os.listdir" href="#phiml.os.listdir">listdir</a></code></li>
+<li><code><a title="phiml.os.listxattr" href="#phiml.os.listxattr">listxattr</a></code></li>
+<li><code><a title="phiml.os.lockf" href="#phiml.os.lockf">lockf</a></code></li>
+<li><code><a title="phiml.os.lseek" href="#phiml.os.lseek">lseek</a></code></li>
+<li><code><a title="phiml.os.lstat" href="#phiml.os.lstat">lstat</a></code></li>
+<li><code><a title="phiml.os.major" href="#phiml.os.major">major</a></code></li>
+<li><code><a title="phiml.os.makedev" href="#phiml.os.makedev">makedev</a></code></li>
+<li><code><a title="phiml.os.makedirs" href="#phiml.os.makedirs">makedirs</a></code></li>
+<li><code><a title="phiml.os.memfd_create" href="#phiml.os.memfd_create">memfd_create</a></code></li>
+<li><code><a title="phiml.os.minor" href="#phiml.os.minor">minor</a></code></li>
+<li><code><a title="phiml.os.mkdir" href="#phiml.os.mkdir">mkdir</a></code></li>
+<li><code><a title="phiml.os.mkfifo" href="#phiml.os.mkfifo">mkfifo</a></code></li>
+<li><code><a title="phiml.os.mknod" href="#phiml.os.mknod">mknod</a></code></li>
+<li><code><a title="phiml.os.nice" href="#phiml.os.nice">nice</a></code></li>
+<li><code><a title="phiml.os.open" href="#phiml.os.open">open</a></code></li>
+<li><code><a title="phiml.os.openpty" href="#phiml.os.openpty">openpty</a></code></li>
+<li><code><a title="phiml.os.pathconf" href="#phiml.os.pathconf">pathconf</a></code></li>
+<li><code><a title="phiml.os.pipe" href="#phiml.os.pipe">pipe</a></code></li>
+<li><code><a title="phiml.os.pipe2" href="#phiml.os.pipe2">pipe2</a></code></li>
+<li><code><a title="phiml.os.popen" href="#phiml.os.popen">popen</a></code></li>
+<li><code><a title="phiml.os.posix_fadvise" href="#phiml.os.posix_fadvise">posix_fadvise</a></code></li>
+<li><code><a title="phiml.os.posix_fallocate" href="#phiml.os.posix_fallocate">posix_fallocate</a></code></li>
+<li><code><a title="phiml.os.posix_spawn" href="#phiml.os.posix_spawn">posix_spawn</a></code></li>
+<li><code><a title="phiml.os.posix_spawnp" href="#phiml.os.posix_spawnp">posix_spawnp</a></code></li>
+<li><code><a title="phiml.os.pread" href="#phiml.os.pread">pread</a></code></li>
+<li><code><a title="phiml.os.preadv" href="#phiml.os.preadv">preadv</a></code></li>
+<li><code><a title="phiml.os.putenv" href="#phiml.os.putenv">putenv</a></code></li>
+<li><code><a title="phiml.os.pwrite" href="#phiml.os.pwrite">pwrite</a></code></li>
+<li><code><a title="phiml.os.pwritev" href="#phiml.os.pwritev">pwritev</a></code></li>
+<li><code><a title="phiml.os.read" href="#phiml.os.read">read</a></code></li>
+<li><code><a title="phiml.os.readlink" href="#phiml.os.readlink">readlink</a></code></li>
+<li><code><a title="phiml.os.readv" href="#phiml.os.readv">readv</a></code></li>
+<li><code><a title="phiml.os.register_at_fork" href="#phiml.os.register_at_fork">register_at_fork</a></code></li>
+<li><code><a title="phiml.os.remove" href="#phiml.os.remove">remove</a></code></li>
+<li><code><a title="phiml.os.removedirs" href="#phiml.os.removedirs">removedirs</a></code></li>
+<li><code><a title="phiml.os.removexattr" href="#phiml.os.removexattr">removexattr</a></code></li>
+<li><code><a title="phiml.os.rename" href="#phiml.os.rename">rename</a></code></li>
+<li><code><a title="phiml.os.renames" href="#phiml.os.renames">renames</a></code></li>
+<li><code><a title="phiml.os.replace" href="#phiml.os.replace">replace</a></code></li>
+<li><code><a title="phiml.os.rmdir" href="#phiml.os.rmdir">rmdir</a></code></li>
+<li><code><a title="phiml.os.scandir" href="#phiml.os.scandir">scandir</a></code></li>
+<li><code><a title="phiml.os.sched_get_priority_max" href="#phiml.os.sched_get_priority_max">sched_get_priority_max</a></code></li>
+<li><code><a title="phiml.os.sched_get_priority_min" href="#phiml.os.sched_get_priority_min">sched_get_priority_min</a></code></li>
+<li><code><a title="phiml.os.sched_getaffinity" href="#phiml.os.sched_getaffinity">sched_getaffinity</a></code></li>
+<li><code><a title="phiml.os.sched_getparam" href="#phiml.os.sched_getparam">sched_getparam</a></code></li>
+<li><code><a title="phiml.os.sched_getscheduler" href="#phiml.os.sched_getscheduler">sched_getscheduler</a></code></li>
+<li><code><a title="phiml.os.sched_rr_get_interval" href="#phiml.os.sched_rr_get_interval">sched_rr_get_interval</a></code></li>
+<li><code><a title="phiml.os.sched_setaffinity" href="#phiml.os.sched_setaffinity">sched_setaffinity</a></code></li>
+<li><code><a title="phiml.os.sched_setparam" href="#phiml.os.sched_setparam">sched_setparam</a></code></li>
+<li><code><a title="phiml.os.sched_setscheduler" href="#phiml.os.sched_setscheduler">sched_setscheduler</a></code></li>
+<li><code><a title="phiml.os.sched_yield" href="#phiml.os.sched_yield">sched_yield</a></code></li>
+<li><code><a title="phiml.os.sendfile" href="#phiml.os.sendfile">sendfile</a></code></li>
+<li><code><a title="phiml.os.set_blocking" href="#phiml.os.set_blocking">set_blocking</a></code></li>
+<li><code><a title="phiml.os.set_inheritable" href="#phiml.os.set_inheritable">set_inheritable</a></code></li>
+<li><code><a title="phiml.os.setegid" href="#phiml.os.setegid">setegid</a></code></li>
+<li><code><a title="phiml.os.seteuid" href="#phiml.os.seteuid">seteuid</a></code></li>
+<li><code><a title="phiml.os.setgid" href="#phiml.os.setgid">setgid</a></code></li>
+<li><code><a title="phiml.os.setgroups" href="#phiml.os.setgroups">setgroups</a></code></li>
+<li><code><a title="phiml.os.setpgid" href="#phiml.os.setpgid">setpgid</a></code></li>
+<li><code><a title="phiml.os.setpgrp" href="#phiml.os.setpgrp">setpgrp</a></code></li>
+<li><code><a title="phiml.os.setpriority" href="#phiml.os.setpriority">setpriority</a></code></li>
+<li><code><a title="phiml.os.setregid" href="#phiml.os.setregid">setregid</a></code></li>
+<li><code><a title="phiml.os.setresgid" href="#phiml.os.setresgid">setresgid</a></code></li>
+<li><code><a title="phiml.os.setresuid" href="#phiml.os.setresuid">setresuid</a></code></li>
+<li><code><a title="phiml.os.setreuid" href="#phiml.os.setreuid">setreuid</a></code></li>
+<li><code><a title="phiml.os.setsid" href="#phiml.os.setsid">setsid</a></code></li>
+<li><code><a title="phiml.os.setuid" href="#phiml.os.setuid">setuid</a></code></li>
+<li><code><a title="phiml.os.setxattr" href="#phiml.os.setxattr">setxattr</a></code></li>
+<li><code><a title="phiml.os.spawnl" href="#phiml.os.spawnl">spawnl</a></code></li>
+<li><code><a title="phiml.os.spawnle" href="#phiml.os.spawnle">spawnle</a></code></li>
+<li><code><a title="phiml.os.spawnlp" href="#phiml.os.spawnlp">spawnlp</a></code></li>
+<li><code><a title="phiml.os.spawnlpe" href="#phiml.os.spawnlpe">spawnlpe</a></code></li>
+<li><code><a title="phiml.os.spawnv" href="#phiml.os.spawnv">spawnv</a></code></li>
+<li><code><a title="phiml.os.spawnve" href="#phiml.os.spawnve">spawnve</a></code></li>
+<li><code><a title="phiml.os.spawnvp" href="#phiml.os.spawnvp">spawnvp</a></code></li>
+<li><code><a title="phiml.os.spawnvpe" href="#phiml.os.spawnvpe">spawnvpe</a></code></li>
+<li><code><a title="phiml.os.stat" href="#phiml.os.stat">stat</a></code></li>
+<li><code><a title="phiml.os.statvfs" href="#phiml.os.statvfs">statvfs</a></code></li>
+<li><code><a title="phiml.os.strerror" href="#phiml.os.strerror">strerror</a></code></li>
+<li><code><a title="phiml.os.symlink" href="#phiml.os.symlink">symlink</a></code></li>
+<li><code><a title="phiml.os.sync" href="#phiml.os.sync">sync</a></code></li>
+<li><code><a title="phiml.os.sysconf" href="#phiml.os.sysconf">sysconf</a></code></li>
+<li><code><a title="phiml.os.system" href="#phiml.os.system">system</a></code></li>
+<li><code><a title="phiml.os.tcgetpgrp" href="#phiml.os.tcgetpgrp">tcgetpgrp</a></code></li>
+<li><code><a title="phiml.os.tcsetpgrp" href="#phiml.os.tcsetpgrp">tcsetpgrp</a></code></li>
+<li><code><a title="phiml.os.times" href="#phiml.os.times">times</a></code></li>
+<li><code><a title="phiml.os.truncate" href="#phiml.os.truncate">truncate</a></code></li>
+<li><code><a title="phiml.os.ttyname" href="#phiml.os.ttyname">ttyname</a></code></li>
+<li><code><a title="phiml.os.umask" href="#phiml.os.umask">umask</a></code></li>
+<li><code><a title="phiml.os.uname" href="#phiml.os.uname">uname</a></code></li>
+<li><code><a title="phiml.os.unlink" href="#phiml.os.unlink">unlink</a></code></li>
+<li><code><a title="phiml.os.unsetenv" href="#phiml.os.unsetenv">unsetenv</a></code></li>
+<li><code><a title="phiml.os.urandom" href="#phiml.os.urandom">urandom</a></code></li>
+<li><code><a title="phiml.os.utime" href="#phiml.os.utime">utime</a></code></li>
+<li><code><a title="phiml.os.wait" href="#phiml.os.wait">wait</a></code></li>
+<li><code><a title="phiml.os.wait3" href="#phiml.os.wait3">wait3</a></code></li>
+<li><code><a title="phiml.os.wait4" href="#phiml.os.wait4">wait4</a></code></li>
+<li><code><a title="phiml.os.waitid" href="#phiml.os.waitid">waitid</a></code></li>
+<li><code><a title="phiml.os.waitpid" href="#phiml.os.waitpid">waitpid</a></code></li>
+<li><code><a title="phiml.os.walk" href="#phiml.os.walk">walk</a></code></li>
+<li><code><a title="phiml.os.write" href="#phiml.os.write">write</a></code></li>
+<li><code><a title="phiml.os.writev" href="#phiml.os.writev">writev</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-classes">Classes</a></h3>
+<ul>
+<li>
+<h4><code><a title="phiml.os.DirEntry" href="#phiml.os.DirEntry">DirEntry</a></code></h4>
+<ul class="two-column">
+<li><code><a title="phiml.os.DirEntry.inode" href="#phiml.os.DirEntry.inode">inode</a></code></li>
+<li><code><a title="phiml.os.DirEntry.is_dir" href="#phiml.os.DirEntry.is_dir">is_dir</a></code></li>
+<li><code><a title="phiml.os.DirEntry.is_file" href="#phiml.os.DirEntry.is_file">is_file</a></code></li>
+<li><code><a title="phiml.os.DirEntry.is_symlink" href="#phiml.os.DirEntry.is_symlink">is_symlink</a></code></li>
+<li><code><a title="phiml.os.DirEntry.name" href="#phiml.os.DirEntry.name">name</a></code></li>
+<li><code><a title="phiml.os.DirEntry.path" href="#phiml.os.DirEntry.path">path</a></code></li>
+<li><code><a title="phiml.os.DirEntry.stat" href="#phiml.os.DirEntry.stat">stat</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="phiml.os.OSError" href="#phiml.os.OSError">OSError</a></code></h4>
+<ul class="">
+<li><code><a title="phiml.os.OSError.characters_written" href="#phiml.os.OSError.characters_written">characters_written</a></code></li>
+<li><code><a title="phiml.os.OSError.errno" href="#phiml.os.OSError.errno">errno</a></code></li>
+<li><code><a title="phiml.os.OSError.filename" href="#phiml.os.OSError.filename">filename</a></code></li>
+<li><code><a title="phiml.os.OSError.filename2" href="#phiml.os.OSError.filename2">filename2</a></code></li>
+<li><code><a title="phiml.os.OSError.strerror" href="#phiml.os.OSError.strerror">strerror</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="phiml.os.sched_param" href="#phiml.os.sched_param">sched_param</a></code></h4>
+<ul class="">
+<li><code><a title="phiml.os.sched_param.n_fields" href="#phiml.os.sched_param.n_fields">n_fields</a></code></li>
+<li><code><a title="phiml.os.sched_param.n_sequence_fields" href="#phiml.os.sched_param.n_sequence_fields">n_sequence_fields</a></code></li>
+<li><code><a title="phiml.os.sched_param.n_unnamed_fields" href="#phiml.os.sched_param.n_unnamed_fields">n_unnamed_fields</a></code></li>
+<li><code><a title="phiml.os.sched_param.sched_priority" href="#phiml.os.sched_param.sched_priority">sched_priority</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="phiml.os.stat_result" href="#phiml.os.stat_result">stat_result</a></code></h4>
+<ul class="two-column">
+<li><code><a title="phiml.os.stat_result.n_fields" href="#phiml.os.stat_result.n_fields">n_fields</a></code></li>
+<li><code><a title="phiml.os.stat_result.n_sequence_fields" href="#phiml.os.stat_result.n_sequence_fields">n_sequence_fields</a></code></li>
+<li><code><a title="phiml.os.stat_result.n_unnamed_fields" href="#phiml.os.stat_result.n_unnamed_fields">n_unnamed_fields</a></code></li>
+<li><code><a title="phiml.os.stat_result.st_atime" href="#phiml.os.stat_result.st_atime">st_atime</a></code></li>
+<li><code><a title="phiml.os.stat_result.st_atime_ns" href="#phiml.os.stat_result.st_atime_ns">st_atime_ns</a></code></li>
+<li><code><a title="phiml.os.stat_result.st_blksize" href="#phiml.os.stat_result.st_blksize">st_blksize</a></code></li>
+<li><code><a title="phiml.os.stat_result.st_blocks" href="#phiml.os.stat_result.st_blocks">st_blocks</a></code></li>
+<li><code><a title="phiml.os.stat_result.st_ctime" href="#phiml.os.stat_result.st_ctime">st_ctime</a></code></li>
+<li><code><a title="phiml.os.stat_result.st_ctime_ns" href="#phiml.os.stat_result.st_ctime_ns">st_ctime_ns</a></code></li>
+<li><code><a title="phiml.os.stat_result.st_dev" href="#phiml.os.stat_result.st_dev">st_dev</a></code></li>
+<li><code><a title="phiml.os.stat_result.st_gid" href="#phiml.os.stat_result.st_gid">st_gid</a></code></li>
+<li><code><a title="phiml.os.stat_result.st_ino" href="#phiml.os.stat_result.st_ino">st_ino</a></code></li>
+<li><code><a title="phiml.os.stat_result.st_mode" href="#phiml.os.stat_result.st_mode">st_mode</a></code></li>
+<li><code><a title="phiml.os.stat_result.st_mtime" href="#phiml.os.stat_result.st_mtime">st_mtime</a></code></li>
+<li><code><a title="phiml.os.stat_result.st_mtime_ns" href="#phiml.os.stat_result.st_mtime_ns">st_mtime_ns</a></code></li>
+<li><code><a title="phiml.os.stat_result.st_nlink" href="#phiml.os.stat_result.st_nlink">st_nlink</a></code></li>
+<li><code><a title="phiml.os.stat_result.st_rdev" href="#phiml.os.stat_result.st_rdev">st_rdev</a></code></li>
+<li><code><a title="phiml.os.stat_result.st_size" href="#phiml.os.stat_result.st_size">st_size</a></code></li>
+<li><code><a title="phiml.os.stat_result.st_uid" href="#phiml.os.stat_result.st_uid">st_uid</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="phiml.os.statvfs_result" href="#phiml.os.statvfs_result">statvfs_result</a></code></h4>
+<ul class="two-column">
+<li><code><a title="phiml.os.statvfs_result.f_bavail" href="#phiml.os.statvfs_result.f_bavail">f_bavail</a></code></li>
+<li><code><a title="phiml.os.statvfs_result.f_bfree" href="#phiml.os.statvfs_result.f_bfree">f_bfree</a></code></li>
+<li><code><a title="phiml.os.statvfs_result.f_blocks" href="#phiml.os.statvfs_result.f_blocks">f_blocks</a></code></li>
+<li><code><a title="phiml.os.statvfs_result.f_bsize" href="#phiml.os.statvfs_result.f_bsize">f_bsize</a></code></li>
+<li><code><a title="phiml.os.statvfs_result.f_favail" href="#phiml.os.statvfs_result.f_favail">f_favail</a></code></li>
+<li><code><a title="phiml.os.statvfs_result.f_ffree" href="#phiml.os.statvfs_result.f_ffree">f_ffree</a></code></li>
+<li><code><a title="phiml.os.statvfs_result.f_files" href="#phiml.os.statvfs_result.f_files">f_files</a></code></li>
+<li><code><a title="phiml.os.statvfs_result.f_flag" href="#phiml.os.statvfs_result.f_flag">f_flag</a></code></li>
+<li><code><a title="phiml.os.statvfs_result.f_frsize" href="#phiml.os.statvfs_result.f_frsize">f_frsize</a></code></li>
+<li><code><a title="phiml.os.statvfs_result.f_fsid" href="#phiml.os.statvfs_result.f_fsid">f_fsid</a></code></li>
+<li><code><a title="phiml.os.statvfs_result.f_namemax" href="#phiml.os.statvfs_result.f_namemax">f_namemax</a></code></li>
+<li><code><a title="phiml.os.statvfs_result.n_fields" href="#phiml.os.statvfs_result.n_fields">n_fields</a></code></li>
+<li><code><a title="phiml.os.statvfs_result.n_sequence_fields" href="#phiml.os.statvfs_result.n_sequence_fields">n_sequence_fields</a></code></li>
+<li><code><a title="phiml.os.statvfs_result.n_unnamed_fields" href="#phiml.os.statvfs_result.n_unnamed_fields">n_unnamed_fields</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="phiml.os.terminal_size" href="#phiml.os.terminal_size">terminal_size</a></code></h4>
+<ul class="">
+<li><code><a title="phiml.os.terminal_size.columns" href="#phiml.os.terminal_size.columns">columns</a></code></li>
+<li><code><a title="phiml.os.terminal_size.lines" href="#phiml.os.terminal_size.lines">lines</a></code></li>
+<li><code><a title="phiml.os.terminal_size.n_fields" href="#phiml.os.terminal_size.n_fields">n_fields</a></code></li>
+<li><code><a title="phiml.os.terminal_size.n_sequence_fields" href="#phiml.os.terminal_size.n_sequence_fields">n_sequence_fields</a></code></li>
+<li><code><a title="phiml.os.terminal_size.n_unnamed_fields" href="#phiml.os.terminal_size.n_unnamed_fields">n_unnamed_fields</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="phiml.os.times_result" href="#phiml.os.times_result">times_result</a></code></h4>
+<ul class="two-column">
+<li><code><a title="phiml.os.times_result.children_system" href="#phiml.os.times_result.children_system">children_system</a></code></li>
+<li><code><a title="phiml.os.times_result.children_user" href="#phiml.os.times_result.children_user">children_user</a></code></li>
+<li><code><a title="phiml.os.times_result.elapsed" href="#phiml.os.times_result.elapsed">elapsed</a></code></li>
+<li><code><a title="phiml.os.times_result.n_fields" href="#phiml.os.times_result.n_fields">n_fields</a></code></li>
+<li><code><a title="phiml.os.times_result.n_sequence_fields" href="#phiml.os.times_result.n_sequence_fields">n_sequence_fields</a></code></li>
+<li><code><a title="phiml.os.times_result.n_unnamed_fields" href="#phiml.os.times_result.n_unnamed_fields">n_unnamed_fields</a></code></li>
+<li><code><a title="phiml.os.times_result.system" href="#phiml.os.times_result.system">system</a></code></li>
+<li><code><a title="phiml.os.times_result.user" href="#phiml.os.times_result.user">user</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="phiml.os.uname_result" href="#phiml.os.uname_result">uname_result</a></code></h4>
+<ul class="two-column">
+<li><code><a title="phiml.os.uname_result.machine" href="#phiml.os.uname_result.machine">machine</a></code></li>
+<li><code><a title="phiml.os.uname_result.n_fields" href="#phiml.os.uname_result.n_fields">n_fields</a></code></li>
+<li><code><a title="phiml.os.uname_result.n_sequence_fields" href="#phiml.os.uname_result.n_sequence_fields">n_sequence_fields</a></code></li>
+<li><code><a title="phiml.os.uname_result.n_unnamed_fields" href="#phiml.os.uname_result.n_unnamed_fields">n_unnamed_fields</a></code></li>
+<li><code><a title="phiml.os.uname_result.nodename" href="#phiml.os.uname_result.nodename">nodename</a></code></li>
+<li><code><a title="phiml.os.uname_result.release" href="#phiml.os.uname_result.release">release</a></code></li>
+<li><code><a title="phiml.os.uname_result.sysname" href="#phiml.os.uname_result.sysname">sysname</a></code></li>
+<li><code><a title="phiml.os.uname_result.version" href="#phiml.os.uname_result.version">version</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="phiml.os.waitid_result" href="#phiml.os.waitid_result">waitid_result</a></code></h4>
+<ul class="two-column">
+<li><code><a title="phiml.os.waitid_result.n_fields" href="#phiml.os.waitid_result.n_fields">n_fields</a></code></li>
+<li><code><a title="phiml.os.waitid_result.n_sequence_fields" href="#phiml.os.waitid_result.n_sequence_fields">n_sequence_fields</a></code></li>
+<li><code><a title="phiml.os.waitid_result.n_unnamed_fields" href="#phiml.os.waitid_result.n_unnamed_fields">n_unnamed_fields</a></code></li>
+<li><code><a title="phiml.os.waitid_result.si_code" href="#phiml.os.waitid_result.si_code">si_code</a></code></li>
+<li><code><a title="phiml.os.waitid_result.si_pid" href="#phiml.os.waitid_result.si_pid">si_pid</a></code></li>
+<li><code><a title="phiml.os.waitid_result.si_signo" href="#phiml.os.waitid_result.si_signo">si_signo</a></code></li>
+<li><code><a title="phiml.os.waitid_result.si_status" href="#phiml.os.waitid_result.si_status">si_status</a></code></li>
+<li><code><a title="phiml.os.waitid_result.si_uid" href="#phiml.os.waitid_result.si_uid">si_uid</a></code></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc" title="pdoc: Python API documentation generator"><cite>pdoc</cite> 0.11.0</a>.</p>
+</footer>
+</body>
+</html>

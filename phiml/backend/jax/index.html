@@ -494,23 +494,28 @@ The methods of <code>Backend</code> form a comprehensive list of available opera
     def min(self, x, axis=None, keepdims=False):
         return jnp.min(x, axis, keepdims=keepdims)
 
-    def conv(self, value, kernel, zero_padding=True):
+    def conv(self, value, kernel, strides: Sequence[int], out_sizes: Sequence[int], transpose: bool):
+        assert not transpose, &#34;transpose conv not yet supported for Jax&#34;
         assert kernel.shape[0] in (1, value.shape[0])
         assert value.shape[1] == kernel.shape[2], f&#34;value has {value.shape[1]} channels but kernel has {kernel.shape[2]}&#34;
         assert value.ndim + 1 == kernel.ndim
         value, kernel = self.auto_cast(value, kernel, bool_to_int=True)
-        # AutoDiff may require jax.lax.conv_general_dilated
-        result = []
-        for b in range(value.shape[0]):
-            b_kernel = kernel[min(b, kernel.shape[0] - 1)]
-            result_b = []
-            for o in range(kernel.shape[1]):
-                result_b.append(0)
-                for i in range(value.shape[1]):
-                    # result.at[b, o, ...].set(scipy.signal.correlate(value[b, i, ...], b_kernel[o, i, ...], mode=&#39;same&#39; if zero_padding else &#39;valid&#39;))
-                    result_b[-1] += scipy.signal.correlate(value[b, i, ...], b_kernel[o, i, ...], mode=&#39;same&#39; if zero_padding else &#39;valid&#39;)
-            result.append(jnp.stack(result_b, 0))
-        return jnp.stack(result, 0)
+        ndim = len(value.shape) - 2  # Number of spatial dimensions
+        assert len(strides) == ndim, f&#34;Expected {ndim} stride values, got {len(strides)}&#34;
+        # --- Determine padding ---
+        # default_size = [int(np.ceil((vs - ks + 1) / st)) for vs, ks, st in zip(value.shape[2:], kernel.shape[3:], strides)]  # size if no padding is used
+        lr_padding = [max(0, st * (os - 1) - vs + ks) for st, os, vs, ks in zip(strides, out_sizes, value.shape[2:], kernel.shape[3:])]
+        padding = [((p+1) // 2, p // 2) for p in lr_padding]
+        # --- Run the (transposed) convolution ---
+        sp = &#39;&#39;.join([&#39;WHD&#39;[i] for i in range(len(strides))])
+        dim_num = jax.lax.conv_dimension_numbers(value.shape, kernel.shape[1:], (&#39;NC&#39;+sp, &#39;OI&#39;+sp, &#39;NC&#39;+sp))
+        if kernel.shape[0] == 1:
+            return jax.lax.conv_general_dilated(value, kernel[0], strides, padding, None, None, dim_num)
+        else:
+            result = []
+            for b in range(kernel.shape[0]):
+                result.append(jax.lax.conv_general_dilated(value[b:b + 1], kernel[b], strides, padding, None, None, dim_num))
+            return jnp.concatenate(result, 0)
 
     def expand_dims(self, a, axis=0, number=1):
         for _i in range(number):
@@ -1561,7 +1566,7 @@ The first dimension of <code>values</code> and <code>indices</code> is the batch
 <div class="desc"></div>
 </dd>
 <dt id="phiml.backend.jax.JaxBackend.conv"><code class="name flex">
-<span>def <span class="ident">conv</span></span>(<span>self, value, kernel, zero_padding=True)</span>
+<span>def <span class="ident">conv</span></span>(<span>self, value, kernel, strides: Sequence[int], out_sizes: Sequence[int], transpose: bool)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Convolve value with kernel.
@@ -1573,8 +1578,12 @@ Higher dimensions may not be supported.</p>
 <dd>tensor of shape (batch_size, in_channel, spatial&hellip;)</dd>
 <dt><strong><code>kernel</code></strong></dt>
 <dd>tensor of shape (batch_size or 1, out_channel, in_channel, spatial&hellip;)</dd>
-<dt><strong><code>zero_padding</code></strong></dt>
-<dd>If True, pads the edges of <code>value</code> with zeros so that the result has the same shape as <code>value</code>.</dd>
+<dt><strong><code>strides</code></strong></dt>
+<dd>Convolution strides, one <code>int</code> for each spatial dim. For transpose, they act as upsampling factors.</dd>
+<dt><strong><code>out_sizes</code></strong></dt>
+<dd>Spatial shape of the output tensor. This determines how much zero-padding or slicing is used.</dd>
+<dt><strong><code>transpose</code></strong></dt>
+<dd>If <code>True</code>, performs a transposed convolution, according to PyTorch's definition.</dd>
 </dl>
 <h2 id="returns">Returns</h2>
 <p>Convolution result as tensor of shape (batch_size, out_channel, spatial&hellip;)</p></div>

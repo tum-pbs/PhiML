@@ -188,7 +188,7 @@ If <code>obj</code> defines a metaclass, this will allow users to define custom 
 <p>Copy of <code>obj</code> with replaced values.</p></div>
 </dd>
 <dt id="phiml.dataclasses.sliceable"><code class="name flex">
-<span>def <span class="ident">sliceable</span></span>(<span>cls=None, /, *, dim_attrs=True, keepdims=None, dim_repr=True)</span>
+<span>def <span class="ident">sliceable</span></span>(<span>cls=None, /, *, dim_attrs=True, t_props=True, keepdims=None, dim_repr=True)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Decorator for frozen dataclasses, adding slicing functionality by defining <code>__getitem__</code>.
@@ -197,6 +197,8 @@ This enables slicing similar to tensors, gathering and boolean masking.</p>
 <dl>
 <dt><strong><code>dim_attrs</code></strong></dt>
 <dd>Whether to generate <code>__getattr__</code> that allows slicing via the syntax <code>instance.dim[&hellip;]</code> where <code>dim</code> is the name of any dim present on <code>instance</code>.</dd>
+<dt><strong><code>t_props</code></strong></dt>
+<dd>Whether to generate the properties <code>Tc</code>, <code>Ts</code> and <code>Ti</code> for transposing channel/spatial/instance dims.</dd>
 <dt><strong><code>keepdims</code></strong></dt>
 <dd>Which dimensions should be kept with size 1 taking a single slice along them. This will preserve item names.</dd>
 <dt><strong><code>dim_repr</code></strong></dt>

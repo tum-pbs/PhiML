@@ -86,6 +86,22 @@ Analogue functions exist for other learning frameworks.</p></div>
 <h2 id="returns">Returns</h2>
 <p>Conv-net model as specified by input arguments</p></div>
 </dd>
+<dt id="phiml.nn.get_learning_rate"><code class="name flex">
+<span>def <span class="ident">get_learning_rate</span></span>(<span>optimizer: ~Optimizer) ‑> float</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Returns the global learning rate of the given optimizer.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>optimizer</code></strong> :&ensp;<code>optim.Optimizer</code></dt>
+<dd>The optimizer whose learning rate needs to be retrieved.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>float</code></dt>
+<dd>The learning rate of the optimizer.</dd>
+</dl></div>
+</dd>
 <dt id="phiml.nn.get_parameters"><code class="name flex">
 <span>def <span class="ident">get_parameters</span></span>(<span>net: ~Network) ‑> Dict[str, phiml.math._tensors.Tensor]</span>
 </code></dt>
@@ -206,7 +222,7 @@ A default filter size of 3 is used in the convolutional layers.</p>
 Analogue functions exist for other learning frameworks.</p></div>
 </dd>
 <dt id="phiml.nn.save_state"><code class="name flex">
-<span>def <span class="ident">save_state</span></span>(<span>obj: Union[~Network, ~Optimizer], path: str)</span>
+<span>def <span class="ident">save_state</span></span>(<span>obj: Union[~Network, ~Optimizer], path: str) ‑> str</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Write the state of a module or optimizer to a file.</p>
@@ -218,6 +234,21 @@ Analogue functions exist for other learning frameworks.</p></div>
 <dd><code>torch.Network or torch.optim.Optimizer</code></dd>
 <dt><strong><code>path</code></strong></dt>
 <dd>File path as <code>str</code>.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<p>Path to the saved file.</p></div>
+</dd>
+<dt id="phiml.nn.set_learning_rate"><code class="name flex">
+<span>def <span class="ident">set_learning_rate</span></span>(<span>optimizer: ~Optimizer, learning_rate: Union[float, phiml.math._tensors.Tensor])</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Sets the global learning rate for the given optimizer.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>optimizer</code></strong> :&ensp;<code>optim.Optimizer</code></dt>
+<dd>The optimizer whose learning rate needs to be updated.</dd>
+<dt><strong><code>learning_rate</code></strong> :&ensp;<code>float</code></dt>
+<dd>The new learning rate to set.</dd>
 </dl></div>
 </dd>
 <dt id="phiml.nn.sgd"><code class="name flex">
@@ -226,6 +257,57 @@ Analogue functions exist for other learning frameworks.</p></div>
 <dd>
 <div class="desc"><p>Creates an SGD optimizer for 'net', alias for <a href="https://pytorch.org/docs/stable/generated/torch.optim.SGD.html">'torch.optim.SGD'</a>
 Analogue functions exist for other learning frameworks.</p></div>
+</dd>
+<dt id="phiml.nn.train"><code class="name flex">
+<span>def <span class="ident">train</span></span>(<span>name: str, model, optimizer, loss_fn: Callable, *files_or_data: Union[str, phiml.math._tensors.Tensor], max_epochs: int = None, max_iter: int = None, max_hours: float = None, stop_on_loss: float = None, batch_size: int = 1, file_shape: phiml.math._shape.Shape = (), dataset_dims: Union[str, Sequence[+T_co], set, phiml.math._shape.Shape, Callable, None] = &lt;function batch&gt;, device: phiml.backend._backend.ComputeDevice = None, drop_last=False, loss_kwargs=None, lr_schedule_iter=None, checkpoint_frequency=None, loader=&lt;function load&gt;, on_iter_end: Callable = None, on_epoch_end: Callable = None)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Call <code><a title="phiml.nn.update_weights" href="#phiml.nn.update_weights">update_weights()</a></code> for each batch in a loop for each epoch.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>name</code></strong></dt>
+<dd>Name of the model. This is used as a name to save the model and optimizer states.</dd>
+<dt><strong><code>model</code></strong></dt>
+<dd>PyTorch module or Keras model (TensorFlow).</dd>
+<dt><strong><code>optimizer</code></strong></dt>
+<dd>PyTorch or TensorFlow/Keras optimizer.</dd>
+<dt><strong><code>loss_fn</code></strong></dt>
+<dd>Loss function for training. This function should take the data as input, run the model and return the loss. It may return additional outputs, but the loss must be the first value.</dd>
+<dt><strong><code>*files_or_data</code></strong></dt>
+<dd>Training data or file names containing training data or a mixture of both. Files are loaded using <code>loader</code>.</dd>
+<dt><strong><code>max_epochs</code></strong></dt>
+<dd>Epoch limit.</dd>
+<dt><strong><code>max_iter</code></strong></dt>
+<dd>Iteration limit. The number of iterations depends on the batch size and the number of files.</dd>
+<dt><strong><code>max_hours</code></strong></dt>
+<dd>Training time limit in hours (<code>float</code>).</dd>
+<dt><strong><code>stop_on_loss</code></strong></dt>
+<dd>Stop training if the mean epoch loss falls below this value.</dd>
+<dt><strong><code>batch_size</code></strong></dt>
+<dd>Batch size for training. The batch size is limited by the number of data points in the dataset.</dd>
+<dt><strong><code>file_shape</code></strong></dt>
+<dd>Shape of data stored in each file.</dd>
+<dt><strong><code>dataset_dims</code></strong></dt>
+<dd>Which dims of the training data list training examples, as opposed to features of data points.</dd>
+<dt><strong><code>device</code></strong></dt>
+<dd>Device to use for training. If <code>None</code>, the default device is used.</dd>
+<dt><strong><code>drop_last</code></strong></dt>
+<dd>If <code>True</code>, drop the last batch if it is smaller than <code>batch_size</code>.</dd>
+<dt><strong><code>loss_kwargs</code></strong></dt>
+<dd>Keyword arguments passed to <code>loss_fn</code>.</dd>
+<dt><strong><code>lr_schedule_iter</code></strong></dt>
+<dd>Function <code>(i: int) -&gt; float</code> that returns the learning rate for iteration <code>i</code>. If <code>None</code>, the learning rate of the <code>optimizer</code> is used as is.</dd>
+<dt><strong><code>checkpoint_frequency</code></strong></dt>
+<dd>If not <code>None</code>, save the model and optimizer state every <code>checkpoint_frequency</code> epochs.</dd>
+<dt><strong><code>loader</code></strong></dt>
+<dd>Function <code>(file: str) -&gt; data: Tensor</code> to load data from files. Defaults to <code><a title="phiml.math.load" href="math/index.html#phiml.math.load">load()</a></code>.</dd>
+<dt><strong><code>on_iter_end</code></strong></dt>
+<dd>Function <code>(i: int, max_iter: int, name: str, model, optimizer, learning_rate, loss, *additional_output) -&gt; None</code> called after each iteration. The function is called with the current iteration number <code>i</code> starting at 0, the maximum number of iterations <code>max_iter</code>, the name of the model <code>name</code>, the model <code>model</code>, the optimizer <code>optimizer</code>, the learning rate <code>learning_rate</code>, the loss value <code>loss</code> and any additional output from <code>loss_fn</code>.</dd>
+<dt><strong><code>on_epoch_end</code></strong></dt>
+<dd>Function <code>(epoch: int, max_epochs: int, name: str, model, optimizer, learning_rate, epoch_loss) -&gt; None</code> called after each epoch. The function is called with the current epoch number <code>epoch</code> starting at 0, the maximum number of epochs <code>max_epochs</code>, the name of the model <code>name</code>, the model <code>model</code>, the optimizer <code>optimizer</code>, the learning rate <code>learning_rate</code> and the average loss for the epoch <code>epoch_loss</code>.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<p><code>TrainingResult</code> containing the termination reason, last epoch and last iteration.</p></div>
 </dd>
 <dt id="phiml.nn.u_net"><code class="name flex">
 <span>def <span class="ident">u_net</span></span>(<span>in_channels: int, out_channels: int, levels: int = 4, filters: Union[int, Sequence[+T_co]] = 16, batch_norm: bool = True, activation: Union[str, type] = 'ReLU', in_spatial: Union[int, tuple] = 2, periodic=False, use_res_blocks: bool = False, down_kernel_size=3, up_kernel_size=3) ‑> ~Network</span>
@@ -283,6 +365,146 @@ Analogue functions exist for other learning frameworks.</p></div>
 </dl>
 </section>
 <section>
+<h2 class="section-title" id="header-classes">Classes</h2>
+<dl>
+<dt id="phiml.nn.TrainingState"><code class="flex name class">
+<span>class <span class="ident">TrainingState</span></span>
+<span>(</span><span>name: str, model: ~Network, optimizer: ~Optimizer, learning_rate: float, epoch: int, max_epochs: Optional[int], iter: int, max_iter: Optional[int], is_epoch_end: bool, epoch_loss: phiml.math._tensors.Tensor, batch_loss: Optional[phiml.math._tensors.Tensor], additional_batch_output: Optional[tuple], indices: phiml.math._tensors.Tensor, termination_reason: Optional[str])</span>
+</code></dt>
+<dd>
+<div class="desc"><p>TrainingState(name: str, model: ~Network, optimizer: ~Optimizer, learning_rate: float, epoch: int, max_epochs: Union[int, NoneType], iter: int, max_iter: Union[int, NoneType], is_epoch_end: bool, epoch_loss: phiml.math._tensors.Tensor, batch_loss: Union[phiml.math._tensors.Tensor, NoneType], additional_batch_output: Union[tuple, NoneType], indices: phiml.math._tensors.Tensor, termination_reason: Union[str, NoneType])</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class TrainingState:
+    name: str
+    model: Network
+    optimizer: Optimizer
+    learning_rate: float
+    epoch: int
+    max_epochs: Optional[int]
+    iter: int
+    max_iter: Optional[int]
+    is_epoch_end: bool
+    epoch_loss: Tensor
+    batch_loss: Optional[Tensor]
+    additional_batch_output: Optional[tuple]
+    indices: Tensor
+    termination_reason: Optional[str]
+
+    @property
+    def current(self):
+        return self.epoch + 1 if self.is_epoch_end else self.iter + 1
+
+    @property
+    def max(self):
+        return self.max_epochs if self.is_epoch_end else self.max_iter
+
+    @property
+    def mean_loss(self):
+        return float(self.epoch_loss) if self.is_epoch_end else float(math.mean(self.batch_loss, &#39;dset_linear&#39;))</code></pre>
+</details>
+<h3>Class variables</h3>
+<dl>
+<dt id="phiml.nn.TrainingState.additional_batch_output"><code class="name">var <span class="ident">additional_batch_output</span> : Optional[tuple]</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="phiml.nn.TrainingState.batch_loss"><code class="name">var <span class="ident">batch_loss</span> : Optional[phiml.math._tensors.Tensor]</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="phiml.nn.TrainingState.epoch"><code class="name">var <span class="ident">epoch</span> : int</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="phiml.nn.TrainingState.epoch_loss"><code class="name">var <span class="ident">epoch_loss</span> : phiml.math._tensors.Tensor</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="phiml.nn.TrainingState.indices"><code class="name">var <span class="ident">indices</span> : phiml.math._tensors.Tensor</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="phiml.nn.TrainingState.is_epoch_end"><code class="name">var <span class="ident">is_epoch_end</span> : bool</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="phiml.nn.TrainingState.iter"><code class="name">var <span class="ident">iter</span> : int</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="phiml.nn.TrainingState.learning_rate"><code class="name">var <span class="ident">learning_rate</span> : float</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="phiml.nn.TrainingState.max_epochs"><code class="name">var <span class="ident">max_epochs</span> : Optional[int]</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="phiml.nn.TrainingState.max_iter"><code class="name">var <span class="ident">max_iter</span> : Optional[int]</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="phiml.nn.TrainingState.model"><code class="name">var <span class="ident">model</span> : ~Network</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="phiml.nn.TrainingState.name"><code class="name">var <span class="ident">name</span> : str</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="phiml.nn.TrainingState.optimizer"><code class="name">var <span class="ident">optimizer</span> : ~Optimizer</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="phiml.nn.TrainingState.termination_reason"><code class="name">var <span class="ident">termination_reason</span> : Optional[str]</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
+<h3>Instance variables</h3>
+<dl>
+<dt id="phiml.nn.TrainingState.current"><code class="name">prop <span class="ident">current</span></code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def current(self):
+    return self.epoch + 1 if self.is_epoch_end else self.iter + 1</code></pre>
+</details>
+</dd>
+<dt id="phiml.nn.TrainingState.max"><code class="name">prop <span class="ident">max</span></code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def max(self):
+    return self.max_epochs if self.is_epoch_end else self.max_iter</code></pre>
+</details>
+</dd>
+<dt id="phiml.nn.TrainingState.mean_loss"><code class="name">prop <span class="ident">mean_loss</span></code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def mean_loss(self):
+    return float(self.epoch_loss) if self.is_epoch_end else float(math.mean(self.batch_loss, &#39;dset_linear&#39;))</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+</dl>
 </section>
 </article>
 <nav id="sidebar">
@@ -301,6 +523,7 @@ Analogue functions exist for other learning frameworks.</p></div>
 <li><code><a title="phiml.nn.adam" href="#phiml.nn.adam">adam</a></code></li>
 <li><code><a title="phiml.nn.conv_classifier" href="#phiml.nn.conv_classifier">conv_classifier</a></code></li>
 <li><code><a title="phiml.nn.conv_net" href="#phiml.nn.conv_net">conv_net</a></code></li>
+<li><code><a title="phiml.nn.get_learning_rate" href="#phiml.nn.get_learning_rate">get_learning_rate</a></code></li>
 <li><code><a title="phiml.nn.get_parameters" href="#phiml.nn.get_parameters">get_parameters</a></code></li>
 <li><code><a title="phiml.nn.invertible_net" href="#phiml.nn.invertible_net">invertible_net</a></code></li>
 <li><code><a title="phiml.nn.load_state" href="#phiml.nn.load_state">load_state</a></code></li>
@@ -309,9 +532,37 @@ Analogue functions exist for other learning frameworks.</p></div>
 <li><code><a title="phiml.nn.res_net" href="#phiml.nn.res_net">res_net</a></code></li>
 <li><code><a title="phiml.nn.rmsprop" href="#phiml.nn.rmsprop">rmsprop</a></code></li>
 <li><code><a title="phiml.nn.save_state" href="#phiml.nn.save_state">save_state</a></code></li>
+<li><code><a title="phiml.nn.set_learning_rate" href="#phiml.nn.set_learning_rate">set_learning_rate</a></code></li>
 <li><code><a title="phiml.nn.sgd" href="#phiml.nn.sgd">sgd</a></code></li>
+<li><code><a title="phiml.nn.train" href="#phiml.nn.train">train</a></code></li>
 <li><code><a title="phiml.nn.u_net" href="#phiml.nn.u_net">u_net</a></code></li>
 <li><code><a title="phiml.nn.update_weights" href="#phiml.nn.update_weights">update_weights</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-classes">Classes</a></h3>
+<ul>
+<li>
+<h4><code><a title="phiml.nn.TrainingState" href="#phiml.nn.TrainingState">TrainingState</a></code></h4>
+<ul class="">
+<li><code><a title="phiml.nn.TrainingState.additional_batch_output" href="#phiml.nn.TrainingState.additional_batch_output">additional_batch_output</a></code></li>
+<li><code><a title="phiml.nn.TrainingState.batch_loss" href="#phiml.nn.TrainingState.batch_loss">batch_loss</a></code></li>
+<li><code><a title="phiml.nn.TrainingState.current" href="#phiml.nn.TrainingState.current">current</a></code></li>
+<li><code><a title="phiml.nn.TrainingState.epoch" href="#phiml.nn.TrainingState.epoch">epoch</a></code></li>
+<li><code><a title="phiml.nn.TrainingState.epoch_loss" href="#phiml.nn.TrainingState.epoch_loss">epoch_loss</a></code></li>
+<li><code><a title="phiml.nn.TrainingState.indices" href="#phiml.nn.TrainingState.indices">indices</a></code></li>
+<li><code><a title="phiml.nn.TrainingState.is_epoch_end" href="#phiml.nn.TrainingState.is_epoch_end">is_epoch_end</a></code></li>
+<li><code><a title="phiml.nn.TrainingState.iter" href="#phiml.nn.TrainingState.iter">iter</a></code></li>
+<li><code><a title="phiml.nn.TrainingState.learning_rate" href="#phiml.nn.TrainingState.learning_rate">learning_rate</a></code></li>
+<li><code><a title="phiml.nn.TrainingState.max" href="#phiml.nn.TrainingState.max">max</a></code></li>
+<li><code><a title="phiml.nn.TrainingState.max_epochs" href="#phiml.nn.TrainingState.max_epochs">max_epochs</a></code></li>
+<li><code><a title="phiml.nn.TrainingState.max_iter" href="#phiml.nn.TrainingState.max_iter">max_iter</a></code></li>
+<li><code><a title="phiml.nn.TrainingState.mean_loss" href="#phiml.nn.TrainingState.mean_loss">mean_loss</a></code></li>
+<li><code><a title="phiml.nn.TrainingState.model" href="#phiml.nn.TrainingState.model">model</a></code></li>
+<li><code><a title="phiml.nn.TrainingState.name" href="#phiml.nn.TrainingState.name">name</a></code></li>
+<li><code><a title="phiml.nn.TrainingState.optimizer" href="#phiml.nn.TrainingState.optimizer">optimizer</a></code></li>
+<li><code><a title="phiml.nn.TrainingState.termination_reason" href="#phiml.nn.TrainingState.termination_reason">termination_reason</a></code></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>

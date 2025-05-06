@@ -15214,17 +15214,6 @@ You can select your preferred one by changing the below <code>math.use()</code> 
     <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
 
 
-<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="application/vnd.jupyter.stderr">
-<pre>/opt/hostedtoolcache/Python/3.8.18/x64/lib/python3.8/site-packages/phiml/backend/jax/stax_nets.py:96: FutureWarning: jax.tree_flatten is deprecated, and will be removed in a future release. Use jax.tree_util.tree_flatten instead.
-  xs, _ = tree_flatten(net.parameters)
-</pre>
-</div>
-</div>
-<div class="jp-OutputArea-child">
-    
-    <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
-
-
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
 <pre><span class="ansi-green-intense-fg">(batchᵇ=128)</span> <span class="ansi-blue-intense-fg">0.370 ± 0.261</span> <span class="ansi-white-fg">(2e-04...1e+00)</span>
 <span class="ansi-green-intense-fg">(batchᵇ=128)</span> <span class="ansi-blue-intense-fg">0.312 ± 0.223</span> <span class="ansi-white-fg">(9e-05...1e+00)</span>
@@ -15367,7 +15356,7 @@ While an implicit step is technically linear, the corresponding matrix would be 
 
 
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="application/vnd.jupyter.stderr">
-<pre>/opt/hostedtoolcache/Python/3.8.18/x64/lib/python3.8/site-packages/phiml/math/_optimize.py:635: UserWarning: Possible rank deficiency detected. Matrix might be singular which can lead to convergence problems. Please specify using Solve(rank_deficiency=...).
+<pre>/opt/hostedtoolcache/Python/3.8.18/x64/lib/python3.8/site-packages/phiml/math/_optimize.py:640: UserWarning: Possible rank deficiency detected. Matrix might be singular which can lead to convergence problems. Please specify using Solve(rank_deficiency=...).
   warnings.warn(&#34;Possible rank deficiency detected. Matrix might be singular which can lead to convergence problems. Please specify using Solve(rank_deficiency=...).&#34;)
 </pre>
 </div>
@@ -15437,9 +15426,9 @@ class="
 
 
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="application/vnd.jupyter.stderr">
-<pre>/tmp/ipykernel_2453/2300467920.py:2: DeprecationWarning: phiml.math.vec_squared is deprecated in favor of phiml.math.squared_norm
+<pre>/tmp/ipykernel_2488/2300467920.py:2: DeprecationWarning: phiml.math.vec_squared is deprecated in favor of phiml.math.squared_norm
   u0 = math.exp(-.5 * math.vec_squared(x-.5) / .1 ** 2)
-/opt/hostedtoolcache/Python/3.8.18/x64/lib/python3.8/site-packages/phiml/math/_optimize.py:635: UserWarning: Possible rank deficiency detected. Matrix might be singular which can lead to convergence problems. Please specify using Solve(rank_deficiency=...).
+/opt/hostedtoolcache/Python/3.8.18/x64/lib/python3.8/site-packages/phiml/math/_optimize.py:640: UserWarning: Possible rank deficiency detected. Matrix might be singular which can lead to convergence problems. Please specify using Solve(rank_deficiency=...).
   warnings.warn(&#34;Possible rank deficiency detected. Matrix might be singular which can lead to convergence problems. Please specify using Solve(rank_deficiency=...).&#34;)
 </pre>
 </div>
@@ -15652,7 +15641,7 @@ class="
 
 
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="application/vnd.jupyter.stderr">
-<pre>/tmp/ipykernel_2453/2042670748.py:5: DeprecationWarning: phiml.math.length is deprecated in favor of phiml.math.norm
+<pre>/tmp/ipykernel_2488/2042670748.py:5: DeprecationWarning: phiml.math.length is deprecated in favor of phiml.math.norm
   return math.vec_length(dx)
 </pre>
 </div>
@@ -15793,7 +15782,7 @@ An explanation of this automatic reshaping is given <a href="https://tum-pbs.git
 
 
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="application/vnd.jupyter.stderr">
-<pre>2025-02-06 17:25:13.061469: W tensorflow/compiler/tf2tensorrt/utils/py_utils.cc:38] TF-TRT Warning: Could not find TensorRT
+<pre>2025-05-06 16:14:29.363344: W tensorflow/compiler/tf2tensorrt/utils/py_utils.cc:38] TF-TRT Warning: Could not find TensorRT
 </pre>
 </div>
 </div>

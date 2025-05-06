@@ -67,6 +67,17 @@ Equivalent functions also exist for the other frameworks.</p>
 <dd>
 <div class="desc"></div>
 </dd>
+<dt id="phiml.backend.tensorflow.nets.get_learning_rate"><code class="name flex">
+<span>def <span class="ident">get_learning_rate</span></span>(<span>optimizer: keras.src.optimizers.optimizer.Optimizer)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Gets the global learning rate for the given optimizer.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>optimizer</code></strong> :&ensp;<code>optim.Optimizer</code></dt>
+<dd>The optimizer whose learning rate needs to be updated.</dd>
+</dl></div>
+</dd>
 <dt id="phiml.backend.tensorflow.nets.get_mask"><code class="name flex">
 <span>def <span class="ident">get_mask</span></span>(<span>inputs, reverse_mask, data_format='NHWC')</span>
 </code></dt>
@@ -126,6 +137,19 @@ Equivalent functions also exist for the other frameworks.</p>
 </code></dt>
 <dd>
 <div class="desc"></div>
+</dd>
+<dt id="phiml.backend.tensorflow.nets.set_learning_rate"><code class="name flex">
+<span>def <span class="ident">set_learning_rate</span></span>(<span>optimizer: keras.src.optimizers.optimizer.Optimizer, learning_rate: float)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Sets the global learning rate for the given optimizer.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>optimizer</code></strong> :&ensp;<code>optim.Optimizer</code></dt>
+<dd>The optimizer whose learning rate needs to be updated.</dd>
+<dt><strong><code>learning_rate</code></strong> :&ensp;<code>float</code></dt>
+<dd>The new learning rate to set.</dd>
+</dl></div>
 </dd>
 <dt id="phiml.backend.tensorflow.nets.sgd"><code class="name flex">
 <span>def <span class="ident">sgd</span></span>(<span>net: keras.src.engine.training.Model, learning_rate: float = 0.001, momentum=0.0, dampening=0.0, weight_decay=0.0, nesterov=False)</span>
@@ -766,6 +790,7 @@ from a Keras layer with masking support).</dd>
 <li><code><a title="phiml.backend.tensorflow.nets.conv_classifier" href="#phiml.backend.tensorflow.nets.conv_classifier">conv_classifier</a></code></li>
 <li><code><a title="phiml.backend.tensorflow.nets.conv_net" href="#phiml.backend.tensorflow.nets.conv_net">conv_net</a></code></li>
 <li><code><a title="phiml.backend.tensorflow.nets.double_conv" href="#phiml.backend.tensorflow.nets.double_conv">double_conv</a></code></li>
+<li><code><a title="phiml.backend.tensorflow.nets.get_learning_rate" href="#phiml.backend.tensorflow.nets.get_learning_rate">get_learning_rate</a></code></li>
 <li><code><a title="phiml.backend.tensorflow.nets.get_mask" href="#phiml.backend.tensorflow.nets.get_mask">get_mask</a></code></li>
 <li><code><a title="phiml.backend.tensorflow.nets.get_parameters" href="#phiml.backend.tensorflow.nets.get_parameters">get_parameters</a></code></li>
 <li><code><a title="phiml.backend.tensorflow.nets.invertible_net" href="#phiml.backend.tensorflow.nets.invertible_net">invertible_net</a></code></li>
@@ -776,6 +801,7 @@ from a Keras layer with masking support).</dd>
 <li><code><a title="phiml.backend.tensorflow.nets.resnet_block" href="#phiml.backend.tensorflow.nets.resnet_block">resnet_block</a></code></li>
 <li><code><a title="phiml.backend.tensorflow.nets.rmsprop" href="#phiml.backend.tensorflow.nets.rmsprop">rmsprop</a></code></li>
 <li><code><a title="phiml.backend.tensorflow.nets.save_state" href="#phiml.backend.tensorflow.nets.save_state">save_state</a></code></li>
+<li><code><a title="phiml.backend.tensorflow.nets.set_learning_rate" href="#phiml.backend.tensorflow.nets.set_learning_rate">set_learning_rate</a></code></li>
 <li><code><a title="phiml.backend.tensorflow.nets.sgd" href="#phiml.backend.tensorflow.nets.sgd">sgd</a></code></li>
 <li><code><a title="phiml.backend.tensorflow.nets.u_net" href="#phiml.backend.tensorflow.nets.u_net">u_net</a></code></li>
 <li><code><a title="phiml.backend.tensorflow.nets.update_weights" href="#phiml.backend.tensorflow.nets.update_weights">update_weights</a></code></li>

@@ -72,7 +72,7 @@ hljs.highlightAll();
 </dl></div>
 </dd>
 <dt id="phiml.math.perm.pick_random"><code class="name flex">
-<span>def <span class="ident">pick_random</span></span>(<span>value: ~TensorOrTree, dim: Union[str, Sequence[+T_co], set, phiml.math._shape.Shape, Callable, None], count: Union[int, phiml.math._shape.Shape, None] = 1, weight: Optional[phiml.math._tensors.Tensor] = None) ‑> ~TensorOrTree</span>
+<span>def <span class="ident">pick_random</span></span>(<span>value: ~TensorOrTree, dim: Union[str, Sequence[+T_co], set, phiml.math._shape.Shape, Callable, None], count: Union[int, phiml.math._shape.Shape, None] = 1, weight: Optional[phiml.math._tensors.Tensor] = None, same_selection_dims: Union[str, Sequence[+T_co], set, phiml.math._shape.Shape, Callable, None] = &lt;function non_batch&gt;, selections: phiml.math._shape.Shape = ()) ‑> ~TensorOrTree</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Pick one or multiple random entries from <code>value</code>.</p>
@@ -87,6 +87,10 @@ You can pass <code>range</code> (the type) to retrieve the picked indices.</dd>
 <dd>Number of entries to pick. When specified as a <code>Shape</code>, lists picked values along <code>count</code> instead of <code>dim</code>.</dd>
 <dt><strong><code>weight</code></strong></dt>
 <dd>Probability weight of each item along <code>dim</code>. Will be normalized to sum to 1.</dd>
+<dt><strong><code>same_selection_dims</code></strong></dt>
+<dd>Dims along which to use the same random selection for each element. All other dims except <code>dim</code> are treated as batch.</dd>
+<dt><strong><code>selections</code></strong></dt>
+<dd>Additional dims to generate more random subsets. These will be part of the output.</dd>
 </dl>
 <h2 id="returns">Returns</h2>
 <p><code>Tensor</code> or tree equal to <code>value</code>.</p></div>
