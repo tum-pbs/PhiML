@@ -102,6 +102,7 @@ symlink = broadcast(impl.symlink, name=False)
 link = broadcast(impl.link, name=False)
 readlink = broadcast(impl.readlink, name=False)
 
+# --- Base functions, available on all systems ---
 from os import (
     abort,
     chdir,
@@ -128,7 +129,6 @@ from os import (
     fsync,
     ftruncate,
     get_exec_path,
-    get_handle_inheritable,
     get_inheritable,
     get_terminal_size,
     getcwd,
@@ -148,13 +148,11 @@ from os import (
     removedirs,
     renames,
     scandir,
-    set_handle_inheritable,
     set_inheritable,
     spawnl,
     spawnle,
     spawnv,
     spawnve,
-    startfile,
     stat_result,
     statvfs_result,
     strerror,
@@ -171,11 +169,8 @@ from os import (
     walk,
     write,
 )
-try:
-    from os import unsetenv, waitstatus_to_exitcode
-except ImportError:
-    pass
-try:
-    from os import add_dll_directory
-except ImportError:
-    pass
+
+# --- Additional functions depending on OS and Python version ---
+for name in dir(impl):
+    if name not in globals():
+        globals()[name] = getattr(impl, name)
