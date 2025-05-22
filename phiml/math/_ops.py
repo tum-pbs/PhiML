@@ -2713,7 +2713,20 @@ def convolve(value: Tensor,
     if extrapolation == e_.PERIODIC:
         ...  # limit to same size, else we are repeating computations
     if extrapolation is not None and extrapolation != e_.ZERO:  # custom padding, cannot be handled by backend
-        value = pad(value, {dim: (kernel.shape.get_size(dim) // 2, (kernel.shape.get_size(dim) - 1) // 2) for dim in dims.names}, extrapolation)
+        pad_widths = {}
+        for dim, st, os in zip(dims, native_strides, out_sizes):
+            vs = value.shape.get_size(dim)
+            ks = kernel.shape.get_size(dim)
+            if not transpose:
+                padding = max(0, st * (os - 1) - vs + ks)
+                pad_widths[dim.name] = (padding//2, (padding+1)//2)
+            else:
+                default_size = (vs + 1) * st - ks  # size if no padding is used
+                if default_size < os:
+                    pad_widths[dim.name] = os - default_size  # ToDo
+                    raise NotImplementedError
+        value = pad(value, pad_widths, extrapolation)
+        # value = pad(value, {dim: (kernel.shape.get_size(dim) // 2, (kernel.shape.get_size(dim) - 1) // 2) for dim in dims.names}, extrapolation)
     # --- Perform conv ---
     backend = backend_for(value, kernel)
     native_kernel = kernel.native((batch_dims if batch(kernel) else EMPTY_SHAPE, out_dims, dual(kernel), *dims))
