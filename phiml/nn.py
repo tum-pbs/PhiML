@@ -351,7 +351,7 @@ def invertible_net(num_blocks: int = 3,
 #     return _native_lib().fno(**locals())
 
 
-def train(name: str, model, optimizer, loss_fn: Callable,
+def train(name: Optional[str], model, optimizer, loss_fn: Callable,
           *files_or_data: Union[str, Tensor],
           max_epochs: int = None, max_iter: int = None, max_hours: float = None, stop_on_loss: float = None,
           batch_size: int = 1, file_shape: Shape = EMPTY_SHAPE, dataset_dims: DimFilter = batch, device: ComputeDevice = None, drop_last=False, loss_kwargs=None,
@@ -362,6 +362,7 @@ def train(name: str, model, optimizer, loss_fn: Callable,
 
     Args:
         name: Name of the model. This is used as a name to save the model and optimizer states.
+            If not specified, no model or optimizer states are saved.
         model: PyTorch module or Keras model (TensorFlow).
         optimizer: PyTorch or TensorFlow/Keras optimizer.
         loss_fn: Loss function for training. This function should take the data as input, run the model and return the loss. It may return additional outputs, but the loss must be the first value.
@@ -395,7 +396,7 @@ def train(name: str, model, optimizer, loss_fn: Callable,
     dataset_dims = data_shape.only(dataset_dims)
     batch_size = min(batch_size, dataset_dims.volume)
     batch_count = dataset_dims.volume // batch_size if drop_last else (dataset_dims.volume + batch_size - 1) // batch_size
-    os.makedirs(name, exist_ok=True)
+    name and os.makedirs(name, exist_ok=True)
     learning_rate = None if lr_schedule_iter is not None else get_learning_rate(optimizer)
     if max_epochs is None and max_iter is not None:
         max_epochs = int(np.ceil(max_iter / batch_count))
@@ -430,7 +431,7 @@ def train(name: str, model, optimizer, loss_fn: Callable,
                 break
         if termination_reason is not None:
             break
-        if checkpoint_frequency is not None and (epoch + 1) % checkpoint_frequency == 0:
+        if name and checkpoint_frequency is not None and (epoch + 1) % checkpoint_frequency == 0:
             save_state(model, f"{name}/model_{epoch + 1}")
             save_state(optimizer, f"{name}/optimizer_{epoch + 1}")
         epoch_loss /= indices.dset_linear.size
@@ -460,13 +461,13 @@ class TrainingState:
     termination_reason: Optional[str]
 
     @property
-    def current(self):
-        return self.epoch + 1 if self.is_epoch_end else self.iter + 1
+    def current(self) -> int:
+        return self.epoch if self.is_epoch_end else self.iter
 
     @property
-    def max(self):
+    def max(self) -> int:
         return self.max_epochs if self.is_epoch_end else self.max_iter
 
     @property
-    def mean_loss(self):
+    def mean_loss(self) -> float:
         return float(self.epoch_loss) if self.is_epoch_end else float(math.mean(self.batch_loss, 'dset_linear'))
