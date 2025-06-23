@@ -351,12 +351,44 @@ def invertible_net(num_blocks: int = 3,
 #     return _native_lib().fno(**locals())
 
 
+@dataclass(frozen=True)
+class TrainingState:
+    name: str
+    model: Network
+    optimizer: Optimizer
+    learning_rate: float
+    epoch: int
+    max_epochs: Optional[int]
+    iter: int
+    max_iter: Optional[int]
+    is_epoch_end: bool
+    epoch_loss: Tensor
+    batch_loss: Optional[Tensor]
+    additional_batch_output: Optional[tuple]
+    indices: Tensor
+    termination_reason: Optional[str]
+    peak_memory: Optional[int]
+
+    @property
+    def current(self) -> int:
+        return self.epoch if self.is_epoch_end else self.iter
+
+    @property
+    def max(self) -> int:
+        return self.max_epochs if self.is_epoch_end else self.max_iter
+
+    @property
+    def mean_loss(self) -> float:
+        return float(self.epoch_loss) if self.is_epoch_end else float(math.mean(self.batch_loss, 'dset_linear'))
+
+
 def train(name: Optional[str], model, optimizer, loss_fn: Callable,
           *files_or_data: Union[str, Tensor],
           max_epochs: int = None, max_iter: int = None, max_hours: float = None, stop_on_loss: float = None,
           batch_size: int = 1, file_shape: Shape = EMPTY_SHAPE, dataset_dims: DimFilter = batch, device: ComputeDevice = None, drop_last=False, loss_kwargs=None,
           lr_schedule_iter=None, checkpoint_frequency=None, loader=math.load,
-          on_iter_end: Callable = None, on_epoch_end: Callable = None):
+          on_iter_end: Callable = None, on_epoch_end: Callable = None,
+          measure_peak_memory: bool = True) -> TrainingState:
     """
     Call `update_weights()` for each batch in a loop for each epoch.
 
@@ -382,6 +414,7 @@ def train(name: Optional[str], model, optimizer, loss_fn: Callable,
         loader: Function `(file: str) -> data: Tensor` to load data from files. Defaults to `phiml.math.load()`.
         on_iter_end: Function `(i: int, max_iter: int, name: str, model, optimizer, learning_rate, loss, *additional_output) -> None` called after each iteration. The function is called with the current iteration number `i` starting at 0, the maximum number of iterations `max_iter`, the name of the model `name`, the model `model`, the optimizer `optimizer`, the learning rate `learning_rate`, the loss value `loss` and any additional output from `loss_fn`.
         on_epoch_end: Function `(epoch: int, max_epochs: int, name: str, model, optimizer, learning_rate, epoch_loss) -> None` called after each epoch. The function is called with the current epoch number `epoch` starting at 0, the maximum number of epochs `max_epochs`, the name of the model `name`, the model `model`, the optimizer `optimizer`, the learning rate `learning_rate` and the average loss for the epoch `epoch_loss`.
+        measure_peak_memory: If `True`, measure the peak memory usage during training and store it in the returned `TrainingState`. This is only supported by some backends.
 
     Returns:
         `TrainingResult` containing the termination reason, last epoch and last iteration.
@@ -390,8 +423,11 @@ def train(name: Optional[str], model, optimizer, loss_fn: Callable,
     data_shape = shape(files_or_data) & file_shape
     loss_kwargs = {} if loss_kwargs is None else loss_kwargs
     device = device if device is not None else default_backend().get_default_device()
+    if measure_peak_memory:
+        default_backend().reset_peak_memory(device)
     default_backend().set_default_device('CPU')
     data = [convert(math.map(lambda f: loader(f), fs, map_name="Loading data")) if isinstance(fs, str) or (isinstance(fs, Tensor) and fs.dtype.kind == object) else fs for fs in files_or_data]
+    default_backend().set_default_device(device)
     data_shape = shape(data)
     dataset_dims = data_shape.only(dataset_dims)
     batch_size = min(batch_size, dataset_dims.volume)
@@ -421,7 +457,11 @@ def train(name: Optional[str], model, optimizer, loss_fn: Callable,
             loss, *additional_output = output if isinstance(output, (tuple, list)) else (output,)
             epoch_loss += math.sum(loss, 'dset_linear')
             if on_iter_end is not None:
-                on_iter_end(TrainingState(name, model, optimizer, learning_rate, epoch, max_epochs, niter, max_iter, False, epoch_loss / ((i+1)*batch_count), loss, additional_output, batch_idx, None))
+                try:
+                    on_iter_end(TrainingState(name, model, optimizer, learning_rate, epoch, max_epochs, niter, max_iter, False, epoch_loss / ((i+1)*batch_count), loss, additional_output, batch_idx, None, None))
+                except StopTraining as stop:
+                    termination_reason = stop.reason
+                    break
             niter += 1
             if max_iter is not None and niter >= max_iter:
                 termination_reason = 'max_iter'
@@ -436,38 +476,20 @@ def train(name: Optional[str], model, optimizer, loss_fn: Callable,
             save_state(optimizer, f"{name}/optimizer_{epoch + 1}")
         epoch_loss /= indices.dset_linear.size
         if on_epoch_end is not None:
-            on_epoch_end(TrainingState(name, model, optimizer, learning_rate, epoch, max_epochs, niter, max_iter, True, epoch_loss, None, None, indices, None))
+            try:
+                on_epoch_end(TrainingState(name, model, optimizer, learning_rate, epoch, max_epochs, niter, max_iter, True, epoch_loss, None, None, indices, None, None))
+            except StopTraining as stop:
+                termination_reason = stop.reason
+                break
         if stop_on_loss is not None and (epoch_loss.mean < stop_on_loss):
             termination_reason = 'stop_on_loss'
             break
-    return TrainingState(name, model, optimizer, learning_rate, epoch, max_epochs, niter, max_iter, True, None, None, None, None, termination_reason)
+    peak_memory = default_backend().get_peak_memory(device) if measure_peak_memory else None
+    return TrainingState(name, model, optimizer, learning_rate, epoch, max_epochs, niter, max_iter, True, None, None, None, None, termination_reason, peak_memory)
 
 
-@dataclass(frozen=True)
-class TrainingState:
-    name: str
-    model: Network
-    optimizer: Optimizer
-    learning_rate: float
-    epoch: int
-    max_epochs: Optional[int]
-    iter: int
-    max_iter: Optional[int]
-    is_epoch_end: bool
-    epoch_loss: Tensor
-    batch_loss: Optional[Tensor]
-    additional_batch_output: Optional[tuple]
-    indices: Tensor
-    termination_reason: Optional[str]
-
-    @property
-    def current(self) -> int:
-        return self.epoch if self.is_epoch_end else self.iter
-
-    @property
-    def max(self) -> int:
-        return self.max_epochs if self.is_epoch_end else self.max_iter
-
-    @property
-    def mean_loss(self) -> float:
-        return float(self.epoch_loss) if self.is_epoch_end else float(math.mean(self.batch_loss, 'dset_linear'))
+class StopTraining(Exception):
+    """ This exception is raised by the `on_epoch_end` or `on_iter_end` callbacks to stop training. """
+    def __init__(self, reason: str = 'stop'):
+        super().__init__(reason)
+        self.reason = reason

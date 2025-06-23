@@ -128,6 +128,12 @@ class TFBackend(Backend):
             assert self.get_device(result) == device
             return result
 
+    def get_peak_memory(self, device: ComputeDevice):
+        return 0
+        # if tf.config.list_physical_devices('GPU'):
+        #     device = "/GPU:0"  # The first GPU visible to TensorFlow
+        #     return tf.config.experimental.get_memory_info(device)['peak']
+
     def vectorized_call(self, f, *args, output_dtypes=None, **aux_args):
         with self._device_for(*args):
             batch_size = self.determine_size(args, 0)

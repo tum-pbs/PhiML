@@ -171,6 +171,15 @@ class TorchBackend(Backend):
     def allocate_on_device(self, tensor: TensorType, device: ComputeDevice) -> TensorType:
         return self.as_tensor(tensor).to(device.ref)
 
+    def get_peak_memory(self, device: ComputeDevice):
+        return torch.cuda.max_memory_allocated(device.ref) if device.device_type == 'GPU' else 0
+
+    def reset_peak_memory(self, device: ComputeDevice):
+        if device.device_type == 'GPU':
+            torch.cuda.reset_peak_memory_stats(device.ref)
+        else:
+            warnings.warn(f"Resetting peak memory for {device} is not supported", RuntimeWarning)
+
     def multi_slice(self, tensor, slices: tuple):
         neg_slices = [i for i, s in enumerate(slices) if isinstance(s, slice) and s.step is not None and s.step < 0]
         pos_slices = [slice(0 if s.stop is None else s.stop+1, None if s.start is None else s.start+1 or None, -s.step) if i in neg_slices else s for i, s in enumerate(slices)]

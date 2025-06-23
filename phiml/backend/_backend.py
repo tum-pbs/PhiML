@@ -173,8 +173,8 @@ class Backend:
 
     def auto_cast(self, *tensors, bool_to_int=False, int_to_float=False) -> list:
         """
-        Determins the appropriate values type resulting from operations involving the tensors as input.
-        
+        Determines the appropriate values type resulting from operations involving the tensors as input.
+
         This method is called by the default implementations of basic operators.
         Backends can override this method to prevent unnecessary casting.
 
@@ -283,6 +283,12 @@ class Backend:
             tensor: Existing tensor native to this backend.
             device: Target device, associated with this backend.
         """
+        raise NotImplementedError(self.__class__)
+
+    def get_peak_memory(self, device: ComputeDevice):
+        raise NotImplementedError(self.__class__)
+
+    def reset_peak_memory(self, device: ComputeDevice):
         raise NotImplementedError(self.__class__)
 
     def seed(self, seed: int):
