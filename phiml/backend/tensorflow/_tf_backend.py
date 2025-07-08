@@ -1,4 +1,5 @@
 import numbers
+import warnings
 from functools import wraps, partial
 from typing import List, Callable, Tuple, Union, Optional, Sequence
 
@@ -129,10 +130,12 @@ class TFBackend(Backend):
             return result
 
     def get_peak_memory(self, device: ComputeDevice):
-        return 0
-        # if tf.config.list_physical_devices('GPU'):
-        #     device = "/GPU:0"  # The first GPU visible to TensorFlow
-        #     return tf.config.experimental.get_memory_info(device)['peak']
+        if device.device_type == 'CPU':
+            return 0  # TensorFlow does not provide a way to get peak memory usage on CPU.
+        return tf.config.experimental.get_memory_info(device.ref)['peak']
+
+    def reset_peak_memory(self, device: ComputeDevice):
+        warnings.warn("TensorFlow does not provide a way to reset peak memory usage.", UserWarning, stacklevel=2)
 
     def vectorized_call(self, f, *args, output_dtypes=None, **aux_args):
         with self._device_for(*args):
