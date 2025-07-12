@@ -9,7 +9,7 @@ import numpy as np
 
 from . import channel, EMPTY_SHAPE
 from ._shape import Shape, DimFilter, batch, instance, shape, non_batch, merge_shapes, concat_shapes, spatial, parse_dim_order, dual, auto, parse_shape_spec, DIM_FUNCTIONS, \
-    INV_CHAR, concat_shapes_, Dim, DEBUG_CHECKS, SHAPE_TYPES, primal, NotCompatible
+    INV_CHAR, concat_shapes_, Dim, DEBUG_CHECKS, SHAPE_TYPES, primal, NotCompatible, DUAL_DIM
 from .magic import Sliceable, Shaped, Shapable, PhiTreeNode
 from ..backend import choose_backend, NoBackendFound
 from ..backend._dtype import DType
@@ -626,7 +626,7 @@ def _shape_replace(shape: Shape, dims: DimFilter, new: DimFilter) -> Tuple[Shape
     elif isinstance(new, str):
         new = parse_dim_order(new)
         assert len(new) == len(existing), f"Number of names {new} does not match dims to replace {existing}"
-        new = concat_shapes_(*[Dim(n, dim.size, dim.dim_type, dim.slice_names) for dim, n in zip(existing, new)])
+        new = concat_shapes_(*[Dim(n, dim.size, DUAL_DIM if n.startswith('~') else dim.dim_type, dim.slice_names) for dim, n in zip(existing, new)])
     elif callable(new):
         new = new(**existing.untyped_dict)
         assert len(existing) == len(new), f"Number of names {new} does not match dims to replace {dims}"
