@@ -970,6 +970,17 @@ def pad(value: Tensor, widths: Union[dict, tuple, list], mode: Union['e_.Extrapo
             assert len(widths) == non_batch(value), f"Cannot pad tensor with non-batch dims {non_batch(value)} by widths {widths}. Sizes must match."
             warnings.warn("Padding by sequence of (lower, upper) is not recommended. Please use a dict instead.", SyntaxWarning, stacklevel=2)
             widths = {dim: w for dim, w in zip(non_batch(value).names, widths)}
+    if isinstance(widths, dict):
+        for k_old, v in dict(widths).items():
+            k = k_old
+            if callable(k):
+                k = k(value)
+            if isinstance(k, Shape):
+                k = k.names
+            if isinstance(k, tuple):
+                del widths[k_old]
+                for k_ in k:
+                    widths[k_] = v
     has_negative_widths = any(w0 < 0 or w1 < 0 for w0, w1 in widths.values())
     has_positive_widths = any(w0 > 0 or w1 > 0 for w0, w1 in widths.values())
     slices = None
