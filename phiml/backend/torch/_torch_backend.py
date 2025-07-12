@@ -314,6 +314,13 @@ class TorchBackend(Backend):
         values = [self.as_tensor(v) for v in values]
         return torch.stack(values, dim=axis)
 
+    def pad_stack(self, tensors, shape, pad_value=0):
+        result = torch.full((len(tensors), *shape), pad_value)
+        for i, tensor in enumerate(tensors):
+            slices = [slice(s) for s in tensor.shape]
+            result[(i, *slices)] = tensor
+        return result
+
     def concat(self, values, axis):
         values = [self.as_tensor(v) for v in values]
         return torch.cat(values, dim=axis)

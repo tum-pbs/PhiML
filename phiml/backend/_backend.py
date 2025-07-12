@@ -576,6 +576,13 @@ class Backend:
         else:
             return self.stack(trees, axis=axis)
 
+    def pad_stack(self, tensors, shape, pad_value=0):
+        padded = []
+        for t in tensors:
+            widths = [(0, target - current) for target, current in zip(shape, self.shape(t))]
+            padded.append(self.pad(t, widths, constant_values=pad_value))
+        return self.stack(padded)
+
     def concat(self, values, axis):
         raise NotImplementedError(self)
 

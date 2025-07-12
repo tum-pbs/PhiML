@@ -46,7 +46,7 @@ from ._ops import (
     zeros, ones, fftfreq, random_normal, random_normal as randn, random_uniform, random_uniform as rand,
     meshgrid, linspace, arange, arange as range, range_tensor, brange, drange, irange, srange, crange,  # creation operators (use default backend)
     zeros_like, ones_like,
-    pad,
+    pad, pad_to_uniform,
     swap_axes,  # reshape operations
     sort, dsort, psort, isort, ssort, csort,
     safe_div,
