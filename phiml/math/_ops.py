@@ -2883,8 +2883,12 @@ def gather(values, indices: Tensor, dims: Union[DimFilter, None] = None, pref_in
             assert dims, f"Specify gather dimensions for values with neither instance nor spatial dimensions. Got {values.shape}"
     dims = parse_dim_order(dims)
     assert dims, f"No indexing dimensions for tensor {values.shape} given indices {indices.shape}"
-    if dims not in values.shape:
+    if not values.shape.only(dims):  # no indexed dim in values
         return expand(values, indices.shape - index_dim)
+    elif dims not in values.shape:  # Only some dims indexed
+        dims = [d for d in dims if d in values.shape]
+        indices = indices[{index_dim: dims}]
+        index_dim = channel(indices)
     if len(dims) > 1:
         assert index_dim.rank == 1, f"indices must have a single channel dimension listing the indexed dims {dims} but got {indices.shape}."
     assert index_dim.volume == len(dims), f"channel dim of indices must have size equal to the number of indexed dims {dims} but got {index_dim} which has {index_dim.volume} entries"
