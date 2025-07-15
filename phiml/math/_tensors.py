@@ -410,6 +410,8 @@ class Tensor:
         return result
 
     def __getitem__(self, item) -> 'Tensor':
+        if item is None:
+            return self
         if isinstance(item, Tensor):
             if item.dtype.kind == bool:
                 from ._ops import boolean_mask
