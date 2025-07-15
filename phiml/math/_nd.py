@@ -889,8 +889,6 @@ def find_closest(vectors: Tensor, query: Tensor = None, /, method='kd', index_di
     Returns:
         Index tensor `idx` so that the closest points to `query` are `vectors[idx]`.
     """
-
-    assert not dual(vectors), f"vectors cannot have dual dims"
     index_dim = None if index_dim is None else index_dim.with_size(non_batch(vectors).non_channel.names)
     if method == 'dense':
         def find_fun(query: Tensor):
