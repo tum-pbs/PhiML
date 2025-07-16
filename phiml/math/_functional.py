@@ -14,7 +14,7 @@ from ._magic_ops import stack, slice_, find_differences, rename_dims, all_attrib
 from ._shape import Shape, spatial, instance, batch, channel, merge_shapes, DimFilter, shape, dual
 from ._sparse import SparseCoordinateTensor
 from ._tensors import Tensor, disassemble_tree, assemble_tree, disassemble_tensors, assemble_tensors, variable_attributes, wrap, specs_equal, equality_by_shape_and_value, \
-    object_dims, backend_for
+    object_dims, backend_for, NATIVE_TENSOR
 from ._trace import ShiftLinTracer, matrix_from_function, LinearTraceInProgress
 from .magic import PhiTreeNode, Shapable
 from ..backend import Backend
@@ -982,6 +982,9 @@ Traces can be avoided by jit-compiling the code that calls custom gradient funct
             else:
                 assert isinstance(incomplete, Tensor)
                 return list(incomplete._natives())
+        elif isinstance(tree, str) and tree == NATIVE_TENSOR:
+            complete_shapes.pop(0)
+            return [incomplete]
         elif isinstance(tree, (tuple, list)):
             if incomplete is None:
                 return sum([CustomGradientFunction.incomplete_tree_to_natives(None, item, complete_shapes) for item in tree], [])
