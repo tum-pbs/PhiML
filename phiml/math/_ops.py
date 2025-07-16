@@ -80,6 +80,8 @@ def _to_device(value: Tensor or Any, device: ComputeDevice or str, convert_to_ba
             return value
         natives = [_to_device(n, device, convert_to_backend, use_dlpack) for n in value._natives()]
         return value._with_natives_replaced(natives)
+    elif value is None:
+        return None
     else:
         old_backend = choose_backend(value)
         if isinstance(device, str):
