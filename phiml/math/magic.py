@@ -798,6 +798,8 @@ def slicing_dict(obj, item, existing_only=True) -> dict:
     Returns:
         `dict` mapping dimension names to slices.
     """
+    if item is None:
+        return {}
     if isinstance(item, SHAPE_TYPES):
         item = item.name_list
     if isinstance(item, dict):

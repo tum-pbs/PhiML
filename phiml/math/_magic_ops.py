@@ -45,6 +45,8 @@ def slice_(value: PhiTreeNodeType, slices: Union[Dict[str, Union[int, slice, str
         >>> math.slice([vec(x=0, y=1), vec(x=2, y=3)], {'vector': 'y'})
         [1, 3]
     """
+    if slices is None:
+        return value
     if isinstance(value, (bool, Number, str)) or value is None:
         return value
     if isinstance(value, tuple):
