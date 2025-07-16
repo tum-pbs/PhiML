@@ -315,11 +315,28 @@ class TorchBackend(Backend):
         return torch.stack(values, dim=axis)
 
     def pad_stack(self, tensors, shape, pad_value=0):
-        result = torch.full((len(tensors), *shape), pad_value)
-        for i, tensor in enumerate(tensors):
-            slices = [slice(s) for s in tensor.shape]
-            result[(i, *slices)] = tensor
-        return result
+        tensors = self.auto_cast(*tensors)
+        if len(tensors) > 32:
+            result = torch.full((len(tensors), *shape), pad_value, dtype=tensors[0].dtype, device=tensors[0].device)
+            for i, tensor in enumerate(tensors):
+                slices = [slice(s) for s in tensor.shape]
+                result[(i, *slices)] = tensor
+            return result
+        # --- Pad + stack for fewer tensors ---
+        padded_tensors = []
+        for tensor in tensors:
+            pad_pairs = []
+            for i in reversed(range(len(shape))):
+                if i < len(tensor.shape):
+                    pad_right = shape[i] - tensor.shape[i]
+                    pad_pairs.extend([0, pad_right])
+                else:
+                    pad_pairs.extend([0, shape[i]])
+            for _ in range(len(shape) - len(tensor.shape)):
+                pad_pairs = [0, 0] + pad_pairs
+            padded = torchf.pad(tensor, pad_pairs, value=pad_value)
+            padded_tensors.append(padded)
+        return torch.stack(padded_tensors)
 
     def concat(self, values, axis):
         values = [self.as_tensor(v) for v in values]
