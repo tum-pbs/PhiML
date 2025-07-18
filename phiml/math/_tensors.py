@@ -1231,6 +1231,8 @@ class Dense(Tensor):
         perm = []
         slices = []
         tile = []
+        needs_slice = False
+        needs_tile = False
         for group in groups:
             for dim in group:
                 if dim.name in self._names:
@@ -1239,10 +1241,14 @@ class Dense(Tensor):
                     tile.append(1)
                 else:
                     slices.append(None)
+                    needs_slice = True
                     tile.append(dim.size)
+                    needs_tile = needs_tile or dim.size > 1
         native = self._backend.transpose(native, perm)
-        native = native[tuple(slices)]
-        native = self._backend.tile(native, tile)
+        if needs_slice:
+            native = native[tuple(slices)]
+        if needs_tile:
+            native = self._backend.tile(native, tile)
         native = self._backend.reshape(native, [g.volume if g.well_defined else -1 for g in groups])
         return native
 
