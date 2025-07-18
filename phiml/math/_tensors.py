@@ -1287,16 +1287,13 @@ class Dense(Tensor):
 
     def __pack_dims__(self, dims: Shape, packed_dim: Shape, pos: Union[int, None], **kwargs) -> 'Tensor':
         groups = [dim for dim in self.shape if dim not in dims]
+        names = [dim.name for dim in self.shape if dim not in dims]
         i0 = self.shape.index(dims[0])
         groups.insert(i0, dims)
+        names.insert(i0, packed_dim.name)
         native = self._reshaped_native(groups)
-        if pos is None:
-            pos = min(self.shape.indices(dims.names))
-        packed_dim = packed_dim.with_sizes([dims.volume])
-        remaining = self.shape - dims
-        new_shape = concat_shapes_(remaining[:pos], packed_dim, remaining[pos:])
-        native = self.backend.reshape(native, new_shape.sizes)
-        return Dense(native, new_shape.names, new_shape, self.backend)
+        new_shape = packed_dim.with_sizes([dims.volume]) & (self.shape - dims)
+        return Dense(native, names, new_shape, self.backend)
 
     @property
     def collapsed_dims(self):

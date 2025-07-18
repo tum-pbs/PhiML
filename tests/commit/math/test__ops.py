@@ -329,7 +329,7 @@ class TestOps(TestCase):
     def test_join_dimensions(self):
         grid = math.random_normal(batch(batch=10) & spatial(x=4, y=3) & channel(vector=2))
         points = math.pack_dims(grid, grid.shape.spatial, instance('points'))
-        self.assertEqual(('batch', 'points', 'vector'), points.shape.names)
+        self.assertEqual({'batch', 'points', 'vector'}, set(points.shape.names))
         self.assertEqual(grid.shape.volume, points.shape.volume)
         self.assertEqual(grid.shape.non_spatial, points.shape.non_instance)
 

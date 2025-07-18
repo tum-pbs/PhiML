@@ -3,7 +3,7 @@ from unittest import TestCase
 import numpy
 import numpy as np
 
-from phiml import math
+from phiml import math, pack_dims, unpack_dim
 from phiml.backend import Backend
 from phiml.backend._backend import init_installed_backends
 from phiml.math import channel, batch, DType, vec, stack, expand, arange, randn, f
@@ -703,3 +703,11 @@ class TestTensors(TestCase):
             math.save(files, data)
             math.assert_close(data.b[0], math.load("data/test_0.npz"))
             math.assert_close(data, math.load(files))
+
+    def test_pack_dims(self):
+        data = wrap([[1, 2, 3], [4, 5, 6]], spatial('u,v'))
+        data = vec(x=data, y=-data)
+        data = stack(tuple(data.u), spatial('u'))
+        packed = pack_dims(data, 'v,u', 'tmp:i')
+        unpacked = unpack_dim(packed, 'tmp', spatial(v=3, u=2))
+        math.assert_close(data, unpacked)
