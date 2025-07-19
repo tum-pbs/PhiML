@@ -5,7 +5,7 @@ from numbers import Number
 from typing import Callable, Tuple, Union, Optional
 
 import numpy as np
-from phiml.backend._backend import TensorType, TensorOrArray
+from ..backend._backend import TensorType, TensorOrArray
 from scipy.sparse import csr_matrix
 from scipy.sparse.linalg import aslinearoperator
 
@@ -1461,7 +1461,7 @@ def matrix_rank(matrix: Tensor) -> Tensor:
             nat_mat = native_matrix(matrix, matrix.default_backend)
             scipy_result = matrix.default_backend.numpy_call(scipy_determine_rank, (), INT64, nat_mat)
             return wrap(scipy_result)
-        from phiml.math._ops import broadcast_op
+        from ._ops import broadcast_op
         return broadcast_op(single_sparse_rank, [matrix], batch(matrix))
     else:  # dense
         native = matrix.native([batch, primal, dual], force_expand=True)

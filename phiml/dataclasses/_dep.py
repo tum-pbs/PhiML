@@ -4,7 +4,7 @@ import inspect
 from functools import cached_property
 from typing import Set
 
-from phiml.backend import ML_LOGGER
+from ..backend import ML_LOGGER
 
 
 def get_unchanged_cache(obj, updated_fields: Set[str]):

@@ -9,7 +9,7 @@ import numpy as np
 
 from ..backend import default_backend, choose_backend, Backend, get_precision, convert as b_convert, BACKENDS, NoBackendFound, ComputeDevice, NUMPY
 from ..backend._dtype import DType, combine_types, INT32
-from phiml.backend import xops
+from ..backend import xops
 from .magic import PhiTreeNode
 from ._magic_ops import expand, pack_dims, unpack_dim, cast, value_attributes, bool_to_int, tree_map, concat, stack, unstack, rename_dims, slice_, all_attributes, squeeze, ipack
 from ._shape import (Shape, EMPTY_SHAPE,
@@ -3706,14 +3706,14 @@ def pairwise_differences(positions: Tensor,
         native_positions = positions._reshaped_native([primal_dims, channel(positions)])
         native_max_dist = max_distance.native()
         if method == 'sparse':
-            from phiml.backend._partition import find_neighbors_sparse
+            from ..backend._partition import find_neighbors_sparse
             nat_rows, nat_cols, nat_deltas = find_neighbors_sparse(native_positions, native_max_dist, domain, periodic=periodic, default=default, index_dtype=index_dtype, avg_neighbors=avg_neighbors)
             nat_indices = backend.stack([nat_rows, nat_cols], -1)
             indices = reshaped_tensor(nat_indices, [instance('pairs'), channel(vector=primal_dims.names + dual_dims.names)], convert=False)
             deltas = reshaped_tensor(nat_deltas, [instance('pairs'), channel(positions)], convert=False)
             return SparseCoordinateTensor(indices, deltas, primal_dims & dual_dims, can_contain_double_entries=False, indices_sorted=True, indices_constant=False)
         elif method == 'scipy-kd':
-            from phiml.backend._partition import find_neighbors_scipy_kd
+            from ..backend._partition import find_neighbors_scipy_kd
             nat_idx, nat_ptr, nat_deltas = find_neighbors_scipy_kd(native_positions, native_max_dist, avg_neighbors, index_dtype)
             indices = reshaped_tensor(nat_idx, [instance('pairs')], convert=False)
             pointers = reshaped_tensor(nat_ptr, [instance('pointers')], convert=False)

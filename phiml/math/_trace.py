@@ -1,21 +1,19 @@
 import operator
 from collections import namedtuple
-from typing import Callable, Dict, Set, Tuple, Union, Any, Optional, Sequence, List, Collection
+from typing import Callable, Dict, Set, Tuple, Union, Optional, Sequence
 
 import numpy
 import numpy as np
-from phiml.backend import get_precision
-from scipy.sparse import csr_matrix
 
-from ..backend import choose_backend, NUMPY, Backend
-from ._ops import backend_for, concat_tensor, scatter, zeros_like
-from ._shape import Shape, parse_dim_order, merge_shapes, spatial, instance, batch, concat_shapes, EMPTY_SHAPE, dual, channel, non_batch, primal, non_channel, DEBUG_CHECKS, \
-    after_gather, concat_shapes_
-from ._magic_ops import stack, expand, rename_dims, unpack_dim, unstack, value_attributes
-from ._tensors import Tensor, wrap, disassemble_tree, disassemble_tensors, assemble_tree, TensorStack, may_vary_along, \
-    discard_constant_dims, variable_shape, Dense, equality_by_shape_and_value
-from ._sparse import SparseCoordinateTensor, is_sparse, sparse_dims, same_sparsity_pattern, sparse_tensor, stored_indices, stored_values, add_sparse_batch_dim
 from . import _ops as math
+from ._magic_ops import stack, expand, rename_dims, unpack_dim, value_attributes
+from ._ops import backend_for, concat_tensor, scatter
+from ._shape import Shape, merge_shapes, instance, batch, EMPTY_SHAPE, dual, channel, non_batch, non_channel, DEBUG_CHECKS, \
+    after_gather, concat_shapes_
+from ._sparse import SparseCoordinateTensor, is_sparse, sparse_dims, sparse_tensor, stored_indices, stored_values, add_sparse_batch_dim
+from ._tensors import Tensor, wrap, disassemble_tree, assemble_tree, TensorStack, discard_constant_dims, variable_shape, Dense
+from ..backend import choose_backend, NUMPY, Backend
+from ..backend import get_precision
 from ..backend._dtype import combine_types
 
 TracerSource = namedtuple('TracerSource', ['shape', 'dtype', 'name', 'index'])

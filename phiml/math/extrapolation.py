@@ -1583,7 +1583,7 @@ class _ConditionalExtrapolation(Extrapolation):
         return math.where(mask, p_true, p_false)
 
     def pad(self, value: Tensor, widths: dict, already_padded: Optional[dict] = None, **kwargs) -> Tensor:
-        from phiml.math._trace import ShiftLinTracer
+        from ._trace import ShiftLinTracer
         if isinstance(value, ShiftLinTracer):
             mask = self.mask
             if already_padded:
@@ -1655,7 +1655,7 @@ def where(mask: Tensor, true_ext, false_ext) -> Extrapolation:
     """
     true_ext = as_extrapolation(true_ext)
     false_ext = as_extrapolation(false_ext)
-    from phiml.math import always_close
+    from ._ops import always_close
     if always_close(mask, True):
         return true_ext
     elif always_close(mask, False):

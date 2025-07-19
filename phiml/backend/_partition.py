@@ -297,7 +297,7 @@ def find_neighbors_scipy_kd(positions: TensorType,
     from scipy.spatial import KDTree
     b = choose_backend(positions, cutoff)
     n, d = b.staticshape(positions)
-    from phiml.backend._buffer import register_buffer_deferred
+    from ._buffer import register_buffer_deferred
     index_buffer, provide_size = register_buffer_deferred('pairs', [positions, cutoff], int(n * avg_neighbors))
     def perform_query(np_positions, np_r):
         dtype = to_numpy_dtype(index_dtype)

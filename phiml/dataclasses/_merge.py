@@ -2,12 +2,10 @@ import dataclasses
 from functools import cached_property
 from typing import Sequence, Union, Callable
 
-from phiml.dataclasses import replace
-from phiml.math import Tensor
-from phiml.math._magic_ops import stack
-from phiml.math._shape import Shape, NotCompatible
-from phiml.dataclasses._dataclasses import is_data_field
-
+from ..math import Tensor
+from ..math._magic_ops import stack
+from ..math._shape import Shape, NotCompatible
+from ._dataclasses import replace, is_data_field
 
 def merge_rule(field_name: str, rule: Union[str, Callable] = 'default', simplify=True):
     def wrap(cls):

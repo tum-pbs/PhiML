@@ -939,7 +939,7 @@ def all_attributes(obj, assert_any=False) -> Tuple[str, ...]:
     if hasattr(obj, '__value_attrs__'):
         result.update(obj.__value_attrs__())
     if dataclasses.is_dataclass(obj) and not hasattr(obj, '__variable_attrs__') and not hasattr(obj, '__value_attrs__'):
-        from phiml.dataclasses import data_fields
+        from ..dataclasses import data_fields
         result.update([f.name for f in data_fields(obj)])
     if assert_any:
         assert result, f"{type(obj).__name__} is not a valid tree node because it has no tensor-like attributes."
@@ -1077,7 +1077,7 @@ def tree_map(f, tree, attr_type=value_attributes, include_non_attrs=True, treat_
         new_attrs = {k: tree_map(f, v, attr_type, include_non_attrs, treat_layout_as_leaf, **f_kwargs) for k, v in attrs.items()}
         return copy_with(tree, **new_attrs)
     else:
-        from phiml.dataclasses._dataclasses import NON_ATTR_TYPES
+        from ..dataclasses._dataclasses import NON_ATTR_TYPES
         if include_non_attrs or not isinstance(tree, NON_ATTR_TYPES):
             return f(tree, **f_kwargs)  # try anyway
         return tree

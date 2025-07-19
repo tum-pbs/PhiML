@@ -2,15 +2,14 @@ import collections
 import dataclasses
 from dataclasses import dataclass
 from functools import cached_property, partial
-from typing import TypeVar, Callable, Tuple, List, Set, Iterable, Optional, get_origin, get_args, Dict, Sequence, Union, Any
+from typing import TypeVar, Callable, Tuple, List, Set, Iterable, Optional, get_origin, get_args, Dict, Sequence, Any
 
-from phiml import rename_dims
-from phiml.dataclasses._dep import get_unchanged_cache
-from phiml.math import DimFilter, shape, Shape
-from phiml.math._magic_ops import slice_, variable_attributes
-from phiml.math._shape import SHAPE_TYPES, INSTANCE_DIM, CHANNEL_DIM, SPATIAL_DIM
-from phiml.math._tensors import disassemble_tree, Tensor, assemble_tree, equality_by_shape_and_value, equality_by_ref
-from phiml.math.magic import slicing_dict, BoundDim
+from ..math import rename_dims, DimFilter, shape, Shape
+from ..math._magic_ops import slice_, variable_attributes
+from ..math._shape import SHAPE_TYPES, INSTANCE_DIM, CHANNEL_DIM, SPATIAL_DIM
+from ..math._tensors import disassemble_tree, Tensor, assemble_tree, equality_by_shape_and_value, equality_by_ref
+from ..math.magic import slicing_dict, BoundDim
+from ._dep import get_unchanged_cache
 
 PhiMLDataclass = TypeVar("PhiMLDataclass")
 

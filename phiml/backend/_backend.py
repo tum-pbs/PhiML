@@ -1860,7 +1860,7 @@ def get_backend(backend):
     Args:
         backend: `Backend` or `str` or `module`.
     """
-    from phiml.backend._profile import ProfilingBackend
+    from ._profile import ProfilingBackend
     if isinstance(backend, (Backend, ProfilingBackend)):
         return backend
     if not isinstance(backend, str):  # module
