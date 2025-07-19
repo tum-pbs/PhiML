@@ -363,13 +363,11 @@ def create_double_conv(d: int, out_channels: int, mid_channels: int, batch_norm:
 
 
 def create_upsample():
-    # def upsample_init(rng, input_shape):
-    #     return shape, []
     def upsample_apply(params, inputs, **kwargs):
-        x = math.wrap(inputs, math.batch('batch'), *[math.spatial(f'{i}') for i in range(len(inputs.shape) - 2)],
-                      math.channel('vector'))
+        dims = [math.batch('batch'), *[math.spatial(f'{i}') for i in range(len(inputs.shape) - 2)], math.channel('vector')]
+        x = math.wrap(inputs, dims)
         x = math.upsample2x(x)
-        return x.native(x.shape)
+        return x.native([d.name for d in dims])
     return NotImplemented, upsample_apply
 
 
