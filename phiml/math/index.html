@@ -139,7 +139,7 @@ from ._ops import (
     zeros, ones, fftfreq, random_normal, random_normal as randn, random_uniform, random_uniform as rand,
     meshgrid, linspace, arange, arange as range, range_tensor, brange, drange, irange, srange, crange,  # creation operators (use default backend)
     zeros_like, ones_like,
-    pad,
+    pad, pad_to_uniform,
     swap_axes,  # reshape operations
     sort, dsort, psort, isort, ssort, csort,
     safe_div,
@@ -3362,6 +3362,21 @@ These are ignored by the standard extrapolations defined in <code><a title="phim
 <pre><code class="language-python-repl">&gt;&gt;&gt; math.pad(math.ones(spatial(x=10, y=10)), {'x': (1, -1)}, 0)
 (xˢ=10, yˢ=10) 0.900 ± 0.300 (0e+00...1e+00)
 </code></pre></div>
+</dd>
+<dt id="phiml.math.pad_to_uniform"><code class="name flex">
+<span>def <span class="ident">pad_to_uniform</span></span>(<span>x: phiml.math._tensors.Tensor, target_shape: phiml.math._shape.Shape = ())</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Pads a possibly non-uniform to the smallest uniform shape that fits all elements.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>x</code></strong></dt>
+<dd>Value to pad. Can be uniform or non-uniform.</dd>
+<dt><strong><code>target_shape</code></strong></dt>
+<dd>Override size along any dims in order to add more padding.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<p>Uniform <code><a title="phiml.math.Tensor" href="#phiml.math.Tensor">Tensor</a></code></p></div>
 </dd>
 <dt id="phiml.math.pairwise_differences"><code class="name flex">
 <span>def <span class="ident">pairwise_differences</span></span>(<span>positions: phiml.math._tensors.Tensor, max_distance: Union[float, phiml.math._tensors.Tensor] = None, format: Union[str, phiml.math._tensors.Tensor] = 'dense', domain: Optional[Tuple[phiml.math._tensors.Tensor, phiml.math._tensors.Tensor]] = None, periodic: Union[phiml.math._tensors.Tensor, bool] = False, method: str = 'auto', default: float = nan, avg_neighbors=8.0) ‑> phiml.math._tensors.Tensor</span>
@@ -8757,6 +8772,8 @@ When backed by an editable native tensor, e.g. a <code>numpy.ndarray</code>, do 
         return result
 
     def __getitem__(self, item) -&gt; &#39;Tensor&#39;:
+        if item is None:
+            return self
         if isinstance(item, Tensor):
             if item.dtype.kind == bool:
                 from ._ops import boolean_mask
@@ -9873,6 +9890,7 @@ If a dimension of the tensor is not listed in <code>order</code>, a <code>ValueE
 <li><code><a title="phiml.math.p2d" href="#phiml.math.p2d">p2d</a></code></li>
 <li><code><a title="phiml.math.pack_dims" href="#phiml.math.pack_dims">pack_dims</a></code></li>
 <li><code><a title="phiml.math.pad" href="#phiml.math.pad">pad</a></code></li>
+<li><code><a title="phiml.math.pad_to_uniform" href="#phiml.math.pad_to_uniform">pad_to_uniform</a></code></li>
 <li><code><a title="phiml.math.pairwise_differences" href="#phiml.math.pairwise_differences">pairwise_differences</a></code></li>
 <li><code><a title="phiml.math.pairwise_distances" href="#phiml.math.pairwise_distances">pairwise_distances</a></code></li>
 <li><code><a title="phiml.math.perf_counter" href="#phiml.math.perf_counter">perf_counter</a></code></li>

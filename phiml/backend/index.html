@@ -337,8 +337,8 @@ The methods of <code><a title="phiml.backend.Backend" href="#phiml.backend.Backe
 
     def auto_cast(self, *tensors, bool_to_int=False, int_to_float=False) -&gt; list:
         &#34;&#34;&#34;
-        Determins the appropriate values type resulting from operations involving the tensors as input.
-        
+        Determines the appropriate values type resulting from operations involving the tensors as input.
+
         This method is called by the default implementations of basic operators.
         Backends can override this method to prevent unnecessary casting.
 
@@ -447,6 +447,12 @@ The methods of <code><a title="phiml.backend.Backend" href="#phiml.backend.Backe
             tensor: Existing tensor native to this backend.
             device: Target device, associated with this backend.
         &#34;&#34;&#34;
+        raise NotImplementedError(self.__class__)
+
+    def get_peak_memory(self, device: ComputeDevice):
+        raise NotImplementedError(self.__class__)
+
+    def reset_peak_memory(self, device: ComputeDevice):
         raise NotImplementedError(self.__class__)
 
     def seed(self, seed: int):
@@ -733,6 +739,13 @@ The methods of <code><a title="phiml.backend.Backend" href="#phiml.backend.Backe
             return {k: self.stack_leaves([tree[k] for tree in trees], axis=axis) for k in tree0}
         else:
             return self.stack(trees, axis=axis)
+
+    def pad_stack(self, tensors, shape, pad_value=0):
+        padded = []
+        for t in tensors:
+            widths = [(0, target - current) for target, current in zip(shape, self.shape(t))]
+            padded.append(self.pad(t, widths, constant_values=pad_value))
+        return self.stack(padded)
 
     def concat(self, values, axis):
         raise NotImplementedError(self)
@@ -2100,7 +2113,7 @@ If x is a Python number (numbers.Number instance), <code>convert_numbers</code> 
 <span>def <span class="ident">auto_cast</span></span>(<span>self, *tensors, bool_to_int=False, int_to_float=False) ‑> list</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Determins the appropriate values type resulting from operations involving the tensors as input.</p>
+<div class="desc"><p>Determines the appropriate values type resulting from operations involving the tensors as input.</p>
 <p>This method is called by the default implementations of basic operators.
 Backends can override this method to prevent unnecessary casting.</p>
 <h2 id="args">Args</h2>
@@ -2681,6 +2694,12 @@ Higher dimensions may not be supported.</p>
 <dt><code>diagonal</code></dt>
 <dd>(batch, max(rows,cols), channels)</dd>
 </dl></div>
+</dd>
+<dt id="phiml.backend.Backend.get_peak_memory"><code class="name flex">
+<span>def <span class="ident">get_peak_memory</span></span>(<span>self, device: phiml.backend._backend.ComputeDevice)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
 </dd>
 <dt id="phiml.backend.Backend.get_sparse_format"><code class="name flex">
 <span>def <span class="ident">get_sparse_format</span></span>(<span>self, x) ‑> str</span>
@@ -3287,6 +3306,12 @@ Use <code>is_available(tensor)</code> to check if the value can be represented a
 <h2 id="returns">Returns</h2>
 <p>padded tensor or <code>NotImplemented</code></p></div>
 </dd>
+<dt id="phiml.backend.Backend.pad_stack"><code class="name flex">
+<span>def <span class="ident">pad_stack</span></span>(<span>self, tensors, shape, pad_value=0)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
 <dt id="phiml.backend.Backend.pad_to"><code class="name flex">
 <span>def <span class="ident">pad_to</span></span>(<span>self, x, axis, new_size, fill_value)</span>
 </code></dt>
@@ -3399,6 +3424,12 @@ Use <code>is_available(tensor)</code> to check if the value can be represented a
 </dd>
 <dt id="phiml.backend.Backend.requires_fixed_shapes_when_tracing"><code class="name flex">
 <span>def <span class="ident">requires_fixed_shapes_when_tracing</span></span>(<span>self) ‑> bool</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="phiml.backend.Backend.reset_peak_memory"><code class="name flex">
+<span>def <span class="ident">reset_peak_memory</span></span>(<span>self, device: phiml.backend._backend.ComputeDevice)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -4420,6 +4451,7 @@ To prevent this, run the function before profiling it, see <code>warmup</code> i
 <li><code><a title="phiml.backend.Backend.get_device" href="#phiml.backend.Backend.get_device">get_device</a></code></li>
 <li><code><a title="phiml.backend.Backend.get_device_by_ref" href="#phiml.backend.Backend.get_device_by_ref">get_device_by_ref</a></code></li>
 <li><code><a title="phiml.backend.Backend.get_diagonal" href="#phiml.backend.Backend.get_diagonal">get_diagonal</a></code></li>
+<li><code><a title="phiml.backend.Backend.get_peak_memory" href="#phiml.backend.Backend.get_peak_memory">get_peak_memory</a></code></li>
 <li><code><a title="phiml.backend.Backend.get_sparse_format" href="#phiml.backend.Backend.get_sparse_format">get_sparse_format</a></code></li>
 <li><code><a title="phiml.backend.Backend.greater_or_equal" href="#phiml.backend.Backend.greater_or_equal">greater_or_equal</a></code></li>
 <li><code><a title="phiml.backend.Backend.greater_than" href="#phiml.backend.Backend.greater_than">greater_than</a></code></li>
@@ -4477,6 +4509,7 @@ To prevent this, run the function before profiling it, see <code>warmup</code> i
 <li><code><a title="phiml.backend.Backend.ones_like" href="#phiml.backend.Backend.ones_like">ones_like</a></code></li>
 <li><code><a title="phiml.backend.Backend.or_" href="#phiml.backend.Backend.or_">or_</a></code></li>
 <li><code><a title="phiml.backend.Backend.pad" href="#phiml.backend.Backend.pad">pad</a></code></li>
+<li><code><a title="phiml.backend.Backend.pad_stack" href="#phiml.backend.Backend.pad_stack">pad_stack</a></code></li>
 <li><code><a title="phiml.backend.Backend.pad_to" href="#phiml.backend.Backend.pad_to">pad_to</a></code></li>
 <li><code><a title="phiml.backend.Backend.pow" href="#phiml.backend.Backend.pow">pow</a></code></li>
 <li><code><a title="phiml.backend.Backend.precision" href="#phiml.backend.Backend.precision">precision</a></code></li>
@@ -4492,6 +4525,7 @@ To prevent this, run the function before profiling it, see <code>warmup</code> i
 <li><code><a title="phiml.backend.Backend.real" href="#phiml.backend.Backend.real">real</a></code></li>
 <li><code><a title="phiml.backend.Backend.repeat" href="#phiml.backend.Backend.repeat">repeat</a></code></li>
 <li><code><a title="phiml.backend.Backend.requires_fixed_shapes_when_tracing" href="#phiml.backend.Backend.requires_fixed_shapes_when_tracing">requires_fixed_shapes_when_tracing</a></code></li>
+<li><code><a title="phiml.backend.Backend.reset_peak_memory" href="#phiml.backend.Backend.reset_peak_memory">reset_peak_memory</a></code></li>
 <li><code><a title="phiml.backend.Backend.reshape" href="#phiml.backend.Backend.reshape">reshape</a></code></li>
 <li><code><a title="phiml.backend.Backend.round" href="#phiml.backend.Backend.round">round</a></code></li>
 <li><code><a title="phiml.backend.Backend.scatter" href="#phiml.backend.Backend.scatter">scatter</a></code></li>
