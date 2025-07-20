@@ -850,6 +850,10 @@ class Backend:
         """
         raise NotImplementedError(self)
 
+    def sizeof(self, tensor) -> int:
+        """Returns the size in bytes"""
+        raise NotImplementedError(self)
+
     def cast(self, x, dtype: DType):
         raise NotImplementedError(self)
 

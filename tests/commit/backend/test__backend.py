@@ -243,3 +243,7 @@ class TestBackends(TestCase):
             self.assertEqual('torch', default.name)
             self.assertEqual('profile[torch]', str(default))
 
+    def test_ravel_multi_index(self):
+        for b in BACKENDS:
+            ints = b.zeros((2, 3), DType(int, 32))
+            self.assertEqual(2*3*4, b.sizeof(ints))

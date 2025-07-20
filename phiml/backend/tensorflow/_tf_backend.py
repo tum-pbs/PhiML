@@ -533,6 +533,12 @@ class TFBackend(Backend):
         else:
             return np.shape(tensor)
 
+    def sizeof(self, tensor) -> int:
+        element_size = self.dtype(tensor).bits // 8
+        s = self.staticshape(tensor)
+        assert None not in s
+        return np.prod(s) * element_size
+
     def gather(self, values, indices, axis: int):
         with self._device_for(values, indices):
             indices = indices % self.cast(self.shape(values)[axis], self.dtype(indices))

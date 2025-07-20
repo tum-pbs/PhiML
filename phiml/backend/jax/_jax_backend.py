@@ -98,6 +98,9 @@ class JaxBackend(Backend):
             return all([self.is_tensor(item, False) for item in x])
         return False
 
+    def sizeof(self, tensor) -> int:
+        return tensor.nbytes
+
     def is_sparse(self, x) -> bool:
         return isinstance(x, (COO, BCOO, CSR, CSC))
 
