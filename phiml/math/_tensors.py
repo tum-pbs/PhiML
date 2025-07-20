@@ -1534,6 +1534,10 @@ class TensorStack(Tensor):
         # assert not self.shape.is_non_uniform, f"Cannot convert non-uniform tensor with shape {self.shape} to native tensor."
         # return self._contiguous().native(order=order, force_expand=force_expand)
 
+    @property
+    def available(self) -> bool:
+        return all(t.available for t in self._tensors)
+
     def _contiguous(self) -> Tensor:
         assert not self.requires_broadcast
         if all([t.shape.is_uniform for t in self._tensors]):
@@ -2765,7 +2769,7 @@ def format_tracer(self: Tensor, options: PrintOptions) -> str:
     if self._is_tracer:
         return f"{colors.shape(self.shape)} {colors.dtype(self.dtype)} {colors.value(f'linear tracer for {self.default_backend}')}"
     else:
-        return f"{colors.shape(self.shape)} {colors.dtype(self.dtype)} {colors.value(f'{self.default_backend} tracer')}"
+        return f"{colors.shape(self.shape)} {colors.dtype(self.dtype)} {colors.value(f'{self.default_backend} ref/tracer')}"
 
 
 def format_full(value: Tensor, options: PrintOptions) -> str:  # multi-line content
@@ -3193,6 +3197,8 @@ def backend_for(*values: Tensor) -> Backend:
 
     """
     backends = tuple([v.backend for v in values])
+    if len(set(backends)) == 1:
+        return backends[0]
     result = _BACKEND_RULES.get(backends, None)
     if result is not None:
         return result

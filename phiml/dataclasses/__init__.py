@@ -46,4 +46,6 @@ from functools import cached_property
 
 from ._dataclasses import sliceable, data_fields, non_data_fields, config_fields, special_fields, replace, copy, getitem, equal, data_eq
 
+from ._parallel import parallel_compute, parallel_property
+
 __all__ = [key for key in globals().keys() if not key.startswith('_')]
