@@ -71,7 +71,7 @@ def slice_(value: PhiTreeNodeType, slices: Union[Dict[str, Union[int, slice, str
     raise ValueError(f"value must be a PhiTreeNode but got {type(value)}")
 
 
-def unstack(value, dim: DimFilter) -> tuple:
+def unstack(value, dim: DimFilter, expand=False) -> tuple:
     """
     Un-stacks a `Sliceable` along one or multiple dimensions.
 
@@ -84,6 +84,7 @@ def unstack(value, dim: DimFilter) -> tuple:
     Args:
         value: `phiml.math.magic.Shapable`, such as `phiml.math.Tensor`
         dim: Dimensions as `Shape` or comma-separated `str` or dimension type, i.e. `channel`, `spatial`, `instance`, `batch`.
+        expand: If `True`, `dim` must be a `Shape` and the returned tuple will have length `dim.volume`. Otherwise, only existing dims are unstacked.
 
     Returns:
         `tuple` of objects matching the type of `value`.
@@ -95,6 +96,11 @@ def unstack(value, dim: DimFilter) -> tuple:
     if DEBUG_CHECKS:
         assert isinstance(value, Sliceable) and isinstance(value, Shaped), f"Cannot unstack {type(value).__name__}. Must be Sliceable and Shaped, see https://tum-pbs.github.io/PhiML/phiml/math/magic.html"
     dims = shape(value).only(dim, reorder=True)
+    if expand:
+        assert isinstance(dim, Shape)
+        if dim not in dims:
+            value = expand_(value, dim)
+        dims = dim
     if dims.rank == 0:
         return value,
     if dims.rank == 1:
@@ -538,6 +544,9 @@ def expand(value, *dims: Union[Shape, str], **kwargs):
     except ValueError:
         raise AssertionError(f"Cannot expand non-shapable object {type(value)}")
     return expand_tensor(value, dims)
+
+
+expand_ = expand
 
 
 def squeeze(x: PhiTreeNodeType, dims: DimFilter) -> PhiTreeNodeType:
