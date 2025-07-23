@@ -1122,7 +1122,7 @@ def _recursive_diff(a, b, path: str, result: list, compare_tensors_by_id=False, 
         raise NotImplementedError
     if isinstance(a, Tensor) or isinstance(b, Tensor):
         if not isinstance(a, Tensor) or not isinstance(b, Tensor):
-            result.append(("Only one value is a Tensor", path, a, b))
+            result.append((f"Only one value is a Tensor: {type(a).__name__} vs {type(b).__name__}", path, a, b))
             return
         if compare_tensors_by_id:
             if a is not b:
@@ -1132,21 +1132,21 @@ def _recursive_diff(a, b, path: str, result: list, compare_tensors_by_id=False, 
                 from ._ops import equal
                 tensor_equality = partial(equal, equal_nan=True)
             if a.shape != b.shape:
-                result.append(("Tensor shapes do not match", path, a, b))
+                result.append((f"Tensor shapes do not match: {a.shape} vs {b.shape}", path, a, b))
             elif not tensor_equality(a, b):
-                result.append(("Tensor values do not match", path, a, b))
+                result.append((f"Tensor values do not match", path, a, b))
     elif type(a) != type(b):
-        result.append(("Types do not match", path, a, b))
+        result.append((f"Types do not match: {type(a).__name__} vs {type(b).__name__}", path, a, b))
         return
     elif isinstance(a, (tuple, list)):
         if len(a) != len(b):
-            result.append(("Lengths do not match", path, a, b))
+            result.append((f"Lengths do not match: {len(a)} vs {len(b)}", path, a, b))
         else:
             for i, (ae, be) in enumerate(zip(a, b)):
                 _recursive_diff(ae, be, f"{path}[{i}]", result, compare_tensors_by_id, attr_type, tensor_equality)
     elif isinstance(a, dict):
         if set(a) != set(b):
-            result.append(("Keys do not match", path, a, b))
+            result.append((f"Keys do not match: {set(a)} vs {set(b)}", path, a, b))
         else:
             for k, av in a.items():
                 bv = b[k]
@@ -1154,7 +1154,7 @@ def _recursive_diff(a, b, path: str, result: list, compare_tensors_by_id=False, 
     elif isinstance(a, PhiTreeNode):
         a_attrs = attr_type(a)
         if set(a_attrs) != set(attr_type(b)):
-            result.append(("Keys do not match", path, a, b))
+            result.append((f"Available properties do not match: {set(a_attrs)} vs {set(attr_type(b))}", path, a, b))
         else:
             for k in a_attrs:
                 av = getattr(a, k)
@@ -1164,11 +1164,12 @@ def _recursive_diff(a, b, path: str, result: list, compare_tensors_by_id=False, 
         try:
             backend = choose_backend(a, b)
             if backend.shape(a) != backend.shape(b):
-                result.append(("Native tensor shapes do not match", path, a, b))
-            equal_tensor = backend.equal(a, b) | (backend.isnan(a) & backend.isnan(b))
-            equal = backend.numpy(backend.all(equal_tensor))
-            if not equal:
-                result.append(("Native tensor values do not match", path, a, b))
+                result.append((f"Shapes do not match: {backend.shape(a)} vs {backend.shape(b)}", path, a, b))
+            else:
+                equal_tensor = backend.equal(a, b) | (backend.isnan(a) & backend.isnan(b))
+                equal = backend.numpy(backend.all(equal_tensor))
+                if not equal:
+                    result.append(("Values do not match", path, a, b))
         except NoBackendFound:
             if a != b:
                 result.append(("Values do not match", path, a, b))
