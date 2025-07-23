@@ -11,7 +11,7 @@ from numpy.core.numeric import indices
 from packaging import version
 from torch.jit import TracerWarning
 
-from .._dtype import DType
+from .._dtype import DType, FLOAT16, FLOAT32, FLOAT64, COMPLEX64, COMPLEX128, INT8, INT16, INT32, INT64, UINT8, UINT16, UINT32, UINT64, BOOL, BF16
 from .. import Backend, NUMPY, ComputeDevice, ML_LOGGER
 from .._backend import combined_dim, SolveResult, get_functional_derivative_order, TensorType, map_structure
 
@@ -471,7 +471,7 @@ class TorchBackend(Backend):
     def sort(self, x, axis=-1):
         return torch.sort(x, axis)[0]
 
-    def searchsorted(self, sorted_sequence, search_values, side: str, dtype=DType(int, 32)):
+    def searchsorted(self, sorted_sequence, search_values, side: str, dtype=INT32):
         int32 = {32: True, 64: False}[dtype.bits]
         return torch.searchsorted(sorted_sequence, search_values, right=side == 'right', side=side, out_int32=int32)
 
@@ -497,7 +497,7 @@ class TorchBackend(Backend):
             value = self.to_float(value)
         return torch.mean(value, dim=axis, keepdim=keepdims)
 
-    def range(self, start, limit=None, delta=1, dtype: DType = DType(int, 32)):
+    def range(self, start, limit=None, delta=1, dtype: DType = INT32):
         if limit is None:
             start, limit = 0, start
         start = start.item() if isinstance(start, np.ndarray) else start
@@ -814,7 +814,7 @@ class TorchBackend(Backend):
         if dtype.kind == complex:
             return torch.imag(x)
         else:
-            return self.zeros(x.shape, DType(float, dtype.precision))
+            return self.zeros(x.shape, DType.by_precision(float, dtype.precision))
 
     def real(self, x):
         if self.dtype(x).kind == complex:
@@ -1318,20 +1318,33 @@ def from_torch_dtype(torch_dtype):
         return _FROM_TORCH[torch_dtype]
     else:
         kind = {'i': int, 'b': bool, 'f': float, 'c': complex}[torch_dtype.kind]
-        return DType(kind, torch_dtype.itemsize * 8)
+        return DType(kind, torch_dtype.itemsize * 8, None, None, None, None, None)
 
 
 _TO_TORCH = {
-    DType(float, 16): torch.float16,
-    DType(float, 32): torch.float32,
-    DType(float, 64): torch.float64,
-    DType(complex, 64): torch.complex64,
-    DType(complex, 128): torch.complex128,
-    DType(int, 8): torch.int8,
-    DType(int, 16): torch.int16,
-    DType(int, 32): torch.int32,
-    DType(int, 64): torch.int64,
-    DType(bool): torch.bool,
+    BOOL: torch.bool,
+    # --- Int ---
+    INT8: torch.int8,
+    INT16: torch.int16,
+    INT32: torch.int32,
+    INT64: torch.int64,
+    UINT8: torch.uint8,
+    UINT16: torch.uint16,
+    UINT32: torch.uint32,
+    UINT64: torch.uint64,
+    # --- Float ---
+    FLOAT16: torch.float16,
+    BF16: torch.bfloat16,
+    FLOAT32: torch.float32,
+    FLOAT64: torch.float64,
+    DType(float, 8, False, 4, 3, True, False): torch.float8_e4m3fn,
+    DType(float, 8, False, 4, 3, True, True): torch.float8_e4m3fnuz,
+    DType(float, 8, False, 5, 2, False, False): torch.float8_e5m2,
+    DType(float, 8, False, 5, 2, True, True): torch.float8_e5m2fnuz,
+    DType(float, 8, False, 8, 0, True, True): torch.float8_e8m0fnu,
+    # --- Complex ---
+    COMPLEX64: torch.complex64,
+    COMPLEX128: torch.complex128,
 }
 _FROM_TORCH = {np: dtype for dtype, np in _TO_TORCH.items()}
 

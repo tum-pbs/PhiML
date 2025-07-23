@@ -4,7 +4,6 @@ import numpy as np
 import torch
 import tensorflow
 
-from phiml import math
 from phiml.backend.torch import TORCH
 
 

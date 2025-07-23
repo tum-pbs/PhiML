@@ -1,3 +1,4 @@
+from dataclasses import dataclass
 from functools import lru_cache
 from typing import Union
 
@@ -5,6 +6,7 @@ import numpy as np
 import sys
 
 
+@dataclass(frozen=True)
 class DType:
     """
     Instances of `DType` represent the kind and size of data elements.
@@ -21,36 +23,23 @@ class DType:
     Unlike with many computing libraries, there are no global variables corresponding to the available types.
     Instead, data types can simply be instantiated as needed.
     """
+    kind: type
+    """Python type, one of `(bool, int, float, complex, str, object)`"""
+    bits: int
+    """Number of bits per element, typically a multiple of 8."""
+    unsigned: bool
+    """If `True`, the data type is unsigned, meaning it can only represent non-negative values."""
+    exponent_bits: int
+    """Number of bits used for the exponent in floating point types. 0 for integers."""
+    mantissa_bits: int
+    """Number of bits used for the mantissa in floating point types. Same as `bits` for integers."""
+    finite_only: bool
+    """If `True`, the data type can only represent finite values, i.e., no NaN or Inf."""
+    unsigned_zero: bool
+    """If `True`, the data type cannot represent signed zeros. This is `True` for integers and `False` for most floating point types."""
 
-    def __init__(self, kind: type, bits: int = None, precision: int = None):
-        """
-        Args:
-            kind: Python type, one of `(bool, int, float, complex, str)`
-            bits: number of bits per element, a multiple of 8.
-        """
-        assert kind in (bool, int, float, complex, str, object)
-        if kind is bool:
-            assert bits is None, "Bits may not be set for bool or object"
-            assert precision is None, f"Precision may only be specified for float or complex but got {kind}, precision={precision}"
-            bits = 8
-        elif kind == object:
-            assert bits is None, "bits may not be set for bool or object"
-            assert precision is None, f"Precision may only be specified for float or complex but got {kind}, precision={precision}"
-            bits = int(np.round(np.log2(sys.maxsize))) + 1
-        elif precision is not None:
-            assert bits is None, "Specify either bits or precision when creating a DType but not both."
-            assert kind in [float, complex], f"Precision may only be specified for float or complex but got {kind}, precision={precision}"
-            if kind == float:
-                bits = precision
-            else:
-                bits = precision * 2
-        else:
-            assert isinstance(bits, int), f"bits must be an int but got {type(bits)}"
-        self.kind = kind
-        """ Python class corresponding to the type of data, ignoring precision. One of (bool, int, float, complex, str) """
-        self.bits = bits
-        """ Number of bits used to store a single value of this type. See `DType.itemsize`. """
-        self._hash = hash(self.kind) + hash(self.bits)
+    def __post_init__(self):
+        assert self.kind in (bool, int, float, complex, str, object)
 
     @property
     def precision(self):
@@ -65,12 +54,11 @@ class DType:
     @property
     def itemsize(self):
         """ Number of bytes used to storea single value of this type. See `DType.bits`. """
-        assert self.bits % 8 == 0
-        return self.bits // 8
+        return self.bits // 8 if self.bits % 8 == 0 else self.bits / 8
 
     def __eq__(self, other):
         if isinstance(other, DType):
-            return self.kind == other.kind and self.bits == other.bits
+            return self.kind == other.kind and self.bits == other.bits and self.unsigned == other.unsigned
         elif other in {bool, int, float, complex, object}:
             return self.kind == other
         else:
@@ -80,10 +68,38 @@ class DType:
         return not self == other
 
     def __hash__(self):
-        return self._hash
+        return hash(self.kind)
 
     def __repr__(self):
-        return f"{self.kind.__name__}{self.bits}"
+        if self.kind == int:
+            if self.unsigned:
+                return f"uint{self.bits}"
+            else:
+                return f"int{self.bits}"
+        elif self.kind == float:
+            if self == FLOAT16:
+                return "float16"
+            elif self == FLOAT32:
+                return "float32"
+            elif self == FLOAT64:
+                return "float64"
+            else:
+                return f"float{self.bits}_e{self.exponent_bits}_m{self.mantissa_bits}{'fn' if self.finite_only else ''}{'uz' if self.unsigned_zero else ''}"
+        elif self.kind == complex:
+            if self == COMPLEX64:
+                return "complex64"
+            elif self == COMPLEX128:
+                return "complex128"
+            else:
+                return f"complex{self.bits}_e{self.exponent_bits}_m{self.mantissa_bits}{'fn' if self.finite_only else ''}{'uz' if self.unsigned_zero else ''}"
+        elif self.kind == str:
+            return f"str{self.bits}"
+        elif self.kind == bool:
+            return "bool"
+        elif self.kind == object:
+            return "object"
+        else:
+            return f"{self.kind.__name__}{self.bits}"
 
     @staticmethod
     def as_dtype(value: Union['DType', tuple, type, None]) -> Union['DType', None]:
@@ -93,18 +109,46 @@ class DType:
             return INT32
         elif value is float:
             from . import get_precision
-            return DType(float, get_precision())
+            return DType.by_precision(float, get_precision())
         elif value is complex:
             from . import get_precision
-            return DType(complex, 2 * get_precision())
+            return DType.by_precision(complex, get_precision())
         elif value is None:
             return None
         elif isinstance(value, tuple):
             return DType(*value)
         elif value is str:
-            raise ValueError("str DTypes must specify precision")
+            raise ValueError("str DTypes must specify bits")
         else:
             return DType(value)  # bool, object
+
+    @staticmethod
+    def by_precision(kind: type, precision: int) -> 'DType':
+        if kind == float:
+            return {16: FLOAT16, 32: FLOAT32, 64: FLOAT64}[precision]
+        elif kind == complex:
+            return {32: COMPLEX64, 64: COMPLEX128}[precision]
+        else:
+            raise ValueError(f"Unsupported kind: {kind}")
+
+
+# def get_dtype(kind: type, bits: int = None, precision: int = None):
+#     assert kind in (bool, int, float, complex, str, object)
+#     if kind is bool:
+#         assert precision is None, f"Precision may only be specified for float or complex but got {kind}, precision={precision}"
+#         return BOOL if bits is None else DType(bool, bits=bits, unsigned=True, exponent_bits=0, mantissa_bits=1, finite_only=True, unsigned_zero=True)
+#     elif kind == object:
+#         assert precision is None, f"Precision may only be specified for float or complex but got {kind}, precision={precision}"
+#         return OBJECT if bits is None else DType(object, bits=bits, unsigned=True, exponent_bits=0, mantissa_bits=bits, finite_only=False, unsigned_zero=False)
+#     elif precision is not None:
+#         assert bits is None, "Specify either bits or precision when creating a DType but not both."
+#         assert kind in [float, complex], f"Precision may only be specified for float or complex but got {kind}, precision={precision}"
+#         if kind == float:
+#             bits = precision
+#         else:
+#             bits = precision * 2
+#     else:
+#         assert isinstance(bits, int), f"bits must be an int but got {type(bits)}"
 
 
 # --- NumPy Conversion ---
@@ -131,30 +175,45 @@ def from_numpy_dtype(np_dtype) -> DType:
         raise ValueError(np_dtype)
 
 
-BOOL = DType(bool)
-INT8 = DType(int, 8)
-INT16 = DType(int, 16)
-INT32 = DType(int, 32)
-INT64 = DType(int, 64)
-FLOAT16 = DType(float, 16)
-FLOAT32 = DType(float, 32)
-FLOAT64 = DType(float, 64)
-COMPLEX64 = DType(complex, 64)
-COMPLEX128 = DType(complex, 128)
-OBJECT = DType(object)
+BOOL = DType(bool, bits=8, unsigned=True, exponent_bits=0, mantissa_bits=1, finite_only=True, unsigned_zero=True)
+OBJECT = DType(object, bits=int(np.round(np.log2(sys.maxsize))) + 1, unsigned=True, exponent_bits=0, mantissa_bits=int(np.round(np.log2(sys.maxsize))) + 1, finite_only=False, unsigned_zero=False)
+# --- Int ---
+INT8 = DType(int, 8, unsigned=False, exponent_bits=0, mantissa_bits=8, finite_only=True, unsigned_zero=True)
+INT16 = DType(int, 16, unsigned=False, exponent_bits=0, mantissa_bits=16, finite_only=True, unsigned_zero=True)
+INT32 = DType(int, 32, unsigned=False, exponent_bits=0, mantissa_bits=32, finite_only=True, unsigned_zero=True)
+INT64 = DType(int, 64, unsigned=False, exponent_bits=0, mantissa_bits=64, finite_only=True, unsigned_zero=True)
+UINT8 = DType(int, 8, unsigned=True, exponent_bits=0, mantissa_bits=8, finite_only=True, unsigned_zero=True)
+UINT16 = DType(int, 16, unsigned=True, exponent_bits=0, mantissa_bits=16, finite_only=True, unsigned_zero=True)
+UINT32 = DType(int, 32, unsigned=True, exponent_bits=0, mantissa_bits=32, finite_only=True, unsigned_zero=True)
+UINT64 = DType(int, 64, unsigned=True, exponent_bits=0, mantissa_bits=64, finite_only=True, unsigned_zero=True)
+# --- Float ---
+BF16 = DType(float, 16, unsigned=False, exponent_bits=8, mantissa_bits=7, finite_only=False, unsigned_zero=False)
+FLOAT16 = DType(float, 16, unsigned=False, exponent_bits=5, mantissa_bits=10, finite_only=False, unsigned_zero=False)
+FLOAT32 = DType(float, 32, unsigned=False, exponent_bits=8, mantissa_bits=23, finite_only=False, unsigned_zero=False)
+FLOAT64 = DType(float, 64, unsigned=False, exponent_bits=11, mantissa_bits=52, finite_only=False, unsigned_zero=False)
+# --- Complex ---
+COMPLEX64 = DType(complex, 64, unsigned=False, exponent_bits=8, mantissa_bits=23, finite_only=False, unsigned_zero=False)
+COMPLEX128 = DType(complex, 128, unsigned=False, exponent_bits=11, mantissa_bits=52, finite_only=False, unsigned_zero=False)
 
 _TO_NUMPY = {
     BOOL: np.bool_,
+    OBJECT: object,
+    # --- Int ---
     INT8: np.int8,
     INT16: np.int16,
     INT32: np.int32,
     INT64: np.int64,
+    UINT8: np.uint8,
+    UINT16: np.uint16,
+    UINT32: np.uint32,
+    UINT64: np.uint64,
+    # --- Float ---
     FLOAT16: np.float16,
     FLOAT32: np.float32,
     FLOAT64: np.float64,
+    # --- Complex ---
     COMPLEX64: np.complex64,
     COMPLEX128: np.complex128,
-    OBJECT: object,
 }
 _FROM_NUMPY = {np: dtype for dtype, np in _TO_NUMPY.items()}
 _FROM_NUMPY[np.bool_] = BOOL
