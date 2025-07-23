@@ -275,8 +275,8 @@ class SparseCoordinateTensor(Tensor):
         return self._indices[list(self._dense_shape.non_dual.names)]
 
     def _pack_indices(self, row_dims: Shape, col_dims: Shape):
-        assert row_dims, f"Requires at least on row dim to pack"
-        assert col_dims, f"Requires at least on col dim to pack"
+        assert row_dims, f"Requires at least one row dim to pack"
+        assert col_dims, f"Requires at least one col dim to pack"
         assert row_dims in self._dense_shape, f"Can only compress sparse dims but got {row_dims} which contains non-sparse dims"
         b = self._indices.default_backend
         row_idx = self._indices[row_dims.name_list]
