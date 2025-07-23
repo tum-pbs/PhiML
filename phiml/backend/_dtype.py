@@ -6,8 +6,21 @@ import numpy as np
 import sys
 
 
+class DTypeMeta(type):
+
+    def __call__(self, *args, **kwargs):
+        if len(args) == 1 and not kwargs:
+            return {bool: BOOL, object: OBJECT}[args[0]]
+        if len(args) == 2 and not kwargs:
+            return DType.by_bits(*args)
+        elif 'precision' in kwargs:
+            assert len(args) == 1, "If 'precision' is specified, only one argument may be given."
+            return DType.by_precision(args[0], kwargs['precision'])
+        return type.__call__(self, *args, **kwargs)
+
+
 @dataclass(frozen=True)
-class DType:
+class DType(metaclass=DTypeMeta):
     """
     Instances of `DType` represent the kind and size of data elements.
     The data type of tensors can be obtained via `Tensor.dtype`.
@@ -37,9 +50,6 @@ class DType:
     """If `True`, the data type can only represent finite values, i.e., no NaN or Inf."""
     unsigned_zero: bool
     """If `True`, the data type cannot represent signed zeros. This is `True` for integers and `False` for most floating point types."""
-
-    def __post_init__(self):
-        assert self.kind in (bool, int, float, complex, str, object)
 
     @property
     def precision(self):
@@ -116,11 +126,22 @@ class DType:
         elif value is None:
             return None
         elif isinstance(value, tuple):
+            if len(value) == 2:
+                return {
+                    (int, 8): INT8,
+                    (int, 16): INT16,
+                    (int, 32): INT32,
+                    (int, 64): INT64,
+                    (float, 16): FLOAT16,
+                    (float, 32): FLOAT32,
+                    (float, 64): FLOAT64,
+                    (complex, 64): COMPLEX64,
+                    (complex, 128): COMPLEX128,
+                }[value]
             return DType(*value)
         elif value is str:
             raise ValueError("str DTypes must specify bits")
-        else:
-            return DType(value)  # bool, object
+        return {bool: BOOL, object: OBJECT}[value]
 
     @staticmethod
     def by_precision(kind: type, precision: int) -> 'DType':
@@ -130,6 +151,22 @@ class DType:
             return {32: COMPLEX64, 64: COMPLEX128}[precision]
         else:
             raise ValueError(f"Unsupported kind: {kind}")
+
+    @staticmethod
+    def int_by_bits(bits: int):
+        return {8: INT8, 16: INT16, 32: INT32, 64: INT64}[bits]
+
+    @staticmethod
+    def by_bits(kind: type, bits: int):
+        if kind is int:
+            return {8: INT8, 16: INT16, 32: INT32, 64: INT64}[bits]
+        elif kind is float:
+            return {16: FLOAT16, 32: FLOAT32, 64: FLOAT64}[bits]
+        elif kind is complex:
+            return {64: COMPLEX64, 128: COMPLEX128}[bits]
+        elif kind is str:
+            return DType(str, bits, False, 0, 0, True, True)
+        raise ValueError
 
 
 # def get_dtype(kind: type, bits: int = None, precision: int = None):
@@ -220,31 +257,28 @@ _FROM_NUMPY[np.bool_] = BOOL
 _FROM_NUMPY[bool] = BOOL
 
 
+UPCAST_LVL = {bool: 1, int: 2, float: 3, complex: 4, str: 5, object: 6}
+
+
 @lru_cache
 def combine_types(*dtypes: DType, fp_precision: int = None) -> DType:
-    # all bool?
-    if all(dt.kind == bool for dt in dtypes):
+    lvl = max(UPCAST_LVL[dt.kind] for dt in dtypes)
+    if lvl == 1:  # all bool
         return dtypes[0]
-    # all int / bool?
-    if all(dt.kind in (bool, int) for dt in dtypes):
-        largest = max(dtypes, key=lambda dt: dt.bits)
-        return largest
-    # all real?
-    if all(dt.kind in (float, int, bool) for dt in dtypes):
+    elif lvl == 2:  # all int / bool?
+        return max(dtypes, key=lambda dt: dt.mantissa_bits)
+    elif lvl == 3:  # all real?
         if isinstance(fp_precision, int):
-            return DType(float, fp_precision)
+            return DType.by_precision(float, fp_precision)
         else:
-            highest_fp = max([dt.precision for dt in dtypes if dt.kind == float])
-            return DType(float, highest_fp)
-    # complex
-    if all(dt.kind in (complex, float, int, bool) for dt in dtypes):
+            highest_fp = max(dt.precision for dt in dtypes if dt.kind == float)
+            return DType.by_precision(float, highest_fp)
+    elif lvl == 4:  # complex
         if isinstance(fp_precision, int):
-            return DType(complex, 2 * fp_precision)
+            return DType.by_precision(complex, fp_precision)
         else:
             highest_fp = max([dt.precision for dt in dtypes if dt.kind in (float, complex)])
-            return DType(complex, highest_fp * 2)
-    # string
-    if any(dt.kind == str for dt in dtypes):
-        largest = max([dt for dt in dtypes if dt.kind == str], key=lambda dt: dt.bits)
-        return largest
-    return DType(object)
+            return DType.by_precision(complex, highest_fp)
+    elif lvl == 5:  # string
+        return max([dt for dt in dtypes if dt.kind == str], key=lambda dt: dt.bits)
+    return OBJECT

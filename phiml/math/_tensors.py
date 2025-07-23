@@ -22,7 +22,7 @@ from ._shape import (Shape,
 from ..backend import NoBackendFound, choose_backend, BACKENDS, get_precision, default_backend, convert as convert_, \
     Backend, ComputeDevice, OBJECTS, NUMPY, ML_LOGGER
 from ..backend._backend import get_operator
-from ..backend._dtype import DType, combine_types, BOOL, INT64, INT32
+from ..backend._dtype import DType, combine_types, BOOL, INT64, INT32, OBJECT
 from .magic import BoundDim, PhiTreeNode, slicing_dict, Shaped, _BoundDims
 from .magic import Shapable
 from ..backend.xops import ExtraOperator
@@ -963,9 +963,9 @@ class Layout(Tensor):
         if isinstance(self._obj, int):
             return INT64
         elif isinstance(self._obj, (float, complex)):
-            return DType(type(self._obj), precision=64)
+            return DType.by_precision(type(self._obj), precision=64)
         else:
-            return DType(object)
+            return OBJECT
 
     @property
     def default_backend(self):
@@ -1258,7 +1258,7 @@ class Dense(Tensor):
             if self.dtype.precision in [None, get_precision()]:
                 return self._native
             else:
-                return backend.cast(self._native, DType(self.dtype.kind, precision=get_precision()))
+                return backend.cast(self._native, DType.by_precision(self.dtype.kind, precision=get_precision()))
         # --- Transpose ---
         perm = [self._names.index(n) for n in order if n in self._names]
         if perm != list(range(len(perm))):

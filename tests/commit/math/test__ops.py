@@ -5,6 +5,7 @@ import numpy as np
 from phiml import math, srange
 from phiml.backend import Backend
 from phiml.backend._backend import init_installed_backends
+from phiml.backend._dtype import FLOAT64, FLOAT32, COMPLEX64, COMPLEX128, INT64, INT32, FLOAT16
 from phiml.math import extrapolation, spatial, channel, instance, batch, DType, IncompatibleShapes, NAN, vec, \
     non_spatial, wrap, assert_close, PI, tensor, stack, dual, ones, convolve
 
@@ -390,7 +391,7 @@ class TestOps(TestCase):
                     with backend:
                         sine_tensor = math.tensor(sine_field, spatial('x,y'))
                         fft_tensor = math.fft(sine_tensor)
-                        self.assertEqual(fft_tensor.dtype, math.DType(complex, 128), msg=backend.name)
+                        self.assertEqual(fft_tensor.dtype, COMPLEX128, msg=backend.name)
                         assert_close(fft_ref_tensor, fft_tensor, abs_tolerance=1e-12, msg=backend.name)  # Should usually be more precise. GitHub Actions has larger errors than usual.
 
     def test_ifft(self):
@@ -689,11 +690,11 @@ class TestOps(TestCase):
                 # --- int32 ---
                 value = math.to_int32(math.tensor(4))
                 math.assert_close(24, math.factorial(value))
-                self.assertEqual(DType(int, 32), math.factorial(value).dtype)
+                self.assertEqual(INT32, math.factorial(value).dtype)
                 # --- int64 ---
                 value = math.to_int64(math.tensor(14))
                 math.assert_close(87178291200, math.factorial(value))
-                self.assertEqual(DType(int, 64), math.factorial(value).dtype)
+                self.assertEqual(INT64, math.factorial(value).dtype)
                 # --- gamma ---
                 math.assert_close(1.791759469228055, math.log_gamma(math.tensor(4)))
                 math.assert_close(24., math.factorial(math.tensor(4.)))
@@ -1017,7 +1018,7 @@ class TestOps(TestCase):
             with backend:
                 # 32 bits
                 a = math.random_uniform(instance(values=1000), low=-1, high=1, dtype=(int, 32))
-                self.assertEqual(a.dtype, DType(int, 32), msg=backend.name)
+                self.assertEqual(a.dtype, INT32, msg=backend.name)
                 self.assertEqual(a.min, -1, msg=backend.name)
                 self.assertEqual(a.max, 0, msg=backend.name)
                 # 64 bits
@@ -1030,7 +1031,7 @@ class TestOps(TestCase):
         for backend in BACKENDS:
             with backend:
                 a = math.random_uniform(instance(values=4), low=-1, high=0, dtype=(complex, 64))
-                self.assertEqual(a.dtype, DType(complex, 64), msg=backend.name)
+                self.assertEqual(a.dtype, COMPLEX64, msg=backend.name)
                 assert_close(a.imag, 0, msg=backend.name)
 
     def test_random_uniform_batched_limit(self):
@@ -1040,18 +1041,18 @@ class TestOps(TestCase):
     def test_cast(self):
         for backend in BACKENDS:
             with backend:
-                x = math.random_uniform(dtype=DType(float, 64))
-                self.assertEqual(DType(float, 32), math.to_float(x).dtype, msg=backend.name)
-                self.assertEqual(DType(complex, 64), math.to_complex(x).dtype, msg=backend.name)
+                x = math.random_uniform(dtype=FLOAT64)
+                self.assertEqual(FLOAT32, math.to_float(x).dtype, msg=backend.name)
+                self.assertEqual(COMPLEX64, math.to_complex(x).dtype, msg=backend.name)
                 with math.precision(64):
-                    self.assertEqual(DType(float, 64), math.to_float(x).dtype, msg=backend.name)
-                    self.assertEqual(DType(complex, 128), math.to_complex(x).dtype, msg=backend.name)
-                self.assertEqual(DType(int, 64), math.to_int64(x).dtype, msg=backend.name)
-                self.assertEqual(DType(int, 32), math.to_int32(x).dtype, msg=backend.name)
-                self.assertEqual(DType(float, 16), math.cast(x, DType(float, 16)).dtype, msg=backend.name)
-                self.assertEqual(DType(complex, 128), math.cast(x, DType(complex, 128)).dtype, msg=backend.name)
+                    self.assertEqual(FLOAT64, math.to_float(x).dtype, msg=backend.name)
+                    self.assertEqual(COMPLEX128, math.to_complex(x).dtype, msg=backend.name)
+                self.assertEqual(INT64, math.to_int64(x).dtype, msg=backend.name)
+                self.assertEqual(INT32, math.to_int32(x).dtype, msg=backend.name)
+                self.assertEqual(FLOAT16, math.cast(x, FLOAT16).dtype, msg=backend.name)
+                self.assertEqual(COMPLEX128, math.cast(x, COMPLEX128).dtype, msg=backend.name)
                 try:
-                    math.cast(x, DType(float, 3))
+                    math.cast(x, DType(float, 3, False, 1, 2, True, True))
                     self.fail(msg=backend.name)
                 except KeyError:
                     pass
@@ -1097,7 +1098,7 @@ class TestOps(TestCase):
                 v = math.random_uniform()
                 self.assertEqual(cpu, math.to_device(v, 'CPU').device, msg=backend.name)
                 self.assertEqual(cpu, math.to_device(v, cpu).device, msg=backend.name)
-                for v in [1., backend.random_uniform((), 0, 1, DType(float, 32))]:
+                for v in [1., backend.random_uniform((), 0, 1, FLOAT32)]:
                     math.to_device(v, 'CPU')
                     math.to_device(v, cpu)
 

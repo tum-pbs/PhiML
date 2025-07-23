@@ -1322,30 +1322,31 @@ def from_torch_dtype(torch_dtype):
 
 
 _TO_TORCH = {
-    BOOL: torch.bool,
+    BOOL: 'bool',
     # --- Int ---
-    INT8: torch.int8,
-    INT16: torch.int16,
-    INT32: torch.int32,
-    INT64: torch.int64,
-    UINT8: torch.uint8,
-    UINT16: torch.uint16,
-    UINT32: torch.uint32,
-    UINT64: torch.uint64,
+    INT8: 'int8',
+    INT16: 'int16',
+    INT32: 'int32',
+    INT64: 'int64',
+    UINT8: 'uint8',
+    UINT16: 'uint16',
+    UINT32: 'uint32',
+    UINT64: 'uint64',
     # --- Float ---
-    FLOAT16: torch.float16,
-    BF16: torch.bfloat16,
-    FLOAT32: torch.float32,
-    FLOAT64: torch.float64,
-    DType(float, 8, False, 4, 3, True, False): torch.float8_e4m3fn,
-    DType(float, 8, False, 4, 3, True, True): torch.float8_e4m3fnuz,
-    DType(float, 8, False, 5, 2, False, False): torch.float8_e5m2,
-    DType(float, 8, False, 5, 2, True, True): torch.float8_e5m2fnuz,
-    DType(float, 8, False, 8, 0, True, True): torch.float8_e8m0fnu,
+    FLOAT16: 'float16',
+    BF16: 'bfloat16',
+    FLOAT32: 'float32',
+    FLOAT64: 'float64',
+    DType(float, 8, False, 4, 3, True, False): 'float8_e4m3fn',
+    DType(float, 8, False, 4, 3, True, True): 'float8_e4m3fnuz',
+    DType(float, 8, False, 5, 2, False, False): 'float8_e5m2',
+    DType(float, 8, False, 5, 2, True, True): 'float8_e5m2fnuz',
+    DType(float, 8, False, 8, 0, True, True): 'float8_e8m0fnu',
     # --- Complex ---
-    COMPLEX64: torch.complex64,
-    COMPLEX128: torch.complex128,
+    COMPLEX64: 'complex64',
+    COMPLEX128: 'complex128',
 }
+_TO_TORCH = {k: getattr(torch, v) for k, v in _TO_TORCH.items() if hasattr(torch, v)}
 _FROM_TORCH = {np: dtype for dtype, np in _TO_TORCH.items()}
 
 

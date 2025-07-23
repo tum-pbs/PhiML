@@ -149,7 +149,7 @@ class Backend:
 
     @property
     def float_type(self) -> DType:
-        return DType(float, self.precision)
+        return DType.by_precision(float, self.precision)
 
     @property
     def as_registered(self) -> 'Backend':
@@ -166,7 +166,7 @@ class Backend:
 
     @property
     def complex_type(self) -> DType:
-        return DType(complex, max(64, self.precision))
+        return DType.by_precision(complex, max(64, self.precision))
 
     def combine_types(self, *dtypes: DType) -> DType:
         return combine_types(*dtypes, fp_precision=self.precision)
@@ -190,7 +190,7 @@ class Backend:
         if result_type.kind == bool and bool_to_int:
             result_type = INT32
         if result_type.kind == int and int_to_float:
-            result_type = DType(float, self.precision)
+            result_type = DType.by_precision(float, self.precision)
         if result_type.kind in (int, float, complex, bool):  # do not cast everything to string!
             tensors = [self.cast(t, result_type) for t in tensors]
         return tensors
@@ -202,7 +202,7 @@ class Backend:
         if dtype.kind in {int, bool}:
             return tensor
         if dtype.precision != get_precision():
-            result_type = DType(dtype.kind, precision=get_precision())
+            result_type = DType.by_precision(dtype.kind, precision=get_precision())
             return self.cast(tensor, result_type)
         return tensor
 
@@ -883,7 +883,7 @@ class Backend:
         return self.cast(x, INT64)
 
     def to_complex(self, x):
-        return self.cast(x, DType(complex, max(64, self.precision * 2)))
+        return self.cast(x, DType.by_precision(complex, max(32, self.precision)))
 
     def unravel_index(self, flat_index, shape):
         strides = [1]

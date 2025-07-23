@@ -40,21 +40,21 @@ class TestDType(TestCase):
         try:
             DType(bool, precision=16)
             raise RuntimeError
-        except AssertionError:
+        except ValueError:
             pass
         try:
             DType(int, precision=16)
             raise RuntimeError
-        except AssertionError:
+        except ValueError:
             pass
         try:
             DType(object, precision=16)
             raise RuntimeError
-        except AssertionError:
+        except ValueError:
             pass
 
     def test_combine_types(self):
         self.assertEqual(DType(float, 64), combine_types(DType(float, 32), DType(float, 64)))
         self.assertEqual(DType(float, 32), combine_types(DType(float, 32), DType(int, 64)))
         self.assertEqual(DType(int, 32), combine_types(DType(int, 32), DType(int, 16)))
-        self.assertEqual(DType(complex, 128), combine_types(DType(complex, 32), DType(float, 64)))
+        self.assertEqual(DType(complex, 128), combine_types(DType(complex, precision=32), DType(float, 64)))

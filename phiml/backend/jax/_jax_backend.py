@@ -315,8 +315,8 @@ class JaxBackend(Backend):
         if dtype.kind == float:
             tensor = random.uniform(subkey, shape, minval=low, maxval=high, dtype=jdt)
         elif dtype.kind == complex:
-            real = random.uniform(subkey, shape, minval=low.real, maxval=high.real, dtype=to_numpy_dtype(DType(float, dtype.precision)))
-            imag = random.uniform(subkey, shape, minval=low.imag, maxval=high.imag, dtype=to_numpy_dtype(DType(float, dtype.precision)))
+            real = random.uniform(subkey, shape, minval=low.real, maxval=high.real, dtype=to_numpy_dtype(DType.by_precision(float, dtype.precision)))
+            imag = random.uniform(subkey, shape, minval=low.imag, maxval=high.imag, dtype=to_numpy_dtype(DType.by_precision(float, dtype.precision)))
             return real + 1j * imag
         elif dtype.kind == int:
             tensor = random.randint(subkey, shape, low, high, dtype=jdt)
@@ -337,7 +337,7 @@ class JaxBackend(Backend):
         result = jnp.stack([jax.random.permutation(subkey, n) for _ in range(permutations)])
         return jax.device_put(result, self._default_device.ref)
 
-    def range(self, start, limit=None, delta=1, dtype: DType = DType(int, 32)):
+    def range(self, start, limit=None, delta=1, dtype: DType = INT32):
         if limit is None:
             start, limit = 0, start
         return jnp.arange(start, limit, delta, to_numpy_dtype(dtype))
@@ -598,7 +598,7 @@ class JaxBackend(Backend):
     def sort(self, x, axis=-1):
         return jnp.sort(x, axis)
 
-    def searchsorted(self, sorted_sequence, search_values, side: str, dtype=DType(int, 32)):
+    def searchsorted(self, sorted_sequence, search_values, side: str, dtype=INT32):
         if self.ndims(sorted_sequence) == 1:
             return jnp.searchsorted(sorted_sequence, search_values, side=side).astype(to_numpy_dtype(dtype))
         else:

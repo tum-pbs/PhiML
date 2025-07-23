@@ -4,7 +4,7 @@ import random
 import numpy
 
 from ._backend import Backend, ComputeDevice
-from ._dtype import DType
+from ._dtype import DType, OBJECT
 
 
 class ObjectBackend(Backend):
@@ -29,7 +29,7 @@ class ObjectBackend(Backend):
         random.seed(seed)
 
     def dtype(self, array) -> DType:
-        return DType(object)
+        return OBJECT
 
     def staticshape(self, tensor) -> tuple:
         return ()

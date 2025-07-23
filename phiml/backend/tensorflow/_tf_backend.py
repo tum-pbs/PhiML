@@ -11,7 +11,7 @@ from tensorflow.python.client import device_lib
 from tensorflow.python.framework.errors_impl import NotFoundError
 
 from .._backend import combined_dim, TensorType
-from .._dtype import DType, to_numpy_dtype, from_numpy_dtype, BOOL
+from .._dtype import DType, to_numpy_dtype, from_numpy_dtype, BOOL, INT32
 from .. import Backend, ComputeDevice, NUMPY
 from ._tf_cuda_resample import resample_cuda, use_cuda
 
@@ -196,8 +196,8 @@ class TFBackend(Backend):
             if dtype.kind != complex:
                 return tf.random.uniform(shape, low, high, dtype=tdt)
             else:
-                real = tf.cast(tf.random.uniform(shape, low.real, high.real, dtype=to_numpy_dtype(DType(float, dtype.precision))), tdt)
-                imag = tf.cast(tf.random.uniform(shape, low.imag, high.imag, dtype=to_numpy_dtype(DType(float, dtype.precision))), tdt)
+                real = tf.cast(tf.random.uniform(shape, low.real, high.real, dtype=to_numpy_dtype(DType.by_precision(float, dtype.precision))), tdt)
+                imag = tf.cast(tf.random.uniform(shape, low.imag, high.imag, dtype=to_numpy_dtype(DType.by_precision(float, dtype.precision))), tdt)
                 return real + 1j * imag
 
     def random_normal(self, shape, dtype: DType):
@@ -209,7 +209,7 @@ class TFBackend(Backend):
             ordered = tf.range(0, n)
             return tf.stack([tf.random.shuffle(ordered) for _ in range(permutations)])
 
-    def range(self, start, limit=None, delta=1, dtype: DType = DType(int, 32)):
+    def range(self, start, limit=None, delta=1, dtype: DType = INT32):
         with tf.device(self._default_device.ref):
             return tf.range(start, limit, delta, to_numpy_dtype(dtype))
 
@@ -626,7 +626,7 @@ class TFBackend(Backend):
         with self.device_of(x):
             return tf.sort(x, axis)
 
-    def searchsorted(self, sorted_sequence, search_values, side: str, dtype=DType(int, 32)):
+    def searchsorted(self, sorted_sequence, search_values, side: str, dtype=INT32):
         with self._device_for(sorted_sequence, search_values):
             return tf.searchsorted(sorted_sequence, search_values, side=side, out_type=to_numpy_dtype(dtype))
 
