@@ -144,8 +144,11 @@ class JaxBackend(Backend):
             return lambda b, t: t, (x,)
 
     def to_dlpack(self, tensor):
-        from jax import dlpack
-        return dlpack.to_dlpack(tensor)
+        if version.parse(jax.__version__) < version.parse("0.7.0"):
+            from jax import dlpack
+            return dlpack.to_dlpack(tensor)
+        else:
+            return tensor.__dlpack__()
 
     def from_dlpack(self, capsule):
         from jax import dlpack
