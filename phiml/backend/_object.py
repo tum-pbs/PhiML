@@ -14,7 +14,7 @@ class ObjectBackend(Backend):
 
     def __init__(self):
         device = ComputeDevice(self, 'Python', 'CPU', -1, 1, "", None)
-        super().__init__('Python', [device], device)
+        super().__init__('object', [device], device)
 
     def is_tensor(self, x, only_native=False):
         return isinstance(x, str)

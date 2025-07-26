@@ -3179,9 +3179,6 @@ def unserialize_spec(spec: dict):
     return result
 
 
-_BACKEND_RULES = {}  # Tuple[Backend...] -> Backend
-
-
 def backend_for(*values: Tensor) -> Backend:
     """
     Chooses an appropriate backend based on the backends of `values`.
@@ -3196,16 +3193,17 @@ def backend_for(*values: Tensor) -> Backend:
         `NoBackendFound`: If no backend exists that can handle all `values`.
 
     """
-    backends = tuple([v.backend for v in values])
-    if len(set(backends)) == 1:
-        return backends[0]
-    result = _BACKEND_RULES.get(backends, None)
-    if result is not None:
-        return result
-    natives = sum([v._natives() if isinstance(v, Tensor) else (v,) for v in values], ())
-    result = _BACKEND_RULES[backends] = choose_backend(*natives)
-    ML_LOGGER.debug(f"Caching new backend combination: {backends} -> {result}")
-    return result
+    backends = {v.backend.name: v.backend for v in values}
+    if len(backends) == 1:
+        return next(iter(backends.values()))
+    if 'object' in backends:
+        return backends['object']
+    ml_backends = backends.keys() & {'torch', 'tensorflow', 'jax'}
+    if len(ml_backends) > 1:
+        raise NoBackendFound(f"Mixing ML backends {ml_backends} given tensors {values}")
+    if ml_backends:
+        return backends[next(iter(ml_backends))]
+    raise AssertionError(f"Invalid backend combination: {backends}")
 
 
 def preferred_backend_for(*values: Tensor) -> Backend:

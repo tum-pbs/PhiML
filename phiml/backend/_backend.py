@@ -1821,7 +1821,7 @@ def init_installed_backends() -> tuple:
         init_backend('tensorflow')
     except ImportError:
         pass
-    return tuple([b for b in BACKENDS if b.name != 'Python'])
+    return tuple([b for b in BACKENDS if b.name != 'object'])
 
 
 def init_backend(backend: str) -> Sequence[Backend]:
