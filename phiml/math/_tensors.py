@@ -756,6 +756,10 @@ class Tensor:
             native = self.native([self.shape])
             return iter(native)
 
+    def item(self):
+        assert self.shape.volume == 1, f"Tensor.item() is only available for single-element Tensors but got {self.shape}"
+        return next(iter(self))
+
     def __matmul__(self, other):
         from ._ops import dot
         assert isinstance(other, Tensor), f"Matmul '@' requires two Tensor arguments but got {type(other)}"
@@ -970,6 +974,9 @@ class Layout(Tensor):
     @property
     def default_backend(self):
         return None
+
+    def item(self):
+        return self._obj
 
     def native(self, order: Union[str, tuple, list, Shape] = None, force_expand=True, to_numpy=False):
         if order is not None:
