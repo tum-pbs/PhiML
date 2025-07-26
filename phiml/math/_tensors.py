@@ -164,6 +164,10 @@ class Tensor:
             return self._op2(other, operator.rshift, switch_args)
         raise NotImplementedError(f"NumPy function '{ufunc.__name__}' is not compatible with Φ-ML tensors.")
 
+    def __torch_function__(self, func, types, args=(), kwargs=None):
+        from ..backend.torch._torch_hooks import handle_torch_function
+        return handle_torch_function(func, types, args, kwargs)
+
     @property
     def dtype(self) -> DType:
         """ Data type of the elements of this `Tensor`. """
