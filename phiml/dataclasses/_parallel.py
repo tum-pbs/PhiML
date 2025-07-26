@@ -79,8 +79,8 @@ def _execute_stages(instance, stages: List[List['PGraphNode']], dims, pool, memo
             inst_props = [property_names] * len(instances)
             mem_per_item = memory_limit / len(instances) if memory_limit is not None else None
             os.makedirs(cache_dir, exist_ok=True)
-            cache_files = [os.path.join(cache_dir, f"s{stage_idx}_i{i}.h5") for i in range(len(instances))]
-            results = list(pool.map(_evaluate_properties, instances, inst_props, caches, [mem_per_item]*len(instances), cache_files))
+            cache_file_suggestions = [os.path.join(cache_dir, f"s{stage_idx}_i{i}") for i in range(len(instances))]
+            results = list(pool.map(_evaluate_properties, instances, inst_props, caches, [mem_per_item]*len(instances), cache_file_suggestions))
             for name, *outputs in zip(property_names, *results):
                 output = stack(outputs, parallel_dims)
                 instance.__dict__[name] = output
@@ -90,7 +90,7 @@ def _execute_stages(instance, stages: List[List['PGraphNode']], dims, pool, memo
                 get_property_value(instance, n.name)
 
 
-def _evaluate_properties(instance, properties, cache: dict, mem_limit, cache_file: str):  # called on workers
+def _evaluate_properties(instance, properties, cache: dict, mem_limit, cache_file_base: str):  # called on workers
     instance.__dict__.update(cache)
     # print(f"Evaluating {properties} on {type(instance).__name__} with values {instance.__dict__}")
     values = [get_property_value(instance, p) for p in properties]
@@ -102,17 +102,24 @@ def _evaluate_properties(instance, properties, cache: dict, mem_limit, cache_fil
             sizes, indices = zip(*sorted_pairs)
             total_sizes = np.cumsum(sizes)
             cutoff = np.argmax(total_sizes > mem_limit)
-            ML_LOGGER.debug(f"Result is too large for memory limit. Tensor sizes (bytes): {sizes[::-1]}. Caching {len(tensors) - cutoff} tensors to {cache_file}.")
-            with h5py.File(cache_file, 'w') as f:
-                h5_ref = H5Source(cache_file)
-                for i in range(len(tensors) - cutoff - 1, len(tensors)):
-                    t = tensors[i]
-                    if isinstance(t, Dense):
-                        f.create_dataset(f'array_{i}', data=t.backend.numpy(t._native))
-                        disk_tensor = DiskTensor(h5_ref, f'array_{i}', {}, t._names, t._shape, t._backend, t.dtype)
-                        tensors[i] = disk_tensor
-                    else:
-                        raise NotImplementedError
+            file_counter = 0
+            while True:
+                cache_file = f"{cache_file_base}_{file_counter}.h5"
+                try:
+                    with h5py.File(cache_file, 'x') as f:  # fail if exists
+                        ML_LOGGER.debug(f"Result is too large for memory limit. Tensor sizes (bytes): {sizes[::-1]}. Caching {len(tensors) - cutoff} tensors to {cache_file}.")
+                        h5_ref = H5Source(cache_file)
+                        for i in range(len(tensors) - cutoff - 1, len(tensors)):
+                            t = tensors[i]
+                            if isinstance(t, Dense):
+                                f.create_dataset(f'array_{i}', data=t.backend.numpy(t._native))
+                                disk_tensor = DiskTensor(h5_ref, f'array_{i}', {}, t._names, t._shape, t._backend, t.dtype)
+                                tensors[i] = disk_tensor
+                            else:
+                                raise NotImplementedError
+                        break
+                except FileExistsError:
+                    file_counter += 1
             values = assemble_tree(tree, tensors, attr_type=all_attributes)
     return values
 
