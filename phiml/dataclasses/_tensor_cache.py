@@ -1,13 +1,17 @@
+import dataclasses
 import traceback
 import weakref
-from typing import Sequence, Dict, Optional
+from typing import Sequence, Dict, Optional, Set
 
 import h5py
 
 from ..backend._backend import get_backend
-from ..math._tensors import Dense, Layout, TensorStack
+from ..math._magic_ops import all_attributes
+from ..math._sparse import SparseCoordinateTensor, CompressedSparseMatrix, CompactSparseTensor
+from ..math._tensors import Tensor, Dense, Layout, TensorStack
 from .. import Shape, DType
 from ..backend import Backend, ML_LOGGER
+from ..math.magic import PhiTreeNode
 
 
 class H5Source:
@@ -106,3 +110,56 @@ class DiskTensor(Dense):
             layout_ = [v for v in values if isinstance(v, Layout)][0]
             return layout_.__stack__(values, dim, **_kwargs)
         return TensorStack(values, dim)
+
+
+def get_cache_files(obj) -> Set[str]:
+    """
+    Searches the data structure for all disk-cached tensors and returns all referenced files.
+
+    Args:
+        obj: `Tensor` or pytree or dataclass (`phiml.math.magic.PhiTreeNode`).
+
+    Returns:
+        Collection of file paths.
+    """
+    result = set()
+    _recursive_add_cache_files(obj, result)
+    return result
+
+
+def _recursive_add_cache_files(obj, result: Set[str]):
+    if obj is None:
+        return
+    if dataclasses.is_dataclass(obj) and hasattr(obj, '__dict__'):
+        for val in obj.__dict__.values():
+            _recursive_add_cache_files(val, result)
+    elif dataclasses.is_dataclass(obj):
+        for a in all_attributes(obj):
+            _recursive_add_cache_files(getattr(obj, a), result)
+    elif isinstance(obj, (tuple, list, set)):
+        for item in obj:
+            _recursive_add_cache_files(item, result)
+    elif isinstance(obj, dict):
+        for val in obj.values():
+            _recursive_add_cache_files(val, result)
+    elif isinstance(obj, Tensor):
+        if isinstance(obj, DiskTensor):
+            result.add(obj.source.path)
+        elif isinstance(obj, TensorStack):
+            for inner in obj._tensors:
+                _recursive_add_cache_files(inner, result)
+        elif isinstance(obj, SparseCoordinateTensor):
+            _recursive_add_cache_files(obj._values, result)
+            _recursive_add_cache_files(obj._indices, result)
+        elif isinstance(obj, CompressedSparseMatrix):
+            _recursive_add_cache_files(obj._values, result)
+            _recursive_add_cache_files(obj._indices, result)
+            _recursive_add_cache_files(obj._pointers, result)
+        elif isinstance(obj, CompactSparseTensor):
+            _recursive_add_cache_files(obj._values, result)
+            _recursive_add_cache_files(obj._indices, result)
+        elif not isinstance(obj, Dense):
+            raise NotImplementedError(f"Unsupported Tensor type: {type(obj)}")
+    elif isinstance(obj, PhiTreeNode):
+        for a in all_attributes(obj):
+            _recursive_add_cache_files(getattr(obj, a), result)
