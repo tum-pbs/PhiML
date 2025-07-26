@@ -22,7 +22,7 @@ def sliceable(cls=None, /, *, dim_attrs=True, t_props=True, keepdims=None, dim_r
     Args:
         dim_attrs: Whether to generate `__getattr__` that allows slicing via the syntax `instance.dim[...]` where `dim` is the name of any dim present on `instance`.
         t_props: Whether to generate the properties `Tc`, `Ts` and `Ti` for transposing channel/spatial/instance dims.
-        keepdims: Which dimensions should be kept with size 1 taking a single slice along them. This will preserve item names.
+        keepdims: Which dimensions should be kept with size 1 taking a single slice along them. This will preserve labels.
         dim_repr: Whether to replace the default `repr` of a dataclass by a simplified one based on the object's shape.
     """
     def wrap(cls):

@@ -214,7 +214,7 @@ def native_call(f: Callable, *inputs: Tensor, channels_last=None, channel_dim='v
         assert isinstance(spatial_dim, SHAPE_TYPES), "spatial_dim must be a Shape or str"
         groups = [b_dims, *spatial_dim, *channel_dim] if channels_last else [b_dims, *channel_dim, *spatial_dim]
     result = reshaped_tensor(output, groups, convert=False)
-    if channel_dim.rank == 1 and result.shape.get_size(channel_dim.name) == 1 and not channel_dim.item_names[0]:
+    if channel_dim.rank == 1 and result.shape.get_size(channel_dim.name) == 1 and not channel_dim.labels[0]:
         result = result.dimension(channel_dim.name)[0]  # remove vector dim if not required
     return result
 
@@ -273,7 +273,7 @@ def slice_off(x, *slices: Dict[str, Union[slice, int, str]]):
     def to_slices(s):
         if isinstance(s, Tensor):
             assert len(s.shape.channel) == 1, f"Indices tensors must have a single channel dim but got {s}"
-            dims = s.shape.channel.item_names[0]
+            dims = s.shape.channel.labels[0]
             indices = s.numpy([..., channel])
             slices = [{d: i for d, i in zip(dims, idx)} for idx in indices]
             return slices
@@ -301,7 +301,7 @@ def slice_off(x, *slices: Dict[str, Union[slice, int, str]]):
                 for s_dict in slices:
                     s = next(iter(s_dict.values()))
                     if isinstance(s, str):
-                        names = x_shape.get_item_names(d)
+                        names = x_shape.get_labels(d)
                         s = [names.index(n.strip()) for n in s.split(',')]
                     mask[s] = 0
                 return boolean_mask(x, d, wrap(mask, x_shape[d]))
@@ -334,7 +334,7 @@ def _edge_slice(x_shape: Shape, dim: str, s):
         elif s == -1 or s == size - 1:
             return slice(size - 1, None)
     elif isinstance(s, (tuple, list)):
-        names = x_shape.get_item_names(dim)
+        names = x_shape.get_labels(dim)
         indices = [i if isinstance(i, int) else names.index(i) for i in s]
         if all(n in indices for n in range(max(indices))):
             return slice(0, max(indices) + 1)
@@ -361,7 +361,7 @@ def _includes_slice(s_dict: dict, dim: Shape, i: int):
     elif isinstance(s, slice):
         return (s.start or 0) <= i < (s.stop if s.stop is not None else dim.size)
     elif isinstance(s, (tuple, list)):
-        names = dim.item_names[0]
+        names = dim.labels[0]
         indices = [i if isinstance(i, int) else names.index(i) for i in s]
         return i in indices
 
@@ -561,9 +561,9 @@ def sort(x: TensorOrTree, dim: DimFilter = non_batch, key: Tensor = None) -> Ten
         axis = var_names.index(dim.name)
         x_native = x._native if isinstance(x, Dense) else x.native(x.shape)
         sorted_native = x.backend.sort(x_native, axis=axis)
-        if x.shape.get_item_names(dim):
-            warnings.warn(f"sort() removes item names along sorted axis '{dim}'. Was {x.shape.get_item_names(dim)}", RuntimeWarning, stacklevel=2)
-            x_shape = x_shape.with_dim_size(dim, x_shape.get_size(dim), keep_item_names=False)
+        if x.shape.get_labels(dim):
+            warnings.warn(f"sort() removes labels along sorted axis '{dim}'. Was {x.shape.get_labels(dim)}", RuntimeWarning, stacklevel=2)
+            x_shape = x_shape.with_dim_size(dim, x_shape.get_size(dim), keep_labels=False)
         return Dense(sorted_native, var_names, x_shape, x.backend)
     else:
         k_shape = key.shape
@@ -575,9 +575,9 @@ def sort(x: TensorOrTree, dim: DimFilter = non_batch, key: Tensor = None) -> Ten
         axis = var_names.index(dim.name)
         x_native = key._native if isinstance(key, Dense) else key.native(key.shape)
         native_perm = key.backend.argsort(x_native, axis=axis)
-        if key.shape.get_item_names(dim):
-            warnings.warn(f"sort() removes item names along sorted axis '{dim}'. Was {x.shape.get_item_names(dim)}", RuntimeWarning, stacklevel=2)
-            k_shape = k_shape.with_dim_size(dim, k_shape.get_size(dim), keep_item_names=False) & channel(index=dim.name)
+        if key.shape.get_labels(dim):
+            warnings.warn(f"sort() removes labels along sorted axis '{dim}'. Was {x.shape.get_labels(dim)}", RuntimeWarning, stacklevel=2)
+            k_shape = k_shape.with_dim_size(dim, k_shape.get_size(dim), keep_labels=False) & channel(index=dim.name)
         perm = Dense(native_perm, var_names, k_shape, key.backend)
         return slice_(x, perm)
 
@@ -722,7 +722,7 @@ def meshgrid(dims: Union[Callable, Shape] = spatial, stack_dim: Union[Shape, str
     if not stack_dim:
         assert len(channels) == 1, f"meshgrid with multiple dimension requires a valid stack_dim but got {stack_dim}"
         return channels[0]
-    if stack_dim.item_names[0] is None:
+    if stack_dim.labels[0] is None:
         stack_dim = stack_dim.with_size(tuple(dimensions.keys()))
     return stack_tensors(channels, stack_dim)
 
@@ -909,8 +909,8 @@ def concat_tensor(values: Union[tuple, list], dim: str) -> Tensor:
         backend = backend_for(*values)
         natives = [v.native(order=broadcast_shape.names) for v in values]
         concatenated = backend.concat(natives, dim_index)
-        if all([v.shape.get_item_names(dim) is not None or v.shape.get_size(dim) == 0 for v in values]):
-            broadcast_shape = broadcast_shape.with_dim_size(dim, sum([v.shape.get_item_names(dim) or () for v in values], ()))
+        if all([v.shape.get_labels(dim) is not None or v.shape.get_size(dim) == 0 for v in values]):
+            broadcast_shape = broadcast_shape.with_dim_size(dim, sum([v.shape.get_labels(dim) or () for v in values], ()))
         else:
             broadcast_shape = broadcast_shape.with_dim_size(dim, sum([v.shape.get_size(dim) for v in values]))
         return Dense(concatenated, broadcast_shape.names, broadcast_shape, backend)
@@ -1064,7 +1064,7 @@ def closest_grid_values(grid: Tensor,
     Finds the neighboring grid points in all directions and returns their values.
     The result will have 2^d values for each vector in coordinates in d dimensions.
 
-    If `coordinates` does not have a channel dimension with item names, the spatial dims of `grid` will be used.
+    If `coordinates` does not have a channel dimension with labels, the spatial dims of `grid` will be used.
 
     Args:
         grid: grid data. The grid is spanned by the spatial dimensions of the tensor
@@ -1085,7 +1085,7 @@ def _closest_grid_values(grid: Tensor,
                          stack_dim_prefix: str,
                          pad_kwargs: dict):
     # alternative method: pad array for all 2^d combinations, then stack to simplify gather.
-    dim_names = channel(coordinates).item_names[0] or grid.shape.spatial.names
+    dim_names = channel(coordinates).labels[0] or grid.shape.spatial.names
     dims = grid.shape.only(dim_names, reorder=True)
     assert len(dims) == len(dim_names), f"all grid dims {dim_names} must be present on grid but got shape {grid.shape}"
     # --- Pad tensor where transform is not possible ---
@@ -1118,7 +1118,7 @@ def grid_sample(grid: Tensor, coordinates: Tensor, extrap: Union['e_.Extrapolati
     Samples values of `grid` at the locations referenced by `coordinates`.
     Values lying in between sample points are determined via linear interpolation.
 
-    If `coordinates` has a channel dimension, its item names are used to determine the grid dimensions of `grid`.
+    If `coordinates` has a channel dimension, its labels are used to determine the grid dimensions of `grid`.
     Otherwise, the spatial dims of `grid` will be used.
 
     For values outside the valid bounds of `grid` (`coord < 0 or coord > grid.shape - 1`), `extrap` is used to determine the neighboring grid values.
@@ -1153,7 +1153,7 @@ def _grid_sample(grid: Tensor, coordinates: Tensor, extrap: Union['e_.Extrapolat
         extrap:
         pad_kwargs:
     """
-    dim_names = channel(coordinates).item_names[0] or grid.shape.spatial.names
+    dim_names = channel(coordinates).labels[0] or grid.shape.spatial.names
     dims = grid.shape.only(dim_names, reorder=True)
     assert len(dims) == len(dim_names), f"all grid dims {dim_names} must be present on grid but got shape {grid.shape}"
     if grid.shape.batch == coordinates.shape.batch or grid.shape.batch.volume == 1 or coordinates.shape.batch.volume == 1:
@@ -1219,7 +1219,7 @@ def broadcast_op(operation: Callable,
             iter_dims = iter_dims.names
         dim_name = next(iter(iter_dims))
         size = None
-        item_names = None
+        labels = None
         unstacked = []
         for tensor in tensors:
             if dim_name in tensor.shape:
@@ -1230,8 +1230,8 @@ def broadcast_op(operation: Callable,
                     size = len(unstacked_tensor)
                 else:
                     assert size == len(unstacked_tensor)
-                if item_names is None:
-                    item_names = dim.slice_names
+                if labels is None:
+                    labels = dim.slice_names
             else:
                 unstacked.append(tensor)
         result_unstacked = []
@@ -1239,7 +1239,7 @@ def broadcast_op(operation: Callable,
             gathered = [t[i] if isinstance(t, tuple) else t for t in unstacked]
             result_unstacked.append(broadcast_op(operation, gathered, iter_dims=set(iter_dims) - {dim_name}))
         if not no_return:
-            return stack(result_unstacked, Dim(dim_name, size, dim.dim_type, item_names))
+            return stack(result_unstacked, Dim(dim_name, size, dim.dim_type, labels))
 
 
 def where(condition: Union[Tensor, bool],
@@ -1332,7 +1332,7 @@ def nonzero(value: Union[Tensor, bool], list_dim: Union[Shape, str, int] = insta
             Special case: For retrieving only the first non-zero value, you may pass `1` instead of a `Shape` of size 1.
         index_dim: Index dimension.
         element_dims: Dims listing components of one value. A value is only considered `zero` if all components are 0.
-        list_dims: Dims in which non-zero elements are searched. These will be stored in the item names of `index_dim`.
+        list_dims: Dims in which non-zero elements are searched. These will be stored in the labels of `index_dim`.
 
     Returns:
         `Tensor` of shape (batch dims..., `list_dim`=#non-zero, `index_dim`=value.shape.spatial_rank)
@@ -1373,7 +1373,7 @@ def nonzero(value: Union[Tensor, bool], list_dim: Union[Shape, str, int] = insta
             assert cutoff is None, f"Cut-off Not implemented for sparse tensors"
             nonzero_values = nonzero(value._values)
             nonzero_indices = value._indices[nonzero_values]
-            index_dim_ = index_dim.with_size(channel(value._indices).item_names[0])
+            index_dim_ = index_dim.with_size(channel(value._indices).labels[0])
             return rename_dims(rename_dims(nonzero_indices, instance, list_dim), channel, index_dim_)
         elif isinstance(value, SparseCoordinateTensor):
             # value = value.compress(sparse_dims(value) - list_dims)
@@ -1385,8 +1385,8 @@ def nonzero(value: Union[Tensor, bool], list_dim: Union[Shape, str, int] = insta
             if cutoff is not None:
                 indices = indices[:cutoff, :]
             new_list_dim = list_dim
-            if preserve_names and list_dims.rank == 1 and list_dims.item_names[0]:
-                names = [list_dims.item_names[0][i] for i in indices[:, 0]]
+            if preserve_names and list_dims.rank == 1 and list_dims.labels[0]:
+                names = [list_dims.labels[0][i] for i in indices[:, 0]]
                 new_list_dim = new_list_dim.with_size(names)
             return reshaped_tensor(indices, [new_list_dim, index_dim.with_size(value.shape.name_list)])
     return broadcast_op(unbatched_nonzero, [value], iter_dims=broadcast.names)
@@ -2792,7 +2792,7 @@ def boolean_mask(x, dim: DimFilter, mask: Tensor, preserve_names=False):
         x: `Tensor` or `phiml.math.magic.Sliceable`.
         dim: Dimension of `x` to along which to discard slices.
         mask: Boolean `Tensor` marking which values to keep. Must have the dimension `dim` matching `x´.
-        preserve_names: This only supports uniform 1D slicing. Batched slicing will remove item names if incompatible.
+        preserve_names: This only supports uniform 1D slicing. Batched slicing will remove labels if incompatible.
 
     Returns:
         Selected values of `x` as `Tensor` with dimensions from `x` and `mask`.
@@ -2811,7 +2811,7 @@ def boolean_mask(x, dim: DimFilter, mask: Tensor, preserve_names=False):
         if dim in x._stack_dim:
             indices = np.nonzero(mask.numpy())[0]
             gathered = [x._obj[i] for i in indices]
-            size = len(gathered) if not preserve_names or x._stack_dim.item_names[0] is None else [x._stack_dim.item_names[0][i] for i in indices]
+            size = len(gathered) if not preserve_names or x._stack_dim.labels[0] is None else [x._stack_dim.labels[0][i] for i in indices]
             return Layout(gathered, dim.with_size(size))
         raise NotImplementedError
     if is_sparse(x):
@@ -2833,9 +2833,9 @@ def boolean_mask(x, dim: DimFilter, mask: Tensor, preserve_names=False):
             mask_native = mask_1d.native()  # only has 1 dim
             backend = choose_backend(x_native, mask_native)
             result_native = backend.boolean_mask(x_native, mask_native, axis=x.shape.index(dim))
-            new_shape = x.shape.with_sizes(backend.staticshape(result_native))  # ToDo add selected item names!!!
-            if preserve_names and dim.item_names[0]:
-                sel_names = [n for n, sel in zip(dim.item_names[0], mask_native) if sel]
+            new_shape = x.shape.with_sizes(backend.staticshape(result_native))  # ToDo add selected labels!!!
+            if preserve_names and dim.labels[0]:
+                sel_names = [n for n, sel in zip(dim.labels[0], mask_native) if sel]
                 new_shape = new_shape.with_dim_size(dim, sel_names)
             return Dense(result_native, new_shape.names, new_shape, backend)
         else:
@@ -2858,10 +2858,10 @@ def gather(values, indices: Tensor, dims: Union[DimFilter, None] = None, pref_in
         values: `Tensor` or `phiml.math.matic.PhiTreeNode` containing values to gather.
         indices: `int` `Tensor`. Multidimensional position references in `values`.
             Must contain a single channel dimension for the index vector matching the number of dimensions to index.
-            This channel dimension should list the dimension names to index as item names unless explicitly specified as `dims`.
+            This channel dimension should list the dimension names to index as labels unless explicitly specified as `dims`.
         dims: (Optional) Dimensions indexed by `indices`.
-            Alternatively, the dimensions can be specified as the item names of the channel dimension of `indices`.
-            If `None` and no index item names are specified, will default to all spatial dimensions or all instance dimensions, depending on which ones are present (but not both).
+            Alternatively, the dimensions can be specified as the labels of the channel dimension of `indices`.
+            If `None` and no index labels are specified, will default to all spatial dimensions or all instance dimensions, depending on which ones are present (but not both).
         pref_index_dim: In case `indices` has multiple channel dims, use this dim as the index, treating the others as batch.
             Has no effect if `indices` only has one channel dim.
 
@@ -2877,8 +2877,8 @@ def gather(values, indices: Tensor, dims: Union[DimFilter, None] = None, pref_in
         assert pref_index_dim in index_dim, f"When indices has multiple channel dims, pref_index_dim must select one of them but got {pref_index_dim} which is not in {index_dim}"
         index_dim = index_dim.only(pref_index_dim)
     if dims is None:
-        if index_dim and index_dim.item_names[0]:
-            dims = index_dim.item_names[0]
+        if index_dim and index_dim.labels[0]:
+            dims = index_dim.labels[0]
         else:  # Fallback to spatial / instance
             assert values.shape.instance.is_empty or values.shape.spatial.is_empty, f"Specify gather dimensions for values with both instance and spatial dimensions. Got {values.shape}"
             dims = values.shape.instance if values.shape.spatial.is_empty else values.shape.spatial
@@ -2900,7 +2900,7 @@ def gather(values, indices: Tensor, dims: Union[DimFilter, None] = None, pref_in
         inner_dims = values.shape.only(dims) - values._stack_dim
         if not inner_dims:
             index_list = unstack(rename_dims(indices, index_dim, 'index_'), indices.shape - index_dim)
-            v_list = [values[{n: int(v) for n, v in zip(index_dim.item_names[0], i)}] for i in index_list]
+            v_list = [values[{n: int(v) for n, v in zip(index_dim.labels[0], i)}] for i in index_list]
             return stack(v_list, indices.shape - index_dim)
         if values._stack_dim.only(dims).is_empty:
             assert len(values._stack_dim) == 1
@@ -2912,7 +2912,7 @@ def gather(values, indices: Tensor, dims: Union[DimFilter, None] = None, pref_in
         if not index_dim:
             index_dim = channel(gather=dims)
             indices = expand(indices, index_dim)
-        if not index_dim.item_names[0]:
+        if not index_dim.labels[0]:
             indices = indices._with_shape_replaced(indices.shape.with_dim_size(index_dim, dims))
         if values._is_tracer:
             return values._gather(indices)
@@ -2938,7 +2938,7 @@ def gather(values, indices: Tensor, dims: Union[DimFilter, None] = None, pref_in
             #     raise NotImplementedError  # ToDo iterate over batches
             result = []
             for single_index in unstack(indices, indices.shape - index_dim):
-                index_slice = {d: i for d, i in zip(index_dim.item_names[0], single_index)}
+                index_slice = {d: i for d, i in zip(index_dim.labels[0], single_index)}
                 result.append(values[index_slice])
             return stack(result, indices.shape - index_dim)
     def uniform_gather(values: Tensor, indices: Tensor):
@@ -3038,7 +3038,7 @@ def scatter(base_grid: Union[Tensor, Shape],
             dim, sel = next(iter(indices.items()))
             full_dim = base_grid.shape[dim]
             if isinstance(sel, str):
-                sel = full_dim.item_names[0].index(sel)
+                sel = full_dim.labels[0].index(sel)
             if isinstance(sel, int):
                 sel = slice(sel, sel+1)
             assert isinstance(sel, slice), f"Selection must be a str, int or slice but got {type(sel)}"
@@ -3053,8 +3053,8 @@ def scatter(base_grid: Union[Tensor, Shape],
             raise NotImplementedError("scattering into non-continuous values not yet supported by dimension")
     grid_shape = base_grid if isinstance(base_grid, SHAPE_TYPES) else base_grid.shape
     assert channel(indices).rank < 2
-    if channel(indices) and channel(indices).item_names[0]:
-        indexed_dims = channel(indices).item_names[0]
+    if channel(indices) and channel(indices).labels[0]:
+        indexed_dims = channel(indices).labels[0]
         assert indexed_dims in grid_shape, f"Scatter indices {indices.shape} point to missing dimensions in grid {grid_shape}"
         if indexed_dims != grid_shape.only(indexed_dims).names:
             indices = indices[{channel: grid_shape.only(indexed_dims).names}]
@@ -3159,8 +3159,8 @@ def ravel_index(index: Tensor, resolution: Shape, dim=channel, mode='undefined')
     index_dim = index.shape.only(dim)
     assert index_dim.rank == 1, f"index must have exaclty one index dim but got {index_dim}"
     nat_idx = index._reshaped_native([*(index.shape-index_dim), index_dim])
-    if index_dim.item_names[0]:
-        sizes = [resolution.get_size(dim) for dim in index_dim.item_names[0]]
+    if index_dim.labels[0]:
+        sizes = [resolution.get_size(dim) for dim in index_dim.labels[0]]
     else:
         assert resolution.rank == index_dim.size
         sizes = resolution.sizes
@@ -3652,7 +3652,7 @@ def pairwise_differences(positions: Tensor,
     else:
         assert isinstance(periodic, Tensor), f"periodic must be a bool or Tensor but got {periodic}"
         assert periodic.shape.names == channel(positions).names
-        assert periodic.shape.item_names == channel(positions).item_names
+        assert periodic.shape.labels == channel(positions).labels
         any_periodic = periodic.any
     # --- Dense ---
     if (isinstance(format, str) and format == 'dense') or (isinstance(format, Tensor) and get_format(format) == 'dense'):
@@ -3765,7 +3765,7 @@ def map_pairs(map_function: Callable, values: Tensor, connections: Tensor):
         result = map_function(values, target)
         return connections._with_values(result)
     indices = stored_indices(connections, invalid='clamp')
-    origin_dim, neighbors_dim = channel(indices).item_names[0]
+    origin_dim, neighbors_dim = channel(indices).labels[0]
     if origin_dim not in values.shape:
         origin_dim, neighbors_dim = neighbors_dim, origin_dim
     assert origin_dim in values.shape, f"No dimension of connections {connections.shape} is present in values {values.shape}"

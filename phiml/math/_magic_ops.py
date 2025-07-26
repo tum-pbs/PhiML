@@ -35,8 +35,8 @@ def slice_(value: PhiTreeNodeType, slices: Union[Dict[str, Union[int, slice, str
             * An index (`int`)
             * A range (`slice`)
             * An item name (`str`)
-            * Multiple item names (comma-separated `str`)
-            * Multiple indices or item names (`tuple` or `list`)
+            * Multiple labels (comma-separated `str`)
+            * Multiple indices or labels (`tuple` or `list`)
 
     Returns:
         `Tensor` or `phiml.math.magic.PhiTreeNode` of the same type as `value`.
@@ -142,7 +142,7 @@ def stack(values: Union[Sequence[PhiTreeNodeType], Dict[str, PhiTreeNodeType]], 
 
     Args:
         values: Collection of `phiml.math.magic.Shapable`, such as `phiml.math.Tensor`
-            If a `dict`, keys must be of type `str` and are used as item names along `dim`.
+            If a `dict`, keys must be of type `str` and are used as labels along `dim`.
         dim: `Shape` with a least one dimension. None of these dims can be present with any of the `values`.
             If `dim` is a single-dimension shape, its size is determined from `len(values)` and can be left undefined (`None`).
             If `dim` is a multi-dimension shape, its volume must be equal to `len(values)`.
@@ -213,10 +213,10 @@ def stack(values: Union[Sequence[PhiTreeNodeType], Dict[str, PhiTreeNodeType]], 
         if dim.size is None:
             dim = dim.with_size(len(values))
         if isinstance(values, dict):
-            dim_item_names = tuple([k.name if isinstance(k, SHAPE_TYPES) else k for k in values.keys()])
-            assert all(isinstance(k, str) for k in dim_item_names), f"dict keys must be of type str but got {dim_item_names}"
+            dim_labels = tuple([k.name if isinstance(k, SHAPE_TYPES) else k for k in values.keys()])
+            assert all(isinstance(k, str) for k in dim_labels), f"dict keys must be of type str but got {dim_labels}"
             values = tuple(values.values())
-            dim = dim.with_size(dim_item_names)
+            dim = dim.with_size(dim_labels)
         # --- First try __stack__ ---
         for v in values:
             if hasattr(v, '__stack__'):
@@ -268,7 +268,7 @@ def stack(values: Union[Sequence[PhiTreeNodeType], Dict[str, PhiTreeNodeType]], 
         # --- Fallback: use expand and concat ---
         for v in values:
             if not hasattr(v, '__stack__') and hasattr(v, '__concat__') and hasattr(v, '__expand__'):
-                expanded_values = tuple([expand(v, dim.with_size(1 if dim.item_names[0] is None else dim.item_names[0][i]), **kwargs) for i, v in enumerate(values)])
+                expanded_values = tuple([expand(v, dim.with_size(1 if dim.labels[0] is None else dim.labels[0][i]), **kwargs) for i, v in enumerate(values)])
                 if len(expanded_values) > 8:
                     warnings.warn(f"stack() default implementation is slow on large dims ({dim.name}={len(expanded_values)}). Please implement __stack__()", RuntimeWarning, stacklevel=2)
                 result = v.__concat__(expanded_values, dim.name, **kwargs)
@@ -366,7 +366,7 @@ def concat(values: Sequence[PhiTreeNodeType], dim: Union[str, Shape], expand_val
     #  --- Add missing dimensions ---
     if expand_values:
         all_dims = merge_shapes(*shapes, allow_varying_sizes=True)
-        all_dims = all_dims.with_dim_size(dim, 1, keep_item_names=False)
+        all_dims = all_dims.with_dim_size(dim, 1, keep_labels=False)
         values = [expand(v, all_dims - s) for v, s in zip(values, shapes)]
     else:
         for v, s in zip(values, shapes):
@@ -415,8 +415,8 @@ def ncat(values: Sequence[PhiTreeNodeType], dim: Shape, expand_values=False) -> 
 
     Args:
         values: Each value can contain multiple components of `dim` if `dim` is present in its shape.
-            Else, it is interpreted as a single component whose name will be determined from the leftover item names of `dim`.
-        dim: Single dimension that has item names matching components of `values`.
+            Else, it is interpreted as a single component whose name will be determined from the leftover labels of `dim`.
+        dim: Single dimension that has labels matching components of `values`.
         expand_values: If `True`, will add all missing dims to values, not just batch dimensions.
             This allows tensors with different dims to be concatenated.
             The resulting tensor will have all dims that are present in `values`.
@@ -425,14 +425,14 @@ def ncat(values: Sequence[PhiTreeNodeType], dim: Shape, expand_values=False) -> 
     Returns:
         Same type as any value from `values`.
     """
-    order = dim.item_names[0]
-    assert dim.rank == 1 and order, f"dim needs to be a single dimension with item names but got {dim}"
+    order = dim.labels[0]
+    assert dim.rank == 1 and order, f"dim needs to be a single dimension with labels but got {dim}"
     named = {}
     unnamed = []
     for value in values:
         s = shape(value)
         if dim in s:
-            for n in s[dim].item_names[0]:
+            for n in s[dim].labels[0]:
                 named[n] = value[{dim.name: n}]
         else:
             unnamed.append(value)
@@ -518,7 +518,7 @@ def expand(value, *dims: Union[Shape, str], **kwargs):
     dims = concat_shapes_(*[d if isinstance(d, SHAPE_TYPES) else parse_shape_spec(d) for d in dims])
     combined = merge_shapes(value, dims)  # check that existing sizes match
     if not dims.without(shape(value)):  # no new dims to add
-        if set(dims) == set(shape(value).only(dims)):  # sizes and item names might differ, though
+        if set(dims) == set(shape(value).only(dims)):  # sizes and labels might differ, though
             return value
     dims &= combined.non_uniform_shape  # add missing non-uniform dims
     # --- First try __expand__
@@ -632,8 +632,8 @@ def _shape_replace(shape: Shape, dims: DimFilter, new: DimFilter) -> Tuple[Shape
         return EMPTY_SHAPE, EMPTY_SHAPE
     # --- Replace based on type(new) ---
     if isinstance(new, str) and new.startswith('(') and new.endswith(')'):
-        item_names = [s.strip() for s in new[1:-1].split(',')]
-        new = concat_shapes_(*[d.with_size(item_names) for d in existing])
+        labels = [s.strip() for s in new[1:-1].split(',')]
+        new = concat_shapes_(*[d.with_size(labels) for d in existing])
     elif isinstance(new, str):
         new = parse_dim_order(new)
         assert len(new) == len(existing), f"Number of names {new} does not match dims to replace {existing}"

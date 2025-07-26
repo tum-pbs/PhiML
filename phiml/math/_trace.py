@@ -319,7 +319,7 @@ class GatherLinTracer(Tensor):
         if DEBUG_CHECKS:
             if selection is not None:
                 assert selection.min >= 0, f"Negative selection indices: {selection}"
-                for dim in channel(selection).item_names[0]:
+                for dim in channel(selection).labels[0]:
                     assert selection[dim].max < self._source.shape.get_size(dim), f"Too large selection indices for source tensor {self._source.shape}: {selection}"
 
     def __repr__(self):
@@ -339,14 +339,14 @@ class GatherLinTracer(Tensor):
         Args:
             indices: has 1 channel and 1 non-channel/non-instance
         """
-        dims = channel(indices).item_names[0]
+        dims = channel(indices).labels[0]
         shape = self.shape.without(dims) & indices.shape.non_channel
         renamed = {n: o for n, o in self._renamed.items() if n not in dims}
         bias = expand(self._bias, self.shape.only(dims))[indices]
         diag = expand(self._diag, self.shape.only(dims))[indices]
         if self._selection is not None:
             indices = self._selection[indices]
-        old_sel_dims = [self._renamed.get(d, d) for d in channel(indices).item_names[0]]
+        old_sel_dims = [self._renamed.get(d, d) for d in channel(indices).labels[0]]
         indices_shape = indices.shape.with_dim_size(channel(indices), old_sel_dims)
         indices = indices._with_shape_replaced(indices_shape)
         return GatherLinTracer(self._source, diag, bias, shape, indices, renamed)
@@ -424,7 +424,7 @@ class GatherLinTracer(Tensor):
     def _get_selection(self, selection_dims, list_dim: Shape = instance('selection'), index_dim: Shape = channel('gather')):
         original_dims = [self._renamed.get(d, d) for d in selection_dims]
         if self._selection is not None:
-            assert selection_dims == set(channel(self._selection).item_names[0])
+            assert selection_dims == set(channel(self._selection).labels[0])
             return rename_dims(self._selection, non_batch(self._selection).non_channel, list_dim)
         else:
             sel_src_shape = self._source.shape.only(original_dims)
@@ -485,13 +485,13 @@ class SparseLinTracer(Tensor):
         """
         matrix = self._matrix[indices]
         bias = self._bias[indices]
-        shape = self._shape.without(channel(indices).item_names[0]) & non_channel(indices)
+        shape = self._shape.without(channel(indices).labels[0]) & non_channel(indices)
         return SparseLinTracer(self._source, matrix, bias, shape)
 
     def _scatter(self, base: Tensor, indices: Tensor) -> Tensor:
         full_shape = base.shape
         add_bias = discard_constant_dims(base)
-        min_shape = base.shape.only(channel(indices).item_names[0])
+        min_shape = base.shape.only(channel(indices).labels[0])
         row_dims = sparse_dims(self._matrix).only(self._shape)
         col_dims = sparse_dims(self._matrix).only([n for n in self._matrix.sparse_dims.names if n.endswith('_src')])
         rows = rename_dims(indices[self._matrix._indices[row_dims.name_list]], channel, 'sparse_idx')
@@ -583,7 +583,7 @@ def concat_tracers(tracers: Sequence[Tensor], dim: str):
         offset = 0
         for t in tracers:
             if t._is_tracer:
-                offset_vec = [offset if d == dim else 0 for d in channel(t._matrix._indices).item_names[0]]
+                offset_vec = [offset if d == dim else 0 for d in channel(t._matrix._indices).labels[0]]
                 indices.append(stored_indices(t._matrix, invalid='keep') + offset_vec)
                 values.append(stored_values(t._matrix, invalid='keep'))
                 biases.append(expand(t._bias, t.shape[dim]))
@@ -602,7 +602,7 @@ def concat_tracers(tracers: Sequence[Tensor], dim: str):
         tracers = [to_gather_tracer(t) if t._is_tracer else t for t in tracers]
         any_tracer = [t for t in tracers if t._is_tracer][0]
         src_dim = any_tracer._renamed.get(dim, dim)
-        selection_dims = set(sum([channel(t._selection).item_names[0] for t in tracers if t._is_tracer and t._selection is not None], ()))
+        selection_dims = set(sum([channel(t._selection).labels[0] for t in tracers if t._is_tracer and t._selection is not None], ()))
         if not selection_dims:
             selection_dims = {any_tracer._renamed.get(dim, dim)}
         selections = []
@@ -824,7 +824,7 @@ def dependent_src_dims(tracer: Tensor) -> Shape:
     elif isinstance(tracer, GatherLinTracer):
         dims = set()
         if tracer._selection is not None:
-            dims.update(set(channel(tracer._selection).item_names[0]))
+            dims.update(set(channel(tracer._selection).labels[0]))
         dims.update(set([tracer._renamed.get(d, d) for d in tracer._diag.shape.names]))
         return tracer._source.shape.only(dims)
     elif isinstance(tracer, SparseLinTracer):

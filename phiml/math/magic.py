@@ -110,7 +110,7 @@ class Sliceable(metaclass=_SliceableType):
 
         Args:
             item: `dict` mapping dimension names to the corresponding selections.
-                Selections can be slices, indices, tuples, item names, bool tensors, int tensors or other custom types.
+                Selections can be slices, indices, tuples, labels, bool tensors, int tensors or other custom types.
                 All Sliceable object must support indexing by `int`, `slice`, `tuple`, `list`, `str`.
 
         Returns:
@@ -232,7 +232,7 @@ class Shapable(metaclass=_ShapableType):
     def __replace_dims__(self, dims: Tuple[str, ...], new_dims: Shape, **kwargs) -> 'Shapable':
         """
         Exchange existing dimensions.
-        This can be used to rename dimensions, change dimension types or change item names.
+        This can be used to rename dimensions, change dimension types or change labels.
 
         Args:
             dims: Dimensions to be replaced.
@@ -457,7 +457,7 @@ class BoundDim:
     **Usage**
 
     * `obj.dim.size` returns the dimension size.
-    * `obj.dim.item_names` returns the dimension item names.
+    * `obj.dim.labels` returns the dimension labels.
     * `obj.dim.exists` checks whether a dimension is listed in the shape of the bound object.
     * `obj.dim[0]` picks the first element along `dim`. The shape of the result will not contain `dim`.
     * `obj.dim[1:-1]` discards the first and last element along `dim`.
@@ -506,12 +506,12 @@ class BoundDim:
     def __repr__(self):
         if self.name not in shape(self.obj):
             return f"{type(self.obj).__name__}.{self.name} (non-existent)"
-        items = self.item_names
-        if items is not None:
-            if len(items) <= 4:
-                size_repr = ",".join(items)
+        labels = self.labels
+        if labels is not None:
+            if len(labels) <= 4:
+                size_repr = ",".join(labels)
             else:
-                size_repr = f"{self.size}:{items[0]}..{items[-1]}"
+                size_repr = f"{self.size}:{labels[0]}..{labels[-1]}"
         else:
             size_repr = self.size
         from ._shape import SUPERSCRIPT
@@ -539,18 +539,20 @@ class BoundDim:
         return shape(self.obj)[self.name].type
 
     @property
-    def item_names(self):
-        return shape(self.obj).get_item_names(self.name)
+    def labels(self):
+        return shape(self.obj).get_labels(self.name)
+
+    item_names = labels
 
     @property
     def item_name_list(self):
-        return list(shape(self.obj).get_item_names(self.name))
+        return list(shape(self.obj).get_labels(self.name))
 
     @property
     def name_tensor(self):
         dim = shape(self.obj)[self.name]
         from ._tensors import wrap
-        return wrap(dim.item_names[0], dim)
+        return wrap(dim.labels[0], dim)
 
     def __getitem__(self, item):
         return self.obj[{self.name: item}]
@@ -563,15 +565,15 @@ class BoundDim:
 
     def keys(self):
         """
-        Allows unstacking with item names as `dict(**obj.dim)`.
+        Allows unstacking with labels as `dict(**obj.dim)`.
 
         Returns:
-            Sequence of item names or indices.
+            Sequence of labels or indices.
         """
         if not self.exists:
-            raise SyntaxError(f"Cannot get item names of nonexistent dim '{self.name}'. shape={shape(self.obj)}")
-        if self.item_names is not None:
-            return self.item_names
+            raise SyntaxError(f"Cannot get labels of nonexistent dim '{self.name}'. shape={shape(self.obj)}")
+        if self.labels is not None:
+            return self.labels
         else:
             return range(self.size)
 
@@ -605,7 +607,7 @@ class BoundDim:
             return iter([self.obj])
 
     def items(self):
-        keys = self.item_names
+        keys = self.labels
         if keys is None:
             keys = range(self.size)
         values = self.unstack()
@@ -633,7 +635,7 @@ class BoundDim:
         See Also:
             `phiml.math.rename_dims()`
         """
-        new_dim = dim_type(**{self.name: self.item_names or self.size})
+        new_dim = dim_type(**{self.name: self.labels or self.size})
         from ._magic_ops import rename_dims
         return rename_dims(self.obj, self.name, new_dim, **kwargs)
 
@@ -643,31 +645,31 @@ class BoundDim:
         """ Returns a shallow copy of the `Tensor` where the type of this dimension is *batch*. """
         if not self.exists:
             return self.obj
-        return self.retype(batch) if name is None else self.replace(batch(**{name: self.item_names or self.size}))
+        return self.retype(batch) if name is None else self.replace(batch(**{name: self.labels or self.size}))
 
     def as_spatial(self, name: str = None):
         """ Returns a shallow copy of the `Tensor` where the type of this dimension is *spatial*. """
         if not self.exists:
             return self.obj
-        return self.retype(spatial) if name is None else self.replace(spatial(**{name: self.item_names or self.size}))
+        return self.retype(spatial) if name is None else self.replace(spatial(**{name: self.labels or self.size}))
 
     def as_channel(self, name: str = None):
         """ Returns a shallow copy of the `Tensor` where the type of this dimension is *channel*. """
         if not self.exists:
             return self.obj
-        return self.retype(channel) if name is None else self.replace(channel(**{name: self.item_names or self.size}))
+        return self.retype(channel) if name is None else self.replace(channel(**{name: self.labels or self.size}))
 
     def as_instance(self, name: str = None):
         """ Returns a shallow copy of the `Tensor` where the type of this dimension is *instance*. """
         if not self.exists:
             return self.obj
-        return self.retype(instance) if name is None else self.replace(instance(**{name: self.item_names or self.size}))
+        return self.retype(instance) if name is None else self.replace(instance(**{name: self.labels or self.size}))
 
     def as_dual(self, name: str = None):
         """ Returns a shallow copy of the `Tensor` where the type of this dimension is *instance*. """
         if not self.exists:
             return self.obj
-        return self.retype(dual) if name is None else self.replace(dual(**{name: self.item_names or self.size}))
+        return self.retype(dual) if name is None else self.replace(dual(**{name: self.labels or self.size}))
 
     @property
     def T(self):
@@ -756,7 +758,7 @@ class _BoundDims:
             `phiml.math.rename_dims()`
         """
         s = shape(self.obj)
-        new_dims = concat_shapes_(*[dim_type(**{dim: s.get_item_names(dim) or s.get_size(dim)}) for dim in self.dims])
+        new_dims = concat_shapes_(*[dim_type(**{dim: s.get_labels(dim) or s.get_size(dim)}) for dim in self.dims])
         from ._magic_ops import rename_dims
         return rename_dims(self.obj, self.dims, new_dims, **kwargs)
 
@@ -835,19 +837,19 @@ def slicing_dict(obj, item, existing_only=True) -> dict:
         mask_dim = item.shape.non_batch or item.shape
         return {mask_dim.name: item}
     elif isinstance(item, Tensor) and item.dtype.kind == int and channel(item):  # gather
-        assert channel(item).item_names[0], f"When gathering using data[indices], indices Tensor must declare the indexed dimension as the item name of its channel dim but got {item.shape}"
+        assert channel(item).labels[0], f"When gathering using data[indices], indices Tensor must declare the indexed dimension as the item name of its channel dim but got {item.shape}"
         if channel(item).size == 1:
-            return {channel(item).item_names[0][0]: item}
+            return {channel(item).labels[0][0]: item}
         else:
-            return {tuple(channel(item).item_names[0]): item}
+            return {tuple(channel(item).labels[0]): item}
     elif isinstance(item, str):
         items = item.split('->', 1)[0] if '->' in item else item
-        item_names = set([s.strip() for s in items.split(",")])
+        labels = set([s.strip() for s in items.split(",")])
         for dim in shape(obj):
-            if dim.item_names[0] and item_names.issubset(dim.item_names[0]):
+            if dim.labels[0] and labels.issubset(dim.labels[0]):
                 return {dim.name: item}
         class_name = "Tensor" if isinstance(obj, Tensor) else type(obj).__name__
-        raise AssertionError(f"Failed to slice {class_name}['{item}'] because item names are not present on any dim: {shape(obj)}")
+        raise AssertionError(f"Failed to slice {class_name}['{item}'] because labels are not present on any dim: {shape(obj)}")
     elif shape(obj).channel_rank == 1:
         return {channel(obj).name: item}
     elif non_batch(obj).rank == 1:

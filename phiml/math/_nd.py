@@ -20,7 +20,7 @@ def vec(name: Union[str, Shape] = 'vector', *sequence, tuple_dim=spatial('sequen
 
     Args:
         name: Dimension name.
-        *sequence: Component values that will also be used as item names.
+        *sequence: Component values that will also be used as labels.
             If specified, `components` must be empty.
         **components: Values by component name.
             If specified, no additional positional arguments must be given.
@@ -52,9 +52,9 @@ def vec(name: Union[str, Shape] = 'vector', *sequence, tuple_dim=spatial('sequen
         assert not components, "vec() must be given either positional or keyword arguments but not both"
         if len(sequence) == 1 and isinstance(sequence[0], (tuple, list)):
             sequence = sequence[0]
-        item_names = [str(v) for v in sequence]
-        if len(set(item_names)) == len(item_names):
-            dim = dim.with_size(item_names)
+        labels = [str(v) for v in sequence]
+        if len(set(labels)) == len(labels):
+            dim = dim.with_size(labels)
         return wrap(sequence, dim)
     else:
         def wrap_sequence(value):
@@ -420,9 +420,9 @@ def index_shift(x: Tensor, offsets: Sequence[Union[int, Tensor]], padding: Union
 
 def join_index_offsets(offsets: Sequence[Union[int, Tensor]], negate=False):
     assert offsets, f"At least one offset mut be provided."
-    assert all((isinstance(o, int) and o == 0) or (channel(o) and channel(o).item_names[0]) for o in offsets)
-    dims = tuple(set().union(*[channel(o).item_names[0] for o in offsets if channel(o)]))
-    offsets = [vec(**{d: o[d] if not isinstance(o, int) and d in channel(o).item_names[0] else 0 for d in dims}) for o in offsets]
+    assert all((isinstance(o, int) and o == 0) or (channel(o) and channel(o).labels[0]) for o in offsets)
+    dims = tuple(set().union(*[channel(o).labels[0] for o in offsets if channel(o)]))
+    offsets = [vec(**{d: o[d] if not isinstance(o, int) and d in channel(o).labels[0] else 0 for d in dims}) for o in offsets]
     min_by_dim = {d: min([int(o[d]) for o in offsets]) for d in dims}
     max_by_dim = {d: max([int(o[d]) for o in offsets]) for d in dims}
     neg = -1 if negate else 1
@@ -715,7 +715,7 @@ def laplace(x: Tensor,
     if weights is not None:
         dim_names = x.shape.only(dims).names
         if channel(weights):
-            assert set(channel(weights).item_names[0]) >= set(dim_names), f"the channel dim of weights must contain all laplace dims {dim_names} but only has {channel(weights).item_names}"
+            assert set(channel(weights).labels[0]) >= set(dim_names), f"the channel dim of weights must contain all laplace dims {dim_names} but only has {channel(weights).labels}"
             weights = rename_dims(weights, channel, batch('_laplace'))
         result *= weights
     result = math.sum_(result, '_laplace')

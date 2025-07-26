@@ -336,7 +336,7 @@ class TestTensors(TestCase):
         self.assertEqual(('r', 'g', 'b'), t2.vector.item_names)
         try:
             t1 + t2
-            self.fail("Tensors with incompatible item names cannot be added")
+            self.fail("Tensors with incompatible labels cannot be added")
         except math.IncompatibleShapes:
             pass
         t1 + t1

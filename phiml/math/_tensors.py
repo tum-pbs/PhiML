@@ -1455,7 +1455,7 @@ class TensorStack(Tensor):
             assert isinstance(t, Tensor)
             assert stack_dim.name not in t.shape, f"Cannot stack along '{stack_dim.name}' because the dimension already exists."
         self._tensors = tuple(components)
-        self._stack_dim = stack_dim.with_sizes([len(components)], keep_item_names=True)
+        self._stack_dim = stack_dim.with_sizes([len(components)], keep_labels=True)
         try:
             merge_shapes(*self._tensors)
             self._varying_shapes = False
@@ -1691,7 +1691,7 @@ def tensor(data,
         data: native tensor, sparse COO / CSR / CSC matrix, scalar, sequence, `Shape` or `Tensor`
         shape: Ordered dimensions and types. If sizes are defined, they will be checked against `data`.`
             When passing multiple shapes, they will be concatenated. Duplicate names are not allowed.
-            Instead of `Shape` instances, you may pass strings specifying dims in the format `name:t` or `name:t=(item_names)` where `t` refers to the type letter, one of s,i,c,d,b.
+            Instead of `Shape` instances, you may pass strings specifying dims in the format `name:t` or `name:t=(labels)` where `t` refers to the type letter, one of s,i,c,d,b.
             Alternatively, you can pass a single `list` of shapes which will call `reshaped_tensor`. This allows for unpacking native dims into multiple dims.
         convert: If True, converts the data to the native format of the current default backend.
             If False, wraps the data in a `Tensor` but keeps the given data reference if possible.
@@ -1785,7 +1785,7 @@ def tensor(data,
             for size, s in zip(sizes, shape.sizes):
                 if s is not None:
                     assert s == size, f"Given shape {shape} does not match data with sizes {sizes}. Consider leaving the sizes undefined."
-            shape = shape.with_sizes(sizes, keep_item_names=True)
+            shape = shape.with_sizes(sizes, keep_labels=True)
         if backend.is_sparse(data):
             from ._sparse import from_sparse_native
             return from_sparse_native(data, shape, indices_constant=backend == NUMPY, convert=convert)
@@ -1811,7 +1811,7 @@ def layout(objects, *shape: Union[Shape, str]) -> Tensor:
     A python tree is a structure of nested `tuple`, `list`, `dict` and *leaf* objects where leaves can be any Python object.
 
     All keys of `dict` containers must be of type `str`.
-    The keys are automatically assigned as item names along that dimension unless conflicting with other elements.
+    The keys are automatically assigned as labels along that dimension unless conflicting with other elements.
 
     Strings may also be used as containers.
 
@@ -2904,7 +2904,7 @@ def format_row(self: Tensor, options: PrintOptions) -> str:  # all values in a s
     """
     Including shape:  (x=5, y=4) along vector
     Without shape: (5, 4)
-    Auto: don't show if 'vector' but show item names
+    Auto: don't show if 'vector' but show labels
 
     Args:
         self:
@@ -2965,8 +2965,8 @@ def _format_vector(self: Tensor, options: PrintOptions) -> str:
     colors = options.get_colors()
     if self.shape.rank > 1:
         self = flatten(self, channel('flat'))
-    if self.shape.item_names[0] is not None and options.include_shape is not False:
-        content = ", ".join([f"{item}={_format_number(number, options, self.dtype)}" for number, item in zip(self, self.shape.item_names[0])])
+    if self.shape.labels[0] is not None and options.include_shape is not False:
+        content = ", ".join([f"{item}={_format_number(number, options, self.dtype)}" for number, item in zip(self, self.shape.labels[0])])
     else:
         content = ", ".join([_format_number(num, options, self.dtype) for num in self])
     return colors.value(f"({content})")
