@@ -216,8 +216,15 @@ class SparseCoordinateTensor(Tensor):
     def _is_tracer(self) -> bool:
         return self._indices._is_tracer or self._values._is_tracer
 
+    @property
+    def available(self) -> bool:
+        return self._indices.available and self._values.available
+
     def _with_values(self, new_values: Tensor, matrix_rank=-1):
         return SparseCoordinateTensor(self._indices, new_values, self._dense_shape, self._can_contain_double_entries, self._indices_sorted, self._indices_constant, matrix_rank)
+
+    def _with_data(self, indices: Tensor, values: Tensor):
+        return SparseCoordinateTensor(indices, values, self._dense_shape, self._can_contain_double_entries, self._indices_sorted, self._indices_constant, self._matrix_rank)
 
     def _natives(self) -> tuple:
         if self._indices_constant:
@@ -571,6 +578,10 @@ class CompressedSparseMatrix(Tensor):
     def _is_tracer(self) -> bool:
         return self._values._is_tracer or self._indices._is_tracer or self._pointers._is_tracer
 
+    @property
+    def available(self) -> bool:
+        return self._values.available or self._indices.available or self._pointers.available
+
     def _natives(self) -> tuple:
         if self._indices_constant:
             return self._values._natives()
@@ -755,6 +766,9 @@ class CompressedSparseMatrix(Tensor):
     def _with_values(self, new_values: Tensor, m_rank: Tensor = -1):
         return CompressedSparseMatrix(self._indices, self._pointers, new_values, self._uncompressed_dims, self._compressed_dims, self._indices_constant, self._uncompressed_offset, self._uncompressed_indices, self._uncompressed_indices_perm, m_rank)
 
+    def _with_data(self, indices: Tensor, pointers: Tensor, values: Tensor):
+        return CompressedSparseMatrix(indices, pointers, values, self._uncompressed_dims, self._compressed_dims, self._indices_constant, self._uncompressed_offset, self._uncompressed_indices, self._uncompressed_indices_perm, self._matrix_rank)
+
     def _with_shape_replaced(self, new_shape: Shape):
         assert self._shape.rank == new_shape.rank
         values = self._values._with_shape_replaced(self._values.shape.replace_selection(self._shape.names, new_shape))
@@ -892,6 +906,10 @@ class CompactSparseTensor(Tensor):
         return self._indices._is_tracer or self._values._is_tracer
 
     @property
+    def available(self) -> bool:
+        return self._indices.available and self._values.available
+
+    @property
     def _uncompressed_dims(self):
         return non_batch(self._indices).without(self._compressed_dims)
 
@@ -932,6 +950,9 @@ class CompactSparseTensor(Tensor):
 
     def _with_values(self, new_values: Tensor, matrix_rank=-1):
         return CompactSparseTensor(self._indices, new_values, self._compressed_dims, self._indices_constant, matrix_rank)
+
+    def _with_data(self, indices: Tensor, values: Tensor):
+        return CompactSparseTensor(indices, values, self._compressed_dims, self._indices_constant, self._matrix_rank)
 
     def to_coo(self):
         from ._ops import arange

@@ -1,14 +1,14 @@
 import dataclasses
 import traceback
 import weakref
-from typing import Sequence, Dict, Optional, Set
+from typing import Sequence, Dict, Optional, Set, Callable
 
 import h5py
 
 from ..backend._backend import get_backend
 from ..math._magic_ops import all_attributes
-from ..math._sparse import SparseCoordinateTensor, CompressedSparseMatrix, CompactSparseTensor
-from ..math._tensors import Tensor, Dense, Layout, TensorStack
+from ..math._sparse import SparseCoordinateTensor, CompressedSparseMatrix, CompactSparseTensor, get_format
+from ..math._tensors import Tensor, Dense, Layout, TensorStack, cached
 from .. import Shape, DType
 from ..backend import Backend, ML_LOGGER
 from ..math.magic import PhiTreeNode
@@ -63,12 +63,13 @@ class DiskTensor(Dense):
             if memory_tensor is not None:
                 return memory_tensor
         ML_LOGGER.debug(f"Loading {self.source.path} into memory")
-        # traceback.print_stack()
+        for callback in _ON_LOAD_FROM_DISK:
+            callback(self)
         try:
             file = self.source.h5file
             data_ref = file[self.array_name]
         except Exception as e:
-            traceback.print_exception(e)
+            traceback.print_exception(e)  # these can be hard to track down when in a subprocess
             raise e
         if not self.array_slices:
             data = data_ref[:] if self._names else data_ref[()]
@@ -110,6 +111,23 @@ class DiskTensor(Dense):
             layout_ = [v for v in values if isinstance(v, Layout)][0]
             return layout_.__stack__(values, dim, **_kwargs)
         return TensorStack(values, dim)
+
+
+_ON_LOAD_FROM_DISK = []
+
+
+def on_load_into_memory(callback: Callable[[Tensor], None]):
+    """
+    Register a function to be called every time a cached tensor is loaded from disk into memory in this process.
+
+    Tensors are stored on disk to save memory, e.g. in `parallel_compute()` if a memory limit is specified.
+
+    When accessing the tensor values or using them in any computation, the values are temporarily loaded into memory and `callback` is called.
+
+    Args:
+        callback: Function `callback(Tensor)`.
+    """
+    _ON_LOAD_FROM_DISK.append(callback)
 
 
 def get_cache_files(obj) -> Set[str]:
@@ -163,3 +181,34 @@ def _recursive_add_cache_files(obj, result: Set[str]):
     elif isinstance(obj, PhiTreeNode):
         for a in all_attributes(obj):
             _recursive_add_cache_files(getattr(obj, a), result)
+
+
+def write_to_h5(t: Tensor, name: str, f: h5py.File, ref: H5Source):
+    if isinstance(t, Dense):
+        f.create_dataset(name, data=t.backend.numpy(t._native))
+        return DiskTensor(ref, name, {}, t._names, t._shape, t._backend, t.dtype)
+    elif isinstance(t, TensorStack):
+        if not t.requires_broadcast:
+            write_to_h5(cached(t), name, f, ref)
+        stack_name = t._stack_dim.name
+        disk_tensors = []
+        for i, ts in enumerate(t._tensors):
+            disk_tensors.append(write_to_h5(ts, f"{name}_slice_{stack_name}{i}", f, ref))
+        return TensorStack(disk_tensors, t._stack_dim)
+    elif isinstance(t, SparseCoordinateTensor):
+        values = write_to_h5(t._values, f"{name}_coo.values", f, ref)
+        indices = write_to_h5(t._indices, f"{name}_coo.indices", f, ref)
+        return t._with_data(indices, values)
+    elif isinstance(t, CompressedSparseMatrix):
+        format_type = get_format(t)
+        values = write_to_h5(t._values, f"{name}_{format_type}.values", f, ref)
+        indices = write_to_h5(t._indices, f"{name}_{format_type}.indices", f, ref)
+        pointers = write_to_h5(t._pointers, f"{name}_{format_type}.pointers", f, ref)
+        return t._with_data(indices, pointers, values)
+    elif isinstance(t, CompactSparseTensor):
+        format_type = get_format(t)
+        values = write_to_h5(t._values, f"{name}_{format_type}.values", f, ref)
+        indices = write_to_h5(t._indices, f"{name}_{format_type}.indices", f, ref)
+        return t._with_data(indices, values)
+    else:
+        ML_LOGGER.warning(f"Caching tensors of type {type(t)} is not yet supported. Encountered tensor with shape {t.shape} in subprocess.")

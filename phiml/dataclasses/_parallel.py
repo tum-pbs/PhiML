@@ -14,33 +14,44 @@ import numpy as np
 from .. import unstack, stack
 from ..backend import ML_LOGGER
 from ..dataclasses._dep import MemberVariableAnalyzer
-from ..dataclasses._tensor_cache import DiskTensor, H5Source
+from ..dataclasses._tensor_cache import H5Source, write_to_h5
 from ..math import DimFilter, shape, Shape, EMPTY_SHAPE
 from ..math._magic_ops import all_attributes
-from ..math._tensors import disassemble_tree, assemble_tree, Dense
+from ..math._tensors import disassemble_tree, assemble_tree
 
 
 def parallel_compute(instance, properties: Sequence, parallel_dims=shape,
                      max_workers=multiprocessing.cpu_count(), memory_limit: Optional[float] = None, cache_dir: str = None):
     """
-    Compute the values of properties of a dataclass instance in parallel.
+    Compute the values of properties decorated with `@cached_property` or `@parallel_property` of a dataclass instance in parallel.
 
-    If `@parallel_property` are computed whose `requires` overlaps with `parallel_dims`, a separate computation stage is set up to compute these properties with potentially less parallel workers.
+    **Multiple stages via `requires=...`**
+    If `@parallel_property` are computed whose `requires` overlaps with `parallel_dims`, a separate computation stage is set up to compute these properties with fewer parallel workers.
     In the presence of different `requires`, the computation is split into different stages in accordance with the property dependency graph.
+    Properties that cannot be parallelized (because it requires all `parallel_dims`) are computed on the host process.
 
-    Warnings:
-        This breaks automatic differentiation as values may be cached on disk.
+    **Caching tensors to disk**
+    When `memory_limit` and `cache_dir` are set, the evaluation will try to adhere to the given memory limits by moving tensors out of memory onto disk.
+    This is only applied to the outputs of `@cached_property` and `@parallel_property` calls, not to intermediate values used in their computation.
+    The per-process memory limit is calculated per stage, dividing the total memory by the active worker count.
+    Cached tensors behave like regular tensors and are temporarily loaded back into memory when accessing their values or using them in a computation.
+    When parallelizing, the full result is assembled by stacking multiple disk-backed tensors from different files created by different processes.
+    These composite tensors will reference multiple binary files and can be pickled/unpickled safely without loading the data into memory.
+    This enables passing large data references to different processes or saving the structure to a file without the data content.
 
     See Also:
-        `cached_property`.
+        `cached_property`, `parallel_property`, `get_cache_files()`, `on_load_into_memory()`.
+
+    Warnings:
+        `parallel_compute` breaks automatic differentiation.
 
     Args:
         instance: Dataclass instance for which to compute the values of `@cached_property` or `@parallel_property` fields.
         properties: References to the unbound properties. These must be `cached_property` or `parallel_property`.
         parallel_dims: Dimensions to parallelize over.
         max_workers: Number of processes to spawn.
-        memory_limit: Set a limit to the total memory consumption from `Tensor` instances. If more than the allotted memory would be used, tensors are cached on disk.
-        cache_dir: If `memory_limit` is set, cache files are stored in this directory.
+        memory_limit: Limit to the total memory consumption from `Tensor` instances on property outputs.
+        cache_dir: Directory path to store cached tensors in if `memory_limit` is set.
     """
     # ToDo: Maybe add option to convert to NumPy? Or auto-convert tensors to the original backend on load from disk.
     if memory_limit is not None:
@@ -60,12 +71,12 @@ def parallel_compute(instance, properties: Sequence, parallel_dims=shape,
     any_parallel = any(dims - tuple(stage_nodes[0].requires) for stage_nodes in stages)
     if any_parallel:
         with ProcessPoolExecutor(max_workers=max_workers) as pool:
-            _execute_stages(instance, stages, dims, pool, memory_limit, cache_dir)
+            _execute_stages(instance, stages, dims, pool, max_workers, memory_limit, cache_dir)
     else:
-        _execute_stages(instance, stages, dims, None, memory_limit, cache_dir)
+        _execute_stages(instance, stages, dims, None, max_workers, memory_limit, cache_dir)
 
 
-def _execute_stages(instance, stages: List[List['PGraphNode']], dims, pool, memory_limit, cache_dir):
+def _execute_stages(instance, stages: List[List['PGraphNode']], dims, pool, workers, memory_limit, cache_dir):
     for stage_idx, stage_nodes in enumerate(stages):
         parallel_dims = dims - tuple(stage_nodes[0].requires)
         if parallel_dims:
@@ -77,7 +88,7 @@ def _execute_stages(instance, stages: List[List['PGraphNode']], dims, pool, memo
             caches = [unstack(instance.__dict__[c], parallel_dims, expand=True) for c in required_caches]
             caches = [{c: caches[j][i] for j, c in enumerate(required_caches)} for i in range(len(instances))] if caches else [{}] * len(instances)
             inst_props = [property_names] * len(instances)
-            mem_per_item = memory_limit / len(instances) if memory_limit is not None else None
+            mem_per_item = memory_limit / min(workers, len(instances)) if memory_limit is not None else None
             os.makedirs(cache_dir, exist_ok=True)
             cache_file_suggestions = [os.path.join(cache_dir, f"s{stage_idx}_i{i}") for i in range(len(instances))]
             results = list(pool.map(_evaluate_properties, instances, inst_props, caches, [mem_per_item]*len(instances), cache_file_suggestions))
@@ -110,13 +121,7 @@ def _evaluate_properties(instance, properties, cache: dict, mem_limit, cache_fil
                         ML_LOGGER.debug(f"Result is too large for memory limit. Tensor sizes (bytes): {sizes[::-1]}. Caching {len(tensors) - cutoff} tensors to {cache_file}.")
                         h5_ref = H5Source(cache_file)
                         for i in range(len(tensors) - cutoff - 1, len(tensors)):
-                            t = tensors[i]
-                            if isinstance(t, Dense):
-                                f.create_dataset(f'array_{i}', data=t.backend.numpy(t._native))
-                                disk_tensor = DiskTensor(h5_ref, f'array_{i}', {}, t._names, t._shape, t._backend, t.dtype)
-                                tensors[i] = disk_tensor
-                            else:
-                                raise NotImplementedError
+                            tensors[i] = write_to_h5(tensors[i], f't{i}', f, h5_ref)
                         break
                 except FileExistsError:
                     file_counter += 1

@@ -2766,10 +2766,11 @@ def is_unexpected_dtype(dtype: DType):
 
 def format_tracer(self: Tensor, options: PrintOptions) -> str:
     colors = options.get_colors()
-    if self._is_tracer:
-        return f"{colors.shape(self.shape)} {colors.dtype(self.dtype)} {colors.value(f'linear tracer for {self.default_backend}')}"
-    else:
-        return f"{colors.shape(self.shape)} {colors.dtype(self.dtype)} {colors.value(f'{self.default_backend} ref/tracer')}"
+    from ._sparse import get_format
+    kind = "linear-tracer" if self._is_tracer else "ref/tracer"
+    form = get_format(self)
+    stacked = "stacked " if isinstance(self, TensorStack) else ""
+    return f"{colors.shape(self.shape)} {colors.dtype(self.dtype)} {colors.value(f'{stacked}{self.default_backend} {form} {kind}')}"
 
 
 def format_full(value: Tensor, options: PrintOptions) -> str:  # multi-line content
