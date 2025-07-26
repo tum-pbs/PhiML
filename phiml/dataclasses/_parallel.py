@@ -52,6 +52,10 @@ def parallel_compute(instance, properties: Sequence, parallel_dims=shape,
     output_user = PGraphNode('<output>', None, None, None, False, [], -1)
     for p in properties:
         recursive_add_node(cls, property_name(p), p, dims, nodes).users.append(output_user)
+    for node in nodes.values():
+        if node.name in instance.__dict__:
+            node.done = True
+            node.dependencies = []
     stages = build_stages(nodes)
     any_parallel = any(dims - tuple(stage_nodes[0].requires) for stage_nodes in stages)
     if any_parallel:
@@ -158,6 +162,9 @@ class PGraphNode:
     done: bool = False
     users: List['PGraphNode'] = dataclasses.field(default_factory=lambda: [])
     stage: int = None
+
+    def __repr__(self):
+        return f"{self.name} ({f'done in stage {self.stage}' if self.done else 'pending'}) depending on {[n.name for n in self.dependencies]} with {len(self.users)} users"
 
     @property
     def can_run_now(self):
