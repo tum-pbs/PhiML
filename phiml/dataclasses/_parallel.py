@@ -209,7 +209,7 @@ def build_stages(nodes: Dict[str, PGraphNode]) -> List[List[PGraphNode]]:
     return stages
 
 
-def parallel_property(func: Callable = None, /, requires: DimFilter = None, allow_sequential=False):
+def parallel_property(func: Callable = None, /, requires: DimFilter = None, on_direct_eval='raise'):
     """
     Similar to `@cached_property` but with additional controls over parallelization.
 
@@ -219,21 +219,26 @@ def parallel_property(func: Callable = None, /, requires: DimFilter = None, allo
     Args:
         func: Method to wrap.
         requires: Dimensions which must be present within one process. These cannot be parallelized when computing this property.
-        allow_sequential: Whether calling the property normally (outside `parallel_compute`) is allowed for non-parallelized computation. If `False`, raises an error on invocation.
+        on_direct_eval: What to do when the property is accessed normally (outside `parallel_compute`) before it has been computed.
+            Option:
+
+            * `'raise'`: Raise an error.
+            * `'host-compute'`: Compute the property directly, without using multi-threading.
     """
+    assert on_direct_eval in {'host-compute', 'raise'}
     if func is None:
-        return partial(parallel_property, requires=requires, allow_sequential=allow_sequential)
-    return ParallelProperty(func, requires=requires, allow_sequential=allow_sequential)
+        return partial(parallel_property, requires=requires, on_direct_eval=on_direct_eval)
+    return ParallelProperty(func, requires=requires, on_direct_eval=on_direct_eval)
 
 
 _NOT_CACHED = object()
 
 
 class ParallelProperty(cached_property):
-    def __init__(self, func, requires: DimFilter, allow_sequential: bool):
+    def __init__(self, func, requires: DimFilter, on_direct_eval: str):
         super().__init__(func)
         self.requires = requires
-        self.allow_sequential = allow_sequential
+        self.on_direct_eval = on_direct_eval
 
     def __set_name__(self, owner, name):
         super().__set_name__(owner, name)
@@ -249,9 +254,9 @@ class ParallelProperty(cached_property):
             raise TypeError(f"No '__dict__' attribute on {type(instance).__name__!r} instance to cache {self.attrname!r} property.") from None
         val = cache.get(self.attrname, _NOT_CACHED)
         if val is _NOT_CACHED:
-            if self.allow_sequential:
+            if self.on_direct_eval == 'host-compute':
                 val = super().__get__(instance, owner=owner)
-            else:
+            elif self.on_direct_eval == 'raise':
                 raise NonParallelAccess(f"@parallel_property '{self.attrname}' can only be accessed after evaluation by parallel_compute()")
         return val
 
