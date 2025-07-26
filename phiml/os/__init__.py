@@ -1,3 +1,12 @@
+"""
+Adding vectorization to `os` functions.
+
+Example:
+    >>> from phiml import os
+    >>> dirs = list_directories('root', startswith='data_')
+    >>> files = list_files(dirs, endswith='.h5')
+    >>> which_exist = os.path.exists(files)
+"""
 import os as impl
 from typing import Union, Callable
 
