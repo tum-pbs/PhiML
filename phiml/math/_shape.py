@@ -840,6 +840,9 @@ class Dim:
         return self.slice_names,
     item_names = labels
 
+    def _without_labels(self):
+        return Dim(self.name, self.size, self.dim_type, None)
+
     @property
     def untyped_dict(self):
         return {self.name: self.slice_names if self.slice_names is not None else self.size}
@@ -1167,8 +1170,8 @@ class Dim:
         else:
             return self
 
-    def _replace(self, new: 'Shape'):
-        if self.slice_names is None or new.slice_names is not None:
+    def _replace(self, new: 'Shape', keep_labels=True):
+        if not keep_labels or self.slice_names is None or new.slice_names is not None:
             return new
         if len(new) != 1 or not _size_equal(self.size, new.size):
             return new
@@ -2025,7 +2028,7 @@ class MixedShape:
         dim_list = list(self.dims.values())
         if len(dims) == len(new):
             for old, new_dim in zip(dims, new):
-                new_dim = self.dims[old]._replace(new_dim)
+                new_dim = self.dims[old]._replace(new_dim, keep_labels=False)
                 dim_list[self.index(old)] = new_dim
         elif len(new) > 1 and len(dims) == 1:
             i = self.index(dims[0])
@@ -2934,7 +2937,7 @@ def prepare_renaming_gather(self: Shape, dim: str, selection: Union[slice, int, 
     if isinstance(selection, str) and '->' in selection:
         selection, new_names = selection.split('->')
         if new_names == '?':
-            return prepare_gather(self, dim, selection), self[dim]._with_labels((None,))
+            return prepare_gather(self, dim, selection), self[dim]._without_labels()
         else:
             return prepare_gather(self, dim, selection), self[dim].with_size(new_names)
     else:
