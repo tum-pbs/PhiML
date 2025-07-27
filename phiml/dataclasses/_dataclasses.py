@@ -14,9 +14,9 @@ from ._dep import get_unchanged_cache
 PhiMLDataclass = TypeVar("PhiMLDataclass")
 
 
-def sliceable(cls=None, /, *, dim_attrs=True, t_props=True, keepdims=None, dim_repr=True):
+def sliceable(cls=None, /, *, dim_attrs=True, t_props=True, keepdims=None, dim_repr=True, lazy_dims=True):
     """
-    Decorator for frozen dataclasses, adding slicing functionality by defining `__getitem__`.
+    Decorator for frozen dataclasses, adding slicing functionality by defining `__getitem__` and enabling the `instance.dim` syntax.
     This enables slicing similar to tensors, gathering and boolean masking.
 
     Args:
@@ -24,6 +24,8 @@ def sliceable(cls=None, /, *, dim_attrs=True, t_props=True, keepdims=None, dim_r
         t_props: Whether to generate the properties `Tc`, `Ts` and `Ti` for transposing channel/spatial/instance dims.
         keepdims: Which dimensions should be kept with size 1 taking a single slice along them. This will preserve labels.
         dim_repr: Whether to replace the default `repr` of a dataclass by a simplified one based on the object's shape.
+        lazy_dims: If `False`, instantiates all dims of `shape(self)` as member variables during construction. Dataclass must have `slots=False`.
+            If `True`, implements `__getattr__` to instantiate accessed dims on demand. This will be skipped if a user-defined `__getattr__` is found.
     """
     def wrap(cls):
         assert dataclasses.is_dataclass(cls), f"@sliceable must be used on a @dataclass, i.e. declared above it."
@@ -41,17 +43,26 @@ def sliceable(cls=None, /, *, dim_attrs=True, t_props=True, keepdims=None, dim_r
             cls.Tc = property(partial(transpose, dim_type=CHANNEL_DIM))
             cls.Ts = property(partial(transpose, dim_type=SPATIAL_DIM))
             cls.Ti = property(partial(transpose, dim_type=INSTANCE_DIM))
-        if dim_attrs and not hasattr(cls, '__getattr__'):
-            def __dataclass_getattr__(obj, name: str):
-                if name in ('shape', '__shape__', '__all_attrs__', '__variable_attrs__', '__value_attrs__', '__setstate__'):  # these can cause infinite recursion
-                    raise AttributeError(f"'{type(obj)}' instance has no attribute '{name}'")
-                if name in shape(obj):
-                    return BoundDim(obj, name)
-                elif hasattr(type(obj), name):
-                    raise RuntimeError(f"Evaluation of property '{type(obj).__name__}.{name}' failed.")
-                else:
-                    raise AttributeError(f"'{type(obj)}' instance has no attribute '{name}'")
-            cls.__getattr__ = __dataclass_getattr__
+        if not lazy_dims:  # instantiate BoundDims in constructor
+            assert not hasattr(cls, '__slots__'), f"front-loading dims is not supported for dataclasses using slots."
+            dc_init = cls.__init__
+            def __dataclass_init__(self, *args, **kwargs):
+                dc_init(self, *args, **kwargs)
+                for dim in shape(self):
+                    object.__setattr__(self, dim.name, BoundDim(self, dim.name))  # object.__setattr__ also works for frozen dataclasses
+            cls.__init__ = __dataclass_init__
+        else:  # instantiate BoundDims lazily via __getattr__
+            if dim_attrs and not hasattr(cls, '__getattr__'):
+                def __dataclass_getattr__(obj, name: str):
+                    if name in ('shape', '__shape__', '__all_attrs__', '__variable_attrs__', '__value_attrs__', '__setstate__'):  # these can cause infinite recursion
+                        raise AttributeError(f"'{type(obj)}' instance has no attribute '{name}'")
+                    if name in shape(obj):
+                        return BoundDim(obj, name)
+                    elif hasattr(type(obj), name):
+                        raise RuntimeError(f"Evaluation of property '{type(obj).__name__}.{name}' failed.")
+                    else:
+                        raise AttributeError(f"'{type(obj)}' instance has no attribute '{name}'")
+                cls.__getattr__ = __dataclass_getattr__
         if dim_repr:
             def __dataclass_repr__(obj):
                 try:
