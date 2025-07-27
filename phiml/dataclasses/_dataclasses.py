@@ -31,7 +31,7 @@ def sliceable(cls=None, /, *, dim_attrs=True, t_props=True, keepdims=None, dim_r
         assert dataclasses.is_dataclass(cls), f"@sliceable must be used on a @dataclass, i.e. declared above it."
         assert cls.__dataclass_params__.frozen, f"@sliceable dataclasses must be frozen. Declare as @dataclass(frozen=True)"
         assert data_fields(cls), f"PhiML dataclasses must have at least one field storing a Shaped object, such as a Tensor, tree of Tensors or compatible dataclass."
-        if not hasattr(cls, '__getitem__'):
+        if not implements(cls, '__getitem__', exclude_metaclass=True):
             def __dataclass_getitem__(obj, item):
                 return getitem(obj, item, keepdims=keepdims)
             cls.__getitem__ = __dataclass_getitem__
@@ -52,7 +52,7 @@ def sliceable(cls=None, /, *, dim_attrs=True, t_props=True, keepdims=None, dim_r
                     object.__setattr__(self, dim.name, BoundDim(self, dim.name))  # object.__setattr__ also works for frozen dataclasses
             cls.__init__ = __dataclass_init__
         else:  # instantiate BoundDims lazily via __getattr__
-            if dim_attrs and not hasattr(cls, '__getattr__'):
+            if dim_attrs and not implements(cls, '__getattr__'):
                 def __dataclass_getattr__(obj, name: str):
                     if name in ('shape', '__shape__', '__all_attrs__', '__variable_attrs__', '__value_attrs__', '__setstate__'):  # these can cause infinite recursion
                         raise AttributeError(f"'{type(obj)}' instance has no attribute '{name}'")
@@ -75,6 +75,18 @@ def sliceable(cls=None, /, *, dim_attrs=True, t_props=True, keepdims=None, dim_r
             cls.__repr__ = __dataclass_repr__
         return cls
     return wrap(cls) if cls is not None else wrap  # See if we're being called as @dataclass or @dataclass().
+
+
+def implements(cls, method: str, exclude_metaclass=True):
+    if not hasattr(cls, method):
+        return False
+    if not exclude_metaclass:
+        return True
+    # --- Traverse MRO excluding metaclasses ---
+    for base in cls.__mro__:
+        if '__getitem__' in base.__dict__:
+            return True
+    return False
 
 
 def data_eq(cls=None, /, *, rel_tolerance=0., abs_tolerance=0., equal_nan=True, compare_tensors_by_ref=False):
