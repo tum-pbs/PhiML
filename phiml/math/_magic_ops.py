@@ -1119,8 +1119,13 @@ def _recursive_diff(a, b, path: str, result: list, compare_tensors_by_id=False, 
         return
     from ._tensors import Tensor, Layout
     if isinstance(a, Layout):
-        raise NotImplementedError
-    if isinstance(a, Tensor) or isinstance(b, Tensor):
+        if not isinstance(b, Layout):
+            result.append((f"Only one value is a Layout, the other is {type(b)}", path, a, b))
+        else:
+            _recursive_diff(a._obj, b._obj, path, result, compare_tensors_by_id, attr_type, tensor_equality)
+    elif isinstance(b, Layout):
+        result.append((f"Only one value is a Layout, the other is {type(a)}", path, a, b))
+    elif isinstance(a, Tensor) or isinstance(b, Tensor):
         if not isinstance(a, Tensor) or not isinstance(b, Tensor):
             result.append((f"Only one value is a Tensor: {type(a).__name__} vs {type(b).__name__}", path, a, b))
             return
