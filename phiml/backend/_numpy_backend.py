@@ -5,7 +5,6 @@ from typing import Union, Optional, Tuple, Callable, Sequence
 
 import numpy as np
 import numpy.random
-import scipy.signal
 import scipy.sparse
 from scipy.sparse import issparse, csr_matrix, coo_matrix, csc_matrix
 from scipy.sparse.linalg import spsolve_triangular
@@ -314,13 +313,14 @@ class NumPyBackend(Backend):
         if any(os > fs for os, fs in zip(out_sizes, full_size)):
             raise NotImplementedError
         # --- Run conv for each input/output channel ---
+        from scipy.signal import correlate  # Don't import scipy.signal until needed, as it's a heavy import
         result = np.zeros((value.shape[0], kernel.shape[1], *out_sizes), dtype=to_numpy_dtype(self.float_type))
         if not transpose:
             for b in range(value.shape[0]):
                 b_kernel = kernel[min(b, kernel.shape[0] - 1)]
                 for o in range(kernel.shape[1]):
                     for i in range(value.shape[1]):
-                        full = scipy.signal.correlate(value[b, i, ...], b_kernel[o, i, ...], mode=mode)
+                        full = correlate(value[b, i, ...], b_kernel[o, i, ...], mode=mode)
                         offset = [1 if ks >= 2 else 0 for os, ks, st in zip(value.shape[2:], kernel.shape[3:], strides)]  # 0 for ks=1, 1 for ks=2,3
                         result_o_i = full[tuple(slice(o, None, st) for o, st in zip(offset, strides))] if has_strides else full
                         # ToDo crop to fit out_sizes
@@ -335,7 +335,7 @@ class NumPyBackend(Backend):
                             upsampled[tuple([slice(0, None, st) for st in strides])] = value[b, i, ...]  # Place input values with stride
                         else:
                             upsampled = value[b, i, ...]
-                        result_o_i = scipy.signal.correlate(upsampled, b_kernel[o, i, ...], mode=mode)
+                        result_o_i = correlate(upsampled, b_kernel[o, i, ...], mode=mode)
                         crop = [rs - os for rs, os in zip(result_o_i.shape, out_sizes)]
                         result[b, o] += result_o_i[tuple([slice((c+1)//2, -(c//2) or None) for c in crop])]
         if self.dtype(value).kind == int:
