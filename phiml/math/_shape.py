@@ -78,8 +78,6 @@ class Shape(Protocol, metaclass=ShapeMeta):
     def labels(self) -> Sequence[Optional[Sequence[str]]]:
         ...
 
-    item_names = labels
-
     @property
     def name_list(self) -> List[str]:
         ...
@@ -168,8 +166,6 @@ class Shape(Protocol, metaclass=ShapeMeta):
             Item names as `tuple` or `None` if not defined.
         """
         ...
-
-    get_item_names = get_labels
 
     def flipped(self, dims: Union[List[str], Tuple[str]]):
         ...
