@@ -3422,6 +3422,10 @@ def _close(tensor1: Tensor, tensor2: Tensor, rel_tolerance: Union[float, Tensor]
         return broadcast_op(_close, [tensor1, tensor2, wrap(rel_tolerance), wrap(abs_tolerance), wrap(equal_nan)], non_reduced)
     if tensor2 is tensor1:
         return True
+    if isinstance(tensor1, Layout):
+        if not isinstance(tensor2, Layout):
+            return False
+        return tensor1._obj == tensor2._obj
     iter_dims = tensor1.shape.non_uniform_shape & tensor2.shape.non_uniform_shape & shape(rel_tolerance) & shape(abs_tolerance)
     if iter_dims:
         for i in iter_dims.meshgrid():
