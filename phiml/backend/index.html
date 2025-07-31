@@ -313,7 +313,7 @@ The methods of <code><a title="phiml.backend.Backend" href="#phiml.backend.Backe
 
     @property
     def float_type(self) -&gt; DType:
-        return DType(float, self.precision)
+        return DType.by_precision(float, self.precision)
 
     @property
     def as_registered(self) -&gt; &#39;Backend&#39;:
@@ -330,7 +330,7 @@ The methods of <code><a title="phiml.backend.Backend" href="#phiml.backend.Backe
 
     @property
     def complex_type(self) -&gt; DType:
-        return DType(complex, max(64, self.precision))
+        return DType.by_precision(complex, max(64, self.precision))
 
     def combine_types(self, *dtypes: DType) -&gt; DType:
         return combine_types(*dtypes, fp_precision=self.precision)
@@ -354,7 +354,7 @@ The methods of <code><a title="phiml.backend.Backend" href="#phiml.backend.Backe
         if result_type.kind == bool and bool_to_int:
             result_type = INT32
         if result_type.kind == int and int_to_float:
-            result_type = DType(float, self.precision)
+            result_type = DType.by_precision(float, self.precision)
         if result_type.kind in (int, float, complex, bool):  # do not cast everything to string!
             tensors = [self.cast(t, result_type) for t in tensors]
         return tensors
@@ -366,7 +366,7 @@ The methods of <code><a title="phiml.backend.Backend" href="#phiml.backend.Backe
         if dtype.kind in {int, bool}:
             return tensor
         if dtype.precision != get_precision():
-            result_type = DType(dtype.kind, precision=get_precision())
+            result_type = DType.by_precision(dtype.kind, precision=get_precision())
             return self.cast(tensor, result_type)
         return tensor
 
@@ -1014,6 +1014,10 @@ The methods of <code><a title="phiml.backend.Backend" href="#phiml.backend.Backe
         &#34;&#34;&#34;
         raise NotImplementedError(self)
 
+    def sizeof(self, tensor) -&gt; int:
+        &#34;&#34;&#34;Returns the size in bytes&#34;&#34;&#34;
+        raise NotImplementedError(self)
+
     def cast(self, x, dtype: DType):
         raise NotImplementedError(self)
 
@@ -1043,7 +1047,7 @@ The methods of <code><a title="phiml.backend.Backend" href="#phiml.backend.Backe
         return self.cast(x, INT64)
 
     def to_complex(self, x):
-        return self.cast(x, DType(complex, max(64, self.precision * 2)))
+        return self.cast(x, DType.by_precision(complex, max(32, self.precision)))
 
     def unravel_index(self, flat_index, shape):
         strides = [1]
@@ -1945,7 +1949,7 @@ def as_registered(self) -&gt; &#39;Backend&#39;:
 </summary>
 <pre><code class="python">@property
 def complex_type(self) -&gt; DType:
-    return DType(complex, max(64, self.precision))</code></pre>
+    return DType.by_precision(complex, max(64, self.precision))</code></pre>
 </details>
 </dd>
 <dt id="phiml.backend.Backend.float_type"><code class="name">prop <span class="ident">float_type</span> : phiml.backend._dtype.DType</code></dt>
@@ -1957,7 +1961,7 @@ def complex_type(self) -&gt; DType:
 </summary>
 <pre><code class="python">@property
 def float_type(self) -&gt; DType:
-    return DType(float, self.precision)</code></pre>
+    return DType.by_precision(float, self.precision)</code></pre>
 </details>
 </dd>
 <dt id="phiml.backend.Backend.name"><code class="name">prop <span class="ident">name</span> : str</code></dt>
@@ -3601,6 +3605,12 @@ For non-eager tensors, undefined dimensions should return a placeholder value re
 <dd>
 <div class="desc"></div>
 </dd>
+<dt id="phiml.backend.Backend.sizeof"><code class="name flex">
+<span>def <span class="ident">sizeof</span></span>(<span>self, tensor) ‑> int</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Returns the size in bytes</p></div>
+</dd>
 <dt id="phiml.backend.Backend.softplus"><code class="name flex">
 <span>def <span class="ident">softplus</span></span>(<span>self, x)</span>
 </code></dt>
@@ -4543,6 +4553,7 @@ To prevent this, run the function before profiling it, see <code>warmup</code> i
 <li><code><a title="phiml.backend.Backend.sin" href="#phiml.backend.Backend.sin">sin</a></code></li>
 <li><code><a title="phiml.backend.Backend.sinh" href="#phiml.backend.Backend.sinh">sinh</a></code></li>
 <li><code><a title="phiml.backend.Backend.size" href="#phiml.backend.Backend.size">size</a></code></li>
+<li><code><a title="phiml.backend.Backend.sizeof" href="#phiml.backend.Backend.sizeof">sizeof</a></code></li>
 <li><code><a title="phiml.backend.Backend.softplus" href="#phiml.backend.Backend.softplus">softplus</a></code></li>
 <li><code><a title="phiml.backend.Backend.solve_triangular" href="#phiml.backend.Backend.solve_triangular">solve_triangular</a></code></li>
 <li><code><a title="phiml.backend.Backend.solve_triangular_dense" href="#phiml.backend.Backend.solve_triangular_dense">solve_triangular_dense</a></code></li>

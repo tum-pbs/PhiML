@@ -686,7 +686,7 @@ The typical order is periodic=1, boundary=2, symmetric=3, reflect=4, constant=5.
         Returns:
             Transformed coordinates
         &#34;&#34;&#34;
-        res = shape[coordinates.shape.get_item_names(&#39;vector&#39;)] if &#39;vector&#39; in coordinates.shape and coordinates.shape.get_item_names(&#39;vector&#39;) else shape.spatial
+        res = shape[coordinates.shape.get_labels(&#39;vector&#39;)] if &#39;vector&#39; in coordinates.shape and coordinates.shape.get_labels(&#39;vector&#39;) else shape.spatial
         return math.clip(coordinates, 0, math.wrap(res - 1, channel(&#39;vector&#39;)))
 
     def is_copy_pad(self, dim: str, upper_edge: bool):

@@ -711,7 +711,7 @@ All dimensions of <code>mask</code> that are not <code>dim</code> are treated as
 <dt><strong><code>mask</code></strong></dt>
 <dd>Boolean <code><a title="phiml.math.Tensor" href="#phiml.math.Tensor">Tensor</a></code> marking which values to keep. Must have the dimension <code>dim</code> matching `x´.</dd>
 <dt><strong><code>preserve_names</code></strong></dt>
-<dd>This only supports uniform 1D slicing. Batched slicing will remove item names if incompatible.</dd>
+<dd>This only supports uniform 1D slicing. Batched slicing will remove labels if incompatible.</dd>
 </dl>
 <h2 id="returns">Returns</h2>
 <p>Selected values of <code>x</code> as <code><a title="phiml.math.Tensor" href="#phiml.math.Tensor">Tensor</a></code> with dimensions from <code>x</code> and <code>mask</code>.</p></div>
@@ -903,7 +903,7 @@ If any argument is <code>None</code>, returns <code>True</code> only if all are 
 <dd>
 <div class="desc"><p>Finds the neighboring grid points in all directions and returns their values.
 The result will have 2^d values for each vector in coordinates in d dimensions.</p>
-<p>If <code>coordinates</code> does not have a channel dimension with item names, the spatial dims of <code>grid</code> will be used.</p>
+<p>If <code>coordinates</code> does not have a channel dimension with labels, the spatial dims of <code>grid</code> will be used.</p>
 <h2 id="args">Args</h2>
 <dl>
 <dt><strong><code>grid</code></strong></dt>
@@ -1929,11 +1929,11 @@ All non-channel dimensions of <code>indices</code> that are part of <code>values
 <dt><strong><code>indices</code></strong></dt>
 <dd><code>int</code> <code><a title="phiml.math.Tensor" href="#phiml.math.Tensor">Tensor</a></code>. Multidimensional position references in <code>values</code>.
 Must contain a single channel dimension for the index vector matching the number of dimensions to index.
-This channel dimension should list the dimension names to index as item names unless explicitly specified as <code>dims</code>.</dd>
+This channel dimension should list the dimension names to index as labels unless explicitly specified as <code>dims</code>.</dd>
 <dt><strong><code>dims</code></strong></dt>
 <dd>(Optional) Dimensions indexed by <code>indices</code>.
-Alternatively, the dimensions can be specified as the item names of the channel dimension of <code>indices</code>.
-If <code>None</code> and no index item names are specified, will default to all spatial dimensions or all instance dimensions, depending on which ones are present (but not both).</dd>
+Alternatively, the dimensions can be specified as the labels of the channel dimension of <code>indices</code>.
+If <code>None</code> and no index labels are specified, will default to all spatial dimensions or all instance dimensions, depending on which ones are present (but not both).</dd>
 <dt><strong><code>pref_index_dim</code></strong></dt>
 <dd>In case <code>indices</code> has multiple channel dims, use this dim as the index, treating the others as batch.
 Has no effect if <code>indices</code> only has one channel dim.</dd>
@@ -2036,7 +2036,7 @@ If not specified, the gradient will be computed w.r.t. the first positional argu
 <dd>
 <div class="desc"><p>Samples values of <code>grid</code> at the locations referenced by <code>coordinates</code>.
 Values lying in between sample points are determined via linear interpolation.</p>
-<p>If <code>coordinates</code> has a channel dimension, its item names are used to determine the grid dimensions of <code>grid</code>.
+<p>If <code>coordinates</code> has a channel dimension, its labels are used to determine the grid dimensions of <code>grid</code>.
 Otherwise, the spatial dims of <code>grid</code> will be used.</p>
 <p>For values outside the valid bounds of <code>grid</code> (<code>coord &lt; 0 or coord &gt; grid.shape - 1</code>), <code>extrap</code> is used to determine the neighboring grid values.
 If the extrapolation does not support resampling, the grid is padded by one cell layer before resampling.
@@ -2507,7 +2507,7 @@ Must be a Tensor with a single channel dimension that lists all laplace dims by 
 <div class="desc"><p>Wraps a Python tree in a <code><a title="phiml.math.Tensor" href="#phiml.math.Tensor">Tensor</a></code>, allowing elements to be accessed via dimensions.
 A python tree is a structure of nested <code>tuple</code>, <code>list</code>, <code>dict</code> and <em>leaf</em> objects where leaves can be any Python object.</p>
 <p>All keys of <code>dict</code> containers must be of type <code>str</code>.
-The keys are automatically assigned as item names along that dimension unless conflicting with other elements.</p>
+The keys are automatically assigned as labels along that dimension unless conflicting with other elements.</p>
 <p>Strings may also be used as containers.</p>
 <p>Example:</p>
 <pre><code class="language-python-repl">&gt;&gt;&gt; t = layout({'a': 'text', 'b': [0, 1]}, channel('dict,inner'))
@@ -2856,7 +2856,7 @@ If dimensions with equal names are present in multiple shapes, their types and s
 <dt><strong><code>*objs</code></strong></dt>
 <dd><code><a title="phiml.math.Shape" href="#phiml.math.Shape">Shape</a></code> or <code>Shaped</code> objects to combine.</dd>
 <dt><strong><code>allow_varying_sizes</code></strong></dt>
-<dd>If <code>True</code>, merges incompatible dims by setting their size to <code>None</code> and erasing their item names.
+<dd>If <code>True</code>, merges incompatible dims by setting their size to <code>None</code> and erasing their labels.
 If <code>False</code>, raises an error for incompatible dims.</dd>
 </dl>
 <h2 id="returns">Returns</h2>
@@ -3029,9 +3029,9 @@ and single channel dimension <code>channel_dim</code>.</p></div>
 <dl>
 <dt><strong><code>values</code></strong></dt>
 <dd>Each value can contain multiple components of <code>dim</code> if <code>dim</code> is present in its shape.
-Else, it is interpreted as a single component whose name will be determined from the leftover item names of <code>dim</code>.</dd>
+Else, it is interpreted as a single component whose name will be determined from the leftover labels of <code>dim</code>.</dd>
 <dt><strong><code>dim</code></strong></dt>
-<dd>Single dimension that has item names matching components of <code>values</code>.</dd>
+<dd>Single dimension that has labels matching components of <code>values</code>.</dd>
 <dt><strong><code>expand_values</code></strong></dt>
 <dd>If <code>True</code>, will add all missing dims to values, not just batch dimensions.
 This allows tensors with different dims to be concatenated.
@@ -3192,7 +3192,7 @@ Special case: For retrieving only the first non-zero value, you may pass <code>1
 <dt><strong><code>element_dims</code></strong></dt>
 <dd>Dims listing components of one value. A value is only considered <code>zero</code> if all components are 0.</dd>
 <dt><strong><code>list_dims</code></strong></dt>
-<dd>Dims in which non-zero elements are searched. These will be stored in the item names of <code>index_dim</code>.</dd>
+<dd>Dims in which non-zero elements are searched. These will be stored in the labels of <code>index_dim</code>.</dd>
 </dl>
 <h2 id="returns">Returns</h2>
 <p><code><a title="phiml.math.Tensor" href="#phiml.math.Tensor">Tensor</a></code> of shape (batch dims&hellip;, <code>list_dim</code>=#non-zero, <code>index_dim</code>=value.shape.spatial_rank)</p></div>
@@ -4285,8 +4285,8 @@ The sign of 0 is undefined.</p>
 <li>An index (<code>int</code>)</li>
 <li>A range (<code><a title="phiml.math.slice" href="#phiml.math.slice">slice_()</a></code>)</li>
 <li>An item name (<code>str</code>)</li>
-<li>Multiple item names (comma-separated <code>str</code>)</li>
-<li>Multiple indices or item names (<code>tuple</code> or <code>list</code>)</li>
+<li>Multiple labels (comma-separated <code>str</code>)</li>
+<li>Multiple indices or labels (<code>tuple</code> or <code>list</code>)</li>
 </ul>
 </dd>
 </dl>
@@ -4471,7 +4471,7 @@ This can be performed explicitly using <code>sum_equal_entries()</code>.</p>
 <li>One instance dimension exactly matching the instance dimension on <code>values</code>.
 It enumerates the positions of stored entries.</li>
 <li>One channel dimension.
-Its item names must match the dimension names of <code>dense_shape</code> but the order can be arbitrary.</li>
+Its labels must match the dimension names of <code>dense_shape</code> but the order can be arbitrary.</li>
 <li>Any number of batch dimensions</li>
 </ul>
 <p>You may pass <code>None</code> to create a sparse tensor with no entries.</p>
@@ -4488,12 +4488,12 @@ It enumerates the values of stored entries.</li>
 </dd>
 <dt><strong><code>dense_shape</code></strong></dt>
 <dd>Dimensions listed in <code>indices</code>.
-The order can differ from the item names of <code>indices</code>.</dd>
+The order can differ from the labels of <code>indices</code>.</dd>
 <dt><strong><code>can_contain_double_entries</code></strong></dt>
 <dd>Whether some indices might occur more than once.
 If so, values at the same index will be summed.</dd>
 <dt><strong><code>indices_sorted</code></strong></dt>
-<dd>Whether the indices are sorted in ascending order given the dimension order of the item names of <code>indices</code>.</dd>
+<dd>Whether the indices are sorted in ascending order given the dimension order of the labels of <code>indices</code>.</dd>
 <dt><strong><code>indices_constant</code></strong></dt>
 <dd>Whether the positions of the non-zero values are fixed.
 If <code>True</code>, JIT compilation will not create a placeholder for <code>indices</code>.</dd>
@@ -4628,7 +4628,7 @@ This makes repeated stacking and slicing along the same dimension very efficient
 <dl>
 <dt><strong><code>values</code></strong></dt>
 <dd>Collection of <code><a title="phiml.math.magic.Shapable" href="magic.html#phiml.math.magic.Shapable">Shapable</a></code>, such as <code><a title="phiml.math.Tensor" href="#phiml.math.Tensor">Tensor</a></code>
-If a <code>dict</code>, keys must be of type <code>str</code> and are used as item names along <code>dim</code>.</dd>
+If a <code>dict</code>, keys must be of type <code>str</code> and are used as labels along <code>dim</code>.</dd>
 <dt><strong><code>dim</code></strong></dt>
 <dd><code><a title="phiml.math.Shape" href="#phiml.math.Shape">Shape</a></code> with a least one dimension. None of these dims can be present with any of the <code>values</code>.
 If <code>dim</code> is a single-dimension shape, its size is determined from <code>len(values)</code> and can be left undefined (<code>None</code>).
@@ -4892,7 +4892,7 @@ If <code>convert=True</code>, converts <code>data</code> to the preferred format
 <dd>native tensor, sparse COO / CSR / CSC matrix, scalar, sequence, <code><a title="phiml.math.Shape" href="#phiml.math.Shape">Shape</a></code> or <code><a title="phiml.math.Tensor" href="#phiml.math.Tensor">Tensor</a></code></dd>
 <dt><strong><code>shape</code></strong></dt>
 <dd>Ordered dimensions and types. If sizes are defined, they will be checked against <code>data</code>.<code>When passing multiple shapes, they will be concatenated. Duplicate names are not allowed.
-Instead of &lt;code&gt;&lt;a title="phiml.math.Shape" href="#phiml.math.Shape"&gt;Shape&lt;/a&gt;&lt;/code&gt; instances, you may pass strings specifying dims in the format</code>name:t<code>or</code>name:t=(item_names)` where <code>t</code> refers to the type letter, one of s,i,c,d,b.
+Instead of &lt;code&gt;&lt;a title="phiml.math.Shape" href="#phiml.math.Shape"&gt;Shape&lt;/a&gt;&lt;/code&gt; instances, you may pass strings specifying dims in the format</code>name:t<code>or</code>name:t=(labels)` where <code>t</code> refers to the type letter, one of s,i,c,d,b.
 Alternatively, you can pass a single <code>list</code> of shapes which will call <code><a title="phiml.math.reshaped_tensor" href="#phiml.math.reshaped_tensor">reshaped_tensor()</a></code>. This allows for unpacking native dims into multiple dims.</dd>
 <dt><strong><code>convert</code></strong></dt>
 <dd>If True, converts the data to the native format of the current default backend.
@@ -5119,7 +5119,7 @@ Adding batch dims must always work without keyword arguments.</dd>
 <p><code><a title="phiml.math.Tensor" href="#phiml.math.Tensor">Tensor</a></code> like <code>index</code> but with <code>index_dim</code> listing the dims in <code>resolution</code>.</p></div>
 </dd>
 <dt id="phiml.math.unstack"><code class="name flex">
-<span>def <span class="ident">unstack</span></span>(<span>value, dim: Union[str, Sequence[+T_co], set, phiml.math._shape.Shape, Callable, None]) ‑> tuple</span>
+<span>def <span class="ident">unstack</span></span>(<span>value, dim: Union[str, Sequence[+T_co], set, phiml.math._shape.Shape, Callable, None], expand=False) ‑> tuple</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Un-stacks a <code>Sliceable</code> along one or multiple dimensions.</p>
@@ -5133,6 +5133,8 @@ If no dimension is given or none of the given dims exists on <code>value</code>,
 <dd><code><a title="phiml.math.magic.Shapable" href="magic.html#phiml.math.magic.Shapable">Shapable</a></code>, such as <code><a title="phiml.math.Tensor" href="#phiml.math.Tensor">Tensor</a></code></dd>
 <dt><strong><code>dim</code></strong></dt>
 <dd>Dimensions as <code><a title="phiml.math.Shape" href="#phiml.math.Shape">Shape</a></code> or comma-separated <code>str</code> or dimension type, i.e. <code><a title="phiml.math.channel" href="#phiml.math.channel">channel()</a></code>, <code><a title="phiml.math.spatial" href="#phiml.math.spatial">spatial()</a></code>, <code><a title="phiml.math.instance" href="#phiml.math.instance">instance()</a></code>, <code><a title="phiml.math.batch" href="#phiml.math.batch">batch()</a></code>.</dd>
+<dt><strong><code>expand</code></strong></dt>
+<dd>If <code>True</code>, <code>dim</code> must be a <code><a title="phiml.math.Shape" href="#phiml.math.Shape">Shape</a></code> and the returned tuple will have length <code>dim.volume</code>. Otherwise, only existing dims are unstacked.</dd>
 </dl>
 <h2 id="returns">Returns</h2>
 <p><code>tuple</code> of objects matching the type of <code>value</code>.</p>
@@ -5195,7 +5197,7 @@ Possible names are <code>'torch'</code>, <code>'tensorflow'</code>, <code>'jax'<
 <dt><strong><code>name</code></strong></dt>
 <dd>Dimension name.</dd>
 <dt><strong><code>*sequence</code></strong></dt>
-<dd>Component values that will also be used as item names.
+<dd>Component values that will also be used as labels.
 If specified, <code>components</code> must be empty.</dd>
 <dt><strong><code>**components</code></strong></dt>
 <dd>Values by component name.
@@ -5390,7 +5392,7 @@ If <code>matrix</code> is sparse, diagonal zeros (and possibly other explicitly 
 </dd>
 <dt id="phiml.math.DType"><code class="flex name class">
 <span>class <span class="ident">DType</span></span>
-<span>(</span><span>kind: type, bits: int = None, precision: int = None)</span>
+<span>(</span><span>kind: type, bits: int, unsigned: bool, exponent_bits: int, mantissa_bits: int, finite_only: bool, unsigned_zero: bool)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Instances of <code><a title="phiml.math.DType" href="#phiml.math.DType">DType</a></code> represent the kind and size of data elements.
@@ -5404,19 +5406,12 @@ The data type of tensors can be obtained via <code><a title="phiml.math.Tensor.d
 <li><code>str</code> with 8<em>n</em> bits</li>
 </ul>
 <p>Unlike with many computing libraries, there are no global variables corresponding to the available types.
-Instead, data types can simply be instantiated as needed.</p>
-<h2 id="args">Args</h2>
-<dl>
-<dt><strong><code>kind</code></strong></dt>
-<dd>Python type, one of <code>(bool, int, float, complex, str)</code></dd>
-<dt><strong><code>bits</code></strong></dt>
-<dd>number of bits per element, a multiple of 8.</dd>
-</dl></div>
+Instead, data types can simply be instantiated as needed.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">class DType:
+<pre><code class="python">class DType(metaclass=DTypeMeta):
     &#34;&#34;&#34;
     Instances of `DType` represent the kind and size of data elements.
     The data type of tensors can be obtained via `Tensor.dtype`.
@@ -5432,36 +5427,20 @@ Instead, data types can simply be instantiated as needed.</p>
     Unlike with many computing libraries, there are no global variables corresponding to the available types.
     Instead, data types can simply be instantiated as needed.
     &#34;&#34;&#34;
-
-    def __init__(self, kind: type, bits: int = None, precision: int = None):
-        &#34;&#34;&#34;
-        Args:
-            kind: Python type, one of `(bool, int, float, complex, str)`
-            bits: number of bits per element, a multiple of 8.
-        &#34;&#34;&#34;
-        assert kind in (bool, int, float, complex, str, object)
-        if kind is bool:
-            assert bits is None, &#34;Bits may not be set for bool or object&#34;
-            assert precision is None, f&#34;Precision may only be specified for float or complex but got {kind}, precision={precision}&#34;
-            bits = 8
-        elif kind == object:
-            assert bits is None, &#34;bits may not be set for bool or object&#34;
-            assert precision is None, f&#34;Precision may only be specified for float or complex but got {kind}, precision={precision}&#34;
-            bits = int(np.round(np.log2(sys.maxsize))) + 1
-        elif precision is not None:
-            assert bits is None, &#34;Specify either bits or precision when creating a DType but not both.&#34;
-            assert kind in [float, complex], f&#34;Precision may only be specified for float or complex but got {kind}, precision={precision}&#34;
-            if kind == float:
-                bits = precision
-            else:
-                bits = precision * 2
-        else:
-            assert isinstance(bits, int), f&#34;bits must be an int but got {type(bits)}&#34;
-        self.kind = kind
-        &#34;&#34;&#34; Python class corresponding to the type of data, ignoring precision. One of (bool, int, float, complex, str) &#34;&#34;&#34;
-        self.bits = bits
-        &#34;&#34;&#34; Number of bits used to store a single value of this type. See `DType.itemsize`. &#34;&#34;&#34;
-        self._hash = hash(self.kind) + hash(self.bits)
+    kind: type
+    &#34;&#34;&#34;Python type, one of `(bool, int, float, complex, str, object)`&#34;&#34;&#34;
+    bits: int
+    &#34;&#34;&#34;Number of bits per element, typically a multiple of 8.&#34;&#34;&#34;
+    unsigned: bool
+    &#34;&#34;&#34;If `True`, the data type is unsigned, meaning it can only represent non-negative values.&#34;&#34;&#34;
+    exponent_bits: int
+    &#34;&#34;&#34;Number of bits used for the exponent in floating point types. 0 for integers.&#34;&#34;&#34;
+    mantissa_bits: int
+    &#34;&#34;&#34;Number of bits used for the mantissa in floating point types. Same as `bits` for integers.&#34;&#34;&#34;
+    finite_only: bool
+    &#34;&#34;&#34;If `True`, the data type can only represent finite values, i.e., no NaN or Inf.&#34;&#34;&#34;
+    unsigned_zero: bool
+    &#34;&#34;&#34;If `True`, the data type cannot represent signed zeros. This is `True` for integers and `False` for most floating point types.&#34;&#34;&#34;
 
     @property
     def precision(self):
@@ -5476,12 +5455,11 @@ Instead, data types can simply be instantiated as needed.</p>
     @property
     def itemsize(self):
         &#34;&#34;&#34; Number of bytes used to storea single value of this type. See `DType.bits`. &#34;&#34;&#34;
-        assert self.bits % 8 == 0
-        return self.bits // 8
+        return self.bits // 8 if self.bits % 8 == 0 else self.bits / 8
 
     def __eq__(self, other):
         if isinstance(other, DType):
-            return self.kind == other.kind and self.bits == other.bits
+            return self.kind == other.kind and self.bits == other.bits and self.unsigned == other.unsigned
         elif other in {bool, int, float, complex, object}:
             return self.kind == other
         else:
@@ -5491,10 +5469,38 @@ Instead, data types can simply be instantiated as needed.</p>
         return not self == other
 
     def __hash__(self):
-        return self._hash
+        return hash(self.kind)
 
     def __repr__(self):
-        return f&#34;{self.kind.__name__}{self.bits}&#34;
+        if self.kind == int:
+            if self.unsigned:
+                return f&#34;uint{self.bits}&#34;
+            else:
+                return f&#34;int{self.bits}&#34;
+        elif self.kind == float:
+            if self == FLOAT16:
+                return &#34;float16&#34;
+            elif self == FLOAT32:
+                return &#34;float32&#34;
+            elif self == FLOAT64:
+                return &#34;float64&#34;
+            else:
+                return f&#34;float{self.bits}_e{self.exponent_bits}_m{self.mantissa_bits}{&#39;fn&#39; if self.finite_only else &#39;&#39;}{&#39;uz&#39; if self.unsigned_zero else &#39;&#39;}&#34;
+        elif self.kind == complex:
+            if self == COMPLEX64:
+                return &#34;complex64&#34;
+            elif self == COMPLEX128:
+                return &#34;complex128&#34;
+            else:
+                return f&#34;complex{self.bits}_e{self.exponent_bits}_m{self.mantissa_bits}{&#39;fn&#39; if self.finite_only else &#39;&#39;}{&#39;uz&#39; if self.unsigned_zero else &#39;&#39;}&#34;
+        elif self.kind == str:
+            return f&#34;str{self.bits}&#34;
+        elif self.kind == bool:
+            return &#34;bool&#34;
+        elif self.kind == object:
+            return &#34;object&#34;
+        else:
+            return f&#34;{self.kind.__name__}{self.bits}&#34;
 
     @staticmethod
     def as_dtype(value: Union[&#39;DType&#39;, tuple, type, None]) -&gt; Union[&#39;DType&#39;, None]:
@@ -5504,19 +5510,86 @@ Instead, data types can simply be instantiated as needed.</p>
             return INT32
         elif value is float:
             from . import get_precision
-            return DType(float, get_precision())
+            return DType.by_precision(float, get_precision())
         elif value is complex:
             from . import get_precision
-            return DType(complex, 2 * get_precision())
+            return DType.by_precision(complex, get_precision())
         elif value is None:
             return None
         elif isinstance(value, tuple):
+            if len(value) == 2:
+                return {
+                    (int, 8): INT8,
+                    (int, 16): INT16,
+                    (int, 32): INT32,
+                    (int, 64): INT64,
+                    (float, 16): FLOAT16,
+                    (float, 32): FLOAT32,
+                    (float, 64): FLOAT64,
+                    (complex, 64): COMPLEX64,
+                    (complex, 128): COMPLEX128,
+                }[value]
             return DType(*value)
         elif value is str:
-            raise ValueError(&#34;str DTypes must specify precision&#34;)
+            raise ValueError(&#34;str DTypes must specify bits&#34;)
+        return {bool: BOOL, object: OBJECT}[value]
+
+    @staticmethod
+    def by_precision(kind: type, precision: int) -&gt; &#39;DType&#39;:
+        if kind == float:
+            return {16: FLOAT16, 32: FLOAT32, 64: FLOAT64}[precision]
+        elif kind == complex:
+            return {32: COMPLEX64, 64: COMPLEX128}[precision]
         else:
-            return DType(value)  # bool, object</code></pre>
+            raise ValueError(f&#34;Unsupported kind: {kind}&#34;)
+
+    @staticmethod
+    def int_by_bits(bits: int):
+        return {8: INT8, 16: INT16, 32: INT32, 64: INT64}[bits]
+
+    @staticmethod
+    def by_bits(kind: type, bits: int):
+        if kind is int:
+            return {8: INT8, 16: INT16, 32: INT32, 64: INT64}[bits]
+        elif kind is float:
+            return {16: FLOAT16, 32: FLOAT32, 64: FLOAT64}[bits]
+        elif kind is complex:
+            return {64: COMPLEX64, 128: COMPLEX128}[bits]
+        elif kind is str:
+            return DType(str, bits, False, 0, 0, True, True)
+        raise ValueError</code></pre>
 </details>
+<h3>Class variables</h3>
+<dl>
+<dt id="phiml.math.DType.bits"><code class="name">var <span class="ident">bits</span> : int</code></dt>
+<dd>
+<div class="desc"><p>Number of bits per element, typically a multiple of 8.</p></div>
+</dd>
+<dt id="phiml.math.DType.exponent_bits"><code class="name">var <span class="ident">exponent_bits</span> : int</code></dt>
+<dd>
+<div class="desc"><p>Number of bits used for the exponent in floating point types. 0 for integers.</p></div>
+</dd>
+<dt id="phiml.math.DType.finite_only"><code class="name">var <span class="ident">finite_only</span> : bool</code></dt>
+<dd>
+<div class="desc"><p>If <code>True</code>, the data type can only represent finite values, i.e., no NaN or Inf.</p></div>
+</dd>
+<dt id="phiml.math.DType.kind"><code class="name">var <span class="ident">kind</span> : type</code></dt>
+<dd>
+<div class="desc"><p>Python type, one of <code>(bool, int, float, complex, str, object)</code></p></div>
+</dd>
+<dt id="phiml.math.DType.mantissa_bits"><code class="name">var <span class="ident">mantissa_bits</span> : int</code></dt>
+<dd>
+<div class="desc"><p>Number of bits used for the mantissa in floating point types. Same as <code>bits</code> for integers.</p></div>
+</dd>
+<dt id="phiml.math.DType.unsigned"><code class="name">var <span class="ident">unsigned</span> : bool</code></dt>
+<dd>
+<div class="desc"><p>If <code>True</code>, the data type is unsigned, meaning it can only represent non-negative values.</p></div>
+</dd>
+<dt id="phiml.math.DType.unsigned_zero"><code class="name">var <span class="ident">unsigned_zero</span> : bool</code></dt>
+<dd>
+<div class="desc"><p>If <code>True</code>, the data type cannot represent signed zeros. This is <code>True</code> for integers and <code>False</code> for most floating point types.</p></div>
+</dd>
+</dl>
 <h3>Static methods</h3>
 <dl>
 <dt id="phiml.math.DType.as_dtype"><code class="name flex">
@@ -5525,13 +5598,27 @@ Instead, data types can simply be instantiated as needed.</p>
 <dd>
 <div class="desc"></div>
 </dd>
+<dt id="phiml.math.DType.by_bits"><code class="name flex">
+<span>def <span class="ident">by_bits</span></span>(<span>kind: type, bits: int)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="phiml.math.DType.by_precision"><code class="name flex">
+<span>def <span class="ident">by_precision</span></span>(<span>kind: type, precision: int) ‑> phiml.backend._dtype.DType</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="phiml.math.DType.int_by_bits"><code class="name flex">
+<span>def <span class="ident">int_by_bits</span></span>(<span>bits: int)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
 </dl>
 <h3>Instance variables</h3>
 <dl>
-<dt id="phiml.math.DType.bits"><code class="name">var <span class="ident">bits</span></code></dt>
-<dd>
-<div class="desc"><p>Number of bits used to store a single value of this type. See <code><a title="phiml.math.DType.itemsize" href="#phiml.math.DType.itemsize">DType.itemsize</a></code>.</p></div>
-</dd>
 <dt id="phiml.math.DType.itemsize"><code class="name">prop <span class="ident">itemsize</span></code></dt>
 <dd>
 <div class="desc"><p>Number of bytes used to storea single value of this type. See <code><a title="phiml.math.DType.bits" href="#phiml.math.DType.bits">DType.bits</a></code>.</p></div>
@@ -5542,13 +5629,8 @@ Instead, data types can simply be instantiated as needed.</p>
 <pre><code class="python">@property
 def itemsize(self):
     &#34;&#34;&#34; Number of bytes used to storea single value of this type. See `DType.bits`. &#34;&#34;&#34;
-    assert self.bits % 8 == 0
-    return self.bits // 8</code></pre>
+    return self.bits // 8 if self.bits % 8 == 0 else self.bits / 8</code></pre>
 </details>
-</dd>
-<dt id="phiml.math.DType.kind"><code class="name">var <span class="ident">kind</span></code></dt>
-<dd>
-<div class="desc"><p>Python class corresponding to the type of data, ignoring precision. One of (bool, int, float, complex, str)</p></div>
 </dd>
 <dt id="phiml.math.DType.precision"><code class="name">prop <span class="ident">precision</span></code></dt>
 <dd>
@@ -6082,7 +6164,7 @@ Protocol classes can be generic, they are defined as::</p>
         ...
 
     @property
-    def item_names(self) -&gt; Sequence[Optional[Sequence[str]]]:
+    def labels(self) -&gt; Sequence[Optional[Sequence[str]]]:
         ...
 
     @property
@@ -6094,7 +6176,7 @@ Protocol classes can be generic, they are defined as::</p>
         &#34;&#34;&#34;
         Returns:
             `dict` containing dimension names as keys.
-                The values are either the item names as `tuple` if available, otherwise the size.
+                The values are either the labels as `tuple` if available, otherwise the size.
         &#34;&#34;&#34;
         ...
 
@@ -6163,10 +6245,10 @@ Protocol classes can be generic, they are defined as::</p>
         &#34;&#34;&#34;
         ...
 
-    def get_item_names(self, dim: Union[str, &#39;Shape&#39;, int], fallback_spatial=False) -&gt; Union[tuple, None]:
+    def get_labels(self, dim: Union[str, &#39;Shape&#39;, int], fallback_spatial=False) -&gt; Union[tuple, None]:
         &#34;&#34;&#34;
         Args:
-            fallback_spatial: If `True` and no item names are defined for `dim` and `dim` is a channel dimension, the spatial dimension names are interpreted as item names along `dim` in the order they are listed in this `Shape`.
+            fallback_spatial: If `True` and no labels are defined for `dim` and `dim` is a channel dimension, the spatial dimension names are interpreted as labels along `dim` in the order they are listed in this `Shape`.
             dim: Dimension, either as `int` index, `str` name or single-dimension `Shape`.
 
         Returns:
@@ -6627,7 +6709,7 @@ Protocol classes can be generic, they are defined as::</p>
         &#34;&#34;&#34;
         ...
 
-    def with_sizes(self, sizes: Union[Sequence[int], Sequence[Tuple[str, ...]], &#39;Shape&#39;, int], keep_item_names=True):
+    def with_sizes(self, sizes: Union[Sequence[int], Sequence[Tuple[str, ...]], &#39;Shape&#39;, int], keep_labels=True):
         &#34;&#34;&#34;
         Returns a new `Shape` matching the dimension names and types of `self` but with different sizes.
 
@@ -6637,12 +6719,12 @@ Protocol classes can be generic, they are defined as::</p>
         Args:
             sizes: One of
 
-                * `tuple` / `list` of same length as `self` containing replacement sizes or replacement item names.
+                * `tuple` / `list` of same length as `self` containing replacement sizes or replacement labels.
                 * `Shape` of any rank. Replaces sizes for dimensions shared by `sizes` and `self`.
                 * `int`: new size for all dimensions
 
-            keep_item_names: If `False`, forgets all item names.
-                If `True`, keeps item names where the size does not change.
+            keep_labels: If `False`, forgets all labels.
+                If `True`, keeps labels where the size does not change.
 
         Returns:
             `Shape` with same names and types as `self`.
@@ -6656,7 +6738,7 @@ Protocol classes can be generic, they are defined as::</p>
         &#34;&#34;&#34;
         ...
 
-    def with_dim_size(self, dim: Union[str, &#39;Shape&#39;], size: Union[int, &#39;math.Tensor&#39;, str, tuple, list], keep_item_names=True):
+    def with_dim_size(self, dim: Union[str, &#39;Shape&#39;], size: Union[int, &#39;math.Tensor&#39;, str, tuple, list], keep_labels=True):
         &#34;&#34;&#34;
         Returns a new `Shape` that has a different size for `dim`.
 
@@ -6679,7 +6761,7 @@ Protocol classes can be generic, they are defined as::</p>
         Args:
             dims: Dimensions to replace.
             new: New dimensions, must have same length as `dims` if `len(dims) &gt; 1`.
-                If a `Shape` is given, replaces the dimension types and item names as well.
+                If a `Shape` is given, replaces the dimension types and labels as well.
 
         Returns:
             `Shape` with same rank and dimension order as `self`.
@@ -6744,7 +6826,7 @@ Protocol classes can be generic, they are defined as::</p>
         This function currently only supports uniform tensors.
 
         Args:
-            names: If `True`, replace indices by their item names if available.
+            names: If `True`, replace indices by their labels if available.
 
         Returns:
             `dict` iterator.
@@ -6998,7 +7080,7 @@ def is_uniform(self) -&gt; bool:
     ...</code></pre>
 </details>
 </dd>
-<dt id="phiml.math.Shape.item_names"><code class="name">prop <span class="ident">item_names</span> : Sequence[Optional[Sequence[str]]]</code></dt>
+<dt id="phiml.math.Shape.labels"><code class="name">prop <span class="ident">labels</span> : Sequence[Optional[Sequence[str]]]</code></dt>
 <dd>
 <div class="desc"></div>
 <details class="source">
@@ -7006,7 +7088,7 @@ def is_uniform(self) -&gt; bool:
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">@property
-def item_names(self) -&gt; Sequence[Optional[Sequence[str]]]:
+def labels(self) -&gt; Sequence[Optional[Sequence[str]]]:
     ...</code></pre>
 </details>
 </dd>
@@ -7526,7 +7608,7 @@ def undefined(self):
 <dd>
 <div class="desc"><h2 id="returns">Returns</h2>
 <p><code>dict</code> containing dimension names as keys.
-The values are either the item names as <code>tuple</code> if available, otherwise the size.</p></div>
+The values are either the labels as <code>tuple</code> if available, otherwise the size.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -7536,7 +7618,7 @@ def untyped_dict(self) -&gt; dict:
     &#34;&#34;&#34;
     Returns:
         `dict` containing dimension names as keys.
-            The values are either the item names as `tuple` if available, otherwise the size.
+            The values are either the labels as `tuple` if available, otherwise the size.
     &#34;&#34;&#34;
     ...</code></pre>
 </details>
@@ -7649,14 +7731,14 @@ def well_defined(self):
 <h2 id="returns">Returns</h2>
 <p>Dimension type, one of <code><a title="phiml.math.batch" href="#phiml.math.batch">batch()</a></code>, <code><a title="phiml.math.spatial" href="#phiml.math.spatial">spatial()</a></code>, <code><a title="phiml.math.instance" href="#phiml.math.instance">instance()</a></code>, <code><a title="phiml.math.channel" href="#phiml.math.channel">channel()</a></code>.</p></div>
 </dd>
-<dt id="phiml.math.Shape.get_item_names"><code class="name flex">
-<span>def <span class="ident">get_item_names</span></span>(<span>self, dim: Union[str, ForwardRef('<a title="phiml.math.Shape" href="#phiml.math.Shape">Shape</a>'), int], fallback_spatial=False) ‑> Optional[tuple]</span>
+<dt id="phiml.math.Shape.get_labels"><code class="name flex">
+<span>def <span class="ident">get_labels</span></span>(<span>self, dim: Union[str, ForwardRef('<a title="phiml.math.Shape" href="#phiml.math.Shape">Shape</a>'), int], fallback_spatial=False) ‑> Optional[tuple]</span>
 </code></dt>
 <dd>
 <div class="desc"><h2 id="args">Args</h2>
 <dl>
 <dt><strong><code>fallback_spatial</code></strong></dt>
-<dd>If <code>True</code> and no item names are defined for <code>dim</code> and <code>dim</code> is a channel dimension, the spatial dimension names are interpreted as item names along <code>dim</code> in the order they are listed in this <code><a title="phiml.math.Shape" href="#phiml.math.Shape">Shape</a></code>.</dd>
+<dd>If <code>True</code> and no labels are defined for <code>dim</code> and <code>dim</code> is a channel dimension, the spatial dimension names are interpreted as labels along <code>dim</code> in the order they are listed in this <code><a title="phiml.math.Shape" href="#phiml.math.Shape">Shape</a></code>.</dd>
 <dt><strong><code>dim</code></strong></dt>
 <dd>Dimension, either as <code>int</code> index, <code>str</code> name or single-dimension <code><a title="phiml.math.Shape" href="#phiml.math.Shape">Shape</a></code>.</dd>
 </dl>
@@ -7753,7 +7835,7 @@ All indices are returned as <code>dict</code> mapping dimension names to <code>i
 <h2 id="args">Args</h2>
 <dl>
 <dt><strong><code>names</code></strong></dt>
-<dd>If <code>True</code>, replace indices by their item names if available.</dd>
+<dd>If <code>True</code>, replace indices by their labels if available.</dd>
 </dl>
 <h2 id="returns">Returns</h2>
 <p><code>dict</code> iterator.</p></div>
@@ -7809,7 +7891,7 @@ Dimensions that are not present in <code>self</code> are ignored.</p>
 <dd>Dimensions to replace.</dd>
 <dt><strong><code>new</code></strong></dt>
 <dd>New dimensions, must have same length as <code>dims</code> if <code>len(dims) &gt; 1</code>.
-If a <code><a title="phiml.math.Shape" href="#phiml.math.Shape">Shape</a></code> is given, replaces the dimension types and item names as well.</dd>
+If a <code><a title="phiml.math.Shape" href="#phiml.math.Shape">Shape</a></code> is given, replaces the dimension types and labels as well.</dd>
 </dl>
 <h2 id="returns">Returns</h2>
 <p><code><a title="phiml.math.Shape" href="#phiml.math.Shape">Shape</a></code> with same rank and dimension order as <code>self</code>.</p></div>
@@ -7836,7 +7918,7 @@ If a <code><a title="phiml.math.Shape" href="#phiml.math.Shape">Shape</a></code>
 <div class="desc"></div>
 </dd>
 <dt id="phiml.math.Shape.with_dim_size"><code class="name flex">
-<span>def <span class="ident">with_dim_size</span></span>(<span>self, dim: Union[str, ForwardRef('<a title="phiml.math.Shape" href="#phiml.math.Shape">Shape</a>')], size: Union[int, ForwardRef('math.Tensor'), str, tuple, list], keep_item_names=True)</span>
+<span>def <span class="ident">with_dim_size</span></span>(<span>self, dim: Union[str, ForwardRef('<a title="phiml.math.Shape" href="#phiml.math.Shape">Shape</a>')], size: Union[int, ForwardRef('math.Tensor'), str, tuple, list], keep_labels=True)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Returns a new <code><a title="phiml.math.Shape" href="#phiml.math.Shape">Shape</a></code> that has a different size for <code>dim</code>.</p>
@@ -7867,7 +7949,7 @@ Returns a <code><a title="phiml.math.Shape" href="#phiml.math.Shape">Shape</a></
 <p><code><a title="phiml.math.Shape" href="#phiml.math.Shape">Shape</a></code></p></div>
 </dd>
 <dt id="phiml.math.Shape.with_sizes"><code class="name flex">
-<span>def <span class="ident">with_sizes</span></span>(<span>self, sizes: Union[Sequence[int], Sequence[Tuple[str, ...]], ForwardRef('<a title="phiml.math.Shape" href="#phiml.math.Shape">Shape</a>'), int], keep_item_names=True)</span>
+<span>def <span class="ident">with_sizes</span></span>(<span>self, sizes: Union[Sequence[int], Sequence[Tuple[str, ...]], ForwardRef('<a title="phiml.math.Shape" href="#phiml.math.Shape">Shape</a>'), int], keep_labels=True)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Returns a new <code><a title="phiml.math.Shape" href="#phiml.math.Shape">Shape</a></code> matching the dimension names and types of <code>self</code> but with different sizes.</p>
@@ -7879,14 +7961,14 @@ Returns a <code><a title="phiml.math.Shape" href="#phiml.math.Shape">Shape</a></
 <dd>
 <p>One of</p>
 <ul>
-<li><code>tuple</code> / <code>list</code> of same length as <code>self</code> containing replacement sizes or replacement item names.</li>
+<li><code>tuple</code> / <code>list</code> of same length as <code>self</code> containing replacement sizes or replacement labels.</li>
 <li><code><a title="phiml.math.Shape" href="#phiml.math.Shape">Shape</a></code> of any rank. Replaces sizes for dimensions shared by <code>sizes</code> and <code>self</code>.</li>
 <li><code>int</code>: new size for all dimensions</li>
 </ul>
 </dd>
-<dt><strong><code>keep_item_names</code></strong></dt>
-<dd>If <code>False</code>, forgets all item names.
-If <code>True</code>, keeps item names where the size does not change.</dd>
+<dt><strong><code>keep_labels</code></strong></dt>
+<dd>If <code>False</code>, forgets all labels.
+If <code>True</code>, keeps labels where the size does not change.</dd>
 </dl>
 <h2 id="returns">Returns</h2>
 <p><code><a title="phiml.math.Shape" href="#phiml.math.Shape">Shape</a></code> with same names and types as <code>self</code>.</p></div>
@@ -8526,6 +8608,10 @@ When backed by an editable native tensor, e.g. a <code>numpy.ndarray</code>, do 
             return self._op2(other, operator.rshift, switch_args)
         raise NotImplementedError(f&#34;NumPy function &#39;{ufunc.__name__}&#39; is not compatible with Φ-ML tensors.&#34;)
 
+    def __torch_function__(self, func, types, args=(), kwargs=None):
+        from ..backend.torch._torch_hooks import handle_torch_function
+        return handle_torch_function(func, types, args, kwargs)
+
     @property
     def dtype(self) -&gt; DType:
         &#34;&#34;&#34; Data type of the elements of this `Tensor`. &#34;&#34;&#34;
@@ -8741,7 +8827,10 @@ When backed by an editable native tensor, e.g. a <code>numpy.ndarray</code>, do 
         raise ValueError(f&#34;&#39;dim in Tensor&#39; requires dim to be a Shape or str but got {item}&#34;)
 
     def __repr__(self):
-        return format_tensor(self, PrintOptions())
+        try:
+            return format_tensor(self, PrintOptions())
+        except Exception:
+            return f&#34;Tensor {self.shape}&#34;
 
     def _repr_pretty_(self, printer, cycle):
         printer.text(format_tensor(self, PrintOptions(colors=DEFAULT_COLORS)))
@@ -9117,6 +9206,10 @@ When backed by an editable native tensor, e.g. a <code>numpy.ndarray</code>, do 
         else:
             native = self.native([self.shape])
             return iter(native)
+
+    def item(self):
+        assert self.shape.volume == 1, f&#34;Tensor.item() is only available for single-element Tensors but got {self.shape}&#34;
+        return next(iter(self))
 
     def __matmul__(self, other):
         from ._ops import dot
@@ -9607,6 +9700,12 @@ This is equivalent to the syntax <code>tensor.&lt;name&gt;</code>.</p>
 <h2 id="returns">Returns</h2>
 <p><code>TensorDim</code> corresponding to a dimension of this tensor</p></div>
 </dd>
+<dt id="phiml.math.Tensor.item"><code class="name flex">
+<span>def <span class="ident">item</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
 <dt id="phiml.math.Tensor.map"><code class="name flex">
 <span>def <span class="ident">map</span></span>(<span>self, function: Callable, dims=&lt;function shape&gt;, range=builtins.range, unwrap_scalars=True, **kwargs)</span>
 </code></dt>
@@ -9997,12 +10096,20 @@ If a dimension of the tensor is not listed in <code>order</code>, a <code>ValueE
 </li>
 <li>
 <h4><code><a title="phiml.math.DType" href="#phiml.math.DType">DType</a></code></h4>
-<ul class="">
+<ul class="two-column">
 <li><code><a title="phiml.math.DType.as_dtype" href="#phiml.math.DType.as_dtype">as_dtype</a></code></li>
 <li><code><a title="phiml.math.DType.bits" href="#phiml.math.DType.bits">bits</a></code></li>
+<li><code><a title="phiml.math.DType.by_bits" href="#phiml.math.DType.by_bits">by_bits</a></code></li>
+<li><code><a title="phiml.math.DType.by_precision" href="#phiml.math.DType.by_precision">by_precision</a></code></li>
+<li><code><a title="phiml.math.DType.exponent_bits" href="#phiml.math.DType.exponent_bits">exponent_bits</a></code></li>
+<li><code><a title="phiml.math.DType.finite_only" href="#phiml.math.DType.finite_only">finite_only</a></code></li>
+<li><code><a title="phiml.math.DType.int_by_bits" href="#phiml.math.DType.int_by_bits">int_by_bits</a></code></li>
 <li><code><a title="phiml.math.DType.itemsize" href="#phiml.math.DType.itemsize">itemsize</a></code></li>
 <li><code><a title="phiml.math.DType.kind" href="#phiml.math.DType.kind">kind</a></code></li>
+<li><code><a title="phiml.math.DType.mantissa_bits" href="#phiml.math.DType.mantissa_bits">mantissa_bits</a></code></li>
 <li><code><a title="phiml.math.DType.precision" href="#phiml.math.DType.precision">precision</a></code></li>
+<li><code><a title="phiml.math.DType.unsigned" href="#phiml.math.DType.unsigned">unsigned</a></code></li>
+<li><code><a title="phiml.math.DType.unsigned_zero" href="#phiml.math.DType.unsigned_zero">unsigned_zero</a></code></li>
 </ul>
 </li>
 <li>
@@ -10048,7 +10155,7 @@ If a dimension of the tensor is not listed in <code>order</code>, a <code>ValueE
 <li><code><a title="phiml.math.Shape.dual_rank" href="#phiml.math.Shape.dual_rank">dual_rank</a></code></li>
 <li><code><a title="phiml.math.Shape.flipped" href="#phiml.math.Shape.flipped">flipped</a></code></li>
 <li><code><a title="phiml.math.Shape.get_dim_type" href="#phiml.math.Shape.get_dim_type">get_dim_type</a></code></li>
-<li><code><a title="phiml.math.Shape.get_item_names" href="#phiml.math.Shape.get_item_names">get_item_names</a></code></li>
+<li><code><a title="phiml.math.Shape.get_labels" href="#phiml.math.Shape.get_labels">get_labels</a></code></li>
 <li><code><a title="phiml.math.Shape.get_size" href="#phiml.math.Shape.get_size">get_size</a></code></li>
 <li><code><a title="phiml.math.Shape.index" href="#phiml.math.Shape.index">index</a></code></li>
 <li><code><a title="phiml.math.Shape.indices" href="#phiml.math.Shape.indices">indices</a></code></li>
@@ -10059,7 +10166,7 @@ If a dimension of the tensor is not listed in <code>order</code>, a <code>ValueE
 <li><code><a title="phiml.math.Shape.is_non_uniform" href="#phiml.math.Shape.is_non_uniform">is_non_uniform</a></code></li>
 <li><code><a title="phiml.math.Shape.is_uniform" href="#phiml.math.Shape.is_uniform">is_uniform</a></code></li>
 <li><code><a title="phiml.math.Shape.isdisjoint" href="#phiml.math.Shape.isdisjoint">isdisjoint</a></code></li>
-<li><code><a title="phiml.math.Shape.item_names" href="#phiml.math.Shape.item_names">item_names</a></code></li>
+<li><code><a title="phiml.math.Shape.labels" href="#phiml.math.Shape.labels">labels</a></code></li>
 <li><code><a title="phiml.math.Shape.mask" href="#phiml.math.Shape.mask">mask</a></code></li>
 <li><code><a title="phiml.math.Shape.meshgrid" href="#phiml.math.Shape.meshgrid">meshgrid</a></code></li>
 <li><code><a title="phiml.math.Shape.name" href="#phiml.math.Shape.name">name</a></code></li>
@@ -10161,6 +10268,7 @@ If a dimension of the tensor is not listed in <code>order</code>, a <code>ValueE
 <li><code><a title="phiml.math.Tensor.finite_min" href="#phiml.math.Tensor.finite_min">finite_min</a></code></li>
 <li><code><a title="phiml.math.Tensor.finite_sum" href="#phiml.math.Tensor.finite_sum">finite_sum</a></code></li>
 <li><code><a title="phiml.math.Tensor.imag" href="#phiml.math.Tensor.imag">imag</a></code></li>
+<li><code><a title="phiml.math.Tensor.item" href="#phiml.math.Tensor.item">item</a></code></li>
 <li><code><a title="phiml.math.Tensor.map" href="#phiml.math.Tensor.map">map</a></code></li>
 <li><code><a title="phiml.math.Tensor.max" href="#phiml.math.Tensor.max">max</a></code></li>
 <li><code><a title="phiml.math.Tensor.mean" href="#phiml.math.Tensor.mean">mean</a></code></li>

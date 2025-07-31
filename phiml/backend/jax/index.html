@@ -135,6 +135,9 @@ The methods of <code>Backend</code> form a comprehensive list of available opera
             return all([self.is_tensor(item, False) for item in x])
         return False
 
+    def sizeof(self, tensor) -&gt; int:
+        return tensor.nbytes
+
     def is_sparse(self, x) -&gt; bool:
         return isinstance(x, (COO, BCOO, CSR, CSC))
 
@@ -178,8 +181,11 @@ The methods of <code>Backend</code> form a comprehensive list of available opera
             return lambda b, t: t, (x,)
 
     def to_dlpack(self, tensor):
-        from jax import dlpack
-        return dlpack.to_dlpack(tensor)
+        if version.parse(jax.__version__) &lt; version.parse(&#34;0.7.0&#34;):
+            from jax import dlpack
+            return dlpack.to_dlpack(tensor)
+        else:
+            return tensor.__dlpack__()
 
     def from_dlpack(self, capsule):
         from jax import dlpack
@@ -349,8 +355,8 @@ The methods of <code>Backend</code> form a comprehensive list of available opera
         if dtype.kind == float:
             tensor = random.uniform(subkey, shape, minval=low, maxval=high, dtype=jdt)
         elif dtype.kind == complex:
-            real = random.uniform(subkey, shape, minval=low.real, maxval=high.real, dtype=to_numpy_dtype(DType(float, dtype.precision)))
-            imag = random.uniform(subkey, shape, minval=low.imag, maxval=high.imag, dtype=to_numpy_dtype(DType(float, dtype.precision)))
+            real = random.uniform(subkey, shape, minval=low.real, maxval=high.real, dtype=to_numpy_dtype(DType.by_precision(float, dtype.precision)))
+            imag = random.uniform(subkey, shape, minval=low.imag, maxval=high.imag, dtype=to_numpy_dtype(DType.by_precision(float, dtype.precision)))
             return real + 1j * imag
         elif dtype.kind == int:
             tensor = random.randint(subkey, shape, low, high, dtype=jdt)
@@ -371,7 +377,7 @@ The methods of <code>Backend</code> form a comprehensive list of available opera
         result = jnp.stack([jax.random.permutation(subkey, n) for _ in range(permutations)])
         return jax.device_put(result, self._default_device.ref)
 
-    def range(self, start, limit=None, delta=1, dtype: DType = DType(int, 32)):
+    def range(self, start, limit=None, delta=1, dtype: DType = INT32):
         if limit is None:
             start, limit = 0, start
         return jnp.arange(start, limit, delta, to_numpy_dtype(dtype))
@@ -632,7 +638,7 @@ The methods of <code>Backend</code> form a comprehensive list of available opera
     def sort(self, x, axis=-1):
         return jnp.sort(x, axis)
 
-    def searchsorted(self, sorted_sequence, search_values, side: str, dtype=DType(int, 32)):
+    def searchsorted(self, sorted_sequence, search_values, side: str, dtype=INT32):
         if self.ndims(sorted_sequence) == 1:
             return jnp.searchsorted(sorted_sequence, search_values, side=side).astype(to_numpy_dtype(dtype))
         else:
@@ -2181,6 +2187,12 @@ Use <code>is_available(tensor)</code> to check if the value can be represented a
 <dd>
 <div class="desc"></div>
 </dd>
+<dt id="phiml.backend.jax.JaxBackend.sizeof"><code class="name flex">
+<span>def <span class="ident">sizeof</span></span>(<span>self, tensor) ‑> int</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Returns the size in bytes</p></div>
+</dd>
 <dt id="phiml.backend.jax.JaxBackend.solve_triangular_dense"><code class="name flex">
 <span>def <span class="ident">solve_triangular_dense</span></span>(<span>self, matrix, rhs, lower: bool, unit_diagonal: bool)</span>
 </code></dt>
@@ -2486,6 +2498,7 @@ If the loop is broken, the values returned by the last loop are expected to be c
 <li><code><a title="phiml.backend.jax.JaxBackend.sign" href="#phiml.backend.jax.JaxBackend.sign">sign</a></code></li>
 <li><code><a title="phiml.backend.jax.JaxBackend.sin" href="#phiml.backend.jax.JaxBackend.sin">sin</a></code></li>
 <li><code><a title="phiml.backend.jax.JaxBackend.sinh" href="#phiml.backend.jax.JaxBackend.sinh">sinh</a></code></li>
+<li><code><a title="phiml.backend.jax.JaxBackend.sizeof" href="#phiml.backend.jax.JaxBackend.sizeof">sizeof</a></code></li>
 <li><code><a title="phiml.backend.jax.JaxBackend.softplus" href="#phiml.backend.jax.JaxBackend.softplus">softplus</a></code></li>
 <li><code><a title="phiml.backend.jax.JaxBackend.solve_triangular_dense" href="#phiml.backend.jax.JaxBackend.solve_triangular_dense">solve_triangular_dense</a></code></li>
 <li><code><a title="phiml.backend.jax.JaxBackend.sort" href="#phiml.backend.jax.JaxBackend.sort">sort</a></code></li>

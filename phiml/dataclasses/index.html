@@ -133,6 +133,19 @@ abs_tolerance:
 equal_nan:
 Returns:</p></div>
 </dd>
+<dt id="phiml.dataclasses.get_cache_files"><code class="name flex">
+<span>def <span class="ident">get_cache_files</span></span>(<span>obj) ‑> Set[str]</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Searches the data structure for all disk-cached tensors and returns all referenced files.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>obj</code></strong></dt>
+<dd><code>Tensor</code> or pytree or dataclass (<code><a title="phiml.math.magic.PhiTreeNode" href="../math/magic.html#phiml.math.magic.PhiTreeNode">PhiTreeNode</a></code>).</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<p>Collection of file paths.</p></div>
+</dd>
 <dt id="phiml.dataclasses.getitem"><code class="name flex">
 <span>def <span class="ident">getitem</span></span>(<span>obj: ~PhiMLDataclass, item, keepdims: Union[str, Sequence[+T_co], set, phiml.math._shape.Shape, Callable, None] = None) ‑> ~PhiMLDataclass</span>
 </code></dt>
@@ -168,6 +181,83 @@ When selecting a single slice, these dims will remain with size 1.</dd>
 <h2 id="returns">Returns</h2>
 <p>Sequence of <code>dataclasses.Field</code>.</p></div>
 </dd>
+<dt id="phiml.dataclasses.on_load_into_memory"><code class="name flex">
+<span>def <span class="ident">on_load_into_memory</span></span>(<span>callback: Callable[[phiml.math._tensors.Tensor], None])</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Register a function to be called every time a cached tensor is loaded from disk into memory in this process.</p>
+<p>Tensors are stored on disk to save memory, e.g. in <code><a title="phiml.dataclasses.parallel_compute" href="#phiml.dataclasses.parallel_compute">parallel_compute()</a></code> if a memory limit is specified.</p>
+<p>When accessing the tensor values or using them in any computation, the values are temporarily loaded into memory and <code>callback</code> is called.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>callback</code></strong></dt>
+<dd>Function <code>callback(Tensor)</code>.</dd>
+</dl></div>
+</dd>
+<dt id="phiml.dataclasses.parallel_compute"><code class="name flex">
+<span>def <span class="ident">parallel_compute</span></span>(<span>instance, properties: Sequence[+T_co], parallel_dims=&lt;function shape&gt;, max_workers=4, memory_limit: Optional[float] = None, cache_dir: str = None, keep_intermediate=False)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Compute the values of properties decorated with <code>@cached_property</code> or <code>@parallel_property</code> of a dataclass instance in parallel.</p>
+<p><strong>Multiple stages via <code>requires=...</code></strong>
+If <code>@parallel_property</code> are computed whose <code>requires</code> overlaps with <code>parallel_dims</code>, a separate computation stage is set up to compute these properties with fewer parallel workers.
+In the presence of different <code>requires</code>, the computation is split into different stages in accordance with the property dependency graph.
+Properties that cannot be parallelized (because it requires all <code>parallel_dims</code>) are computed on the host process.</p>
+<p><strong>Caching tensors to disk</strong>
+When <code>memory_limit</code> and <code>cache_dir</code> are set, the evaluation will try to adhere to the given memory limits by moving tensors out of memory onto disk.
+This is only applied to the outputs of <code>@cached_property</code> and <code>@parallel_property</code> calls, not to intermediate values used in their computation.
+The per-process memory limit is calculated per stage, dividing the total memory by the active worker count.
+Cached tensors behave like regular tensors and are temporarily loaded back into memory when accessing their values or using them in a computation.
+When parallelizing, the full result is assembled by stacking multiple disk-backed tensors from different files created by different processes.
+These composite tensors will reference multiple binary files and can be pickled/unpickled safely without loading the data into memory.
+This enables passing large data references to different processes or saving the structure to a file without the data content.</p>
+<p>See Also:
+<code><a title="phiml.dataclasses.cached_property" href="#phiml.dataclasses.cached_property">cached_property</a></code>, <code><a title="phiml.dataclasses.parallel_property" href="#phiml.dataclasses.parallel_property">parallel_property()</a></code>, <code><a title="phiml.dataclasses.get_cache_files" href="#phiml.dataclasses.get_cache_files">get_cache_files()</a></code>, <code><a title="phiml.dataclasses.on_load_into_memory" href="#phiml.dataclasses.on_load_into_memory">on_load_into_memory()</a></code>.</p>
+<h2 id="warnings">Warnings</h2>
+<p><code><a title="phiml.dataclasses.parallel_compute" href="#phiml.dataclasses.parallel_compute">parallel_compute()</a></code> breaks automatic differentiation.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>instance</code></strong></dt>
+<dd>Dataclass instance for which to compute the values of <code>@cached_property</code> or <code>@parallel_property</code> fields.</dd>
+<dt><strong><code>properties</code></strong></dt>
+<dd>References to the unbound properties. These must be <code><a title="phiml.dataclasses.cached_property" href="#phiml.dataclasses.cached_property">cached_property</a></code> or <code><a title="phiml.dataclasses.parallel_property" href="#phiml.dataclasses.parallel_property">parallel_property()</a></code>.</dd>
+<dt><strong><code>parallel_dims</code></strong></dt>
+<dd>Dimensions to parallelize over.</dd>
+<dt><strong><code>max_workers</code></strong></dt>
+<dd>Number of processes to spawn.</dd>
+<dt><strong><code>memory_limit</code></strong></dt>
+<dd>Limit to the total memory consumption from <code>Tensor</code> instances on property outputs.</dd>
+<dt><strong><code>cache_dir</code></strong></dt>
+<dd>Directory path to store cached tensors in if <code>memory_limit</code> is set.</dd>
+<dt><strong><code>keep_intermediate</code></strong></dt>
+<dd>Whether the outputs of cached properties required to compute <code>properties</code> but not contained in <code>properties</code> should be kept in memory.
+If <code>False</code>, these values will not be cached on <code>instance</code> after this call.</dd>
+</dl></div>
+</dd>
+<dt id="phiml.dataclasses.parallel_property"><code class="name flex">
+<span>def <span class="ident">parallel_property</span></span>(<span>func: Callable = None, /, requires: Union[str, Sequence[+T_co], set, phiml.math._shape.Shape, Callable, None] = None, on_direct_eval='raise')</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Similar to <code>@cached_property</code> but with additional controls over parallelization.</p>
+<p>See Also:
+<code><a title="phiml.dataclasses.parallel_compute" href="#phiml.dataclasses.parallel_compute">parallel_compute()</a></code>.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>func</code></strong></dt>
+<dd>Method to wrap.</dd>
+<dt><strong><code>requires</code></strong></dt>
+<dd>Dimensions which must be present within one process. These cannot be parallelized when computing this property.</dd>
+<dt><strong><code>on_direct_eval</code></strong></dt>
+<dd>
+<p>What to do when the property is accessed normally (outside <code><a title="phiml.dataclasses.parallel_compute" href="#phiml.dataclasses.parallel_compute">parallel_compute()</a></code>) before it has been computed.
+Option:</p>
+<ul>
+<li><code>'raise'</code>: Raise an error.</li>
+<li><code>'host-compute'</code>: Compute the property directly, without using multi-threading.</li>
+</ul>
+</dd>
+</dl></div>
+</dd>
 <dt id="phiml.dataclasses.replace"><code class="name flex">
 <span>def <span class="ident">replace</span></span>(<span>obj: ~PhiMLDataclass, /, call_metaclass=False, **changes) ‑> ~PhiMLDataclass</span>
 </code></dt>
@@ -188,10 +278,10 @@ If <code>obj</code> defines a metaclass, this will allow users to define custom 
 <p>Copy of <code>obj</code> with replaced values.</p></div>
 </dd>
 <dt id="phiml.dataclasses.sliceable"><code class="name flex">
-<span>def <span class="ident">sliceable</span></span>(<span>cls=None, /, *, dim_attrs=True, t_props=True, keepdims=None, dim_repr=True)</span>
+<span>def <span class="ident">sliceable</span></span>(<span>cls=None, /, *, dim_attrs=True, t_props=True, keepdims=None, dim_repr=True, lazy_dims=True)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Decorator for frozen dataclasses, adding slicing functionality by defining <code>__getitem__</code>.
+<div class="desc"><p>Decorator for frozen dataclasses, adding slicing functionality by defining <code>__getitem__</code> and enabling the <code>instance.dim</code> syntax.
 This enables slicing similar to tensors, gathering and boolean masking.</p>
 <h2 id="args">Args</h2>
 <dl>
@@ -200,9 +290,12 @@ This enables slicing similar to tensors, gathering and boolean masking.</p>
 <dt><strong><code>t_props</code></strong></dt>
 <dd>Whether to generate the properties <code>Tc</code>, <code>Ts</code> and <code>Ti</code> for transposing channel/spatial/instance dims.</dd>
 <dt><strong><code>keepdims</code></strong></dt>
-<dd>Which dimensions should be kept with size 1 taking a single slice along them. This will preserve item names.</dd>
+<dd>Which dimensions should be kept with size 1 taking a single slice along them. This will preserve labels.</dd>
 <dt><strong><code>dim_repr</code></strong></dt>
 <dd>Whether to replace the default <code>repr</code> of a dataclass by a simplified one based on the object's shape.</dd>
+<dt><strong><code>lazy_dims</code></strong></dt>
+<dd>If <code>False</code>, instantiates all dims of <code>shape(self)</code> as member variables during construction. Dataclass must have <code>slots=False</code>.
+If <code>True</code>, implements <code>__getattr__</code> to instantiate accessed dims on demand. This will be skipped if a user-defined <code>__getattr__</code> is found.</dd>
 </dl></div>
 </dd>
 <dt id="phiml.dataclasses.special_fields"><code class="name flex">
@@ -265,6 +358,10 @@ This enables slicing similar to tensors, gathering and boolean masking.</p>
                     raise TypeError(msg) from None
     return val</code></pre>
 </details>
+<h3>Subclasses</h3>
+<ul class="hlist">
+<li>phiml.dataclasses._parallel.ParallelProperty</li>
+</ul>
 </dd>
 </dl>
 </section>
@@ -286,8 +383,12 @@ This enables slicing similar to tensors, gathering and boolean masking.</p>
 <li><code><a title="phiml.dataclasses.data_eq" href="#phiml.dataclasses.data_eq">data_eq</a></code></li>
 <li><code><a title="phiml.dataclasses.data_fields" href="#phiml.dataclasses.data_fields">data_fields</a></code></li>
 <li><code><a title="phiml.dataclasses.equal" href="#phiml.dataclasses.equal">equal</a></code></li>
+<li><code><a title="phiml.dataclasses.get_cache_files" href="#phiml.dataclasses.get_cache_files">get_cache_files</a></code></li>
 <li><code><a title="phiml.dataclasses.getitem" href="#phiml.dataclasses.getitem">getitem</a></code></li>
 <li><code><a title="phiml.dataclasses.non_data_fields" href="#phiml.dataclasses.non_data_fields">non_data_fields</a></code></li>
+<li><code><a title="phiml.dataclasses.on_load_into_memory" href="#phiml.dataclasses.on_load_into_memory">on_load_into_memory</a></code></li>
+<li><code><a title="phiml.dataclasses.parallel_compute" href="#phiml.dataclasses.parallel_compute">parallel_compute</a></code></li>
+<li><code><a title="phiml.dataclasses.parallel_property" href="#phiml.dataclasses.parallel_property">parallel_property</a></code></li>
 <li><code><a title="phiml.dataclasses.replace" href="#phiml.dataclasses.replace">replace</a></code></li>
 <li><code><a title="phiml.dataclasses.sliceable" href="#phiml.dataclasses.sliceable">sliceable</a></code></li>
 <li><code><a title="phiml.dataclasses.special_fields" href="#phiml.dataclasses.special_fields">special_fields</a></code></li>

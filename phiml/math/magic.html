@@ -89,7 +89,7 @@ class MyClass:
 <p><strong>Usage</strong></p>
 <ul>
 <li><code>obj.dim.size</code> returns the dimension size.</li>
-<li><code>obj.dim.item_names</code> returns the dimension item names.</li>
+<li><code>obj.dim.labels</code> returns the dimension labels.</li>
 <li><code>obj.dim.exists</code> checks whether a dimension is listed in the shape of the bound object.</li>
 <li><code>obj.dim[0]</code> picks the first element along <code>dim</code>. The shape of the result will not contain <code>dim</code>.</li>
 <li><code>obj.dim[1:-1]</code> discards the first and last element along <code>dim</code>.</li>
@@ -140,7 +140,7 @@ This supports the following operations:</p>
     **Usage**
 
     * `obj.dim.size` returns the dimension size.
-    * `obj.dim.item_names` returns the dimension item names.
+    * `obj.dim.labels` returns the dimension labels.
     * `obj.dim.exists` checks whether a dimension is listed in the shape of the bound object.
     * `obj.dim[0]` picks the first element along `dim`. The shape of the result will not contain `dim`.
     * `obj.dim[1:-1]` discards the first and last element along `dim`.
@@ -189,12 +189,12 @@ This supports the following operations:</p>
     def __repr__(self):
         if self.name not in shape(self.obj):
             return f&#34;{type(self.obj).__name__}.{self.name} (non-existent)&#34;
-        items = self.item_names
-        if items is not None:
-            if len(items) &lt;= 4:
-                size_repr = &#34;,&#34;.join(items)
+        labels = self.labels
+        if labels is not None:
+            if len(labels) &lt;= 4:
+                size_repr = &#34;,&#34;.join(labels)
             else:
-                size_repr = f&#34;{self.size}:{items[0]}..{items[-1]}&#34;
+                size_repr = f&#34;{self.size}:{labels[0]}..{labels[-1]}&#34;
         else:
             size_repr = self.size
         from ._shape import SUPERSCRIPT
@@ -222,18 +222,20 @@ This supports the following operations:</p>
         return shape(self.obj)[self.name].type
 
     @property
-    def item_names(self):
-        return shape(self.obj).get_item_names(self.name)
+    def labels(self):
+        return shape(self.obj).get_labels(self.name)
+
+    item_names = labels
 
     @property
     def item_name_list(self):
-        return list(shape(self.obj).get_item_names(self.name))
+        return list(shape(self.obj).get_labels(self.name))
 
     @property
     def name_tensor(self):
         dim = shape(self.obj)[self.name]
         from ._tensors import wrap
-        return wrap(dim.item_names[0], dim)
+        return wrap(dim.labels[0], dim)
 
     def __getitem__(self, item):
         return self.obj[{self.name: item}]
@@ -246,15 +248,15 @@ This supports the following operations:</p>
 
     def keys(self):
         &#34;&#34;&#34;
-        Allows unstacking with item names as `dict(**obj.dim)`.
+        Allows unstacking with labels as `dict(**obj.dim)`.
 
         Returns:
-            Sequence of item names or indices.
+            Sequence of labels or indices.
         &#34;&#34;&#34;
         if not self.exists:
-            raise SyntaxError(f&#34;Cannot get item names of nonexistent dim &#39;{self.name}&#39;. shape={shape(self.obj)}&#34;)
-        if self.item_names is not None:
-            return self.item_names
+            raise SyntaxError(f&#34;Cannot get labels of nonexistent dim &#39;{self.name}&#39;. shape={shape(self.obj)}&#34;)
+        if self.labels is not None:
+            return self.labels
         else:
             return range(self.size)
 
@@ -288,7 +290,7 @@ This supports the following operations:</p>
             return iter([self.obj])
 
     def items(self):
-        keys = self.item_names
+        keys = self.labels
         if keys is None:
             keys = range(self.size)
         values = self.unstack()
@@ -316,7 +318,7 @@ This supports the following operations:</p>
         See Also:
             `phiml.math.rename_dims()`
         &#34;&#34;&#34;
-        new_dim = dim_type(**{self.name: self.item_names or self.size})
+        new_dim = dim_type(**{self.name: self.labels or self.size})
         from ._magic_ops import rename_dims
         return rename_dims(self.obj, self.name, new_dim, **kwargs)
 
@@ -326,31 +328,31 @@ This supports the following operations:</p>
         &#34;&#34;&#34; Returns a shallow copy of the `Tensor` where the type of this dimension is *batch*. &#34;&#34;&#34;
         if not self.exists:
             return self.obj
-        return self.retype(batch) if name is None else self.replace(batch(**{name: self.item_names or self.size}))
+        return self.retype(batch) if name is None else self.replace(batch(**{name: self.labels or self.size}))
 
     def as_spatial(self, name: str = None):
         &#34;&#34;&#34; Returns a shallow copy of the `Tensor` where the type of this dimension is *spatial*. &#34;&#34;&#34;
         if not self.exists:
             return self.obj
-        return self.retype(spatial) if name is None else self.replace(spatial(**{name: self.item_names or self.size}))
+        return self.retype(spatial) if name is None else self.replace(spatial(**{name: self.labels or self.size}))
 
     def as_channel(self, name: str = None):
         &#34;&#34;&#34; Returns a shallow copy of the `Tensor` where the type of this dimension is *channel*. &#34;&#34;&#34;
         if not self.exists:
             return self.obj
-        return self.retype(channel) if name is None else self.replace(channel(**{name: self.item_names or self.size}))
+        return self.retype(channel) if name is None else self.replace(channel(**{name: self.labels or self.size}))
 
     def as_instance(self, name: str = None):
         &#34;&#34;&#34; Returns a shallow copy of the `Tensor` where the type of this dimension is *instance*. &#34;&#34;&#34;
         if not self.exists:
             return self.obj
-        return self.retype(instance) if name is None else self.replace(instance(**{name: self.item_names or self.size}))
+        return self.retype(instance) if name is None else self.replace(instance(**{name: self.labels or self.size}))
 
     def as_dual(self, name: str = None):
         &#34;&#34;&#34; Returns a shallow copy of the `Tensor` where the type of this dimension is *instance*. &#34;&#34;&#34;
         if not self.exists:
             return self.obj
-        return self.retype(dual) if name is None else self.replace(dual(**{name: self.item_names or self.size}))
+        return self.retype(dual) if name is None else self.replace(dual(**{name: self.labels or self.size}))
 
     @property
     def T(self):
@@ -431,7 +433,7 @@ def exists(self):
 </summary>
 <pre><code class="python">@property
 def item_name_list(self):
-    return list(shape(self.obj).get_item_names(self.name))</code></pre>
+    return list(shape(self.obj).get_labels(self.name))</code></pre>
 </details>
 </dd>
 <dt id="phiml.math.magic.BoundDim.item_names"><code class="name">prop <span class="ident">item_names</span></code></dt>
@@ -442,8 +444,20 @@ def item_name_list(self):
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">@property
-def item_names(self):
-    return shape(self.obj).get_item_names(self.name)</code></pre>
+def labels(self):
+    return shape(self.obj).get_labels(self.name)</code></pre>
+</details>
+</dd>
+<dt id="phiml.math.magic.BoundDim.labels"><code class="name">prop <span class="ident">labels</span></code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def labels(self):
+    return shape(self.obj).get_labels(self.name)</code></pre>
 </details>
 </dd>
 <dt id="phiml.math.magic.BoundDim.name_tensor"><code class="name">prop <span class="ident">name_tensor</span></code></dt>
@@ -457,7 +471,7 @@ def item_names(self):
 def name_tensor(self):
     dim = shape(self.obj)[self.name]
     from ._tensors import wrap
-    return wrap(dim.item_names[0], dim)</code></pre>
+    return wrap(dim.labels[0], dim)</code></pre>
 </details>
 </dd>
 <dt id="phiml.math.magic.BoundDim.size"><code class="name">prop <span class="ident">size</span></code></dt>
@@ -568,9 +582,9 @@ def size(self):
 <span>def <span class="ident">keys</span></span>(<span>self)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Allows unstacking with item names as <code>dict(**obj.dim)</code>.</p>
+<div class="desc"><p>Allows unstacking with labels as <code>dict(**obj.dim)</code>.</p>
 <h2 id="returns">Returns</h2>
-<p>Sequence of item names or indices.</p></div>
+<p>Sequence of labels or indices.</p></div>
 </dd>
 <dt id="phiml.math.magic.BoundDim.rename"><code class="name flex">
 <span>def <span class="ident">rename</span></span>(<span>self, name: str, **kwargs)</span>
@@ -935,7 +949,7 @@ If this method is not implemented, tensor attributes are replaced using <code>se
     def __replace_dims__(self, dims: Tuple[str, ...], new_dims: Shape, **kwargs) -&gt; &#39;Shapable&#39;:
         &#34;&#34;&#34;
         Exchange existing dimensions.
-        This can be used to rename dimensions, change dimension types or change item names.
+        This can be used to rename dimensions, change dimension types or change labels.
 
         Args:
             dims: Dimensions to be replaced.
@@ -1124,7 +1138,7 @@ Adding batch dimensions must always work without keyword arguments.</dd>
 </code></dt>
 <dd>
 <div class="desc"><p>Exchange existing dimensions.
-This can be used to rename dimensions, change dimension types or change item names.</p>
+This can be used to rename dimensions, change dimension types or change labels.</p>
 <h2 id="args">Args</h2>
 <dl>
 <dt><strong><code>dims</code></strong></dt>
@@ -1290,7 +1304,7 @@ def shape(self) -&gt; &#39;Shape&#39;:
 
         Args:
             item: `dict` mapping dimension names to the corresponding selections.
-                Selections can be slices, indices, tuples, item names, bool tensors, int tensors or other custom types.
+                Selections can be slices, indices, tuples, labels, bool tensors, int tensors or other custom types.
                 All Sliceable object must support indexing by `int`, `slice`, `tuple`, `list`, `str`.
 
         Returns:
@@ -1325,7 +1339,7 @@ def shape(self) -&gt; &#39;Shape&#39;:
 <dl>
 <dt><strong><code>item</code></strong></dt>
 <dd><code>dict</code> mapping dimension names to the corresponding selections.
-Selections can be slices, indices, tuples, item names, bool tensors, int tensors or other custom types.
+Selections can be slices, indices, tuples, labels, bool tensors, int tensors or other custom types.
 All Sliceable object must support indexing by <code>int</code>, <code>slice</code>, <code>tuple</code>, <code>list</code>, <code>str</code>.</dd>
 </dl>
 <h2 id="returns">Returns</h2>
@@ -1384,6 +1398,7 @@ Un-stacking along multiple dimensions is equal to first packing the dimensions a
 <li><code><a title="phiml.math.magic.BoundDim.item_names" href="#phiml.math.magic.BoundDim.item_names">item_names</a></code></li>
 <li><code><a title="phiml.math.magic.BoundDim.items" href="#phiml.math.magic.BoundDim.items">items</a></code></li>
 <li><code><a title="phiml.math.magic.BoundDim.keys" href="#phiml.math.magic.BoundDim.keys">keys</a></code></li>
+<li><code><a title="phiml.math.magic.BoundDim.labels" href="#phiml.math.magic.BoundDim.labels">labels</a></code></li>
 <li><code><a title="phiml.math.magic.BoundDim.name_tensor" href="#phiml.math.magic.BoundDim.name_tensor">name_tensor</a></code></li>
 <li><code><a title="phiml.math.magic.BoundDim.rename" href="#phiml.math.magic.BoundDim.rename">rename</a></code></li>
 <li><code><a title="phiml.math.magic.BoundDim.replace" href="#phiml.math.magic.BoundDim.replace">replace</a></code></li>
