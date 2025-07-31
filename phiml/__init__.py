@@ -56,7 +56,7 @@ from .math import (
     l1_loss, l2_loss,
 )
 # --- Exceptions ---
-from phiml.math import ConvergenceException, NotConverged, Diverged
+from .math import ConvergenceException, NotConverged, Diverged
 
 
 

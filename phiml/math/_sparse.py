@@ -1448,7 +1448,7 @@ def dense(x: Tensor) -> Tensor:
         return x
     elif isinstance(x, TensorStack):
         inner_dense = [dense(inner) for inner in x._tensors]
-        from phiml.math._ops import stack_tensors
+        from ._ops import stack_tensors
         return stack_tensors(inner_dense, x._stack_dim)
     elif isinstance(x, Tensor):
         return cached(x)
