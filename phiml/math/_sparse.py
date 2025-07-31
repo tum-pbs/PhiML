@@ -1446,6 +1446,10 @@ def dense(x: Tensor) -> Tensor:
         return reshaped_tensor(native_dense, [ind_batch, x._compressed_dims, x._uncompressed_dims, channels])
     elif isinstance(x, Dense):
         return x
+    elif isinstance(x, TensorStack):
+        inner_dense = [dense(inner) for inner in x._tensors]
+        from phiml.math._ops import stack_tensors
+        return stack_tensors(inner_dense, x._stack_dim)
     elif isinstance(x, Tensor):
         return cached(x)
     elif isinstance(x, (Number, bool)):
