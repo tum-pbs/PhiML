@@ -4,6 +4,7 @@ import inspect
 import multiprocessing
 import os.path
 from concurrent.futures import ProcessPoolExecutor
+from contextlib import nullcontext
 from dataclasses import dataclass
 from functools import cached_property, partial
 from typing import Callable, Sequence, Set, Optional, Dict, FrozenSet, List
@@ -21,7 +22,7 @@ from ..math._tensors import disassemble_tree, assemble_tree
 
 
 def parallel_compute(instance, properties: Sequence, parallel_dims=shape,
-                     max_workers=multiprocessing.cpu_count(), memory_limit: Optional[float] = None, cache_dir: str = None):
+                     max_workers=multiprocessing.cpu_count(), memory_limit: Optional[float] = None, cache_dir: str = None, keep_intermediate=False):
     """
     Compute the values of properties decorated with `@cached_property` or `@parallel_property` of a dataclass instance in parallel.
 
@@ -52,15 +53,16 @@ def parallel_compute(instance, properties: Sequence, parallel_dims=shape,
         max_workers: Number of processes to spawn.
         memory_limit: Limit to the total memory consumption from `Tensor` instances on property outputs.
         cache_dir: Directory path to store cached tensors in if `memory_limit` is set.
+        keep_intermediate: Whether the outputs of cached properties required to compute `properties` but not contained in `properties` should be kept in memory.
+            If `False`, these values will not be cached on `instance` after this call.
     """
-    # ToDo: Maybe add option to convert to NumPy? Or auto-convert tensors to the original backend on load from disk.
     if memory_limit is not None:
         assert cache_dir is not None, "cache_dir must be specified if memory_limit is set"
     dims = shape(instance).only(parallel_dims)
     # --- Build graph of relevant properties ---
     cls = type(instance)
     nodes: Dict[str, PGraphNode] = {}
-    output_user = PGraphNode('<output>', None, None, None, False, [], -1)
+    output_user = PGraphNode('<output>', None, None, None, False, [], 999999)
     for p in properties:
         recursive_add_node(cls, property_name(p), p, dims, nodes).users.append(output_user)
     for node in nodes.values():
@@ -68,37 +70,41 @@ def parallel_compute(instance, properties: Sequence, parallel_dims=shape,
             node.done = True
             node.dependencies = []
     stages = build_stages(nodes)
+    ML_LOGGER.debug(f"Assembled {len(stages)} stages containing {sum(len(ns) for ns in stages)} properties for parallel computation.")
+    # --- Execute stages ---
     any_parallel = any(dims - tuple(stage_nodes[0].requires) for stage_nodes in stages)
-    if any_parallel:
-        with ProcessPoolExecutor(max_workers=max_workers) as pool:
-            _execute_stages(instance, stages, dims, pool, max_workers, memory_limit, cache_dir)
-    else:
-        _execute_stages(instance, stages, dims, None, max_workers, memory_limit, cache_dir)
+    with ProcessPoolExecutor(max_workers=max_workers) if any_parallel else nullcontext() as pool:
+        for stage_idx, stage_nodes in enumerate(stages):
+            parallel_dims = dims - tuple(stage_nodes[0].requires)
+            if parallel_dims:
+                ML_LOGGER.debug(f"Parallel | {parallel_dims} | {[n.name for n in stage_nodes]}")
+                property_names = [n.name for n in stage_nodes if n.is_used_later]
+                required_caches = set.union(*[n.all_dep_names for n in stage_nodes])
+                # --- Submit to pool ---
+                instances = unstack(instance, parallel_dims)
+                caches = [unstack(instance.__dict__[c], parallel_dims, expand=True) for c in required_caches]
+                caches = [{c: caches[j][i] for j, c in enumerate(required_caches)} for i in range(len(instances))] if caches else [{}] * len(instances)
+                keep_intermediate or delete_intermediate_caches(instance, stages, stage_idx)
+                inst_props = [property_names] * len(instances)
+                mem_per_item = memory_limit / min(max_workers, len(instances)) if memory_limit is not None else None
+                cache_dir is not None and os.makedirs(cache_dir, exist_ok=True)
+                cache_file_suggestions = [os.path.join(cache_dir, f"s{stage_idx}_i{i}") for i in range(len(instances))] if cache_dir is not None else [None] * len(instances)
+                results = list(pool.map(_evaluate_properties, instances, inst_props, caches, [mem_per_item]*len(instances), cache_file_suggestions))
+                for name, *outputs in zip(property_names, *results):
+                    output = stack(outputs, parallel_dims)
+                    instance.__dict__[name] = output
+            else:  # No parallelization in this stage
+                ML_LOGGER.debug(f"Host | {[n.name for n in stage_nodes]}")
+                for n in stage_nodes:
+                    get_property_value(instance, n.name)
+                keep_intermediate or delete_intermediate_caches(instance, stages, stage_idx)
 
 
-def _execute_stages(instance, stages: List[List['PGraphNode']], dims, pool, workers, memory_limit, cache_dir):
-    for stage_idx, stage_nodes in enumerate(stages):
-        parallel_dims = dims - tuple(stage_nodes[0].requires)
-        if parallel_dims:
-            ML_LOGGER.debug(f"Parallel | {parallel_dims} | {[n.name for n in stage_nodes]}")
-            property_names = [n.name for n in stage_nodes if n.is_used_later]
-            required_caches = set.union(*[n.all_dep_names for n in stage_nodes])
-            # --- Submit to pool ---
-            instances = unstack(instance, parallel_dims)
-            caches = [unstack(instance.__dict__[c], parallel_dims, expand=True) for c in required_caches]
-            caches = [{c: caches[j][i] for j, c in enumerate(required_caches)} for i in range(len(instances))] if caches else [{}] * len(instances)
-            inst_props = [property_names] * len(instances)
-            mem_per_item = memory_limit / min(workers, len(instances)) if memory_limit is not None else None
-            cache_dir is not None and os.makedirs(cache_dir, exist_ok=True)
-            cache_file_suggestions = [os.path.join(cache_dir, f"s{stage_idx}_i{i}") for i in range(len(instances))] if cache_dir is not None else [None] * len(instances)
-            results = list(pool.map(_evaluate_properties, instances, inst_props, caches, [mem_per_item]*len(instances), cache_file_suggestions))
-            for name, *outputs in zip(property_names, *results):
-                output = stack(outputs, parallel_dims)
-                instance.__dict__[name] = output
-        else:  # No parallelization in this stage
-            ML_LOGGER.debug(f"Host | {[n.name for n in stage_nodes]}")
-            for n in stage_nodes:
-                get_property_value(instance, n.name)
+def delete_intermediate_caches(instance, stages: list, stage_idx: int):
+    for node in sum(stages[:stage_idx+1], []):
+        if not node.has_users_after(stage_idx):
+            ML_LOGGER.debug(f"Host | Removing cache of {node.name} as it's not needed after stage {stage_idx}")
+            del instance.__dict__[node.name]
 
 
 def _evaluate_properties(instance, properties, cache: dict, mem_limit, cache_file_base: Optional[str]):  # called on workers
@@ -176,7 +182,7 @@ class PGraphNode:
     stage: int = None
 
     def __repr__(self):
-        return f"{self.name} ({f'done in stage {self.stage}' if self.done else 'pending'}) depending on {[n.name for n in self.dependencies]} with {len(self.users)} users"
+        return f"{self.name}{f'@{self.stage}' if self.done else ' (pending)'}->{[n.name for n in self.dependencies]}<-{len(self.users)}"
 
     @property
     def can_run_now(self):
@@ -189,6 +195,9 @@ class PGraphNode:
     @property
     def all_dep_names(self) -> Set[str]:
         return set.union(*[{dep.name, *dep.all_dep_names} for dep in self.dependencies]) if self.dependencies else set()
+
+    def has_users_after(self, stage: int):
+        return any(u.stage > stage for u in self.users)
 
 
 def recursive_add_node(cls, name: str, prop: Optional, dims: Shape, nodes: Dict[str, PGraphNode]) -> PGraphNode:
