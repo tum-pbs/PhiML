@@ -89,8 +89,8 @@ def _execute_stages(instance, stages: List[List['PGraphNode']], dims, pool, work
             caches = [{c: caches[j][i] for j, c in enumerate(required_caches)} for i in range(len(instances))] if caches else [{}] * len(instances)
             inst_props = [property_names] * len(instances)
             mem_per_item = memory_limit / min(workers, len(instances)) if memory_limit is not None else None
-            os.makedirs(cache_dir, exist_ok=True)
-            cache_file_suggestions = [os.path.join(cache_dir, f"s{stage_idx}_i{i}") for i in range(len(instances))]
+            cache_dir is not None and os.makedirs(cache_dir, exist_ok=True)
+            cache_file_suggestions = [os.path.join(cache_dir, f"s{stage_idx}_i{i}") for i in range(len(instances))] if cache_dir is not None else [None] * len(instances)
             results = list(pool.map(_evaluate_properties, instances, inst_props, caches, [mem_per_item]*len(instances), cache_file_suggestions))
             for name, *outputs in zip(property_names, *results):
                 output = stack(outputs, parallel_dims)
@@ -101,7 +101,7 @@ def _execute_stages(instance, stages: List[List['PGraphNode']], dims, pool, work
                 get_property_value(instance, n.name)
 
 
-def _evaluate_properties(instance, properties, cache: dict, mem_limit, cache_file_base: str):  # called on workers
+def _evaluate_properties(instance, properties, cache: dict, mem_limit, cache_file_base: Optional[str]):  # called on workers
     instance.__dict__.update(cache)
     # print(f"Evaluating {properties} on {type(instance).__name__} with values {instance.__dict__}")
     values = [get_property_value(instance, p) for p in properties]
