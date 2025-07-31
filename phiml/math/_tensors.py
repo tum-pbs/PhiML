@@ -383,7 +383,10 @@ class Tensor:
         raise ValueError(f"'dim in Tensor' requires dim to be a Shape or str but got {item}")
 
     def __repr__(self):
-        return format_tensor(self, PrintOptions())
+        try:
+            return format_tensor(self, PrintOptions())
+        except Exception:
+            return f"Tensor {self.shape}"
 
     def _repr_pretty_(self, printer, cycle):
         printer.text(format_tensor(self, PrintOptions(colors=DEFAULT_COLORS)))
