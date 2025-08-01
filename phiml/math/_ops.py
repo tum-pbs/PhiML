@@ -42,6 +42,8 @@ def convert(x, backend: Backend = None, use_dlpack=True):
     Returns:
         `Tensor` with native representation belonging to `backend`.
     """
+    if isinstance(x, Layout):
+        return tree_map(convert, x, backend=backend, use_dlpack=use_dlpack)
     if isinstance(x, Tensor):
         return x._from_spec_and_natives(x._spec_dict(), [b_convert(n, backend=backend, use_dlpack=False) for n in x._natives()])
     elif isinstance(x, PhiTreeNode):
@@ -2457,6 +2459,15 @@ def is_inf(x: TensorOrTree) -> TensorOrTree:
 def nan_to_0(x: TensorOrTree) -> TensorOrTree:
     """Replaces all NaN values in `x` with `0`."""
     return where(is_nan(x), 0, x)
+
+
+def is_none(x: Optional[Tensor]) -> bool:
+    """Returns `True` if `x is None or x == wrap(None)`."""
+    if x is None:
+        return True
+    if isinstance(x, Layout):
+        return x._obj is None
+    return False
 
 
 def real(x: TensorOrTree) -> TensorOrTree:

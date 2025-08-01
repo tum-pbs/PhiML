@@ -68,7 +68,7 @@ from ._ops import (
     to_float, to_int32, to_int64, to_complex, imag, real, conjugate, angle,
     radians_to_degrees, degrees_to_radians,
     boolean_mask,
-    is_finite, is_nan, is_inf, nan_to_0,
+    is_finite, is_nan, is_inf, nan_to_0, is_none,
     closest_grid_values, grid_sample, scatter, gather,
     histogram,
     fft, ifft, convolve, cumulative_sum,
