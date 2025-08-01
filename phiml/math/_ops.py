@@ -42,6 +42,8 @@ def convert(x, backend: Backend = None, use_dlpack=True):
     Returns:
         `Tensor` with native representation belonging to `backend`.
     """
+    if x is None:
+        return x
     if isinstance(x, Layout):
         return tree_map(convert, x, backend=backend, use_dlpack=use_dlpack)
     if isinstance(x, Tensor):
