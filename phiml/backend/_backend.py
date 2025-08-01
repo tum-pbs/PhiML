@@ -2023,6 +2023,8 @@ def convert(tensor, backend: Backend = None, use_dlpack=True):
     if not isinstance(backend, Backend):
         backend = get_backend(backend)
     current_backend = choose_backend(tensor, prefer_default=False)
+    if current_backend.name == 'object':
+        return tensor
     if backend.is_tensor(tensor, True) or backend is current_backend:
         return tensor
     if current_backend.is_sparse(tensor):

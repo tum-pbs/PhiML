@@ -22,6 +22,9 @@ class ObjectBackend(Backend):
     def is_module(self, obj) -> bool:
         return False
 
+    def is_sparse(self, x) -> bool:
+        return False
+
     def as_tensor(self, x, convert_external=True):
         return x
 
