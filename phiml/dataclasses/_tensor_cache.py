@@ -221,12 +221,14 @@ def write_to_h5(t: Tensor, name: str, f: h5py.File, ref: H5Source):
 @dataclasses.dataclass
 class SoftCache:
     """Temporarily keep strong references to data to prevent immediate garbage collection"""
-    ttl: float  # time to live (seconds)
+    ttl: Optional[float]  # time to live (seconds)
     strong: list  # temporary strong references to cached data
     cleaner: Thread = None
     lock: Lock = Lock()
 
     def add(self, value):
+        if self.ttl is None:
+            return
         expire_time = time.time() + self.ttl
         with self.lock:
             self.strong.append((value, expire_time))
@@ -250,3 +252,14 @@ class SoftCache:
 
 
 _CACHE = SoftCache(2., [])
+
+
+def set_cache_ttl(ttl_seconds: Optional[float]):
+    """
+    Sets the time to live (TTL) for data loaded into memory for disk-backed tensors.
+    This function should be called before the tensor cache is used.
+
+    Args:
+        ttl_seconds: Time to live. If `None`, data will be unallocated immediately after use.
+    """
+    _CACHE.ttl = ttl_seconds
