@@ -12,7 +12,7 @@ from typing import Callable, Sequence, Set, Optional, Dict, FrozenSet, List
 import h5py
 import numpy as np
 
-from .. import unstack, stack
+from .. import unstack, stack, batch
 from ..backend import ML_LOGGER
 from ..dataclasses._dep import MemberVariableAnalyzer
 from ..dataclasses._tensor_cache import H5Source, write_to_h5
@@ -21,7 +21,7 @@ from ..math._magic_ops import all_attributes
 from ..math._tensors import disassemble_tree, assemble_tree
 
 
-def parallel_compute(instance, properties: Sequence, parallel_dims=shape,
+def parallel_compute(instance, properties: Sequence, parallel_dims=batch,
                      max_workers=multiprocessing.cpu_count(), memory_limit: Optional[float] = None, cache_dir: str = None, keep_intermediate=False):
     """
     Compute the values of properties decorated with `@cached_property` or `@parallel_property` of a dataclass instance in parallel.
