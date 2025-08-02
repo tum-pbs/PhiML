@@ -161,7 +161,7 @@ from ._ops import (
     to_float, to_int32, to_int64, to_complex, imag, real, conjugate, angle,
     radians_to_degrees, degrees_to_radians,
     boolean_mask,
-    is_finite, is_nan, is_inf, nan_to_0,
+    is_finite, is_nan, is_inf, nan_to_0, is_none,
     closest_grid_values, grid_sample, scatter, gather,
     histogram,
     fft, ifft, convolve, cumulative_sum,
@@ -2241,6 +2241,12 @@ Undefined sizes are automatically filled in by <code><a title="phiml.math.tensor
 </code></dt>
 <dd>
 <div class="desc"><p>Returns a <code><a title="phiml.math.Tensor" href="#phiml.math.Tensor">Tensor</a></code> or <code><a title="phiml.math.magic.PhiTreeNode" href="magic.html#phiml.math.magic.PhiTreeNode">PhiTreeNode</a></code> matching <code>x</code> with values <code>True</code> where <code>x</code> is <code>NaN</code> and <code>False</code> otherwise.</p></div>
+</dd>
+<dt id="phiml.math.is_none"><code class="name flex">
+<span>def <span class="ident">is_none</span></span>(<span>x: Optional[phiml.math._tensors.Tensor]) ‑> bool</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Returns <code>True</code> if <code>x is None or x == wrap(None)</code>.</p></div>
 </dd>
 <dt id="phiml.math.is_scalar"><code class="name flex">
 <span>def <span class="ident">is_scalar</span></span>(<span>value) ‑> bool</span>
@@ -9931,6 +9937,7 @@ If a dimension of the tensor is not listed in <code>order</code>, a <code>ValueE
 <li><code><a title="phiml.math.is_finite" href="#phiml.math.is_finite">is_finite</a></code></li>
 <li><code><a title="phiml.math.is_inf" href="#phiml.math.is_inf">is_inf</a></code></li>
 <li><code><a title="phiml.math.is_nan" href="#phiml.math.is_nan">is_nan</a></code></li>
+<li><code><a title="phiml.math.is_none" href="#phiml.math.is_none">is_none</a></code></li>
 <li><code><a title="phiml.math.is_scalar" href="#phiml.math.is_scalar">is_scalar</a></code></li>
 <li><code><a title="phiml.math.is_sparse" href="#phiml.math.is_sparse">is_sparse</a></code></li>
 <li><code><a title="phiml.math.isize" href="#phiml.math.isize">isize</a></code></li>

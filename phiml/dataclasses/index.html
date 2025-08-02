@@ -195,7 +195,7 @@ When selecting a single slice, these dims will remain with size 1.</dd>
 </dl></div>
 </dd>
 <dt id="phiml.dataclasses.parallel_compute"><code class="name flex">
-<span>def <span class="ident">parallel_compute</span></span>(<span>instance, properties: Sequence[+T_co], parallel_dims=&lt;function shape&gt;, max_workers=4, memory_limit: Optional[float] = None, cache_dir: str = None, keep_intermediate=False)</span>
+<span>def <span class="ident">parallel_compute</span></span>(<span>instance, properties: Sequence[+T_co], parallel_dims=&lt;function batch&gt;, max_workers=4, memory_limit: Optional[float] = None, cache_dir: str = None, keep_intermediate=False)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Compute the values of properties decorated with <code>@cached_property</code> or <code>@parallel_property</code> of a dataclass instance in parallel.</p>
@@ -276,6 +276,18 @@ If <code>obj</code> defines a metaclass, this will allow users to define custom 
 </dl>
 <h2 id="returns">Returns</h2>
 <p>Copy of <code>obj</code> with replaced values.</p></div>
+</dd>
+<dt id="phiml.dataclasses.set_cache_ttl"><code class="name flex">
+<span>def <span class="ident">set_cache_ttl</span></span>(<span>ttl_seconds: Optional[float])</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Sets the time to live (TTL) for data loaded into memory for disk-backed tensors.
+This function should be called before the tensor cache is used.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>ttl_seconds</code></strong></dt>
+<dd>Time to live. If <code>None</code>, data will be unallocated immediately after use.</dd>
+</dl></div>
 </dd>
 <dt id="phiml.dataclasses.sliceable"><code class="name flex">
 <span>def <span class="ident">sliceable</span></span>(<span>cls=None, /, *, dim_attrs=True, t_props=True, keepdims=None, dim_repr=True, lazy_dims=True)</span>
@@ -390,6 +402,7 @@ If <code>True</code>, implements <code>__getattr__</code> to instantiate accesse
 <li><code><a title="phiml.dataclasses.parallel_compute" href="#phiml.dataclasses.parallel_compute">parallel_compute</a></code></li>
 <li><code><a title="phiml.dataclasses.parallel_property" href="#phiml.dataclasses.parallel_property">parallel_property</a></code></li>
 <li><code><a title="phiml.dataclasses.replace" href="#phiml.dataclasses.replace">replace</a></code></li>
+<li><code><a title="phiml.dataclasses.set_cache_ttl" href="#phiml.dataclasses.set_cache_ttl">set_cache_ttl</a></code></li>
 <li><code><a title="phiml.dataclasses.sliceable" href="#phiml.dataclasses.sliceable">sliceable</a></code></li>
 <li><code><a title="phiml.dataclasses.special_fields" href="#phiml.dataclasses.special_fields">special_fields</a></code></li>
 </ul>
