@@ -1,6 +1,8 @@
 import dataclasses
+import time
 import traceback
 import weakref
+from threading import Thread, Lock
 from typing import Sequence, Dict, Optional, Set, Callable
 
 import h5py
@@ -61,8 +63,9 @@ class DiskTensor(Dense):
             else:
                 memory_tensor = self._memory_tensor
             if memory_tensor is not None:
+                _CACHE.refresh(memory_tensor)
                 return memory_tensor
-        ML_LOGGER.debug(f"Loading {self.source.path} into memory")
+        ML_LOGGER.debug(f"Loading {self.source.path}:{self.array_name} into memory")
         for callback in _ON_LOAD_FROM_DISK:
             callback(self)
         try:
@@ -80,6 +83,7 @@ class DiskTensor(Dense):
             self._memory_tensor = weakref.ref(data)
         except TypeError:
             self._memory_tensor = data  # primitives (such as NumPy scalar types) don't support weak references. Store them directly.
+        _CACHE.add(data)  # keep temporary reference
         return data
 
     @property
@@ -212,3 +216,37 @@ def write_to_h5(t: Tensor, name: str, f: h5py.File, ref: H5Source):
         return t._with_data(indices, values)
     else:
         ML_LOGGER.warning(f"Caching tensors of type {type(t)} is not yet supported. Encountered tensor with shape {t.shape} in subprocess.")
+
+
+@dataclasses.dataclass
+class SoftCache:
+    """Temporarily keep strong references to data to prevent immediate garbage collection"""
+    ttl: float  # time to live (seconds)
+    strong: list  # temporary strong references to cached data
+    cleaner: Thread = None
+    lock: Lock = Lock()
+
+    def add(self, value):
+        expire_time = time.time() + self.ttl
+        with self.lock:
+            self.strong.append((value, expire_time))
+        if self.cleaner is None:
+            self._start_cleaner()
+
+    refresh = add
+
+    def _start_cleaner(self):
+        def cleaner():
+            while True:
+                time.sleep(self.ttl / 2)
+                now = time.time()
+                with self.lock:
+                    self.strong = [(v, t) for v, t in self.strong if now < t]
+                    if not self.strong:
+                        self.cleaner = None
+                        return
+        self.cleaner = Thread(target=cleaner, daemon=True)
+        self.cleaner.start()
+
+
+_CACHE = SoftCache(2., [])
