@@ -15,6 +15,9 @@ from ..backend import choose_backend, NoBackendFound
 from ..backend._dtype import DType
 
 
+MagicType = TypeVar('MagicType')
+OtherMagicType = TypeVar('OtherMagicType')
+
 PhiTreeNodeType = TypeVar('PhiTreeNodeType')  # Defined in phiml.math.magic: tuple, list, dict, custom
 
 
@@ -71,7 +74,7 @@ def slice_(value: PhiTreeNodeType, slices: Union[Dict[str, Union[int, slice, str
     raise ValueError(f"value must be a PhiTreeNode but got {type(value)}")
 
 
-def unstack(value, dim: DimFilter, expand=False) -> tuple:
+def unstack(value: MagicType, dim: DimFilter, expand=False) -> Tuple[MagicType, ...]:
     """
     Un-stacks a `Sliceable` along one or multiple dimensions.
 
@@ -988,9 +991,6 @@ copy_with = replace
 
 
 # Other Ops
-
-MagicType = TypeVar('MagicType')
-OtherMagicType = TypeVar('OtherMagicType')
 
 
 def cast(x: MagicType, dtype: Union[DType, type]) -> OtherMagicType:

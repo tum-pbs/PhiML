@@ -731,7 +731,7 @@ def meshgrid(dims: Union[Callable, Shape] = spatial, stack_dim: Union[Shape, str
     return stack_tensors(channels, stack_dim)
 
 
-def linspace(start: Union[float, Tensor, tuple, list], stop: Union[float, Tensor, tuple, list], dim: Shape) -> Tensor:
+def linspace(start: Union[float, Tensor, tuple, list], stop: Union[float, Tensor, tuple, list], dim: Shape) -> Tensor[float]:
     """
     Returns `number` evenly spaced numbers between `start` and `stop` along `dim`.
 
@@ -772,7 +772,7 @@ def linspace(start: Union[float, Tensor, tuple, list], stop: Union[float, Tensor
         return map_(linspace, start, stop, dim=dim)
 
 
-def arange(dim: Shape, start_or_stop: Union[int, None] = None, stop: Union[int, None] = None, step=1, backend=None):
+def arange(dim: Shape, start_or_stop: Union[int, None] = None, stop: Union[int, None] = None, step=1, backend=None) -> Tensor[int]:
     """
     Returns evenly spaced values between `start` and `stop`.
     If only one limit is given, `0` is used for the start.
@@ -819,7 +819,7 @@ def arange(dim: Shape, start_or_stop: Union[int, None] = None, stop: Union[int, 
     return batched_range(dim, start, stop, step)
 
 
-def range_tensor(*shape: Shape):
+def range_tensor(*shape: Shape) -> Tensor[int]:
     """
     Returns a `Tensor` with given `shape` containing the linear indices of each element.
     For 1D tensors, this equivalent to `arange()` with `step=1`.
@@ -838,31 +838,31 @@ def range_tensor(*shape: Shape):
     return unpack_dim(data, 'range', shape)
 
 
-def brange(start: int = 0, **stop: int):
+def brange(start: int = 0, **stop: int) -> Tensor[int]:
     """ Construct a range `Tensor` along one batch dim. """
     assert len(stop) == 1, f"brange() requires exactly one stop dimension but got {stop}"
     return arange(batch(next(iter(stop))), start, next(iter(stop.values())))
 
 
-def drange(start: int = 0, **stop: int):
+def drange(start: int = 0, **stop: int) -> Tensor[int]:
     """ Construct a range `Tensor` along one dual dim. """
     assert len(stop) == 1, f"drange() requires exactly one stop dimension but got {stop}"
     return arange(dual(next(iter(stop))), start, next(iter(stop.values())))
 
 
-def irange(start: int = 0, **stop: int):
+def irange(start: int = 0, **stop: int) -> Tensor[int]:
     """ Construct a range `Tensor` along one instance dim. """
     assert len(stop) == 1, f"irange() requires exactly one stop dimension but got {stop}"
     return arange(instance(next(iter(stop))), start, next(iter(stop.values())))
 
 
-def srange(start: int = 0, **stop: int):
+def srange(start: int = 0, **stop: int) -> Tensor[int]:
     """ Construct a range `Tensor` along one spatial dim. """
     assert len(stop) == 1, f"srange() requires exactly one stop dimension but got {stop}"
     return arange(spatial(next(iter(stop))), start, next(iter(stop.values())))
 
 
-def crange(start: int = 0, **stop: int):
+def crange(start: int = 0, **stop: int) -> Tensor[int]:
     """ Construct a range `Tensor` along one channel dim. """
     assert len(stop) == 1, f"crange() requires exactly one stop dimension but got {stop}"
     return arange(channel(next(iter(stop))), start, next(iter(stop.values())))

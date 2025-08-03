@@ -5,7 +5,7 @@ from numbers import Number
 import traceback
 import warnings
 from contextlib import contextmanager
-from typing import Union, TypeVar, Sequence, Any, Literal
+from typing import Union, TypeVar, Sequence, Any, Literal, Generic
 
 from dataclasses import dataclass
 from typing import Tuple, Callable, List
@@ -28,7 +28,9 @@ from .magic import Shapable
 from ..backend.xops import ExtraOperator
 
 
-class Tensor:
+T = TypeVar('T')  # data type of tensors
+
+class Tensor(Generic[T]):
     """
     Abstract base class to represent structured data of one data type.
     This class replaces the native tensor classes `numpy.ndarray`, `torch.Tensor`, `tensorflow.Tensor` or `jax.numpy.ndarray` as the main data container in Φ-ML.
@@ -470,13 +472,13 @@ class Tensor:
     def __setitem__(self, key, value):
         raise SyntaxError("Tensors are not editable to preserve the autodiff chain. This feature might be added in the future. To update part of a tensor, use math.where() or math.scatter()")
 
-    def __unstack__(self, dims: Tuple[str, ...]) -> Tuple['Tensor', ...]:  # from phiml.math.magic.Sliceable
+    def __unstack__(self, dims: Tuple[str, ...]) -> Tuple['Tensor[T]', ...]:  # from phiml.math.magic.Sliceable
         if len(dims) == 1:
             return self._unstack(dims[0])
         else:
             return NotImplemented
 
-    def _unstack(self, dim: str):
+    def _unstack(self, dim: str) -> Tuple['Tensor[T]', ...]:
         """
         Splits this tensor along the specified dimension.
         The returned tensors have the same dimensions as this tensor save the unstacked dimension.
@@ -568,12 +570,12 @@ class Tensor:
         else:
             raise ValueError(name)
 
-    def pack(self, dims, packed_dim):
+    def pack(self, dims, packed_dim) -> 'Tensor[T]':
         """ See `pack_dims()` """
         from ._ops import pack_dims
         return pack_dims(self, dims, packed_dim)
 
-    def unpack(self, dim, unpacked_dims):
+    def unpack(self, dim, unpacked_dims) -> 'Tensor[T]':
         """ See `unpack_dim()` """
         from ._ops import unpack_dim
         return unpack_dim(self, dim, unpacked_dims)
@@ -584,15 +586,15 @@ class Tensor:
         # return self._with_shape_replaced(self.shape.transposed())
 
     @property
-    def Ti(self):
+    def Ti(self) -> 'Tensor[T]':
         return self._with_shape_replaced(self.shape.transpose(INSTANCE_DIM))
 
     @property
-    def Tc(self):
+    def Tc(self) -> 'Tensor[T]':
         return self._with_shape_replaced(self.shape.transpose(CHANNEL_DIM))
 
     @property
-    def Ts(self):
+    def Ts(self) -> 'Tensor[T]':
         return self._with_shape_replaced(self.shape.transpose(SPATIAL_DIM))
 
     def map(self, function: Callable, dims=shape_, range=range, unwrap_scalars=True, **kwargs):
@@ -676,7 +678,7 @@ class Tensor:
     def __rmod__(self, other):
         return self._op2(other, operator.mod, True)
 
-    def __eq__(self, other) -> 'Tensor':
+    def __eq__(self, other) -> 'Tensor[bool]':
         if self is other:
             return expand(True, self.shape)
         if _EQUALITY_REDUCE[-1]['type'] == 'ref':
@@ -693,7 +695,7 @@ class Tensor:
         else:
             return wrap(False)
 
-    def __ne__(self, other) -> 'Tensor':
+    def __ne__(self, other) -> 'Tensor[bool]':
         if _EQUALITY_REDUCE[-1]['type'] == 'ref':
             return wrap(self is not other)
         elif _EQUALITY_REDUCE[-1]['type'] == 'shape_and_value':
@@ -708,49 +710,49 @@ class Tensor:
         else:
             return wrap(True)
 
-    def __lt__(self, other):
+    def __lt__(self, other) -> 'Tensor[bool]':
         return self._op2(other, operator.gt, True)
 
-    def __le__(self, other):
+    def __le__(self, other) -> 'Tensor[bool]':
         return self._op2(other, operator.ge, True)
 
-    def __gt__(self, other):
+    def __gt__(self, other) -> 'Tensor[bool]':
         return self._op2(other, operator.gt, False)
 
-    def __ge__(self, other):
+    def __ge__(self, other) -> 'Tensor[bool]':
         return self._op2(other, operator.ge, False)
 
-    def __lshift__(self, other):
+    def __lshift__(self, other) -> 'Tensor[T]':
         return self._op2(other, operator.lshift, False)
 
-    def __rlshift__(self, other):
+    def __rlshift__(self, other) -> 'Tensor[T]':
         return self._op2(other, operator.lshift, True)
 
-    def __rshift__(self, other):
+    def __rshift__(self, other) -> 'Tensor[T]':
         return self._op2(other, operator.rshift, False)
 
-    def __rrshift__(self, other):
+    def __rrshift__(self, other) -> 'Tensor[T]':
         return self._op2(other, operator.rshift, True)
 
-    def __abs__(self):
+    def __abs__(self) -> 'Tensor[T]':
         return self._op1(lambda t: choose_backend(t).abs(t))
 
-    def __round__(self, n=None):
+    def __round__(self, n=None) -> 'Tensor[int]':
         return self._op1(lambda t: choose_backend(t).round(t))
 
-    def __copy__(self):
+    def __copy__(self) -> 'Tensor[T]':
         return self._op1(lambda t: choose_backend(t).copy(t, only_mutable=True))
 
-    def __deepcopy__(self, memodict={}):
+    def __deepcopy__(self, memodict={}) -> 'Tensor[T]':
         return self._op1(lambda t: choose_backend(t).copy(t, only_mutable=False))
 
-    def __neg__(self) -> 'Tensor':
+    def __neg__(self) -> 'Tensor[T]':
         return self._op1(operator.neg)
 
-    def __invert__(self) -> 'Tensor':
+    def __invert__(self) -> 'Tensor[T]':
         return self._op1(lambda t: choose_backend(t).invert(t))
 
-    def __reversed__(self):
+    def __reversed__(self) -> 'Tensor[T]':
         assert self.shape.channel.rank == 1
         return self[::-1]
 
@@ -763,11 +765,11 @@ class Tensor:
             native = self.native([self.shape])
             return iter(native)
 
-    def item(self):
+    def item(self) -> T:
         assert self.shape.volume == 1, f"Tensor.item() is only available for single-element Tensors but got {self.shape}"
         return next(iter(self))
 
-    def __matmul__(self, other):
+    def __matmul__(self, other) -> 'Tensor[bool]':
         from ._ops import dot
         assert isinstance(other, Tensor), f"Matmul '@' requires two Tensor arguments but got {type(other)}"
         if not self.shape.dual_rank and self.shape.channel_rank:
@@ -953,7 +955,7 @@ class Layout(Tensor):
                 warnings.warn(f"Empty stack_dim for Layout with value {obj}")
 
     @staticmethod
-    def _recursive_get_shapes(obj, s: Shape) -> Tuple[Shape]:
+    def _recursive_get_shapes(obj, s: Shape) -> Tuple[Shape, ...]:
         if not s:
             return shape(obj, allow_unshaped=True),
         elif isinstance(obj, (tuple, list)):
@@ -1670,10 +1672,10 @@ class TensorStack(Tensor):
         return self
 
 
-def tensor(data,
+def tensor(data: Union[Sequence[T], T],
            *shape: Union[Shape, str, list],
            convert: bool = True,
-           default_list_dim=channel('vector')) -> Tensor:  # TODO assume convert_unsupported, add convert_external=False for constants
+           default_list_dim=channel('vector')) -> Tensor[T]:  # TODO assume convert_unsupported, add convert_external=False for constants
     """
     Create a Tensor from the specified `data`.
     If `convert=True`, converts `data` to the preferred format of the default backend.
@@ -1814,12 +1816,12 @@ def tensor(data,
         raise ValueError(f"{type(data)} is not supported. Only (Tensor, tuple, list, np.ndarray, native tensors) are allowed.\nCurrent backends: {BACKENDS}")
 
 
-def wrap(data, *shape: Union[Shape, str, list], default_list_dim=channel('vector')) -> Tensor:
+def wrap(data: Union[Sequence[T], T], *shape: Union[Shape, str, list], default_list_dim=channel('vector')) -> Tensor[T]:
     """ Short for `phiml.math.tensor()` with `convert=False`. """
     return tensor(data, *shape, convert=False, default_list_dim=default_list_dim)
 
 
-def layout(objects, *shape: Union[Shape, str]) -> Tensor:
+def layout(objects: Union[Sequence[T], T], *shape: Union[Shape, str]) -> Tensor[T]:
     """
     Wraps a Python tree in a `Tensor`, allowing elements to be accessed via dimensions.
     A python tree is a structure of nested `tuple`, `list`, `dict` and *leaf* objects where leaves can be any Python object.
