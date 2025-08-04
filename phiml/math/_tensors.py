@@ -1790,6 +1790,9 @@ def tensor(data: Union[Sequence[T], T],
     try:
         backend = choose_backend(data)
         sizes = backend.staticshape(data)
+        if backend.is_sparse(data):
+            from ._sparse import from_sparse_native
+            return from_sparse_native(data, shape, indices_constant=backend == NUMPY, convert=convert)
         if shape is None:
             assert backend.ndims(data) <= 1, "Specify dimension names for tensors with more than 1 dimension"
             shape = default_list_dim if backend.ndims(data) == 1 else EMPTY_SHAPE
@@ -1802,9 +1805,6 @@ def tensor(data: Union[Sequence[T], T],
                 if s is not None:
                     assert s == size, f"Given shape {shape} does not match data with sizes {sizes}. Consider leaving the sizes undefined."
             shape = shape.with_sizes(sizes, keep_labels=True)
-        if backend.is_sparse(data):
-            from ._sparse import from_sparse_native
-            return from_sparse_native(data, shape, indices_constant=backend == NUMPY, convert=convert)
         elif convert:
             data = convert_(data, use_dlpack=False)
             backend = default_backend()

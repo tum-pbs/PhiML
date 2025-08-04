@@ -5,13 +5,13 @@ from numbers import Number
 from typing import Callable, Tuple, Union, Optional
 
 import numpy as np
+
 from ..backend._backend import TensorType, TensorOrArray
 from scipy.sparse import csr_matrix
 from scipy.sparse.linalg import aslinearoperator
 
 from ._magic_ops import concat, pack_dims, expand, rename_dims, stack, unpack_dim, unstack
-from ._shape import Shape, non_batch, merge_shapes, instance, batch, non_instance, shape, channel, spatial, DimFilter, \
-    concat_shapes, EMPTY_SHAPE, dual, non_channel, DEBUG_CHECKS, primal, concat_shapes_
+from ._shape import Shape, non_batch, merge_shapes, instance, batch, non_instance, shape, channel, spatial, DimFilter, non_dual, EMPTY_SHAPE, dual, non_channel, DEBUG_CHECKS, primal, concat_shapes_, IncompatibleShapes
 from ._tensors import Tensor, TensorStack, Dense, cached, wrap, reshaped_tensor, tensor, backend_for, custom_op2
 from ..backend import choose_backend, NUMPY, Backend, get_precision
 from ..backend._dtype import DType, INT64
@@ -127,28 +127,48 @@ def tensor_like(existing_tensor: Tensor, values: Union[Tensor, Number, bool], va
 def from_sparse_native(native, dims: Shape, indices_constant: bool, convert: bool):
     """Wrap a native sparse tensor in a `SparseCoordinateTensor` or `CompressedSparseMatrix`."""
     convert_idx = convert and not indices_constant
+    b = choose_backend(native)
+    # --- Match sizes & dims ---
+    sizes = b.staticshape(native)
+    if dual(dims) and non_dual(dims):
+        rows = non_dual(dims)
+        cols = dual(dims)
+    elif len(dims) == 2:
+        rows, cols = dims
+    else:
+        raise IncompatibleShapes(f"Sparse matrix shape must be either dual & primal or (rows,cols) but got {dims}")
+    if rows.well_defined:
+        if rows.volume != sizes[0]:
+            raise IncompatibleShapes(f"Sparse #rows={sizes[0]} does not match row dims {rows}")
+    else:
+        assert len(rows) == 1, f"When rows consist of multiple dims, their sizes must be specified but got {rows}"
+        rows = rows.with_size(sizes[0])
+    if cols.well_defined:
+        if cols.volume != sizes[1]:
+            raise IncompatibleShapes(f"Sparse #cols={sizes[1]} does not match col dims {cols}")
+    else:
+        assert len(cols) == 1, f"When cols consist of multiple dims, their sizes must be specified but got {cols}"
+        cols = cols.with_size(sizes[1])
+    dims = rows + cols
+    # --- Build matrix ---
+    assemble, parts = b.disassemble(native)
     class SparseTensorFactory(Backend):  # creates sparse matrices from native tensors
         def sparse_coo_tensor(self, indices: TensorType, values: TensorType, shape: tuple):
             indices = tensor(indices, instance('items'), channel(index=dims), convert=convert_idx)
             values = tensor(values, instance('items'), convert=convert)
             return SparseCoordinateTensor(indices, values, dims, True, False, indices_constant)
-
         def csr_matrix(self, column_indices: TensorOrArray, row_pointers: TensorOrArray, values: TensorOrArray, shape: Tuple[int, int]):
             assert dims.rank % 2 == 0
             column_indices = tensor(column_indices, instance('entries'), convert=convert_idx)
             row_pointers = tensor(row_pointers, instance('pointers'), convert=convert_idx)
             values = tensor(values, instance('entries'), convert=convert)
-            return CompressedSparseMatrix(column_indices, row_pointers, values, dims[len(dims)//2:], dims[:len(dims)//2], indices_constant)
-
+            return CompressedSparseMatrix(column_indices, row_pointers, values, cols, rows, indices_constant)
         def csc_matrix(self, column_pointers, row_indices, values, shape: Tuple[int, int]):
             assert dims.rank % 2 == 0
             row_indices = tensor(row_indices, instance('entries'), convert=convert_idx)
             column_pointers = tensor(column_pointers, instance('pointers'), convert=convert_idx)
             values = tensor(values, instance('entries'), convert=convert)
-            return CompressedSparseMatrix(row_indices, column_pointers, values, dims[:len(dims)//2], dims[len(dims)//2:], indices_constant)
-
-    b = choose_backend(native)
-    assemble, parts = b.disassemble(native)
+            return CompressedSparseMatrix(row_indices, column_pointers, values, rows, cols, indices_constant)
     return assemble(SparseTensorFactory('', [], None), *parts)
 
 

@@ -1,5 +1,8 @@
 from unittest import TestCase
 
+import numpy as np
+import scipy
+
 from phiml import math
 from phiml.backend._backend import init_installed_backends
 from phiml.math import batch, get_sparsity, expand, wrap, stack, zeros, channel, spatial, ones, instance, tensor, \
@@ -237,3 +240,14 @@ class TestSparse(TestCase):
         mat = math.sparse_tensor(indices, 1, spatial(row=2) & dual(col=2))
         self.assertEqual('compact-cols', math.get_format(mat))
         math.assert_close([[1, 0], [0, 1]], mat)
+
+    def test_wrap_scipy(self):
+        dense = np.asarray([[0, 0, 0], [0, 0, 1]])
+        for mat_type in [scipy.sparse.coo_matrix, scipy.sparse.csr_matrix, scipy.sparse.csc_matrix]:
+            npm = mat_type(dense)
+            mat_pd = wrap(npm, 'rows:i,~cols')
+            mat_dp = wrap(npm, '~cols,rows:i')
+            math.assert_close(mat_pd, mat_dp)
+            self.assertEqual(set(instance(rows=2) & dual(cols=3)), set(mat_dp.shape))
+            mat_rc = wrap(npm, 'rows:i,cols:c')
+            self.assertEqual(set(instance(rows=2) & channel(cols=3)), set(mat_rc.shape))
