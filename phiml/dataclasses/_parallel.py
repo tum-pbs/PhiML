@@ -73,13 +73,14 @@ def parallel_compute(instance, properties: Sequence, parallel_dims=batch,
     ML_LOGGER.debug(f"Assembled {len(stages)} stages containing {sum(len(ns) for ns in stages)} properties for parallel computation.")
     # --- Execute stages ---
     any_parallel = any(dims - tuple(stage_nodes[0].requires) for stage_nodes in stages)
+    max_workers = min(max_workers, max((dims - tuple(stage_nodes[0].requires)).volume for stage_nodes in stages))
     with ProcessPoolExecutor(max_workers=max_workers) if any_parallel else nullcontext() as pool:
         for stage_idx, stage_nodes in enumerate(stages):
             parallel_dims = dims - tuple(stage_nodes[0].requires)
             if parallel_dims:
                 ML_LOGGER.debug(f"Parallel | {parallel_dims} | {[n.name for n in stage_nodes]}")
                 property_names = [n.name for n in stage_nodes if n.is_used_later]
-                required_caches = set.union(*[n.all_dep_names for n in stage_nodes])
+                required_caches = set.union(*[n.prior_dep_names for n in stage_nodes])
                 # --- Submit to pool ---
                 instances = unstack(instance, parallel_dims)
                 caches = [unstack(instance.__dict__[c], parallel_dims, expand=True) for c in required_caches]
@@ -95,14 +96,16 @@ def parallel_compute(instance, properties: Sequence, parallel_dims=batch,
                     instance.__dict__[name] = output
             else:  # No parallelization in this stage
                 ML_LOGGER.debug(f"Host | {[n.name for n in stage_nodes]}")
+                _EXECUTION_STATUS.append('host')
                 for n in stage_nodes:
                     get_property_value(instance, n.name)
+                assert _EXECUTION_STATUS.pop() == 'host', "Host execution status mismatch. (internal error)"
                 keep_intermediate or delete_intermediate_caches(instance, stages, stage_idx)
 
 
 def delete_intermediate_caches(instance, stages: list, stage_idx: int):
     for node in sum(stages[:stage_idx+1], []):
-        if not node.has_users_after(stage_idx):
+        if not node.has_users_after(stage_idx) and node.name in instance.__dict__:
             ML_LOGGER.debug(f"Host | Removing cache of {node.name} as it's not needed after stage {stage_idx}")
             del instance.__dict__[node.name]
 
@@ -110,7 +113,9 @@ def delete_intermediate_caches(instance, stages: list, stage_idx: int):
 def _evaluate_properties(instance, properties, cache: dict, mem_limit, cache_file_base: Optional[str]):  # called on workers
     instance.__dict__.update(cache)
     # print(f"Evaluating {properties} on {type(instance).__name__} with values {instance.__dict__}")
+    _EXECUTION_STATUS.append('worker')
     values = [get_property_value(instance, p) for p in properties]
+    assert _EXECUTION_STATUS.pop() == 'worker', "Worker execution status mismatch. (internal error)"
     if mem_limit is not None:
         tree, tensors = disassemble_tree(values, False, attr_type=all_attributes)
         sizes = [sum([t.backend.sizeof(nat) for nat in t._natives()]) for t in tensors]
@@ -133,6 +138,9 @@ def _evaluate_properties(instance, properties, cache: dict, mem_limit, cache_fil
                     file_counter += 1
             values = assemble_tree(tree, tensors, attr_type=all_attributes)
     return values
+
+
+_EXECUTION_STATUS = []  # 'host', 'worker'
 
 
 def get_dependencies(cls: type, cls_property) -> Set[str]:
@@ -195,6 +203,11 @@ class PGraphNode:
     @property
     def all_dep_names(self) -> Set[str]:
         return set.union(*[{dep.name, *dep.all_dep_names} for dep in self.dependencies]) if self.dependencies else set()
+
+    @property
+    def prior_dep_names(self) -> Set[str]:
+        prior_dependencies = [dep for dep in self.dependencies if dep.stage < self.stage]
+        return {dep.name for dep in prior_dependencies}
 
     def has_users_after(self, stage: int):
         return any(u.stage > stage for u in self.users)
@@ -275,7 +288,9 @@ class ParallelProperty(cached_property):
             raise TypeError(f"No '__dict__' attribute on {type(instance).__name__!r} instance to cache {self.attrname!r} property.") from None
         val = cache.get(self.attrname, _NOT_CACHED)
         if val is _NOT_CACHED:
-            if self.on_direct_eval == 'host-compute':
+            if _EXECUTION_STATUS:
+                val = super().__get__(instance, owner=owner)
+            elif self.on_direct_eval == 'host-compute':
                 val = super().__get__(instance, owner=owner)
             elif self.on_direct_eval == 'raise':
                 raise NonParallelAccess(f"@parallel_property '{self.attrname}' can only be accessed after evaluation by parallel_compute()")
