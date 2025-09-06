@@ -95,15 +95,13 @@ class DiskTensor(Dense):
         return True
 
     def __getstate__(self):
-        state = self.__dict__.copy()
-        state['_memory_tensor'] = None
-        state['_backend'] = self._backend.name
+        state = Dense.__getstate__(self)
+        del state['_memory_tensor']
         return state
 
     def __setstate__(self, state):
-        self.__dict__.update(state)
+        Dense.__setstate__(self, state)
         self._memory_tensor = None
-        self._backend = get_backend(self._backend)
 
     @property
     def dtype(self) -> DType:

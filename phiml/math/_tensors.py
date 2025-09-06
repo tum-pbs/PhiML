@@ -21,7 +21,7 @@ from ._shape import (Shape,
                      prepare_renaming_gather, after_gather, concat_shapes_, Dim, PureShape, SHAPE_TYPES, auto)
 from ..backend import NoBackendFound, choose_backend, BACKENDS, get_precision, default_backend, convert as convert_, \
     Backend, ComputeDevice, OBJECTS, NUMPY, ML_LOGGER
-from ..backend._backend import get_operator
+from ..backend._backend import get_operator, get_backend
 from ..backend._dtype import DType, combine_types, BOOL, INT64, INT32, OBJECT
 from .magic import BoundDim, PhiTreeNode, slicing_dict, Shaped, _BoundDims
 from .magic import Shapable
@@ -1226,6 +1226,15 @@ class Dense(Tensor):
             shape_sizes = [expanded_shape.get_size(n) for n in names]
             assert backend.staticshape(native_tensor) == tuple(shape_sizes), f"Shape {expanded_shape} at {names} does not match native tensor with shape {backend.staticshape(native_tensor)}"
 
+    def __getstate__(self):
+        state = self.__dict__.copy()
+        state['_backend'] = self._backend.name
+        return state
+
+    def __setstate__(self, state):
+        self.__dict__.update(state)
+        self._backend = get_backend(self._backend if isinstance(self._backend, str) else self._backend.name)
+
     def native(self, order: Union[str, tuple, list, Shape] = None, force_expand=True):
         if order is None:
             assert len(self._shape) <= 1, f"When calling Tensor.native() or Tensor.numpy(), the dimension order must be specified for Tensors with more than one dimension, e.g. '{','.join(self._shape.names)}'. The listed default dimension order can vary depending on the chosen backend. Consider using math.reshaped_native(Tensor) instead."
@@ -1479,6 +1488,15 @@ class TensorStack(Tensor):
             self._varying_shapes = True
         self._shape = shape_stack(self._stack_dim, *[t.shape for t in self._tensors])
         self._backend = backend_for(*components)
+
+    def __getstate__(self):
+        state = self.__dict__.copy()
+        state['_backend'] = self._backend.name
+        return state
+
+    def __setstate__(self, state):
+        self.__dict__.update(state)
+        self._backend = get_backend(self._backend)
 
     @property
     def _is_tracer(self) -> bool:

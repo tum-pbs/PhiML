@@ -103,6 +103,10 @@ class Backend:
         self._devices = tuple(devices)
         self._default_device = default_device
 
+    def __getstate__(self):
+        warnings.warn(f"Backend.__getstate__ called on {self}. Pickling backends is highly discouraged as it can lead to problems when unpickling in different environments.")
+        return self.__dict__
+
     def __enter__(self):
         _DEFAULT.append(self)
 
