@@ -1823,7 +1823,7 @@ def tensor(data: Union[Sequence[T], T],
                 if s is not None:
                     assert s == size, f"Given shape {shape} does not match data with sizes {sizes}. Consider leaving the sizes undefined."
             shape = shape.with_sizes(sizes, keep_labels=True)
-        elif convert:
+        if convert:
             data = convert_(data, use_dlpack=False)
             backend = default_backend()
         if 0 in sizes:
