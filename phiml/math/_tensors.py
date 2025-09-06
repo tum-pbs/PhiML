@@ -3042,6 +3042,51 @@ def is_scalar(value) -> bool:
         return len(choose_backend(value).staticshape(value)) == 0
 
 
+def is_numeric(x: Any) -> bool:
+    """
+    Args:
+        x: Object to test.
+
+    Returns:
+        `True` if `x` is a primitive number, native number tensor or numeric `Tensor`.
+    """
+    if x is None:
+        return False
+    if isinstance(x, Tensor):
+        return x.dtype.kind in {int, float, complex}
+    try:
+        backend = choose_backend(x)
+        return backend.dtype(x) in {int, float, complex}
+    except NoBackendFound:
+        return False
+
+
+def is_composite(x: Any) -> bool:
+    """
+    Args:
+        x: Object to check.
+
+    Returns:
+        `True` if `x` is a composite type / container, e.g. a dataclass or pytree.
+        Sparse tensors are treated as non-composite.
+    """
+    if x is None:
+        return False
+    elif isinstance(x, Layout):
+        return True
+    elif isinstance(x, Tensor):
+        return False
+    elif dataclasses.is_dataclass(x):
+        return True
+    elif isinstance(x, (tuple, list, dict)):
+        return True
+    try:
+        backend = choose_backend(x)
+        return not backend.is_tensor(x)
+    except NoBackendFound as err:
+        raise ValueError(x) from err
+
+
 def variable_shape(value):
     return value._shape.only(value._names) if isinstance(value, Dense) else shape(value)
 

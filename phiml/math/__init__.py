@@ -32,7 +32,15 @@ from ._magic_ops import (
     copy_with, replace, find_differences
 )
 
-from ._tensors import Tensor, wrap, tensor, layout, native, numpy_ as numpy, reshaped_native, reshaped_numpy, Dict, to_dict, from_dict, is_scalar, BROADCAST_FORMATTER as f, save, load
+from ._tensors import (
+    Tensor,
+    wrap, tensor, layout,
+    native, numpy_ as numpy, reshaped_native, reshaped_numpy,
+    Dict, to_dict, from_dict,
+    is_scalar, is_composite, is_numeric,
+    BROADCAST_FORMATTER as f,
+    save, load
+)
 
 from ._sparse import dense, get_sparsity, get_format, to_format, is_sparse, sparse_tensor, stored_indices, stored_values, tensor_like, matrix_rank
 
