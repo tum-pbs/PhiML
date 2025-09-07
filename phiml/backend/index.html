@@ -267,6 +267,10 @@ The methods of <code><a title="phiml.backend.Backend" href="#phiml.backend.Backe
         self._devices = tuple(devices)
         self._default_device = default_device
 
+    def __getstate__(self):
+        warnings.warn(f&#34;Backend.__getstate__ called on {self}. Pickling backends is highly discouraged as it can lead to problems when unpickling in different environments.&#34;)
+        return self.__dict__
+
     def __enter__(self):
         _DEFAULT.append(self)
 

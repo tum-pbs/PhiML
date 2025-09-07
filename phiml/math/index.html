@@ -125,7 +125,15 @@ from ._magic_ops import (
     copy_with, replace, find_differences
 )
 
-from ._tensors import Tensor, wrap, tensor, layout, native, numpy_ as numpy, reshaped_native, reshaped_numpy, Dict, to_dict, from_dict, is_scalar, BROADCAST_FORMATTER as f, save, load
+from ._tensors import (
+    Tensor,
+    wrap, tensor, layout,
+    native, numpy_ as numpy, reshaped_native, reshaped_numpy,
+    Dict, to_dict, from_dict,
+    is_scalar, is_composite, is_numeric,
+    BROADCAST_FORMATTER as f,
+    save, load
+)
 
 from ._sparse import dense, get_sparsity, get_format, to_format, is_sparse, sparse_tensor, stored_indices, stored_values, tensor_like, matrix_rank
 
@@ -408,7 +416,7 @@ This is equal to <em>atan(Im/Re)</em> for most values.</p>
 <p><code><a title="phiml.math.Tensor" href="#phiml.math.Tensor">Tensor</a></code> without the reduced dimensions.</p></div>
 </dd>
 <dt id="phiml.math.arange"><code class="name flex">
-<span>def <span class="ident">arange</span></span>(<span>dim: phiml.math._shape.Shape, start_or_stop: Optional[int] = None, stop: Optional[int] = None, step=1, backend=None)</span>
+<span>def <span class="ident">arange</span></span>(<span>dim: phiml.math._shape.Shape, start_or_stop: Optional[int] = None, stop: Optional[int] = None, step=1, backend=None) ‑> phiml.math._tensors.Tensor[int]</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Returns evenly spaced values between <code>start</code> and <code>stop</code>.
@@ -717,7 +725,7 @@ All dimensions of <code>mask</code> that are not <code>dim</code> are treated as
 <p>Selected values of <code>x</code> as <code><a title="phiml.math.Tensor" href="#phiml.math.Tensor">Tensor</a></code> with dimensions from <code>x</code> and <code>mask</code>.</p></div>
 </dd>
 <dt id="phiml.math.brange"><code class="name flex">
-<span>def <span class="ident">brange</span></span>(<span>start: int = 0, **stop: int)</span>
+<span>def <span class="ident">brange</span></span>(<span>start: int = 0, **stop: int) ‑> phiml.math._tensors.Tensor[int]</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Construct a range <code><a title="phiml.math.Tensor" href="#phiml.math.Tensor">Tensor</a></code> along one batch dim.</p></div>
@@ -1155,7 +1163,7 @@ The number of items in a tensor is given by all dims except <code>feature_dims</
 <div class="desc"><p>Short for `pack_dims(&hellip;, dims=channel)</p></div>
 </dd>
 <dt id="phiml.math.crange"><code class="name flex">
-<span>def <span class="ident">crange</span></span>(<span>start: int = 0, **stop: int)</span>
+<span>def <span class="ident">crange</span></span>(<span>start: int = 0, **stop: int) ‑> phiml.math._tensors.Tensor[int]</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Construct a range <code><a title="phiml.math.Tensor" href="#phiml.math.Tensor">Tensor</a></code> along one channel dim.</p></div>
@@ -1362,7 +1370,7 @@ The grid values at the new points are determined via mean (linear interpolation)
 <div class="desc"><p>Short for `pack_dims(&hellip;, dims=dual)</p></div>
 </dd>
 <dt id="phiml.math.drange"><code class="name flex">
-<span>def <span class="ident">drange</span></span>(<span>start: int = 0, **stop: int)</span>
+<span>def <span class="ident">drange</span></span>(<span>start: int = 0, **stop: int) ‑> phiml.math._tensors.Tensor[int]</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Construct a range <code><a title="phiml.math.Tensor" href="#phiml.math.Tensor">Tensor</a></code> along one dual dim.</p></div>
@@ -2219,10 +2227,23 @@ Undefined sizes are automatically filled in by <code><a title="phiml.math.tensor
 <div class="desc"><p>Short for `pack_dims(&hellip;, dims=instance)</p></div>
 </dd>
 <dt id="phiml.math.irange"><code class="name flex">
-<span>def <span class="ident">irange</span></span>(<span>start: int = 0, **stop: int)</span>
+<span>def <span class="ident">irange</span></span>(<span>start: int = 0, **stop: int) ‑> phiml.math._tensors.Tensor[int]</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Construct a range <code><a title="phiml.math.Tensor" href="#phiml.math.Tensor">Tensor</a></code> along one instance dim.</p></div>
+</dd>
+<dt id="phiml.math.is_composite"><code class="name flex">
+<span>def <span class="ident">is_composite</span></span>(<span>x: Any) ‑> bool</span>
+</code></dt>
+<dd>
+<div class="desc"><h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>x</code></strong></dt>
+<dd>Object to check.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<p><code>True</code> if <code>x</code> is a composite type / container, e.g. a dataclass or pytree.
+Sparse tensors are treated as non-composite.</p></div>
 </dd>
 <dt id="phiml.math.is_finite"><code class="name flex">
 <span>def <span class="ident">is_finite</span></span>(<span>x: ~TensorOrTree) ‑> ~TensorOrTree</span>
@@ -2247,6 +2268,18 @@ Undefined sizes are automatically filled in by <code><a title="phiml.math.tensor
 </code></dt>
 <dd>
 <div class="desc"><p>Returns <code>True</code> if <code>x is None or x == wrap(None)</code>.</p></div>
+</dd>
+<dt id="phiml.math.is_numeric"><code class="name flex">
+<span>def <span class="ident">is_numeric</span></span>(<span>x: Any) ‑> bool</span>
+</code></dt>
+<dd>
+<div class="desc"><h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>x</code></strong></dt>
+<dd>Object to test.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<p><code>True</code> if <code>x</code> is a primitive number, native number tensor or numeric <code><a title="phiml.math.Tensor" href="#phiml.math.Tensor">Tensor</a></code>.</p></div>
 </dd>
 <dt id="phiml.math.is_scalar"><code class="name flex">
 <span>def <span class="ident">is_scalar</span></span>(<span>value) ‑> bool</span>
@@ -2507,7 +2540,7 @@ Must be a Tensor with a single channel dimension that lists all laplace dims by 
 <p><code><a title="phiml.math.Tensor" href="#phiml.math.Tensor">Tensor</a></code> of same shape as <code>x</code></p></div>
 </dd>
 <dt id="phiml.math.layout"><code class="name flex">
-<span>def <span class="ident">layout</span></span>(<span>objects, *shape: Union[str, phiml.math._shape.Shape]) ‑> phiml.math._tensors.Tensor</span>
+<span>def <span class="ident">layout</span></span>(<span>objects: Union[Sequence[~T], ~T], *shape: Union[str, phiml.math._shape.Shape]) ‑> phiml.math._tensors.Tensor[~T]</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Wraps a Python tree in a <code><a title="phiml.math.Tensor" href="#phiml.math.Tensor">Tensor</a></code>, allowing elements to be accessed via dimensions.
@@ -2540,7 +2573,7 @@ Calling <code><a title="phiml.math.Tensor.native" href="#phiml.math.Tensor.nativ
 <div class="desc"><p>Deprecated. Use <code><a title="phiml.math.norm" href="#phiml.math.norm">norm()</a></code> instead.</p></div>
 </dd>
 <dt id="phiml.math.linspace"><code class="name flex">
-<span>def <span class="ident">linspace</span></span>(<span>start: Union[float, phiml.math._tensors.Tensor, tuple, list], stop: Union[float, phiml.math._tensors.Tensor, tuple, list], dim: phiml.math._shape.Shape) ‑> phiml.math._tensors.Tensor</span>
+<span>def <span class="ident">linspace</span></span>(<span>start: Union[float, phiml.math._tensors.Tensor, tuple, list], stop: Union[float, phiml.math._tensors.Tensor, tuple, list], dim: phiml.math._shape.Shape) ‑> phiml.math._tensors.Tensor[float]</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Returns <code>number</code> evenly spaced numbers between <code>start</code> and <code>stop</code> along <code>dim</code>.</p>
@@ -3756,7 +3789,7 @@ If not specified, a <code>float</code> tensor with the current default precision
 <p><code><a title="phiml.math.Tensor" href="#phiml.math.Tensor">Tensor</a></code></p></div>
 </dd>
 <dt id="phiml.math.range"><code class="name flex">
-<span>def <span class="ident">range</span></span>(<span>dim: phiml.math._shape.Shape, start_or_stop: Optional[int] = None, stop: Optional[int] = None, step=1, backend=None)</span>
+<span>def <span class="ident">range</span></span>(<span>dim: phiml.math._shape.Shape, start_or_stop: Optional[int] = None, stop: Optional[int] = None, step=1, backend=None) ‑> phiml.math._tensors.Tensor[int]</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Returns evenly spaced values between <code>start</code> and <code>stop</code>.
@@ -3781,7 +3814,7 @@ The <code>size</code> of <code>dim</code> is interpreted as <code>stop</code> un
 <p><code><a title="phiml.math.Tensor" href="#phiml.math.Tensor">Tensor</a></code></p></div>
 </dd>
 <dt id="phiml.math.range_tensor"><code class="name flex">
-<span>def <span class="ident">range_tensor</span></span>(<span>*shape: phiml.math._shape.Shape)</span>
+<span>def <span class="ident">range_tensor</span></span>(<span>*shape: phiml.math._shape.Shape) ‑> phiml.math._tensors.Tensor[int]</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Returns a <code><a title="phiml.math.Tensor" href="#phiml.math.Tensor">Tensor</a></code> with given <code><a title="phiml.math.shape" href="#phiml.math.shape">shape()</a></code> containing the linear indices of each element.
@@ -4603,7 +4636,7 @@ This value is added to the internal padding. For non-trivial extrapolations, thi
 <p>Same type as <code>x</code>.</p></div>
 </dd>
 <dt id="phiml.math.srange"><code class="name flex">
-<span>def <span class="ident">srange</span></span>(<span>start: int = 0, **stop: int)</span>
+<span>def <span class="ident">srange</span></span>(<span>start: int = 0, **stop: int) ‑> phiml.math._tensors.Tensor[int]</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Construct a range <code><a title="phiml.math.Tensor" href="#phiml.math.Tensor">Tensor</a></code> along one spatial dim.</p></div>
@@ -4867,7 +4900,7 @@ If no value has a matching dim, <code>default_name</code> is used instead.</p>
 <p>Same type as any value.</p></div>
 </dd>
 <dt id="phiml.math.tensor"><code class="name flex">
-<span>def <span class="ident">tensor</span></span>(<span>data, *shape: Union[phiml.math._shape.Shape, str, list], convert: bool = True, default_list_dim=(vectorᶜ=None)) ‑> phiml.math._tensors.Tensor</span>
+<span>def <span class="ident">tensor</span></span>(<span>data: Union[Sequence[~T], ~T], *shape: Union[phiml.math._shape.Shape, str, list], convert: bool = True, default_list_dim=(vectorᶜ=None)) ‑> phiml.math._tensors.Tensor[~T]</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Create a Tensor from the specified <code>data</code>.
@@ -5125,7 +5158,7 @@ Adding batch dims must always work without keyword arguments.</dd>
 <p><code><a title="phiml.math.Tensor" href="#phiml.math.Tensor">Tensor</a></code> like <code>index</code> but with <code>index_dim</code> listing the dims in <code>resolution</code>.</p></div>
 </dd>
 <dt id="phiml.math.unstack"><code class="name flex">
-<span>def <span class="ident">unstack</span></span>(<span>value, dim: Union[str, Sequence[+T_co], set, phiml.math._shape.Shape, Callable, None], expand=False) ‑> tuple</span>
+<span>def <span class="ident">unstack</span></span>(<span>value: ~MagicType, dim: Union[str, Sequence[+T_co], set, phiml.math._shape.Shape, Callable, None], expand=False) ‑> Tuple[~MagicType, ...]</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Un-stacks a <code>Sliceable</code> along one or multiple dimensions.</p>
@@ -5319,7 +5352,7 @@ If <code>matrix</code> is sparse, diagonal zeros (and possibly other explicitly 
 <p><code><a title="phiml.math.Tensor" href="#phiml.math.Tensor">Tensor</a></code></p></div>
 </dd>
 <dt id="phiml.math.wrap"><code class="name flex">
-<span>def <span class="ident">wrap</span></span>(<span>data, *shape: Union[phiml.math._shape.Shape, str, list], default_list_dim=(vectorᶜ=None)) ‑> phiml.math._tensors.Tensor</span>
+<span>def <span class="ident">wrap</span></span>(<span>data: Union[Sequence[~T], ~T], *shape: Union[phiml.math._shape.Shape, str, list], default_list_dim=(vectorᶜ=None)) ‑> phiml.math._tensors.Tensor[~T]</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Short for <code><a title="phiml.math.tensor" href="#phiml.math.tensor">tensor()</a></code> with <code>convert=False</code>.</p></div>
@@ -8478,7 +8511,7 @@ When backed by an editable native tensor, e.g. a <code>numpy.ndarray</code>, do 
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">class Tensor:
+<pre><code class="python">class Tensor(Generic[T]):
     &#34;&#34;&#34;
     Abstract base class to represent structured data of one data type.
     This class replaces the native tensor classes `numpy.ndarray`, `torch.Tensor`, `tensorflow.Tensor` or `jax.numpy.ndarray` as the main data container in Φ-ML.
@@ -8920,13 +8953,13 @@ When backed by an editable native tensor, e.g. a <code>numpy.ndarray</code>, do 
     def __setitem__(self, key, value):
         raise SyntaxError(&#34;Tensors are not editable to preserve the autodiff chain. This feature might be added in the future. To update part of a tensor, use math.where() or math.scatter()&#34;)
 
-    def __unstack__(self, dims: Tuple[str, ...]) -&gt; Tuple[&#39;Tensor&#39;, ...]:  # from phiml.math.magic.Sliceable
+    def __unstack__(self, dims: Tuple[str, ...]) -&gt; Tuple[&#39;Tensor[T]&#39;, ...]:  # from phiml.math.magic.Sliceable
         if len(dims) == 1:
             return self._unstack(dims[0])
         else:
             return NotImplemented
 
-    def _unstack(self, dim: str):
+    def _unstack(self, dim: str) -&gt; Tuple[&#39;Tensor[T]&#39;, ...]:
         &#34;&#34;&#34;
         Splits this tensor along the specified dimension.
         The returned tensors have the same dimensions as this tensor save the unstacked dimension.
@@ -9018,12 +9051,12 @@ When backed by an editable native tensor, e.g. a <code>numpy.ndarray</code>, do 
         else:
             raise ValueError(name)
 
-    def pack(self, dims, packed_dim):
+    def pack(self, dims, packed_dim) -&gt; &#39;Tensor[T]&#39;:
         &#34;&#34;&#34; See `pack_dims()` &#34;&#34;&#34;
         from ._ops import pack_dims
         return pack_dims(self, dims, packed_dim)
 
-    def unpack(self, dim, unpacked_dims):
+    def unpack(self, dim, unpacked_dims) -&gt; &#39;Tensor[T]&#39;:
         &#34;&#34;&#34; See `unpack_dim()` &#34;&#34;&#34;
         from ._ops import unpack_dim
         return unpack_dim(self, dim, unpacked_dims)
@@ -9034,15 +9067,15 @@ When backed by an editable native tensor, e.g. a <code>numpy.ndarray</code>, do 
         # return self._with_shape_replaced(self.shape.transposed())
 
     @property
-    def Ti(self):
+    def Ti(self) -&gt; &#39;Tensor[T]&#39;:
         return self._with_shape_replaced(self.shape.transpose(INSTANCE_DIM))
 
     @property
-    def Tc(self):
+    def Tc(self) -&gt; &#39;Tensor[T]&#39;:
         return self._with_shape_replaced(self.shape.transpose(CHANNEL_DIM))
 
     @property
-    def Ts(self):
+    def Ts(self) -&gt; &#39;Tensor[T]&#39;:
         return self._with_shape_replaced(self.shape.transpose(SPATIAL_DIM))
 
     def map(self, function: Callable, dims=shape_, range=range, unwrap_scalars=True, **kwargs):
@@ -9126,7 +9159,7 @@ When backed by an editable native tensor, e.g. a <code>numpy.ndarray</code>, do 
     def __rmod__(self, other):
         return self._op2(other, operator.mod, True)
 
-    def __eq__(self, other) -&gt; &#39;Tensor&#39;:
+    def __eq__(self, other) -&gt; &#39;Tensor[bool]&#39;:
         if self is other:
             return expand(True, self.shape)
         if _EQUALITY_REDUCE[-1][&#39;type&#39;] == &#39;ref&#39;:
@@ -9143,7 +9176,7 @@ When backed by an editable native tensor, e.g. a <code>numpy.ndarray</code>, do 
         else:
             return wrap(False)
 
-    def __ne__(self, other) -&gt; &#39;Tensor&#39;:
+    def __ne__(self, other) -&gt; &#39;Tensor[bool]&#39;:
         if _EQUALITY_REDUCE[-1][&#39;type&#39;] == &#39;ref&#39;:
             return wrap(self is not other)
         elif _EQUALITY_REDUCE[-1][&#39;type&#39;] == &#39;shape_and_value&#39;:
@@ -9158,49 +9191,49 @@ When backed by an editable native tensor, e.g. a <code>numpy.ndarray</code>, do 
         else:
             return wrap(True)
 
-    def __lt__(self, other):
+    def __lt__(self, other) -&gt; &#39;Tensor[bool]&#39;:
         return self._op2(other, operator.gt, True)
 
-    def __le__(self, other):
+    def __le__(self, other) -&gt; &#39;Tensor[bool]&#39;:
         return self._op2(other, operator.ge, True)
 
-    def __gt__(self, other):
+    def __gt__(self, other) -&gt; &#39;Tensor[bool]&#39;:
         return self._op2(other, operator.gt, False)
 
-    def __ge__(self, other):
+    def __ge__(self, other) -&gt; &#39;Tensor[bool]&#39;:
         return self._op2(other, operator.ge, False)
 
-    def __lshift__(self, other):
+    def __lshift__(self, other) -&gt; &#39;Tensor[T]&#39;:
         return self._op2(other, operator.lshift, False)
 
-    def __rlshift__(self, other):
+    def __rlshift__(self, other) -&gt; &#39;Tensor[T]&#39;:
         return self._op2(other, operator.lshift, True)
 
-    def __rshift__(self, other):
+    def __rshift__(self, other) -&gt; &#39;Tensor[T]&#39;:
         return self._op2(other, operator.rshift, False)
 
-    def __rrshift__(self, other):
+    def __rrshift__(self, other) -&gt; &#39;Tensor[T]&#39;:
         return self._op2(other, operator.rshift, True)
 
-    def __abs__(self):
+    def __abs__(self) -&gt; &#39;Tensor[T]&#39;:
         return self._op1(lambda t: choose_backend(t).abs(t))
 
-    def __round__(self, n=None):
+    def __round__(self, n=None) -&gt; &#39;Tensor[int]&#39;:
         return self._op1(lambda t: choose_backend(t).round(t))
 
-    def __copy__(self):
+    def __copy__(self) -&gt; &#39;Tensor[T]&#39;:
         return self._op1(lambda t: choose_backend(t).copy(t, only_mutable=True))
 
-    def __deepcopy__(self, memodict={}):
+    def __deepcopy__(self, memodict={}) -&gt; &#39;Tensor[T]&#39;:
         return self._op1(lambda t: choose_backend(t).copy(t, only_mutable=False))
 
-    def __neg__(self) -&gt; &#39;Tensor&#39;:
+    def __neg__(self) -&gt; &#39;Tensor[T]&#39;:
         return self._op1(operator.neg)
 
-    def __invert__(self) -&gt; &#39;Tensor&#39;:
+    def __invert__(self) -&gt; &#39;Tensor[T]&#39;:
         return self._op1(lambda t: choose_backend(t).invert(t))
 
-    def __reversed__(self):
+    def __reversed__(self) -&gt; &#39;Tensor[T]&#39;:
         assert self.shape.channel.rank == 1
         return self[::-1]
 
@@ -9213,11 +9246,11 @@ When backed by an editable native tensor, e.g. a <code>numpy.ndarray</code>, do 
             native = self.native([self.shape])
             return iter(native)
 
-    def item(self):
+    def item(self) -&gt; T:
         assert self.shape.volume == 1, f&#34;Tensor.item() is only available for single-element Tensors but got {self.shape}&#34;
         return next(iter(self))
 
-    def __matmul__(self, other):
+    def __matmul__(self, other) -&gt; &#39;Tensor[bool]&#39;:
         from ._ops import dot
         assert isinstance(other, Tensor), f&#34;Matmul &#39;@&#39; requires two Tensor arguments but got {type(other)}&#34;
         if not self.shape.dual_rank and self.shape.channel_rank:
@@ -9296,6 +9329,10 @@ When backed by an editable native tensor, e.g. a <code>numpy.ndarray</code>, do 
         &#34;&#34;&#34; Does not cache this value but if it is already cached, returns the cached version. &#34;&#34;&#34;
         return self</code></pre>
 </details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>typing.Generic</li>
+</ul>
 <h3>Subclasses</h3>
 <ul class="hlist">
 <li>phiml.math._sparse.CompactSparseTensor</li>
@@ -9323,7 +9360,7 @@ def T(self):
     # return self._with_shape_replaced(self.shape.transposed())</code></pre>
 </details>
 </dd>
-<dt id="phiml.math.Tensor.Tc"><code class="name">prop <span class="ident">Tc</span></code></dt>
+<dt id="phiml.math.Tensor.Tc"><code class="name">prop <span class="ident">Tc</span> : <a title="phiml.math.Tensor" href="#phiml.math.Tensor">Tensor</a>[T]</code></dt>
 <dd>
 <div class="desc"></div>
 <details class="source">
@@ -9331,11 +9368,11 @@ def T(self):
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">@property
-def Tc(self):
+def Tc(self) -&gt; &#39;Tensor[T]&#39;:
     return self._with_shape_replaced(self.shape.transpose(CHANNEL_DIM))</code></pre>
 </details>
 </dd>
-<dt id="phiml.math.Tensor.Ti"><code class="name">prop <span class="ident">Ti</span></code></dt>
+<dt id="phiml.math.Tensor.Ti"><code class="name">prop <span class="ident">Ti</span> : <a title="phiml.math.Tensor" href="#phiml.math.Tensor">Tensor</a>[T]</code></dt>
 <dd>
 <div class="desc"></div>
 <details class="source">
@@ -9343,11 +9380,11 @@ def Tc(self):
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">@property
-def Ti(self):
+def Ti(self) -&gt; &#39;Tensor[T]&#39;:
     return self._with_shape_replaced(self.shape.transpose(INSTANCE_DIM))</code></pre>
 </details>
 </dd>
-<dt id="phiml.math.Tensor.Ts"><code class="name">prop <span class="ident">Ts</span></code></dt>
+<dt id="phiml.math.Tensor.Ts"><code class="name">prop <span class="ident">Ts</span> : <a title="phiml.math.Tensor" href="#phiml.math.Tensor">Tensor</a>[T]</code></dt>
 <dd>
 <div class="desc"></div>
 <details class="source">
@@ -9355,7 +9392,7 @@ def Ti(self):
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">@property
-def Ts(self):
+def Ts(self) -&gt; &#39;Tensor[T]&#39;:
     return self._with_shape_replaced(self.shape.transpose(SPATIAL_DIM))</code></pre>
 </details>
 </dd>
@@ -9707,7 +9744,7 @@ This is equivalent to the syntax <code>tensor.&lt;name&gt;</code>.</p>
 <p><code>TensorDim</code> corresponding to a dimension of this tensor</p></div>
 </dd>
 <dt id="phiml.math.Tensor.item"><code class="name flex">
-<span>def <span class="ident">item</span></span>(<span>self)</span>
+<span>def <span class="ident">item</span></span>(<span>self) ‑> <property object at 0x7fdeae28e5e0></span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -9775,7 +9812,7 @@ If a dimension of the tensor is not listed in <code>order</code>, a <code>ValueE
 <p>ValueError if the tensor cannot be transposed to match target_shape</p></div>
 </dd>
 <dt id="phiml.math.Tensor.pack"><code class="name flex">
-<span>def <span class="ident">pack</span></span>(<span>self, dims, packed_dim)</span>
+<span>def <span class="ident">pack</span></span>(<span>self, dims, packed_dim) ‑> phiml.math._tensors.Tensor[~T]</span>
 </code></dt>
 <dd>
 <div class="desc"><p>See <code><a title="phiml.math.pack_dims" href="#phiml.math.pack_dims">pack_dims()</a></code></p></div>
@@ -9787,7 +9824,7 @@ If a dimension of the tensor is not listed in <code>order</code>, a <code>ValueE
 <div class="desc"></div>
 </dd>
 <dt id="phiml.math.Tensor.unpack"><code class="name flex">
-<span>def <span class="ident">unpack</span></span>(<span>self, dim, unpacked_dims)</span>
+<span>def <span class="ident">unpack</span></span>(<span>self, dim, unpacked_dims) ‑> phiml.math._tensors.Tensor[~T]</span>
 </code></dt>
 <dd>
 <div class="desc"><p>See <code><a title="phiml.math.unpack_dim" href="#phiml.math.unpack_dim">unpack_dim()</a></code></p></div>
@@ -9934,10 +9971,12 @@ If a dimension of the tensor is not listed in <code>order</code>, a <code>ValueE
 <li><code><a title="phiml.math.instance" href="#phiml.math.instance">instance</a></code></li>
 <li><code><a title="phiml.math.ipack" href="#phiml.math.ipack">ipack</a></code></li>
 <li><code><a title="phiml.math.irange" href="#phiml.math.irange">irange</a></code></li>
+<li><code><a title="phiml.math.is_composite" href="#phiml.math.is_composite">is_composite</a></code></li>
 <li><code><a title="phiml.math.is_finite" href="#phiml.math.is_finite">is_finite</a></code></li>
 <li><code><a title="phiml.math.is_inf" href="#phiml.math.is_inf">is_inf</a></code></li>
 <li><code><a title="phiml.math.is_nan" href="#phiml.math.is_nan">is_nan</a></code></li>
 <li><code><a title="phiml.math.is_none" href="#phiml.math.is_none">is_none</a></code></li>
+<li><code><a title="phiml.math.is_numeric" href="#phiml.math.is_numeric">is_numeric</a></code></li>
 <li><code><a title="phiml.math.is_scalar" href="#phiml.math.is_scalar">is_scalar</a></code></li>
 <li><code><a title="phiml.math.is_sparse" href="#phiml.math.is_sparse">is_sparse</a></code></li>
 <li><code><a title="phiml.math.isize" href="#phiml.math.isize">isize</a></code></li>
