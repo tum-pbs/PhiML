@@ -114,7 +114,7 @@ class NumPyBackend(Backend):
         return False
 
     def sizeof(self, tensor) -> int:
-        return tensor.nbytes
+        return tensor.nbytes if isinstance(tensor, np.ndarray) else sys.getsizeof(tensor)
 
     def is_sparse(self, x) -> bool:
         return issparse(x)
