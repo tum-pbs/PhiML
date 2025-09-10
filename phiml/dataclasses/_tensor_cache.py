@@ -178,6 +178,8 @@ def _recursive_add_cache_files(obj, result: Set[str]):
         elif isinstance(obj, CompactSparseTensor):
             _recursive_add_cache_files(obj._values, result)
             _recursive_add_cache_files(obj._indices, result)
+        elif isinstance(obj, Layout):
+            _recursive_add_cache_files(obj._obj, result)
         elif not isinstance(obj, Dense):
             raise NotImplementedError(f"Unsupported Tensor type: {type(obj)}")
     elif isinstance(obj, PhiTreeNode):
