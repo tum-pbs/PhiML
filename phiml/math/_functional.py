@@ -14,7 +14,7 @@ from ._magic_ops import stack, slice_, find_differences, rename_dims, all_attrib
 from ._shape import Shape, spatial, instance, batch, channel, merge_shapes, DimFilter, shape, dual
 from ._sparse import SparseCoordinateTensor
 from ._tensors import Tensor, disassemble_tree, assemble_tree, disassemble_tensors, assemble_tensors, variable_attributes, wrap, specs_equal, equality_by_shape_and_value, \
-    object_dims, backend_for, NATIVE_TENSOR
+    object_dims, backend_for, NATIVE_TENSOR, Dense, TensorStack
 from ._trace import ShiftLinTracer, matrix_from_function, LinearTraceInProgress
 from .magic import PhiTreeNode, Shapable
 from ..backend import Backend
@@ -937,7 +937,7 @@ class CustomGradientFunction:
             result = self.gradient(kwargs, y, dy)
             assert isinstance(result, dict) and all(key in kwargs for key in result.keys()), f"gradient function must return a dict containing only parameter names of the forward function. Forward '{f_name(self.f)}' has arguments {kwargs}."
             full_result = tuple(result.get(name, None) for name in in_key.tree.keys())
-            result_natives = self.incomplete_tree_to_natives(full_result, tuple(in_key.tree.values()), list(in_key.shapes))
+            result_natives = self.incomplete_tree_to_natives(full_result, tuple(in_key.tree.values()), list(in_key.specs))
             ML_LOGGER.debug(f"Backward pass of custom op {backward_native.__name__} returned gradients for {tuple(result.keys())} out of {tuple(in_key.tree.keys())} containing {len(result_natives)} native tensors")
             return result_natives
 
@@ -973,37 +973,50 @@ Traces can be avoided by jit-compiling the code that calls custom gradient funct
         return f"custom_grad({f_name(self.f)})"
 
     @staticmethod
-    def incomplete_tree_to_natives(incomplete, tree, complete_shapes: List[Shape]) -> list:
-        """ None in `tree` means there is a tensor. """
+    def incomplete_tree_to_natives(incomplete, tree, complete_specs: List[dict]) -> list:
+        """ Returns native tensors for required input gradients.
+
+        Args:
+            incomplete: Computed gradient Tensors / composite types
+            tree: Corresponding input data `x`, including non-Tensor attributes. For dataclasses, this will be an instance of DataclassTreeNode.
+                None means there is a tensor, not a composite type.
+            complete_shapes: Shapes of `x`.
+        """
         if tree is None:
-            c_shape = complete_shapes.pop(0)
-            if incomplete is None:
-                return [None] * c_shape.non_uniform_shape.volume
+            c_spec = complete_specs.pop(0)
+            if incomplete is None:  # no gradient required for this input
+                return [None] * c_spec['shape'].non_uniform_shape.volume
             else:
                 assert isinstance(incomplete, Tensor)
+                if isinstance(incomplete, Dense):
+                    return [incomplete.native(c_spec['names'])]
+                elif isinstance(incomplete, TensorStack):
+                    specs = c_spec['tensors']
+                    return [t.native(s['names']) for t, s in zip(incomplete._tensors, specs)]
+                warnings.warn(f"Unsupported tensor type for custom gradient: {type(incomplete)}. This might result in incorrectly transposed gradients.", RuntimeWarning)
                 return list(incomplete._natives())
         elif isinstance(tree, str) and tree == NATIVE_TENSOR:
-            complete_shapes.pop(0)
+            complete_specs.pop(0)
             return [incomplete]
         elif isinstance(tree, (tuple, list)):
             if incomplete is None:
-                return sum([CustomGradientFunction.incomplete_tree_to_natives(None, item, complete_shapes) for item in tree], [])
+                return sum([CustomGradientFunction.incomplete_tree_to_natives(None, item, complete_specs) for item in tree], [])
             else:
                 assert type(tree) == type(incomplete) and len(tree) == len(incomplete)
-                return sum([CustomGradientFunction.incomplete_tree_to_natives(i_item, c_item, complete_shapes) for i_item, c_item in zip(incomplete, tree)], [])
+                return sum([CustomGradientFunction.incomplete_tree_to_natives(i_item, c_item, complete_specs) for i_item, c_item in zip(incomplete, tree)], [])
         elif isinstance(tree, dict):
             if incomplete is None:
-                return sum([CustomGradientFunction.incomplete_tree_to_natives(None, item, complete_shapes) for item in tree.values()], [])
+                return sum([CustomGradientFunction.incomplete_tree_to_natives(None, item, complete_specs) for item in tree.values()], [])
             else:
                 assert type(tree) == type(incomplete) and len(tree) == len(incomplete) and set(tree.keys()) == set(incomplete.keys())
-                return sum([CustomGradientFunction.incomplete_tree_to_natives(incomplete[key], c_item, complete_shapes) for key, c_item in tree.items()], [])
+                return sum([CustomGradientFunction.incomplete_tree_to_natives(incomplete[key], c_item, complete_specs) for key, c_item in tree.items()], [])
         elif dataclasses.is_dataclass(tree):
             from ..dataclasses._dataclasses import DataclassTreeNode
             if isinstance(tree, DataclassTreeNode):
                 natives = []
                 for attr, n_val in tree.extracted.items():
                     i_val = getattr(incomplete, attr) if incomplete is not None else None
-                    natives_item = CustomGradientFunction.incomplete_tree_to_natives(i_val, n_val, complete_shapes)
+                    natives_item = CustomGradientFunction.incomplete_tree_to_natives(i_val, n_val, complete_specs)
                     natives.extend(natives_item)
                 return natives
         if isinstance(tree, PhiTreeNode):
@@ -1012,7 +1025,7 @@ Traces can be avoided by jit-compiling the code that calls custom gradient funct
             for attr in attributes:
                 n_val = getattr(tree, attr)
                 i_val = getattr(incomplete, attr) if incomplete is not None else None
-                natives_item = CustomGradientFunction.incomplete_tree_to_natives(i_val, n_val, complete_shapes)
+                natives_item = CustomGradientFunction.incomplete_tree_to_natives(i_val, n_val, complete_specs)
                 natives.extend(natives_item)
             return natives
         else:
