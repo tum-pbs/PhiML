@@ -124,7 +124,7 @@ class TestFunctional(TestCase):
             return x.x[:2]
 
         def grad(_inputs, _y, df):
-            return {'x': math.flatten(math.expand(df * 0, batch(tmp=2)), flatten_batch=True)}
+            return {'x': math.pad(df, {'x': (1, 1)})}
 
         def loss(x):
             fg = math.custom_gradient(f, grad)
@@ -135,7 +135,7 @@ class TestFunctional(TestCase):
             if backend.supports(Backend.custom_gradient):
                 with backend:
                     custom_loss_grad, = math.gradient(loss, get_output=False)(math.ones(spatial(x=4)))
-                    math.assert_close(custom_loss_grad, 0, msg=backend.name)
+                    math.assert_close([0, 1, 1, 0], custom_loss_grad, msg=backend.name)
 
     def test_map_types(self):
         def f(x, y):
