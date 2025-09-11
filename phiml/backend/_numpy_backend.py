@@ -29,7 +29,7 @@ class NumPyBackend(Backend):
     def prefers_channels_last(self) -> bool:
         return True
 
-    seed = np.random.seed
+    seed = staticmethod(np.random.seed)
     clip = staticmethod(np.clip)
     argmax = staticmethod(np.argmax)
     argmin = staticmethod(np.argmin)
