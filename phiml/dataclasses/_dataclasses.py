@@ -90,6 +90,20 @@ def implements(cls, method: str, exclude_metaclass=True):
 
 
 def data_eq(cls=None, /, *, rel_tolerance=0., abs_tolerance=0., equal_nan=True, compare_tensors_by_ref=False):
+    """
+    Decorator for dataclasses that overrides the default `__eq__` method to compare data fields by shape and value instead of equality.
+    Non-data fields are compared by equality (`==`).
+
+    See Also:
+        `equal()`, `data_fields()`, `non_data_fields()`.
+
+    Args:
+        rel_tolerance: Relative tolerance for comparing floating point tensors.
+        abs_tolerance: Absolute tolerance for comparing floating point tensors.
+        equal_nan: Whether to consider NaN values as equal.
+        compare_tensors_by_ref: If True, compares all tensors by reference (location in memory) instead of value.
+            This avoids costly element-wise comparisons, but may count objects as unequal even if they hold the same data.
+    """
     def wrap(cls):
         assert cls.__dataclass_params__.eq, f"@data_eq can only be used with dataclasses with eq=True."
         cls.__default_dataclass_eq__ = cls.__eq__
@@ -300,17 +314,18 @@ def getitem(obj: PhiMLDataclass, item, keepdims: DimFilter = None) -> PhiMLDatac
 
 def equal(obj1, obj2, rel_tolerance=0., abs_tolerance=0., equal_nan=True):
     """
-    Checks if two
+    Checks if two dataclass instances are equal by comparing their data fields by value and shape.
+    Non-data fields are compared by equality (`==`).
 
     Args:
-        obj1:
-        obj2:
-        rel_tolerance:
-        abs_tolerance:
-        equal_nan:
+        obj1: First dataclass instance.
+        obj2: Second dataclass instance.
+        rel_tolerance: Relative tolerance for comparing floating point tensors.
+        abs_tolerance: Absolute tolerance for comparing floating point tensors.
+        equal_nan: Whether to consider NaN values as equal.
 
     Returns:
-
+        `bool`
     """
     cls = type(obj1)
     eq_fn = cls.__default_dataclass_eq__ if hasattr(cls, '__default_dataclass_eq__') else cls.__eq__

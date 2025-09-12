@@ -42,7 +42,7 @@ This affects which data_fields are optimized / traced by functions like `phiml.m
 >>>         return self.attribute1 + 1
 """
 
-from functools import cached_property
+from functools import cached_property  # re-import to clarify that this is supported and recommended
 
 from ._dataclasses import sliceable, data_fields, non_data_fields, config_fields, special_fields, replace, copy, getitem, equal, data_eq
 
