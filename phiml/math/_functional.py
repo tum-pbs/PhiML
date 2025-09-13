@@ -1109,8 +1109,8 @@ def _safe_mul_bwd(input_dict, prod, adj):
     x = math.where(math.is_finite(x), x, 0)
     y = math.where(math.is_finite(y), y, 0)
     return {
-        'x': adj * y,
-        'y': adj * x,
+        'x': math.sum_(adj * y, y.shape - x.shape),
+        'y': math.sum_(adj * x, x.shape - y.shape),
     }
 
 
