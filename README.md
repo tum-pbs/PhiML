@@ -44,6 +44,7 @@ This will check for compatible PyTorch, Jax and TensorFlow installations as well
 * **n-dimensional operations**: With Φ<sub>ML</sub>, you can write code that [automatically works in 1D, 2D and 3D](https://tum-pbs.github.io/PhiML/N_Dimensional.html), choosing the corresponding operations based on the input dimensions.
 * **Flexible neural network architectures**: [Φ<sub>ML</sub> provides various configurable neural network architectures, from MLPs to U-Nets.](https://tum-pbs.github.io/PhiML/Networks.html)
 * **Non-uniform tensors**: Φ<sub>ML</sub> allows you to [stack tensors of different sizes and keeps track of the resulting shapes](https://tum-pbs.github.io/PhiML/Non_Uniform.html).
+* 🆕 Powerful, flexible and easy-to-use [parallelization over processes](https://tum-pbs.github.io/PhiML/Parallel_Compute.html).
 
 **Compatibility**
 
