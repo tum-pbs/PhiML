@@ -14,11 +14,14 @@ import numpy as np
 
 from .. import unstack, stack, batch
 from ..backend import ML_LOGGER
+from ..backend._backend import get_backend
 from ..dataclasses._dep import MemberVariableAnalyzer
 from ..dataclasses._tensor_cache import H5Source, write_to_h5
 from ..math import DimFilter, shape, Shape, EMPTY_SHAPE
 from ..math._magic_ops import all_attributes
 from ..math._tensors import disassemble_tree, assemble_tree
+
+from ._tensor_cache import _WORKER_LOAD_AS, _LOAD_AS
 
 
 def parallel_compute(instance, properties: Sequence, parallel_dims=batch,
@@ -74,7 +77,8 @@ def parallel_compute(instance, properties: Sequence, parallel_dims=batch,
     # --- Execute stages ---
     any_parallel = any(dims - tuple(stage_nodes[0].requires) for stage_nodes in stages)
     max_workers = min(max_workers, max((dims - tuple(stage_nodes[0].requires)).volume for stage_nodes in stages))
-    with ProcessPoolExecutor(max_workers=max_workers) if any_parallel else nullcontext() as pool:
+    init_args = (_WORKER_LOAD_AS[-1].name if _WORKER_LOAD_AS else None,)
+    with ProcessPoolExecutor(initializer=init_worker, initargs=init_args, max_workers=max_workers) if any_parallel else nullcontext() as pool:
         for stage_idx, stage_nodes in enumerate(stages):
             parallel_dims = dims - tuple(stage_nodes[0].requires)
             if parallel_dims:
@@ -108,6 +112,14 @@ def delete_intermediate_caches(instance, stages: list, stage_idx: int):
         if not node.has_users_after(stage_idx) and node.name in instance.__dict__:
             ML_LOGGER.debug(f"Host | Removing cache of {node.name} as it's not needed after stage {stage_idx}")
             del instance.__dict__[node.name]
+
+
+def init_worker(load_as: Optional[str]):  # called on workers before _evaluate_properties
+    _WORKER_LOAD_AS.clear()
+    _LOAD_AS.clear()
+    if load_as is not None:
+        _LOAD_AS.append(get_backend(load_as))
+    ML_LOGGER.debug(f"Worker initialized. load_as={load_as}. pid={os.getpid()}")
 
 
 def _evaluate_properties(instance, properties, cache: dict, mem_limit, cache_file_base: Optional[str]):  # called on workers

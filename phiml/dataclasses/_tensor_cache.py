@@ -1,9 +1,12 @@
+import contextlib
 import dataclasses
 import time
 import traceback
+import warnings
 import weakref
+from functools import partial
 from threading import Thread, Lock
-from typing import Sequence, Dict, Optional, Set, Callable
+from typing import Sequence, Dict, Optional, Set, Callable, Union, List
 
 import h5py
 
@@ -41,6 +44,9 @@ class H5Source:
         self.__dict__.update(state)
         self._handle = None
 
+    def __repr__(self):
+        return self.path
+
 
 class DiskTensor(Dense):
 
@@ -57,7 +63,9 @@ class DiskTensor(Dense):
 
     @property
     def _native(self):
-        if self._memory_tensor is not None:
+        if _LOAD_AS and _LOAD_AS[-1] != self._backend:
+            warnings.warn(f"Trying to load cached tensor with backend '{_LOAD_AS[-1].name}' instead of original '{self._backend.name}'.\nThis has no effect after initial tensor creation.\nData will be loaded as '{self._backend.name}'.\nTo load the cache as '{_LOAD_AS[-1].name}', you need to run the code that first obtains the cache reference within the `load_cache_as` context. This may be parallel_compute().", RuntimeWarning)
+        elif self._memory_tensor is not None:
             if isinstance(self._memory_tensor, weakref.ReferenceType):
                 memory_tensor = self._memory_tensor()
             else:
@@ -75,10 +83,14 @@ class DiskTensor(Dense):
             traceback.print_exception(e)  # these can be hard to track down when in a subprocess
             raise e
         if not self.array_slices:
-            data = data_ref[:] if self._names else data_ref[()]
+            data_np = data_ref[:] if self._names else data_ref[()]
         else:
             ordered_slices = [self.array_slices.get(n, slice(None)) for n in self._names]
-            data = data_ref[ordered_slices]
+            data_np = data_ref[ordered_slices]
+        if self._backend.name == 'numpy':
+            data = data_np
+        else:
+            data = self._backend.as_tensor(data_np)
         try:
             self._memory_tensor = weakref.ref(data)
         except TypeError:
@@ -102,6 +114,8 @@ class DiskTensor(Dense):
     def __setstate__(self, state):
         Dense.__setstate__(self, state)
         self._memory_tensor = None
+        if _LOAD_AS and _LOAD_AS[-1] != self._backend:
+            self._backend = _LOAD_AS[-1]
 
     @property
     def dtype(self) -> DType:
@@ -263,3 +277,32 @@ def set_cache_ttl(ttl_seconds: Optional[float]):
         ttl_seconds: Time to live. If `None`, data will be unallocated immediately after use.
     """
     _CACHE.ttl = ttl_seconds
+
+
+_LOAD_AS: List[Backend] = []  # current process
+_WORKER_LOAD_AS: List[Backend] = []
+
+
+@contextlib.contextmanager
+def load_cache_as(host_backend: Union[str, Backend], worker_backend: Union[str, Backend] = None):
+    """
+    Context manager to temporarily set the backend for loading disk-cached tensors into memory.
+
+    Args:
+        host_backend: Backend name or instance to use in the current process.
+            This also applies to `parallel_compute()` stages that cannot be parallelized and thus run in the host process.
+        worker_backend: Backend name or instance to use in worker processes, see `parallel_compute()`. If `None`, the workers will use the same backend per tensor as the host.
+
+    Usage:
+
+        >>> with load_cache_as('torch', worker_backend='numpy'):
+    """
+    _LOAD_AS.append(get_backend(host_backend))
+    if worker_backend is not None:
+        _WORKER_LOAD_AS.append(get_backend(worker_backend))
+    try:
+        yield
+    finally:
+        _LOAD_AS.pop()
+        if worker_backend is not None:
+            _WORKER_LOAD_AS.pop()
