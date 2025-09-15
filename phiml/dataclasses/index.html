@@ -104,7 +104,22 @@ If <code>obj</code> defines a metaclass, this will allow users to define custom 
 <span>def <span class="ident">data_eq</span></span>(<span>cls=None, /, *, rel_tolerance=0.0, abs_tolerance=0.0, equal_nan=True, compare_tensors_by_ref=False)</span>
 </code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Decorator for dataclasses that overrides the default <code>__eq__</code> method to compare data fields by shape and value instead of equality.
+Non-data fields are compared by equality (<code>==</code>).</p>
+<p>See Also:
+<code><a title="phiml.dataclasses.equal" href="#phiml.dataclasses.equal">equal()</a></code>, <code><a title="phiml.dataclasses.data_fields" href="#phiml.dataclasses.data_fields">data_fields()</a></code>, <code><a title="phiml.dataclasses.non_data_fields" href="#phiml.dataclasses.non_data_fields">non_data_fields()</a></code>.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>rel_tolerance</code></strong></dt>
+<dd>Relative tolerance for comparing floating point tensors.</dd>
+<dt><strong><code>abs_tolerance</code></strong></dt>
+<dd>Absolute tolerance for comparing floating point tensors.</dd>
+<dt><strong><code>equal_nan</code></strong></dt>
+<dd>Whether to consider NaN values as equal.</dd>
+<dt><strong><code>compare_tensors_by_ref</code></strong></dt>
+<dd>If True, compares all tensors by reference (location in memory) instead of value.
+This avoids costly element-wise comparisons, but may count objects as unequal even if they hold the same data.</dd>
+</dl></div>
 </dd>
 <dt id="phiml.dataclasses.data_fields"><code class="name flex">
 <span>def <span class="ident">data_fields</span></span>(<span>obj) ‑> Sequence[dataclasses.Field]</span>
@@ -124,14 +139,23 @@ This includes fields referencing other dataclasses.</p>
 <span>def <span class="ident">equal</span></span>(<span>obj1, obj2, rel_tolerance=0.0, abs_tolerance=0.0, equal_nan=True)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Checks if two</p>
+<div class="desc"><p>Checks if two dataclass instances are equal by comparing their data fields by value and shape.
+Non-data fields are compared by equality (<code>==</code>).</p>
 <h2 id="args">Args</h2>
-<p>obj1:
-obj2:
-rel_tolerance:
-abs_tolerance:
-equal_nan:
-Returns:</p></div>
+<dl>
+<dt><strong><code>obj1</code></strong></dt>
+<dd>First dataclass instance.</dd>
+<dt><strong><code>obj2</code></strong></dt>
+<dd>Second dataclass instance.</dd>
+<dt><strong><code>rel_tolerance</code></strong></dt>
+<dd>Relative tolerance for comparing floating point tensors.</dd>
+<dt><strong><code>abs_tolerance</code></strong></dt>
+<dd>Absolute tolerance for comparing floating point tensors.</dd>
+<dt><strong><code>equal_nan</code></strong></dt>
+<dd>Whether to consider NaN values as equal.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<p><code>bool</code></p></div>
 </dd>
 <dt id="phiml.dataclasses.get_cache_files"><code class="name flex">
 <span>def <span class="ident">get_cache_files</span></span>(<span>obj) ‑> Set[str]</span>
@@ -167,6 +191,23 @@ When selecting a single slice, these dims will remain with size 1.</dd>
 </dl>
 <h2 id="returns">Returns</h2>
 <p>Slice of <code>obj</code> of same type.</p></div>
+</dd>
+<dt id="phiml.dataclasses.load_cache_as"><code class="name flex">
+<span>def <span class="ident">load_cache_as</span></span>(<span>host_backend: Union[str, phiml.backend._backend.Backend], worker_backend: Union[str, phiml.backend._backend.Backend] = None)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Context manager to temporarily set the backend for loading disk-cached tensors into memory.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>host_backend</code></strong></dt>
+<dd>Backend name or instance to use in the current process.
+This also applies to <code><a title="phiml.dataclasses.parallel_compute" href="#phiml.dataclasses.parallel_compute">parallel_compute()</a></code> stages that cannot be parallelized and thus run in the host process.</dd>
+<dt><strong><code>worker_backend</code></strong></dt>
+<dd>Backend name or instance to use in worker processes, see <code><a title="phiml.dataclasses.parallel_compute" href="#phiml.dataclasses.parallel_compute">parallel_compute()</a></code>. If <code>None</code>, the workers will use the same backend per tensor as the host.</dd>
+</dl>
+<h2 id="usage">Usage</h2>
+<pre><code class="language-python-repl">&gt;&gt;&gt; with load_cache_as('torch', worker_backend='numpy'):
+</code></pre></div>
 </dd>
 <dt id="phiml.dataclasses.non_data_fields"><code class="name flex">
 <span>def <span class="ident">non_data_fields</span></span>(<span>obj) ‑> Sequence[dataclasses.Field]</span>
@@ -397,6 +438,7 @@ If <code>True</code>, implements <code>__getattr__</code> to instantiate accesse
 <li><code><a title="phiml.dataclasses.equal" href="#phiml.dataclasses.equal">equal</a></code></li>
 <li><code><a title="phiml.dataclasses.get_cache_files" href="#phiml.dataclasses.get_cache_files">get_cache_files</a></code></li>
 <li><code><a title="phiml.dataclasses.getitem" href="#phiml.dataclasses.getitem">getitem</a></code></li>
+<li><code><a title="phiml.dataclasses.load_cache_as" href="#phiml.dataclasses.load_cache_as">load_cache_as</a></code></li>
 <li><code><a title="phiml.dataclasses.non_data_fields" href="#phiml.dataclasses.non_data_fields">non_data_fields</a></code></li>
 <li><code><a title="phiml.dataclasses.on_load_into_memory" href="#phiml.dataclasses.on_load_into_memory">on_load_into_memory</a></code></li>
 <li><code><a title="phiml.dataclasses.parallel_compute" href="#phiml.dataclasses.parallel_compute">parallel_compute</a></code></li>

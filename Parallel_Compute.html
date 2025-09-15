@@ -3,7 +3,7 @@
 <head><meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Tensors</title><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.1.10/require.min.js"></script>
+<title>Parallel_Compute</title><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.1.10/require.min.js"></script>
 
 
 
@@ -15104,26 +15104,25 @@ body[data-format='mobile'] .jp-OutputArea-child .jp-OutputArea-output {
     <!-- End of mathjax configuration --></head>
 <body class="jp-Notebook" data-jp-theme-light="true" data-jp-theme-name="JupyterLab Light">
 
-<div  class="jp-Cell jp-MarkdownCell jp-Notebook-cell">
+<div id="cell-id=c2bd118ad836bd70" class="jp-Cell jp-MarkdownCell jp-Notebook-cell">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<h1 id="Why-Use-%CE%A6ML's-Tensors">Why Use &#934;<sub>ML</sub>'s Tensors<a class="anchor-link" href="#Why-Use-%CE%A6ML's-Tensors">&#182;</a></h1><p><a href="https://colab.research.google.com/github/tum-pbs/PhiML/blob/main/docs/Tensors.ipynb"><img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Colab" /></a>
+<h1 id="Parallel-Computation-in-%CE%A6ML">Parallel Computation in &#934;<sub>ML</sub><a class="anchor-link" href="#Parallel-Computation-in-%CE%A6ML">&#182;</a></h1><p><a href="https://colab.research.google.com/github/tum-pbs/PhiML/blob/main/docs/Parallel_Compute.ipynb"><img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Colab" /></a>
   •   <a href="https://github.com/tum-pbs/PhiML">🌐 <strong>Φ<sub>ML</sub></strong></a>
   •   <a href="https://tum-pbs.github.io/PhiML/">📖 <strong>Documentation</strong></a>
   •   <a href="https://tum-pbs.github.io/PhiML/phiml">🔗 <strong>API</strong></a>
   •   <a href=""><strong>▶ Videos</strong></a>
   •   <a href="https://colab.research.google.com/github/tum-pbs/PhiML/blob/main/docs/Examples.ipynb"><img src="images/colab_logo_small.png" height=4></a> <a href="https://tum-pbs.github.io/PhiML/Examples.html"><strong>Examples</strong></a></p>
-<p>While you can call many Φ<sub>ML</sub> function directly with native tensors, such as Jax tensors or NumPy arrays, we recommend wrapping them in Φ<sub>ML</sub> tensors.
-These provide several benefits over the native tensors and allow you to write easy-to-read, more concise, more explicit, less error-prone code.</p>
-<p>For an introduction into tensors and dimensions, check out the <a href="Introduction.ht">introduction notebook</a>.</p>
+<p>Φ<sub>ML</sub> offers a powerful, flexible and easy-to-use framework for parallel computation based on dataclasses.</p>
+<p>Prior knowledge of Python's <code>dataclasses</code> module and <code>@cached_property</code> is recommended. If you are not familiar with dataclasses, please refer to the <a href="https://docs.python.org/3/library/dataclasses.html">official documentation</a> or the <a href="https://realpython.com/python-data-classes/">Dataclasses tutorial</a> on Real Python. For <code>@cached_property</code>, please refer to the <a href="https://docs.python.org/3/library/functools.html#functools.cached_property">Cached Properties documentation</a>.</p>
 
 </div>
 </div>
 </div>
-</div><div  class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
+</div><div id="cell-id=b5a781751aafdd53" class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -15131,7 +15130,7 @@ These provide several benefits over the native tensors and allow you to write ea
 <div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[1]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="o">%%capture</span>
+<div class=" highlight hl-ipython2"><pre><span></span><span class="o">%%capture</span>
 <span class="err">!</span><span class="n">pip</span> <span class="n">install</span> <span class="n">phiml</span>
 </pre></div>
 
@@ -15141,19 +15140,18 @@ These provide several benefits over the native tensors and allow you to write ea
 </div>
 
 </div>
-<div  class="jp-Cell jp-MarkdownCell jp-Notebook-cell">
+<div id="cell-id=fd00f7204cd0ddd3" class="jp-Cell jp-MarkdownCell jp-Notebook-cell">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<h2 id="Named-Dimensions">Named Dimensions<a class="anchor-link" href="#Named-Dimensions">&#182;</a></h2><p>All tensor dimensions in Φ<sub>ML</sub> have a name and type which are part of the <a href="Shapes.html">tensor shape</a>.
-When creating a Φ<sub>ML</sub> tensor, you specify the names and types of all dimensions.</p>
+<h2 id="Parallelization-with-@parallel_property-and-parallel_compute">Parallelization with <code>@parallel_property</code> and <code>parallel_compute</code><a class="anchor-link" href="#Parallelization-with-@parallel_property-and-parallel_compute">&#182;</a></h2><p>Parallelization is always performed over one or multiple Φ<sub>ML</sub> dims. Take the following example:</p>
 
 </div>
 </div>
 </div>
-</div><div  class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
+</div><div id="cell-id=ebcda66d70444c71" class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -15161,8 +15159,14 @@ When creating a Φ<sub>ML</sub> tensor, you specify the names and types of all d
 <div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[2]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">phiml</span><span class="w"> </span><span class="kn">import</span> <span class="n">math</span><span class="p">,</span> <span class="n">wrap</span><span class="p">,</span> <span class="n">tensor</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">phiml.math</span><span class="w"> </span><span class="kn">import</span> <span class="n">channel</span><span class="p">,</span> <span class="n">batch</span><span class="p">,</span> <span class="n">spatial</span><span class="p">,</span> <span class="n">instance</span><span class="p">,</span> <span class="n">dual</span>  <span class="c1"># dimension types</span>
+<div class=" highlight hl-ipython2"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">phiml.math</span><span class="w"> </span><span class="kn">import</span> <span class="n">Tensor</span><span class="p">,</span> <span class="n">tensor</span><span class="p">,</span> <span class="nb">map</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">expensive_to_compute</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+    <span class="kn">import</span><span class="w"> </span><span class="nn">time</span>
+    <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>  <span class="c1"># Simulate an expensive computation</span>
+    <span class="k">return</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">x</span>
+
+<span class="n">data</span> <span class="o">=</span> <span class="n">tensor</span><span class="p">([</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">2.0</span><span class="p">,</span> <span class="mf">3.0</span><span class="p">],</span> <span class="s2">&quot;data:b&quot;</span><span class="p">)</span>
 </pre></div>
 
      </div>
@@ -15170,7 +15174,19 @@ When creating a Φ<sub>ML</sub> tensor, you specify the names and types of all d
 </div>
 </div>
 
-</div><div  class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
+</div>
+<div id="cell-id=a399cf3cb92f17d6" class="jp-Cell jp-MarkdownCell jp-Notebook-cell">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
+</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
+<p>We have an expensive computation which we want to perform on each element of the <code>data</code> tensor. Without parallelization, this would look like this:</p>
+
+</div>
+</div>
+</div>
+</div><div id="cell-id=3f711774ecd142c9" class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -15178,7 +15194,7 @@ When creating a Φ<sub>ML</sub> tensor, you specify the names and types of all d
 <div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[3]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">wrap</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span> <span class="n">channel</span><span class="p">(</span><span class="s1">&#39;integers&#39;</span><span class="p">))</span>
+<div class=" highlight hl-ipython2"><pre><span></span><span class="nb">map</span><span class="p">(</span><span class="n">expensive_to_compute</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
 </pre></div>
 
      </div>
@@ -15200,7 +15216,7 @@ When creating a Φ<sub>ML</sub> tensor, you specify the names and types of all d
 
 
 <div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre><span class="ansi-blue-intense-fg">(0, 1, 2)</span> along <span class="ansi-green-intense-fg">integersᶜ</span> <span class="ansi-yellow-intense-fg">int64</span></pre>
+<pre><span class="ansi-blue-intense-fg">(2.000, 4.000, 6.000)</span> along <span class="ansi-green-intense-fg">dataᵇ</span> <span class="ansi-yellow-intense-fg">float64</span></pre>
 </div>
 
 </div>
@@ -15209,7 +15225,19 @@ When creating a Φ<sub>ML</sub> tensor, you specify the names and types of all d
 
 </div>
 
-</div><div  class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
+</div>
+<div id="cell-id=c2e2a5c9da0d5ac4" class="jp-Cell jp-MarkdownCell jp-Notebook-cell">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
+</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
+<p>Let's first refactor this computation into a dataclass, expressing the computation as a <code>@cached_property</code>:</p>
+
+</div>
+</div>
+</div>
+</div><div id="cell-id=70d1ed91c254f54" class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -15217,8 +15245,18 @@ When creating a Φ<sub>ML</sub> tensor, you specify the names and types of all d
 <div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[4]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">data</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">random_uniform</span><span class="p">(</span><span class="n">batch</span><span class="p">(</span><span class="n">examples</span><span class="o">=</span><span class="mi">2</span><span class="p">),</span> <span class="n">spatial</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="mi">3</span><span class="p">))</span>
-<span class="n">data</span>
+<div class=" highlight hl-ipython2"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">functools</span><span class="w"> </span><span class="kn">import</span> <span class="n">cached_property</span>
+
+<span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">SequentialComputation</span><span class="p">:</span>
+    <span class="n">data</span><span class="p">:</span> <span class="n">Tensor</span>
+
+    <span class="nd">@cached_property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">result</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tensor</span><span class="p">:</span>
+        <span class="k">return</span> <span class="nb">map</span><span class="p">(</span><span class="n">expensive_to_compute</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">)</span>
+
+<span class="n">SequentialComputation</span><span class="p">(</span><span class="n">data</span><span class="p">)</span><span class="o">.</span><span class="n">result</span>
 </pre></div>
 
      </div>
@@ -15240,7 +15278,7 @@ When creating a Φ<sub>ML</sub> tensor, you specify the names and types of all d
 
 
 <div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre><span class="ansi-green-intense-fg">(examplesᵇ=2, xˢ=4, yˢ=3)</span> <span class="ansi-blue-intense-fg">0.533 ± 0.326</span> <span class="ansi-white-fg">(1e-03...1e+00)</span></pre>
+<pre><span class="ansi-blue-intense-fg">(2.000, 4.000, 6.000)</span> along <span class="ansi-green-intense-fg">dataᵇ</span> <span class="ansi-yellow-intense-fg">float64</span></pre>
 </div>
 
 </div>
@@ -15250,19 +15288,18 @@ When creating a Φ<sub>ML</sub> tensor, you specify the names and types of all d
 </div>
 
 </div>
-<div  class="jp-Cell jp-MarkdownCell jp-Notebook-cell">
+<div id="cell-id=a12c69da0d611982" class="jp-Cell jp-MarkdownCell jp-Notebook-cell">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<p>With all dims named, Φ<sub>ML</sub> can automatically match dims without requiring you to expand, squeeze or transpose.
-Let's add steps to our <code>data</code> tensor along <code>x</code>.</p>
+<p>The dataclass offers a convenient way of storing the result for future use. Now let's parallelize it!</p>
 
 </div>
 </div>
 </div>
-</div><div  class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
+</div><div id="cell-id=457050c057d2006c" class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -15270,8 +15307,15 @@ Let's add steps to our <code>data</code> tensor along <code>x</code>.</p>
 <div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[5]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">steps</span> <span class="o">=</span> <span class="n">wrap</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">],</span> <span class="s1">&#39;x:s&#39;</span><span class="p">)</span>
-<span class="n">steps</span>
+<div class=" highlight hl-ipython2"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">phiml.dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">parallel_property</span><span class="p">,</span> <span class="n">parallel_compute</span>
+
+<span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">ParallelComputation</span><span class="p">:</span>
+    <span class="n">data</span><span class="p">:</span> <span class="n">Tensor</span>
+
+    <span class="nd">@parallel_property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">result</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tensor</span> <span class="o">|</span> <span class="nb">float</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">expensive_to_compute</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">))</span>
 </pre></div>
 
      </div>
@@ -15285,15 +15329,33 @@ Let's add steps to our <code>data</code> tensor along <code>x</code>.</p>
 
 
 <div class="jp-OutputArea jp-Cell-outputArea">
-<div class="jp-OutputArea-child jp-OutputArea-executeResult">
+<div class="jp-OutputArea-child">
     
-    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[5]:</div>
+    <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
 
 
+<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="application/vnd.jupyter.stderr">
+<pre>
+<span class="ansi-red-fg">---------------------------------------------------------------------------</span>
+<span class="ansi-red-fg">TypeError</span>                                 Traceback (most recent call last)
+Cell <span class="ansi-green-fg">In[5], line 4</span>
+<span class="ansi-green-intense-fg ansi-bold">      1</span> <span class="ansi-bold" style="color: rgb(0,135,0)">from</span><span style="color: rgb(188,188,188)"> </span><span class="ansi-bold" style="color: rgb(0,0,255)">phiml</span><span class="ansi-bold" style="color: rgb(0,0,255)">.</span><span class="ansi-bold" style="color: rgb(0,0,255)">dataclasses</span><span style="color: rgb(188,188,188)"> </span><span class="ansi-bold" style="color: rgb(0,135,0)">import</span> parallel_property, parallel_compute
+<span class="ansi-green-intense-fg ansi-bold">      3</span> <span style="color: rgb(175,0,255)">@dataclass</span>(frozen<span style="color: rgb(98,98,98)">=</span><span class="ansi-bold" style="color: rgb(0,135,0)">True</span>)
+<span class="ansi-green-fg">----&gt; 4</span> <span class="ansi-bold" style="color: rgb(0,135,0)">class</span><span style="color: rgb(188,188,188)"> </span><span class="ansi-bold" style="color: rgb(0,0,255)">ParallelComputation</span>:
+<span class="ansi-green-intense-fg ansi-bold">      5</span>     data: Tensor
+<span class="ansi-green-intense-fg ansi-bold">      7</span>     <span style="color: rgb(175,0,255)">@parallel_property</span>
+<span class="ansi-green-intense-fg ansi-bold">      8</span>     <span class="ansi-bold" style="color: rgb(0,135,0)">def</span><span style="color: rgb(188,188,188)"> </span><span style="color: rgb(0,0,255)">result</span>(<span style="color: rgb(0,135,0)">self</span>) <span style="color: rgb(98,98,98)">-</span><span style="color: rgb(98,98,98)">&gt;</span> Tensor <span style="color: rgb(98,98,98)">|</span> <span style="color: rgb(0,135,0)">float</span>:
 
+Cell <span class="ansi-green-fg">In[5], line 8</span>, in <span class="ansi-cyan-fg">ParallelComputation</span><span class="ansi-blue-fg">()</span>
+<span class="ansi-green-intense-fg ansi-bold">      3</span> <span style="color: rgb(175,0,255)">@dataclass</span>(frozen<span style="color: rgb(98,98,98)">=</span><span class="ansi-bold" style="color: rgb(0,135,0)">True</span>)
+<span class="ansi-green-intense-fg ansi-bold">      4</span> <span class="ansi-bold" style="color: rgb(0,135,0)">class</span><span style="color: rgb(188,188,188)"> </span><span class="ansi-bold" style="color: rgb(0,0,255)">ParallelComputation</span>:
+<span class="ansi-green-intense-fg ansi-bold">      5</span>     data: Tensor
+<span class="ansi-green-intense-fg ansi-bold">      7</span>     <span style="color: rgb(175,0,255)">@parallel_property</span>
+<span class="ansi-green-fg">----&gt; 8</span>     <span class="ansi-bold" style="color: rgb(0,135,0)">def</span><span style="color: rgb(188,188,188)"> </span><span style="color: rgb(0,0,255)">result</span>(<span style="color: rgb(0,135,0)">self</span>) <span style="color: rgb(98,98,98)">-</span><span style="color: rgb(98,98,98)">&gt;</span> <span class="ansi-yellow-bg">Tensor</span><span class="ansi-yellow-bg"> </span><span class="ansi-yellow-bg" style="color: rgb(98,98,98)">|</span><span class="ansi-yellow-bg"> </span><span class="ansi-yellow-bg" style="color: rgb(0,135,0)">float</span>:
+<span class="ansi-green-intense-fg ansi-bold">      9</span>         <span class="ansi-bold" style="color: rgb(0,135,0)">return</span> expensive_to_compute(<span style="color: rgb(0,135,0)">float</span>(<span style="color: rgb(0,135,0)">self</span><span style="color: rgb(98,98,98)">.</span>data))
 
-<div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre><span class="ansi-blue-intense-fg">(0, 1, 2, 3)</span> along <span class="ansi-green-intense-fg">xˢ</span> <span class="ansi-yellow-intense-fg">int64</span></pre>
+<span class="ansi-red-fg">TypeError</span>: unsupported operand type(s) for |: &#39;type&#39; and &#39;type&#39;</pre>
+</div>
 </div>
 
 </div>
@@ -15301,8 +15363,20 @@ Let's add steps to our <code>data</code> tensor along <code>x</code>.</p>
 </div>
 
 </div>
+<div id="cell-id=1a4b8d14f5bff6c6" class="jp-Cell jp-MarkdownCell jp-Notebook-cell">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
+</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
+<p>As you can see, we have replaced <code>@cached_property</code> with <code>@parallel_property</code>. The property will now be evaluated on each element of  <code>data</code> individually and in parallel.
+We can trigger the parallel computation using the <code>parallel_compute</code> function.</p>
+<p>Note that <code>multiprocessing</code> is used under the hood, so we need to protect the entry point of the program using <code>if __name__ == &quot;__main__&quot;:</code>. To avoid issues with Jupyter notebooks, we recommend declaring the worker code in a separate module outside the notebook.</p>
 
-</div><div  class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
+</div>
+</div>
+</div>
+</div><div id="cell-id=7838d8466a6ad5b5" class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -15310,7 +15384,12 @@ Let's add steps to our <code>data</code> tensor along <code>x</code>.</p>
 <div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[6]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">math</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="n">data</span> <span class="o">+</span> <span class="n">steps</span><span class="p">)</span>
+<div class=" highlight hl-ipython2"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">parallel_compute</span><span class="w"> </span><span class="kn">import</span> <span class="n">ParallelComputation</span>  <span class="c1"># identical to above cell, but can be imported by workers</span>
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">computation</span> <span class="o">=</span> <span class="n">ParallelComputation</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+    <span class="n">parallel_compute</span><span class="p">(</span><span class="n">computation</span><span class="p">,</span> <span class="p">[</span><span class="n">ParallelComputation</span><span class="o">.</span><span class="n">result</span><span class="p">],</span> <span class="n">max_workers</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">computation</span><span class="o">.</span><span class="n">result</span><span class="p">)</span>
 </pre></div>
 
      </div>
@@ -15329,16 +15408,33 @@ Let's add steps to our <code>data</code> tensor along <code>x</code>.</p>
     <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
 
 
-<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
-<pre><span class="ansi-green-intense-fg">examples=0</span>  
-<span class="ansi-blue-intense-fg"> 0.7797946 , 1.9827611 , 2.1319795 , 3.8857243 ,
- 0.7700203 , 1.7687624 , 2.0719242 , 3.391376  ,
- 0.26303017, 1.8852978 , 2.4868245 , 3.8723722 </span>  along <span class="ansi-green-intense-fg">(xˢ=4, yˢ=3)</span>
-<span class="ansi-green-intense-fg">examples=1</span>  
-<span class="ansi-blue-intense-fg"> 7.3208785e-01, 1.8479722e+00, 2.1325462e+00, 3.7294323e+00,
- 9.7024173e-02, 1.3202777e+00, 2.2415378e+00, 3.9694948e+00,
- 1.3376974e-03, 1.6762908e+00, 2.6467848e+00, 3.1143477e+00</span>  along <span class="ansi-green-intense-fg">(xˢ=4, yˢ=3)</span>
-</pre>
+<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="application/vnd.jupyter.stderr">
+<pre>
+<span class="ansi-red-fg">---------------------------------------------------------------------------</span>
+<span class="ansi-red-fg">TypeError</span>                                 Traceback (most recent call last)
+Cell <span class="ansi-green-fg">In[6], line 1</span>
+<span class="ansi-green-fg">----&gt; 1</span> <span class="ansi-bold" style="color: rgb(0,135,0)">from</span><span style="color: rgb(188,188,188)"> </span><span class="ansi-bold" style="color: rgb(0,0,255)">parallel_compute</span><span style="color: rgb(188,188,188)"> </span><span class="ansi-bold" style="color: rgb(0,135,0)">import</span> ParallelComputation  <span style="color: rgb(95,135,135)"># identical to above cell, but can be imported by workers</span>
+<span class="ansi-green-intense-fg ansi-bold">      3</span> <span class="ansi-bold" style="color: rgb(0,135,0)">if</span> <span style="color: rgb(0,0,135)">__name__</span> <span style="color: rgb(98,98,98)">==</span> <span style="color: rgb(175,0,0)">&#34;</span><span style="color: rgb(175,0,0)">__main__</span><span style="color: rgb(175,0,0)">&#34;</span>:
+<span class="ansi-green-intense-fg ansi-bold">      4</span>     computation <span style="color: rgb(98,98,98)">=</span> ParallelComputation(data)
+
+File <span class="ansi-green-fg">~/work/PhiML/PhiML/docs/parallel_compute.py:16</span>
+<span class="ansi-green-intense-fg ansi-bold">     11</span>     time<span style="color: rgb(98,98,98)">.</span>sleep(<span style="color: rgb(98,98,98)">1</span>)  <span style="color: rgb(95,135,135)"># Simulate an expensive computation</span>
+<span class="ansi-green-intense-fg ansi-bold">     12</span>     <span class="ansi-bold" style="color: rgb(0,135,0)">return</span> <span style="color: rgb(98,98,98)">2</span> <span style="color: rgb(98,98,98)">*</span> x
+<span class="ansi-green-intense-fg ansi-bold">     15</span> <span style="color: rgb(175,0,255)">@dataclass</span>(frozen<span style="color: rgb(98,98,98)">=</span><span class="ansi-bold" style="color: rgb(0,135,0)">True</span>)
+<span class="ansi-green-fg">---&gt; 16</span> <span class="ansi-bold" style="color: rgb(0,135,0)">class</span><span style="color: rgb(188,188,188)"> </span><span class="ansi-bold" style="color: rgb(0,0,255)">ParallelComputation</span>:
+<span class="ansi-green-intense-fg ansi-bold">     17</span>     data: Tensor
+<span class="ansi-green-intense-fg ansi-bold">     19</span>     <span style="color: rgb(175,0,255)">@parallel_property</span>
+<span class="ansi-green-intense-fg ansi-bold">     20</span>     <span class="ansi-bold" style="color: rgb(0,135,0)">def</span><span style="color: rgb(188,188,188)"> </span><span style="color: rgb(0,0,255)">result</span>(<span style="color: rgb(0,135,0)">self</span>) <span style="color: rgb(98,98,98)">-</span><span style="color: rgb(98,98,98)">&gt;</span> Tensor <span style="color: rgb(98,98,98)">|</span> <span style="color: rgb(0,135,0)">float</span>:
+
+File <span class="ansi-green-fg">~/work/PhiML/PhiML/docs/parallel_compute.py:20</span>, in <span class="ansi-cyan-fg">ParallelComputation</span><span class="ansi-blue-fg">()</span>
+<span class="ansi-green-intense-fg ansi-bold">     15</span> <span style="color: rgb(175,0,255)">@dataclass</span>(frozen<span style="color: rgb(98,98,98)">=</span><span class="ansi-bold" style="color: rgb(0,135,0)">True</span>)
+<span class="ansi-green-intense-fg ansi-bold">     16</span> <span class="ansi-bold" style="color: rgb(0,135,0)">class</span><span style="color: rgb(188,188,188)"> </span><span class="ansi-bold" style="color: rgb(0,0,255)">ParallelComputation</span>:
+<span class="ansi-green-intense-fg ansi-bold">     17</span>     data: Tensor
+<span class="ansi-green-intense-fg ansi-bold">     19</span>     <span style="color: rgb(175,0,255)">@parallel_property</span>
+<span class="ansi-green-fg">---&gt; 20</span>     <span class="ansi-bold" style="color: rgb(0,135,0)">def</span><span style="color: rgb(188,188,188)"> </span><span style="color: rgb(0,0,255)">result</span>(<span style="color: rgb(0,135,0)">self</span>) <span style="color: rgb(98,98,98)">-</span><span style="color: rgb(98,98,98)">&gt;</span> <span class="ansi-yellow-bg">Tensor</span><span class="ansi-yellow-bg"> </span><span class="ansi-yellow-bg" style="color: rgb(98,98,98)">|</span><span class="ansi-yellow-bg"> </span><span class="ansi-yellow-bg" style="color: rgb(0,135,0)">float</span>:
+<span class="ansi-green-intense-fg ansi-bold">     21</span>         <span class="ansi-bold" style="color: rgb(0,135,0)">return</span> expensive_to_compute(<span style="color: rgb(0,135,0)">float</span>(<span style="color: rgb(0,135,0)">self</span><span style="color: rgb(98,98,98)">.</span>data))
+
+<span class="ansi-red-fg">TypeError</span>: unsupported operand type(s) for |: &#39;type&#39; and &#39;type&#39;</pre>
 </div>
 </div>
 
@@ -15347,29 +15443,30 @@ Let's add steps to our <code>data</code> tensor along <code>x</code>.</p>
 </div>
 
 </div>
-<div  class="jp-Cell jp-MarkdownCell jp-Notebook-cell">
+<div id="cell-id=c55acf452085a56d" class="jp-Cell jp-MarkdownCell jp-Notebook-cell">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<p>As you can see, the <em>n</em>th column values now lie in [n-1,n].
-Φ<sub>ML</sub> automatically expanded <code>steps</code> to the shape <code>(1, steps, 1)</code> before adding it to <code>data</code>.</p>
-<p>This feature works with all Φ<sub>ML</sub> functions. You can think of it in the following way:</p>
-<blockquote>
-<p>Tensors implicitly have all possible dimensions, but their values are constant along those not listed in the shape.</p>
-</blockquote>
-<p>A consequence of the automatic reshaping is that</p>
-<blockquote>
-<p>The dim order of Φ<sub>ML</sub> tensors is irrelevant.</p>
-</blockquote>
-<p>In fact, you should never count on a specific order or single out a dimension by its index.</p>
-<p>Let's look at another example, creating a meshgrid from scratch.</p>
+<p>Under the hood, Φ<sub>ML</sub> unstacked the <code>data</code> tensor and distributed the computation of <code>result</code> over 3 worker processes. The results were then stacked back together into a single tensor.</p>
 
 </div>
 </div>
 </div>
-</div><div  class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
+</div>
+<div id="cell-id=d4bf5c730fcae9a" class="jp-Cell jp-MarkdownCell jp-Notebook-cell">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
+</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
+<h2 id="Property-Dependencies">Property Dependencies<a class="anchor-link" href="#Property-Dependencies">&#182;</a></h2><p>In more complex situations, the property to evaluate may depend on other properties. Φ<sub>ML</sub> will automatically resolve the dependencies and compute them in the correct order.</p>
+
+</div>
+</div>
+</div>
+</div><div id="cell-id=ed0cc14d078bc6a3" class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -15377,12 +15474,17 @@ Let's add steps to our <code>data</code> tensor along <code>x</code>.</p>
 <div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[7]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">phiml</span><span class="w"> </span><span class="kn">import</span> <span class="n">stack</span><span class="p">,</span> <span class="n">arange</span>
+<div class=" highlight hl-ipython2"><pre><span></span><span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">ParallelDepComputation</span><span class="p">:</span>
+    <span class="n">data</span><span class="p">:</span> <span class="n">Tensor</span>
 
-<span class="n">stack</span><span class="p">({</span>
-    <span class="s1">&#39;x&#39;</span><span class="p">:</span> <span class="n">arange</span><span class="p">(</span><span class="n">spatial</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="mi">4</span><span class="p">)),</span>
-    <span class="s1">&#39;y&#39;</span><span class="p">:</span> <span class="n">arange</span><span class="p">(</span><span class="n">spatial</span><span class="p">(</span><span class="n">y</span><span class="o">=</span><span class="mi">3</span><span class="p">))</span>
-<span class="p">},</span> <span class="n">channel</span><span class="p">(</span><span class="s1">&#39;vector&#39;</span><span class="p">),</span> <span class="n">expand_values</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="nd">@cached_property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">tmp_result</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tensor</span> <span class="o">|</span> <span class="nb">float</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">expensive_to_compute</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">))</span>
+
+    <span class="nd">@cached_property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">result</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tensor</span> <span class="o">|</span> <span class="nb">float</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">tmp_result</span> <span class="o">+</span> <span class="mi">1</span>
 </pre></div>
 
      </div>
@@ -15396,15 +15498,34 @@ Let's add steps to our <code>data</code> tensor along <code>x</code>.</p>
 
 
 <div class="jp-OutputArea jp-Cell-outputArea">
-<div class="jp-OutputArea-child jp-OutputArea-executeResult">
+<div class="jp-OutputArea-child">
     
-    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[7]:</div>
+    <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
 
 
+<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="application/vnd.jupyter.stderr">
+<pre>
+<span class="ansi-red-fg">---------------------------------------------------------------------------</span>
+<span class="ansi-red-fg">TypeError</span>                                 Traceback (most recent call last)
+Cell <span class="ansi-green-fg">In[7], line 2</span>
+<span class="ansi-green-intense-fg ansi-bold">      1</span> <span style="color: rgb(175,0,255)">@dataclass</span>(frozen<span style="color: rgb(98,98,98)">=</span><span class="ansi-bold" style="color: rgb(0,135,0)">True</span>)
+<span class="ansi-green-fg">----&gt; 2</span> <span class="ansi-bold" style="color: rgb(0,135,0)">class</span><span style="color: rgb(188,188,188)"> </span><span class="ansi-bold" style="color: rgb(0,0,255)">ParallelDepComputation</span>:
+<span class="ansi-green-intense-fg ansi-bold">      3</span>     data: Tensor
+<span class="ansi-green-intense-fg ansi-bold">      5</span>     <span style="color: rgb(175,0,255)">@cached_property</span>
+<span class="ansi-green-intense-fg ansi-bold">      6</span>     <span class="ansi-bold" style="color: rgb(0,135,0)">def</span><span style="color: rgb(188,188,188)"> </span><span style="color: rgb(0,0,255)">tmp_result</span>(<span style="color: rgb(0,135,0)">self</span>) <span style="color: rgb(98,98,98)">-</span><span style="color: rgb(98,98,98)">&gt;</span> Tensor <span style="color: rgb(98,98,98)">|</span> <span style="color: rgb(0,135,0)">float</span>:
 
+Cell <span class="ansi-green-fg">In[7], line 6</span>, in <span class="ansi-cyan-fg">ParallelDepComputation</span><span class="ansi-blue-fg">()</span>
+<span class="ansi-green-intense-fg ansi-bold">      1</span> <span style="color: rgb(175,0,255)">@dataclass</span>(frozen<span style="color: rgb(98,98,98)">=</span><span class="ansi-bold" style="color: rgb(0,135,0)">True</span>)
+<span class="ansi-green-intense-fg ansi-bold">      2</span> <span class="ansi-bold" style="color: rgb(0,135,0)">class</span><span style="color: rgb(188,188,188)"> </span><span class="ansi-bold" style="color: rgb(0,0,255)">ParallelDepComputation</span>:
+<span class="ansi-green-intense-fg ansi-bold">      3</span>     data: Tensor
+<span class="ansi-green-intense-fg ansi-bold">      5</span>     <span style="color: rgb(175,0,255)">@cached_property</span>
+<span class="ansi-green-fg">----&gt; 6</span>     <span class="ansi-bold" style="color: rgb(0,135,0)">def</span><span style="color: rgb(188,188,188)"> </span><span style="color: rgb(0,0,255)">tmp_result</span>(<span style="color: rgb(0,135,0)">self</span>) <span style="color: rgb(98,98,98)">-</span><span style="color: rgb(98,98,98)">&gt;</span> <span class="ansi-yellow-bg">Tensor</span><span class="ansi-yellow-bg"> </span><span class="ansi-yellow-bg" style="color: rgb(98,98,98)">|</span><span class="ansi-yellow-bg"> </span><span class="ansi-yellow-bg" style="color: rgb(0,135,0)">float</span>:
+<span class="ansi-green-intense-fg ansi-bold">      7</span>         <span class="ansi-bold" style="color: rgb(0,135,0)">return</span> expensive_to_compute(<span style="color: rgb(0,135,0)">float</span>(<span style="color: rgb(0,135,0)">self</span><span style="color: rgb(98,98,98)">.</span>data))
+<span class="ansi-green-intense-fg ansi-bold">      9</span>     <span style="color: rgb(175,0,255)">@cached_property</span>
+<span class="ansi-green-intense-fg ansi-bold">     10</span>     <span class="ansi-bold" style="color: rgb(0,135,0)">def</span><span style="color: rgb(188,188,188)"> </span><span style="color: rgb(0,0,255)">result</span>(<span style="color: rgb(0,135,0)">self</span>) <span style="color: rgb(98,98,98)">-</span><span style="color: rgb(98,98,98)">&gt;</span> Tensor <span style="color: rgb(98,98,98)">|</span> <span style="color: rgb(0,135,0)">float</span>:
 
-<div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre><span class="ansi-green-intense-fg">(yˢ=3, xˢ=4, vectorᶜ=x,y)</span> <span class="ansi-blue-intense-fg">1.250 ± 1.010</span> <span class="ansi-white-fg">(0e+00...3e+00)</span></pre>
+<span class="ansi-red-fg">TypeError</span>: unsupported operand type(s) for |: &#39;type&#39; and &#39;type&#39;</pre>
+</div>
 </div>
 
 </div>
@@ -15412,20 +15533,18 @@ Let's add steps to our <code>data</code> tensor along <code>x</code>.</p>
 </div>
 
 </div>
-
-</div>
-<div  class="jp-Cell jp-MarkdownCell jp-Notebook-cell">
+<div id="cell-id=af5bf7fcefa0c30f" class="jp-Cell jp-MarkdownCell jp-Notebook-cell">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<p>The preferred way of referencing dims, e.g. for slicing tensors is by type or name.</p>
+<p>Note that we can use <code>@cached_property</code> for instead of <code>@parallel_property</code> for all properties. The only difference is that <code>@parallel_property</code> offers additional customization options and does not prevent accidental evaluation outside of <code>parallel_compute</code>.</p>
 
 </div>
 </div>
 </div>
-</div><div  class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
+</div><div id="cell-id=24ca9e25afcd5594" class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -15433,7 +15552,11 @@ Let's add steps to our <code>data</code> tensor along <code>x</code>.</p>
 <div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[8]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">data</span><span class="o">.</span><span class="n">examples</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">:</span><span class="mi">3</span><span class="p">]</span><span class="o">.</span><span class="n">y</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+<div class=" highlight hl-ipython2"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">parallel_compute</span><span class="w"> </span><span class="kn">import</span> <span class="n">ParallelDepComputation</span>  <span class="c1"># identical to above cell, but can be imported by workers</span>
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">computation</span> <span class="o">=</span> <span class="n">ParallelDepComputation</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+    <span class="n">parallel_compute</span><span class="p">(</span><span class="n">computation</span><span class="p">,</span> <span class="p">[</span><span class="n">ParallelDepComputation</span><span class="o">.</span><span class="n">result</span><span class="p">],</span> <span class="n">max_workers</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">computation</span><span class="o">.</span><span class="n">result</span><span class="p">)</span>
 </pre></div>
 
      </div>
@@ -15447,15 +15570,39 @@ Let's add steps to our <code>data</code> tensor along <code>x</code>.</p>
 
 
 <div class="jp-OutputArea jp-Cell-outputArea">
-<div class="jp-OutputArea-child jp-OutputArea-executeResult">
+<div class="jp-OutputArea-child">
     
-    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[8]:</div>
+    <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
 
 
+<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="application/vnd.jupyter.stderr">
+<pre>
+<span class="ansi-red-fg">---------------------------------------------------------------------------</span>
+<span class="ansi-red-fg">TypeError</span>                                 Traceback (most recent call last)
+Cell <span class="ansi-green-fg">In[8], line 1</span>
+<span class="ansi-green-fg">----&gt; 1</span> <span class="ansi-bold" style="color: rgb(0,135,0)">from</span><span style="color: rgb(188,188,188)"> </span><span class="ansi-bold" style="color: rgb(0,0,255)">parallel_compute</span><span style="color: rgb(188,188,188)"> </span><span class="ansi-bold" style="color: rgb(0,135,0)">import</span> ParallelDepComputation  <span style="color: rgb(95,135,135)"># identical to above cell, but can be imported by workers</span>
+<span class="ansi-green-intense-fg ansi-bold">      2</span> <span class="ansi-bold" style="color: rgb(0,135,0)">if</span> <span style="color: rgb(0,0,135)">__name__</span> <span style="color: rgb(98,98,98)">==</span> <span style="color: rgb(175,0,0)">&#34;</span><span style="color: rgb(175,0,0)">__main__</span><span style="color: rgb(175,0,0)">&#34;</span>:
+<span class="ansi-green-intense-fg ansi-bold">      3</span>     computation <span style="color: rgb(98,98,98)">=</span> ParallelDepComputation(data)
 
+File <span class="ansi-green-fg">~/work/PhiML/PhiML/docs/parallel_compute.py:16</span>
+<span class="ansi-green-intense-fg ansi-bold">     11</span>     time<span style="color: rgb(98,98,98)">.</span>sleep(<span style="color: rgb(98,98,98)">1</span>)  <span style="color: rgb(95,135,135)"># Simulate an expensive computation</span>
+<span class="ansi-green-intense-fg ansi-bold">     12</span>     <span class="ansi-bold" style="color: rgb(0,135,0)">return</span> <span style="color: rgb(98,98,98)">2</span> <span style="color: rgb(98,98,98)">*</span> x
+<span class="ansi-green-intense-fg ansi-bold">     15</span> <span style="color: rgb(175,0,255)">@dataclass</span>(frozen<span style="color: rgb(98,98,98)">=</span><span class="ansi-bold" style="color: rgb(0,135,0)">True</span>)
+<span class="ansi-green-fg">---&gt; 16</span> <span class="ansi-bold" style="color: rgb(0,135,0)">class</span><span style="color: rgb(188,188,188)"> </span><span class="ansi-bold" style="color: rgb(0,0,255)">ParallelComputation</span>:
+<span class="ansi-green-intense-fg ansi-bold">     17</span>     data: Tensor
+<span class="ansi-green-intense-fg ansi-bold">     19</span>     <span style="color: rgb(175,0,255)">@parallel_property</span>
+<span class="ansi-green-intense-fg ansi-bold">     20</span>     <span class="ansi-bold" style="color: rgb(0,135,0)">def</span><span style="color: rgb(188,188,188)"> </span><span style="color: rgb(0,0,255)">result</span>(<span style="color: rgb(0,135,0)">self</span>) <span style="color: rgb(98,98,98)">-</span><span style="color: rgb(98,98,98)">&gt;</span> Tensor <span style="color: rgb(98,98,98)">|</span> <span style="color: rgb(0,135,0)">float</span>:
 
-<div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre><span class="ansi-blue-intense-fg">(0.676, 0.647)</span> along <span class="ansi-green-intense-fg">xˢ</span></pre>
+File <span class="ansi-green-fg">~/work/PhiML/PhiML/docs/parallel_compute.py:20</span>, in <span class="ansi-cyan-fg">ParallelComputation</span><span class="ansi-blue-fg">()</span>
+<span class="ansi-green-intense-fg ansi-bold">     15</span> <span style="color: rgb(175,0,255)">@dataclass</span>(frozen<span style="color: rgb(98,98,98)">=</span><span class="ansi-bold" style="color: rgb(0,135,0)">True</span>)
+<span class="ansi-green-intense-fg ansi-bold">     16</span> <span class="ansi-bold" style="color: rgb(0,135,0)">class</span><span style="color: rgb(188,188,188)"> </span><span class="ansi-bold" style="color: rgb(0,0,255)">ParallelComputation</span>:
+<span class="ansi-green-intense-fg ansi-bold">     17</span>     data: Tensor
+<span class="ansi-green-intense-fg ansi-bold">     19</span>     <span style="color: rgb(175,0,255)">@parallel_property</span>
+<span class="ansi-green-fg">---&gt; 20</span>     <span class="ansi-bold" style="color: rgb(0,135,0)">def</span><span style="color: rgb(188,188,188)"> </span><span style="color: rgb(0,0,255)">result</span>(<span style="color: rgb(0,135,0)">self</span>) <span style="color: rgb(98,98,98)">-</span><span style="color: rgb(98,98,98)">&gt;</span> <span class="ansi-yellow-bg">Tensor</span><span class="ansi-yellow-bg"> </span><span class="ansi-yellow-bg" style="color: rgb(98,98,98)">|</span><span class="ansi-yellow-bg"> </span><span class="ansi-yellow-bg" style="color: rgb(0,135,0)">float</span>:
+<span class="ansi-green-intense-fg ansi-bold">     21</span>         <span class="ansi-bold" style="color: rgb(0,135,0)">return</span> expensive_to_compute(<span style="color: rgb(0,135,0)">float</span>(<span style="color: rgb(0,135,0)">self</span><span style="color: rgb(98,98,98)">.</span>data))
+
+<span class="ansi-red-fg">TypeError</span>: unsupported operand type(s) for |: &#39;type&#39; and &#39;type&#39;</pre>
+</div>
 </div>
 
 </div>
@@ -15463,8 +15610,18 @@ Let's add steps to our <code>data</code> tensor along <code>x</code>.</p>
 </div>
 
 </div>
+<div id="cell-id=92262fc8c63b7bac" class="jp-Cell jp-MarkdownCell jp-Notebook-cell">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
+</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
+<p>The workers automatically computed <code>tmp_result</code> first, as it is a dependency of <code>result</code>. Note however, that <code>tmp_result</code> is not stored in the main process, as it was not requested.</p>
 
-</div><div  class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
+</div>
+</div>
+</div>
+</div><div id="cell-id=4add581c8630f0fa" class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -15472,7 +15629,7 @@ Let's add steps to our <code>data</code> tensor along <code>x</code>.</p>
 <div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[9]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">data</span><span class="p">[{</span><span class="n">batch</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s1">&#39;x&#39;</span><span class="p">:</span> <span class="nb">slice</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span> <span class="s1">&#39;y&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">}]</span>
+<div class=" highlight hl-ipython2"><pre><span></span><span class="n">computation</span><span class="o">.</span><span class="vm">__dict__</span>
 </pre></div>
 
      </div>
@@ -15486,15 +15643,20 @@ Let's add steps to our <code>data</code> tensor along <code>x</code>.</p>
 
 
 <div class="jp-OutputArea jp-Cell-outputArea">
-<div class="jp-OutputArea-child jp-OutputArea-executeResult">
+<div class="jp-OutputArea-child">
     
-    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[9]:</div>
+    <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
 
 
+<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="application/vnd.jupyter.stderr">
+<pre>
+<span class="ansi-red-fg">---------------------------------------------------------------------------</span>
+<span class="ansi-red-fg">NameError</span>                                 Traceback (most recent call last)
+Cell <span class="ansi-green-fg">In[9], line 1</span>
+<span class="ansi-green-fg">----&gt; 1</span> <span class="ansi-yellow-bg">computation</span><span style="color: rgb(98,98,98)">.</span><span style="color: rgb(0,0,135)">__dict__</span>
 
-
-<div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre><span class="ansi-blue-intense-fg">(0.676, 0.647)</span> along <span class="ansi-green-intense-fg">xˢ</span></pre>
+<span class="ansi-red-fg">NameError</span>: name &#39;computation&#39; is not defined</pre>
+</div>
 </div>
 
 </div>
@@ -15502,20 +15664,19 @@ Let's add steps to our <code>data</code> tensor along <code>x</code>.</p>
 </div>
 
 </div>
-
-</div>
-<div  class="jp-Cell jp-MarkdownCell jp-Notebook-cell">
+<div id="cell-id=b7f24286ee08e984" class="jp-Cell jp-MarkdownCell jp-Notebook-cell">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<p>Many functions will operate on dims of specific types by default, so you don't need to specify the axis.</p>
+<h2 id="Non-parallelizable-Properties">Non-parallelizable Properties<a class="anchor-link" href="#Non-parallelizable-Properties">&#182;</a></h2><p>Some properties may not be parallelizable, e.g., because they access values across the parallelization dim. We can mark required dims in the <code>@parallel_property</code> decorator to prevent Φ<sub>ML</sub> from attempting to parallelize them.</p>
+<p>Say we want to compute the mean of <code>expensive_computation</code> over all elements of <code>data</code>:</p>
 
 </div>
 </div>
 </div>
-</div><div  class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
+</div><div id="cell-id=48a942d9eaff3554" class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -15523,7 +15684,22 @@ Let's add steps to our <code>data</code> tensor along <code>x</code>.</p>
 <div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[10]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">math</span><span class="o">.</span><span class="n">fft</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>  <span class="c1"># operates on x and y because they are spatial</span>
+<div class=" highlight hl-ipython2"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">phiml</span><span class="w"> </span><span class="kn">import</span> <span class="n">mean</span><span class="p">,</span> <span class="n">batch</span>
+
+<span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">ParallelMeanComputation</span><span class="p">:</span>
+    <span class="n">data</span><span class="p">:</span> <span class="n">Tensor</span>
+
+    <span class="nd">@parallel_property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">individual_result</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tensor</span> <span class="o">|</span> <span class="nb">float</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Computing individual_result pid=</span><span class="si">{</span><span class="n">os</span><span class="o">.</span><span class="n">getpid</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">expensive_to_compute</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">))</span>
+
+    <span class="nd">@parallel_property</span><span class="p">(</span><span class="n">requires</span><span class="o">=</span><span class="n">batch</span><span class="p">)</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">mean</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tensor</span> <span class="o">|</span> <span class="nb">float</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Computing mean, pid=</span><span class="si">{</span><span class="n">os</span><span class="o">.</span><span class="n">getpid</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">mean</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">individual_result</span><span class="p">,</span> <span class="n">batch</span><span class="p">)</span>
 </pre></div>
 
      </div>
@@ -15537,48 +15713,42 @@ Let's add steps to our <code>data</code> tensor along <code>x</code>.</p>
 
 
 <div class="jp-OutputArea jp-Cell-outputArea">
-<div class="jp-OutputArea-child jp-OutputArea-executeResult">
+<div class="jp-OutputArea-child">
     
-    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[10]:</div>
+    <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
 
 
+<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="application/vnd.jupyter.stderr">
+<pre>
+<span class="ansi-red-fg">---------------------------------------------------------------------------</span>
+<span class="ansi-red-fg">TypeError</span>                                 Traceback (most recent call last)
+Cell <span class="ansi-green-fg">In[10], line 5</span>
+<span class="ansi-green-intense-fg ansi-bold">      1</span> <span class="ansi-bold" style="color: rgb(0,135,0)">import</span><span style="color: rgb(188,188,188)"> </span><span class="ansi-bold" style="color: rgb(0,0,255)">os</span>
+<span class="ansi-green-intense-fg ansi-bold">      2</span> <span class="ansi-bold" style="color: rgb(0,135,0)">from</span><span style="color: rgb(188,188,188)"> </span><span class="ansi-bold" style="color: rgb(0,0,255)">phiml</span><span style="color: rgb(188,188,188)"> </span><span class="ansi-bold" style="color: rgb(0,135,0)">import</span> mean, batch
+<span class="ansi-green-intense-fg ansi-bold">      4</span> <span style="color: rgb(175,0,255)">@dataclass</span>(frozen<span style="color: rgb(98,98,98)">=</span><span class="ansi-bold" style="color: rgb(0,135,0)">True</span>)
+<span class="ansi-green-fg">----&gt; 5</span> <span class="ansi-bold" style="color: rgb(0,135,0)">class</span><span style="color: rgb(188,188,188)"> </span><span class="ansi-bold" style="color: rgb(0,0,255)">ParallelMeanComputation</span>:
+<span class="ansi-green-intense-fg ansi-bold">      6</span>     data: Tensor
+<span class="ansi-green-intense-fg ansi-bold">      8</span>     <span style="color: rgb(175,0,255)">@parallel_property</span>
+<span class="ansi-green-intense-fg ansi-bold">      9</span>     <span class="ansi-bold" style="color: rgb(0,135,0)">def</span><span style="color: rgb(188,188,188)"> </span><span style="color: rgb(0,0,255)">individual_result</span>(<span style="color: rgb(0,135,0)">self</span>) <span style="color: rgb(98,98,98)">-</span><span style="color: rgb(98,98,98)">&gt;</span> Tensor <span style="color: rgb(98,98,98)">|</span> <span style="color: rgb(0,135,0)">float</span>:
 
+Cell <span class="ansi-green-fg">In[10], line 9</span>, in <span class="ansi-cyan-fg">ParallelMeanComputation</span><span class="ansi-blue-fg">()</span>
+<span class="ansi-green-intense-fg ansi-bold">      4</span> <span style="color: rgb(175,0,255)">@dataclass</span>(frozen<span style="color: rgb(98,98,98)">=</span><span class="ansi-bold" style="color: rgb(0,135,0)">True</span>)
+<span class="ansi-green-intense-fg ansi-bold">      5</span> <span class="ansi-bold" style="color: rgb(0,135,0)">class</span><span style="color: rgb(188,188,188)"> </span><span class="ansi-bold" style="color: rgb(0,0,255)">ParallelMeanComputation</span>:
+<span class="ansi-green-intense-fg ansi-bold">      6</span>     data: Tensor
+<span class="ansi-green-intense-fg ansi-bold">      8</span>     <span style="color: rgb(175,0,255)">@parallel_property</span>
+<span class="ansi-green-fg">----&gt; 9</span>     <span class="ansi-bold" style="color: rgb(0,135,0)">def</span><span style="color: rgb(188,188,188)"> </span><span style="color: rgb(0,0,255)">individual_result</span>(<span style="color: rgb(0,135,0)">self</span>) <span style="color: rgb(98,98,98)">-</span><span style="color: rgb(98,98,98)">&gt;</span> <span class="ansi-yellow-bg">Tensor</span><span class="ansi-yellow-bg"> </span><span class="ansi-yellow-bg" style="color: rgb(98,98,98)">|</span><span class="ansi-yellow-bg"> </span><span class="ansi-yellow-bg" style="color: rgb(0,135,0)">float</span>:
+<span class="ansi-green-intense-fg ansi-bold">     10</span>         <span style="color: rgb(0,135,0)">print</span>(<span style="color: rgb(175,0,0)">f</span><span style="color: rgb(175,0,0)">&#34;</span><span style="color: rgb(175,0,0)">Computing individual_result pid=</span><span class="ansi-bold" style="color: rgb(175,95,135)">{</span>os<span style="color: rgb(98,98,98)">.</span>getpid()<span class="ansi-bold" style="color: rgb(175,95,135)">}</span><span style="color: rgb(175,0,0)">&#34;</span>)
+<span class="ansi-green-intense-fg ansi-bold">     11</span>         <span class="ansi-bold" style="color: rgb(0,135,0)">return</span> expensive_to_compute(<span style="color: rgb(0,135,0)">float</span>(<span style="color: rgb(0,135,0)">self</span><span style="color: rgb(98,98,98)">.</span>data))
 
-<div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre><span class="ansi-green-intense-fg">(examplesᵇ=2, xˢ=4, yˢ=3)</span> <span class="ansi-yellow-intense-fg">complex64</span> <span class="ansi-blue-intense-fg">|...| &lt; 7.289867401123047</span></pre>
-</div>
-
-</div>
-
-</div>
-
-</div>
-
-</div>
-<div  class="jp-Cell jp-MarkdownCell jp-Notebook-cell">
-<div class="jp-Cell-inputWrapper">
-<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
-</div>
-<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
-</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<p>Batch dimensions will be ignored by all functions unless explicitly specified. This makes it trivial to vectorize code w/o using something like <code>vmap</code>, simply by passing any batched input. An example of this can be seen <a href="https://tum-pbs.github.io/PhiFlow/examples/grids/Batched_Smoke.html">here</a>.</p>
-
+<span class="ansi-red-fg">TypeError</span>: unsupported operand type(s) for |: &#39;type&#39; and &#39;type&#39;</pre>
 </div>
 </div>
-</div>
-</div>
-<div  class="jp-Cell jp-MarkdownCell jp-Notebook-cell">
-<div class="jp-Cell-inputWrapper">
-<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
-</div>
-<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
-</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<h2 id="Shortened-Dim-Creation">Shortened Dim Creation<a class="anchor-link" href="#Shortened-Dim-Creation">&#182;</a></h2><p>Functions that only require you to specify name and type, but not the size of dims, allow you to write <code>&lt;name&gt;:&lt;type_letter&gt;</code> instead of passing a <code>Shape</code> object. Single-letter names additionally default to type spatial and item names can be specified in parentheses.</p>
 
 </div>
+
 </div>
-</div>
-</div><div  class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
+
+</div><div id="cell-id=a067281a06e2efe1" class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -15586,7 +15756,12 @@ Let's add steps to our <code>data</code> tensor along <code>x</code>.</p>
 <div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[11]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">wrap</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">],</span> <span class="s1">&#39;x&#39;</span><span class="p">)</span>
+<div class=" highlight hl-ipython2"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">parallel_compute</span><span class="w"> </span><span class="kn">import</span> <span class="n">ParallelMeanComputation</span>  <span class="c1"># identical to above cell, but can be imported by workers</span>
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Host pid=</span><span class="si">{</span><span class="n">os</span><span class="o">.</span><span class="n">getpid</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="n">computation</span> <span class="o">=</span> <span class="n">ParallelMeanComputation</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+    <span class="n">parallel_compute</span><span class="p">(</span><span class="n">computation</span><span class="p">,</span> <span class="p">[</span><span class="n">ParallelMeanComputation</span><span class="o">.</span><span class="n">mean</span><span class="p">],</span> <span class="n">max_workers</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">computation</span><span class="o">.</span><span class="n">mean</span><span class="p">)</span>
 </pre></div>
 
      </div>
@@ -15600,15 +15775,39 @@ Let's add steps to our <code>data</code> tensor along <code>x</code>.</p>
 
 
 <div class="jp-OutputArea jp-Cell-outputArea">
-<div class="jp-OutputArea-child jp-OutputArea-executeResult">
+<div class="jp-OutputArea-child">
     
-    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[11]:</div>
+    <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
 
 
+<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="application/vnd.jupyter.stderr">
+<pre>
+<span class="ansi-red-fg">---------------------------------------------------------------------------</span>
+<span class="ansi-red-fg">TypeError</span>                                 Traceback (most recent call last)
+Cell <span class="ansi-green-fg">In[11], line 1</span>
+<span class="ansi-green-fg">----&gt; 1</span> <span class="ansi-bold" style="color: rgb(0,135,0)">from</span><span style="color: rgb(188,188,188)"> </span><span class="ansi-bold" style="color: rgb(0,0,255)">parallel_compute</span><span style="color: rgb(188,188,188)"> </span><span class="ansi-bold" style="color: rgb(0,135,0)">import</span> ParallelMeanComputation  <span style="color: rgb(95,135,135)"># identical to above cell, but can be imported by workers</span>
+<span class="ansi-green-intense-fg ansi-bold">      2</span> <span class="ansi-bold" style="color: rgb(0,135,0)">if</span> <span style="color: rgb(0,0,135)">__name__</span> <span style="color: rgb(98,98,98)">==</span> <span style="color: rgb(175,0,0)">&#34;</span><span style="color: rgb(175,0,0)">__main__</span><span style="color: rgb(175,0,0)">&#34;</span>:
+<span class="ansi-green-intense-fg ansi-bold">      3</span>     <span style="color: rgb(0,135,0)">print</span>(<span style="color: rgb(175,0,0)">f</span><span style="color: rgb(175,0,0)">&#34;</span><span style="color: rgb(175,0,0)">Host pid=</span><span class="ansi-bold" style="color: rgb(175,95,135)">{</span>os<span style="color: rgb(98,98,98)">.</span>getpid()<span class="ansi-bold" style="color: rgb(175,95,135)">}</span><span style="color: rgb(175,0,0)">&#34;</span>)
 
+File <span class="ansi-green-fg">~/work/PhiML/PhiML/docs/parallel_compute.py:16</span>
+<span class="ansi-green-intense-fg ansi-bold">     11</span>     time<span style="color: rgb(98,98,98)">.</span>sleep(<span style="color: rgb(98,98,98)">1</span>)  <span style="color: rgb(95,135,135)"># Simulate an expensive computation</span>
+<span class="ansi-green-intense-fg ansi-bold">     12</span>     <span class="ansi-bold" style="color: rgb(0,135,0)">return</span> <span style="color: rgb(98,98,98)">2</span> <span style="color: rgb(98,98,98)">*</span> x
+<span class="ansi-green-intense-fg ansi-bold">     15</span> <span style="color: rgb(175,0,255)">@dataclass</span>(frozen<span style="color: rgb(98,98,98)">=</span><span class="ansi-bold" style="color: rgb(0,135,0)">True</span>)
+<span class="ansi-green-fg">---&gt; 16</span> <span class="ansi-bold" style="color: rgb(0,135,0)">class</span><span style="color: rgb(188,188,188)"> </span><span class="ansi-bold" style="color: rgb(0,0,255)">ParallelComputation</span>:
+<span class="ansi-green-intense-fg ansi-bold">     17</span>     data: Tensor
+<span class="ansi-green-intense-fg ansi-bold">     19</span>     <span style="color: rgb(175,0,255)">@parallel_property</span>
+<span class="ansi-green-intense-fg ansi-bold">     20</span>     <span class="ansi-bold" style="color: rgb(0,135,0)">def</span><span style="color: rgb(188,188,188)"> </span><span style="color: rgb(0,0,255)">result</span>(<span style="color: rgb(0,135,0)">self</span>) <span style="color: rgb(98,98,98)">-</span><span style="color: rgb(98,98,98)">&gt;</span> Tensor <span style="color: rgb(98,98,98)">|</span> <span style="color: rgb(0,135,0)">float</span>:
 
-<div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre><span class="ansi-blue-intense-fg">(1, 2, 3)</span> along <span class="ansi-green-intense-fg">xˢ</span> <span class="ansi-yellow-intense-fg">int64</span></pre>
+File <span class="ansi-green-fg">~/work/PhiML/PhiML/docs/parallel_compute.py:20</span>, in <span class="ansi-cyan-fg">ParallelComputation</span><span class="ansi-blue-fg">()</span>
+<span class="ansi-green-intense-fg ansi-bold">     15</span> <span style="color: rgb(175,0,255)">@dataclass</span>(frozen<span style="color: rgb(98,98,98)">=</span><span class="ansi-bold" style="color: rgb(0,135,0)">True</span>)
+<span class="ansi-green-intense-fg ansi-bold">     16</span> <span class="ansi-bold" style="color: rgb(0,135,0)">class</span><span style="color: rgb(188,188,188)"> </span><span class="ansi-bold" style="color: rgb(0,0,255)">ParallelComputation</span>:
+<span class="ansi-green-intense-fg ansi-bold">     17</span>     data: Tensor
+<span class="ansi-green-intense-fg ansi-bold">     19</span>     <span style="color: rgb(175,0,255)">@parallel_property</span>
+<span class="ansi-green-fg">---&gt; 20</span>     <span class="ansi-bold" style="color: rgb(0,135,0)">def</span><span style="color: rgb(188,188,188)"> </span><span style="color: rgb(0,0,255)">result</span>(<span style="color: rgb(0,135,0)">self</span>) <span style="color: rgb(98,98,98)">-</span><span style="color: rgb(98,98,98)">&gt;</span> <span class="ansi-yellow-bg">Tensor</span><span class="ansi-yellow-bg"> </span><span class="ansi-yellow-bg" style="color: rgb(98,98,98)">|</span><span class="ansi-yellow-bg"> </span><span class="ansi-yellow-bg" style="color: rgb(0,135,0)">float</span>:
+<span class="ansi-green-intense-fg ansi-bold">     21</span>         <span class="ansi-bold" style="color: rgb(0,135,0)">return</span> expensive_to_compute(<span style="color: rgb(0,135,0)">float</span>(<span style="color: rgb(0,135,0)">self</span><span style="color: rgb(98,98,98)">.</span>data))
+
+<span class="ansi-red-fg">TypeError</span>: unsupported operand type(s) for |: &#39;type&#39; and &#39;type&#39;</pre>
+</div>
 </div>
 
 </div>
@@ -15616,8 +15815,21 @@ Let's add steps to our <code>data</code> tensor along <code>x</code>.</p>
 </div>
 
 </div>
+<div id="cell-id=b97c8e20bd46e21c" class="jp-Cell jp-MarkdownCell jp-Notebook-cell">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
+</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
+<p>The computation is now split into two stages: First, <code>individual_result</code> is computed in parallel on each element of <code>data</code>. Then, the results are gathered in the host process and the mean is computed over all elements.
+This is achieved by building a dependency graph of all involved properties under-the-hood and determining the optimal execution strategy.</p>
+<p>Note that the notebook output only captures the print statements from the main process. You can see the print statements from the worker processes when running the code in a script.</p>
+<p>As a final example, let's look at the three-stage computation of computing the normalized (mean-subtracted) result. Here, both <code>individual_result</code> and <code>normalized_result</code> can be parallelized, while <code>mean</code> cannot.</p>
 
-</div><div  class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
+</div>
+</div>
+</div>
+</div><div id="cell-id=790e9d48bced8d80" class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -15625,7 +15837,24 @@ Let's add steps to our <code>data</code> tensor along <code>x</code>.</p>
 <div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[12]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">tensor</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">],</span> <span class="s1">&#39;vector:c&#39;</span><span class="p">)</span>
+<div class=" highlight hl-ipython2"><pre><span></span><span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">ParallelNormComputation</span><span class="p">:</span>
+    <span class="n">data</span><span class="p">:</span> <span class="n">Tensor</span>
+
+    <span class="nd">@parallel_property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">individual_result</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tensor</span> <span class="o">|</span> <span class="nb">float</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Computing individual_result pid=</span><span class="si">{</span><span class="n">os</span><span class="o">.</span><span class="n">getpid</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">expensive_to_compute</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">))</span>
+
+    <span class="nd">@parallel_property</span><span class="p">(</span><span class="n">requires</span><span class="o">=</span><span class="n">batch</span><span class="p">)</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">mean</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tensor</span> <span class="o">|</span> <span class="nb">float</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Computing mean, pid=</span><span class="si">{</span><span class="n">os</span><span class="o">.</span><span class="n">getpid</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">mean</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">individual_result</span><span class="p">,</span> <span class="n">batch</span><span class="p">)</span>
+
+    <span class="nd">@parallel_property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">normalized_result</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tensor</span> <span class="o">|</span> <span class="nb">float</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Computing normalized_result pid=</span><span class="si">{</span><span class="n">os</span><span class="o">.</span><span class="n">getpid</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">individual_result</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">mean</span>
 </pre></div>
 
      </div>
@@ -15639,24 +15868,40 @@ Let's add steps to our <code>data</code> tensor along <code>x</code>.</p>
 
 
 <div class="jp-OutputArea jp-Cell-outputArea">
-<div class="jp-OutputArea-child jp-OutputArea-executeResult">
+<div class="jp-OutputArea-child">
     
-    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[12]:</div>
+    <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
 
 
+<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="application/vnd.jupyter.stderr">
+<pre>
+<span class="ansi-red-fg">---------------------------------------------------------------------------</span>
+<span class="ansi-red-fg">TypeError</span>                                 Traceback (most recent call last)
+Cell <span class="ansi-green-fg">In[12], line 2</span>
+<span class="ansi-green-intense-fg ansi-bold">      1</span> <span style="color: rgb(175,0,255)">@dataclass</span>(frozen<span style="color: rgb(98,98,98)">=</span><span class="ansi-bold" style="color: rgb(0,135,0)">True</span>)
+<span class="ansi-green-fg">----&gt; 2</span> <span class="ansi-bold" style="color: rgb(0,135,0)">class</span><span style="color: rgb(188,188,188)"> </span><span class="ansi-bold" style="color: rgb(0,0,255)">ParallelNormComputation</span>:
+<span class="ansi-green-intense-fg ansi-bold">      3</span>     data: Tensor
+<span class="ansi-green-intense-fg ansi-bold">      5</span>     <span style="color: rgb(175,0,255)">@parallel_property</span>
+<span class="ansi-green-intense-fg ansi-bold">      6</span>     <span class="ansi-bold" style="color: rgb(0,135,0)">def</span><span style="color: rgb(188,188,188)"> </span><span style="color: rgb(0,0,255)">individual_result</span>(<span style="color: rgb(0,135,0)">self</span>) <span style="color: rgb(98,98,98)">-</span><span style="color: rgb(98,98,98)">&gt;</span> Tensor <span style="color: rgb(98,98,98)">|</span> <span style="color: rgb(0,135,0)">float</span>:
 
+Cell <span class="ansi-green-fg">In[12], line 6</span>, in <span class="ansi-cyan-fg">ParallelNormComputation</span><span class="ansi-blue-fg">()</span>
+<span class="ansi-green-intense-fg ansi-bold">      1</span> <span style="color: rgb(175,0,255)">@dataclass</span>(frozen<span style="color: rgb(98,98,98)">=</span><span class="ansi-bold" style="color: rgb(0,135,0)">True</span>)
+<span class="ansi-green-intense-fg ansi-bold">      2</span> <span class="ansi-bold" style="color: rgb(0,135,0)">class</span><span style="color: rgb(188,188,188)"> </span><span class="ansi-bold" style="color: rgb(0,0,255)">ParallelNormComputation</span>:
+<span class="ansi-green-intense-fg ansi-bold">      3</span>     data: Tensor
+<span class="ansi-green-intense-fg ansi-bold">      5</span>     <span style="color: rgb(175,0,255)">@parallel_property</span>
+<span class="ansi-green-fg">----&gt; 6</span>     <span class="ansi-bold" style="color: rgb(0,135,0)">def</span><span style="color: rgb(188,188,188)"> </span><span style="color: rgb(0,0,255)">individual_result</span>(<span style="color: rgb(0,135,0)">self</span>) <span style="color: rgb(98,98,98)">-</span><span style="color: rgb(98,98,98)">&gt;</span> <span class="ansi-yellow-bg">Tensor</span><span class="ansi-yellow-bg"> </span><span class="ansi-yellow-bg" style="color: rgb(98,98,98)">|</span><span class="ansi-yellow-bg"> </span><span class="ansi-yellow-bg" style="color: rgb(0,135,0)">float</span>:
+<span class="ansi-green-intense-fg ansi-bold">      7</span>         <span style="color: rgb(0,135,0)">print</span>(<span style="color: rgb(175,0,0)">f</span><span style="color: rgb(175,0,0)">&#34;</span><span style="color: rgb(175,0,0)">Computing individual_result pid=</span><span class="ansi-bold" style="color: rgb(175,95,135)">{</span>os<span style="color: rgb(98,98,98)">.</span>getpid()<span class="ansi-bold" style="color: rgb(175,95,135)">}</span><span style="color: rgb(175,0,0)">&#34;</span>)
+<span class="ansi-green-intense-fg ansi-bold">      8</span>         <span class="ansi-bold" style="color: rgb(0,135,0)">return</span> expensive_to_compute(<span style="color: rgb(0,135,0)">float</span>(<span style="color: rgb(0,135,0)">self</span><span style="color: rgb(98,98,98)">.</span>data))
 
-<div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre><span class="ansi-blue-intense-fg">(1, 2, 3)</span> <span class="ansi-yellow-intense-fg">int64</span></pre>
+<span class="ansi-red-fg">TypeError</span>: unsupported operand type(s) for |: &#39;type&#39; and &#39;type&#39;</pre>
+</div>
 </div>
 
 </div>
 
 </div>
 
-</div>
-
-</div><div  class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
+</div><div id="cell-id=2dd0eba8e573010" class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -15664,60 +15909,12 @@ Let's add steps to our <code>data</code> tensor along <code>x</code>.</p>
 <div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[13]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">stack</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">],</span> <span class="s1">&#39;example:b&#39;</span><span class="p">)</span>
-</pre></div>
-
-     </div>
-</div>
-</div>
-</div>
-
-<div class="jp-Cell-outputWrapper">
-<div class="jp-Collapser jp-OutputCollapser jp-Cell-outputCollapser">
-</div>
-
-
-<div class="jp-OutputArea jp-Cell-outputArea">
-<div class="jp-OutputArea-child jp-OutputArea-executeResult">
-    
-    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[13]:</div>
-
-
-
-
-<div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre><span class="ansi-blue-intense-fg">(1, 2, 3)</span> along <span class="ansi-green-intense-fg">exampleᵇ</span> <span class="ansi-yellow-intense-fg">int64</span></pre>
-</div>
-
-</div>
-
-</div>
-
-</div>
-
-</div>
-<div  class="jp-Cell jp-MarkdownCell jp-Notebook-cell">
-<div class="jp-Cell-inputWrapper">
-<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
-</div>
-<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
-</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<h2 id="Printing-Options">Printing Options<a class="anchor-link" href="#Printing-Options">&#182;</a></h2><p>As you can see, Φ<sub>ML</sub> summarizes tensors by default and color-codes the result text.
-The Python formatting options let you customize how a tensor is printed, with options being separated by colons.
-Here are some examples:</p>
-
-</div>
-</div>
-</div>
-</div><div  class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
-<div class="jp-Cell-inputWrapper">
-<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
-</div>
-<div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[14]:</div>
-<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
-     <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">data</span><span class="si">:</span><span class="s2">summary:color:shape:dtype:.5e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<div class=" highlight hl-ipython2"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">parallel_compute</span><span class="w"> </span><span class="kn">import</span> <span class="n">ParallelNormComputation</span>
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Host pid=</span><span class="si">{</span><span class="n">os</span><span class="o">.</span><span class="n">getpid</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="n">computation</span> <span class="o">=</span> <span class="n">ParallelNormComputation</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+    <span class="n">parallel_compute</span><span class="p">(</span><span class="n">computation</span><span class="p">,</span> <span class="p">[</span><span class="n">ParallelNormComputation</span><span class="o">.</span><span class="n">normalized_result</span><span class="p">],</span> <span class="n">max_workers</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">computation</span><span class="o">.</span><span class="n">normalized_result</span><span class="p">)</span>
 </pre></div>
 
      </div>
@@ -15736,98 +15933,33 @@ Here are some examples:</p>
     <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
 
 
-<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
-<pre><span class="ansi-green-intense-fg">(examplesᵇ=2, xˢ=4, yˢ=3)</span> <span class="ansi-yellow-intense-fg">float32</span> <span class="ansi-blue-intense-fg">5.33292e-01 ± 3.25778e-01</span> <span class="ansi-white-fg">(1.33770e-03...9.82761e-01)</span>
-</pre>
-</div>
-</div>
+<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="application/vnd.jupyter.stderr">
+<pre>
+<span class="ansi-red-fg">---------------------------------------------------------------------------</span>
+<span class="ansi-red-fg">TypeError</span>                                 Traceback (most recent call last)
+Cell <span class="ansi-green-fg">In[13], line 1</span>
+<span class="ansi-green-fg">----&gt; 1</span> <span class="ansi-bold" style="color: rgb(0,135,0)">from</span><span style="color: rgb(188,188,188)"> </span><span class="ansi-bold" style="color: rgb(0,0,255)">parallel_compute</span><span style="color: rgb(188,188,188)"> </span><span class="ansi-bold" style="color: rgb(0,135,0)">import</span> ParallelNormComputation
+<span class="ansi-green-intense-fg ansi-bold">      2</span> <span class="ansi-bold" style="color: rgb(0,135,0)">if</span> <span style="color: rgb(0,0,135)">__name__</span> <span style="color: rgb(98,98,98)">==</span> <span style="color: rgb(175,0,0)">&#34;</span><span style="color: rgb(175,0,0)">__main__</span><span style="color: rgb(175,0,0)">&#34;</span>:
+<span class="ansi-green-intense-fg ansi-bold">      3</span>     <span style="color: rgb(0,135,0)">print</span>(<span style="color: rgb(175,0,0)">f</span><span style="color: rgb(175,0,0)">&#34;</span><span style="color: rgb(175,0,0)">Host pid=</span><span class="ansi-bold" style="color: rgb(175,95,135)">{</span>os<span style="color: rgb(98,98,98)">.</span>getpid()<span class="ansi-bold" style="color: rgb(175,95,135)">}</span><span style="color: rgb(175,0,0)">&#34;</span>)
 
-</div>
+File <span class="ansi-green-fg">~/work/PhiML/PhiML/docs/parallel_compute.py:16</span>
+<span class="ansi-green-intense-fg ansi-bold">     11</span>     time<span style="color: rgb(98,98,98)">.</span>sleep(<span style="color: rgb(98,98,98)">1</span>)  <span style="color: rgb(95,135,135)"># Simulate an expensive computation</span>
+<span class="ansi-green-intense-fg ansi-bold">     12</span>     <span class="ansi-bold" style="color: rgb(0,135,0)">return</span> <span style="color: rgb(98,98,98)">2</span> <span style="color: rgb(98,98,98)">*</span> x
+<span class="ansi-green-intense-fg ansi-bold">     15</span> <span style="color: rgb(175,0,255)">@dataclass</span>(frozen<span style="color: rgb(98,98,98)">=</span><span class="ansi-bold" style="color: rgb(0,135,0)">True</span>)
+<span class="ansi-green-fg">---&gt; 16</span> <span class="ansi-bold" style="color: rgb(0,135,0)">class</span><span style="color: rgb(188,188,188)"> </span><span class="ansi-bold" style="color: rgb(0,0,255)">ParallelComputation</span>:
+<span class="ansi-green-intense-fg ansi-bold">     17</span>     data: Tensor
+<span class="ansi-green-intense-fg ansi-bold">     19</span>     <span style="color: rgb(175,0,255)">@parallel_property</span>
+<span class="ansi-green-intense-fg ansi-bold">     20</span>     <span class="ansi-bold" style="color: rgb(0,135,0)">def</span><span style="color: rgb(188,188,188)"> </span><span style="color: rgb(0,0,255)">result</span>(<span style="color: rgb(0,135,0)">self</span>) <span style="color: rgb(98,98,98)">-</span><span style="color: rgb(98,98,98)">&gt;</span> Tensor <span style="color: rgb(98,98,98)">|</span> <span style="color: rgb(0,135,0)">float</span>:
 
-</div>
+File <span class="ansi-green-fg">~/work/PhiML/PhiML/docs/parallel_compute.py:20</span>, in <span class="ansi-cyan-fg">ParallelComputation</span><span class="ansi-blue-fg">()</span>
+<span class="ansi-green-intense-fg ansi-bold">     15</span> <span style="color: rgb(175,0,255)">@dataclass</span>(frozen<span style="color: rgb(98,98,98)">=</span><span class="ansi-bold" style="color: rgb(0,135,0)">True</span>)
+<span class="ansi-green-intense-fg ansi-bold">     16</span> <span class="ansi-bold" style="color: rgb(0,135,0)">class</span><span style="color: rgb(188,188,188)"> </span><span class="ansi-bold" style="color: rgb(0,0,255)">ParallelComputation</span>:
+<span class="ansi-green-intense-fg ansi-bold">     17</span>     data: Tensor
+<span class="ansi-green-intense-fg ansi-bold">     19</span>     <span style="color: rgb(175,0,255)">@parallel_property</span>
+<span class="ansi-green-fg">---&gt; 20</span>     <span class="ansi-bold" style="color: rgb(0,135,0)">def</span><span style="color: rgb(188,188,188)"> </span><span style="color: rgb(0,0,255)">result</span>(<span style="color: rgb(0,135,0)">self</span>) <span style="color: rgb(98,98,98)">-</span><span style="color: rgb(98,98,98)">&gt;</span> <span class="ansi-yellow-bg">Tensor</span><span class="ansi-yellow-bg"> </span><span class="ansi-yellow-bg" style="color: rgb(98,98,98)">|</span><span class="ansi-yellow-bg"> </span><span class="ansi-yellow-bg" style="color: rgb(0,135,0)">float</span>:
+<span class="ansi-green-intense-fg ansi-bold">     21</span>         <span class="ansi-bold" style="color: rgb(0,135,0)">return</span> expensive_to_compute(<span style="color: rgb(0,135,0)">float</span>(<span style="color: rgb(0,135,0)">self</span><span style="color: rgb(98,98,98)">.</span>data))
 
-</div><div  class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
-<div class="jp-Cell-inputWrapper">
-<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
-</div>
-<div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[15]:</div>
-<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
-     <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">data</span><span class="si">:</span><span class="s2">full:color:shape:dtype:.3f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-</pre></div>
-
-     </div>
-</div>
-</div>
-</div>
-
-<div class="jp-Cell-outputWrapper">
-<div class="jp-Collapser jp-OutputCollapser jp-Cell-outputCollapser">
-</div>
-
-
-<div class="jp-OutputArea jp-Cell-outputArea">
-<div class="jp-OutputArea-child">
-    
-    <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
-
-
-<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
-<pre><span class="ansi-green-intense-fg">examples=0</span>  
-<span class="ansi-blue-intense-fg"> 0.780, 0.983, 0.132, 0.886,
- 0.770, 0.769, 0.072, 0.391,
- 0.263, 0.885, 0.487, 0.872</span>  along <span class="ansi-green-intense-fg">(xˢ=4, yˢ=3)</span>
-<span class="ansi-green-intense-fg">examples=1</span>  
-<span class="ansi-blue-intense-fg"> 0.732, 0.848, 0.133, 0.729,
- 0.097, 0.320, 0.242, 0.969,
- 0.001, 0.676, 0.647, 0.114</span>  along <span class="ansi-green-intense-fg">(xˢ=4, yˢ=3)</span>
-</pre>
-</div>
-</div>
-
-</div>
-
-</div>
-
-</div><div  class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
-<div class="jp-Cell-inputWrapper">
-<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
-</div>
-<div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[16]:</div>
-<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
-     <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">data</span><span class="si">:</span><span class="s2">numpy:no-color:no-shape:no-dtype:.2f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-</pre></div>
-
-     </div>
-</div>
-</div>
-</div>
-
-<div class="jp-Cell-outputWrapper">
-<div class="jp-Collapser jp-OutputCollapser jp-Cell-outputCollapser">
-</div>
-
-
-<div class="jp-OutputArea jp-Cell-outputArea">
-<div class="jp-OutputArea-child">
-    
-    <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
-
-
-<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
-<pre>[[[0.26 0.77 0.78]
-  [0.89 0.77 0.98]
-  [0.49 0.07 0.13]
-  [0.87 0.39 0.89]]
-
- [[0.00 0.10 0.73]
-  [0.68 0.32 0.85]
-  [0.65 0.24 0.13]
-  [0.11 0.97 0.73]]]
-</pre>
+<span class="ansi-red-fg">TypeError</span>: unsupported operand type(s) for |: &#39;type&#39; and &#39;type&#39;</pre>
 </div>
 </div>
 
@@ -15836,223 +15968,15 @@ Here are some examples:</p>
 </div>
 
 </div>
-<div  class="jp-Cell jp-MarkdownCell jp-Notebook-cell">
+<div id="cell-id=3ac4ca03c6c02668" class="jp-Cell jp-MarkdownCell jp-Notebook-cell">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<p>The order of the formatting arguments is not important.
-Supported options are:</p>
-<p><strong>Layout:</strong>
-The layout determines what is printed and where. The following options are available:</p>
-<ul>
-<li><code>summary</code> Summarizes the values by mean, standard deviation, minimum and maximum value.</li>
-<li><code>row</code> Prints the tensor as a single-line vector.</li>
-<li><code>full</code> Prints all values in the tensors as a multi-line string.</li>
-<li><code>numpy</code> Uses the formatting of NumPy</li>
-</ul>
-<p><strong>Number format</strong>:
-You can additionally specify a format string for floating-point numbers like <code>.3f</code> or <code>.2e</code>.</p>
-<p><strong>Color</strong>:
-Use the keywords <code>color</code> or <code>no-color</code>.
-Currently <code>color</code> will use ANSI color codes which are supported by most terminals, IDEs as well as Jupyter notebooks.</p>
-<p><strong>Additional tensor information</strong>:
-The keywords <code>shape</code>, <code>no-shape</code>, <code>dtype</code> and <code>no-dtype</code> can be used to show or hide additional properties of the tensor.</p>
-
-</div>
-</div>
-</div>
-</div>
-<div  class="jp-Cell jp-MarkdownCell jp-Notebook-cell">
-<div class="jp-Cell-inputWrapper">
-<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
-</div>
-<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
-</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<h2 id="Wrapping-and-Unwrapping">Wrapping and Unwrapping<a class="anchor-link" href="#Wrapping-and-Unwrapping">&#182;</a></h2><p>You can wrap existing tensors in Φ<sub>ML</sub> tensors using <a href="phiml/math#phiml.math.wrap"><code>wrap()</code></a> or <a href="phiml/math#phiml.math.tensor"><code>tensor()</code></a>.
-While <code>tensor()</code> will convert the data to the <a href="Convert.html">default backend</a>, <code>wrap()</code> will keep the data as-is.
-In either case, you need to specify the dimension names and types when wrapping a native tensor.</p>
-
-</div>
-</div>
-</div>
-</div><div  class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
-<div class="jp-Cell-inputWrapper">
-<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
-</div>
-<div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[17]:</div>
-<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
-     <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">math</span><span class="o">.</span><span class="n">use</span><span class="p">(</span><span class="s1">&#39;torch&#39;</span><span class="p">)</span>
-<span class="n">math</span><span class="o">.</span><span class="n">tensor</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span> <span class="n">batch</span><span class="p">(</span><span class="s1">&#39;examples&#39;</span><span class="p">))</span>
-</pre></div>
-
-     </div>
-</div>
-</div>
-</div>
-
-<div class="jp-Cell-outputWrapper">
-<div class="jp-Collapser jp-OutputCollapser jp-Cell-outputCollapser">
-</div>
-
-
-<div class="jp-OutputArea jp-Cell-outputArea">
-<div class="jp-OutputArea-child jp-OutputArea-executeResult">
-    
-    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[17]:</div>
-
-
-
-
-<div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre><span class="ansi-blue-intense-fg">(0, 1, 2)</span> along <span class="ansi-green-intense-fg">examplesᵇ</span> <span class="ansi-yellow-intense-fg">int64</span></pre>
-</div>
-
-</div>
-
-</div>
-
-</div>
-
-</div>
-<div  class="jp-Cell jp-MarkdownCell jp-Notebook-cell">
-<div class="jp-Cell-inputWrapper">
-<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
-</div>
-<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
-</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<p>To unwrap a tensor, you can use <code>tensor.native()</code> or <code>math.reshaped_native()</code> for more control over the result shape.
-In both cases, the requested dimension order needs to be specified.</p>
-
-</div>
-</div>
-</div>
-</div><div  class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
-<div class="jp-Cell-inputWrapper">
-<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
-</div>
-<div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[18]:</div>
-<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
-     <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">data</span><span class="o">.</span><span class="n">native</span><span class="p">(</span><span class="s1">&#39;examples,x,y&#39;</span><span class="p">)</span>
-</pre></div>
-
-     </div>
-</div>
-</div>
-</div>
-
-<div class="jp-Cell-outputWrapper">
-<div class="jp-Collapser jp-OutputCollapser jp-Cell-outputCollapser">
-</div>
-
-
-<div class="jp-OutputArea jp-Cell-outputArea">
-<div class="jp-OutputArea-child jp-OutputArea-executeResult">
-    
-    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[18]:</div>
-
-
-
-
-<div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre>array([[[0.26303017, 0.7700203 , 0.7797946 ],
-        [0.8852977 , 0.7687624 , 0.9827612 ],
-        [0.4868246 , 0.07192429, 0.13197951],
-        [0.87237203, 0.3913761 , 0.88572437]],
-
-       [[0.0013377 , 0.09702417, 0.73208785],
-        [0.67629075, 0.3202777 , 0.8479721 ],
-        [0.6467847 , 0.24153788, 0.13254619],
-        [0.11434761, 0.9694948 , 0.7294324 ]]], dtype=float32)</pre>
-</div>
-
-</div>
-
-</div>
-
-</div>
-
-</div>
-<div  class="jp-Cell jp-MarkdownCell jp-Notebook-cell">
-<div class="jp-Cell-inputWrapper">
-<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
-</div>
-<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
-</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<p>Similarly, you can get the NumPy representation:</p>
-
-</div>
-</div>
-</div>
-</div><div  class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
-<div class="jp-Cell-inputWrapper">
-<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
-</div>
-<div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[19]:</div>
-<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
-     <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">data</span><span class="o">.</span><span class="n">numpy</span><span class="p">(</span><span class="s1">&#39;examples,x,y&#39;</span><span class="p">)</span>
-</pre></div>
-
-     </div>
-</div>
-</div>
-</div>
-
-<div class="jp-Cell-outputWrapper">
-<div class="jp-Collapser jp-OutputCollapser jp-Cell-outputCollapser">
-</div>
-
-
-<div class="jp-OutputArea jp-Cell-outputArea">
-<div class="jp-OutputArea-child jp-OutputArea-executeResult">
-    
-    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[19]:</div>
-
-
-
-
-<div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre>array([[[0.26303017, 0.7700203 , 0.7797946 ],
-        [0.8852977 , 0.7687624 , 0.9827612 ],
-        [0.4868246 , 0.07192429, 0.13197951],
-        [0.87237203, 0.3913761 , 0.88572437]],
-
-       [[0.0013377 , 0.09702417, 0.73208785],
-        [0.67629075, 0.3202777 , 0.8479721 ],
-        [0.6467847 , 0.24153788, 0.13254619],
-        [0.11434761, 0.9694948 , 0.7294324 ]]], dtype=float32)</pre>
-</div>
-
-</div>
-
-</div>
-
-</div>
-
-</div>
-<div  class="jp-Cell jp-MarkdownCell jp-Notebook-cell">
-<div class="jp-Cell-inputWrapper">
-<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
-</div>
-<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
-</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<h2 id="Further-Reading">Further Reading<a class="anchor-link" href="#Further-Reading">&#182;</a></h2><p>Check out the <a href="https://tum-pbs.github.io/PhiML/Examples.html">examples</a> to see how using Φ<sub>ML</sub>'s tensors is different from the other libraries.</p>
-<p>Learn more about the <a href="Shapes.html">dimension types</a> and their <a href="Dimension_Names_Types.html">advantages</a>.</p>
-<p>Φ<sub>ML</sub> unifies <a href="Data_Types.html">data types</a> as well and lets you set the floating point precision globally or by context.</p>
-<p>While the dimensionality of neural networks must be specified during network creation, this is not the case for math functions.
-These <a href="N_Dimensional.html">automatically adapt to the number of spatial dimensions of the data that is passed in</a>.</p>
-<p><a href="https://github.com/tum-pbs/PhiML">🌐 <strong>Φ<sub>ML</sub></strong></a>
-  •   <a href="https://tum-pbs.github.io/PhiML/">📖 <strong>Documentation</strong></a>
-  •   <a href="https://tum-pbs.github.io/PhiML/phiml">🔗 <strong>API</strong></a>
-  •   <a href=""><strong>▶ Videos</strong></a>
-  •   <a href="https://colab.research.google.com/github/tum-pbs/PhiML/blob/main/docs/Examples.ipynb"><img src="images/colab_logo_small.png" height=4></a> <a href="https://tum-pbs.github.io/PhiML/Examples.html"><strong>Examples</strong></a></p>
+<h2 id="Caching-Properties-on-Disk">Caching Properties on Disk<a class="anchor-link" href="#Caching-Properties-on-Disk">&#182;</a></h2><p>For large data, it may be beneficial to cache intermediate results on disk instead of in memory. This can be achieved by setting the <code>memory_limit</code> and <code>cache_dir</code> arguments of <code>parallel_execute</code>.
+Storing intermediate results on disk also reduces the transferred data between the main process and the workers, which can be a bottleneck for large data.
+See <a href="Cached_Parallel_Example.html">this example</a>.</p>
 
 </div>
 </div>
