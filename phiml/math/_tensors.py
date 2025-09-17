@@ -2238,6 +2238,11 @@ def expand_tensor(value: Tensor, dims: Shape):
     if value._is_tracer:
         from ._trace import expand_tracer
         return expand_tracer(value, dims)
+    elif isinstance(value, Layout):
+        obj = value._obj
+        for dim in reversed(dims):
+            obj = [obj] * dim.size
+        return Layout(obj, dims + value._stack_dim)
     raise NotImplementedError
 
 
