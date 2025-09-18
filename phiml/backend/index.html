@@ -582,6 +582,9 @@ The methods of <code><a title="phiml.backend.Backend" href="#phiml.backend.Backe
     def from_dlpack(self, capsule):
         raise NotImplementedError(self.__class__)
 
+    def from_external_array_dlpack(self, external_array):
+        raise NotImplementedError(self.__class__)
+
     def copy(self, tensor, only_mutable=False):
         raise NotImplementedError(self.__class__)
 
@@ -2613,6 +2616,12 @@ Higher dimensions may not be supported.</p>
 <dd>
 <div class="desc"></div>
 </dd>
+<dt id="phiml.backend.Backend.from_external_array_dlpack"><code class="name flex">
+<span>def <span class="ident">from_external_array_dlpack</span></span>(<span>self, external_array)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
 <dt id="phiml.backend.Backend.gamma_inc_l"><code class="name flex">
 <span>def <span class="ident">gamma_inc_l</span></span>(<span>self, a, x)</span>
 </code></dt>
@@ -4455,6 +4464,7 @@ To prevent this, run the function before profiling it, see <code>warmup</code> i
 <li><code><a title="phiml.backend.Backend.floor" href="#phiml.backend.Backend.floor">floor</a></code></li>
 <li><code><a title="phiml.backend.Backend.floordiv" href="#phiml.backend.Backend.floordiv">floordiv</a></code></li>
 <li><code><a title="phiml.backend.Backend.from_dlpack" href="#phiml.backend.Backend.from_dlpack">from_dlpack</a></code></li>
+<li><code><a title="phiml.backend.Backend.from_external_array_dlpack" href="#phiml.backend.Backend.from_external_array_dlpack">from_external_array_dlpack</a></code></li>
 <li><code><a title="phiml.backend.Backend.gamma_inc_l" href="#phiml.backend.Backend.gamma_inc_l">gamma_inc_l</a></code></li>
 <li><code><a title="phiml.backend.Backend.gamma_inc_u" href="#phiml.backend.Backend.gamma_inc_u">gamma_inc_u</a></code></li>
 <li><code><a title="phiml.backend.Backend.gather" href="#phiml.backend.Backend.gather">gather</a></code></li>

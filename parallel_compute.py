@@ -1,6 +1,7 @@
 import os
 from dataclasses import dataclass
 from functools import cached_property
+from typing import Union
 
 from phiml import Tensor, tensor, mean, batch
 from phiml.dataclasses import parallel_property
@@ -17,7 +18,7 @@ class ParallelComputation:
     data: Tensor
 
     @parallel_property
-    def result(self) -> Tensor | float:
+    def result(self) -> Union[Tensor, float]:
         return expensive_to_compute(float(self.data))
 
 
@@ -26,11 +27,11 @@ class ParallelDepComputation:
     data: Tensor
 
     @cached_property
-    def tmp_result(self) -> Tensor | float:
+    def tmp_result(self) -> Union[Tensor, float]:
         return expensive_to_compute(float(self.data))
 
     @cached_property
-    def result(self) -> Tensor | float:
+    def result(self) -> Union[Tensor, float]:
         return self.tmp_result + 1
 
 
@@ -39,12 +40,12 @@ class ParallelMeanComputation:
     data: Tensor
 
     @parallel_property
-    def individual_result(self) -> Tensor | float:
+    def individual_result(self) -> Union[Tensor, float]:
         print(f"Computing individual_result pid={os.getpid()}")
         return expensive_to_compute(float(self.data))
 
     @parallel_property(requires=batch)
-    def mean(self) -> Tensor | float:
+    def mean(self) -> Union[Tensor, float]:
         print(f"Computing mean, pid={os.getpid()}")
         return mean(self.individual_result, batch)
 
@@ -54,16 +55,16 @@ class ParallelNormComputation:
     data: Tensor
 
     @parallel_property
-    def individual_result(self) -> Tensor | float:
+    def individual_result(self) -> Union[Tensor, float]:
         print(f"Computing individual_result pid={os.getpid()}")
         return expensive_to_compute(float(self.data))
 
     @parallel_property(requires=batch)
-    def mean(self) -> Tensor | float:
+    def mean(self) -> Union[Tensor, float]:
         print(f"Computing mean, pid={os.getpid()}")
         return mean(self.individual_result, batch)
 
     @parallel_property
-    def normalized_result(self) -> Tensor | float:
+    def normalized_result(self) -> Union[Tensor, float]:
         print(f"Computing normalized_result pid={os.getpid()}")
         return self.individual_result - self.mean

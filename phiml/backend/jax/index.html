@@ -187,9 +187,14 @@ The methods of <code>Backend</code> form a comprehensive list of available opera
         else:
             return tensor.__dlpack__()
 
-    def from_dlpack(self, capsule):
+    def from_dlpack(self, external_array):
         from jax import dlpack
-        return dlpack.from_dlpack(capsule)
+        return dlpack.from_dlpack(external_array)
+
+    if version.parse(jax.__version__) &gt;= version.parse(&#34;0.7.2&#34;):
+        def from_external_array_dlpack(self, external_array):
+            from jax import dlpack
+            return dlpack.from_dlpack(external_array)
 
     def copy(self, tensor, only_mutable=False):
         return jnp.array(tensor, copy=True)
@@ -1696,7 +1701,7 @@ Higher dimensions may not be supported.</p>
 <p>Complex tensor <code>k</code></p></div>
 </dd>
 <dt id="phiml.backend.jax.JaxBackend.from_dlpack"><code class="name flex">
-<span>def <span class="ident">from_dlpack</span></span>(<span>self, capsule)</span>
+<span>def <span class="ident">from_dlpack</span></span>(<span>self, external_array)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>

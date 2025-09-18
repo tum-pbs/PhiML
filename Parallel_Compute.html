@@ -15299,7 +15299,7 @@ body[data-format='mobile'] .jp-OutputArea-child .jp-OutputArea-output {
 </div>
 </div>
 </div>
-</div><div id="cell-id=457050c057d2006c" class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
+</div><div id="cell-id=457050c057d2006c" class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -15307,59 +15307,21 @@ body[data-format='mobile'] .jp-OutputArea-child .jp-OutputArea-output {
 <div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[5]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython2"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">phiml.dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">parallel_property</span><span class="p">,</span> <span class="n">parallel_compute</span>
+<div class=" highlight hl-ipython2"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Union</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">phiml.dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">parallel_property</span><span class="p">,</span> <span class="n">parallel_compute</span>
 
 <span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">ParallelComputation</span><span class="p">:</span>
     <span class="n">data</span><span class="p">:</span> <span class="n">Tensor</span>
 
     <span class="nd">@parallel_property</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">result</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tensor</span> <span class="o">|</span> <span class="nb">float</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">result</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="n">Tensor</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
         <span class="k">return</span> <span class="n">expensive_to_compute</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">))</span>
 </pre></div>
 
      </div>
 </div>
 </div>
-</div>
-
-<div class="jp-Cell-outputWrapper">
-<div class="jp-Collapser jp-OutputCollapser jp-Cell-outputCollapser">
-</div>
-
-
-<div class="jp-OutputArea jp-Cell-outputArea">
-<div class="jp-OutputArea-child">
-    
-    <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
-
-
-<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="application/vnd.jupyter.stderr">
-<pre>
-<span class="ansi-red-fg">---------------------------------------------------------------------------</span>
-<span class="ansi-red-fg">TypeError</span>                                 Traceback (most recent call last)
-Cell <span class="ansi-green-fg">In[5], line 4</span>
-<span class="ansi-green-intense-fg ansi-bold">      1</span> <span class="ansi-bold" style="color: rgb(0,135,0)">from</span><span style="color: rgb(188,188,188)"> </span><span class="ansi-bold" style="color: rgb(0,0,255)">phiml</span><span class="ansi-bold" style="color: rgb(0,0,255)">.</span><span class="ansi-bold" style="color: rgb(0,0,255)">dataclasses</span><span style="color: rgb(188,188,188)"> </span><span class="ansi-bold" style="color: rgb(0,135,0)">import</span> parallel_property, parallel_compute
-<span class="ansi-green-intense-fg ansi-bold">      3</span> <span style="color: rgb(175,0,255)">@dataclass</span>(frozen<span style="color: rgb(98,98,98)">=</span><span class="ansi-bold" style="color: rgb(0,135,0)">True</span>)
-<span class="ansi-green-fg">----&gt; 4</span> <span class="ansi-bold" style="color: rgb(0,135,0)">class</span><span style="color: rgb(188,188,188)"> </span><span class="ansi-bold" style="color: rgb(0,0,255)">ParallelComputation</span>:
-<span class="ansi-green-intense-fg ansi-bold">      5</span>     data: Tensor
-<span class="ansi-green-intense-fg ansi-bold">      7</span>     <span style="color: rgb(175,0,255)">@parallel_property</span>
-<span class="ansi-green-intense-fg ansi-bold">      8</span>     <span class="ansi-bold" style="color: rgb(0,135,0)">def</span><span style="color: rgb(188,188,188)"> </span><span style="color: rgb(0,0,255)">result</span>(<span style="color: rgb(0,135,0)">self</span>) <span style="color: rgb(98,98,98)">-</span><span style="color: rgb(98,98,98)">&gt;</span> Tensor <span style="color: rgb(98,98,98)">|</span> <span style="color: rgb(0,135,0)">float</span>:
-
-Cell <span class="ansi-green-fg">In[5], line 8</span>, in <span class="ansi-cyan-fg">ParallelComputation</span><span class="ansi-blue-fg">()</span>
-<span class="ansi-green-intense-fg ansi-bold">      3</span> <span style="color: rgb(175,0,255)">@dataclass</span>(frozen<span style="color: rgb(98,98,98)">=</span><span class="ansi-bold" style="color: rgb(0,135,0)">True</span>)
-<span class="ansi-green-intense-fg ansi-bold">      4</span> <span class="ansi-bold" style="color: rgb(0,135,0)">class</span><span style="color: rgb(188,188,188)"> </span><span class="ansi-bold" style="color: rgb(0,0,255)">ParallelComputation</span>:
-<span class="ansi-green-intense-fg ansi-bold">      5</span>     data: Tensor
-<span class="ansi-green-intense-fg ansi-bold">      7</span>     <span style="color: rgb(175,0,255)">@parallel_property</span>
-<span class="ansi-green-fg">----&gt; 8</span>     <span class="ansi-bold" style="color: rgb(0,135,0)">def</span><span style="color: rgb(188,188,188)"> </span><span style="color: rgb(0,0,255)">result</span>(<span style="color: rgb(0,135,0)">self</span>) <span style="color: rgb(98,98,98)">-</span><span style="color: rgb(98,98,98)">&gt;</span> <span class="ansi-yellow-bg">Tensor</span><span class="ansi-yellow-bg"> </span><span class="ansi-yellow-bg" style="color: rgb(98,98,98)">|</span><span class="ansi-yellow-bg"> </span><span class="ansi-yellow-bg" style="color: rgb(0,135,0)">float</span>:
-<span class="ansi-green-intense-fg ansi-bold">      9</span>         <span class="ansi-bold" style="color: rgb(0,135,0)">return</span> expensive_to_compute(<span style="color: rgb(0,135,0)">float</span>(<span style="color: rgb(0,135,0)">self</span><span style="color: rgb(98,98,98)">.</span>data))
-
-<span class="ansi-red-fg">TypeError</span>: unsupported operand type(s) for |: &#39;type&#39; and &#39;type&#39;</pre>
-</div>
-</div>
-
-</div>
-
 </div>
 
 </div>
@@ -15408,33 +15370,9 @@ We can trigger the parallel computation using the <code>parallel_compute</code> 
     <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
 
 
-<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="application/vnd.jupyter.stderr">
-<pre>
-<span class="ansi-red-fg">---------------------------------------------------------------------------</span>
-<span class="ansi-red-fg">TypeError</span>                                 Traceback (most recent call last)
-Cell <span class="ansi-green-fg">In[6], line 1</span>
-<span class="ansi-green-fg">----&gt; 1</span> <span class="ansi-bold" style="color: rgb(0,135,0)">from</span><span style="color: rgb(188,188,188)"> </span><span class="ansi-bold" style="color: rgb(0,0,255)">parallel_compute</span><span style="color: rgb(188,188,188)"> </span><span class="ansi-bold" style="color: rgb(0,135,0)">import</span> ParallelComputation  <span style="color: rgb(95,135,135)"># identical to above cell, but can be imported by workers</span>
-<span class="ansi-green-intense-fg ansi-bold">      3</span> <span class="ansi-bold" style="color: rgb(0,135,0)">if</span> <span style="color: rgb(0,0,135)">__name__</span> <span style="color: rgb(98,98,98)">==</span> <span style="color: rgb(175,0,0)">&#34;</span><span style="color: rgb(175,0,0)">__main__</span><span style="color: rgb(175,0,0)">&#34;</span>:
-<span class="ansi-green-intense-fg ansi-bold">      4</span>     computation <span style="color: rgb(98,98,98)">=</span> ParallelComputation(data)
-
-File <span class="ansi-green-fg">~/work/PhiML/PhiML/docs/parallel_compute.py:16</span>
-<span class="ansi-green-intense-fg ansi-bold">     11</span>     time<span style="color: rgb(98,98,98)">.</span>sleep(<span style="color: rgb(98,98,98)">1</span>)  <span style="color: rgb(95,135,135)"># Simulate an expensive computation</span>
-<span class="ansi-green-intense-fg ansi-bold">     12</span>     <span class="ansi-bold" style="color: rgb(0,135,0)">return</span> <span style="color: rgb(98,98,98)">2</span> <span style="color: rgb(98,98,98)">*</span> x
-<span class="ansi-green-intense-fg ansi-bold">     15</span> <span style="color: rgb(175,0,255)">@dataclass</span>(frozen<span style="color: rgb(98,98,98)">=</span><span class="ansi-bold" style="color: rgb(0,135,0)">True</span>)
-<span class="ansi-green-fg">---&gt; 16</span> <span class="ansi-bold" style="color: rgb(0,135,0)">class</span><span style="color: rgb(188,188,188)"> </span><span class="ansi-bold" style="color: rgb(0,0,255)">ParallelComputation</span>:
-<span class="ansi-green-intense-fg ansi-bold">     17</span>     data: Tensor
-<span class="ansi-green-intense-fg ansi-bold">     19</span>     <span style="color: rgb(175,0,255)">@parallel_property</span>
-<span class="ansi-green-intense-fg ansi-bold">     20</span>     <span class="ansi-bold" style="color: rgb(0,135,0)">def</span><span style="color: rgb(188,188,188)"> </span><span style="color: rgb(0,0,255)">result</span>(<span style="color: rgb(0,135,0)">self</span>) <span style="color: rgb(98,98,98)">-</span><span style="color: rgb(98,98,98)">&gt;</span> Tensor <span style="color: rgb(98,98,98)">|</span> <span style="color: rgb(0,135,0)">float</span>:
-
-File <span class="ansi-green-fg">~/work/PhiML/PhiML/docs/parallel_compute.py:20</span>, in <span class="ansi-cyan-fg">ParallelComputation</span><span class="ansi-blue-fg">()</span>
-<span class="ansi-green-intense-fg ansi-bold">     15</span> <span style="color: rgb(175,0,255)">@dataclass</span>(frozen<span style="color: rgb(98,98,98)">=</span><span class="ansi-bold" style="color: rgb(0,135,0)">True</span>)
-<span class="ansi-green-intense-fg ansi-bold">     16</span> <span class="ansi-bold" style="color: rgb(0,135,0)">class</span><span style="color: rgb(188,188,188)"> </span><span class="ansi-bold" style="color: rgb(0,0,255)">ParallelComputation</span>:
-<span class="ansi-green-intense-fg ansi-bold">     17</span>     data: Tensor
-<span class="ansi-green-intense-fg ansi-bold">     19</span>     <span style="color: rgb(175,0,255)">@parallel_property</span>
-<span class="ansi-green-fg">---&gt; 20</span>     <span class="ansi-bold" style="color: rgb(0,135,0)">def</span><span style="color: rgb(188,188,188)"> </span><span style="color: rgb(0,0,255)">result</span>(<span style="color: rgb(0,135,0)">self</span>) <span style="color: rgb(98,98,98)">-</span><span style="color: rgb(98,98,98)">&gt;</span> <span class="ansi-yellow-bg">Tensor</span><span class="ansi-yellow-bg"> </span><span class="ansi-yellow-bg" style="color: rgb(98,98,98)">|</span><span class="ansi-yellow-bg"> </span><span class="ansi-yellow-bg" style="color: rgb(0,135,0)">float</span>:
-<span class="ansi-green-intense-fg ansi-bold">     21</span>         <span class="ansi-bold" style="color: rgb(0,135,0)">return</span> expensive_to_compute(<span style="color: rgb(0,135,0)">float</span>(<span style="color: rgb(0,135,0)">self</span><span style="color: rgb(98,98,98)">.</span>data))
-
-<span class="ansi-red-fg">TypeError</span>: unsupported operand type(s) for |: &#39;type&#39; and &#39;type&#39;</pre>
+<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
+<pre><span class="ansi-blue-intense-fg">(2.000, 4.000, 6.000)</span> along <span class="ansi-green-intense-fg">dataᵇ</span> <span class="ansi-yellow-intense-fg">float64</span>
+</pre>
 </div>
 </div>
 
@@ -15466,7 +15404,7 @@ File <span class="ansi-green-fg">~/work/PhiML/PhiML/docs/parallel_compute.py:20<
 </div>
 </div>
 </div>
-</div><div id="cell-id=ed0cc14d078bc6a3" class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
+</div><div id="cell-id=ed0cc14d078bc6a3" class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -15479,57 +15417,17 @@ File <span class="ansi-green-fg">~/work/PhiML/PhiML/docs/parallel_compute.py:20<
     <span class="n">data</span><span class="p">:</span> <span class="n">Tensor</span>
 
     <span class="nd">@cached_property</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">tmp_result</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tensor</span> <span class="o">|</span> <span class="nb">float</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">tmp_result</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="n">Tensor</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
         <span class="k">return</span> <span class="n">expensive_to_compute</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">))</span>
 
     <span class="nd">@cached_property</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">result</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tensor</span> <span class="o">|</span> <span class="nb">float</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">result</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="n">Tensor</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">tmp_result</span> <span class="o">+</span> <span class="mi">1</span>
 </pre></div>
 
      </div>
 </div>
 </div>
-</div>
-
-<div class="jp-Cell-outputWrapper">
-<div class="jp-Collapser jp-OutputCollapser jp-Cell-outputCollapser">
-</div>
-
-
-<div class="jp-OutputArea jp-Cell-outputArea">
-<div class="jp-OutputArea-child">
-    
-    <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
-
-
-<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="application/vnd.jupyter.stderr">
-<pre>
-<span class="ansi-red-fg">---------------------------------------------------------------------------</span>
-<span class="ansi-red-fg">TypeError</span>                                 Traceback (most recent call last)
-Cell <span class="ansi-green-fg">In[7], line 2</span>
-<span class="ansi-green-intense-fg ansi-bold">      1</span> <span style="color: rgb(175,0,255)">@dataclass</span>(frozen<span style="color: rgb(98,98,98)">=</span><span class="ansi-bold" style="color: rgb(0,135,0)">True</span>)
-<span class="ansi-green-fg">----&gt; 2</span> <span class="ansi-bold" style="color: rgb(0,135,0)">class</span><span style="color: rgb(188,188,188)"> </span><span class="ansi-bold" style="color: rgb(0,0,255)">ParallelDepComputation</span>:
-<span class="ansi-green-intense-fg ansi-bold">      3</span>     data: Tensor
-<span class="ansi-green-intense-fg ansi-bold">      5</span>     <span style="color: rgb(175,0,255)">@cached_property</span>
-<span class="ansi-green-intense-fg ansi-bold">      6</span>     <span class="ansi-bold" style="color: rgb(0,135,0)">def</span><span style="color: rgb(188,188,188)"> </span><span style="color: rgb(0,0,255)">tmp_result</span>(<span style="color: rgb(0,135,0)">self</span>) <span style="color: rgb(98,98,98)">-</span><span style="color: rgb(98,98,98)">&gt;</span> Tensor <span style="color: rgb(98,98,98)">|</span> <span style="color: rgb(0,135,0)">float</span>:
-
-Cell <span class="ansi-green-fg">In[7], line 6</span>, in <span class="ansi-cyan-fg">ParallelDepComputation</span><span class="ansi-blue-fg">()</span>
-<span class="ansi-green-intense-fg ansi-bold">      1</span> <span style="color: rgb(175,0,255)">@dataclass</span>(frozen<span style="color: rgb(98,98,98)">=</span><span class="ansi-bold" style="color: rgb(0,135,0)">True</span>)
-<span class="ansi-green-intense-fg ansi-bold">      2</span> <span class="ansi-bold" style="color: rgb(0,135,0)">class</span><span style="color: rgb(188,188,188)"> </span><span class="ansi-bold" style="color: rgb(0,0,255)">ParallelDepComputation</span>:
-<span class="ansi-green-intense-fg ansi-bold">      3</span>     data: Tensor
-<span class="ansi-green-intense-fg ansi-bold">      5</span>     <span style="color: rgb(175,0,255)">@cached_property</span>
-<span class="ansi-green-fg">----&gt; 6</span>     <span class="ansi-bold" style="color: rgb(0,135,0)">def</span><span style="color: rgb(188,188,188)"> </span><span style="color: rgb(0,0,255)">tmp_result</span>(<span style="color: rgb(0,135,0)">self</span>) <span style="color: rgb(98,98,98)">-</span><span style="color: rgb(98,98,98)">&gt;</span> <span class="ansi-yellow-bg">Tensor</span><span class="ansi-yellow-bg"> </span><span class="ansi-yellow-bg" style="color: rgb(98,98,98)">|</span><span class="ansi-yellow-bg"> </span><span class="ansi-yellow-bg" style="color: rgb(0,135,0)">float</span>:
-<span class="ansi-green-intense-fg ansi-bold">      7</span>         <span class="ansi-bold" style="color: rgb(0,135,0)">return</span> expensive_to_compute(<span style="color: rgb(0,135,0)">float</span>(<span style="color: rgb(0,135,0)">self</span><span style="color: rgb(98,98,98)">.</span>data))
-<span class="ansi-green-intense-fg ansi-bold">      9</span>     <span style="color: rgb(175,0,255)">@cached_property</span>
-<span class="ansi-green-intense-fg ansi-bold">     10</span>     <span class="ansi-bold" style="color: rgb(0,135,0)">def</span><span style="color: rgb(188,188,188)"> </span><span style="color: rgb(0,0,255)">result</span>(<span style="color: rgb(0,135,0)">self</span>) <span style="color: rgb(98,98,98)">-</span><span style="color: rgb(98,98,98)">&gt;</span> Tensor <span style="color: rgb(98,98,98)">|</span> <span style="color: rgb(0,135,0)">float</span>:
-
-<span class="ansi-red-fg">TypeError</span>: unsupported operand type(s) for |: &#39;type&#39; and &#39;type&#39;</pre>
-</div>
-</div>
-
-</div>
-
 </div>
 
 </div>
@@ -15575,33 +15473,9 @@ Cell <span class="ansi-green-fg">In[7], line 6</span>, in <span class="ansi-cyan
     <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
 
 
-<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="application/vnd.jupyter.stderr">
-<pre>
-<span class="ansi-red-fg">---------------------------------------------------------------------------</span>
-<span class="ansi-red-fg">TypeError</span>                                 Traceback (most recent call last)
-Cell <span class="ansi-green-fg">In[8], line 1</span>
-<span class="ansi-green-fg">----&gt; 1</span> <span class="ansi-bold" style="color: rgb(0,135,0)">from</span><span style="color: rgb(188,188,188)"> </span><span class="ansi-bold" style="color: rgb(0,0,255)">parallel_compute</span><span style="color: rgb(188,188,188)"> </span><span class="ansi-bold" style="color: rgb(0,135,0)">import</span> ParallelDepComputation  <span style="color: rgb(95,135,135)"># identical to above cell, but can be imported by workers</span>
-<span class="ansi-green-intense-fg ansi-bold">      2</span> <span class="ansi-bold" style="color: rgb(0,135,0)">if</span> <span style="color: rgb(0,0,135)">__name__</span> <span style="color: rgb(98,98,98)">==</span> <span style="color: rgb(175,0,0)">&#34;</span><span style="color: rgb(175,0,0)">__main__</span><span style="color: rgb(175,0,0)">&#34;</span>:
-<span class="ansi-green-intense-fg ansi-bold">      3</span>     computation <span style="color: rgb(98,98,98)">=</span> ParallelDepComputation(data)
-
-File <span class="ansi-green-fg">~/work/PhiML/PhiML/docs/parallel_compute.py:16</span>
-<span class="ansi-green-intense-fg ansi-bold">     11</span>     time<span style="color: rgb(98,98,98)">.</span>sleep(<span style="color: rgb(98,98,98)">1</span>)  <span style="color: rgb(95,135,135)"># Simulate an expensive computation</span>
-<span class="ansi-green-intense-fg ansi-bold">     12</span>     <span class="ansi-bold" style="color: rgb(0,135,0)">return</span> <span style="color: rgb(98,98,98)">2</span> <span style="color: rgb(98,98,98)">*</span> x
-<span class="ansi-green-intense-fg ansi-bold">     15</span> <span style="color: rgb(175,0,255)">@dataclass</span>(frozen<span style="color: rgb(98,98,98)">=</span><span class="ansi-bold" style="color: rgb(0,135,0)">True</span>)
-<span class="ansi-green-fg">---&gt; 16</span> <span class="ansi-bold" style="color: rgb(0,135,0)">class</span><span style="color: rgb(188,188,188)"> </span><span class="ansi-bold" style="color: rgb(0,0,255)">ParallelComputation</span>:
-<span class="ansi-green-intense-fg ansi-bold">     17</span>     data: Tensor
-<span class="ansi-green-intense-fg ansi-bold">     19</span>     <span style="color: rgb(175,0,255)">@parallel_property</span>
-<span class="ansi-green-intense-fg ansi-bold">     20</span>     <span class="ansi-bold" style="color: rgb(0,135,0)">def</span><span style="color: rgb(188,188,188)"> </span><span style="color: rgb(0,0,255)">result</span>(<span style="color: rgb(0,135,0)">self</span>) <span style="color: rgb(98,98,98)">-</span><span style="color: rgb(98,98,98)">&gt;</span> Tensor <span style="color: rgb(98,98,98)">|</span> <span style="color: rgb(0,135,0)">float</span>:
-
-File <span class="ansi-green-fg">~/work/PhiML/PhiML/docs/parallel_compute.py:20</span>, in <span class="ansi-cyan-fg">ParallelComputation</span><span class="ansi-blue-fg">()</span>
-<span class="ansi-green-intense-fg ansi-bold">     15</span> <span style="color: rgb(175,0,255)">@dataclass</span>(frozen<span style="color: rgb(98,98,98)">=</span><span class="ansi-bold" style="color: rgb(0,135,0)">True</span>)
-<span class="ansi-green-intense-fg ansi-bold">     16</span> <span class="ansi-bold" style="color: rgb(0,135,0)">class</span><span style="color: rgb(188,188,188)"> </span><span class="ansi-bold" style="color: rgb(0,0,255)">ParallelComputation</span>:
-<span class="ansi-green-intense-fg ansi-bold">     17</span>     data: Tensor
-<span class="ansi-green-intense-fg ansi-bold">     19</span>     <span style="color: rgb(175,0,255)">@parallel_property</span>
-<span class="ansi-green-fg">---&gt; 20</span>     <span class="ansi-bold" style="color: rgb(0,135,0)">def</span><span style="color: rgb(188,188,188)"> </span><span style="color: rgb(0,0,255)">result</span>(<span style="color: rgb(0,135,0)">self</span>) <span style="color: rgb(98,98,98)">-</span><span style="color: rgb(98,98,98)">&gt;</span> <span class="ansi-yellow-bg">Tensor</span><span class="ansi-yellow-bg"> </span><span class="ansi-yellow-bg" style="color: rgb(98,98,98)">|</span><span class="ansi-yellow-bg"> </span><span class="ansi-yellow-bg" style="color: rgb(0,135,0)">float</span>:
-<span class="ansi-green-intense-fg ansi-bold">     21</span>         <span class="ansi-bold" style="color: rgb(0,135,0)">return</span> expensive_to_compute(<span style="color: rgb(0,135,0)">float</span>(<span style="color: rgb(0,135,0)">self</span><span style="color: rgb(98,98,98)">.</span>data))
-
-<span class="ansi-red-fg">TypeError</span>: unsupported operand type(s) for |: &#39;type&#39; and &#39;type&#39;</pre>
+<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
+<pre><span class="ansi-blue-intense-fg">(3.000, 5.000, 7.000)</span> along <span class="ansi-green-intense-fg">dataᵇ</span> <span class="ansi-yellow-intense-fg">float64</span>
+</pre>
 </div>
 </div>
 
@@ -15643,20 +15517,18 @@ File <span class="ansi-green-fg">~/work/PhiML/PhiML/docs/parallel_compute.py:20<
 
 
 <div class="jp-OutputArea jp-Cell-outputArea">
-<div class="jp-OutputArea-child">
+<div class="jp-OutputArea-child jp-OutputArea-executeResult">
     
-    <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[9]:</div>
 
 
-<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="application/vnd.jupyter.stderr">
-<pre>
-<span class="ansi-red-fg">---------------------------------------------------------------------------</span>
-<span class="ansi-red-fg">NameError</span>                                 Traceback (most recent call last)
-Cell <span class="ansi-green-fg">In[9], line 1</span>
-<span class="ansi-green-fg">----&gt; 1</span> <span class="ansi-yellow-bg">computation</span><span style="color: rgb(98,98,98)">.</span><span style="color: rgb(0,0,135)">__dict__</span>
 
-<span class="ansi-red-fg">NameError</span>: name &#39;computation&#39; is not defined</pre>
+
+<div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
+<pre>{&#39;data&#39;: <span class="ansi-blue-intense-fg">(1.000, 2.000, 3.000)</span> along <span class="ansi-green-intense-fg">dataᵇ</span>,
+ &#39;result&#39;: <span class="ansi-blue-intense-fg">(3.000, 5.000, 7.000)</span> along <span class="ansi-green-intense-fg">dataᵇ</span> <span class="ansi-yellow-intense-fg">float64</span>}</pre>
 </div>
+
 </div>
 
 </div>
@@ -15676,7 +15548,7 @@ Cell <span class="ansi-green-fg">In[9], line 1</span>
 </div>
 </div>
 </div>
-</div><div id="cell-id=48a942d9eaff3554" class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
+</div><div id="cell-id=48a942d9eaff3554" class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -15692,12 +15564,12 @@ Cell <span class="ansi-green-fg">In[9], line 1</span>
     <span class="n">data</span><span class="p">:</span> <span class="n">Tensor</span>
 
     <span class="nd">@parallel_property</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">individual_result</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tensor</span> <span class="o">|</span> <span class="nb">float</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">individual_result</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="n">Tensor</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
         <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Computing individual_result pid=</span><span class="si">{</span><span class="n">os</span><span class="o">.</span><span class="n">getpid</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">expensive_to_compute</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">))</span>
 
     <span class="nd">@parallel_property</span><span class="p">(</span><span class="n">requires</span><span class="o">=</span><span class="n">batch</span><span class="p">)</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">mean</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tensor</span> <span class="o">|</span> <span class="nb">float</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">mean</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="n">Tensor</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
         <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Computing mean, pid=</span><span class="si">{</span><span class="n">os</span><span class="o">.</span><span class="n">getpid</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">mean</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">individual_result</span><span class="p">,</span> <span class="n">batch</span><span class="p">)</span>
 </pre></div>
@@ -15705,47 +15577,6 @@ Cell <span class="ansi-green-fg">In[9], line 1</span>
      </div>
 </div>
 </div>
-</div>
-
-<div class="jp-Cell-outputWrapper">
-<div class="jp-Collapser jp-OutputCollapser jp-Cell-outputCollapser">
-</div>
-
-
-<div class="jp-OutputArea jp-Cell-outputArea">
-<div class="jp-OutputArea-child">
-    
-    <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
-
-
-<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="application/vnd.jupyter.stderr">
-<pre>
-<span class="ansi-red-fg">---------------------------------------------------------------------------</span>
-<span class="ansi-red-fg">TypeError</span>                                 Traceback (most recent call last)
-Cell <span class="ansi-green-fg">In[10], line 5</span>
-<span class="ansi-green-intense-fg ansi-bold">      1</span> <span class="ansi-bold" style="color: rgb(0,135,0)">import</span><span style="color: rgb(188,188,188)"> </span><span class="ansi-bold" style="color: rgb(0,0,255)">os</span>
-<span class="ansi-green-intense-fg ansi-bold">      2</span> <span class="ansi-bold" style="color: rgb(0,135,0)">from</span><span style="color: rgb(188,188,188)"> </span><span class="ansi-bold" style="color: rgb(0,0,255)">phiml</span><span style="color: rgb(188,188,188)"> </span><span class="ansi-bold" style="color: rgb(0,135,0)">import</span> mean, batch
-<span class="ansi-green-intense-fg ansi-bold">      4</span> <span style="color: rgb(175,0,255)">@dataclass</span>(frozen<span style="color: rgb(98,98,98)">=</span><span class="ansi-bold" style="color: rgb(0,135,0)">True</span>)
-<span class="ansi-green-fg">----&gt; 5</span> <span class="ansi-bold" style="color: rgb(0,135,0)">class</span><span style="color: rgb(188,188,188)"> </span><span class="ansi-bold" style="color: rgb(0,0,255)">ParallelMeanComputation</span>:
-<span class="ansi-green-intense-fg ansi-bold">      6</span>     data: Tensor
-<span class="ansi-green-intense-fg ansi-bold">      8</span>     <span style="color: rgb(175,0,255)">@parallel_property</span>
-<span class="ansi-green-intense-fg ansi-bold">      9</span>     <span class="ansi-bold" style="color: rgb(0,135,0)">def</span><span style="color: rgb(188,188,188)"> </span><span style="color: rgb(0,0,255)">individual_result</span>(<span style="color: rgb(0,135,0)">self</span>) <span style="color: rgb(98,98,98)">-</span><span style="color: rgb(98,98,98)">&gt;</span> Tensor <span style="color: rgb(98,98,98)">|</span> <span style="color: rgb(0,135,0)">float</span>:
-
-Cell <span class="ansi-green-fg">In[10], line 9</span>, in <span class="ansi-cyan-fg">ParallelMeanComputation</span><span class="ansi-blue-fg">()</span>
-<span class="ansi-green-intense-fg ansi-bold">      4</span> <span style="color: rgb(175,0,255)">@dataclass</span>(frozen<span style="color: rgb(98,98,98)">=</span><span class="ansi-bold" style="color: rgb(0,135,0)">True</span>)
-<span class="ansi-green-intense-fg ansi-bold">      5</span> <span class="ansi-bold" style="color: rgb(0,135,0)">class</span><span style="color: rgb(188,188,188)"> </span><span class="ansi-bold" style="color: rgb(0,0,255)">ParallelMeanComputation</span>:
-<span class="ansi-green-intense-fg ansi-bold">      6</span>     data: Tensor
-<span class="ansi-green-intense-fg ansi-bold">      8</span>     <span style="color: rgb(175,0,255)">@parallel_property</span>
-<span class="ansi-green-fg">----&gt; 9</span>     <span class="ansi-bold" style="color: rgb(0,135,0)">def</span><span style="color: rgb(188,188,188)"> </span><span style="color: rgb(0,0,255)">individual_result</span>(<span style="color: rgb(0,135,0)">self</span>) <span style="color: rgb(98,98,98)">-</span><span style="color: rgb(98,98,98)">&gt;</span> <span class="ansi-yellow-bg">Tensor</span><span class="ansi-yellow-bg"> </span><span class="ansi-yellow-bg" style="color: rgb(98,98,98)">|</span><span class="ansi-yellow-bg"> </span><span class="ansi-yellow-bg" style="color: rgb(0,135,0)">float</span>:
-<span class="ansi-green-intense-fg ansi-bold">     10</span>         <span style="color: rgb(0,135,0)">print</span>(<span style="color: rgb(175,0,0)">f</span><span style="color: rgb(175,0,0)">&#34;</span><span style="color: rgb(175,0,0)">Computing individual_result pid=</span><span class="ansi-bold" style="color: rgb(175,95,135)">{</span>os<span style="color: rgb(98,98,98)">.</span>getpid()<span class="ansi-bold" style="color: rgb(175,95,135)">}</span><span style="color: rgb(175,0,0)">&#34;</span>)
-<span class="ansi-green-intense-fg ansi-bold">     11</span>         <span class="ansi-bold" style="color: rgb(0,135,0)">return</span> expensive_to_compute(<span style="color: rgb(0,135,0)">float</span>(<span style="color: rgb(0,135,0)">self</span><span style="color: rgb(98,98,98)">.</span>data))
-
-<span class="ansi-red-fg">TypeError</span>: unsupported operand type(s) for |: &#39;type&#39; and &#39;type&#39;</pre>
-</div>
-</div>
-
-</div>
-
 </div>
 
 </div><div id="cell-id=a067281a06e2efe1" class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
@@ -15780,33 +15611,14 @@ Cell <span class="ansi-green-fg">In[10], line 9</span>, in <span class="ansi-cya
     <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
 
 
-<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="application/vnd.jupyter.stderr">
-<pre>
-<span class="ansi-red-fg">---------------------------------------------------------------------------</span>
-<span class="ansi-red-fg">TypeError</span>                                 Traceback (most recent call last)
-Cell <span class="ansi-green-fg">In[11], line 1</span>
-<span class="ansi-green-fg">----&gt; 1</span> <span class="ansi-bold" style="color: rgb(0,135,0)">from</span><span style="color: rgb(188,188,188)"> </span><span class="ansi-bold" style="color: rgb(0,0,255)">parallel_compute</span><span style="color: rgb(188,188,188)"> </span><span class="ansi-bold" style="color: rgb(0,135,0)">import</span> ParallelMeanComputation  <span style="color: rgb(95,135,135)"># identical to above cell, but can be imported by workers</span>
-<span class="ansi-green-intense-fg ansi-bold">      2</span> <span class="ansi-bold" style="color: rgb(0,135,0)">if</span> <span style="color: rgb(0,0,135)">__name__</span> <span style="color: rgb(98,98,98)">==</span> <span style="color: rgb(175,0,0)">&#34;</span><span style="color: rgb(175,0,0)">__main__</span><span style="color: rgb(175,0,0)">&#34;</span>:
-<span class="ansi-green-intense-fg ansi-bold">      3</span>     <span style="color: rgb(0,135,0)">print</span>(<span style="color: rgb(175,0,0)">f</span><span style="color: rgb(175,0,0)">&#34;</span><span style="color: rgb(175,0,0)">Host pid=</span><span class="ansi-bold" style="color: rgb(175,95,135)">{</span>os<span style="color: rgb(98,98,98)">.</span>getpid()<span class="ansi-bold" style="color: rgb(175,95,135)">}</span><span style="color: rgb(175,0,0)">&#34;</span>)
+<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
+<pre>Host pid=3383
+Computing individual_result pid=3444Computing individual_result pid=3446Computing individual_result pid=3445
 
-File <span class="ansi-green-fg">~/work/PhiML/PhiML/docs/parallel_compute.py:16</span>
-<span class="ansi-green-intense-fg ansi-bold">     11</span>     time<span style="color: rgb(98,98,98)">.</span>sleep(<span style="color: rgb(98,98,98)">1</span>)  <span style="color: rgb(95,135,135)"># Simulate an expensive computation</span>
-<span class="ansi-green-intense-fg ansi-bold">     12</span>     <span class="ansi-bold" style="color: rgb(0,135,0)">return</span> <span style="color: rgb(98,98,98)">2</span> <span style="color: rgb(98,98,98)">*</span> x
-<span class="ansi-green-intense-fg ansi-bold">     15</span> <span style="color: rgb(175,0,255)">@dataclass</span>(frozen<span style="color: rgb(98,98,98)">=</span><span class="ansi-bold" style="color: rgb(0,135,0)">True</span>)
-<span class="ansi-green-fg">---&gt; 16</span> <span class="ansi-bold" style="color: rgb(0,135,0)">class</span><span style="color: rgb(188,188,188)"> </span><span class="ansi-bold" style="color: rgb(0,0,255)">ParallelComputation</span>:
-<span class="ansi-green-intense-fg ansi-bold">     17</span>     data: Tensor
-<span class="ansi-green-intense-fg ansi-bold">     19</span>     <span style="color: rgb(175,0,255)">@parallel_property</span>
-<span class="ansi-green-intense-fg ansi-bold">     20</span>     <span class="ansi-bold" style="color: rgb(0,135,0)">def</span><span style="color: rgb(188,188,188)"> </span><span style="color: rgb(0,0,255)">result</span>(<span style="color: rgb(0,135,0)">self</span>) <span style="color: rgb(98,98,98)">-</span><span style="color: rgb(98,98,98)">&gt;</span> Tensor <span style="color: rgb(98,98,98)">|</span> <span style="color: rgb(0,135,0)">float</span>:
 
-File <span class="ansi-green-fg">~/work/PhiML/PhiML/docs/parallel_compute.py:20</span>, in <span class="ansi-cyan-fg">ParallelComputation</span><span class="ansi-blue-fg">()</span>
-<span class="ansi-green-intense-fg ansi-bold">     15</span> <span style="color: rgb(175,0,255)">@dataclass</span>(frozen<span style="color: rgb(98,98,98)">=</span><span class="ansi-bold" style="color: rgb(0,135,0)">True</span>)
-<span class="ansi-green-intense-fg ansi-bold">     16</span> <span class="ansi-bold" style="color: rgb(0,135,0)">class</span><span style="color: rgb(188,188,188)"> </span><span class="ansi-bold" style="color: rgb(0,0,255)">ParallelComputation</span>:
-<span class="ansi-green-intense-fg ansi-bold">     17</span>     data: Tensor
-<span class="ansi-green-intense-fg ansi-bold">     19</span>     <span style="color: rgb(175,0,255)">@parallel_property</span>
-<span class="ansi-green-fg">---&gt; 20</span>     <span class="ansi-bold" style="color: rgb(0,135,0)">def</span><span style="color: rgb(188,188,188)"> </span><span style="color: rgb(0,0,255)">result</span>(<span style="color: rgb(0,135,0)">self</span>) <span style="color: rgb(98,98,98)">-</span><span style="color: rgb(98,98,98)">&gt;</span> <span class="ansi-yellow-bg">Tensor</span><span class="ansi-yellow-bg"> </span><span class="ansi-yellow-bg" style="color: rgb(98,98,98)">|</span><span class="ansi-yellow-bg"> </span><span class="ansi-yellow-bg" style="color: rgb(0,135,0)">float</span>:
-<span class="ansi-green-intense-fg ansi-bold">     21</span>         <span class="ansi-bold" style="color: rgb(0,135,0)">return</span> expensive_to_compute(<span style="color: rgb(0,135,0)">float</span>(<span style="color: rgb(0,135,0)">self</span><span style="color: rgb(98,98,98)">.</span>data))
-
-<span class="ansi-red-fg">TypeError</span>: unsupported operand type(s) for |: &#39;type&#39; and &#39;type&#39;</pre>
+Computing mean, pid=3383
+<span class="ansi-yellow-intense-fg">float64</span> <span class="ansi-blue-intense-fg">4.0</span>
+</pre>
 </div>
 </div>
 
@@ -15829,7 +15641,7 @@ This is achieved by building a dependency graph of all involved properties under
 </div>
 </div>
 </div>
-</div><div id="cell-id=790e9d48bced8d80" class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
+</div><div id="cell-id=790e9d48bced8d80" class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -15842,17 +15654,17 @@ This is achieved by building a dependency graph of all involved properties under
     <span class="n">data</span><span class="p">:</span> <span class="n">Tensor</span>
 
     <span class="nd">@parallel_property</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">individual_result</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tensor</span> <span class="o">|</span> <span class="nb">float</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">individual_result</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="n">Tensor</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
         <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Computing individual_result pid=</span><span class="si">{</span><span class="n">os</span><span class="o">.</span><span class="n">getpid</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">expensive_to_compute</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">))</span>
 
     <span class="nd">@parallel_property</span><span class="p">(</span><span class="n">requires</span><span class="o">=</span><span class="n">batch</span><span class="p">)</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">mean</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tensor</span> <span class="o">|</span> <span class="nb">float</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">mean</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="n">Tensor</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
         <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Computing mean, pid=</span><span class="si">{</span><span class="n">os</span><span class="o">.</span><span class="n">getpid</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">mean</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">individual_result</span><span class="p">,</span> <span class="n">batch</span><span class="p">)</span>
 
     <span class="nd">@parallel_property</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">normalized_result</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tensor</span> <span class="o">|</span> <span class="nb">float</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">normalized_result</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="n">Tensor</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
         <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Computing normalized_result pid=</span><span class="si">{</span><span class="n">os</span><span class="o">.</span><span class="n">getpid</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">individual_result</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">mean</span>
 </pre></div>
@@ -15860,45 +15672,6 @@ This is achieved by building a dependency graph of all involved properties under
      </div>
 </div>
 </div>
-</div>
-
-<div class="jp-Cell-outputWrapper">
-<div class="jp-Collapser jp-OutputCollapser jp-Cell-outputCollapser">
-</div>
-
-
-<div class="jp-OutputArea jp-Cell-outputArea">
-<div class="jp-OutputArea-child">
-    
-    <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
-
-
-<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="application/vnd.jupyter.stderr">
-<pre>
-<span class="ansi-red-fg">---------------------------------------------------------------------------</span>
-<span class="ansi-red-fg">TypeError</span>                                 Traceback (most recent call last)
-Cell <span class="ansi-green-fg">In[12], line 2</span>
-<span class="ansi-green-intense-fg ansi-bold">      1</span> <span style="color: rgb(175,0,255)">@dataclass</span>(frozen<span style="color: rgb(98,98,98)">=</span><span class="ansi-bold" style="color: rgb(0,135,0)">True</span>)
-<span class="ansi-green-fg">----&gt; 2</span> <span class="ansi-bold" style="color: rgb(0,135,0)">class</span><span style="color: rgb(188,188,188)"> </span><span class="ansi-bold" style="color: rgb(0,0,255)">ParallelNormComputation</span>:
-<span class="ansi-green-intense-fg ansi-bold">      3</span>     data: Tensor
-<span class="ansi-green-intense-fg ansi-bold">      5</span>     <span style="color: rgb(175,0,255)">@parallel_property</span>
-<span class="ansi-green-intense-fg ansi-bold">      6</span>     <span class="ansi-bold" style="color: rgb(0,135,0)">def</span><span style="color: rgb(188,188,188)"> </span><span style="color: rgb(0,0,255)">individual_result</span>(<span style="color: rgb(0,135,0)">self</span>) <span style="color: rgb(98,98,98)">-</span><span style="color: rgb(98,98,98)">&gt;</span> Tensor <span style="color: rgb(98,98,98)">|</span> <span style="color: rgb(0,135,0)">float</span>:
-
-Cell <span class="ansi-green-fg">In[12], line 6</span>, in <span class="ansi-cyan-fg">ParallelNormComputation</span><span class="ansi-blue-fg">()</span>
-<span class="ansi-green-intense-fg ansi-bold">      1</span> <span style="color: rgb(175,0,255)">@dataclass</span>(frozen<span style="color: rgb(98,98,98)">=</span><span class="ansi-bold" style="color: rgb(0,135,0)">True</span>)
-<span class="ansi-green-intense-fg ansi-bold">      2</span> <span class="ansi-bold" style="color: rgb(0,135,0)">class</span><span style="color: rgb(188,188,188)"> </span><span class="ansi-bold" style="color: rgb(0,0,255)">ParallelNormComputation</span>:
-<span class="ansi-green-intense-fg ansi-bold">      3</span>     data: Tensor
-<span class="ansi-green-intense-fg ansi-bold">      5</span>     <span style="color: rgb(175,0,255)">@parallel_property</span>
-<span class="ansi-green-fg">----&gt; 6</span>     <span class="ansi-bold" style="color: rgb(0,135,0)">def</span><span style="color: rgb(188,188,188)"> </span><span style="color: rgb(0,0,255)">individual_result</span>(<span style="color: rgb(0,135,0)">self</span>) <span style="color: rgb(98,98,98)">-</span><span style="color: rgb(98,98,98)">&gt;</span> <span class="ansi-yellow-bg">Tensor</span><span class="ansi-yellow-bg"> </span><span class="ansi-yellow-bg" style="color: rgb(98,98,98)">|</span><span class="ansi-yellow-bg"> </span><span class="ansi-yellow-bg" style="color: rgb(0,135,0)">float</span>:
-<span class="ansi-green-intense-fg ansi-bold">      7</span>         <span style="color: rgb(0,135,0)">print</span>(<span style="color: rgb(175,0,0)">f</span><span style="color: rgb(175,0,0)">&#34;</span><span style="color: rgb(175,0,0)">Computing individual_result pid=</span><span class="ansi-bold" style="color: rgb(175,95,135)">{</span>os<span style="color: rgb(98,98,98)">.</span>getpid()<span class="ansi-bold" style="color: rgb(175,95,135)">}</span><span style="color: rgb(175,0,0)">&#34;</span>)
-<span class="ansi-green-intense-fg ansi-bold">      8</span>         <span class="ansi-bold" style="color: rgb(0,135,0)">return</span> expensive_to_compute(<span style="color: rgb(0,135,0)">float</span>(<span style="color: rgb(0,135,0)">self</span><span style="color: rgb(98,98,98)">.</span>data))
-
-<span class="ansi-red-fg">TypeError</span>: unsupported operand type(s) for |: &#39;type&#39; and &#39;type&#39;</pre>
-</div>
-</div>
-
-</div>
-
 </div>
 
 </div><div id="cell-id=2dd0eba8e573010" class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
@@ -15933,33 +15706,17 @@ Cell <span class="ansi-green-fg">In[12], line 6</span>, in <span class="ansi-cya
     <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
 
 
-<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="application/vnd.jupyter.stderr">
-<pre>
-<span class="ansi-red-fg">---------------------------------------------------------------------------</span>
-<span class="ansi-red-fg">TypeError</span>                                 Traceback (most recent call last)
-Cell <span class="ansi-green-fg">In[13], line 1</span>
-<span class="ansi-green-fg">----&gt; 1</span> <span class="ansi-bold" style="color: rgb(0,135,0)">from</span><span style="color: rgb(188,188,188)"> </span><span class="ansi-bold" style="color: rgb(0,0,255)">parallel_compute</span><span style="color: rgb(188,188,188)"> </span><span class="ansi-bold" style="color: rgb(0,135,0)">import</span> ParallelNormComputation
-<span class="ansi-green-intense-fg ansi-bold">      2</span> <span class="ansi-bold" style="color: rgb(0,135,0)">if</span> <span style="color: rgb(0,0,135)">__name__</span> <span style="color: rgb(98,98,98)">==</span> <span style="color: rgb(175,0,0)">&#34;</span><span style="color: rgb(175,0,0)">__main__</span><span style="color: rgb(175,0,0)">&#34;</span>:
-<span class="ansi-green-intense-fg ansi-bold">      3</span>     <span style="color: rgb(0,135,0)">print</span>(<span style="color: rgb(175,0,0)">f</span><span style="color: rgb(175,0,0)">&#34;</span><span style="color: rgb(175,0,0)">Host pid=</span><span class="ansi-bold" style="color: rgb(175,95,135)">{</span>os<span style="color: rgb(98,98,98)">.</span>getpid()<span class="ansi-bold" style="color: rgb(175,95,135)">}</span><span style="color: rgb(175,0,0)">&#34;</span>)
+<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
+<pre>Host pid=3383
+Computing individual_result pid=3462Computing individual_result pid=3461Computing individual_result pid=3463
 
-File <span class="ansi-green-fg">~/work/PhiML/PhiML/docs/parallel_compute.py:16</span>
-<span class="ansi-green-intense-fg ansi-bold">     11</span>     time<span style="color: rgb(98,98,98)">.</span>sleep(<span style="color: rgb(98,98,98)">1</span>)  <span style="color: rgb(95,135,135)"># Simulate an expensive computation</span>
-<span class="ansi-green-intense-fg ansi-bold">     12</span>     <span class="ansi-bold" style="color: rgb(0,135,0)">return</span> <span style="color: rgb(98,98,98)">2</span> <span style="color: rgb(98,98,98)">*</span> x
-<span class="ansi-green-intense-fg ansi-bold">     15</span> <span style="color: rgb(175,0,255)">@dataclass</span>(frozen<span style="color: rgb(98,98,98)">=</span><span class="ansi-bold" style="color: rgb(0,135,0)">True</span>)
-<span class="ansi-green-fg">---&gt; 16</span> <span class="ansi-bold" style="color: rgb(0,135,0)">class</span><span style="color: rgb(188,188,188)"> </span><span class="ansi-bold" style="color: rgb(0,0,255)">ParallelComputation</span>:
-<span class="ansi-green-intense-fg ansi-bold">     17</span>     data: Tensor
-<span class="ansi-green-intense-fg ansi-bold">     19</span>     <span style="color: rgb(175,0,255)">@parallel_property</span>
-<span class="ansi-green-intense-fg ansi-bold">     20</span>     <span class="ansi-bold" style="color: rgb(0,135,0)">def</span><span style="color: rgb(188,188,188)"> </span><span style="color: rgb(0,0,255)">result</span>(<span style="color: rgb(0,135,0)">self</span>) <span style="color: rgb(98,98,98)">-</span><span style="color: rgb(98,98,98)">&gt;</span> Tensor <span style="color: rgb(98,98,98)">|</span> <span style="color: rgb(0,135,0)">float</span>:
 
-File <span class="ansi-green-fg">~/work/PhiML/PhiML/docs/parallel_compute.py:20</span>, in <span class="ansi-cyan-fg">ParallelComputation</span><span class="ansi-blue-fg">()</span>
-<span class="ansi-green-intense-fg ansi-bold">     15</span> <span style="color: rgb(175,0,255)">@dataclass</span>(frozen<span style="color: rgb(98,98,98)">=</span><span class="ansi-bold" style="color: rgb(0,135,0)">True</span>)
-<span class="ansi-green-intense-fg ansi-bold">     16</span> <span class="ansi-bold" style="color: rgb(0,135,0)">class</span><span style="color: rgb(188,188,188)"> </span><span class="ansi-bold" style="color: rgb(0,0,255)">ParallelComputation</span>:
-<span class="ansi-green-intense-fg ansi-bold">     17</span>     data: Tensor
-<span class="ansi-green-intense-fg ansi-bold">     19</span>     <span style="color: rgb(175,0,255)">@parallel_property</span>
-<span class="ansi-green-fg">---&gt; 20</span>     <span class="ansi-bold" style="color: rgb(0,135,0)">def</span><span style="color: rgb(188,188,188)"> </span><span style="color: rgb(0,0,255)">result</span>(<span style="color: rgb(0,135,0)">self</span>) <span style="color: rgb(98,98,98)">-</span><span style="color: rgb(98,98,98)">&gt;</span> <span class="ansi-yellow-bg">Tensor</span><span class="ansi-yellow-bg"> </span><span class="ansi-yellow-bg" style="color: rgb(98,98,98)">|</span><span class="ansi-yellow-bg"> </span><span class="ansi-yellow-bg" style="color: rgb(0,135,0)">float</span>:
-<span class="ansi-green-intense-fg ansi-bold">     21</span>         <span class="ansi-bold" style="color: rgb(0,135,0)">return</span> expensive_to_compute(<span style="color: rgb(0,135,0)">float</span>(<span style="color: rgb(0,135,0)">self</span><span style="color: rgb(98,98,98)">.</span>data))
+Computing normalized_result pid=3462Computing normalized_result pid=3461Computing normalized_result pid=3463
 
-<span class="ansi-red-fg">TypeError</span>: unsupported operand type(s) for |: &#39;type&#39; and &#39;type&#39;</pre>
+
+Computing mean, pid=3383
+<span class="ansi-blue-intense-fg">(-2.000, 0.000, 2.000)</span> along <span class="ansi-green-intense-fg">dataᵇ</span>
+</pre>
 </div>
 </div>
 
