@@ -418,6 +418,9 @@ class Backend:
     def from_dlpack(self, capsule):
         raise NotImplementedError(self.__class__)
 
+    def from_external_array_dlpack(self, external_array):
+        raise NotImplementedError(self.__class__)
+
     def copy(self, tensor, only_mutable=False):
         raise NotImplementedError(self.__class__)
 
@@ -2034,6 +2037,8 @@ def convert(tensor, backend: Backend = None, use_dlpack=True):
     if current_backend.is_sparse(tensor):
         assemble, parts = current_backend.disassemble(tensor)
         return assemble(backend, *parts)
+    if use_dlpack and backend.supports(Backend.from_external_array_dlpack) and hasattr(tensor, '__dlpack__') and hasattr(tensor, '__dlpack_device__'):
+        return backend.from_external_array_dlpack(tensor)
     if use_dlpack and current_backend.supports(Backend.to_dlpack) and backend.supports(Backend.from_dlpack):
         capsule = current_backend.to_dlpack(tensor)
         return backend.from_dlpack(capsule)

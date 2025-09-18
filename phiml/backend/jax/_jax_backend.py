@@ -150,9 +150,14 @@ class JaxBackend(Backend):
         else:
             return tensor.__dlpack__()
 
-    def from_dlpack(self, capsule):
+    def from_dlpack(self, external_array):
         from jax import dlpack
-        return dlpack.from_dlpack(capsule)
+        return dlpack.from_dlpack(external_array)
+
+    if version.parse(jax.__version__) >= version.parse("0.7.2"):
+        def from_external_array_dlpack(self, external_array):
+            from jax import dlpack
+            return dlpack.from_dlpack(external_array)
 
     def copy(self, tensor, only_mutable=False):
         return jnp.array(tensor, copy=True)
