@@ -240,6 +240,7 @@ def recursive_add_node(cls, name: str, prop: Optional, dims: Shape, nodes: Dict[
 
 def build_stages(nodes: Dict[str, PGraphNode]) -> List[List[PGraphNode]]:
     """ Groups nodes by same `requires`, taking dependencies into account. """
+    # ToDo check for cycles
     stages = []
     while any(not n.done for n in nodes.values()):
         candidates = [n for n in nodes.values() if n.can_run_now]
@@ -288,6 +289,9 @@ class ParallelProperty(cached_property):
 
     def __set_name__(self, owner, name):
         super().__set_name__(owner, name)
+
+    def __repr__(self):
+        return self.attrname
 
     def __get__(self, instance, owner=None):
         if instance is None:
