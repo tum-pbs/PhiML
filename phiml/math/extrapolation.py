@@ -104,7 +104,7 @@ class Extrapolation:
         Returns:
             Padded `Tensor`
         """
-        from ._trace import ShiftLinTracer
+        from ._lin_trace import ShiftLinTracer
         if isinstance(value, ShiftLinTracer):
             lower = {dim: -lo for dim, (lo, _) in widths.items()}
             return value.shift(lower, new_shape=after_pad(value.shape, widths), val_fun=lambda v: ZERO.pad(v, widths, already_padded=already_padded, **kwargs), bias_fun=lambda b: self.pad(b, widths, already_padded=already_padded, **kwargs), nonzero_edge=False)
@@ -461,7 +461,7 @@ class _CopyExtrapolation(Extrapolation, ABC):
 
     def pad(self, value: Tensor, widths: dict, already_padded: Optional[dict] = None, **kwargs) -> Tensor:
         value = value._simplify()
-        from ._trace import ShiftLinTracer
+        from ._lin_trace import ShiftLinTracer
         if isinstance(value, Dense):
             if not self._is_dim_separable:
                 required_dims = value._shape.only(tuple(widths.keys()))
@@ -1583,7 +1583,7 @@ class _ConditionalExtrapolation(Extrapolation):
         return math.where(mask, p_true, p_false)
 
     def pad(self, value: Tensor, widths: dict, already_padded: Optional[dict] = None, **kwargs) -> Tensor:
-        from ._trace import ShiftLinTracer
+        from ._lin_trace import ShiftLinTracer
         if isinstance(value, ShiftLinTracer):
             mask = self.mask
             if already_padded:

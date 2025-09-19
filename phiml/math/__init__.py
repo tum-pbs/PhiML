@@ -103,7 +103,7 @@ from ._nd import (
     find_closest,
 )
 
-from ._trace import matrix_from_function
+from ._lin_trace import matrix_from_function
 
 from ._functional import (
     LinearFunction, jit_compile_linear, jit_compile,

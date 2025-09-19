@@ -10,13 +10,13 @@ from typing import Sequence, Dict, Optional, Set, Callable, Union, List
 
 import h5py
 
-from ..backend._backend import get_backend
-from ..math._magic_ops import all_attributes
-from ..math._sparse import SparseCoordinateTensor, CompressedSparseMatrix, CompactSparseTensor, get_format
-from ..math._tensors import Tensor, Dense, Layout, TensorStack, cached
-from .. import Shape, DType
-from ..backend import Backend, ML_LOGGER
-from ..math.magic import PhiTreeNode
+from phiml.backend._backend import get_backend
+from phiml.math._magic_ops import all_attributes
+from phiml.math._sparse import SparseCoordinateTensor, CompressedSparseMatrix, CompactSparseTensor, get_format
+from phiml.math._tensors import Tensor, Dense, Layout, TensorStack, cached
+from phiml import Shape, DType
+from phiml.backend import Backend, ML_LOGGER
+from phiml.math.magic import PhiTreeNode
 
 
 class H5Source:

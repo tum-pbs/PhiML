@@ -2242,7 +2242,7 @@ def expand_tensor(value: Tensor, dims: Shape):
         expanded = [expand_tensor(v, after_gather(dims, {value._stack_dim.name: i})) for i, v in enumerate(value._tensors)]
         return TensorStack(expanded, value.stack_dim)
     if value._is_tracer:
-        from ._trace import expand_tracer
+        from ._lin_trace import expand_tracer
         return expand_tracer(value, dims)
     elif isinstance(value, Layout):
         obj = value._obj

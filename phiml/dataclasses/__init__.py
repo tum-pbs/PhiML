@@ -46,7 +46,4 @@ from functools import cached_property  # re-import to clarify that this is suppo
 
 from ._dataclasses import sliceable, data_fields, non_data_fields, config_fields, special_fields, replace, copy, getitem, equal, data_eq
 
-from ._parallel import parallel_compute, parallel_property
-from ._tensor_cache import on_load_into_memory, get_cache_files, set_cache_ttl, load_cache_as
-
 __all__ = [key for key in globals().keys() if not key.startswith('_')]

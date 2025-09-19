@@ -135,6 +135,7 @@ setup(
               'phiml.dataclasses',
               'phiml.math',
               'phiml.os',
+              'phiml.parallel',
           ],
     cmdclass={
         'tf_cuda': CudaCommand,
