@@ -1231,6 +1231,8 @@ class PureShape:
     def rank(self):
         return len(self.dims)
 
+    def __bool__(self):
+        return bool(self.dims)
     @property
     def is_empty(self) -> bool:
         return not self.dims
@@ -1667,6 +1669,8 @@ class MixedShape:
     def rank(self):
         return len(self.dims)
 
+    def __bool__(self):
+        return bool(self.dims)
     @property
     def is_empty(self) -> bool:
         return not self.dims
