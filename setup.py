@@ -152,6 +152,7 @@ setup(
         'numpy',  # 1.20 causes TensorFlow tracing errors: NotImplementedError: Cannot convert a symbolic Tensor to a numpy array.
         'scipy>=1.5.4',
         'packaging',
+        'h5py',
     ],
     # Optional packages:
     # - torch
