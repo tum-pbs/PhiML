@@ -270,6 +270,12 @@ class Tensor(Generic[T]):
         return std(self, dim=self.shape).native()
 
     @property
+    def finite_std(self):
+        """ Standard deviation of all finite values in this `Tensor` as a native scalar. """
+        from ._ops import finite_std
+        return finite_std(self, dim=self.shape).native()
+
+    @property
     def sum(self):
         """ Sum of all values of this `Tensor` as a native scalar. """
         from ._ops import sum_

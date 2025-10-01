@@ -1969,6 +1969,29 @@ def finite_mean(value, dim: DimFilter = non_batch, default: Union[complex, float
     return where(is_finite(mean_nan), mean_nan, default)
 
 
+def finite_std(value, dim: DimFilter = non_batch, default: Union[complex, float] = float('NaN')):
+    """
+    Computes the standard deviation of all finite values in `value` along `dim`.
+
+    Args:
+        value: `Tensor` or `list` / `tuple` of Tensors.
+        dim: Dimension or dimensions to be reduced. One of
+
+            * `None` to reduce all non-batch dimensions
+            * `str` containing single dimension or comma-separated list of dimensions
+            * `Tuple[str]` or `List[str]`
+            * `Shape`
+            * `batch`, `instance`, `spatial`, `channel` to select dimensions by type
+            * `'0'` when `isinstance(value, (tuple, list))` to add up the sequence of Tensors
+
+        default: Value to use where no finite value was encountered.
+
+    Returns:
+        `Tensor` without the reduced dimensions.
+    """
+    return sqrt(finite_mean(value**2, dim, default) - finite_mean(value, dim, default)**2)
+
+
 def at_max(value, key: Tensor, dim: DimFilter = non_batch):
     """
     Looks up the values of `value` at the positions where the maximum values in `key` are located along `dim`.
