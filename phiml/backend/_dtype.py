@@ -168,6 +168,9 @@ class DType(metaclass=DTypeMeta):
             return DType(str, bits, False, 0, 0, True, True)
         raise ValueError
 
+    def __and__(self, other):
+        return combine_types(self, other)
+
 
 # def get_dtype(kind: type, bits: int = None, precision: int = None):
 #     assert kind in (bool, int, float, complex, str, object)
