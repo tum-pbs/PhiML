@@ -1685,6 +1685,22 @@ def _std(value: Tensor, dims: Shape) -> Tensor:
             return sqrt(variance)
 
 
+dstd = functools.partial(std, dim=dual)
+dstd.__doc__ = """Compute the std along dual dims of `value`, see `phiml.math.std`."""
+
+pstd = functools.partial(std, dim=primal)
+pstd.__doc__ = """Compute the std along primal dims of `value`, see `phiml.math.std`."""
+
+istd = functools.partial(std, dim=instance)
+istd.__doc__ = """Compute the std along instance dims of `value`, see `phiml.math.std`."""
+
+sstd = functools.partial(std, dim=spatial)
+sstd.__doc__ = """Compute the std along spatial dims of `value`, see `phiml.math.std`."""
+
+cstd = functools.partial(std, dim=channel)
+cstd.__doc__ = """Compute the std along channel dims of `value`, see `phiml.math.std`."""
+
+
 def any_(boolean_value, dim: DimFilter = non_batch) -> Tensor:
     """
     Tests whether any entry of `boolean_tensor` is `True` along the specified dimensions.
@@ -1892,6 +1908,22 @@ def finite_min(value, dim: DimFilter = non_batch, default: Union[complex, float]
     return where(is_finite(result_inf), result_inf, default)
 
 
+finite_dmin = functools.partial(finite_min, dim=dual)
+finite_dmin.__doc__ = """Compute the finite minimum along dual dims of `value`, see `phiml.math.finite_min`."""
+
+finite_pmin = functools.partial(finite_min, dim=primal)
+finite_pmin.__doc__ = """Compute the finite minimum along primal dims of `value`, see `phiml.math.finite_min`."""
+
+finite_imin = functools.partial(finite_min, dim=instance)
+finite_imin.__doc__ = """Compute the finite minimum along instance dims of `value`, see `phiml.math.finite_min`."""
+
+finite_smin = functools.partial(finite_min, dim=spatial)
+finite_smin.__doc__ = """Compute the finite minimum along spatial dims of `value`, see `phiml.math.finite_min`."""
+
+finite_cmin = functools.partial(finite_min, dim=channel)
+finite_cmin.__doc__ = """Compute the finite minimum along channel dims of `value`, see `phiml.math.finite_min`."""
+
+
 def finite_max(value, dim: DimFilter = non_batch, default: Union[complex, float] = float('NaN')):
     """
     Finds the maximum along `dim` ignoring all non-finite values.
@@ -1917,6 +1949,22 @@ def finite_max(value, dim: DimFilter = non_batch, default: Union[complex, float]
     return where(is_finite(result_inf), result_inf, default)
 
 
+finite_dmax = functools.partial(finite_max, dim=dual)
+finite_dmax.__doc__ = """Compute the finite maximum along dual dims of `value`, see `phiml.math.finite_max`."""
+
+finite_pmax = functools.partial(finite_max, dim=primal)
+finite_pmax.__doc__ = """Compute the finite maximum along primal dims of `value`, see `phiml.math.finite_max`."""
+
+finite_imax = functools.partial(finite_max, dim=instance)
+finite_imax.__doc__ = """Compute the finite maximum along instance dims of `value`, see `phiml.math.finite_max`."""
+
+finite_smax = functools.partial(finite_max, dim=spatial)
+finite_smax.__doc__ = """Compute the finite maximum along spatial dims of `value`, see `phiml.math.finite_max`."""
+
+finite_cmax = functools.partial(finite_max, dim=channel)
+finite_cmax.__doc__ = """Compute the finite maximum along channel dims of `value`, see `phiml.math.finite_max`."""
+
+
 def finite_sum(value, dim: DimFilter = non_batch, default: Union[complex, float] = float('NaN')):
     """
     Sums all finite values in `value` along `dim`.
@@ -1940,6 +1988,22 @@ def finite_sum(value, dim: DimFilter = non_batch, default: Union[complex, float]
     finite = is_finite(value)
     summed = sum_(where(finite, value, 0), dim)
     return where(any_(finite, dim), summed, default)
+
+
+finite_dsum = functools.partial(finite_sum, dim=dual)
+finite_dsum.__doc__ = """Sum dual dims of `value`, see `phiml.math.finite_sum`."""
+
+finite_psum = functools.partial(finite_sum, dim=primal)
+finite_psum.__doc__ = """Sum primal dims of `value`, see `phiml.math.finite_sum`."""
+
+finite_isum = functools.partial(finite_sum, dim=instance)
+finite_isum.__doc__ = """Sum instance dims of `value`, see `phiml.math.finite_sum`."""
+
+finite_ssum = functools.partial(finite_sum, dim=spatial)
+finite_ssum.__doc__ = """Sum spatial dims of `value`, see `phiml.math.finite_sum`."""
+
+finite_csum = functools.partial(finite_sum, dim=channel)
+finite_csum.__doc__ = """Sum channel dims of `value`, see `phiml.math.finite_sum`."""
 
 
 def finite_mean(value, dim: DimFilter = non_batch, default: Union[complex, float] = float('NaN')):
@@ -1969,6 +2033,22 @@ def finite_mean(value, dim: DimFilter = non_batch, default: Union[complex, float
     return where(is_finite(mean_nan), mean_nan, default)
 
 
+finite_dmean = functools.partial(finite_mean, dim=dual)
+finite_dmean.__doc__ = """Compute the mean along dual dims of `value`, see `phiml.math.finite_mean`."""
+
+finite_pmean = functools.partial(finite_mean, dim=primal)
+finite_pmean.__doc__ = """Compute the mean along primal dims of `value`, see `phiml.math.finite_mean`."""
+
+finite_imean = functools.partial(finite_mean, dim=instance)
+finite_imean.__doc__ = """Compute the mean along instance dims of `value`, see `phiml.math.finite_mean`."""
+
+finite_smean = functools.partial(finite_mean, dim=spatial)
+finite_smean.__doc__ = """Compute the mean along spatial dims of `value`, see `phiml.math.finite_mean`."""
+
+finite_cmean = functools.partial(finite_mean, dim=channel)
+finite_cmean.__doc__ = """Compute the mean along channel dims of `value`, see `phiml.math.finite_mean`."""
+
+
 def finite_std(value, dim: DimFilter = non_batch, default: Union[complex, float] = float('NaN')):
     """
     Computes the standard deviation of all finite values in `value` along `dim`.
@@ -1990,6 +2070,22 @@ def finite_std(value, dim: DimFilter = non_batch, default: Union[complex, float]
         `Tensor` without the reduced dimensions.
     """
     return sqrt(finite_mean(value**2, dim, default) - finite_mean(value, dim, default)**2)
+
+
+finite_dstd = functools.partial(finite_std, dim=dual)
+finite_dstd.__doc__ = """Compute the finite std along dual dims of `value`, see `phiml.math.finite_std`."""
+
+finite_pstd = functools.partial(finite_std, dim=primal)
+finite_pstd.__doc__ = """Compute the finite std along primal dims of `value`, see `phiml.math.finite_std`."""
+
+finite_istd = functools.partial(finite_std, dim=instance)
+finite_istd.__doc__ = """Compute the finite std along instance dims of `value`, see `phiml.math.finite_std`."""
+
+finite_sstd = functools.partial(finite_std, dim=spatial)
+finite_sstd.__doc__ = """Compute the finite std along spatial dims of `value`, see `phiml.math.finite_std`."""
+
+finite_cstd = functools.partial(finite_std, dim=channel)
+finite_cstd.__doc__ = """Compute the finite std along channel dims of `value`, see `phiml.math.finite_std`."""
 
 
 def at_max(value, key: Tensor, dim: DimFilter = non_batch):
