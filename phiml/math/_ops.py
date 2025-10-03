@@ -1296,7 +1296,7 @@ def where(condition: Union[Tensor, bool],
             tracer = [t for t in [vt, vf, c] if isinstance(t, Tracer)][0]
             trace = tracer._trace
             op = trace.add_op('fun', 'where', (c, vt, vf), EMPTY_SHAPE)
-            return trace.add_tracer(c.shape & vt.shape & vf.shape, vt.dtype & vf.dtype, tracer._renamed, op)
+            return op.add_output(c.shape & vt.shape & vf.shape, vt.dtype & vf.dtype, tracer._renamed)
         if vt._is_tracer or vf._is_tracer or c._is_tracer:
             return c * vt + (1 - c) * vf  # ToDo this does not take NaN into account
         if is_sparse(c) or is_sparse(vt) or is_sparse(vf):
