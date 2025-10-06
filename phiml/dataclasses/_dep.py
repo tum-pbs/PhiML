@@ -1,22 +1,12 @@
 import ast
 import dataclasses
+import dis
 import inspect
 import types
 from functools import cached_property
 from typing import Set
 
 from ..backend import ML_LOGGER
-
-
-class MemberVariableAnalyzer(ast.NodeVisitor):
-    def __init__(self):
-        self.member_vars = set()
-
-    def visit_Attribute(self, node):
-        # Check if the attribute is accessed via `self`
-        if isinstance(node.value, ast.Name) and node.value.id == 'self':
-            self.member_vars.add(node.attr)
-        self.generic_visit(node)
 
 
 def get_unchanged_cache(obj, updated_fields: Set[str]):
@@ -35,25 +25,36 @@ def get_unchanged_cache(obj, updated_fields: Set[str]):
 # class PropertyInfo
 
 
-def all_field_deps(cls: type, cls_property) -> Set[str]:
-    """Find all dataclass fields the specified property requires for evaluation (directly and indirectly)"""
-    if hasattr(cls, '__all_field_deps__') and cls_property in cls.__all_field_deps__:
-        return cls.__all_field_deps__[cls_property]
+def get_method(cls: type, cls_property):
     if isinstance(cls_property, cached_property):
-        method = cls_property.func
+        return cls_property.func
     elif isinstance(cls_property, property):
-        method = cls_property.fget
+        return cls_property.fget
     else:
         assert callable(cls_property) and hasattr(cls_property, '__qualname__'), f"Dependency resolver failed on {cls_property} of {cls.__name__}"
-        method = cls_property
-    ML_LOGGER.debug(f"Analyzing dependencies of {method.__qualname__}")
-    source_code = inspect.getsource(method)
-    indent0 = len(source_code) - len(source_code.lstrip())
-    source_code_top = "\n".join([line[indent0:] for line in source_code.split("\n")])
-    tree = ast.parse(source_code_top)
-    analyzer = MemberVariableAnalyzer()
-    analyzer.visit(tree)
-    direct_deps = analyzer.member_vars
+        return cls_property
+
+
+def cache_in_class(f):
+    cache_name = f'__{f.__name__}__'
+    def cached(cls, cls_property):
+        if hasattr(cls, cache_name) and cls_property in getattr(cls, cache_name):
+            return getattr(cls, cache_name)[cls_property]
+        result = f(cls, cls_property)
+        if not hasattr(cls, cache_name):
+            setattr(cls, cache_name, {cls_property: field_deps})
+        else:
+            getattr(cls, cache_name)[cls_property] = field_deps
+        return result
+    return cached
+
+
+@cache_in_class
+def all_field_deps(cls: type, cls_property) -> Set[str]:
+    """Find all dataclass fields the specified property requires for evaluation (directly and indirectly)"""
+    method = get_method(cls, cls_property)
+    ML_LOGGER.debug(f"Analyzing dependencies of {method.__qualname__} (all_field_deps)")
+    direct_deps = get_self_attrs_from_bytecode(method)
     fields = set([f.name for f in dataclasses.fields(cls)])
     # --- Indirect dependencies via method/property calls ---
     field_deps = direct_deps & fields
@@ -68,33 +69,15 @@ def all_field_deps(cls: type, cls_property) -> Set[str]:
             field_deps.update(all_field_deps(cls, getattr(cls, prop_dep)))
         elif callable(getattr(cls, prop_dep)):
             field_deps.update(all_field_deps(cls, getattr(cls, prop_dep)))
-    # --- Cache result ---
-    if not hasattr(cls, '__all_field_deps__'):
-        cls.__all_field_deps__ = {cls_property: field_deps}
-    else:
-        cls.__all_field_deps__[cls_property] = field_deps
     return field_deps
 
 
+@cache_in_class
 def field_deps(cls: type, cls_property: property) -> Set[str]:
     """Find dataclass fields the specified property requires for evaluation, not going through cached properties."""
-    if hasattr(cls, '__field_deps__') and cls_property in cls.__field_deps__:
-        return cls.__field_deps__[cls_property]
-    if isinstance(cls_property, cached_property):
-        method = cls_property.func
-    elif isinstance(cls_property, property):
-        method = cls_property.fget
-    else:
-        assert callable(cls_property) and hasattr(cls_property, '__qualname__'), f"Dependency resolver failed on {cls_property} of {cls.__name__}"
-        method = cls_property
-    ML_LOGGER.debug(f"Analyzing dependencies of {method.__qualname__}")
-    source_code = inspect.getsource(method)
-    indent0 = len(source_code) - len(source_code.lstrip())
-    source_code_top = "\n".join([line[indent0:] for line in source_code.split("\n")])
-    tree = ast.parse(source_code_top)
-    analyzer = MemberVariableAnalyzer()
-    analyzer.visit(tree)
-    direct_deps = analyzer.member_vars
+    method = get_method(cls, cls_property)
+    ML_LOGGER.debug(f"Analyzing dependencies of {method.__qualname__} (field_deps)")
+    direct_deps = get_self_attrs_from_bytecode(method)
     fields = set([f.name for f in dataclasses.fields(cls)])
     field_deps_ = direct_deps & fields
     # --- Indirect dependencies via method/property calls ---
@@ -113,33 +96,15 @@ def field_deps(cls: type, cls_property: property) -> Set[str]:
             pass  # stop tracing on cached properties
         elif callable(getattr(cls, prop_dep)):
             field_deps_.update(field_deps(cls, getattr(cls, prop_dep)))
-    # --- Cache result ---
-    if not hasattr(cls, '__field_deps__'):
-        cls.__field_deps__ = {cls_property: field_deps_}
-    else:
-        cls.__field_deps__[cls_property] = field_deps_
     return field_deps_
 
 
+@cache_in_class
 def cache_deps(cls: type, cls_property) -> Set[str]:
     """Lists all cached properties required by `cls_property` (direct and indirect but stopping at cached properties)"""
-    if hasattr(cls, '__cache_deps__') and cls_property in cls.__cache_deps__:
-        return cls.__cache_deps__[cls_property]
-    if isinstance(cls_property, cached_property):
-        method = cls_property.func
-    elif isinstance(cls_property, property):
-        method = cls_property.fget
-    else:
-        assert callable(cls_property) and hasattr(cls_property, '__qualname__'), f"Dependency resolver failed on {cls_property} of {cls.__name__}"
-        method = cls_property
-    ML_LOGGER.debug(f"Analyzing dependencies of {method.__qualname__}")
-    source_code = inspect.getsource(method)
-    indent0 = len(source_code) - len(source_code.lstrip())
-    source_code_top = "\n".join([line[indent0:] for line in source_code.split("\n")])
-    tree = ast.parse(source_code_top)
-    analyzer = MemberVariableAnalyzer()
-    analyzer.visit(tree)
-    direct_deps = analyzer.member_vars
+    method = get_method(cls, cls_property)
+    ML_LOGGER.debug(f"Analyzing dependencies of {method.__qualname__} (cache_deps)")
+    direct_deps = get_self_attrs_from_bytecode(method)
     fields = set([f.name for f in dataclasses.fields(cls)])
     all_caches = set([m for m in dir(cls) if isinstance(getattr(cls, m), cached_property)])
     # --- Indirect dependencies via method/property calls ---
@@ -150,9 +115,39 @@ def cache_deps(cls: type, cls_property) -> Set[str]:
         dep = getattr(cls, method_dep)
         if callable(dep) or isinstance(dep, property):  # excluding cached_property, parallel_property
             prop_deps.update(cache_deps(cls, dep))
-    # --- Cache result ---
-    if not hasattr(cls, '__cache_deps__'):
-        cls.__cache_deps__ = {cls_property: prop_deps}
-    else:
-        cls.__cache_deps__[cls_property] = prop_deps
     return prop_deps
+
+
+def get_self_attrs_from_bytecode(func) -> Set[str]:
+    assert isinstance(func, (types.FunctionType, types.MethodType))
+    code = func.__code__
+    attrs = set()
+    instructions = list(dis.get_instructions(code))
+    for i, instr in enumerate(instructions):
+        # Detect: LOAD_FAST self → LOAD_ATTR name
+        if instr.opname == "LOAD_FAST" and instr.argval == "self":
+            j = i + 1
+            if j < len(instructions) and instructions[j].opname == "LOAD_ATTR":
+                attrs.add(instructions[j].argval)
+    return attrs
+
+
+def get_self_attrs_from_source(func) -> Set[str]:
+    source_code = inspect.getsource(func)
+    indent0 = len(source_code) - len(source_code.lstrip())
+    source_code_top = "\n".join([line[indent0:] for line in source_code.split("\n")])
+    tree = ast.parse(source_code_top)
+    analyzer = MemberVariableAnalyzer()
+    analyzer.visit(tree)
+    return analyzer.member_vars
+
+
+class MemberVariableAnalyzer(ast.NodeVisitor):
+    def __init__(self):
+        self.member_vars: Set[str] = set()
+
+    def visit_Attribute(self, node):
+        # Check if the attribute is accessed via `self`
+        if isinstance(node.value, ast.Name) and node.value.id == 'self':
+            self.member_vars.add(node.attr)
+        self.generic_visit(node)
