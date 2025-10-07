@@ -7,6 +7,7 @@ from typing import Tuple, Callable, Any, Union, Optional, Dict, Collection, Sequ
 
 import numpy as np
 
+from ._trace import Tracer, tracer_reduce, tracer_op1
 from ..backend import default_backend, choose_backend, Backend, get_precision, convert as b_convert, BACKENDS, NoBackendFound, ComputeDevice, NUMPY
 from ..backend._dtype import DType, combine_types, INT32
 from ..backend import xops
@@ -20,7 +21,7 @@ from . import extrapolation as e_
 from ._tensors import (Tensor, wrap, tensor, broadcastable_native_tensors, Dense, TensorStack,
                        custom_op2, compatible_tensor, variable_attributes, disassemble_tree, assemble_tree,
                        is_scalar, Layout, expand_tensor, TensorOrTree, cached, variable_shape,
-                       reshaped_tensor, discard_constant_dims, variable_dim_names, backend_for, preferred_backend_for)
+                       reshaped_tensor, discard_constant_dims, variable_dim_names, backend_for, preferred_backend_for, is_composite)
 from ._sparse import (CompressedSparseMatrix, dense, SparseCoordinateTensor, get_format, to_format, stored_indices,
                       tensor_like, sparse_dims, same_sparsity_pattern, is_sparse, sparse_dot, sparse_sum, sparse_gather, sparse_max,
                       sparse_min, dense_dims, sparse_mean, stored_values, sparse_matrix_dims, CompactSparseTensor)
@@ -904,7 +905,7 @@ def concat_tensor(values: Union[tuple, list], dim: str) -> Tensor:
     assert len(values) > 0, "concat() got empty sequence"
     assert isinstance(dim, str), f"dim must be a single-dimension Shape but got '{dim}' of type {type(dim)}"
     if any([v._is_tracer for v in values]):
-        from ._trace import concat_tracers
+        from ._lin_trace import concat_tracers
         return concat_tracers(values, dim)
 
     def inner_concat(*values):
@@ -1291,6 +1292,11 @@ def where(condition: Union[Tensor, bool],
             for idx in shape.meshgrid():
                 result.append(vt[idx] if c[idx].any else vf[idx])
             return stack(result, shape)
+        if isinstance(vt, Tracer) or isinstance(vf, Tracer) or isinstance(c, Tracer):
+            tracer = [t for t in [vt, vf, c] if isinstance(t, Tracer)][0]
+            trace = tracer._trace
+            op = trace.add_op('fun', 'where', (c, vt, vf), EMPTY_SHAPE)
+            return op.add_output(c.shape & vt.shape & vf.shape, vt.dtype & vf.dtype, tracer._renamed)
         if vt._is_tracer or vf._is_tracer or c._is_tracer:
             return c * vt + (1 - c) * vf  # ToDo this does not take NaN into account
         if is_sparse(c) or is_sparse(vt) or is_sparse(vf):
@@ -1515,6 +1521,8 @@ def _sum(value: Tensor, dims: Shape) -> Tensor:
         return functools.reduce(lambda x, y: x + y, reduced_inners) if value._stack_dim in dims else TensorStack(reduced_inners, value._stack_dim)
     elif is_sparse(value):
         return sparse_sum(value, dims)
+    elif isinstance(value, Tracer):
+        return tracer_reduce(value, dims, 'sum', sum_)
     elif value._is_tracer:
         if dims.volume == 1:
             return value[{dims.name: 0}]
@@ -1567,6 +1575,8 @@ def _prod(value: Tensor, dims: Shape) -> Tensor:
     elif isinstance(value, TensorStack):
         reduced_inners = [_prod(t, dims.without(value._stack_dim)) for t in value._tensors]
         return functools.reduce(lambda x, y: x * y, reduced_inners) if value._stack_dim in dims else TensorStack(reduced_inners, value._stack_dim)
+    elif isinstance(value, Tracer):
+        return tracer_reduce(value, dims, 'prod', prod)
     else:
         raise ValueError(type(value))
 
@@ -1638,6 +1648,8 @@ def _mean(value: Tensor, dims: Shape) -> Tensor:
             return total / dims.volume
         else:  # keep stack_dim
             return TensorStack([_mean(t, dims.without(value._stack_dim)) for t in value._tensors], value._stack_dim)
+    elif isinstance(value, Tracer):
+        return tracer_reduce(value, dims, 'mean', mean)
     elif is_sparse(value):
         return sparse_mean(value, dims)
     else:
@@ -1671,6 +1683,8 @@ def std(value, dim: DimFilter = non_batch) -> Tensor:
 
 
 def _std(value: Tensor, dims: Shape) -> Tensor:
+    if isinstance(value, Tracer):
+        return sqrt(mean(value**2, dims) - mean(value, dims)**2)
     if value.shape.is_uniform:
         result = value.backend.std(value._native, tuple(value._names.index(n) for n in dims.names if n in value._names))
         return Dense(result, [n for n in value._names if n not in dims], value.shape - dims, value._backend)
@@ -1729,6 +1743,8 @@ def _any(value: Tensor, dims: Shape) -> Tensor:
     elif isinstance(value, TensorStack):
         reduced_inners = [_any(t, dims.without(value._stack_dim)) for t in value._tensors]
         return functools.reduce(lambda x, y: x | y, reduced_inners) if value._stack_dim in dims else TensorStack(reduced_inners, value._stack_dim)
+    elif isinstance(value, Tracer):
+        return tracer_reduce(value, dims, 'any', any_)
     elif is_sparse(value):
         return sparse_sum(to_int32(value), dims) > 0
     else:
@@ -1763,6 +1779,8 @@ def _all(value: Tensor, dims: Shape) -> Tensor:
     elif isinstance(value, TensorStack):
         reduced_inners = [_all(t, dims.without(value._stack_dim)) for t in value._tensors]
         return functools.reduce(lambda x, y: x & y, reduced_inners) if value._stack_dim in dims else TensorStack(reduced_inners, value._stack_dim)
+    elif isinstance(value, Tracer):
+        return tracer_reduce(value, dims, 'all', all_)
     elif is_sparse(value):
         if value.dtype.kind != bool:
             value = value != 0
@@ -1823,6 +1841,8 @@ def _max(value: Tensor, dims: Shape) -> Tensor:
     elif isinstance(value, TensorStack):
         reduced_inners = [_max(t, dims.without(value._stack_dim)) for t in value._tensors]
         return functools.reduce(lambda x, y: maximum(x, y), reduced_inners) if value._stack_dim in dims else TensorStack(reduced_inners, value._stack_dim)
+    elif isinstance(value, Tracer):
+        return tracer_reduce(value, dims, 'max', max_)
     elif is_sparse(value):
         return sparse_max(value, dims)
     raise ValueError(type(value))
@@ -1878,6 +1898,8 @@ def _min(value: Tensor, dims: Shape) -> Tensor:
     elif isinstance(value, TensorStack):
         reduced_inners = [_min(t, dims.without(value._stack_dim)) for t in value._tensors]
         return functools.reduce(lambda x, y: minimum(x, y), reduced_inners) if value._stack_dim in dims else TensorStack(reduced_inners, value._stack_dim)
+    elif isinstance(value, Tracer):
+        return tracer_reduce(value, dims, 'min', min_)
     elif is_sparse(value):
         return sparse_min(value, dims)
     raise ValueError(type(value))
@@ -2030,6 +2052,8 @@ def finite_mean(value, dim: DimFilter = non_batch, default: Union[complex, float
     summed = sum_(where(finite, value, 0), dim)
     count = sum_(finite, dim)
     mean_nan = summed / count
+    if isinstance(default, Number) and np.isnan(default):
+        return mean_nan
     return where(is_finite(mean_nan), mean_nan, default)
 
 
@@ -2397,8 +2421,10 @@ def dot(x: Tensor,
     return broadcast_op(tensor_dot, [x, y])
 
 
-def _backend_op1(x, unbound_method, attr_type=value_attributes) -> Union[Tensor, PhiTreeNode]:
+def _backend_op1(x, unbound_method, source_fun, attr_type=value_attributes) -> Union[Tensor, PhiTreeNode]:
     if isinstance(x, Tensor) and x.dtype.kind != object:
+        if isinstance(x, Tracer):
+            return tracer_op1(x, source_fun)
         def apply_op(native_tensor):
             backend = choose_backend(native_tensor)
             return getattr(backend, unbound_method.__name__)(backend.auto_cast(native_tensor)[0])
@@ -2407,7 +2433,7 @@ def _backend_op1(x, unbound_method, attr_type=value_attributes) -> Union[Tensor,
     elif x is None:
         return None
     elif isinstance(x, (PhiTreeNode, Layout, tuple, list, dict)):
-        return tree_map(_backend_op1, x, unbound_method=unbound_method, attr_type=attr_type)
+        return tree_map(_backend_op1, x, unbound_method=unbound_method, source_fun=source_fun, attr_type=attr_type)
     else:
         backend = choose_backend(x)
         y = getattr(backend, unbound_method.__name__)(backend.auto_cast(x)[0])
@@ -2428,7 +2454,7 @@ def abs_(x: TensorOrTree) -> TensorOrTree:
     Returns:
         Absolute value of `x` of same type as `x`.
     """
-    return _backend_op1(x, Backend.abs)
+    return _backend_op1(x, Backend.abs, abs_)
 
 
 def sign(x: TensorOrTree) -> TensorOrTree:
@@ -2442,42 +2468,42 @@ def sign(x: TensorOrTree) -> TensorOrTree:
     Returns:
         `Tensor` or `phiml.math.magic.PhiTreeNode` matching `x`.
     """
-    return _backend_op1(x, Backend.sign)
+    return _backend_op1(x, Backend.sign, sign)
 
 
 def round_(x: TensorOrTree) -> TensorOrTree:
     """ Rounds the `Tensor` or `phiml.math.magic.PhiTreeNode` `x` to the closest integer. """
-    return _backend_op1(x, Backend.round)
+    return _backend_op1(x, Backend.round, round_)
 
 
 def ceil(x: TensorOrTree) -> TensorOrTree:
     """ Computes *⌈x⌉* of the `Tensor` or `phiml.math.magic.PhiTreeNode` `x`. """
-    return _backend_op1(x, Backend.ceil)
+    return _backend_op1(x, Backend.ceil, ceil)
 
 
 def floor(x: TensorOrTree) -> TensorOrTree:
     """ Computes *⌊x⌋* of the `Tensor` or `phiml.math.magic.PhiTreeNode` `x`. """
-    return _backend_op1(x, Backend.floor)
+    return _backend_op1(x, Backend.floor, floor)
 
 
 def sqrt(x: TensorOrTree) -> TensorOrTree:
     """ Computes *sqrt(x)* of the `Tensor` or `phiml.math.magic.PhiTreeNode` `x`. """
-    return _backend_op1(x, Backend.sqrt)
+    return _backend_op1(x, Backend.sqrt, sqrt)
 
 
 def exp(x: TensorOrTree) -> TensorOrTree:
     """ Computes *exp(x)* of the `Tensor` or `phiml.math.magic.PhiTreeNode` `x`. """
-    return _backend_op1(x, Backend.exp)
+    return _backend_op1(x, Backend.exp, exp)
 
 
 def erf(x: TensorOrTree) -> TensorOrTree:
     """ Computes the error function *erf(x)* of the `Tensor` or `phiml.math.magic.PhiTreeNode` `x`. """
-    return _backend_op1(x, Backend.erf)
+    return _backend_op1(x, Backend.erf, erf)
 
 
 def soft_plus(x: TensorOrTree) -> TensorOrTree:
     """ Computes *softplus(x)* of the `Tensor` or `phiml.math.magic.PhiTreeNode` `x`. """
-    return _backend_op1(x, Backend.softplus)
+    return _backend_op1(x, Backend.softplus, soft_plus)
 
 
 def factorial(x: TensorOrTree) -> TensorOrTree:
@@ -2487,12 +2513,12 @@ def factorial(x: TensorOrTree) -> TensorOrTree:
     For integer numbers computes the exact factorial and returns the same integer type.
     However, this results in integer overflow for inputs larger than 12 (int32) or 19 (int64).
     """
-    return _backend_op1(x, Backend.factorial)
+    return _backend_op1(x, Backend.factorial, factorial)
 
 
 def log_gamma(x: TensorOrTree) -> TensorOrTree:
     """ Computes *log(gamma(x))* of the `Tensor` or `phiml.math.magic.PhiTreeNode` `x`. """
-    return _backend_op1(x, Backend.log_gamma)
+    return _backend_op1(x, Backend.log_gamma, log_gamma)
 
 
 def incomplete_gamma(a: TensorOrTree, x: TensorOrTree, upper=False, regularized=True) -> TensorOrTree:
@@ -2529,17 +2555,17 @@ def to_float(x: TensorOrTree) -> TensorOrTree:
     Returns:
         `Tensor` or `phiml.math.magic.PhiTreeNode` matching `x`.
     """
-    return _backend_op1(x, Backend.to_float)
+    return _backend_op1(x, Backend.to_float, to_float)
 
 
 def to_int32(x: TensorOrTree) -> TensorOrTree:
     """ Converts the `Tensor` or `phiml.math.magic.PhiTreeNode` `x` to 32-bit integer. """
-    return _backend_op1(x, Backend.to_int32)
+    return _backend_op1(x, Backend.to_int32, to_int32)
 
 
 def to_int64(x: TensorOrTree) -> TensorOrTree:
     """ Converts the `Tensor` or `phiml.math.magic.PhiTreeNode` `x` to 64-bit integer. """
-    return _backend_op1(x, Backend.to_int64)
+    return _backend_op1(x, Backend.to_int64, to_int64)
 
 
 def to_complex(x: TensorOrTree) -> TensorOrTree:
@@ -2559,22 +2585,22 @@ def to_complex(x: TensorOrTree) -> TensorOrTree:
     Returns:
         `Tensor` of same shape as `x`
     """
-    return _backend_op1(x, Backend.to_complex)
+    return _backend_op1(x, Backend.to_complex, to_complex)
 
 
 def is_finite(x: TensorOrTree) -> TensorOrTree:
     """ Returns a `Tensor` or `phiml.math.magic.PhiTreeNode` matching `x` with values `True` where `x` has a finite value and `False` otherwise. """
-    return _backend_op1(x, Backend.isfinite)
+    return _backend_op1(x, Backend.isfinite, is_finite)
 
 
 def is_nan(x: TensorOrTree) -> TensorOrTree:
     """ Returns a `Tensor` or `phiml.math.magic.PhiTreeNode` matching `x` with values `True` where `x` is `NaN` and `False` otherwise. """
-    return _backend_op1(x, Backend.isnan)
+    return _backend_op1(x, Backend.isnan, is_nan)
 
 
 def is_inf(x: TensorOrTree) -> TensorOrTree:
     """ Returns a `Tensor` or `phiml.math.magic.PhiTreeNode` matching `x` with values `True` where `x` is `+inf` or `-inf` and `False` otherwise. """
-    return _backend_op1(x, Backend.isnan)
+    return _backend_op1(x, Backend.isnan, is_inf)
 
 
 def nan_to_0(x: TensorOrTree) -> TensorOrTree:
@@ -2602,7 +2628,7 @@ def real(x: TensorOrTree) -> TensorOrTree:
     Returns:
         Real component of `x`.
     """
-    return _backend_op1(x, Backend.real)
+    return _backend_op1(x, Backend.real, real)
 
 
 def imag(x: TensorOrTree) -> TensorOrTree:
@@ -2619,7 +2645,7 @@ def imag(x: TensorOrTree) -> TensorOrTree:
     Returns:
         Imaginary component of `x` if `x` is complex, zeros otherwise.
     """
-    return _backend_op1(x, Backend.imag)
+    return _backend_op1(x, Backend.imag, imag)
 
 
 def conjugate(x: TensorOrTree) -> TensorOrTree:
@@ -2633,7 +2659,7 @@ def conjugate(x: TensorOrTree) -> TensorOrTree:
     Returns:
         Complex conjugate of `x` if `x` is complex, else `x`.
     """
-    return _backend_op1(x, Backend.conj)
+    return _backend_op1(x, Backend.conj, conjugate)
 
 
 def degrees_to_radians(deg: TensorOrTree) -> TensorOrTree:
@@ -2648,31 +2674,31 @@ def radians_to_degrees(rad: TensorOrTree) -> TensorOrTree:
 
 def sin(x: TensorOrTree) -> TensorOrTree:
     """ Computes *sin(x)* of the `Tensor` or `phiml.math.magic.PhiTreeNode` `x`. """
-    return _backend_op1(x, Backend.sin)
+    return _backend_op1(x, Backend.sin, sin)
 
 
 def arcsin(x: TensorOrTree) -> TensorOrTree:
     """ Computes the inverse of *sin(x)* of the `Tensor` or `phiml.math.magic.PhiTreeNode` `x`.
     For real arguments, the result lies in the range [-π/2, π/2].
     """
-    return _backend_op1(x, Backend.arcsin)
+    return _backend_op1(x, Backend.arcsin, arcsin)
 
 
 def cos(x: TensorOrTree) -> TensorOrTree:
     """ Computes *cos(x)* of the `Tensor` or `phiml.math.magic.PhiTreeNode` `x`. """
-    return _backend_op1(x, Backend.cos)
+    return _backend_op1(x, Backend.cos, cos)
 
 
 def arccos(x: TensorOrTree) -> TensorOrTree:
     """ Computes the inverse of *cos(x)* of the `Tensor` or `phiml.math.magic.PhiTreeNode` `x`.
     For real arguments, the result lies in the range [0, π].
     """
-    return _backend_op1(x, Backend.arccos)
+    return _backend_op1(x, Backend.arccos, arccos)
 
 
 def tan(x: TensorOrTree) -> TensorOrTree:
     """ Computes *tan(x)* of the `Tensor` or `phiml.math.magic.PhiTreeNode` `x`. """
-    return _backend_op1(x, Backend.tan)
+    return _backend_op1(x, Backend.tan, tan)
 
 
 def arctan(x: TensorOrTree, divide_by=None) -> TensorOrTree:
@@ -2685,7 +2711,7 @@ def arctan(x: TensorOrTree, divide_by=None) -> TensorOrTree:
             This is equivalent to the common `arctan2` function.
     """
     if divide_by is None:
-        return _backend_op1(x, Backend.arctan)
+        return _backend_op1(x, Backend.arctan, arctan)
     else:
         divide_by = to_float(divide_by)
         return custom_op2(x, divide_by, xops.arctan2)
@@ -2707,52 +2733,52 @@ def angle(x: TensorOrTree) -> TensorOrTree:
 
 def sinh(x: TensorOrTree) -> TensorOrTree:
     """ Computes *sinh(x)* of the `Tensor` or `phiml.math.magic.PhiTreeNode` `x`. """
-    return _backend_op1(x, Backend.sinh)
+    return _backend_op1(x, Backend.sinh, sinh)
 
 
 def arcsinh(x: TensorOrTree) -> TensorOrTree:
     """ Computes the inverse of *sinh(x)* of the `Tensor` or `phiml.math.magic.PhiTreeNode` `x`. """
-    return _backend_op1(x, Backend.arcsinh)
+    return _backend_op1(x, Backend.arcsinh, arcsinh)
 
 
 def cosh(x: TensorOrTree) -> TensorOrTree:
     """ Computes *cosh(x)* of the `Tensor` or `phiml.math.magic.PhiTreeNode` `x`. """
-    return _backend_op1(x, Backend.cosh)
+    return _backend_op1(x, Backend.cosh, cosh)
 
 
 def arccosh(x: TensorOrTree) -> TensorOrTree:
     """ Computes the inverse of *cosh(x)* of the `Tensor` or `phiml.math.magic.PhiTreeNode` `x`. """
-    return _backend_op1(x, Backend.arccosh)
+    return _backend_op1(x, Backend.arccosh, arccosh)
 
 
 def tanh(x: TensorOrTree) -> TensorOrTree:
     """ Computes *tanh(x)* of the `Tensor` or `phiml.math.magic.PhiTreeNode` `x`. """
-    return _backend_op1(x, Backend.tanh)
+    return _backend_op1(x, Backend.tanh, tanh)
 
 
 def arctanh(x: TensorOrTree) -> TensorOrTree:
     """ Computes the inverse of *tanh(x)* of the `Tensor` or `phiml.math.magic.PhiTreeNode` `x`. """
-    return _backend_op1(x, Backend.arctanh)
+    return _backend_op1(x, Backend.arctanh, arctanh)
 
 
 def log(x: TensorOrTree) -> TensorOrTree:
     """ Computes the natural logarithm of the `Tensor` or `phiml.math.magic.PhiTreeNode` `x`. """
-    return _backend_op1(x, Backend.log)
+    return _backend_op1(x, Backend.log, log)
 
 
 def log2(x: TensorOrTree) -> TensorOrTree:
     """ Computes *log(x)* of the `Tensor` or `phiml.math.magic.PhiTreeNode` `x` with base 2. """
-    return _backend_op1(x, Backend.log2)
+    return _backend_op1(x, Backend.log2, log2)
 
 
 def log10(x: TensorOrTree) -> TensorOrTree:
     """ Computes *log(x)* of the `Tensor` or `phiml.math.magic.PhiTreeNode` `x` with base 10. """
-    return _backend_op1(x, Backend.log10)
+    return _backend_op1(x, Backend.log10, log10)
 
 
 def sigmoid(x: TensorOrTree) -> TensorOrTree:
     """ Computes the sigmoid function of the `Tensor` or `phiml.math.magic.PhiTreeNode` `x`. """
-    return _backend_op1(x, Backend.sigmoid)
+    return _backend_op1(x, Backend.sigmoid, sigmoid)
 
 
 def softmax(x, reduce: DimFilter):
@@ -3710,7 +3736,7 @@ def stop_gradient(x):
     """
     if isinstance(x, SHAPE_TYPES):
         return x
-    return _backend_op1(x, Backend.stop_gradient, attr_type=variable_attributes)
+    return _backend_op1(x, Backend.stop_gradient, stop_gradient, attr_type=variable_attributes)
 
 
 def pairwise_differences(positions: Tensor,

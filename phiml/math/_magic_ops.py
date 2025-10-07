@@ -1051,7 +1051,11 @@ def bool_to_int(x: MagicType, bits=32):
         raise ValueError(f"Cannot cast object of type '{type(x).__name__}'")
 
 
-def tree_map(f, tree, attr_type=value_attributes, include_non_attrs=True, treat_layout_as_leaf=False, **f_kwargs):
+def tree_map(f, tree, attr_type=value_attributes,
+             include_non_attrs=True,
+             treat_layout_as_leaf=False,
+             treat_shapes_as_leaf=False,
+             **f_kwargs):
     """
     Recursively iterates over Layouts, lists, tuples, dicts and the value attributes of PhiTreeNodes.
     Calls `f` on `Tensor` instances and everything else not in the above list.
@@ -1081,6 +1085,8 @@ def tree_map(f, tree, attr_type=value_attributes, include_non_attrs=True, treat_
         return tuple([tree_map(f, e, attr_type, include_non_attrs, treat_layout_as_leaf, **f_kwargs) for e in tree])
     elif isinstance(tree, dict):
         return {k: tree_map(f, e, attr_type, include_non_attrs, treat_layout_as_leaf, **f_kwargs) for k, e in tree.items()}
+    elif isinstance(tree, Shape):
+        return f(tree, **f_kwargs) if treat_shapes_as_leaf else tree
     elif isinstance(tree, PhiTreeNode):
         attrs = {key: getattr(tree, key) for key in attr_type(tree)}
         new_attrs = {k: tree_map(f, v, attr_type, include_non_attrs, treat_layout_as_leaf, **f_kwargs) for k, v in attrs.items()}
@@ -1090,6 +1096,14 @@ def tree_map(f, tree, attr_type=value_attributes, include_non_attrs=True, treat_
         if include_non_attrs or not isinstance(tree, NON_ATTR_TYPES):
             return f(tree, **f_kwargs)  # try anyway
         return tree
+
+
+def tree_broadcast(attr_type=value_attributes, include_non_attrs=True, treat_layout_as_leaf=False, treat_shapes_as_leaf=False):
+    def wrapper(f):
+        def partial_tree_map(tree, **f_kwargs):
+            return tree_map(f, tree, attr_type=attr_type, include_non_attrs=include_non_attrs, treat_layout_as_leaf=treat_layout_as_leaf, treat_shapes_as_leaf=treat_shapes_as_leaf, **f_kwargs)
+        return partial_tree_map
+    return wrapper
 
 
 def find_differences(tree1, tree2, compare_tensors_by_id=False, attr_type=value_attributes, tensor_equality=None) -> Sequence[Tuple[str, str, Any, Any]]:

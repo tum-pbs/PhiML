@@ -459,6 +459,12 @@ class Shape(Protocol, metaclass=ShapeMeta):
     def __sub__(self, other) -> 'Shape':
         ...
 
+    def __mul__(self, other) -> 'Shape':
+        ...
+
+    def __rmul__(self, other) -> 'Shape':
+        ...
+
     def only(self, dims: 'DimFilter', reorder=False) -> 'Shape':
         """
         Builds a new shape from this one that only contains the given dimensions.
@@ -1746,7 +1752,7 @@ class MixedShape:
     def non_uniform_shape(self):
         result = EMPTY_SHAPE
         for size in self.sizes:
-            if not isinstance(size, int):
+            if not isinstance(size, int) and size is not None:
                 result &= size.shape
         return result
 
@@ -3075,6 +3081,14 @@ def first_index(shape: Shape):
     return next(iter(shape.meshgrid()))
 
 
+def create_tracer(shape: Shape, dtype):
+    from phiml import DType
+    from ._trace import Trace, Tracer
+    dtype = DType.as_dtype(dtype)
+    trace = Trace('<default>', EMPTY_SHAPE, EMPTY_SHAPE)
+    return trace.add_input_d(None, shape, dtype)
+
+
 for cls in [Dim, PureShape, MixedShape]:
     cls.unstack = unstack
     cls.after_gather = after_gather
@@ -3084,3 +3098,5 @@ for cls in [Dim, PureShape, MixedShape]:
     cls._to_dict = to_dict
     cls.transposed = transposed
     cls.mask = mask
+    cls.__mul__ = create_tracer
+    cls.__rmul__ = lambda dtype, shape: create_tracer(shape, dtype)
