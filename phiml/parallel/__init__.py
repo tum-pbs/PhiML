@@ -53,6 +53,9 @@ For example, the expression `math.sum(batched_data * 2, 'example,x,y')` would be
 
 Data transfers between workers and host are performed as needed.
 
+Currently, tensor operators (`a+b`), simple one-tensor functions (`abs,exp,sin,round,is_nan,...`) and reduction functions (`sum,prod,max,finite_mean,...`) are supported.
+Do not enable `MIXED` on functions that use unsupported functions. While direct calls on tracers will fail, there can still be undesirable effects.
+
 ## Disk Caching
 
 By configuring `parallel_compute`, you can have workers write results onto disk instead of serializing the full result in transfers.

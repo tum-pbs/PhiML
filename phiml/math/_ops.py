@@ -25,7 +25,7 @@ from ._sparse import (CompressedSparseMatrix, dense, SparseCoordinateTensor, get
                       tensor_like, sparse_dims, same_sparsity_pattern, is_sparse, sparse_dot, sparse_sum, sparse_gather, sparse_max,
                       sparse_min, dense_dims, sparse_mean, stored_values, sparse_matrix_dims, CompactSparseTensor)
 from . import extrapolation as e_
-from ._trace import Tracer, tracer_reduce, tracer_op1
+from ._trace import Tracer, tracer_reduce, tracer_op1, TRACES
 
 
 def convert(x, backend: Backend = None, use_dlpack=True):
@@ -372,19 +372,25 @@ def _includes_slice(s_dict: dict, dim: Shape, i: int):
         return i in indices
 
 
-def _initialize(uniform_initializer, shapes: Tuple[Shape]) -> Tensor:
+def _initialize(uniform_initializer, shapes: Tuple[Shape], dtype: DType, source_fun, kwargs: dict) -> Tensor:
     shape = concat_shapes_(*shapes)
     assert shape.well_defined, f"When creating a Tensor, shape needs to have definitive sizes but got {shape}"
+    # --- When tracing, add as op to trace, lest random numbers are taken as constant ---
+    if TRACES[-1] is not None:
+        dtype = DType.as_dtype(dtype)
+        op = TRACES[-1].add_op('fun', source_fun.__name__, shape, {'dtype': dtype, **kwargs}, shape)
+        return op.add_output(shape, dtype, {})
+    # --- Initialize ---
     if shape.is_non_uniform:
         stack_dim = shape.non_uniform_shape[0]
         shapes = shape.unstack(stack_dim.name)
-        tensors = [_initialize(uniform_initializer, s) for s in shapes]
+        tensors = [_initialize(uniform_initializer, s, dtype, source_fun, kwargs) for s in shapes]
         return stack_tensors(tensors, stack_dim)
     else:
         return uniform_initializer(shape)
 
 
-def zeros(*shape: Shape, dtype: Union[DType, tuple, type] = None) -> Tensor:
+def zeros(*shape: Shape, dtype: Union[DType, tuple, type] = float) -> Tensor:
     """
     Define a tensor with specified shape with value `0.0` / `0` / `False` everywhere.
     
@@ -400,7 +406,8 @@ def zeros(*shape: Shape, dtype: Union[DType, tuple, type] = None) -> Tensor:
     Returns:
         `Tensor`
     """
-    return _initialize(lambda shape: expand_tensor(Dense(default_backend().zeros((), dtype=DType.as_dtype(dtype)), (), EMPTY_SHAPE, default_backend()), shape), shape)
+    uinit = lambda shape: expand_tensor(Dense(default_backend().zeros((), dtype=DType.as_dtype(dtype)), (), EMPTY_SHAPE, default_backend()), shape)
+    return _initialize(uinit, shape, dtype, zeros, {})
 
 
 def zeros_like(obj: Union[Tensor, PhiTreeNode]) -> Union[Tensor, PhiTreeNode]:
@@ -414,7 +421,7 @@ def zeros_like(obj: Union[Tensor, PhiTreeNode]) -> Union[Tensor, PhiTreeNode]:
     return assemble_tree(nest, zeros_, attr_type=value_attributes)
 
 
-def ones(*shape: Shape, dtype: Union[DType, tuple, type] = None) -> Tensor:
+def ones(*shape: Shape, dtype: Union[DType, tuple, type] = float) -> Tensor:
     """
     Define a tensor with specified shape with value `1.0`/ `1` / `True` everywhere.
     
@@ -430,7 +437,8 @@ def ones(*shape: Shape, dtype: Union[DType, tuple, type] = None) -> Tensor:
     Returns:
         `Tensor`
     """
-    return _initialize(lambda shape: expand_tensor(Dense(default_backend().ones((), dtype=DType.as_dtype(dtype)), (), EMPTY_SHAPE, default_backend()), shape), shape)
+    uinit = lambda shape: expand_tensor(Dense(default_backend().ones((), dtype=DType.as_dtype(dtype)), (), EMPTY_SHAPE, default_backend()), shape)
+    return _initialize(uinit, shape, dtype, ones, {})
 
 
 def ones_like(value: Tensor) -> Tensor:
@@ -438,7 +446,7 @@ def ones_like(value: Tensor) -> Tensor:
     return zeros_like(value) + 1
 
 
-def random_normal(*shape: Shape, dtype: Union[DType, tuple, type] = None) -> Tensor:
+def random_normal(*shape: Shape, dtype: Union[DType, tuple, type] = float) -> Tensor:
     """
     Creates a `Tensor` with the specified shape, filled with random values sampled from a normal / Gaussian distribution.
 
@@ -456,19 +464,18 @@ def random_normal(*shape: Shape, dtype: Union[DType, tuple, type] = None) -> Ten
     Returns:
         `Tensor`
     """
-
     def uniform_random_normal(shape):
         backend = choose_backend(*shape.sizes, prefer_default=True)
         native = backend.random_normal(shape.sizes, DType.as_dtype(dtype))
         return Dense(native, shape.names, shape, backend)
 
-    return _initialize(uniform_random_normal, shape)
+    return _initialize(uniform_random_normal, shape, dtype, random_normal, {})
 
 
 def random_uniform(*shape: Shape,
                    low: Union[Tensor, float] = 0,
                    high: Union[Tensor, float] = 1,
-                   dtype: Union[DType, tuple, type] = None) -> Tensor:
+                   dtype: Union[DType, tuple, type] = float) -> Tensor:
     """
     Creates a `Tensor` with the specified shape, filled with random values sampled from a uniform distribution.
 
@@ -489,13 +496,13 @@ def random_uniform(*shape: Shape,
             backend = choose_backend(low, high, *shape.sizes, prefer_default=True)
             native = backend.random_uniform(shape.sizes, low, high, DType.as_dtype(dtype))
             return Dense(native, shape.names, shape, backend)
-        return _initialize(uniform_random_uniform, shape)
+        return _initialize(uniform_random_uniform, shape, dtype, random_uniform, {'low': low, 'high': high})
     else:
         def uniform_random_uniform(shape):
             backend = choose_backend(*shape.sizes, prefer_default=True)
             native = backend.random_uniform(shape.sizes, 0, 1, DType.as_dtype(dtype))
             return Dense(native, shape.names, shape, backend)
-        return _initialize(uniform_random_uniform, shape) * (high - low) + low
+        return _initialize(uniform_random_uniform, shape, dtype, random_uniform, {'low': 0, 'high': 1}) * (high - low) + low
 
 
 def swap_axes(x, axes):
@@ -1303,7 +1310,7 @@ def where(condition: Union[Tensor, bool],
         if isinstance(vt, Tracer) or isinstance(vf, Tracer) or isinstance(c, Tracer):
             tracer = [t for t in [vt, vf, c] if isinstance(t, Tracer)][0]
             trace = tracer._trace
-            op = trace.add_op('fun', 'where', (c, vt, vf), EMPTY_SHAPE)
+            op = trace.add_op('fun', 'where', (c, vt, vf), {}, EMPTY_SHAPE)
             return op.add_output(c.shape & vt.shape & vf.shape, vt.dtype & vf.dtype, tracer._renamed)
         if vt._is_tracer or vf._is_tracer or c._is_tracer:
             return c * vt + (1 - c) * vf  # ToDo this does not take NaN into account

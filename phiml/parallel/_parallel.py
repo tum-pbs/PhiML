@@ -22,7 +22,7 @@ from ..parallel._tensor_cache import H5Source, write_to_h5
 from ..math import DimFilter, shape, Shape, EMPTY_SHAPE, merge_shapes
 from ..math._magic_ops import all_attributes
 from ..math._tensors import equality_by_shape_and_value
-from ..math._tree import disassemble_tree, assemble_tree
+from ..math._tree import disassemble_tree, assemble_tree, get_value_by_path
 from ..math._trace import to_tracers, Trace, TracedOp, Tracer, expand_tracers
 
 
@@ -126,7 +126,7 @@ def parallel_compute(instance, properties: Sequence, parallel_dims=batch,
 def delete_intermediate_caches(instance, stages: list, stage_idx: int):
     for node in sum(stages[:stage_idx+1], []):
         if not node.has_users_after(stage_idx) and node.name in instance.__dict__:
-            ML_LOGGER.debug(f"Host | Removing cache of {node.name} as it's not needed after stage {stage_idx}")
+            ML_LOGGER.debug(f"Deleting host cache of {node.name} as it's not needed after stage {stage_idx}")
             del instance.__dict__[node.name]
 
 
@@ -254,46 +254,37 @@ def trace_cached_property(obj, cls, p_name: str, prop: cached_property, distribu
     trace = Trace(f"{cls.__name__}.{p_name}", shape(obj), distributed)
     traced = cls.__new__(cls)
     f_deps = field_deps(cls, prop)
-    traced.__dict__.update({f.name: trace.add_input(f.name, getattr(obj, f.name)) for f in data_fields(obj) if f.name in f_deps})
+    traced.__dict__.update({f.name: trace.add_inputs(f.name, getattr(obj, f.name)) for f in data_fields(obj) if f.name in f_deps})
     traced.__dict__.update({name: trace.add_tracers_as_input(name, tracers) for name, tracers in known_out.items()})
     try:
-        trace_out = prop.func(traced)
+        with trace:
+            trace_out = prop.func(traced)
         return trace_out, trace
     except Exception as exc:
+        raise exc
         out_tracer = Tracer(trace, distributed + ALL_UNKNOWN, FLOAT32, {}, EMPTY_SHAPE, None)
         ML_LOGGER.warning(f"Failed to trace property {cls.__name__}.{p_name}: {type(exc)} {exc}. Assuming default shape {out_tracer.shape}")
         return out_tracer, trace
-
-
-# def merge_duplicate_nodes(nodes: Sequence[PGraphNode]):
-#     p_nodes = [n for n in nodes if n.program is not None]
-#     programs = set(n.program for n in p_nodes)
-#     p_ids = {id(p) for p in programs}
-#     if len(programs) == len(p_nodes):
-#         return {n.name: n for n in nodes}
-#     removed = [n for n in p_nodes if id(n.program) not in p_ids]
-#     for node in removed:
-#         replacement = [n for n in p_nodes if n.program == node.program][0]
-#         node.program = IdentityProgram(replacement.name)
-#         for user in node.users:
-#             user.dependencies = [replacement if d is node else d for d in user.dependencies]
-#     nodes = [n for n in nodes if n not in removed]
-#     return nodes
 
 
 def split_mixed_prop(name: str, out: Any, trace: Trace, parallel_dims: Shape, nodes: Dict[str, PGraphNode]):
     if len(trace.all_ops) == 0:
         return NotImplemented
     op_names = {op: f"{name}_{i}_{op.name}" for i, op in enumerate(trace.all_ops)}
-    op_names[trace.all_ops[-1]] = name
+    if isinstance(out, Tracer):
+        op_names[out._op[0]] = name
+    else:  # add assemble operation
+        out_tree, all_out_tensors = disassemble_tree(out, False, all_attributes)
+        op = trace.add_op('special', 'assemble_tree', (out_tree, all_out_tensors, all_attributes), {}, EMPTY_SHAPE, check_active=False)
+        op_names[op] = name
     ML_LOGGER.debug(f"Splitting {name} into {list(op_names.values())}")
     for op, op_name in op_names.items():
-        out_tracers = [t for t in trace.all_tracers if t._op is not None and t._op[0] is op]
         distributed = parallel_dims.only(op.input_shape) - op.req_dims
         in_tracers = op.input_tracers
         ext_dep_tracers = [t for t in in_tracers if t._op is None]
         ext_deps = [nodes[t._name] for t in ext_dep_tracers if t._name in nodes]
         ext_fields = {t: t._name for t in ext_dep_tracers if t._name not in nodes}
+        ext_field_base = {v.split('[', 1)[0].split('.', 1)[0] for v in ext_fields.values()}
         int_dep_tracers = [t for t in in_tracers if t._op is not None]
         int_deps = [nodes[op_names[t._op[0]]] for t in int_dep_tracers]
         # --- Python code ---
@@ -301,7 +292,7 @@ def split_mixed_prop(name: str, out: Any, trace: Trace, parallel_dims: Shape, no
         for tracer, node in zip(ext_dep_tracers, ext_deps):
             dep_expr[tracer] = f"self.{node.name}"
         for tracer in int_dep_tracers:
-            dep_expr[tracer] = f"self.{op_names[tracer._op[0]]}[{tracer._op[1]}]"
+            dep_expr[tracer] = f"self.{op_names[tracer._op[0]]}[{tracer._op[1]}]" if tracer._op[1] is not None else f"self.{op_names[tracer._op[0]]}"
         for tracer, dep_field in ext_fields.items():
             dep_expr[tracer] = f"self.{dep_field}"
         code = f"""
@@ -317,7 +308,11 @@ def {op_name}(self):
             replacement[t] = op_trace.add_input(dep_expr[t][5:], t)
         single_op = op.replace_input_tracers(op_trace, replacement)
         program = TraceProgram(single_op)
-        node = PGraphNode(op_name, out_tracers, distributed, program, set(ext_fields.values()), ext_deps + int_deps)
+        if op.name == 'assemble_tree' or (isinstance(out, Tracer) and op_name == name):  # final property output
+            out_tracers = out
+        else:  # intermediate result, return list of op out tensors
+            out_tracers = op.outputs
+        node = PGraphNode(op_name, out_tracers, distributed, program, ext_field_base, ext_deps + int_deps)
         nodes[op_name] = node
         for dep in node.dependencies:
             dep.users.append(node)
@@ -325,32 +320,11 @@ def {op_name}(self):
 
 
 @dataclass
-class IdentityProgram:
-    ref: str
-
-    def run(self, obj):
-        return getattr(obj, self.ref)
-
-
-@dataclass
 class TraceProgram:
     op: TracedOp
 
     def run(self, obj):
-        data = {}
-        for t in self.op.input_tracers:
-            assert t._op is None
-            attr_name, index = t._name, None
-            if attr_name.endswith(']'):
-                attr_name, index = attr_name.rsplit('[')
-                index = int(index[:-1])
-            op_out = getattr(obj, attr_name)
-            if index is not None:
-                if isinstance(op_out, tuple):
-                    op_out = op_out[index]
-                else:
-                    assert index == 0
-            data[t] = op_out
+        data = {t: get_value_by_path(f'.{t._name}', obj) for t in self.op.input_tracers}
         return self.op.run(data)
 
     def __eq__(self, other):
@@ -378,7 +352,9 @@ def parallel_property(func: Callable = None, /,
     Args:
         func: Method to wrap.
         requires: Dimensions which must be present within one process. These cannot be parallelized when computing this property.
-        out: Declare output shapes and dtypes. Combined 
+        out: Declare output shapes and dtypes in the same tree structure as the output of `func`.
+            Placeholders for `shape` and `dtype` can be created using `shape * dtype`.
+            `Shape` instances will be assumed to be of floating-point type.
         on_direct_eval: What to do when the property is accessed normally (outside `parallel_compute`) before it has been computed.
             Option:
 

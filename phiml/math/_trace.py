@@ -3,14 +3,13 @@ from dataclasses import dataclass, field
 from functools import cached_property
 from typing import Tuple, Dict, Callable, Optional, List, Any, Union
 
-from . import EMPTY_SHAPE
-from ._tree import tree_broadcast, disassemble_tree, attr_paths, assemble_tree
-from ._magic_ops import tree_map, all_attributes, expand
-from ._shape import Shape, merge_shapes, after_gather, shape_stack
-from ._tensors import Tensor, _EQUALITY_REDUCE, equality_by_ref, equality_by_shape_and_value
-from .. import math
 from ..backend import Backend, NUMPY, choose_backend, get_precision, ML_LOGGER
 from ..backend._dtype import DType, combine_types, INT32, INT64, BOOL
+from ._shape import Shape, EMPTY_SHAPE, merge_shapes, after_gather, shape_stack
+from ._tree import tree_broadcast, disassemble_tree, attr_paths, assemble_tree, tree_map_with_paths
+from ._magic_ops import tree_map, all_attributes, expand
+from ._tensors import Tensor, _EQUALITY_REDUCE, equality_by_shape_and_value
+from .. import math
 
 
 @dataclass
@@ -25,11 +24,14 @@ class Trace:
     all_ops: List['TracedOp'] = field(default_factory=list)
 
     def add_input(self, name: str, reference: Tensor):
-        assert name not in self.tracers_by_name, f"Duplicate tracers with name {name}"
+        assert name not in self.tracers_by_name, f"Duplicate tracers with name '{name}'"
         tracer = Tracer(self, reference.shape, reference.dtype, {}, None, name)
         self.all_tracers.append(tracer)
         self.tracers_by_name[name] = tracer
         return tracer
+
+    def add_inputs(self, root: str, tree):
+        return tree_map_with_paths(self.add_input, tree, root)
 
     def add_input_d(self, name: str, shape: Shape, dtype: DType):
         assert name not in self.tracers_by_name, f"Duplicate tracers with name {name}"
@@ -39,21 +41,39 @@ class Trace:
         return tracer
 
     def add_tracers_as_input(self, name: str, tracers: Any):
-        def add_single_tracer(x: Tensor):
-            return self.add_input(name, x)
-        return tree_map(add_single_tracer, tracers, all_attributes, include_non_attrs=False)
+        tree, t_list = disassemble_tree(tracers, False, all_attributes)
+        paths = attr_paths(tracers, all_attributes, name)
+        o_list = []
+        for tracer, path in zip(t_list, paths):
+            o_list.append(self.add_input(path, tracer))
+        return assemble_tree(tree, o_list, all_attributes)
 
-    def add_op(self, op_type: str, name: str, args: tuple, req_dims: Shape) -> 'TracedOp':
+    def add_op(self, op_type: str, name: str, args: tuple, kwargs: dict, req_dims: Shape, check_active=True) -> 'TracedOp':
+        if check_active:
+            assert TRACES[-1] is self, f"Trying to add operator to non-active trace '{self}'. Active: '{TRACES[-1]}'"
         if self.merge_duplicates:
             for op in self.all_ops:
                 if op.name == name and op.op_type == op_type:
                     with equality_by_shape_and_value(0, 0, True):
-                        if op.args == args:
+                        if op.args == args and op.kwargs == kwargs:
                             ML_LOGGER.debug(f"Merging duplicate ops {op.name} in {self.name}")
                             return op
-        op = TracedOp(self, op_type, name, args, req_dims)
+        op = TracedOp(self, op_type, name, args, kwargs, req_dims)
         self.all_ops.append(op)
         return op
+
+    def __enter__(self):
+        assert self not in TRACES
+        TRACES.append(self)
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        assert TRACES.pop() is self
+
+    def __repr__(self):
+        return self.name
+
+
+TRACES: List[Optional[Trace]] = [None]
 
 
 @dataclass
@@ -62,17 +82,19 @@ class TracedOp:
     op_type: str  # 'fun', 'op1', 'op2', 'tensor'
     name: str  # function name or operator name, e.g. 'mul'
     args: tuple
+    kwargs: dict
     # kwargs: Dict[str, Any]
     req_dims: Shape  # Dimensions that were not acting as batch for the computation of this `Tensor`. This can be any dims present in the sources.
     outputs: List['Tracer'] = field(default_factory=list)
 
-    def add_output(self, shape: Shape, dtype: DType, renamed: Dict[str, str], out_index: int = 0):
-        if len(self.outputs) > out_index:
-            assert self.outputs[out_index].shape == shape, f"Duplicate op with different output shapes {self.outputs[out_index].shape} vs {shape}"
-            return self.outputs[out_index]
+    def add_output(self, shape: Shape, dtype: DType, renamed: Dict[str, str], out_index: int = None):
+        out_int = 0 if out_index is None else out_index
+        if len(self.outputs) > out_int:
+            assert self.outputs[out_int].shape == shape, f"Duplicate op with different output shapes {self.outputs[out_int].shape} vs {shape}"
+            return self.outputs[out_int]
         i = 0
         while True:
-            name = f"{self.name}[{out_index}]_{i}"
+            name = f"{self.name}[{out_index}]_{i}" if out_index is not None else f"{self.name}_{i}"
             if name not in self.trace.tracers_by_name:
                 break
             i += 1
@@ -90,6 +112,9 @@ class TracedOp:
             return getattr(operator, self.name)
         elif self.op_type == 'op1':
             return getattr(operator, self.name) if hasattr(operator, self.name) else getattr(math, self.name)
+        elif self.op_type == 'special':
+            if self.name == 'assemble_tree':
+                return assemble_tree
         else:
             assert False, f"Not a function but a {self.op_type} op"
 
@@ -97,11 +122,13 @@ class TracedOp:
     def input_tracers(self):
         result = []
         tree_map(lambda t: isinstance(t, Tracer) and result.append(t), self.args, all_attributes, False)
+        tree_map(lambda t: isinstance(t, Tracer) and result.append(t), self.kwargs, all_attributes, False)
         return result
 
     def replace_input_tracers(self, new_trace: Trace, replacement: Dict['Tracer', Tensor]):
         args = tree_map(lambda x: replacement[x] if isinstance(x, Tracer) else x, self.args, all_attributes, include_non_attrs=False)
-        return new_trace.add_op(self.op_type, self.name, args, self.req_dims)
+        kwargs = tree_map(lambda x: replacement[x] if isinstance(x, Tracer) else x, self.kwargs, all_attributes, include_non_attrs=False)
+        return new_trace.add_op(self.op_type, self.name, args, kwargs, self.req_dims, check_active=False)
 
     @cached_property
     def input_shape(self):
@@ -167,11 +194,10 @@ class TracedOp:
                 arg_strs.append(str(arg))
         return f"{self.function.__name__}({', '.join(arg_strs)})"
 
-    # ToDo number of using ops (or by tracer?)
-
     def run(self, data: Dict['Tracer', Tensor]):
         args = tree_map(lambda x: data[x] if isinstance(x, Tracer) else x, self.args, all_attributes, include_non_attrs=False)
-        return self.function(*args)
+        kwargs = tree_map(lambda x: data[x] if isinstance(x, Tracer) else x, self.kwargs, all_attributes, include_non_attrs=False)
+        return self.function(*args, **kwargs)
 
     def __hash__(self):
         return hash(id(self))
@@ -183,7 +209,7 @@ class TracedOp:
         return f"{self.name} ({self.op_type})"
 
     def is_same_op(self, other: 'TracedOp'):
-        return self.op_type == other.op_type and self.name == other.name and self.args == other.args
+        return self.op_type == other.op_type and self.name == other.name and self.args == other.args and self.kwargs == other.kwargs
 
 
 class Tracer(Tensor):
@@ -205,12 +231,14 @@ class Tracer(Tensor):
             name: For input tensors
         """
         super().__init__()
+        assert dtype is not None
         self._trace = trace
         self._shape = shape
         self._dtype = dtype
         self._renamed = renamed  # new_name -> old_name
         self._op = op
         self._name = name
+        self._hash = hash((shape, dtype, name))
 
     def _is_tracer(self) -> bool:
         return True
@@ -226,7 +254,7 @@ class Tracer(Tensor):
     def _with_shape_replaced(self, new_shape: Shape):
         renamed = {new_dim: self._renamed[old_dim] for old_dim, new_dim in zip(self._shape.names, new_shape.names)}
         replaced = [o for (o, n) in zip(self._shape, new_shape) if o != n]
-        op = self._trace.add_op('fun', 'rename_dims', (self, self._shape, new_shape), merge_shapes(*replaced))
+        op = self._trace.add_op('fun', 'rename_dims', (self, self._shape, new_shape), {}, merge_shapes(*replaced))
         return op.add_output(new_shape, self._dtype, renamed)
 
     @property
@@ -237,7 +265,7 @@ class Tracer(Tensor):
         return f"{self.shape} // '{self._name}' for {self._trace.name}"
 
     def __hash__(self):
-        return hash(id(self))
+        return self._hash
 
     def __eq__(self, other):
         if _EQUALITY_REDUCE[-1]['type'] != 'elementwise':  # shape_and_value | ref
@@ -256,17 +284,17 @@ class Tracer(Tensor):
         req_names = [self._renamed.get(dim, dim) for dim in selection]
         req = self._trace.all_dims.only(req_names)
         new_shape = after_gather(self._shape, selection)
-        op = self._trace.add_op('tensor', '[]', (self, selection), req)
+        op = self._trace.add_op('tensor', '[]', (self, selection), {}, req)
         return op.add_output(new_shape, self._dtype, self._renamed)
 
     def _unstack(self, dim):
         req_name = self._renamed.get(dim, dim)
         req = self._trace.all_dims[req_name]
-        op = self._trace.add_op('fun', 'unstack', (self, dim), req)
+        op = self._trace.add_op('fun', 'unstack', (self, dim), {}, req)
         return tuple([op.add_output(self._shape - dim, self._dtype, self._renamed, i) for i in range(self.shape.get_size(dim))])
 
     def __cast__(self, dtype: DType):
-        op = self._trace.add_op('fun', 'cast', (self, dtype), EMPTY_SHAPE)
+        op = self._trace.add_op('fun', 'cast', (self, dtype), {}, EMPTY_SHAPE)
         return op.add_output(self._shape, dtype, self._renamed)
 
     def _op1(self, native_function):
@@ -283,7 +311,7 @@ class Tracer(Tensor):
             renamed = dict(**self._renamed, **other._renamed)
         else:
             renamed = self._renamed
-        op = self._trace.add_op('op2', op.__name__, (other, self) if switch_args else (self, other), EMPTY_SHAPE)
+        op = self._trace.add_op('op2', op.__name__, (other, self) if switch_args else (self, other), {}, EMPTY_SHAPE)
         return op.add_output(new_shape, dtype, renamed)
 
     def _natives(self):
@@ -299,11 +327,11 @@ class Tracer(Tensor):
         new_shape = shape_stack(dim, *[v.shape for v in values])
         dtype = combine_types(*[v.dtype for v in values])
         req_dims = merge_shapes([t.shape for t in tracers])
-        op = tracers[0]._trace.add_op('fun', 'stack', (values, dim), req_dims)
+        op = tracers[0]._trace.add_op('fun', 'stack', (values, dim), {}, req_dims)
         return op.add_output(new_shape, dtype, tracers[0]._renamed)
 
     def __expand__(self, dims: Shape, **kwargs) -> 'Tracer':
-        op = self._trace.add_op('fun', 'expand', (self, dims), EMPTY_SHAPE)
+        op = self._trace.add_op('fun', 'expand', (self, dims), {}, EMPTY_SHAPE)
         return Tracer(self._trace, self._shape & dims, self._dtype, self._renamed, (op, 0))
 
     def native(self, order: Union[str, tuple, list, Shape] = None, force_expand=True):
@@ -328,7 +356,7 @@ class Tracer(Tensor):
     #     return tracer_op1(self, operator.neg)
 
     def __neg__(self):
-        op = self._trace.add_op('op1', '-', (self,), EMPTY_SHAPE)
+        op = self._trace.add_op('op1', '-', (self,), {}, EMPTY_SHAPE)
         return op.add_output(self._shape, self._dtype, self._renamed)
 
     def __invert__(self) -> 'Tensor[T]':
@@ -341,7 +369,7 @@ class TraceInProgress(Exception):
 
 
 def tracer_op1(tracer: Tracer, math_fun):
-    op = tracer._trace.add_op('op1', math_fun.__name__, (tracer,), EMPTY_SHAPE)
+    op = tracer._trace.add_op('op1', math_fun.__name__, (tracer,), {}, EMPTY_SHAPE)
     name = math_fun.__name__
     from ._ops import abs_, to_int64, to_int32, to_float, to_complex, is_finite, is_nan, is_inf, real, imag, stop_gradient, factorial
     old_type = tracer._dtype
@@ -372,7 +400,7 @@ def tracer_reduce(tracer: Tracer, dims: Shape, op_name: str, fun):
     renamed = {k: v for k, v in tracer._renamed.items() if k not in dims}
     req_names = [tracer._renamed.get(dim, dim) for dim in dims.names]
     req = tracer._trace.all_dims.only(req_names)  # ToDo actually, we want a clean slate for the next steps...
-    op = tracer._trace.add_op('fun', op_name, (tracer, dims), req)
+    op = tracer._trace.add_op('fun', op_name, (tracer, dims), {}, req)
     return op.add_output(new_shape, tracer._dtype, renamed)
 
 

@@ -46,6 +46,12 @@ class PGraphNode:
     def has_users_after(self, stage: int):
         return any(u.stage > stage for u in self.users)
 
+    def __eq__(self, other):
+        return self is other
+
+    def __hash__(self):
+        return id(self)
+
 
 def build_stages(nodes: Dict[str, PGraphNode]) -> List[List[PGraphNode]]:
     """ Groups nodes by same `requires`, taking dependencies into account. """

@@ -792,12 +792,74 @@ def tree_map(f, tree, attr_type=value_attributes,
         return tree
 
 
-def tree_map_with_paths(f, tree, attr_type=all_attributes, include_non_attrs=False, treat_layout_as_leaf=False, tensor_classes=(Tensor,)):
-    tensors, paths = disassemble_with_paths(tree, all_attributes)
+def tree_map_with_paths(f, tree, root: str, attr_type=all_attributes, treat_layout_as_leaf=False, tensor_classes=(Tensor,)):
+    paths, leaves = [], []
+    list_leaves(tree, root, paths, leaves, attr_type, treat_layout_as_leaf=treat_layout_as_leaf, tensor_classes=tensor_classes)
     outputs = []
-    for tensor, path in zip(tensors, paths):
-        outputs.append(f(tensor, path))
-    return assemble_tree(tree, outputs)
+    for leaf, path in zip(leaves, paths):
+        outputs.append(f(path, leaf))
+    return replace_all_leaves(tree, outputs, attr_type, treat_layout_as_leaf=treat_layout_as_leaf, tensor_classes=tensor_classes)
+
+
+def list_leaves(obj, root: str, paths: list, leaves: list, attr_type=all_attributes, treat_layout_as_leaf=False, tensor_classes=(Tensor,)):
+    if isinstance(obj, Layout):
+        if treat_layout_as_leaf:
+            if isinstance(obj, tensor_classes):
+                paths.append(root)
+                leaves.append(obj)
+        else:  # recurse into layout
+            list_leaves(obj._obj, f'{root}._obj', paths, leaves, attr_type, treat_layout_as_leaf, tensor_classes)
+    elif isinstance(obj, tensor_classes):
+        paths.append(root)
+        leaves.append(obj)
+    elif isinstance(obj, (tuple, list)):
+        for i, item in enumerate(obj):
+            list_leaves(item, f'{root}[{i}]', paths, leaves, attr_type, treat_layout_as_leaf, tensor_classes)
+    elif isinstance(obj, dict):
+        for name, item in obj.items():
+            list_leaves(item, f'{root}[{name}]', paths, leaves, attr_type, treat_layout_as_leaf, tensor_classes)
+    elif dataclasses.is_dataclass(obj) or isinstance(obj, PhiTreeNode):
+        attributes = attr_type(obj)
+        for attr in attributes:
+            list_leaves(getattr(obj, attr), f'{root}.{attr}', paths, leaves, attr_type, treat_layout_as_leaf, tensor_classes)
+
+
+def replace_all_leaves(obj, leaves: list, attr_type=all_attributes, treat_layout_as_leaf=False, tensor_classes=(Tensor,)):
+    if obj is None:
+        return None
+    elif isinstance(obj, Layout):
+        if treat_layout_as_leaf:
+            if isinstance(obj, tensor_classes):
+                return leaves.pop(0)
+        else:  # recurse into layout
+            return Layout(replace_all_leaves(obj._obj, leaves, attr_type, treat_layout_as_leaf, tensor_classes), obj._stack_dim)
+    elif isinstance(obj, tensor_classes):
+        return leaves.pop(0)
+    elif isinstance(obj, tuple):
+        return tuple([replace_all_leaves(item, leaves, attr_type, treat_layout_as_leaf, tensor_classes) for item in obj])
+    elif isinstance(obj, (tuple, list)):
+        return [replace_all_leaves(item, leaves, attr_type, treat_layout_as_leaf, tensor_classes) for item in obj]
+    elif isinstance(obj, dict):
+        return {k: replace_all_leaves(v, leaves, attr_type, treat_layout_as_leaf, tensor_classes) for k, v in obj.items()}
+    elif dataclasses.is_dataclass(obj) or isinstance(obj, PhiTreeNode):
+        attributes = attr_type(obj)
+        new_vals = {attr: replace_all_leaves(getattr(obj, attr), leaves, attr_type, treat_layout_as_leaf, tensor_classes) for attr in attributes}
+        return replace(obj, **new_vals)
+    return obj
+
+
+def get_value_by_path(path: str, obj):
+    """path needs to start with either '.' or '[' or be empty"""
+    if not path:
+        return obj
+    name = path[1:].split('.')[0].split('[')[0]
+    if path.startswith('.'):
+        return get_value_by_path(path[1+len(name):], getattr(obj, name))
+    elif path.startswith('['):
+        name = name[:-1]  # remove trailing ']'
+        idx = int(name) if isinstance(obj, (tuple, list)) else name
+        return get_value_by_path(path[2+len(name):], obj[idx])
+    raise ValueError(f"Illegal path: {path}")
 
 
 def tree_broadcast(attr_type=value_attributes, include_non_attrs=True, treat_layout_as_leaf=False, treat_shapes_as_leaf=False):
