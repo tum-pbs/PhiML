@@ -4,19 +4,18 @@ import time
 import traceback
 import warnings
 import weakref
-from functools import partial
 from threading import Thread, Lock
 from typing import Sequence, Dict, Optional, Set, Callable, Union, List
-
 import h5py
 
-from phiml.backend._backend import get_backend
-from phiml.math._magic_ops import all_attributes
-from phiml.math._sparse import SparseCoordinateTensor, CompressedSparseMatrix, CompactSparseTensor, get_format
-from phiml.math._tensors import Tensor, Dense, Layout, TensorStack, cached
+from ..backend._backend import get_backend
+from ..math._magic_ops import all_attributes
+from ..math._tensors import Tensor, Dense, TensorStack
+from ..math._tree import Layout
+from ..math._sparse import SparseCoordinateTensor, CompressedSparseMatrix, CompactSparseTensor, get_format
 from phiml import Shape, DType
-from phiml.backend import Backend, ML_LOGGER
-from phiml.math.magic import PhiTreeNode
+from ..backend import Backend, ML_LOGGER
+from ..math.magic import PhiTreeNode
 
 
 class H5Source:
@@ -207,7 +206,7 @@ def write_to_h5(t: Tensor, name: str, f: h5py.File, ref: H5Source):
         return DiskTensor(ref, name, {}, t._names, t._shape, t._backend, t.dtype)
     elif isinstance(t, TensorStack):
         if not t.requires_broadcast:
-            write_to_h5(cached(t), name, f, ref)
+            write_to_h5(t._cached(), name, f, ref)
         stack_name = t._stack_dim.name
         disk_tensors = []
         for i, ts in enumerate(t._tensors):

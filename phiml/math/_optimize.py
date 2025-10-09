@@ -10,11 +10,11 @@ import numpy as np
 from ..backend import get_precision, NUMPY, Backend
 from ..backend._backend import SolveResult, ML_LOGGER, default_backend, convert, Preconditioner, choose_backend
 from ..backend._linalg import IncompleteLU, incomplete_lu_dense, incomplete_lu_coo, coarse_explicit_preconditioner_coo
-from ._shape import EMPTY_SHAPE, Shape, merge_shapes, batch, non_batch, shape, dual, channel, non_dual, instance, spatial, primal
-from ._magic_ops import stack, copy_with, rename_dims, unpack_dim, unstack, expand, value_attributes, variable_attributes, pack_dims
-from ._sparse import native_matrix, SparseCoordinateTensor, CompressedSparseMatrix, stored_values, is_sparse, matrix_rank, _stored_matrix_rank, sparse_dims
-from ._tensors import Tensor, disassemble_tree, assemble_tree, wrap, cached, Dense, layout, reshaped_tensor, NATIVE_TENSOR, \
-    preferred_backend_for
+from ._shape import EMPTY_SHAPE, Shape, merge_shapes, batch, non_batch, shape, dual, channel, non_dual, instance, spatial
+from ._tensors import Tensor, wrap, Dense, reshaped_tensor, preferred_backend_for
+from ._tree import layout, disassemble_tree, assemble_tree, NATIVE_TENSOR, variable_attributes
+from ._magic_ops import stack, copy_with, rename_dims, unpack_dim, unstack, expand, value_attributes
+from ._sparse import native_matrix, SparseCoordinateTensor, CompressedSparseMatrix, stored_values, is_sparse, _stored_matrix_rank
 from . import _ops as math, get_format
 from ._ops import backend_for, zeros_like, all_available, to_float
 from ._functional import custom_gradient, LinearFunction, f_name, _TRACING_JIT, map_
@@ -383,7 +383,7 @@ def minimize(f: Callable[[X], Y], solve: Solve[X, Y]) -> X:
     x0_natives = []
     x0_native_shapes = []
     for t in x0_tensors:
-        t = cached(t)
+        t = t._cached()
         if t.shape.is_uniform:
             x0_natives.append(t.native([batch_dims, t.shape.non_batch]))
             x0_native_shapes.append(t.shape.non_batch)
@@ -670,6 +670,7 @@ def solve_linear(f: Union[Callable[[X], Y], Tensor],
         _matrix_solve = attach_gradient_solve(_matrix_solve_forward, auxiliary_args=f'is_backprop,solve{",matrix" if matrix.backend == NUMPY else ""}', matrix_adjoint=grad_for_f)
         return _matrix_solve(y - bias, solve, matrix)
     else:  # Matrix-free solve
+        from ._ops import cached
         f_args = cached(f_args)
         solve = cached(solve)
         assert not grad_for_f, f"grad_for_f=True can only be used for math.jit_compile_linear functions but got '{f_name(f)}'. Please decorate the linear function with @jit_compile_linear"

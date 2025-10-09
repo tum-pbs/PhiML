@@ -1,10 +1,11 @@
 import operator
 from dataclasses import dataclass, field
-from functools import cached_property, partial
+from functools import cached_property
 from typing import Tuple, Dict, Callable, Optional, List, Any, Union
 
 from . import EMPTY_SHAPE
-from ._magic_ops import tree_map, all_attributes, tree_broadcast, expand
+from ._tree import tree_broadcast, disassemble_tree, attr_paths, assemble_tree
+from ._magic_ops import tree_map, all_attributes, expand
 from ._shape import Shape, merge_shapes, after_gather, shape_stack
 from ._tensors import Tensor, _EQUALITY_REDUCE, equality_by_ref, equality_by_shape_and_value
 from .. import math

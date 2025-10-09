@@ -1,15 +1,14 @@
 import collections
 import dataclasses
-from dataclasses import dataclass
 from functools import cached_property, partial
-from typing import TypeVar, Callable, Tuple, List, Set, Iterable, Optional, get_origin, get_args, Dict, Sequence, Any
+from typing import TypeVar, Callable, Tuple, List, Set, Iterable, Optional, get_origin, get_args, Dict, Sequence
 
-from ..math import rename_dims, DimFilter, shape, Shape
-from ..math._magic_ops import slice_, variable_attributes
-from ..math._shape import SHAPE_TYPES, INSTANCE_DIM, CHANNEL_DIM, SPATIAL_DIM
-from ..math._tensors import disassemble_tree, Tensor, assemble_tree, equality_by_shape_and_value, equality_by_ref
-from ..math.magic import slicing_dict, BoundDim
 from ._dep import get_unchanged_cache
+from ..math import rename_dims, DimFilter, shape, Shape
+from ..math._shape import SHAPE_TYPES, INSTANCE_DIM, CHANNEL_DIM, SPATIAL_DIM
+from ..math._tensors import equality_by_shape_and_value, equality_by_ref
+from ..math._tree import slice_
+from ..math.magic import slicing_dict, BoundDim
 
 PhiMLDataclass = TypeVar("PhiMLDataclass")
 
@@ -237,37 +236,6 @@ def copy(obj: PhiMLDataclass, /, call_metaclass=False) -> PhiMLDataclass:
             If `obj` defines a metaclass, this will allow users to define custom constructors for dataclasses.
     """
     return replace(obj, call_metaclass=call_metaclass)
-
-
-@dataclass
-class DataclassTreeNode:
-    cls: type
-    attr_type: Callable
-    extracted: Dict[str, Any]  # trees without variable tensors
-    not_extracted: Dict[str, Any]  # original values of non-extracted properties
-    cache: Dict[str, Any]
-
-
-def disassemble(obj: PhiMLDataclass, attr_type=variable_attributes):
-    extract_names = attr_type(obj)
-    keys = {}
-    values = []
-    for attr in extract_names:
-        key, value = disassemble_tree(getattr(obj, attr), False, attr_type)
-        keys[attr] = key
-        values.extend(value)
-    non_attributes = {f.name: getattr(obj, f.name) for f in dataclasses.fields(obj) if f.name not in keys}
-    cache = get_unchanged_cache(obj, set(extract_names))
-    return DataclassTreeNode(type(obj), attr_type, keys, non_attributes, cache), values
-
-
-def assemble(container: DataclassTreeNode, values: List[Tensor]):
-    extracted = {a: assemble_tree(v, values, container.attr_type) for a, v in container.extracted.items()}
-    instance = container.cls.__new__(container.cls)
-    instance.__init__(**extracted, **container.not_extracted)
-    if container.cache:
-        instance.__dict__.update(container.cache)
-    return instance
 
 
 def getitem(obj: PhiMLDataclass, item, keepdims: DimFilter = None) -> PhiMLDataclass:

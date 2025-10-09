@@ -3,8 +3,8 @@ from dataclasses import dataclass
 from functools import cached_property
 from typing import Sequence, Set, Dict, List, Any, Union, Optional
 
-from phiml.math import Shape
-from phiml.math._trace import Tracer
+from ..math import Shape
+from ..math._trace import Tracer
 
 
 @dataclass

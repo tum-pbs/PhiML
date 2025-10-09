@@ -7,8 +7,9 @@ import numpy as np
 
 from ..backend import default_backend
 from ._shape import concat_shapes_, batch, DimFilter, Shape, SHAPE_TYPES, shape, non_batch, channel, dual, primal, EMPTY_SHAPE
-from ._magic_ops import unpack_dim, expand, stack, slice_, squeeze
-from ._tensors import reshaped_tensor, TensorOrTree, Tensor, wrap
+from ._tensors import reshaped_tensor, TensorOrTree, Tensor
+from ._tree import slice_
+from ._magic_ops import expand, stack, squeeze
 from ._ops import unravel_index, psum, dmin
 
 

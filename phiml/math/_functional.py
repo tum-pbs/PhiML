@@ -10,17 +10,17 @@ from typing import Tuple, Callable, Dict, Generic, List, TypeVar, Any, Set, Unio
 import numpy as np
 
 from . import _ops as math, all_available, stop_gradient
-from ._magic_ops import stack, slice_, find_differences, rename_dims, all_attributes
 from ._shape import Shape, spatial, instance, batch, channel, merge_shapes, DimFilter, shape, dual
+from ._tensors import Tensor, disassemble_tensors, assemble_tensors, wrap, specs_equal, equality_by_shape_and_value, backend_for, Dense, TensorStack
+from ._tree import disassemble_tree, assemble_tree, variable_attributes, NATIVE_TENSOR, object_dims, slice_, find_differences
+from ._magic_ops import stack, rename_dims, all_attributes
 from ._sparse import SparseCoordinateTensor
-from ._tensors import Tensor, disassemble_tree, assemble_tree, disassemble_tensors, assemble_tensors, variable_attributes, wrap, specs_equal, equality_by_shape_and_value, \
-    object_dims, backend_for, NATIVE_TENSOR, Dense, TensorStack
 from ._lin_trace import ShiftLinTracer, matrix_from_function, LinearTraceInProgress
 from .magic import PhiTreeNode, Shapable
 from ..backend import Backend
 from ..backend._backend import get_spatial_derivative_order, functional_derivative_evaluation, ML_LOGGER
 from ..backend._buffer import set_buffer_config, get_buffer_config, get_required_buffer_sizes, wasted_memory
-from ..backend._dtype import DType, FLOAT64
+from ..backend._dtype import FLOAT64
 
 X = TypeVar('X')
 Y = TypeVar('Y')
@@ -1011,7 +1011,7 @@ Traces can be avoided by jit-compiling the code that calls custom gradient funct
                 assert type(tree) == type(incomplete) and len(tree) == len(incomplete) and set(tree.keys()) == set(incomplete.keys())
                 return sum([CustomGradientFunction.incomplete_tree_to_natives(incomplete[key], c_item, complete_specs) for key, c_item in tree.items()], [])
         elif dataclasses.is_dataclass(tree):
-            from ..dataclasses._dataclasses import DataclassTreeNode
+            from ._tree import DataclassTreeNode
             if isinstance(tree, DataclassTreeNode):
                 natives = []
                 for attr, n_val in tree.extracted.items():

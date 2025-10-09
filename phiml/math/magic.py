@@ -306,7 +306,8 @@ class Shapable(metaclass=_ShapableType):
 class _PhiTreeNodeType(type):
 
     def __instancecheck__(self, instance):
-        from ._tensors import Tensor, MISSING_TENSOR, NATIVE_TENSOR, Dict
+        from ._tree import Tensor, MISSING_TENSOR, NATIVE_TENSOR
+        from ._tensors import Dict as TensorDict
         if isinstance(instance, Tensor):
             return True
         if instance is MISSING_TENSOR or instance is NATIVE_TENSOR:
@@ -315,7 +316,7 @@ class _PhiTreeNodeType(type):
             return True
         elif isinstance(instance, (tuple, list)):
             return all(isinstance(item, PhiTreeNode) for item in instance)
-        elif isinstance(instance, Dict):
+        elif isinstance(instance, TensorDict):
             return True
         elif isinstance(instance, dict):
             return all(isinstance(val, (Shaped, PhiTreeNode)) for val in instance.values())

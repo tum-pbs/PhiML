@@ -141,7 +141,7 @@ def plot_solves():
         finally:
             for i, result in enumerate(solves):
                 assert isinstance(result, math.SolveInfo)
-                from .math._tensors import disassemble_tree
+                from .math._tree import disassemble_tree
                 from .math._magic_ops import value_attributes
                 _, (residual,) = disassemble_tree(result.residual, cache=False, attr_type=value_attributes)
                 residual_mse = math.mean(math.sqrt(math.sum(residual ** 2)), residual.shape.without('trajectory'))

@@ -7,24 +7,25 @@ from typing import Tuple, Callable, Any, Union, Optional, Dict, Collection, Sequ
 
 import numpy as np
 
-from ._trace import Tracer, tracer_reduce, tracer_op1
 from ..backend import default_backend, choose_backend, Backend, get_precision, convert as b_convert, BACKENDS, NoBackendFound, ComputeDevice, NUMPY
-from ..backend._dtype import DType, combine_types, INT32
 from ..backend import xops
-from .magic import PhiTreeNode
-from ._magic_ops import expand, pack_dims, unpack_dim, cast, value_attributes, bool_to_int, tree_map, concat, stack, unstack, rename_dims, slice_, all_attributes, squeeze, ipack
+from ..backend._dtype import DType, combine_types, INT32
 from ._shape import (Shape, EMPTY_SHAPE,
-                     spatial, batch, channel, instance, merge_shapes, parse_dim_order, concat_shapes,
-                     IncompatibleShapes, DimFilter, non_batch, dual, shape, shape as get_shape, primal, auto, non_spatial, non_dual, resolve_index, concat_shapes_, SHAPE_TYPES,
+                     spatial, batch, channel, instance, merge_shapes, parse_dim_order, IncompatibleShapes, DimFilter, non_batch, dual, shape, shape as get_shape, primal, auto,
+                     non_dual, resolve_index, concat_shapes_, SHAPE_TYPES,
                      Dim)
-from . import extrapolation as e_
+from .magic import PhiTreeNode
 from ._tensors import (Tensor, wrap, tensor, broadcastable_native_tensors, Dense, TensorStack,
-                       custom_op2, compatible_tensor, variable_attributes, disassemble_tree, assemble_tree,
-                       is_scalar, Layout, expand_tensor, TensorOrTree, cached, variable_shape,
-                       reshaped_tensor, discard_constant_dims, variable_dim_names, backend_for, preferred_backend_for, is_composite)
+                       custom_op2, compatible_tensor,
+                       is_scalar, expand_tensor, TensorOrTree, variable_shape,
+                       reshaped_tensor, variable_dim_names, backend_for, preferred_backend_for)
+from ._tree import Layout, variable_attributes, disassemble_tree, assemble_tree, slice_, all_attributes, is_composite
+from ._magic_ops import expand, pack_dims, unpack_dim, cast, value_attributes, bool_to_int, tree_map, concat, stack, unstack, rename_dims, squeeze, ipack
 from ._sparse import (CompressedSparseMatrix, dense, SparseCoordinateTensor, get_format, to_format, stored_indices,
                       tensor_like, sparse_dims, same_sparsity_pattern, is_sparse, sparse_dot, sparse_sum, sparse_gather, sparse_max,
                       sparse_min, dense_dims, sparse_mean, stored_values, sparse_matrix_dims, CompactSparseTensor)
+from . import extrapolation as e_
+from ._trace import Tracer, tracer_reduce, tracer_op1
 
 
 def convert(x, backend: Backend = None, use_dlpack=True):
@@ -867,6 +868,13 @@ def crange(start: int = 0, **stop: int) -> Tensor[int]:
     """ Construct a range `Tensor` along one channel dim. """
     assert len(stop) == 1, f"crange() requires exactly one stop dimension but got {stop}"
     return arange(channel(next(iter(stop))), start, next(iter(stop.values())))
+
+
+def cached(t: TensorOrTree) -> TensorOrTree:
+    if isinstance(t, Tensor):
+        return t._cached()
+    tree, tensors = disassemble_tree(t, cache=True)
+    return assemble_tree(tree, tensors)
 
 
 def stack_tensors(values: Union[tuple, list], dim: Shape):

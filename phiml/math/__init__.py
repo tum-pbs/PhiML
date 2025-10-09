@@ -24,22 +24,21 @@ from ._shape import (
     enable_debug_checks,
 )
 
-from ._magic_ops import (
-    slice_ as slice, unstack,
-    stack, concat, ncat, tcat, ccat, scat, icat, dcat, expand,
-    rename_dims, rename_dims as replace_dims, pack_dims, dpack, ipack, spack, cpack, unpack_dim, flatten, squeeze,
-    b2i, c2b, c2d, i2b, s2b, si2d, p2d, d2i, d2s,
-    copy_with, replace, find_differences
-)
-
 from ._tensors import (
     Tensor,
-    wrap, tensor, layout,
+    wrap, tensor,
     native, numpy_ as numpy, reshaped_native, reshaped_numpy,
     Dict, to_dict, from_dict,
-    is_scalar, is_composite, is_numeric,
+    is_scalar, is_numeric,
     BROADCAST_FORMATTER as f,
-    save, load
+)
+
+from ._tree import layout, is_composite, save, load, slice_ as slice, copy_with, replace, find_differences, object_dims
+
+from ._magic_ops import (
+    unstack, stack, concat, ncat, tcat, ccat, scat, icat, dcat, expand,
+    rename_dims, rename_dims as replace_dims, pack_dims, dpack, ipack, spack, cpack, unpack_dim, flatten, squeeze,
+    b2i, c2b, c2d, i2b, s2b, si2d, p2d, d2i, d2s,
 )
 
 from ._sparse import dense, get_sparsity, get_format, to_format, is_sparse, sparse_tensor, stored_indices, stored_values, tensor_like, matrix_rank
@@ -157,6 +156,13 @@ Examples:
     >>> -f-f'String containing {tensor1} and {tensor2:.1f}'
     # Result is a str tensor containing all dims of tensor1 and tensor2
 """
+
+# --- Legacy imports for PhiFlow ---
+_magic_ops.find_differences = _tree.find_differences
+_tensors.layout = _tree.layout
+_tensors.Layout = _tree.Layout
+_tensors.object_dims = _tree.object_dims
+_tensors.cached = _ops.cached
 
 __all__ = [key for key in globals().keys() if not key.startswith('_')]
 

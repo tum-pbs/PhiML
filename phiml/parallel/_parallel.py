@@ -1,4 +1,3 @@
-import importlib
 import multiprocessing
 import os.path
 from concurrent.futures import ProcessPoolExecutor
@@ -10,20 +9,21 @@ from typing import Callable, Sequence, Optional, Dict, Union, Any
 import h5py
 import numpy as np
 
-from phiml.dataclasses import data_fields
+from ..dataclasses import data_fields
 from ._cls_serialize import is_class_from_notebook, class_to_string
-from phiml.dataclasses._dep import cache_deps, field_deps
+from ..dataclasses._dep import cache_deps, field_deps
 from ._pgraph import PGraphNode, build_stages
 from ._tensor_cache import _WORKER_LOAD_AS, _LOAD_AS
 from phiml import unstack, stack, batch, dual, instance, spatial, channel
-from phiml.backend import ML_LOGGER
-from phiml.backend._backend import get_backend
-from phiml.backend._dtype import FLOAT32
-from phiml.parallel._tensor_cache import H5Source, write_to_h5
-from phiml.math import DimFilter, shape, Shape, EMPTY_SHAPE, merge_shapes
-from phiml.math._magic_ops import all_attributes, tree_map, tree_broadcast
-from phiml.math._tensors import disassemble_tree, assemble_tree, equality_by_shape_and_value
-from phiml.math._trace import to_tracers, Trace, TracedOp, Tracer, expand_tracers
+from ..backend import ML_LOGGER
+from ..backend._backend import get_backend
+from ..backend._dtype import FLOAT32
+from ..parallel._tensor_cache import H5Source, write_to_h5
+from ..math import DimFilter, shape, Shape, EMPTY_SHAPE, merge_shapes
+from ..math._magic_ops import all_attributes
+from ..math._tensors import equality_by_shape_and_value
+from ..math._tree import disassemble_tree, assemble_tree
+from ..math._trace import to_tracers, Trace, TracedOp, Tracer, expand_tracers
 
 
 def parallel_compute(instance, properties: Sequence, parallel_dims=batch,

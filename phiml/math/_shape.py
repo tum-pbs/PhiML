@@ -597,7 +597,7 @@ class Shape(Protocol, metaclass=ShapeMeta):
         ...
 
     @property
-    def non_uniform_shape(self):
+    def non_uniform_shape(self) -> 'Shape':
         """
         Returns the stack dimensions of non-uniform shapes.
         This is equal to `Shape.shape` excluding the `dims` dimension.
@@ -3011,6 +3011,59 @@ def after_gather(self, selection: dict) -> 'Shape':
         else:
             raise NotImplementedError(f"{type(sel)} not supported. Only (int, slice) allowed.")
     return result
+
+
+def _shape_replace(shape: Shape, dims: DimFilter, new: DimFilter) -> Tuple[Shape, Shape]:  # _replace_names_and_types
+    if callable(dims):
+        existing = dims(shape)
+    elif isinstance(dims, SHAPE_TYPES):
+        existing = dims.only(shape)
+    else:
+        dims = parse_dim_order(dims)
+        existing = shape.only(dims, reorder=True)
+    if not existing:
+        return EMPTY_SHAPE, EMPTY_SHAPE
+    # --- Replace based on type(new) ---
+    if isinstance(new, str) and new.startswith('(') and new.endswith(')'):
+        labels = [s.strip() for s in new[1:-1].split(',')]
+        new = concat_shapes_(*[d.with_size(labels) for d in existing])
+    elif isinstance(new, str):
+        new = parse_dim_order(new)
+        assert len(new) == len(existing), f"Number of names {new} does not match dims to replace {existing}"
+        new = concat_shapes_(*[Dim(n, dim.size, DUAL_DIM if n.startswith('~') else dim.dim_type, dim.slice_names) for dim, n in zip(existing, new)])
+    elif callable(new):
+        new = new(**existing.untyped_dict)
+        assert len(existing) == len(new), f"Number of names {new} does not match dims to replace {dims}"
+    elif isinstance(new, (tuple, list)):
+        assert len(new) == len(existing), f"Number of names {new} does not match dims to replace {dims}"
+        new_dims = []
+        for dim, n in zip(existing, new):
+            if isinstance(n, str):
+                new_dims.append(Dim(n, dim.size, dim.dim_type, dim.slice_names))
+            elif isinstance(n, Shape):
+                new_dims.append(n.with_size(dim.slice_names or dim.size))
+            else:
+                raise ValueError(f"Invalid item in names: {n}")
+        new = concat_shapes_(*new_dims)
+    elif isinstance(new, Shape):
+        if not callable(dims):
+            if isinstance(dims, Shape):
+                existing_idx = dims.indices(existing.names)
+            elif isinstance(dims, (tuple, list)):
+                existing_idx = [dims.index(n) for n in existing.names]
+            else:
+                raise NotImplementedError
+            new = new[existing_idx]
+        if not new.well_defined:
+            new = new.with_sizes(existing.sizes)
+    else:
+        raise ValueError(new)
+    return existing, new
+
+
+def replace_dims(shape: Shape, dims: DimFilter, new: DimFilter):
+    old_dims, new_dims = _shape_replace(shape, dims, new)
+    return shape.replace(old_dims, new_dims)
 
 
 def resolve_index(self, index: Dict[str, Union[slice, int, 'Shape', str, tuple, list]]) -> Dict[str, Union[slice, int, tuple, list]]:

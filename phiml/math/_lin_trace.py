@@ -11,7 +11,8 @@ from ._ops import backend_for, concat_tensor, scatter
 from ._shape import Shape, merge_shapes, instance, batch, EMPTY_SHAPE, dual, channel, non_batch, non_channel, DEBUG_CHECKS, \
     after_gather, concat_shapes_
 from ._sparse import SparseCoordinateTensor, is_sparse, sparse_dims, sparse_tensor, stored_indices, stored_values, add_sparse_batch_dim
-from ._tensors import Tensor, wrap, disassemble_tree, assemble_tree, TensorStack, discard_constant_dims, variable_shape, Dense
+from ._tensors import Tensor, wrap, TensorStack, discard_constant_dims, variable_shape, Dense
+from ._tree import disassemble_tree, assemble_tree
 from ..backend import choose_backend, NUMPY, Backend
 from ..backend import get_precision
 from ..backend._dtype import combine_types

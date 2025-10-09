@@ -1,7 +1,8 @@
 from typing import TypeVar, Any, Tuple
 
-from ._magic_ops import tree_map, variable_attributes
 from ._tensors import Tensor, wrap
+from ._tree import variable_attributes
+from ._magic_ops import tree_map
 from ._ops import convert
 from ..backend import default_backend
 

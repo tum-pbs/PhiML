@@ -12,7 +12,7 @@ from scipy.sparse.linalg import aslinearoperator
 
 from ._magic_ops import concat, pack_dims, expand, rename_dims, stack, unpack_dim, unstack
 from ._shape import Shape, non_batch, merge_shapes, instance, batch, non_instance, shape, channel, spatial, DimFilter, non_dual, EMPTY_SHAPE, dual, non_channel, DEBUG_CHECKS, primal, concat_shapes_, IncompatibleShapes
-from ._tensors import Tensor, TensorStack, Dense, cached, wrap, reshaped_tensor, tensor, backend_for, custom_op2
+from ._tensors import Tensor, TensorStack, Dense, wrap, reshaped_tensor, tensor, backend_for, custom_op2
 from ..backend import choose_backend, NUMPY, Backend, get_precision
 from ..backend._dtype import DType, INT64
 
@@ -231,6 +231,9 @@ class SparseCoordinateTensor(Tensor):
     def native(self, order: Union[str, tuple, list, Shape] = None, force_expand=True, to_numpy=False):
         assert order is None, f"sparse matrices are always ordered (primal, dual). For custom ordering, use math.dense(tensor).native() instead."
         return native_matrix(self, NUMPY if to_numpy else self.default_backend)
+
+    def _cached(self):
+        return SparseCoordinateTensor(self._indices._cached(), self._values._cached(), self._dense_shape, self._can_contain_double_entries, self._indices_sorted, self._indices_constant, self._matrix_rank)
 
     @property
     def _is_tracer(self) -> bool:
@@ -608,6 +611,10 @@ class CompressedSparseMatrix(Tensor):
         else:
             return self._values._natives() + self._indices._natives() + self._pointers._natives()
 
+    def _cached(self):
+        return CompressedSparseMatrix(self._indices._cached(), self._pointers._cached(), self._values._cached(), self._uncompressed_dims, self._compressed_dims, self._indices_constant,
+                                      self._uncompressed_offset, self._uncompressed_indices, self._uncompressed_indices_perm, self._matrix_rank)
+
     def _spec_dict(self) -> dict:
         return {'type': CompressedSparseMatrix,
                 'shape': self._shape,
@@ -948,6 +955,9 @@ class CompactSparseTensor(Tensor):
         assert order is None, f"sparse matrices are always ordered (primal, dual). For custom ordering, use math.dense(tensor).native() instead."
         return native_matrix(self, NUMPY if to_numpy else self.default_backend)
 
+    def _cached(self):
+        return CompactSparseTensor(self._indices._cached(), self._values._cached(), self._compressed_dims, self._indices_constant, self._matrix_rank)
+
     def _spec_dict(self) -> dict:
         return {'type': CompactSparseTensor,
                 'shape': self._shape,
@@ -992,6 +1002,8 @@ class CompactSparseTensor(Tensor):
         return CompressedSparseMatrix(indices, pointers, values, self._compressed_dims, self._uncompressed_dims, self._indices_constant, m_rank=self._matrix_rank)
 
     def __pack_dims__(self, dims: Shape, packed_dim: Shape, pos: Union[int, None], **kwargs) -> 'Tensor':
+        if dims.rank == 1:
+            return self.__replace_dims__(dims.names, packed_dim)
         raise NotImplementedError
         assert dims in self._dense_shape, f"Can only pack sparse dimensions on SparseCoordinateTensor but got {dims} of which {dims.without(self._dense_shape)} are not sparse"
         assert self._indices.default_backend is NUMPY, "Can only pack NumPy indices as of yet"
@@ -1360,7 +1372,7 @@ def stored_values(x: Tensor, list_dim=instance('entries'), invalid='discard') ->
         return pack_dims(x, entries_dims, list_dim)
     if isinstance(x, TensorStack):
         if x.is_cached:
-            return stored_values(cached(x))
+            return stored_values(x._cached())
         return stack([stored_values(t, list_dim) for t in x._tensors], x._stack_dim)
     elif isinstance(x, CompressedSparseMatrix):
         if invalid in ['keep', 'clamp']:
@@ -1400,7 +1412,7 @@ def stored_indices(x: Tensor, list_dim=instance('entries'), index_dim=channel('i
         return pack_dims(indices, non_channel, list_dim)
     if isinstance(x, TensorStack):
         if x.is_cached or not x.requires_broadcast:
-            return stored_indices(cached(x))
+            return stored_indices(x._cached())
         if x._stack_dim.batch_rank:
             return stack([stored_indices(t, list_dim, index_dim, invalid) for t in x._tensors], x._stack_dim)
         raise NotImplementedError  # ToDo add index for stack dim
@@ -1471,7 +1483,7 @@ def dense(x: Tensor) -> Tensor:
         from ._ops import stack_tensors
         return stack_tensors(inner_dense, x._stack_dim)
     elif isinstance(x, Tensor):
-        return cached(x)
+        return x._cached()
     elif isinstance(x, (Number, bool)):
         return wrap(x)
 

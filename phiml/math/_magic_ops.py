@@ -1,77 +1,24 @@
-import copy
 import dataclasses
 import warnings
 from functools import partial
 from numbers import Number
-from typing import TypeVar, Tuple, Dict, Union, Optional, Sequence, Any, Callable
+from typing import TypeVar, Tuple, Dict, Union, Optional, Sequence, Callable
 
 import numpy as np
 
-from . import channel, EMPTY_SHAPE
-from ._shape import Shape, DimFilter, batch, instance, shape, non_batch, merge_shapes, concat_shapes, spatial, parse_dim_order, dual, auto, parse_shape_spec, DIM_FUNCTIONS, \
-    INV_CHAR, concat_shapes_, Dim, DEBUG_CHECKS, SHAPE_TYPES, primal, NotCompatible, DUAL_DIM
+from . import channel
+from ._shape import Shape, DimFilter, batch, instance, shape, non_batch, merge_shapes, spatial, dual, auto, parse_shape_spec, DIM_FUNCTIONS, \
+    INV_CHAR, concat_shapes_, DEBUG_CHECKS, SHAPE_TYPES, primal, NotCompatible, replace_dims, _shape_replace
+from ._tree import PhiTreeNodeType, all_attributes, copy_with, tree_map, value_attributes
 from .magic import Sliceable, Shaped, Shapable, PhiTreeNode
 from ..backend import choose_backend, NoBackendFound
 from ..backend._dtype import DType
 
-
 MagicType = TypeVar('MagicType')
 OtherMagicType = TypeVar('OtherMagicType')
 
-PhiTreeNodeType = TypeVar('PhiTreeNodeType')  # Defined in phiml.math.magic: tuple, list, dict, custom
-
 
 class MagicNotImplemented(Exception): pass
-
-
-def slice_(value: PhiTreeNodeType, slices: Union[Dict[str, Union[int, slice, str, tuple, list, Any]], Any]) -> PhiTreeNodeType:
-    """
-    Slices a `Tensor` or `phiml.math.magic.PhiTreeNode` along named dimensions.
-
-    See Also:
-        `unstack`.
-
-    Args:
-        value: `Tensor` or `phiml.math.magic.PhiTreeNode` or `Number` or `None`.
-        slices: `dict` mapping dimension names to slices. A slice can be one of the following:
-
-            * An index (`int`)
-            * A range (`slice`)
-            * An item name (`str`)
-            * Multiple labels (comma-separated `str`)
-            * Multiple indices or labels (`tuple` or `list`)
-
-    Returns:
-        `Tensor` or `phiml.math.magic.PhiTreeNode` of the same type as `value`.
-
-    Examples:
-        >>> math.slice([vec(x=0, y=1), vec(x=2, y=3)], {'vector': 'y'})
-        [1, 3]
-    """
-    if slices is None:
-        return value
-    if isinstance(value, (bool, Number, str)) or value is None:
-        return value
-    if isinstance(value, tuple):
-        return tuple([slice_(v, slices) for v in value])
-    if isinstance(value, list):
-        return [slice_(v, slices) for v in value]
-    if isinstance(value, dict):
-        return {k: slice_(v, slices) for k, v in value.items()}
-    if isinstance(value, SHAPE_TYPES):
-        return value.after_gather(slices)
-    if value is range:
-        from ._tensors import Tensor
-        if isinstance(slices, Tensor):
-            return slices
-        raise NotImplementedError("range only supported for index slicing")
-    if hasattr(value, '__getitem__'):
-        return value[slices]
-    if isinstance(value, PhiTreeNode):
-        attrs = {key: getattr(value, key) for key in all_attributes(value)}
-        new_attrs = {k: slice_(v, slices) for k, v in attrs.items()}
-        return copy_with(value, **new_attrs)
-    raise ValueError(f"value must be a PhiTreeNode but got {type(value)}")
 
 
 def unstack(value: MagicType, dim: DimFilter, expand=False) -> Tuple[MagicType, ...]:
@@ -114,6 +61,7 @@ def unstack(value: MagicType, dim: DimFilter, expand=False) -> Tuple[MagicType, 
                     assert isinstance(result, tuple), f"__unstack__ must return a tuple but got {type(result)}"
                     assert all([isinstance(item, Sliceable) for item in result]), f"__unstack__ must return a tuple of Sliceable objects but not all items were sliceable in {result}"
                 return result
+        from ._tree import slice_
         return tuple([slice_(value, {dims.name: i}) for i in range(dims.size)])
     else:  # multiple dimensions
         if hasattr(value, '__pack_dims__'):
@@ -596,8 +544,7 @@ def rename_dims(value: PhiTreeNodeType,
         Same type as `value`.
     """
     if isinstance(value, SHAPE_TYPES):
-        old_dims, new_dims = _shape_replace(value, dims, names)
-        return value.replace(old_dims, new_dims)
+        return replace_dims(value, dims, names)
     elif isinstance(value, (Number, bool)):
         return value
     if DEBUG_CHECKS:
@@ -621,55 +568,6 @@ def rename_dims(value: PhiTreeNodeType,
     for old_name, new_dim in zip(old_dims.names, new_dims):
         value = stack(unstack(value, old_name), new_dim, **kwargs)
     return value
-
-
-def _shape_replace(shape: Shape, dims: DimFilter, new: DimFilter) -> Tuple[Shape, Shape]:  # _replace_names_and_types
-    if callable(dims):
-        existing = dims(shape)
-    elif isinstance(dims, SHAPE_TYPES):
-        existing = dims.only(shape)
-    else:
-        dims = parse_dim_order(dims)
-        existing = shape.only(dims, reorder=True)
-    if not existing:
-        return EMPTY_SHAPE, EMPTY_SHAPE
-    # --- Replace based on type(new) ---
-    if isinstance(new, str) and new.startswith('(') and new.endswith(')'):
-        labels = [s.strip() for s in new[1:-1].split(',')]
-        new = concat_shapes_(*[d.with_size(labels) for d in existing])
-    elif isinstance(new, str):
-        new = parse_dim_order(new)
-        assert len(new) == len(existing), f"Number of names {new} does not match dims to replace {existing}"
-        new = concat_shapes_(*[Dim(n, dim.size, DUAL_DIM if n.startswith('~') else dim.dim_type, dim.slice_names) for dim, n in zip(existing, new)])
-    elif callable(new):
-        new = new(**existing.untyped_dict)
-        assert len(existing) == len(new), f"Number of names {new} does not match dims to replace {dims}"
-    elif isinstance(new, (tuple, list)):
-        assert len(new) == len(existing), f"Number of names {new} does not match dims to replace {dims}"
-        new_dims = []
-        for dim, n in zip(existing, new):
-            if isinstance(n, str):
-                new_dims.append(Dim(n, dim.size, dim.dim_type, dim.slice_names))
-            elif isinstance(n, Shape):
-                new_dims.append(n.with_size(dim.slice_names or dim.size))
-            else:
-                raise ValueError(f"Invalid item in names: {n}")
-        new = concat_shapes_(*new_dims)
-    elif isinstance(new, Shape):
-        if not callable(dims):
-            if isinstance(dims, Shape):
-                existing_idx = dims.indices(existing.names)
-            elif isinstance(dims, (tuple, list)):
-                existing_idx = [dims.index(n) for n in existing.names]
-            else:
-                raise NotImplementedError
-            new = new[existing_idx]
-        if not new.well_defined:
-            new = new.with_sizes(existing.sizes)
-    else:
-        raise ValueError(new)
-    return existing, new
-
 
 
 def b2i(value: PhiTreeNodeType) -> PhiTreeNodeType:
@@ -897,99 +795,6 @@ def flatten(value, flat_dim: Shape = instance('flat'), flatten_batch=False, **kw
     return pack_dims(value, shape(value) if flatten_batch else non_batch(value), flat_dim, **kwargs)
 
 
-def variable_attributes(obj) -> Tuple[str, ...]:
-    if hasattr(obj, '__variable_attrs__'):
-        result = obj.__variable_attrs__()
-        assert isinstance(result, tuple), f"__variable_attrs__ must return Tuple[str,...] but got '{type(result)}' from '{type(obj)}'"
-        return result
-    elif hasattr(obj, '__all_attrs__'):
-        result = obj.__all_attrs__()
-        assert isinstance(result, tuple), f"__all_attrs__ must return Tuple[str,...] but got '{type(result)}' from '{type(obj)}'"
-        return result
-    elif hasattr(obj, '__value_attrs__'):
-        result = obj.__value_attrs__()
-        assert isinstance(result, tuple), f"__value_attrs__ must return Tuple[str,...] but got '{type(result)}' from '{type(obj)}'"
-        return result
-    elif dataclasses.is_dataclass(obj):
-        if hasattr(obj, 'variable_attrs'):
-            result = obj.variable_attrs
-            assert isinstance(result, tuple), f"dataclass.variable_attrs must return Tuple[str,...] but got '{type(result)}' from '{type(obj)}'"
-            return result
-        return all_attributes(obj)
-    else:
-        raise ValueError(f"Not a PhiTreeNode: {type(obj).__name__}")
-
-
-def value_attributes(obj) -> Tuple[str, ...]:
-    if hasattr(obj, '__value_attrs__'):
-        result = obj.__value_attrs__()
-        assert isinstance(result, tuple), f"__value_attrs__ must return Tuple[str,...] but got '{type(result)}' from '{type(obj)}'"
-        return result
-    elif hasattr(obj, '__all_attrs__'):
-        result = obj.__all_attrs__()
-        assert isinstance(result, tuple), f"__all_attrs__ must return Tuple[str,...] but got '{type(result)}' from '{type(obj)}'"
-        return result
-    if dataclasses.is_dataclass(obj):
-        if hasattr(obj, 'value_attrs'):
-            result = obj.value_attrs
-            assert isinstance(result, tuple), f"dataclass.value_attrs must return Tuple[str,...] but got '{type(result)}' from '{type(obj)}'"
-            return result
-        return all_attributes(obj)
-    raise ValueError(f"{type(obj).__name__} must implement '__value_attrs__()' or be a dataclass to be used with value functions.")
-
-
-def all_attributes(obj, assert_any=False) -> Tuple[str, ...]:
-    if hasattr(obj, '__all_attrs__'):
-        result = obj.__all_attrs__()
-        assert isinstance(result, tuple), f"__value_attrs__ must return Tuple[str,...] but got '{type(result)}' from '{type(obj)}'"
-        return result
-    if not isinstance(obj, PhiTreeNode):
-        raise ValueError(f"Not a PhiTreeNode: {type(obj).__name__}")
-    result = set()
-    if hasattr(obj, '__variable_attrs__'):
-        result.update(obj.__variable_attrs__())
-    if hasattr(obj, '__value_attrs__'):
-        result.update(obj.__value_attrs__())
-    if dataclasses.is_dataclass(obj) and not hasattr(obj, '__variable_attrs__') and not hasattr(obj, '__value_attrs__'):
-        from ..dataclasses import data_fields
-        result.update([f.name for f in data_fields(obj)])
-    if assert_any:
-        assert result, f"{type(obj).__name__} is not a valid tree node because it has no tensor-like attributes."
-    return tuple(sorted(result))
-
-
-def replace(obj: PhiTreeNodeType, **updates) -> PhiTreeNodeType:
-    """
-    Creates a copy of the given `phiml.math.magic.PhiTreeNode` with updated values as specified in `updates`.
-
-    If `obj` overrides `__with_attrs__`, the copy will be created via that specific implementation.
-    Otherwise, the `copy` module and `setattr` will be used.
-
-    Args:
-        obj: `phiml.math.magic.PhiTreeNode`
-        **updates: Values to be replaced.
-
-    Returns:
-        Copy of `obj` with updated values.
-    """
-    if isinstance(obj, (Number, bool)):
-        return obj
-    elif hasattr(obj, '__with_attrs__'):
-        result = obj.__with_attrs__(**updates)
-        if result is not NotImplemented:
-            return result
-    if dataclasses.is_dataclass(obj):
-        return dataclasses.replace(obj, **updates)
-    else:
-        cpy = copy.copy(obj)
-        for attr, value in updates.items():
-            setattr(cpy, attr, value)
-        return cpy
-
-
-copy_with = replace
-
-
 # Other Ops
 
 
@@ -1049,146 +854,3 @@ def bool_to_int(x: MagicType, bits=32):
         return backend.cast(x, DType(int, bits)) if backend.dtype(x).kind == bool else x
     except NoBackendFound:
         raise ValueError(f"Cannot cast object of type '{type(x).__name__}'")
-
-
-def tree_map(f, tree, attr_type=value_attributes,
-             include_non_attrs=True,
-             treat_layout_as_leaf=False,
-             treat_shapes_as_leaf=False,
-             **f_kwargs):
-    """
-    Recursively iterates over Layouts, lists, tuples, dicts and the value attributes of PhiTreeNodes.
-    Calls `f` on `Tensor` instances and everything else not in the above list.
-
-    Args:
-        f: Function mapping `Tensor`s or leaves
-        tree: Nested tree or leaf
-        attr_type: Which attributes to use for PhiTreeNodes. Typically, either `value_attributes` or `variable_attributes`.
-        include_non_attrs: Whether to invoke `f` on non-attribute types, such as `str`, `Shape` or primitives.
-        treat_layout_as_leaf: Whether to call `f` directly on `Layout` instances instead of their children.
-        **f_kwargs: Keyword arguments for `f`.
-
-    Returns:
-        Tree matching structure of `tree` with transformed leaf values.
-    """
-    from ._tensors import Tensor, Layout
-    if isinstance(tree, Layout):
-        if treat_layout_as_leaf:
-            return f(tree, **f_kwargs)
-        else:
-            return tree._op1(lambda x: tree_map(f, x, attr_type, include_non_attrs, treat_layout_as_leaf, **f_kwargs))
-    if isinstance(tree, Tensor) or tree is None:
-        return f(tree, **f_kwargs)
-    if isinstance(tree, list):
-        return [tree_map(f, e, attr_type, include_non_attrs, treat_layout_as_leaf, **f_kwargs) for e in tree]
-    elif isinstance(tree, tuple):
-        return tuple([tree_map(f, e, attr_type, include_non_attrs, treat_layout_as_leaf, **f_kwargs) for e in tree])
-    elif isinstance(tree, dict):
-        return {k: tree_map(f, e, attr_type, include_non_attrs, treat_layout_as_leaf, **f_kwargs) for k, e in tree.items()}
-    elif isinstance(tree, Shape):
-        return f(tree, **f_kwargs) if treat_shapes_as_leaf else tree
-    elif isinstance(tree, PhiTreeNode):
-        attrs = {key: getattr(tree, key) for key in attr_type(tree)}
-        new_attrs = {k: tree_map(f, v, attr_type, include_non_attrs, treat_layout_as_leaf, **f_kwargs) for k, v in attrs.items()}
-        return copy_with(tree, **new_attrs)
-    else:
-        from ..dataclasses._dataclasses import NON_ATTR_TYPES
-        if include_non_attrs or not isinstance(tree, NON_ATTR_TYPES):
-            return f(tree, **f_kwargs)  # try anyway
-        return tree
-
-
-def tree_broadcast(attr_type=value_attributes, include_non_attrs=True, treat_layout_as_leaf=False, treat_shapes_as_leaf=False):
-    def wrapper(f):
-        def partial_tree_map(tree, **f_kwargs):
-            return tree_map(f, tree, attr_type=attr_type, include_non_attrs=include_non_attrs, treat_layout_as_leaf=treat_layout_as_leaf, treat_shapes_as_leaf=treat_shapes_as_leaf, **f_kwargs)
-        return partial_tree_map
-    return wrapper
-
-
-def find_differences(tree1, tree2, compare_tensors_by_id=False, attr_type=value_attributes, tensor_equality=None) -> Sequence[Tuple[str, str, Any, Any]]:
-    """
-    Compares `tree1` and `tree2` and returns all differences in the form `(difference_description: str, variable_identifier: str, value1, value2)`.
-
-    Args:
-        tree1: Nested tree or leaf
-        tree2: Nested tree or leaf
-        compare_tensors_by_id: Whether `phiml.math.Tensor` objects should be compared by identity or values.
-        attr_type: What attributes to compare, either `value_attributes` or `variable_attributes`.
-        tensor_equality: Function that compares two tensors for equality. `None` defaults to `equal`.
-
-    Returns:
-        List of differences, each represented as a `tuple`.
-    """
-    result = []
-    _recursive_diff(tree1, tree2, '', result, compare_tensors_by_id, attr_type, tensor_equality)
-    return result
-
-
-def _recursive_diff(a, b, path: str, result: list, compare_tensors_by_id=False, attr_type=value_attributes, tensor_equality=None):
-    if a is b:
-        return
-    if (a is None) != (b is None):
-        result.append(("Only one tree has a value, other is None", path, a, b))
-        return
-    from ._tensors import Tensor, Layout
-    if isinstance(a, Layout):
-        if not isinstance(b, Layout):
-            result.append((f"Only one value is a Layout, the other is {type(b)}", path, a, b))
-        else:
-            _recursive_diff(a._obj, b._obj, path, result, compare_tensors_by_id, attr_type, tensor_equality)
-    elif isinstance(b, Layout):
-        result.append((f"Only one value is a Layout, the other is {type(a)}", path, a, b))
-    elif isinstance(a, Tensor) or isinstance(b, Tensor):
-        if not isinstance(a, Tensor) or not isinstance(b, Tensor):
-            result.append((f"Only one value is a Tensor: {type(a).__name__} vs {type(b).__name__}", path, a, b))
-            return
-        if compare_tensors_by_id:
-            if a is not b:
-                result.append(("Tensor ids do not match", path, a, b))
-        else:
-            if tensor_equality is None:
-                from ._ops import equal
-                tensor_equality = partial(equal, equal_nan=True)
-            if a.shape != b.shape:
-                result.append((f"Tensor shapes do not match: {a.shape} vs {b.shape}", path, a, b))
-            elif not tensor_equality(a, b):
-                result.append((f"Tensor values do not match", path, a, b))
-    elif type(a) != type(b):
-        result.append((f"Types do not match: {type(a).__name__} vs {type(b).__name__}", path, a, b))
-        return
-    elif isinstance(a, (tuple, list)):
-        if len(a) != len(b):
-            result.append((f"Lengths do not match: {len(a)} vs {len(b)}", path, a, b))
-        else:
-            for i, (ae, be) in enumerate(zip(a, b)):
-                _recursive_diff(ae, be, f"{path}[{i}]", result, compare_tensors_by_id, attr_type, tensor_equality)
-    elif isinstance(a, dict):
-        if set(a) != set(b):
-            result.append((f"Keys do not match: {set(a)} vs {set(b)}", path, a, b))
-        else:
-            for k, av in a.items():
-                bv = b[k]
-                _recursive_diff(av, bv, f"{path}[{k}]", result, compare_tensors_by_id, attr_type, tensor_equality)
-    elif isinstance(a, PhiTreeNode):
-        a_attrs = attr_type(a)
-        if set(a_attrs) != set(attr_type(b)):
-            result.append((f"Available properties do not match: {set(a_attrs)} vs {set(attr_type(b))}", path, a, b))
-        else:
-            for k in a_attrs:
-                av = getattr(a, k)
-                bv = getattr(b, k)
-                _recursive_diff(av, bv, f"{path}.{k}", result, compare_tensors_by_id, attr_type, tensor_equality)
-    else:
-        try:
-            backend = choose_backend(a, b)
-            if backend.shape(a) != backend.shape(b):
-                result.append((f"Shapes do not match: {backend.shape(a)} vs {backend.shape(b)}", path, a, b))
-            else:
-                equal_tensor = backend.equal(a, b) | (backend.isnan(a) & backend.isnan(b))
-                equal = backend.numpy(backend.all(equal_tensor))
-                if not equal:
-                    result.append(("Values do not match", path, a, b))
-        except NoBackendFound:
-            if a != b:
-                result.append(("Values do not match", path, a, b))
