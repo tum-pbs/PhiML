@@ -71,7 +71,7 @@ def parallel_compute(instance, properties: Sequence, parallel_dims=batch,
     else:
         class_example = cls.__new__(cls)
     nodes: Dict[str, PGraphNode] = {}
-    output_user = PGraphNode('<output>', EMPTY_SHAPE, parallel_dims, None, set(), None, False, [], 999999)
+    output_user = PGraphNode('<output>', EMPTY_SHAPE, parallel_dims, None, False, set(), None, False, [], 999999)
     for p in properties:
         recursive_add_node(instance, cls, property_name(p), p, dims, nodes).users.append(output_user)
     # nodes = merge_duplicate_nodes(nodes.values())
@@ -125,7 +125,7 @@ def parallel_compute(instance, properties: Sequence, parallel_dims=batch,
 
 def delete_intermediate_caches(instance, stages: list, stage_idx: int):
     for node in sum(stages[:stage_idx+1], []):
-        if not node.has_users_after(stage_idx) and node.name in instance.__dict__:
+        if not node.persistent and not node.has_users_after(stage_idx) and node.name in instance.__dict__:
             ML_LOGGER.debug(f"Deleting host cache of {node.name} as it's not needed after stage {stage_idx}")
             del instance.__dict__[node.name]
 
@@ -210,6 +210,7 @@ def recursive_add_node(obj, cls, name: str, prop: Optional, dims: Shape, nodes: 
     if name in nodes:
         return nodes[name]
     prop = getattr(cls, name) if prop is None else prop
+    persistent = isinstance(prop, ParallelProperty) and prop.persistent
     dep_names = cache_deps(cls, prop)
     dependencies = [recursive_add_node(obj, cls, n, None, dims, nodes) for n in dep_names]
     # --- Determine shape ---
@@ -219,7 +220,7 @@ def recursive_add_node(obj, cls, name: str, prop: Optional, dims: Shape, nodes: 
         out, trace = trace_cached_property(obj, cls, name, prop, dims, {d.name: expand_tracers(d.out, d.distributed) for d in dependencies})
         if isinstance(prop, ParallelProperty):
             if prop.requires is MIXED:
-                last_node = split_mixed_prop(name, out, trace, dims, nodes)
+                last_node = split_mixed_prop(name, out, trace, dims, persistent, nodes)
                 if last_node is not NotImplemented:
                     return last_node
                 prop.requires = INFER
@@ -241,7 +242,7 @@ def recursive_add_node(obj, cls, name: str, prop: Optional, dims: Shape, nodes: 
     # --- Add node ---
     distributed = dims - requires  # ToDo does not take input shape into account
     field_dep_names = field_deps(cls, prop)
-    node = nodes[name] = PGraphNode(name, out, distributed, None, field_dep_names, dependencies)
+    node = nodes[name] = PGraphNode(name, out, distributed, None, persistent, field_dep_names, dependencies)
     for dep in node.dependencies:
         dep.users.append(node)
     return node
@@ -267,7 +268,7 @@ def trace_cached_property(obj, cls, p_name: str, prop: cached_property, distribu
         return out_tracer, trace
 
 
-def split_mixed_prop(name: str, out: Any, trace: Trace, parallel_dims: Shape, nodes: Dict[str, PGraphNode]):
+def split_mixed_prop(name: str, out: Any, trace: Trace, parallel_dims: Shape, persistent: bool, nodes: Dict[str, PGraphNode]):
     if len(trace.all_ops) == 0:
         return NotImplemented
     op_names = {op: f"{name}_{i}_{op.name}" for i, op in enumerate(trace.all_ops)}
@@ -308,11 +309,9 @@ def {op_name}(self):
             replacement[t] = op_trace.add_input(dep_expr[t][5:], t)
         single_op = op.replace_input_tracers(op_trace, replacement)
         program = TraceProgram(single_op)
-        if op.name == 'assemble_tree' or (isinstance(out, Tracer) and op_name == name):  # final property output
-            out_tracers = out
-        else:  # intermediate result, return list of op out tensors
-            out_tracers = op.outputs
-        node = PGraphNode(op_name, out_tracers, distributed, program, ext_field_base, ext_deps + int_deps)
+        is_output_node = op.name == 'assemble_tree' or (isinstance(out, Tracer) and op_name == name)
+        out_tracers = out if is_output_node else op.outputs
+        node = PGraphNode(op_name, out_tracers, distributed, program, persistent and is_output_node, ext_field_base, ext_deps + int_deps)
         nodes[op_name] = node
         for dep in node.dependencies:
             dep.users.append(node)
@@ -342,6 +341,7 @@ INFER = object()  # requires=INFER causes function trace
 def parallel_property(func: Callable = None, /,
                       requires: Union[DimFilter, object] = None,
                       out: Any = INFER,
+                      persistent: bool = False,
                       on_direct_eval='raise'):
     """
     Similar to `@cached_property` but with additional controls over parallelization.
@@ -355,6 +355,8 @@ def parallel_property(func: Callable = None, /,
         out: Declare output shapes and dtypes in the same tree structure as the output of `func`.
             Placeholders for `shape` and `dtype` can be created using `shape * dtype`.
             `Shape` instances will be assumed to be of floating-point type.
+        persistent: If `True` the output of this property will be available after `parallel_compute` even if it was not specified as a property to be computed,
+            as long as its computation is necessary to compute any of the requested properties.
         on_direct_eval: What to do when the property is accessed normally (outside `parallel_compute`) before it has been computed.
             Option:
 
@@ -365,18 +367,19 @@ def parallel_property(func: Callable = None, /,
     if out is not INFER:
         out = to_tracers(out)
     if func is None:
-        return partial(parallel_property, requires=requires, out=out, on_direct_eval=on_direct_eval)
-    return ParallelProperty(func, requires=requires, out=out, on_direct_eval=on_direct_eval)
+        return partial(parallel_property, requires=requires, out=out, persistent=persistent, on_direct_eval=on_direct_eval)
+    return ParallelProperty(func, requires, out, persistent, on_direct_eval)
 
 
 _NOT_CACHED = object()
 
 
 class ParallelProperty(cached_property):
-    def __init__(self, func, requires: DimFilter, out: Any, on_direct_eval: str):
+    def __init__(self, func, requires: DimFilter, out: Any, persistent: bool, on_direct_eval: str):
         super().__init__(func)
         self.requires = requires
         self.out = out
+        self.persistent = persistent
         self.on_direct_eval = on_direct_eval
 
     def __set_name__(self, owner, name):

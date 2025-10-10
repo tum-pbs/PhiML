@@ -13,6 +13,7 @@ class PGraphNode:
     out: Union[Tracer, Any]
     distributed: Shape
     program: Optional[Any]  # code as str or Tracer objects?
+    persistent: bool
     field_dep_names: Set[str]
     dependencies: Sequence['PGraphNode'] = None
     done: bool = False
