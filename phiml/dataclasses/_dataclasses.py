@@ -53,7 +53,7 @@ def sliceable(cls=None, /, *, dim_attrs=True, t_props=True, keepdims=None, dim_r
         else:  # instantiate BoundDims lazily via __getattr__
             if dim_attrs and not implements(cls, '__getattr__'):
                 def __dataclass_getattr__(obj, name: str):
-                    if name in ('shape', '__shape__', '__all_attrs__', '__variable_attrs__', '__value_attrs__', '__setstate__'):  # these can cause infinite recursion
+                    if name == 'shape' or (name.startswith('__') and name.endswith('__')):  # __setstate__, __deepcopy__ can cause infinite recursion
                         raise AttributeError(f"'{type(obj)}' instance has no attribute '{name}'")
                     if name in shape(obj):
                         return BoundDim(obj, name)
