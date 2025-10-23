@@ -436,7 +436,7 @@ def train(name: Optional[str], model, optimizer, loss_fn: Callable,
     learning_rate = None if lr_schedule_iter is not None else get_learning_rate(optimizer)
     if max_epochs is None and max_iter is not None:
         max_epochs = int(np.ceil(max_iter / batch_count))
-    elif max_epochs is not None and max_iter is not None:
+    elif max_epochs is not None and max_iter is None:
         max_iter = max_epochs * batch_count
     termination_reason = None
     niter = 0
