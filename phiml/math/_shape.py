@@ -1649,6 +1649,7 @@ class PureShape:
         return {batch: self.as_batch, dual: self.as_dual, instance: self.as_instance, spatial: self.as_spatial, channel: self.as_channel}[new_type]()
 
     def transpose(self, dim_type: str):
+        assert dim_type in {SPATIAL_DIM, INSTANCE_DIM, CHANNEL_DIM}
         if not self:
             return self
         if self.dim_type not in {DUAL_DIM, dim_type}:
@@ -2079,8 +2080,9 @@ class MixedShape:
         return {batch: self.as_batch, dual: self.as_dual, instance: self.as_instance, spatial: self.as_spatial, channel: self.as_channel}[new_type]()
 
     def transpose(self, dim_type: str):
+        assert dim_type in {SPATIAL_DIM, INSTANCE_DIM, CHANNEL_DIM}
         pure = getattr(self, dim_type)
-        if not pure:
+        if not pure and not self.dual:
             return self
         return concat_shapes_(*[dim.transpose(dim_type) for dim in self.dims.values()])
 
