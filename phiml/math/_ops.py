@@ -3292,16 +3292,19 @@ def scatter(base_grid: Union[Tensor, Shape],
         indices = to_int32(round_(indices))
         backend = backend_for(indices, values, base_grid)
         native_grid = base_grid._reshaped_native([batches, *indexed_dims, channels])
-        native_values = values._reshaped_native([batches, lists, channels])
-        native_indices = indices._reshaped_native([batches, lists, indices.shape.channel])
-        if mode != 'mean':
-            native_result = backend.scatter(native_grid, native_indices, native_values, mode=mode)
-        else:  # mean
-            zero_grid = backend.zeros_like(native_grid)
-            summed = backend.scatter(zero_grid, native_indices, native_values, mode='add')
-            count = backend.scatter(zero_grid, native_indices, backend.ones_like(native_values), mode='add')
-            native_result = summed / backend.maximum(count, 1)
-            native_result = backend.where(count == 0, native_grid, native_result)
+        if lists.undefined or lists.volume > 0:
+            native_values = values._reshaped_native([batches, lists, channels])
+            native_indices = indices._reshaped_native([batches, lists, indices.shape.channel])
+            if mode != 'mean':
+                native_result = backend.scatter(native_grid, native_indices, native_values, mode=mode)
+            else:  # mean
+                zero_grid = backend.zeros_like(native_grid)
+                summed = backend.scatter(zero_grid, native_indices, native_values, mode='add')
+                count = backend.scatter(zero_grid, native_indices, backend.ones_like(native_values), mode='add')
+                native_result = summed / backend.maximum(count, 1)
+                native_result = backend.where(count == 0, native_grid, native_result)
+        else:
+            native_result = native_grid
         return reshaped_tensor(native_result, [batches, *indexed_dims, channels], check_sizes=True, convert=False)
 
     def scatter_backward(args: dict, _output, d_output):
