@@ -532,8 +532,8 @@ def solve_linear(f: Union[Callable[[X], Y], Tensor],
     * `'biCG'` or `'biCG-stab(0)'`: Biconjugate gradient
     * `'biCG-stab'` or `'biCG-stab(1)'`: Biconjugate gradient stabilized, first order
     * `'biCG-stab(2)'`, `'biCG-stab(4)'`, ...: Biconjugate gradient stabilized, second or higher order
-    * `'scipy-direct'`: SciPy direct solve always run oh the CPU using `scipy.sparse.linalg.spsolve`.
-    * `'scipy-CG'`, `'scipy-GMres'`, `'scipy-biCG'`, `'scipy-biCG-stab'`, `'scipy-CGS'`, `'scipy-QMR'`, `'scipy-GCrotMK'`, `'scipy-lsqr'`: SciPy iterative solvers always run oh the CPU, both in eager execution and JIT mode.
+    * `'scipy-direct'`: SciPy direct solve always run on the CPU using `scipy.sparse.linalg.spsolve`.
+    * `'scipy-CG'`, `'scipy-GMres'`, `'scipy-biCG'`, `'scipy-biCG-stab'`, `'scipy-CGS'`, `'scipy-QMR'`, `'scipy-GCrotMK'`, `'scipy-lsqr'`: SciPy iterative solvers always run on the CPU, both in eager execution and JIT mode.
 
     For maximum performance, compile `f` using `jit_compile_linear()` beforehand.
     Then, an optimized representation of `f` (such as a sparse matrix) will be used to solve the linear system.
