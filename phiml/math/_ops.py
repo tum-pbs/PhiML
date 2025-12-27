@@ -2835,6 +2835,10 @@ def maximum(x: Union[Tensor, float], y: Union[Tensor, float], allow_none=False):
             return y
         elif y is None:
             return x
+    if is_sparse(x):
+        return x._op2(y, maximum, False)
+    elif is_sparse(y):
+        return y._op2(x, maximum, True)
     return custom_op2(x, y, xops.maximum)
 
 
@@ -2845,6 +2849,10 @@ def minimum(x: Union[Tensor, float], y: Union[Tensor, float], allow_none=False):
             return y
         elif y is None:
             return x
+    if is_sparse(x):
+        return x._op2(y, minimum, False)
+    elif is_sparse(y):
+        return y._op2(x, minimum, True)
     return custom_op2(x, y, xops.minimum)
 
 
