@@ -407,12 +407,12 @@ class SparseCoordinateTensor(Tensor):
         other_shape = shape(other)
         affects_only_values = self._dense_shape.isdisjoint(other_shape)
         if affects_only_values:
-            return self._with_values(op(self._values, other))
+            return self._with_values(op(other, self._values) if switch_args else op(self._values, other))
         if isinstance(other, CompressedSparseMatrix):
             other = other.decompress()
         if isinstance(other, SparseCoordinateTensor):
             if same_sparsity_pattern(self, other):
-                return self._with_values(op(self._values, other._values))
+                return self._with_values(op(other._values, self._values) if switch_args else op(self._values, other._values))
             else:
                 if op not in {operator.add, operator.sub}:
                     same_sparsity_pattern(self, other)  # debug checkpoint
@@ -757,7 +757,7 @@ class CompressedSparseMatrix(Tensor):
             return self._with_values(custom_op2(self._values, other, op, switch_args))
         elif isinstance(other, CompressedSparseMatrix):
             if same_sparsity_pattern(self, other):
-                result = op(self._values, other._values)
+                result = op(other._values, self._values) if switch_args else op(self._values, other._values)
                 if self._uncompressed_offset is not None:
                     from ._ops import where
                     result = where(self._valid_mask(), result, 0)
@@ -771,19 +771,19 @@ class CompressedSparseMatrix(Tensor):
             from ._ops import gather, boolean_mask, clip, where
             if self._uncompressed_offset is None:
                 other_values = gather(other, self._indices, self._uncompressed_dims)
-                return self._with_values(op(self._values, other_values))
+                return self._with_values(op(other_values, self._values) if switch_args else op(self._values, other_values))
             # if bake_slice:
             #     baked = self._bake_slice()
             #     other_values = gather(other, baked._indices, self._uncompressed_dims)
             #     return baked._with_values(operator(baked._values, other_values))
             indices = clip(self._indices - self._uncompressed_offset, 0, self._uncompressed_dims.volume - 1)
             other_values = gather(other, indices, self._uncompressed_dims)
-            return self._with_values(where(self._valid_mask(), op(self._values, other_values), 0))
+            return self._with_values(where(self._valid_mask(), op(other_values, self._values) if switch_args else op(self._values, other_values), 0))
         elif self._compressed_dims in other_shape and self._uncompressed_dims.isdisjoint(other_shape):
             from ._ops import gather, boolean_mask, clip, where
             row_indices, _ = self._coo_indices('clamp')
             other_values = gather(other, row_indices, self._compressed_dims)
-            result_values = op(self._values, other_values)
+            result_values = op(other_values, self._values) if switch_args else op(self._values, other_values)
             if self._uncompressed_offset is not None:
                 result_values = where(self._valid_mask(), result_values, 0)
             return self._with_values(result_values)
@@ -1032,7 +1032,7 @@ class CompactSparseTensor(Tensor):
         other_shape = shape(other)
         affects_only_values = self._compressed_dims.isdisjoint(other_shape)
         if affects_only_values:
-            return self._with_values(op(self._values, other))
+            return self._with_values(op(other, self._values) if switch_args else op(self._values, other))
         elif isinstance(other, (CompressedSparseMatrix, CompactSparseTensor)):
             if same_sparsity_pattern(self, other):
                 result = op(self._values, other._values)
