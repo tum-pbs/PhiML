@@ -12,7 +12,7 @@ def scipy_minimize(self, method: str, f, x0, atol, max_iter, trj: bool):
     from threading import Thread
 
     assert self.supports(Backend.jacobian)
-    x0 = self.numpy(x0)
+    x0 = self.numpy(x0).astype(numpy.float64)
     assert x0.ndim == 2  # (batch, parameters)
     atol = self.numpy(atol)
     batch_size = x0.shape[0]
