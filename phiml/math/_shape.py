@@ -46,7 +46,7 @@ class ShapeMeta(type(Protocol)):
 class Shape(Protocol, metaclass=ShapeMeta):
 
     @property
-    def names(self) -> Sequence[str]:
+    def names(self) -> tuple[str]:
         """
         Ordered dimension names as `tuple[str]`.
 
@@ -3132,12 +3132,53 @@ def from_dict(dict_: dict):
 Shape._from_dict = from_dict
 
 
+def to_spec_str(shape: Shape):
+    def dim_spec(dim: Dim):
+        return f"{dim.name}:{dim.dim_type[:1]}={'('+','.join(dim.slice_names)+')' if dim.slice_names is not None else dim.size}"
+    return f"({','.join(dim_spec(dim) for dim in shape)})"
+
+
+def from_spec_str(spec: str):
+    assert spec[0] == '(' and spec[-1] == ')'
+    dim_specs = split_top_level_comma(spec[1:-1])
+    if not dim_specs:
+        return EMPTY_SHAPE
+    dims = []
+    for d_spec in dim_specs:
+        name_type, size_or_labels = d_spec.split('=')
+        name, type = name_type.split(':')
+        type = {'b': BATCH_DIM, 'd': DUAL_DIM, 'i': INSTANCE_DIM, 's': SPATIAL_DIM, 'c': CHANNEL_DIM}[type]
+        if size_or_labels[0] == '(' and size_or_labels[-1] == ')':
+            labels = tuple(size_or_labels[1:-1].split(','))
+            size = len(labels)
+        else:
+            size = int(size_or_labels)
+            labels = None
+        dims.append(Dim(name, size, type, labels))
+    return concat_shapes_(*dims)
+
+
+def split_top_level_comma(spec):
+    out = []
+    depth = start = 0
+    for i, ch in enumerate(spec):
+        if ch == '(':
+            depth += 1
+        elif ch == ')':
+            depth -= 1
+        elif ch == ',' and depth == 0:
+            out.append(spec[start:i].strip())
+            start = i + 1
+    out.append(spec[start:].strip())
+    return [o.strip() for o in out if o.strip()]
+
+
 def first_index(shape: Shape):
     return next(iter(shape.meshgrid()))
 
 
 def create_tracer(shape: Shape, dtype):
-    from phiml import DType
+    from ..backend._dtype import DType
     from ._trace import Trace, Tracer
     dtype = DType.as_dtype(dtype)
     trace = Trace('<default>', EMPTY_SHAPE, EMPTY_SHAPE)

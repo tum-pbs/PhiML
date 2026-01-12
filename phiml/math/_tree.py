@@ -12,11 +12,11 @@ import numpy
 import numpy as np
 
 from ._shape import Shape, CHANNEL_DIM, EMPTY_SHAPE, parse_dim_order, shape_stack, channel, batch, spatial, shape, DEBUG_CHECKS, parse_shape_spec, after_gather, concat_shapes_, \
-    Dim, PureShape, SHAPE_TYPES, prepare_renaming_gather
-from ._tensors import Tensor, wrap, BROADCAST_FORMATTER, T, Dense, unserialize_spec, assemble_tensors, serialize_spec, _EQUALITY_REDUCE
+    Dim, PureShape, SHAPE_TYPES, prepare_renaming_gather, to_spec_str, split_top_level_comma, from_spec_str
+from ._tensors import Tensor, wrap, BROADCAST_FORMATTER, T, Dense, unserialize_spec, assemble_tensors, serialize_spec, _EQUALITY_REDUCE, TensorStack
 from .magic import PhiTreeNode, slicing_dict
 from .magic import Shapable
-from ..backend import NoBackendFound, choose_backend, OBJECTS
+from ..backend import NoBackendFound, choose_backend, OBJECTS, NUMPY
 from ..backend._backend import get_operator
 from ..backend._dtype import DType, BOOL, INT64, OBJECT
 
@@ -563,7 +563,7 @@ def disassemble_dataclass(obj, attr_type=variable_attributes):
         keys[attr] = key
         values.extend(value)
     non_attributes = {f.name: getattr(obj, f.name) for f in dataclasses.fields(obj) if f.name not in keys}
-    from phiml.dataclasses._dep import get_unchanged_cache
+    from ..dataclasses._dep import get_unchanged_cache
     cache = get_unchanged_cache(obj, set(extract_names))
     return DataclassTreeNode(type(obj), attr_type, keys, non_attributes, cache), values
 
@@ -900,7 +900,7 @@ def save(file: Union[Tensor, str], obj: PhiTreeNodeType, mkdir=True):
     assert len(paths) == len(tensors)
     for idx in shape(file).meshgrid():
         file_i = file[idx].native() if isinstance(file, Tensor) else file
-        tensors_i = [t[idx] for t in tensors]
+        tensors_i = [t[idx] for t in tensors] if idx else tensors
         natives = [t._natives() for t in tensors_i]
         specs = [serialize_spec(t._spec_dict()) for t in tensors_i]
         native_paths = [[f'{p}:{i}' for i in range(len(ns))] for p, ns in zip(paths, natives)]
@@ -908,7 +908,7 @@ def save(file: Union[Tensor, str], obj: PhiTreeNodeType, mkdir=True):
         all_paths = sum(native_paths, [])
         all_np = [choose_backend(n).numpy(n) for n in all_natives]
         if mkdir and os.path.dirname(file_i):
-            os.makedirs(os.path.basename(os.path.dirname(file_i)), exist_ok=True)
+            os.makedirs(os.path.dirname(file_i), exist_ok=True)
         np.savez(file_i, tree=np.asarray({'tree': tree}, dtype=object), specs=specs, paths=paths, **{p: n for p, n in zip(all_paths, all_np)})
 
 
@@ -954,6 +954,101 @@ def load(file: Union[str, Tensor]):
         return load_single(file)
     from ._functional import map_
     return map_(load_single, file)
+
+
+def save_h5(file: Union[Tensor, str], obj: PhiTreeNodeType, mkdir=True):
+    """
+    Save structured data as HDF5.
+
+    See Also:
+        `load_h5()`.
+
+    Args:
+        file: Either single file (`str`) or a batch of files (`Tensor[str]`). The file ending will be completed to `.npz`.
+            When a batch of paths is provided, the data of multiple files is stacked.
+            For obtaining a batch of files, see `wrap()`, `phiml.os.listdir()`, `phiml.math.f`.
+        obj: `Tensor` or tree to store.
+        mkdir: Whether to create the file's directory if it doesn't exist.
+    """
+    from h5py import File
+    tree_str, paths, dense_tensors = serialize_tree(obj, 'root')
+    for idx in shape(file).meshgrid():
+        file_i = file[idx].native() if isinstance(file, Tensor) else file
+        tensors_i = [t[idx] for t in dense_tensors] if idx else dense_tensors
+        if mkdir and os.path.dirname(file_i):
+            os.makedirs(os.path.dirname(file_i), exist_ok=True)
+        with File(file_i, mode='w') as f:
+            f.attrs['content_hierarchy'] = tree_str
+            for path, t in zip(paths, tensors_i):
+                f.create_dataset(path, data=t.numpy(t._names))
+                f.attrs[path + '_shape'] = to_spec_str(t.shape)
+                f.attrs[path + '_names'] = ",".join(t._names)
+                f.attrs[path + '_dtype'] = str(t.dtype)
+
+
+def load_h5(file: Union[Tensor, str], structure=None, load_into_memory=('root',)):
+    """
+    Read structured data from an HDF5 file.
+
+    See Also:
+        `save_h5()`.
+
+    Args:
+        file: Either single HDF5 file (`str`) or a batch of files (`Tensor[str]`).
+            When a batch of paths is provided, the data of multiple files is stacked.
+            For obtaining a batch of files, see `wrap()`, `phiml.os.listdir()`, `phiml.math.f`.
+        structure: dataclass of pytree. The structure into which the values should be loaded. If `None`, loads objects as `dict`.
+        load_into_memory: Paths specifying which tensors to load. Others will be returned as references to the location within the H5 file.
+            All paths start with `'root'`. For example, to load only the first list entry of the `'location'` dict entry, set `load_into_memory=('root[location][0]',)`
+
+    Returns:
+        Data contained in the H5 file. If `structure` is specified, the result will match that type and layout.
+    """
+    assert structure is None, f"structure not yet supported"
+    from ..parallel._tensor_cache import H5Source, DiskTensor
+    def load_single(file: str):
+        source = H5Source(file)
+        f = source.h5file
+        tree = f.attrs['content_hierarchy']
+        paths: list[str] = [a[:-6] for a in f.attrs if a.endswith('_shape')]
+        tensors = {path: DiskTensor(source, path, {}, [s for s in f.attrs[path+'_names'].split(',') if s], from_spec_str(f.attrs[path+'_shape']), NUMPY, DType.from_name(f.attrs[path+'_dtype'])) for path in paths}
+        tensors = {path: t.as_persistent() if path.startswith(load_into_memory) else t for path, t in tensors.items()}
+        return unserialize_tree(tree, 'root', tensors)
+    if isinstance(file, str):
+        return load_single(file)
+    from ._functional import map_
+    return map_(load_single, file)
+
+
+def serialize_tree(obj, root: str):
+    if isinstance(obj, Dense):
+        return "D", [root], [obj]
+    elif isinstance(obj, TensorStack):
+        trees, paths, tensors = zip(*[serialize_tree(t, f"{root}[{i}]") for i, t in enumerate(obj._tensors)])
+        return f"stack({to_spec_str(obj._stack_dim)},{','.join(trees)})", sum(paths, []), sum(tensors, [])
+    elif isinstance(obj, Tensor):
+        raise NotImplementedError(obj)
+    elif isinstance(obj, dict):
+        trees, paths, tensors = zip(*[serialize_tree(t, f"{root}[{k}]") for k, t in obj.items()])
+        return "{" + ",".join([f"{k}={t}" for k, t in zip(obj, trees)]) + "}", sum(paths, []), sum(tensors, [])
+    raise NotImplementedError(obj)
+
+
+def unserialize_tree(tree: str, root: str, data_by_path: dict[str, Tensor]):
+    if tree == 'D':
+        return data_by_path[root]
+    elif tree.startswith('stack'):
+        stack_dim, *args = split_top_level_comma(tree[6:-1])
+        components = [unserialize_tree(arg, f"{root}[{i}]", data_by_path) for i, arg in enumerate(args)]
+        return TensorStack(components, from_spec_str(stack_dim))
+    elif tree.startswith('{') and tree.endswith('}'):
+        entries = split_top_level_comma(tree[1:-1])
+        result = {}
+        for entry in entries:
+            name, val = entry.split('=', 1)
+            result[name] = unserialize_tree(val, f"{root}[{name}]", data_by_path)
+        return result
+    raise NotImplementedError(tree)
 
 
 def find_differences(tree1, tree2, compare_tensors_by_id=False, attr_type=value_attributes, tensor_equality=None) -> Sequence[Tuple[str, str, Any, Any]]:
