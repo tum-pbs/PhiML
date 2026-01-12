@@ -13,12 +13,11 @@ from ..dataclasses import data_fields
 from ._cls_serialize import is_class_from_notebook, class_to_string
 from ..dataclasses._dep import cache_deps, field_deps
 from ._pgraph import PGraphNode, build_stages
-from ._tensor_cache import _WORKER_LOAD_AS, _LOAD_AS
-from phiml import unstack, stack, batch, dual, instance, spatial, channel
+from ._tensor_cache import _WORKER_LOAD_AS, _LOAD_AS, H5Source, write_to_h5
 from ..backend import ML_LOGGER
 from ..backend._backend import get_backend
 from ..backend._dtype import FLOAT32
-from ..parallel._tensor_cache import H5Source, write_to_h5
+from ..math import unstack, stack, batch, dual, instance, spatial, channel
 from ..math import DimFilter, shape, Shape, EMPTY_SHAPE, merge_shapes
 from ..math._magic_ops import all_attributes
 from ..math._tensors import equality_by_shape_and_value

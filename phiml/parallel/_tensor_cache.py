@@ -9,12 +9,12 @@ from typing import Sequence, Dict, Optional, Set, Callable, Union, List
 import h5py
 
 from ..backend._backend import get_backend
+from ..backend import Backend, ML_LOGGER
+from ..math import Tensor, Shape, DType
 from ..math._magic_ops import all_attributes
-from ..math._tensors import Tensor, Dense, TensorStack
+from ..math._tensors import Dense, TensorStack
 from ..math._tree import Layout
 from ..math._sparse import SparseCoordinateTensor, CompressedSparseMatrix, CompactSparseTensor, get_format
-from phiml import Shape, DType
-from ..backend import Backend, ML_LOGGER
 from ..math.magic import PhiTreeNode
 
 
@@ -96,6 +96,9 @@ class DiskTensor(Dense):
             self._memory_tensor = data  # primitives (such as NumPy scalar types) don't support weak references. Store them directly.
         _CACHE.add(data)  # keep temporary reference
         return data
+
+    def as_persistent(self):
+        return Dense(self._native, self._names, self._shape, self._backend)
 
     @property
     def available(self) -> bool:
