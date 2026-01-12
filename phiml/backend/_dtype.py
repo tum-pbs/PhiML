@@ -168,6 +168,11 @@ class DType(metaclass=DTypeMeta):
             return DType(str, bits, False, 0, 0, True, True)
         raise ValueError
 
+    @staticmethod
+    def from_name(name: str):
+        dtypes = {str(d): d for d in _TO_NUMPY}
+        return dtypes[name]
+
     def __and__(self, other):
         return combine_types(self, other)
 
