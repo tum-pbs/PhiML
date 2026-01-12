@@ -42,7 +42,7 @@ def listdir(path: Union[str, Tensor], list_dim: Shape = batch('files'), file_fil
             files = filter(lambda f: file_filter(path, f), files)
         if full_paths:
             files = [impl.path.join(path, f) for f in files]
-        return layout(files, list_dim)
+        return layout(files, list_dim.with_size(files))
     return map(list_single, path)
 
 
