@@ -1051,13 +1051,14 @@ def _pad_slices(x: Tensor, pad_slices: Sequence[Dict[str, Any]], mode: 'e_.Extra
     #     v = mode[selection].pad_values(value_sel, width, pad_dim, **kwargs)
 
 
-def pad_to_uniform(x: Tensor, target_shape: Shape = EMPTY_SHAPE):
+def pad_to_uniform(x: Tensor, target_shape: Shape = EMPTY_SHAPE, pad_value=0):
     """
     Pads a possibly non-uniform to the smallest uniform shape that fits all elements.
 
     Args:
         x: Value to pad. Can be uniform or non-uniform.
         target_shape: Override size along any dims in order to add more padding.
+        pad_value: Value to insert at the end of padded dims.
 
     Returns:
         Uniform `Tensor`
@@ -1068,9 +1069,9 @@ def pad_to_uniform(x: Tensor, target_shape: Shape = EMPTY_SHAPE):
         return pad(x, widths={d: (0, s - x.shape.get_size(d)) for d, s in target_shape.untyped_dict.items()})
     assert isinstance(x, TensorStack), f"Cannot pad_to_uniform tensor of type {type(x)}"
     inner_shape = x.shape - x._stack_dim
-    sizes = [target_shape.get_size(n) if n in target_shape else (s if isinstance(s, int) else s.max) for n, s in inner_shape.untyped_dict.items()]
+    sizes = [target_shape.get_size(d.name) if d.name in target_shape else (d.size if isinstance(d.size, int) else d.size.max) for d in inner_shape]
     natives = [t.native(inner_shape.names) for t in x._tensors]
-    native_result = x.backend.pad_stack(natives, sizes)
+    native_result = x.backend.pad_stack(natives, sizes, pad_value)
     result_shape = x.shape.with_sizes([x._stack_dim.size, *sizes])
     return Dense(native_result, [x._stack_dim.name, *inner_shape.names], result_shape, x.backend)
 
