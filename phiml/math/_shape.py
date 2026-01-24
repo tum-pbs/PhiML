@@ -46,7 +46,7 @@ class ShapeMeta(type(Protocol)):
 class Shape(Protocol, metaclass=ShapeMeta):
 
     @property
-    def names(self) -> tuple[str]:
+    def names(self) -> Tuple[str]:
         """
         Ordered dimension names as `tuple[str]`.
 
