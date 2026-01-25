@@ -60,6 +60,7 @@ def parallel_compute(instance, properties: Sequence, parallel_dims=batch,
         keep_intermediate: Whether the outputs of cached properties required to compute `properties` but not contained in `properties` should be kept in memory.
             If `False`, these values will not be cached on `instance` after this call.
     """
+    assert hasattr(instance, '__dict__'), f"parallel_compute requires instance to have __dict__. Slots are not supported."
     if memory_limit is not None:
         assert cache_dir is not None, "cache_dir must be specified if memory_limit is set"
     dims = shape(instance).only(parallel_dims)
@@ -215,6 +216,11 @@ def recursive_add_node(obj, cls, name: str, prop: Optional, dims: Shape, nodes: 
     # --- Determine shape ---
     spec_out = prop.out if isinstance(prop, ParallelProperty) else INFER
     needs_trace = spec_out is INFER or (isinstance(prop, ParallelProperty) and prop.requires in {MIXED, INFER})
+    already_computed = name in obj.__dict__
+    if already_computed:
+        precomputed_value = obj.__dict__[name]
+        node = nodes[name] = PGraphNode(name, precomputed_value, EMPTY_SHAPE, None, True, set(), [], True, stage=-1)
+        return node
     if needs_trace:
         out, trace = trace_cached_property(obj, cls, name, prop, dims, {d.name: expand_tracers(d.out, d.distributed) for d in dependencies})
         if isinstance(prop, ParallelProperty):
