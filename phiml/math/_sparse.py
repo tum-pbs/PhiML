@@ -249,6 +249,20 @@ class SparseCoordinateTensor(Tensor):
     def _with_data(self, indices: Tensor, values: Tensor):
         return SparseCoordinateTensor(indices, values, self._dense_shape, self._can_contain_double_entries, self._indices_sorted, self._indices_constant, self._matrix_rank)
 
+    def _disassemble(self, include_constants: bool):
+        dis_indices = include_constants and not self._indices_constant
+        natives = self._values._natives() + self._indices._natives() if dis_indices else self._values._natives()
+        spec = {'type': SparseCoordinateTensor,
+                'shape': self._shape,
+                'dense_shape': self._dense_shape,
+                'indices': self._indices._spec_dict() if dis_indices else self._indices,
+                'values': self._values._spec_dict(),
+                'can_contain_double_entries': self._can_contain_double_entries,
+                'indices_sorted': self._indices_sorted,
+                'indices_constant': self._indices_constant,
+                'matrix_rank': self._matrix_rank}
+        return spec, natives
+
     def _natives(self) -> tuple:
         if self._indices_constant:
             return self._values._natives()  # If we return NumPy arrays, they might get converted in function transformations
@@ -605,15 +619,33 @@ class CompressedSparseMatrix(Tensor):
     def available(self) -> bool:
         return self._values.available or self._indices.available or self._pointers.available
 
+    def _cached(self):
+        return CompressedSparseMatrix(self._indices._cached(), self._pointers._cached(), self._values._cached(), self._uncompressed_dims, self._compressed_dims, self._indices_constant,
+                                      self._uncompressed_offset, self._uncompressed_indices, self._uncompressed_indices_perm, self._matrix_rank)
+
+    def _disassemble(self, include_constants: bool):
+        dis_indices = include_constants and not self._indices_constant
+        natives = self._values._natives() + self._indices._natives() + self._pointers._natives() if dis_indices else self._values._natives()
+        spec = {'type': CompressedSparseMatrix,
+                'shape': self._shape,
+                'values': self._values._spec_dict(),
+                'indices': self._indices._spec_dict() if dis_indices else self._indices,
+                'pointers': self._pointers._spec_dict() if dis_indices else self._pointers,
+                'uncompressed_dims': self._uncompressed_dims,
+                'compressed_dims': self._compressed_dims,
+                'uncompressed_offset': self._uncompressed_offset,
+                'uncompressed_indices': self._uncompressed_indices,
+                'uncompressed_indices_perm': self._uncompressed_indices_perm,
+                'indices_constant': self._indices_constant,
+                'matrix_rank': self._matrix_rank,
+                }
+        return spec, natives
+
     def _natives(self) -> tuple:
         if self._indices_constant:
             return self._values._natives()
         else:
             return self._values._natives() + self._indices._natives() + self._pointers._natives()
-
-    def _cached(self):
-        return CompressedSparseMatrix(self._indices._cached(), self._pointers._cached(), self._values._cached(), self._uncompressed_dims, self._compressed_dims, self._indices_constant,
-                                      self._uncompressed_offset, self._uncompressed_indices, self._uncompressed_indices_perm, self._matrix_rank)
 
     def _spec_dict(self) -> dict:
         return {'type': CompressedSparseMatrix,
@@ -945,18 +977,30 @@ class CompactSparseTensor(Tensor):
         """Same dims as self._compressed_dims but with compact (small) sizes."""
         return self._indices.shape.only(self._compressed_dims)
 
-    def _natives(self) -> tuple:
-        if self._indices_constant:
-            return self._values._natives()  # If we return NumPy arrays, they might get converted in function transformations
-        else:
-            return self._values._natives() + self._indices._natives()
-
     def native(self, order: Union[str, tuple, list, Shape] = None, force_expand=True, to_numpy=False):
         assert order is None, f"sparse matrices are always ordered (primal, dual). For custom ordering, use math.dense(tensor).native() instead."
         return native_matrix(self, NUMPY if to_numpy else self.default_backend)
 
     def _cached(self):
         return CompactSparseTensor(self._indices._cached(), self._values._cached(), self._compressed_dims, self._indices_constant, self._matrix_rank)
+
+    def _disassemble(self, include_constants: bool):
+        dis_indices = include_constants and not self._indices_constant
+        natives = self._values._natives() + self._indices._natives() if dis_indices else self._values._natives()
+        spec = {'type': CompactSparseTensor,
+                'shape': self._shape,
+                'compressed_dims': self._compact_dims,
+                'indices': self._indices._spec_dict() if dis_indices else self._indices,
+                'values': self._values._spec_dict(),
+                'indices_constant': self._indices_constant,
+                'matrix_rank': self._matrix_rank}
+        return spec, natives
+
+    def _natives(self) -> tuple:
+        if self._indices_constant:
+            return self._values._natives()  # If we return NumPy arrays, they might get converted in function transformations
+        else:
+            return self._values._natives() + self._indices._natives()
 
     def _spec_dict(self) -> dict:
         return {'type': CompactSparseTensor,

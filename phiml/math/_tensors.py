@@ -845,6 +845,17 @@ class Tensor(Generic[T]):
         """
         raise NotImplementedError(self.__class__)
 
+    def _disassemble(self, include_constants: bool):
+        """
+        Args:
+            include_constants: True for JIT, False for gradient
+
+        Returns:
+            spec_dict: dict
+            natives: Sequence
+        """
+        return self._spec_dict(), self._natives()
+
     def _natives(self) -> tuple:
         raise NotImplementedError(self.__class__)
 
@@ -1666,22 +1677,26 @@ def custom_op2(x: Union[Tensor, float], y: Union[Tensor, float], op: Callable, s
     return result
 
 
-def disassemble_tensors(tensors: Sequence[Tensor], expand: bool) -> Tuple[tuple, Tuple[Shape], tuple]:
+def disassemble_tensors(tensors: Sequence[Tensor], expand: bool, include_constants=True) -> Tuple[tuple, Tuple[Shape, ...], tuple]:
     """
     Args:
         tensors: Tuple or list of Tensors.
         expand: Whether to add collapsed dimensions to the native tensors.
+        include_constants: Whether index tensors should also be separated from the Tensors
 
     Returns:
-        natives: tuple of native tensors
-        specs: Identification primitives from which the tensor can be reconstructed given the natives.
-            One per tensor.
+        natives: Flat tuple of native tensors of all tensors.
+        specs: Identification primitives from which the tensor can be reconstructed given the natives. One per tensor.
     """
     tensors = [t._cached() if isinstance(t, TensorStack) or expand else t for t in tensors]
-    natives = sum([t._natives() for t in tensors], ())
-    shapes = tuple([t.shape for t in tensors])
-    specs = tuple([t._spec_dict() for t in tensors])
-    return natives, shapes, specs
+    shapes = [t.shape for t in tensors]
+    natives = []
+    specs = []
+    for t in tensors:
+        t_spec, t_natives = t._disassemble(include_constants=include_constants)
+        natives.extend(t_natives)
+        specs.append(t_spec)
+    return tuple(natives), tuple(shapes), tuple(specs)
 
 
 def assemble_tensors(natives: Union[tuple, list], specs: Union[Tuple[dict, ...], List[dict]]):
@@ -2583,10 +2598,12 @@ def discard_constant_dims(value: Tensor):
     return value[{dim: 0 for dim in non_variable.names}]
 
 
-def specs_equal(spec1, spec2):
+def specs_equal(spec1, spec2, shapes_must_equal=True):
     if isinstance(spec1, Tensor) or isinstance(spec2, Tensor):
         if isinstance(spec1, Tensor) and isinstance(spec2, Tensor):
             if not spec1.shape.is_compatible(spec2.shape):
+                return False
+            if shapes_must_equal and (set(spec1.shape) != set(spec2.shape)):
                 return False
             from ._ops import equal
             return equal(spec1, spec2, equal_nan=True)
