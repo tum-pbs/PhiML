@@ -555,6 +555,8 @@ class Tensor(Generic[T]):
             raise NotImplementedError
 
     def __cast__(self, dtype: DType):
+        if self.dtype == dtype:
+            return self
         return self._op1(lambda native: choose_backend(native).cast(native, dtype=dtype))
 
     def dimension(self, name: Union[str, Shape]) -> 'TensorDim':
