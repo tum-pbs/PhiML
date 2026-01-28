@@ -68,7 +68,9 @@ class DType(metaclass=DTypeMeta):
 
     def __eq__(self, other):
         if isinstance(other, DType):
-            return self.kind == other.kind and self.bits == other.bits and self.unsigned == other.unsigned
+            return (self.kind == other.kind and self.bits == other.bits and
+                    self.unsigned == other.unsigned and self.exponent_bits == other.exponent_bits and
+                    self.mantissa_bits == other.mantissa_bits and self.finite_only == other.finite_only and self.unsigned_zero == other.unsigned_zero)
         elif other in {bool, int, float, complex, object}:
             return self.kind == other
         else:
