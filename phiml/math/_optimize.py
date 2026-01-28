@@ -10,7 +10,7 @@ import numpy as np
 from ..backend import get_precision, NUMPY, Backend
 from ..backend._backend import SolveResult, ML_LOGGER, default_backend, convert, Preconditioner, choose_backend
 from ..backend._linalg import IncompleteLU, incomplete_lu_dense, incomplete_lu_coo, coarse_explicit_preconditioner_coo
-from ._shape import EMPTY_SHAPE, Shape, merge_shapes, batch, non_batch, shape, dual, channel, non_dual, instance, spatial
+from ._shape import EMPTY_SHAPE, Shape, merge_shapes, batch, non_batch, shape, dual, channel, non_dual, instance, spatial, primal
 from ._tensors import Tensor, wrap, Dense, reshaped_tensor, preferred_backend_for
 from ._tree import layout, disassemble_tree, assemble_tree, NATIVE_TENSOR, variable_attributes
 from ._magic_ops import stack, copy_with, rename_dims, unpack_dim, unstack, expand, value_attributes
@@ -786,14 +786,15 @@ def attach_gradient_solve(forward_solve: Callable, auxiliary_args: str, matrix_a
     def implicit_gradient_solve(fwd_args: dict, x, dx):
         solve = fwd_args['solve']
         matrix = (fwd_args['matrix'],) if 'matrix' in fwd_args else ()
+        matrixT = (transpose_matrix(matrix[0], fwd_args['solve'].x0.shape, fwd_args['y'].shape),) if matrix else ()
         if matrix_adjoint:
-            assert matrix, "No matrix given but matrix_gradient=True"
+            assert matrix, "grad_for_f=True requires and explicit matrix but was given a function instead. Use @jit_compile_linear to build a matrix on the fly"
         grad_solve = solve.gradient_solve
-        x0 = grad_solve.x0 if grad_solve.x0 is not None else zeros_like(solve.x0)
+        x0 = grad_solve.x0 if grad_solve.x0 is not None else zeros_like(fwd_args['y'])
         grad_solve_ = copy_with(solve.gradient_solve, x0=x0)
         if 'is_backprop' in fwd_args:
             del fwd_args['is_backprop']
-        dy = solve_with_grad(dx, grad_solve_, *matrix, is_backprop=True, **fwd_args)  # this should hopefully result in implicit gradients for higher orders as well
+        dy = solve_with_grad(dx, grad_solve_, *matrixT, is_backprop=True, **fwd_args)  # this should hopefully result in implicit gradients for higher orders as well
         if matrix_adjoint:  # matrix adjoint = dy * x^T sampled at indices
             matrix = matrix[0]
             if isinstance(matrix, CompressedSparseMatrix):
@@ -801,9 +802,9 @@ def attach_gradient_solve(forward_solve: Callable, auxiliary_args: str, matrix_a
             if isinstance(matrix, SparseCoordinateTensor):
                 col = matrix.dual_indices(to_primal=True)
                 row = matrix.primal_indices()
-                _, dy_tensors = disassemble_tree(dy, cache=False, attr_type=value_attributes)
-                _, x_tensors = disassemble_tree(x, cache=False, attr_type=variable_attributes)
-                dm_values = dy_tensors[0][col] * x_tensors[0][row]
+                _, (dy_tensor,) = disassemble_tree(dy, cache=False, attr_type=value_attributes)
+                _, (x_tensor,) = disassemble_tree(x, cache=False, attr_type=variable_attributes)
+                dm_values = dy_tensor[row] * x_tensor[col]  # dense matrix gradient
                 dm_values = math.sum_(dm_values, dm_values.shape.non_instance - matrix.shape)
                 dm = matrix._with_values(dm_values)
                 dm = -dm
@@ -819,6 +820,18 @@ def attach_gradient_solve(forward_solve: Callable, auxiliary_args: str, matrix_a
 
     solve_with_grad = custom_gradient(forward_solve, implicit_gradient_solve, auxiliary_args=auxiliary_args)
     return solve_with_grad
+
+
+def transpose_matrix(matrix: Tensor, x_dims: Shape, y_dims: Shape):
+    # matrix: (~x,y)
+    # x_dims: (x:p)
+    # y_dims: (y:p)
+    assert not x_dims.dual
+    assert not y_dims.dual
+    x_dims = x_dims.non_batch
+    y_dims = y_dims.non_batch
+    transposed = rename_dims(matrix, x_dims.as_dual() + y_dims, x_dims + y_dims.as_dual())  # y -> ~y,  ~x -> x
+    return transposed
 
 
 def compute_preconditioner(method: str, matrix: Tensor, rank_deficiency: Union[int, Tensor] = 0, target_backend: Backend = None, solver: str = None) -> Optional[Preconditioner]:
