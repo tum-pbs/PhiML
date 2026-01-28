@@ -14,7 +14,7 @@ from ._shape import Shape, spatial, instance, batch, channel, merge_shapes, DimF
 from ._tensors import Tensor, disassemble_tensors, assemble_tensors, wrap, specs_equal, equality_by_shape_and_value, backend_for, Dense, TensorStack
 from ._tree import disassemble_tree, assemble_tree, variable_attributes, NATIVE_TENSOR, object_dims, slice_, find_differences
 from ._magic_ops import stack, rename_dims, all_attributes
-from ._sparse import SparseCoordinateTensor
+from ._sparse import SparseCoordinateTensor, is_sparse
 from ._lin_trace import ShiftLinTracer, matrix_from_function, LinearTraceInProgress
 from .magic import PhiTreeNode, Shapable
 from ..backend import Backend
@@ -126,7 +126,17 @@ def key_from_args(args: tuple,
                   cache=False,
                   aux: Set[str] = (),
                   attr_type=variable_attributes,
-                  for_jit=False) -> Tuple[SignatureKey, List[Tensor], tuple, Dict[str, Any], Dict[str, Any]]:
+                  use: str = None) -> Tuple[SignatureKey, List[Tensor], tuple, Dict[str, Any], Dict[str, Any]]:
+    """
+    Args:
+        args:
+        kwargs:
+        parameters:
+        cache:
+        aux:
+        attr_type:
+        use: 'jit' or 'gradient' or 'linear'
+    """
     kwargs = {**kwargs, **{parameters[i]: v for i, v in enumerate(args)}}
     attached_aux_kwargs = {}
     detached_aux_kwargs = {}
@@ -140,8 +150,8 @@ def key_from_args(args: tuple,
     _, aux_tensors = disassemble_tree(detached_aux_kwargs, cache=cache, attr_type=variable_attributes)
     tracing = not math.all_available(*tensors, *aux_tensors)
     backend = backend_for(*tensors, *aux_tensors)
-    natives, shapes, specs = disassemble_tensors(tensors, expand=cache)
-    if for_jit and backend.name == 'torch':  # for PyTorch, add tracers from aux to natives, but keep aux. PyTorch does not support using tensors with grad inside jit otherwise.
+    natives, shapes, specs = disassemble_tensors(tensors, expand=cache, include_constants=use != 'gradient')
+    if use == 'jit' and backend.name == 'torch':  # for PyTorch, add tracers from aux to natives, but keep aux. PyTorch does not support using tensors with grad inside jit otherwise.
         _, aux_tensors = disassemble_tree(attached_aux_kwargs, cache=cache, attr_type=variable_attributes)
         aux_natives, aux_shapes, aux_specs = disassemble_tensors(aux_tensors, expand=False)
         from torch import Tensor
@@ -273,7 +283,7 @@ class JitFunction:
 
     def __call__(self, *args, **kwargs):
         try:
-            key, _, natives, _, aux_kwargs = key_from_args(args, kwargs, self.f_params, cache=True, aux=self.auxiliary_args, for_jit=True)
+            key, _, natives, _, aux_kwargs = key_from_args(args, kwargs, self.f_params, cache=True, aux=self.auxiliary_args, use='jit')
         except LinearTraceInProgress:
             return self.f(*args, **kwargs)
         if isinstance(self.f, GradientFunction) and key.backend.supports(Backend.jit_compile_grad):
@@ -438,7 +448,7 @@ Multiple linear traces can be avoided by jit-compiling the code that calls the l
 
     def __call__(self, *args: X, **kwargs) -> Y:
         try:
-            key, tensors, natives, x, aux_kwargs = key_from_args(args, kwargs, self.f_params, cache=False, aux=self.auxiliary_args)
+            key, tensors, natives, x, aux_kwargs = key_from_args(args, kwargs, self.f_params, cache=False, aux=self.auxiliary_args, use='linear')
         except LinearTraceInProgress:
             return self.f(*args, **kwargs)
         assert tensors, "Linear function requires at least one argument"
@@ -472,7 +482,7 @@ Multiple linear traces can be avoided by jit-compiling the code that calls the l
         Returns:
             Sparse matrix representation with `values` property and `native()` method.
         """
-        key, *_, aux_kwargs = key_from_args(args, kwargs, self.f_params, cache=False, aux=self.auxiliary_args)
+        key, *_, aux_kwargs = key_from_args(args, kwargs, self.f_params, cache=False, aux=self.auxiliary_args, use='linear')
         matrix, bias, *_ = self._get_or_trace(key, args, aux_kwargs)
         assert math.close(bias, 0), "This is an affine function and cannot be represented by a single matrix. Use sparse_matrix_and_bias() instead."
         return matrix
@@ -490,7 +500,7 @@ Multiple linear traces can be avoided by jit-compiling the code that calls the l
             matrix: Sparse matrix representation with `values` property and `native()` method.
             bias: `Tensor`
         """
-        key, *_, aux_kwargs = key_from_args(args, kwargs, self.f_params, cache=False, aux=self.auxiliary_args)
+        key, *_, aux_kwargs = key_from_args(args, kwargs, self.f_params, cache=False, aux=self.auxiliary_args, use='linear')
         return self._get_or_trace(key, args, aux_kwargs)[:2]
 
     def __repr__(self):
@@ -624,7 +634,7 @@ class GradientFunction:
             return in_key.backend.jacobian(f_native, wrt=wrt_natives, get_output=self.get_output, is_f_scalar=self.is_f_scalar)
 
     def __call__(self, *args, **kwargs):
-        key, tensors, natives, kwargs, _ = key_from_args(args, kwargs, self.f_params, cache=True, attr_type=variable_attributes)
+        key, tensors, natives, kwargs, _ = key_from_args(args, kwargs, self.f_params, cache=True, attr_type=variable_attributes, use='gradient')
         if not key.backend.supports(Backend.jacobian):
             if math.default_backend().supports(Backend.jacobian):
                 warnings.warn(f"Using {math.default_backend()} for gradient computation because {key.backend} does not support jacobian()", RuntimeWarning)
@@ -787,7 +797,7 @@ class HessianFunction:
 #         return hessian_generator(f_native, wrt=wrt_natives, get_output=self.get_output, get_gradient=self.get_gradient)
 #
 #     def __call__(self, *args, **kwargs):
-#         key, tensors, natives, kwargs, batch_shape = key_from_args_pack_batch(args, kwargs, self.f_params, cache=True, attr_type=variable_attributes)
+#         key, tensors, natives, kwargs, batch_shape = key_from_args_pack_batch(args, kwargs, self.f_params, cache=True, attr_type=variable_attributes, use='gradient')
 #         if not key.backend.supports(Backend.jacobian):
 #             if math.default_backend().supports(Backend.jacobian):
 #                 warnings.warn(f"Using {math.default_backend()} for gradient computation because {key.backend} does not support jacobian()", RuntimeWarning)
@@ -937,7 +947,7 @@ class CustomGradientFunction:
             result = self.gradient(kwargs, y, dy)
             assert isinstance(result, dict) and all(key in kwargs for key in result.keys()), f"gradient function must return a dict containing only parameter names of the forward function. Forward '{f_name(self.f)}' has arguments {kwargs}."
             full_result = tuple(result.get(name, None) for name in in_key.tree.keys())
-            result_natives = self.incomplete_tree_to_natives(full_result, tuple(in_key.tree.values()), list(in_key.specs))
+            result_natives = self.grad_natives(full_result, tuple(in_key.tree.values()), list(in_key.specs))
             ML_LOGGER.debug(f"Backward pass of custom op {backward_native.__name__} returned gradients for {tuple(result.keys())} out of {tuple(in_key.tree.keys())} containing {len(result_natives)} native tensors")
             return result_natives
 
@@ -947,7 +957,7 @@ class CustomGradientFunction:
         return in_key.backend.custom_gradient(forward_native, backward_native, get_external_cache=lambda: self.recorded_mappings[in_key], on_call_skipped=partial(self.recorded_mappings.__setitem__, in_key))
 
     def __call__(self, *args, **kwargs):
-        key, _, natives, _, _ = key_from_args(args, kwargs, self.f_params, cache=False, aux=self.auxiliary_args, attr_type=variable_attributes)
+        key, _, natives, _, _ = key_from_args(args, kwargs, self.f_params, cache=False, aux=self.auxiliary_args, attr_type=variable_attributes, use='gradient')
         if not key.backend.supports(Backend.jacobian) and not key.backend.supports(Backend.jacobian):
             return self.f(*args, **kwargs)  # no need to use custom gradient if gradients aren't supported anyway
         elif not key.backend.supports(Backend.custom_gradient):
@@ -973,14 +983,14 @@ Traces can be avoided by jit-compiling the code that calls custom gradient funct
         return f"custom_grad({f_name(self.f)})"
 
     @staticmethod
-    def incomplete_tree_to_natives(incomplete, tree, complete_specs: List[dict]) -> list:
+    def grad_natives(incomplete, tree, complete_specs: List[dict]) -> list:
         """ Returns native tensors for required input gradients.
 
         Args:
-            incomplete: Computed gradient Tensors / composite types
+            incomplete: Computed gradient Tensors / composite types. This can include `None` for gradients that are not required.
             tree: Corresponding input data `x`, including non-Tensor attributes. For dataclasses, this will be an instance of DataclassTreeNode.
                 None means there is a tensor, not a composite type.
-            complete_shapes: Shapes of `x`.
+            complete_specs: Shapes of `x`.
         """
         if tree is None:
             c_spec = complete_specs.pop(0)
@@ -993,6 +1003,8 @@ Traces can be avoided by jit-compiling the code that calls custom gradient funct
                 elif isinstance(incomplete, TensorStack):
                     specs = c_spec['tensors']
                     return [t.native(s['names']) for t, s in zip(incomplete._tensors, specs)]
+                elif is_sparse(incomplete):  # sparse indices are never passed as native arguments to gradient functions
+                    return [incomplete._values.native(c_spec['values']['names'])]
                 warnings.warn(f"Unsupported tensor type for custom gradient: {type(incomplete)}. This might result in incorrectly transposed gradients.", RuntimeWarning)
                 return list(incomplete._natives())
         elif isinstance(tree, str) and tree == NATIVE_TENSOR:
@@ -1000,23 +1012,23 @@ Traces can be avoided by jit-compiling the code that calls custom gradient funct
             return [incomplete]
         elif isinstance(tree, (tuple, list)):
             if incomplete is None:
-                return sum([CustomGradientFunction.incomplete_tree_to_natives(None, item, complete_specs) for item in tree], [])
+                return sum([CustomGradientFunction.grad_natives(None, item, complete_specs) for item in tree], [])
             else:
                 assert type(tree) == type(incomplete) and len(tree) == len(incomplete)
-                return sum([CustomGradientFunction.incomplete_tree_to_natives(i_item, c_item, complete_specs) for i_item, c_item in zip(incomplete, tree)], [])
+                return sum([CustomGradientFunction.grad_natives(i_item, c_item, complete_specs) for i_item, c_item in zip(incomplete, tree)], [])
         elif isinstance(tree, dict):
             if incomplete is None:
-                return sum([CustomGradientFunction.incomplete_tree_to_natives(None, item, complete_specs) for item in tree.values()], [])
+                return sum([CustomGradientFunction.grad_natives(None, item, complete_specs) for item in tree.values()], [])
             else:
                 assert type(tree) == type(incomplete) and len(tree) == len(incomplete) and set(tree.keys()) == set(incomplete.keys())
-                return sum([CustomGradientFunction.incomplete_tree_to_natives(incomplete[key], c_item, complete_specs) for key, c_item in tree.items()], [])
+                return sum([CustomGradientFunction.grad_natives(incomplete[key], c_item, complete_specs) for key, c_item in tree.items()], [])
         elif dataclasses.is_dataclass(tree):
             from ._tree import DataclassTreeNode
             if isinstance(tree, DataclassTreeNode):
                 natives = []
                 for attr, n_val in tree.extracted.items():
                     i_val = getattr(incomplete, attr) if incomplete is not None else None
-                    natives_item = CustomGradientFunction.incomplete_tree_to_natives(i_val, n_val, complete_specs)
+                    natives_item = CustomGradientFunction.grad_natives(i_val, n_val, complete_specs)
                     natives.extend(natives_item)
                 return natives
         if isinstance(tree, PhiTreeNode):
@@ -1025,7 +1037,7 @@ Traces can be avoided by jit-compiling the code that calls custom gradient funct
             for attr in attributes:
                 n_val = getattr(tree, attr)
                 i_val = getattr(incomplete, attr) if incomplete is not None else None
-                natives_item = CustomGradientFunction.incomplete_tree_to_natives(i_val, n_val, complete_specs)
+                natives_item = CustomGradientFunction.grad_natives(i_val, n_val, complete_specs)
                 natives.extend(natives_item)
             return natives
         else:
@@ -1135,11 +1147,13 @@ def trace_check(traced_function, *args, **kwargs) -> Tuple[bool, str]:
     f = traced_function
     if isinstance(f, (JitFunction, GradientFunction, HessianFunction, CustomGradientFunction)):
         keys = f.traces.keys()
+        use = 'jit' if isinstance(f, JitFunction) else 'gradient'
     elif isinstance(f, LinearFunction):
         keys = f.matrices_and_biases.keys()
+        use = 'linear'
     else:
         raise ValueError(f"{f_name(f)} is not a traceable function. Only supports jit_compile, jit_compile_linear, gradient, custom_gradient, jacobian, hessian")
-    key, *_ = key_from_args(args, kwargs, f.f_params, aux=f.auxiliary_args)
+    key, *_ = key_from_args(args, kwargs, f.f_params, aux=f.auxiliary_args, use=use)
     if not keys:
         return False, "Function has not yet been traced"
     if key in keys:
