@@ -226,3 +226,24 @@ class TestOptimize(TestCase):
         sol = math.solve_linear(A, b, math.Solve('scipy-CG', rel_tol=1e-5, x0=0 * b, preconditioner='ilu'))
         numpy.testing.assert_almost_equal([(1, -1), (.5, -.5), (-1/3, 1/3)], sol, decimal=4)
 
+    def test_matrix_gradient(self):
+        for backend in BACKENDS:
+            if backend.supports(Backend.jacobian):
+                with backend:
+                    def solve_system(k):
+                        y = tensor([1., 4., 7.], 'y:c')
+                        x0 = math.zeros(channel(x=3))
+                        A_dense = tensor([[1., 0, 0], [0, 1, 0], [0, 0, k]], 'y:c,~x')
+                        A = math.to_format(A_dense, 'csr')
+                        x = math.solve_linear(A, y, Solve(method='scipy-direct', x0=x0), grad_for_f=True)
+                        return x.x[2] ** 2
+
+                    k = 1.0
+                    eps = 1e-4
+                    result1 = solve_system(k)
+                    result2 = solve_system(k + eps)
+                    fd_grad = (result2 - result1) / eps
+                    print(f"FD Gradient: {fd_grad:.5f}")
+                    grad = math.gradient(solve_system, 'k', get_output=False)(k)
+                    print(f"Backprop: {grad:.5f}")
+                    math.assert_close(fd_grad, grad, abs_tolerance=1e-3, msg=backend.name)
