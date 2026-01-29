@@ -336,13 +336,16 @@ def scipy_direct_linear_solve(b: Backend, lin, y, rtol, atol) -> SolveResult:
     if isinstance(lin, (tuple, list)):
         assert all(issparse(l) for l in lin)
     else:
-        assert issparse(lin)
         lin = [lin] * batch_size
     # Solve each example independently
     messages = []
     for batch in range(batch_size):
         # use_umfpack=self.precision == 64
-        x = spsolve(lin[batch], y[batch])  # returns nan when diverges
+        matrix = lin[batch]
+        if issparse(matrix):
+            x = spsolve(matrix, y[batch])  # returns nan when diverges
+        else:
+            x = scipy.linalg.solve(matrix, y[batch])
         residual = lin[batch] @ x - y[batch]
         residual_norm = np.linalg.norm(residual)
         y_norm = np.linalg.norm(y[batch])
