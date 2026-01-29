@@ -557,7 +557,7 @@ class Tensor(Generic[T]):
     def __cast__(self, dtype: DType):
         if self.dtype == dtype:
             return self
-        return self._op1(lambda native: choose_backend(native).cast(native, dtype=dtype))
+        return self._op1(lambda native: choose_backend(native).cast(native, dtype=dtype), 'cast')
 
     def dimension(self, name: Union[str, Shape]) -> 'TensorDim':
         """
@@ -744,22 +744,22 @@ class Tensor(Generic[T]):
         return self._op2(other, operator.rshift, True)
 
     def __abs__(self) -> 'Tensor[T]':
-        return self._op1(lambda t: choose_backend(t).abs(t))
+        return self._op1(lambda t: choose_backend(t).abs(t), 'abs')
 
     def __round__(self, n=None) -> 'Tensor[int]':
-        return self._op1(lambda t: choose_backend(t).round(t))
+        return self._op1(lambda t: choose_backend(t).round(t), 'round')
 
     def __copy__(self) -> 'Tensor[T]':
-        return self._op1(lambda t: choose_backend(t).copy(t, only_mutable=True))
+        return self._op1(lambda t: choose_backend(t).copy(t, only_mutable=True), 'copy')
 
     def __deepcopy__(self, memodict={}) -> 'Tensor[T]':
-        return self._op1(lambda t: choose_backend(t).copy(t, only_mutable=False))
+        return self._op1(lambda t: choose_backend(t).copy(t, only_mutable=False), 'deepcopy')
 
     def __neg__(self) -> 'Tensor[T]':
-        return self._op1(operator.neg)
+        return self._op1(operator.neg, 'neg')
 
     def __invert__(self) -> 'Tensor[T]':
-        return self._op1(lambda t: choose_backend(t).invert(t))
+        return self._op1(lambda t: choose_backend(t).invert(t), 'invert')
 
     def __reversed__(self) -> 'Tensor[T]':
         assert self.shape.channel.rank == 1
@@ -820,7 +820,7 @@ class Tensor(Generic[T]):
         else:
             return compatible_tensor(other, compat_shape=self.shape, compat_natives=self._natives(), convert=False)
 
-    def _op1(self, native_function) -> 'Tensor':
+    def _op1(self, native_function, op_name: str) -> 'Tensor':
         """
         Transform the values of this tensor given a function that can be applied to any native tensor.
 
@@ -1157,7 +1157,7 @@ class Dense(Tensor):
             assert dim in self._shape, f"Cannot unstack tensor {self._shape} along non-existant dimension '{dim}'"
             return (Dense(self._native, self._names, new_shape, self._backend),) * self._shape.get_size(dim)
 
-    def _op1(self, native_function):
+    def _op1(self, native_function, op_name: str):
         native = native_function(self._native)
         return Dense(native, self._names, self._shape, self._backend) if native is not None else self
 
@@ -1387,12 +1387,12 @@ class TensorStack(Tensor):
             else:
                 return self._contiguous()._unstack(dim)
 
-    def _op1(self, native_function):
+    def _op1(self, native_function, op_name: str):
         if self.requires_broadcast:
-            tensors = [t._op1(native_function) for t in self._tensors]
+            tensors = [t._op1(native_function, op_name) for t in self._tensors]
             return TensorStack(tensors, self._stack_dim)
         else:
-            return self._contiguous()._op1(native_function)
+            return self._contiguous()._op1(native_function, op_name)
 
     def _op2(self, other, op, switch_args):
         other = self._tensor(other)

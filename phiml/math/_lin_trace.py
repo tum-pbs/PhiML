@@ -1,10 +1,14 @@
 import operator
+import warnings
 from collections import namedtuple
 from typing import Callable, Dict, Set, Tuple, Union, Optional, Sequence
 
 import numpy
 import numpy as np
 
+from ..backend import choose_backend, NUMPY, Backend
+from ..backend import get_precision
+from ..backend._dtype import DType, combine_types
 from . import _ops as math
 from ._magic_ops import stack, expand, rename_dims, unpack_dim, value_attributes
 from ._ops import backend_for, concat_tensor, scatter
@@ -13,9 +17,6 @@ from ._shape import Shape, merge_shapes, instance, batch, EMPTY_SHAPE, dual, cha
 from ._sparse import SparseCoordinateTensor, is_sparse, sparse_dims, sparse_tensor, stored_indices, stored_values, add_sparse_batch_dim
 from ._tensors import Tensor, wrap, TensorStack, discard_constant_dims, variable_shape, Dense
 from ._tree import disassemble_tree, assemble_tree
-from ..backend import choose_backend, NUMPY, Backend
-from ..backend import get_precision
-from ..backend._dtype import combine_types
 
 TracerSource = namedtuple('TracerSource', ['shape', 'dtype', 'name', 'index'])
 
@@ -172,11 +173,21 @@ class ShiftLinTracer(Tensor):
     def __neg__(self):
         return ShiftLinTracer(self._source, {shift: -values for shift, values in self.val.items()}, self._shape, -self._bias, self._renamed, self._nz_edge)
 
-    def _op1(self, native_function):
+    def __cast__(self, dtype: DType):
+        if self.dtype == dtype:
+            return self
+        if self._source.dtype & dtype == self.dtype:  # cannot down-cast
+            warnings.warn(f"Cannot cast linear tracer of type {self.dtype} to {dtype} because its input has type {self._source.dtype}", RuntimeWarning)
+            return self
+        return ShiftLinTracer(self._source, {shift: math.cast(values, dtype) for shift, values in self.val.items()}, self._shape, math.cast(self._bias, dtype), self._renamed, self._nz_edge)
+
+    def _op1(self, native_function, op_name: str):
         # __neg__ is the only proper linear op1 and is implemented above.
         if native_function.__name__ == 'isfinite':
             test_output = self.apply(math.ones(self._source.shape, dtype=self._source.dtype))
             return math.is_finite(test_output)
+        elif op_name in {'cast', 'to_float', 'to_int32', 'to_int64', 'to_complex'}:
+            raise AssertionError("cast called via _op1. Should be __cast__ instead")
         else:
             raise NotImplementedError('Only linear operations are supported')
 
@@ -358,7 +369,7 @@ class GatherLinTracer(Tensor):
     def __neg__(self):
         return GatherLinTracer(self._source, -self._diag, -self._bias, self._shape, self._selection, self._renamed)
 
-    def _op1(self, native_function):
+    def _op1(self, native_function, op_name: str):
         # __neg__ is the only proper linear op1 and is implemented above.
         if native_function.__name__ == 'isfinite':
             finite = math.is_finite(self._source) & math.all_(math.is_finite(self._diag), self._source.shape)
@@ -506,7 +517,7 @@ class SparseLinTracer(Tensor):
     def __neg__(self):
         return SparseLinTracer(self._source, -self._matrix, -self._bias, self._shape)
 
-    def _op1(self, native_function):
+    def _op1(self, native_function, op_name: str):
         # __neg__ is the only proper linear op1 and is implemented above.
         if native_function.__name__ == 'isfinite':
             finite = math.is_finite(self._source) & math.all_(math.is_finite(self._matrix), self._source.shape)

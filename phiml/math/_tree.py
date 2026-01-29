@@ -275,7 +275,7 @@ class Layout(Tensor):
                 native_function = get_operator(operator, choose_backend(obj, other))
                 return native_function(obj, other)
 
-    def _op1(self, native_function):
+    def _op1(self, native_function, op_name: str):
         return Layout(self._recursive_op1(self._obj, self._stack_dim, native_function), self._stack_dim)
 
     @staticmethod
@@ -750,6 +750,7 @@ def tree_map(f, tree, attr_type=value_attributes,
              include_non_attrs=True,
              treat_layout_as_leaf=False,
              treat_shapes_as_leaf=False,
+             op_name: str = None,
              **f_kwargs):
     """
     Recursively iterates over Layouts, lists, tuples, dicts and the value attributes of PhiTreeNodes.
@@ -770,7 +771,7 @@ def tree_map(f, tree, attr_type=value_attributes,
         if treat_layout_as_leaf:
             return f(tree, **f_kwargs)
         else:
-            return tree._op1(lambda x: tree_map(f, x, attr_type, include_non_attrs, treat_layout_as_leaf, **f_kwargs))
+            return tree._op1(lambda x: tree_map(f, x, attr_type, include_non_attrs, treat_layout_as_leaf, op_name, **f_kwargs), op_name or f.__name__)
     if isinstance(tree, Tensor) or tree is None:
         return f(tree, **f_kwargs)
     if isinstance(tree, list):

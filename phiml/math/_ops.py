@@ -9,7 +9,7 @@ import numpy as np
 
 from ..backend import default_backend, choose_backend, Backend, get_precision, convert as b_convert, BACKENDS, NoBackendFound, ComputeDevice, NUMPY
 from ..backend import xops
-from ..backend._dtype import DType, combine_types, INT32
+from ..backend._dtype import DType, combine_types, INT32, INT64
 from ._shape import (Shape, EMPTY_SHAPE,
                      spatial, batch, channel, instance, merge_shapes, parse_dim_order, IncompatibleShapes, DimFilter, non_batch, dual, shape, shape as get_shape, primal, auto,
                      non_dual, resolve_index, concat_shapes_, SHAPE_TYPES,
@@ -154,7 +154,7 @@ def copy(value: Tensor):
     if value._is_tracer:
         warnings.warn("Tracing tensors cannot be copied.", RuntimeWarning)
         return value
-    return value._op1(lambda native: choose_backend(native).copy(native))
+    return value._op1(lambda native: choose_backend(native).copy(native), 'copy')
 
 
 def native_call(f: Callable, *inputs: Tensor, channels_last=None, channel_dim='vector', spatial_dim=None, **f_kwargs):
@@ -2445,7 +2445,7 @@ def _backend_op1(x, unbound_method, source_fun, attr_type=value_attributes) -> U
             backend = choose_backend(native_tensor)
             return getattr(backend, unbound_method.__name__)(backend.auto_cast(native_tensor)[0])
         apply_op.__name__ = unbound_method.__name__
-        return x._op1(apply_op)
+        return x._op1(apply_op, unbound_method.__name__)
     elif x is None:
         return None
     elif isinstance(x, (PhiTreeNode, Layout, tuple, list, dict)):
@@ -2571,17 +2571,18 @@ def to_float(x: TensorOrTree) -> TensorOrTree:
     Returns:
         `Tensor` or `phiml.math.magic.PhiTreeNode` matching `x`.
     """
-    return _backend_op1(x, Backend.to_float, to_float)
+    dtype = default_backend().float_type
+    return tree_map(lambda t: t.__cast__(dtype) if hasattr(t, '__cast__') else choose_backend(t).cast(t, dtype), x, all_attributes, op_name='cast')
 
 
 def to_int32(x: TensorOrTree) -> TensorOrTree:
     """ Converts the `Tensor` or `phiml.math.magic.PhiTreeNode` `x` to 32-bit integer. """
-    return _backend_op1(x, Backend.to_int32, to_int32)
+    return tree_map(lambda t: t.__cast__(INT32) if hasattr(t, '__cast__') else choose_backend(t).cast(t, INT32), x, all_attributes, op_name='cast')
 
 
 def to_int64(x: TensorOrTree) -> TensorOrTree:
     """ Converts the `Tensor` or `phiml.math.magic.PhiTreeNode` `x` to 64-bit integer. """
-    return _backend_op1(x, Backend.to_int64, to_int64)
+    return tree_map(lambda t: t.__cast__(INT64) if hasattr(t, '__cast__') else choose_backend(t).cast(t, INT64), x, all_attributes, op_name='cast')
 
 
 def to_complex(x: TensorOrTree) -> TensorOrTree:
@@ -2601,7 +2602,8 @@ def to_complex(x: TensorOrTree) -> TensorOrTree:
     Returns:
         `Tensor` of same shape as `x`
     """
-    return _backend_op1(x, Backend.to_complex, to_complex)
+    dtype = default_backend().complex_type
+    return tree_map(lambda t: t.__cast__(dtype) if hasattr(t, '__cast__') else choose_backend(t).cast(t, dtype), x, all_attributes, op_name='cast')
 
 
 def is_finite(x: TensorOrTree) -> TensorOrTree:
@@ -2868,7 +2870,7 @@ def clip(x: Tensor, lower_limit: Union[float, Tensor] = 0, upper_limit: Union[fl
         upper_limit = wrap(upper_limit.sizes, channel(x))
     if isinstance(lower_limit, Number) and isinstance(upper_limit, Number):
         def clip_(x):
-            return x._op1(lambda native: choose_backend(native).clip(native, lower_limit, upper_limit))
+            return x._op1(lambda native: choose_backend(native).clip(native, lower_limit, upper_limit), 'clip')
         return broadcast_op(clip_, [x])
     else:
         return maximum(lower_limit, minimum(x, upper_limit))
@@ -3718,7 +3720,7 @@ def _native_wrapper(tensor_function: Callable, create_native_function: Callable,
 
     def native_function(*natives):
         natives = list(natives)
-        values = [t._op1(lambda _: natives.pop(0)) for t in INPUT_TENSORS]
+        values = [t._op1(lambda _: natives.pop(0), '__replace__') for t in INPUT_TENSORS]
         assert len(natives) == 0, "Not all arguments were converted"
         result = tensor_function(*values)
         results = [result] if not isinstance(result, (tuple, list)) else result

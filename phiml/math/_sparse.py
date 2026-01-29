@@ -414,8 +414,8 @@ class SparseCoordinateTensor(Tensor):
         m_rank = self._matrix_rank._with_shape_replaced(self._matrix_rank.shape.replace_selection(self._shape.names, new_shape))
         return SparseCoordinateTensor(indices, values, dense_shape, self._can_contain_double_entries, self._indices_sorted, self._indices_constant, m_rank)
 
-    def _op1(self, native_function):
-        return self._with_values(self._values._op1(native_function))
+    def _op1(self, native_function, op_name: str):
+        return self._with_values(self._values._op1(native_function, op_name))
 
     def _op2(self, other, op: Callable, switch_args: bool) -> 'Tensor':
         other_shape = shape(other)
@@ -779,8 +779,8 @@ class CompressedSparseMatrix(Tensor):
     def __expand__(self, dims: Shape, **kwargs) -> 'Tensor':
         return self._with_values(expand(self._values, dims, **kwargs))
 
-    def _op1(self, native_function):
-        return self._with_values(self._values._op1(native_function))
+    def _op1(self, native_function, op_name: str):
+        return self._with_values(self._values._op1(native_function, op_name))
 
     def _op2(self, other, op: Callable, switch_args: bool) -> 'Tensor':
         other_shape = shape(other)
@@ -1069,8 +1069,8 @@ class CompactSparseTensor(Tensor):
         m_rank = self._matrix_rank._with_shape_replaced(self._matrix_rank.shape.replace_selection(self._shape.names, new_shape))
         return CompactSparseTensor(indices, values, compressed_dims, self._indices_constant, m_rank)
 
-    def _op1(self, native_function):
-        return self._with_values(self._values._op1(native_function))
+    def _op1(self, native_function, op_name: str):
+        return self._with_values(self._values._op1(native_function, op_name))
 
     def _op2(self, other, op: Callable, switch_args: bool) -> 'Tensor':
         other_shape = shape(other)

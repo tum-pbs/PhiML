@@ -297,7 +297,7 @@ class Tracer(Tensor):
         op = self._trace.add_op('fun', 'cast', (self, dtype), {}, EMPTY_SHAPE)
         return op.add_output(self._shape, dtype, self._renamed)
 
-    def _op1(self, native_function):
+    def _op1(self, native_function, op_name: str):
         raise NotImplementedError("_op1 not supported. Should dispatch to tracer_op1 instead")
 
     def _op2(self, other, op: Callable, switch_args: bool) -> 'Tensor':
@@ -352,15 +352,9 @@ class Tracer(Tensor):
     def __deepcopy__(self, memodict={}) -> 'Tensor[T]':
         return self
 
-    # def __neg__(self) -> 'Tensor[T]':
-    #     return tracer_op1(self, operator.neg)
-
     def __neg__(self):
         op = self._trace.add_op('op1', '-', (self,), {}, EMPTY_SHAPE)
         return op.add_output(self._shape, self._dtype, self._renamed)
-
-    def __invert__(self) -> 'Tensor[T]':
-        return self._op1(lambda t: choose_backend(t).invert(t))
 
 
 class TraceInProgress(Exception):
