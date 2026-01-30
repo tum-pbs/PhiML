@@ -170,7 +170,7 @@ class Backend:
 
     @property
     def complex_type(self) -> DType:
-        return DType.by_precision(complex, max(64, self.precision))
+        return DType.by_precision(complex, max(32, self.precision))
 
     def combine_types(self, *dtypes: DType) -> DType:
         return combine_types(*dtypes, fp_precision=self.precision)
