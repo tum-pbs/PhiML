@@ -247,3 +247,24 @@ class TestOptimize(TestCase):
                     grad = math.gradient(solve_system, 'k', get_output=False)(k)
                     print(f"Backprop: {grad:.5f}")
                     math.assert_close(fd_grad, grad, abs_tolerance=1e-3, msg=backend.name)
+
+    def test_matrix_gradient(self):
+        for backend in BACKENDS:
+            if backend.supports(Backend.jacobian):
+                with backend:
+                    def solve_system(k):
+                        y = tensor([1., 4., 7.], 'y:c')
+                        x0 = math.zeros(channel(x=3))
+                        A_dense = tensor([[1., 0, 0], [0, 1, 0], [0, 0, k]], 'y:c,~x')
+                        x = math.solve_linear(A_dense, y, Solve(method='scipy-direct', x0=x0), grad_for_f=True)
+                        return x.x[2] ** 2
+
+                    k = 1.0
+                    eps = 1e-4
+                    result1 = solve_system(k)
+                    result2 = solve_system(k + eps)
+                    fd_grad = (result2 - result1) / eps
+                    print(f"FD Gradient: {fd_grad:.5f}")
+                    grad = math.gradient(solve_system, 'k', get_output=False)(k)
+                    print(f"Backprop: {grad:.5f}")
+                    math.assert_close(fd_grad, grad, abs_tolerance=1e-3, msg=backend.name)

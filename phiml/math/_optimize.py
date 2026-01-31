@@ -10,7 +10,7 @@ import numpy as np
 from ..backend import get_precision, NUMPY, Backend
 from ..backend._backend import SolveResult, ML_LOGGER, default_backend, convert, Preconditioner, choose_backend
 from ..backend._linalg import IncompleteLU, incomplete_lu_dense, incomplete_lu_coo, coarse_explicit_preconditioner_coo
-from ._shape import EMPTY_SHAPE, Shape, merge_shapes, batch, non_batch, shape, dual, channel, non_dual, instance, spatial, primal
+from ._shape import EMPTY_SHAPE, Shape, merge_shapes, batch, non_batch, shape, dual, channel, non_dual, instance, spatial, primal, non_instance
 from ._tensors import Tensor, wrap, Dense, reshaped_tensor, preferred_backend_for
 from ._tree import layout, disassemble_tree, assemble_tree, NATIVE_TENSOR, variable_attributes
 from ._magic_ops import stack, copy_with, rename_dims, unpack_dim, unstack, expand, value_attributes
@@ -805,13 +805,12 @@ def attach_gradient_solve(forward_solve: Callable, auxiliary_args: str, matrix_a
                 _, (dy_tensor,) = disassemble_tree(dy, cache=False, attr_type=value_attributes)
                 _, (x_tensor,) = disassemble_tree(x, cache=False, attr_type=variable_attributes)
                 dm_values = dy_tensor[row] * x_tensor[col]  # dense matrix gradient
-                dm_values = math.sum_(dm_values, dm_values.shape.non_instance - matrix.shape)
+                dm_values = -math.sum_(dm_values, dm_values.shape.non_instance - matrix.shape)
                 dm = matrix._with_values(dm_values)
-                dm = -dm
             elif isinstance(matrix, Dense):
-                dy_dual = rename_dims(dy, shape(dy), shape(dy).as_dual())
-                dm = dy_dual * x  # outer product
-                raise NotImplementedError("Matrix adjoint not yet supported for dense matrices")
+                x_dual = rename_dims(x, primal, dual)
+                dm = -x_dual * dy  # outer product
+                dm = math.sum_(dm, non_instance(dm) - matrix.shape)
             else:
                 raise AssertionError
             return {'y': dy, 'matrix': dm}
