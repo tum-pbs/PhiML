@@ -1253,15 +1253,17 @@ def to_format(x: Tensor, format: str):
     """
     Converts a `Tensor` to the specified sparse format or to a dense tensor.
 
+    See Also:
+        `dense`, `sparse`, `to_coo`, `to_csr`, `to_csc`, `to_compact_rows`, `to_compact_cols`.
+
     Args:
         x: Sparse or dense `Tensor`
-        format: Target format. One of `'dense'`, `'coo'`, `'csr'`, or `'csc'`.
-            Additionally, `'sparse'` can be passed to convert dense matrices to a sparse format, decided based on the backend for `x`.
+        format: Target format. One of `('dense', 'sparse', 'coo', 'csr', 'csc', 'compact-rows', 'compact-cols')`.
 
     Returns:
         `Tensor` of the specified format.
     """
-    assert format in ('coo', 'csr', 'csc', 'dense', 'sparse', 'compact-rows', 'compact-cols'), f"Invalid format: '{format}'. Must be one of 'coo', 'csr', 'csc', 'dense'"
+    assert format in ('dense', 'sparse', 'coo', 'csr', 'csc', 'compact-rows', 'compact-cols'), f"Invalid format: '{format}'. Must be one of 'coo', 'csr', 'csc', 'dense'"
     if format == 'sparse':
         if is_sparse(x):
             return x
@@ -1307,6 +1309,25 @@ def to_format(x: Tensor, format: str):
         values = x[indices]
         coo = SparseCoordinateTensor(indices, values, x.shape, can_contain_double_entries=False, indices_sorted=False, indices_constant=x.default_backend.name == 'numpy')
         return to_format(coo, format)
+
+
+sparse = partial(to_format, format='sparse')
+sparse.__doc__ = "Converts `Tensor` to any sparse format, decided based on the backend for `x`. See `to_format()`"
+
+to_coo = partial(to_format, format='coo')
+to_coo.__doc__ = "Converts `Tensor` to sparse format. The tensor may have any shape. See `to_format()`"
+
+to_csr = partial(to_format, format='csr')
+to_csr.__doc__ = "Converts matrix (a `Tensor` with both primal and dual dims) to compressed sparse row format, i.e. using indices for dual and pointers for primal dims. See `to_format()`"
+
+to_csc = partial(to_format, format='csr')
+to_csc.__doc__ = "Converts matrix (a `Tensor` with both primal and dual dims) to compressed sparse column format, i.e. using indices for primal and pointers for dual dims. See `to_format()`"
+
+to_compact_rows = partial(to_format, format='compact-rows')
+to_compact_rows.__doc__ = "Converts matrix (a `Tensor` with both primal and dual dims) with fixed number of entries per column to compact format, i.e. compactifies the primal dims and keeps the dual dims. See `to_format()`"
+
+to_compact_cols = partial(to_format, format='compact-cols')
+to_compact_cols.__doc__ = "Converts matrix (a `Tensor` with both primal and dual dims) with fixed number of entries per row to compact format, i.e. compactifies the dual dims and keeps the primal dims. See `to_format()`"
 
 
 def compressed_to_compact(x: CompressedSparseMatrix, assume_const_entries: bool):
