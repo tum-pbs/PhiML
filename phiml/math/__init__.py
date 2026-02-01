@@ -41,7 +41,12 @@ from ._magic_ops import (
     b2i, c2b, c2d, i2b, s2b, si2d, p2d, d2i, d2s,
 )
 
-from ._sparse import dense, get_sparsity, get_format, to_format, is_sparse, sparse_tensor, stored_indices, stored_values, tensor_like, matrix_rank
+from ._sparse import (
+    is_sparse, get_sparsity, get_format, matrix_rank,
+    stored_indices, stored_values,
+    sparse_tensor, tensor_like,
+    to_format, dense, sparse, to_coo, to_csr, to_csc, to_compact_rows, to_compact_cols,
+)
 
 from .extrapolation import Extrapolation, as_extrapolation
 
