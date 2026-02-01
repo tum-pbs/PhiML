@@ -1013,8 +1013,9 @@ class TorchBackend(Backend):
     def jacobian(self, f, wrt: Union[tuple, list], get_output: bool, is_f_scalar: bool):
         @wraps(f)
         def eval_grad(*args):
-            args, wrt_args = self._prepare_graph_inputs(args, wrt)
-            loss, output = f(*args)
+            with torch.enable_grad():
+                args, wrt_args = self._prepare_graph_inputs(args, wrt)
+                loss, output = f(*args)
             if np.prod(self.staticshape(loss)) == 1:
                 assert loss.requires_grad, f"Failed to compute gradient because function output does not depend on any input. Inputs: {args}"
                 grads = torch.autograd.grad(loss, wrt_args)  # grad() cannot be called during jit trace
