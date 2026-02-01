@@ -2,6 +2,7 @@ import dataclasses
 import functools
 import math
 import warnings
+from functools import partial
 from numbers import Number
 from typing import Tuple, Callable, Any, Union, Optional, Dict, Collection, Sequence, Set
 
@@ -56,13 +57,13 @@ def convert(x, backend: Backend = None, use_dlpack=True):
         return b_convert(x, backend, use_dlpack=use_dlpack)
 
 
-def to_device(value, device: ComputeDevice or str, convert=True, use_dlpack=True):
+def to_device(value, device: Union[ComputeDevice, str], convert=True, use_dlpack=True):
     """
     Allocates the tensors of `value` on `device`.
     If the value already exists on that device, this function may either create a copy of `value` or return `value` directly.
 
     See Also:
-        `to_cpu()`.
+        `to_cpu()`, `to_gpu()`.
 
     Args:
         value: `Tensor` or `phiml.math.magic.PhiTreeNode` or native tensor.
@@ -80,7 +81,14 @@ def to_device(value, device: ComputeDevice or str, convert=True, use_dlpack=True
     return tree_map(_to_device, value, device=device, convert_to_backend=convert, use_dlpack=use_dlpack)
 
 
-def _to_device(value: Tensor or Any, device: ComputeDevice or str, convert_to_backend: bool, use_dlpack: bool):
+to_cpu = partial(to_device, device='CPU')
+to_cpu.__doc__ = "Allocate a `Tensor` or tree of tensors in sytem memory (CPU). All tensors retain their respective backend. See `to_device()`."
+
+to_gpu = partial(to_device, device='GPU')
+to_gpu.__doc__ = "Allocate a `Tensor` or tree of tensors on any visible GPU. All tensors retain their respective backend. See `to_device()`."
+
+
+def _to_device(value: Union[Tensor, Any], device: Union[ComputeDevice, str], convert_to_backend: bool, use_dlpack: bool):
     if isinstance(value, Tensor):
         if not convert and value.backend == NUMPY:
             return value
@@ -91,7 +99,10 @@ def _to_device(value: Tensor or Any, device: ComputeDevice or str, convert_to_ba
     else:
         old_backend = choose_backend(value)
         if isinstance(device, str):
-            device = old_backend.list_devices(device)[0]
+            devices = old_backend.list_devices(device)
+            if not devices:
+                raise RuntimeError(f"No visible {device} found")
+            device = devices[0]
         if old_backend != device.backend:
             if convert_to_backend:
                 value = b_convert(value, device.backend, use_dlpack=use_dlpack)
