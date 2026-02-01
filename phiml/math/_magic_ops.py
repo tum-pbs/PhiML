@@ -197,7 +197,7 @@ def stack(values: Union[Sequence[PhiTreeNodeType], Dict[str, PhiTreeNodeType]], 
             raise NotImplementedError
         if any(isinstance(v, (tuple, list, dict)) for v in values_):
             from ._tensors import wrap, layout
-            if all(np.asarray(v).dtype != object for v in values_):
+            if _is_data_array(values_):
                 tensors = [wrap(v) for v in values_]
                 return stack(tensors, dim)
             else:
@@ -854,3 +854,10 @@ def bool_to_int(x: MagicType, bits=32):
         return backend.cast(x, DType(int, bits)) if backend.dtype(x).kind == bool else x
     except NoBackendFound:
         raise ValueError(f"Cannot cast object of type '{type(x).__name__}'")
+
+
+def _is_data_array(sequence):
+    try:
+        all([np.asarray(v).dtype != object for v in sequence])
+    except ValueError:  # e.g. inhomogeneous
+        return False
