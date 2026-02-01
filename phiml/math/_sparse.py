@@ -280,6 +280,16 @@ class SparseCoordinateTensor(Tensor):
                 'indices_constant': self._indices_constant,
                 'matrix_rank': self._matrix_rank}
 
+    def _with_natives_replaced(self, natives: list):
+        if self._indices_constant:
+            values = self._values._with_natives_replaced(natives)
+            indices = self._indices
+        else:
+            n = len(self._values._natives())
+            values = self._values._with_natives_replaced(natives[:n])
+            indices = self._indices._with_natives_replaced(natives[n:])
+        return self._with_data(indices, values)
+
     @classmethod
     def _from_spec_and_natives(cls, spec: dict, natives: list):
         values = spec['values']['type']._from_spec_and_natives(spec['values'], natives)
@@ -647,6 +657,21 @@ class CompressedSparseMatrix(Tensor):
         else:
             return self._values._natives() + self._indices._natives() + self._pointers._natives()
 
+    def _with_natives_replaced(self, natives: list):
+        if self._indices_constant:
+            values = self._values._with_natives_replaced(natives)
+            indices = self._indices
+            pointers = self._pointers
+        else:
+            n = len(self._values._natives())
+            values = self._values._with_natives_replaced(natives[:n])
+            natives = natives[n:]
+            n = len(self._indices._natives())
+            indices = self._indices._with_natives_replaced(natives[:n])
+            natives = natives[n:]
+            pointers = self._pointers._with_natives_replaced(natives)
+        return self._with_data(indices, pointers, values)
+
     def _spec_dict(self) -> dict:
         return {'type': CompressedSparseMatrix,
                 'shape': self._shape,
@@ -1010,6 +1035,16 @@ class CompactSparseTensor(Tensor):
                 'values': self._values._spec_dict(),
                 'indices_constant': self._indices_constant,
                 'matrix_rank': self._matrix_rank}
+
+    def _with_natives_replaced(self, natives: list):
+        if self._indices_constant:
+            values = self._values._with_natives_replaced(natives)
+            indices = self._indices
+        else:
+            n = len(self._values._natives())
+            values = self._values._with_natives_replaced(natives[:n])
+            indices = self._indices._with_natives_replaced(natives[n:])
+        return self._with_data(indices, values)
 
     @classmethod
     def _from_spec_and_natives(cls, spec: dict, natives: list):
