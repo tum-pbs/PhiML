@@ -53,7 +53,7 @@ from .extrapolation import Extrapolation, as_extrapolation
 # from ._trace import Trace
 
 from ._ops import (
-    backend_for as choose_backend, all_available, convert, seed, to_device,
+    backend_for as choose_backend, all_available, convert, seed, to_device, to_cpu, to_gpu,
     reshaped_tensor, copy, native_call,
     print_ as print,
     slice_off,
