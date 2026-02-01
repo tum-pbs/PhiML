@@ -23,9 +23,9 @@ class Trace:
     tracers_by_name: Dict[str, 'Tracer'] = field(default_factory=dict)
     all_ops: List['TracedOp'] = field(default_factory=list)
 
-    def add_input(self, name: str, reference: Tensor):
+    def add_input(self, name: str, reference: Tensor, expand_shape=EMPTY_SHAPE):
         assert name not in self.tracers_by_name, f"Duplicate tracers with name '{name}'"
-        tracer = Tracer(self, reference.shape, reference.dtype, {}, None, name)
+        tracer = Tracer(self, reference.shape & expand_shape, reference.dtype, {}, None, name)
         self.all_tracers.append(tracer)
         self.tracers_by_name[name] = tracer
         return tracer
@@ -33,22 +33,25 @@ class Trace:
     def add_inputs(self, root: str, tree):
         return tree_map_with_paths(self.add_input, tree, root)
 
-    def add_input_d(self, name: str, shape: Shape, dtype: DType):
-        assert name not in self.tracers_by_name, f"Duplicate tracers with name {name}"
-        tracer = Tracer(self, shape, dtype, {}, None, name)
-        self.all_tracers.append(tracer)
-        self.tracers_by_name[name] = tracer
-        return tracer
+    # def add_input_d(self, name: str, shape: Shape, dtype: DType):
+    #     assert name not in self.tracers_by_name, f"Duplicate tracers with name {name}"
+    #     tracer = Tracer(self, shape, dtype, {}, None, name)
+    #     self.all_tracers.append(tracer)
+    #     self.tracers_by_name[name] = tracer
+    #     return tracer
 
-    def add_tracers_as_input(self, name: str, tracers: Any):
+    def add_tracers_as_input(self, name: str, tracers: Any, expand_shape=EMPTY_SHAPE, use_label=False):
         tree, t_list = disassemble_tree(tracers, False, all_attributes)
         paths = attr_paths(tracers, all_attributes, name)
         o_list = []
         for tracer, path in zip(t_list, paths):
-            o_list.append(self.add_input(path, tracer))
+            if use_label and tracer._op and tracer._op[0].label:
+                o_list.append(self.add_input(tracer._op[0].label, tracer, expand_shape))
+            else:
+                o_list.append(self.add_input(path, tracer, expand_shape))
         return assemble_tree(tree, o_list, all_attributes)
 
-    def add_op(self, op_type: str, name: str, args: tuple, kwargs: dict, req_dims: Shape, check_active=True) -> 'TracedOp':
+    def add_op(self, op_type: str, name: str, args: tuple, kwargs: dict, req_dims: Shape, check_active=True, label=None) -> 'TracedOp':
         if check_active:
             assert TRACES[-1] is self, f"Trying to add operator to non-active trace '{self}'. Active: '{TRACES[-1]}'"
         if self.merge_duplicates:
@@ -58,7 +61,7 @@ class Trace:
                         if op.args == args and op.kwargs == kwargs:
                             ML_LOGGER.debug(f"Merging duplicate ops {op.name} in {self.name}")
                             return op
-        op = TracedOp(self, op_type, name, args, kwargs, req_dims)
+        op = TracedOp(self, op_type, name, args, kwargs, req_dims, label=label)
         self.all_ops.append(op)
         return op
 
@@ -83,9 +86,9 @@ class TracedOp:
     name: str  # function name or operator name, e.g. 'mul'
     args: tuple
     kwargs: dict
-    # kwargs: Dict[str, Any]
     req_dims: Shape  # Dimensions that were not acting as batch for the computation of this `Tensor`. This can be any dims present in the sources.
     outputs: List['Tracer'] = field(default_factory=list)
+    label: Optional[str] = None  # custom name by which the result of this operation is known
 
     def add_output(self, shape: Shape, dtype: DType, renamed: Dict[str, str], out_index: int = None):
         out_int = 0 if out_index is None else out_index

@@ -4,7 +4,7 @@ from concurrent.futures import ProcessPoolExecutor
 from contextlib import nullcontext
 from dataclasses import dataclass
 from functools import cached_property, partial
-from typing import Callable, Sequence, Optional, Dict, Union, Any
+from typing import Callable, Sequence, Optional, Dict, Union, Any, Tuple
 
 import h5py
 import numpy as np
@@ -222,7 +222,7 @@ def recursive_add_node(obj, cls, name: str, prop: Optional, dims: Shape, nodes: 
         node = nodes[name] = PGraphNode(name, precomputed_value, EMPTY_SHAPE, None, True, set(), [], True, stage=-1)
         return node
     if needs_trace:
-        out, trace = trace_cached_property(obj, cls, name, prop, dims, {d.name: expand_tracers(d.out, d.distributed) for d in dependencies})
+        out, trace = trace_cached_property(obj, cls, name, prop, dims, {d.name: (d.out, d.distributed) for d in dependencies})
         if isinstance(prop, ParallelProperty):
             if prop.requires is MIXED:
                 last_node = split_mixed_prop(name, out, trace, dims, persistent, nodes)
@@ -256,68 +256,72 @@ def recursive_add_node(obj, cls, name: str, prop: Optional, dims: Shape, nodes: 
 ALL_UNKNOWN = batch('__b__') + dual('__d__') + instance('__i__') + spatial('__s__') + channel('__c__')
 
 
-def trace_cached_property(obj, cls, p_name: str, prop: cached_property, distributed: Shape, known_out: Dict[str, Tracer]):
+def trace_cached_property(obj, cls, p_name: str, prop: cached_property, distributed: Shape, known_out: Dict[str, Tuple[Tracer, Shape]]):
     trace = Trace(f"{cls.__name__}.{p_name}", shape(obj), distributed)
     traced = cls.__new__(cls)
     f_deps = field_deps(cls, prop)
     traced.__dict__.update({f.name: trace.add_inputs(f.name, getattr(obj, f.name)) for f in data_fields(obj) if f.name in f_deps})
-    traced.__dict__.update({name: trace.add_tracers_as_input(name, tracers) for name, tracers in known_out.items()})
-    try:
-        with trace:
+    for name, (tracers, distributed) in known_out.items():
+        new_tracers = trace.add_tracers_as_input(name, tracers, distributed, use_label=True)
+        traced.__dict__[name] = new_tracers
+    with trace:
+        try:
             trace_out = prop.func(traced)
-        return trace_out, trace
-    except Exception as exc:
-        raise exc
-        out_tracer = Tracer(trace, distributed + ALL_UNKNOWN, FLOAT32, {}, EMPTY_SHAPE, None)
-        ML_LOGGER.warning(f"Failed to trace property {cls.__name__}.{p_name}: {type(exc)} {exc}. Assuming default shape {out_tracer.shape}")
-        return out_tracer, trace
+            return trace_out, trace
+        except Exception as exc:
+            raise exc
+            out_tracer = Tracer(trace, distributed + ALL_UNKNOWN, FLOAT32, {}, EMPTY_SHAPE, None)
+            ML_LOGGER.warning(f"Failed to trace property {cls.__name__}.{p_name}: {type(exc)} {exc}. Assuming default shape {out_tracer.shape}")
+            return out_tracer, trace
 
 
 def split_mixed_prop(name: str, out: Any, trace: Trace, parallel_dims: Shape, persistent: bool, nodes: Dict[str, PGraphNode]):
     if len(trace.all_ops) == 0:
         return NotImplemented
-    op_names = {op: f"{name}_{i}_{op.name}" for i, op in enumerate(trace.all_ops)}
+    for i, op in enumerate(trace.all_ops):
+        op.label = f"{name}_{i}_{op.name}"
     if isinstance(out, Tracer):
-        op_names[out._op[0]] = name
+        out._op[0].label = name
     else:  # add assemble operation
         out_tree, all_out_tensors = disassemble_tree(out, False, all_attributes)
-        op = trace.add_op('special', 'assemble_tree', (out_tree, all_out_tensors, all_attributes), {}, EMPTY_SHAPE, check_active=False)
-        op_names[op] = name
-    ML_LOGGER.debug(f"Splitting {name} into {list(op_names.values())}")
-    for op, op_name in op_names.items():
+        trace.add_op('special', 'assemble_tree', (out_tree, all_out_tensors, all_attributes), {}, EMPTY_SHAPE, check_active=False, label=name)
+    ML_LOGGER.debug(f"Splitting {name} into {[op.label for op in trace.all_ops]}")
+    for op in trace.all_ops:
         distributed = parallel_dims.only(op.input_shape) - op.req_dims
+        # --- Gather dependencies ---
         in_tracers = op.input_tracers
         ext_dep_tracers = [t for t in in_tracers if t._op is None]
-        ext_deps = [nodes[t._name] for t in ext_dep_tracers if t._name in nodes]
+        ext_deps = {nodes[t._name]: t for t in ext_dep_tracers if t._name in nodes}
         ext_fields = {t: t._name for t in ext_dep_tracers if t._name not in nodes}
         ext_field_base = {v.split('[', 1)[0].split('.', 1)[0] for v in ext_fields.values()}
         int_dep_tracers = [t for t in in_tracers if t._op is not None]
-        int_deps = [nodes[op_names[t._op[0]]] for t in int_dep_tracers]
-        # --- Python code ---
+        int_deps = [nodes[t._op[0].label] for t in int_dep_tracers]
+        # --- Python code (print only) ---
         dep_expr = {}
-        for tracer, node in zip(ext_dep_tracers, ext_deps):
+        for node, tracer in ext_deps.items():
             dep_expr[tracer] = f"self.{node.name}"
         for tracer in int_dep_tracers:
-            dep_expr[tracer] = f"self.{op_names[tracer._op[0]]}[{tracer._op[1]}]" if tracer._op[1] is not None else f"self.{op_names[tracer._op[0]]}"
+            dep_expr[tracer] = f"self.{tracer._op[0].label}[{tracer._op[1]}]" if tracer._op[1] is not None else f"self.{tracer._op[0].label}"
         for tracer, dep_field in ext_fields.items():
             dep_expr[tracer] = f"self.{dep_field}"
         code = f"""
 @parallel_property(requires='{','.join(parallel_dims.only(op.req_dims).names)}')
-def {op_name}(self):
+def {op.label}(self):
     {op.python_imports}
     return {op.python_expression(dep_expr)}
 """
         ML_LOGGER.debug(code)
-        op_trace = Trace(op_name, ..., distributed)
+        # --- Create Program & Node ---
+        op_trace = Trace(op.label, ..., distributed)
         replacement = {}
         for t in in_tracers:
             replacement[t] = op_trace.add_input(dep_expr[t][5:], t)
         single_op = op.replace_input_tracers(op_trace, replacement)
         program = TraceProgram(single_op)
-        is_output_node = op.name == 'assemble_tree' or (isinstance(out, Tracer) and op_name == name)
+        is_output_node = op.name == 'assemble_tree' or (isinstance(out, Tracer) and op.label == name)
         out_tracers = out if is_output_node else op.outputs
-        node = PGraphNode(op_name, out_tracers, distributed, program, persistent and is_output_node, ext_field_base, ext_deps + int_deps)
-        nodes[op_name] = node
+        node = PGraphNode(op.label, out_tracers, distributed, program, persistent and is_output_node, ext_field_base, list(ext_deps) + int_deps)
+        nodes[op.label] = node
         for dep in node.dependencies:
             dep.users.append(node)
     return node
