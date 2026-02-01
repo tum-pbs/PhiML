@@ -888,8 +888,8 @@ class CompressedSparseMatrix(Tensor):
             indices = reshaped_tensor(native_indices, [ind_batch, instance(self._indices), stack_dim.with_size(labels)], convert=False)
             return indices
         else:
-            rows = reshaped_tensor(native_indices[..., 0], [ind_batch, instance(self._indices)], convert=False)
-            cols = reshaped_tensor(native_indices[..., 1], [ind_batch, instance(self._indices)], convert=False)
+            rows = reshaped_tensor(native_indices[..., 0], [ind_batch, instance(self._indices)], convert=False)  # converted from pointer
+            cols = reshaped_tensor(native_indices[..., 1], [ind_batch, instance(self._indices)], convert=False)  # same as native_indices
             return rows, cols
 
     def decompress(self):
@@ -1284,9 +1284,9 @@ def to_format(x: Tensor, format: str):
         if format == 'coo':
             return x.decompress()
         elif format == 'compact-cols' and get_format(x) == 'csr':
-            return compressed_to_compact(x)
+            return compressed_to_compact(x, False)
         elif format == 'compact-rows' and get_format(x) == 'csc':
-            return compressed_to_compact(x)
+            return compressed_to_compact(x, False)
         else:
             return to_format(x.decompress(), format)
     elif isinstance(x, CompactSparseTensor):
@@ -1309,10 +1309,30 @@ def to_format(x: Tensor, format: str):
         return to_format(coo, format)
 
 
-def compressed_to_compact(x: CompressedSparseMatrix):
-    entries_per_row = instance(x._indices).size // x._compressed_dims.volume
-    indices = unpack_dim(x._indices, instance, x._compressed_dims, x._uncompressed_dims.with_size(entries_per_row))
-    values = unpack_dim(x._values, instance, x._compressed_dims, x._uncompressed_dims.with_size(entries_per_row))
+def compressed_to_compact(x: CompressedSparseMatrix, assume_const_entries: bool):
+    total_entries = instance(x._indices).size
+    lines = x._compressed_dims.volume
+    if assume_const_entries:
+        assert total_entries % lines == 0, f"Incorrect assumption: constant number of entries per line. {total_entries} total entries for {lines} lines. While compactifying {x}"
+        max_entries_per_row = total_entries // lines
+        zero_pad = False
+    else:
+        entries_per_row = x._pointers[1:] - x._pointers[:-1]
+        max_entries_per_row = entries_per_row.max
+        zero_pad = entries_per_row.min != max_entries_per_row
+    compact_dim = x._uncompressed_dims.with_size(max_entries_per_row)
+    if zero_pad:
+        from ._ops import zeros, arange, cast, scatter
+        ptr_idx, _ = x._coo_indices(invalid='discard')
+        mapped_idx = cast(arange(instance(x._indices)), x._indices.dtype) - x._pointers[ptr_idx]
+        scatter_indices = stack({x._compressed_dims.name: ptr_idx, compact_dim.name: mapped_idx}, 'index:c')
+        indices = zeros(x._compressed_dims & compact_dim, dtype=x._indices.dtype)
+        indices = scatter(indices, scatter_indices, x._indices)
+        values = zeros(x._compressed_dims & compact_dim & (x._values.shape - instance))
+        values = scatter(values, scatter_indices, x._values)
+    else:
+        indices = unpack_dim(x._indices, instance, x._compressed_dims, compact_dim)
+        values = unpack_dim(x._values, instance, x._compressed_dims, compact_dim)
     return CompactSparseTensor(indices, values, x._uncompressed_dims, x._indices_constant, x._matrix_rank)
 
 

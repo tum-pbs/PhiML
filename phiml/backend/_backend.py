@@ -1405,7 +1405,7 @@ class Backend:
             row_pointers: (batch, rows + 1)
 
         Returns:
-            indices: (batch, nnz, 2)
+            indices: (batch, nnz, 2) where the first component is the row index and the second the column index
         """
         batch_size, index_count = self.staticshape(column_indices)
         repeats = row_pointers[:, 1:] - row_pointers[:, :-1]
