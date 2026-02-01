@@ -183,3 +183,6 @@ from os import (
 for name in dir(impl):
     if name not in globals():
         globals()[name] = getattr(impl, name)
+
+# --- Others ---
+from builtins import OSError
