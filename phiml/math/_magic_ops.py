@@ -200,6 +200,10 @@ def stack(values: Union[Sequence[PhiTreeNodeType], Dict[str, PhiTreeNodeType]], 
             if _is_data_array(values_):
                 tensors = [wrap(v) for v in values_]
                 return stack(tensors, dim)
+            elif all(isinstance(v, (tuple, list, dict)) for v in values_) and _contains_tensor(values_):
+                if all(isinstance(v, (tuple, list)) for v in values_):
+                    return [stack([v[i] for v in values_], dim, expand_values=expand_values, simplify=simplify, layout_non_matching=layout_non_matching, **kwargs) for i in range(len(values_[0]))]
+                # the case of dicts is handled above
             else:
                 assert len(dim) == 1, f"Cannot stack values with nested tuples, lists or dicts along multiple dimensions {dim}"
                 return layout(values_, dim)
@@ -861,3 +865,9 @@ def _is_data_array(sequence):
         all([np.asarray(v).dtype != object for v in sequence])
     except ValueError:  # e.g. inhomogeneous
         return False
+
+
+def _contains_tensor(obj, include_layout=True):
+    tensors = []
+    tree_map(lambda t: tensors.append(t), obj, all_attributes, treat_layout_as_leaf=include_layout)
+    return bool(tensors)
