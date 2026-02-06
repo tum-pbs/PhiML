@@ -168,7 +168,8 @@ class ShiftLinTracer(Tensor):
         return ShiftLinTracer(self._source, val, new_shape, bias, self._renamed, nz_edge)
 
     def _unstack(self, dimension):
-        raise NotImplementedError()
+        dim = self.shape[dimension]
+        return tuple([self[{dimension: i}] for i in range(dim.size)])
 
     def __neg__(self):
         return ShiftLinTracer(self._source, {shift: -values for shift, values in self.val.items()}, self._shape, -self._bias, self._renamed, self._nz_edge)
@@ -193,6 +194,8 @@ class ShiftLinTracer(Tensor):
 
     def _op2(self, other, op: Callable, switch_args: bool) -> 'Tensor':
         if is_sparse(other):
+            return NotImplemented
+        if isinstance(other, TensorStack):
             return NotImplemented
         if isinstance(other, SparseLinTracer):
             return to_sparse_tracer(self, other)._op2(other, op, switch_args)
