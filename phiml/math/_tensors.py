@@ -1400,6 +1400,9 @@ class TensorStack(Tensor):
         else:
             return self._contiguous()._op1(native_function, op_name)
 
+    def __neg__(self):
+        return TensorStack([-t for t in self._tensors], self._stack_dim)
+
     def _op2(self, other, op, switch_args):
         other = self._tensor(other)
         if self.requires_broadcast:
