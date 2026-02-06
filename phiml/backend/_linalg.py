@@ -381,7 +381,9 @@ def scipy_iterative_sparse_solve(b: Backend, lin, y, x0, rtol, atol, max_iter, p
     for bi in range(batch_size):
         lin_b = lin[min(bi, len(lin) - 1)] if isinstance(lin, (tuple, list)) or (isinstance(lin, np.ndarray) and len(lin.shape) > 2) else lin
         pre_op = LinearOperator(shape=lin_b.shape, matvec=pre.apply, rmatvec=pre.apply_transposed) if isinstance(pre, Preconditioner) else None
-        lin_b = LinearOperator(shape=y[bi].shape + x0[bi].shape, matvec=lin_b) if callable(lin_b) else lin_b
+        if callable(lin_b):
+            lin_fun_b = lin_b
+            lin_b = LinearOperator(shape=y[bi].shape + x0[bi].shape, matvec=lin_fun_b, matmat=lambda x: lin_fun_b(x, is_trajectory=True))
         if scipy_function == scipy.sparse.linalg.lsqr:
             assert not callable(lin_b), f"lsqr solver requires an explicit matrix not a function. Use @jit_compile_linear to auto-generate a matrix from the linear function."  # or rmatvec
             assert b.all(atol == 0), f"scipy sparse lsqr does not support absolute tolerance. Please set it to 0."

@@ -682,17 +682,24 @@ def solve_linear(f: Union[Callable[[X], Y], Tensor],
             # active_dims = (y_tensor.shape & x0_tensor.shape).non_batch  # assumes batch dimensions are not active
             batches = (y_tensor.shape & x0_tensor.shape).batch
 
-            def native_lin_f(native_x, batch_index=None):
+            def native_lin_f(native_x, batch_index=None, is_trajectory=False):
                 assert not solve.rank_deficiency  # ToDo add and remove zeros around function call
                 if batch_index is not None and batches.volume > 1:
                     native_x = backend.tile(backend.expand_dims(native_x), [batches.volume, 1])
-                x = assemble_tree(x0_nest, [reshaped_tensor(native_x, [batches, non_batch(x0_tensor)] if backend.ndims(native_x) >= 2 else [non_batch(x0_tensor)], convert=False)], attr_type=variable_attributes)
+                if is_trajectory:
+                    x_tensor = reshaped_tensor(native_x, [non_batch(x0_tensor), batch('trajectory') + batches])
+                else:
+                    x_tensor = reshaped_tensor(native_x, [batches, non_batch(x0_tensor)] if backend.ndims(native_x) >= 2 else [non_batch(x0_tensor)], convert=False)
+                x = assemble_tree(x0_nest, [x_tensor], attr_type=variable_attributes)
                 y_ = f(x, *f_args, **f_kwargs)
                 _, (y_tensor_,) = disassemble_tree(y_, cache=False, attr_type=value_attributes)
                 assert set(non_batch(y_tensor_)) == set(non_batch(y_tensor)), f"Function returned dimensions {y_tensor_.shape} but right-hand-side has shape {y_tensor.shape}"
-                y_native = y_tensor_.native([batches, non_batch(y_tensor)] if backend.ndims(native_x) >= 2 else [non_batch(y_tensor)])  # order like right-hand-side
-                if batch_index is not None and batches.volume > 1:
-                    y_native = y_native[batch_index]
+                if is_trajectory:
+                    y_native = y_tensor_.native([non_batch(y_tensor), batch(x_tensor)])
+                else:
+                    y_native = y_tensor_.native([batches, non_batch(y_tensor)] if backend.ndims(native_x) >= 2 else [non_batch(y_tensor)])  # order like right-hand-side
+                    if batch_index is not None and batches.volume > 1:
+                        y_native = y_native[batch_index]
                 return y_native
 
             result = _linear_solve_forward(y, solve, native_lin_f, pattern_dims_in=non_batch(x0_tensor).names, pattern_dims_out=non_batch(y_tensor).names, preconditioner=None, backend=backend, is_backprop=is_backprop)
