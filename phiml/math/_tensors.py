@@ -1669,7 +1669,7 @@ def custom_op2(x: Union[Tensor, float], y: Union[Tensor, float], op: Callable, s
         result = x._op2(y, op, False)
         if result is not NotImplemented:
             return result
-    elif isinstance(y, Tensor):
+    if isinstance(y, Tensor):
         result = y._op2(x, op, True)
         if result is not NotImplemented:
             return result
