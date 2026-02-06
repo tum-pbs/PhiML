@@ -724,7 +724,7 @@ def jacobian(f: Callable, wrt: str = None, get_output=True) -> Callable:
     return GradientFunction(f, f_params, wrt, get_output, is_f_scalar=False)
 
 
-def gradient(f: Callable, wrt: str = None, get_output=True) -> Callable:
+def gradient(f: Callable, wrt: Union[str, int, tuple, list] = None, get_output=True) -> Callable:
     """
     Creates a function which computes the gradient of `f`.
 
