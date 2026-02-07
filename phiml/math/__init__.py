@@ -42,13 +42,15 @@ from ._magic_ops import (
 )
 
 from ._sparse import (
-    is_sparse, get_sparsity, get_format, matrix_rank,
+    is_sparse, get_sparsity, get_format,
     stored_indices, stored_values,
     sparse_tensor, tensor_like,
     to_format, dense, sparse, to_coo, to_csr, to_csc, to_compact_rows, to_compact_cols,
 )
 
 from .extrapolation import Extrapolation, as_extrapolation
+
+from ._matrix import matrix_rank
 
 # from ._trace import Trace
 

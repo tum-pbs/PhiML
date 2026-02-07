@@ -15,7 +15,7 @@ from ._tensors import Tensor, disassemble_tensors, assemble_tensors, wrap, specs
 from ._tree import disassemble_tree, assemble_tree, variable_attributes, NATIVE_TENSOR, object_dims, slice_, find_differences
 from ._magic_ops import stack, rename_dims, all_attributes
 from ._sparse import SparseCoordinateTensor, is_sparse
-from ._lin_trace import ShiftLinTracer, matrix_from_function, LinearTraceInProgress
+from ._lin_trace import LinearTraceInProgress, trace_linear, matrix_and_bias_from_tracer, LinTracer
 from .magic import PhiTreeNode, Shapable
 from ..backend import Backend
 from ..backend._backend import get_spatial_derivative_order, functional_derivative_evaluation, ML_LOGGER
@@ -433,7 +433,8 @@ class LinearFunction(Generic[X, Y], Callable[[X], Y]):
                 self.matrices_and_biases.clear()
             _TRACING_LINEAR.append(self)
             try:
-                matrix, bias, raw_out = matrix_from_function(self.f, *args, **f_kwargs, auto_compress=True, _return_raw_output=True)
+                raw_out = trace_linear(self.f, *args, **f_kwargs)
+                matrix, bias = matrix_and_bias_from_tracer(raw_out[1], auto_compress=True)
             finally:
                 assert _TRACING_LINEAR.pop(-1) is self
             if not key.tracing:
@@ -452,7 +453,7 @@ Multiple linear traces can be avoided by jit-compiling the code that calls the l
         except LinearTraceInProgress:
             return self.f(*args, **kwargs)
         assert tensors, "Linear function requires at least one argument"
-        if any(isinstance(t, ShiftLinTracer) for t in tensors):
+        if any(isinstance(t, LinTracer) for t in tensors):
             # TODO: if t is identity, use cached ShiftLinTracer, otherwise multiply two ShiftLinTracers
             return self.f(*args, **kwargs)
         if not key.backend.supports(Backend.sparse_coo_tensor):  # This might be called inside a Jax linear solve
