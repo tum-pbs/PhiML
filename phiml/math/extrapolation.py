@@ -104,10 +104,8 @@ class Extrapolation:
         Returns:
             Padded `Tensor`
         """
-        from ._lin_trace import ShiftLinTracer
-        if isinstance(value, ShiftLinTracer):
-            lower = {dim: -lo for dim, (lo, _) in widths.items()}
-            return value.shift(lower, new_shape=after_pad(value.shape, widths), val_fun=lambda v: ZERO.pad(v, widths, already_padded=already_padded, **kwargs), bias_fun=lambda b: self.pad(b, widths, already_padded=already_padded, **kwargs), nonzero_edge=False)
+        if value._is_tracer:
+            return value._pad(self, widths, already_padded, **kwargs)
         already_padded = {} if already_padded is None else dict(already_padded)
         for dim, width in widths.items():
             assert (w > 0 for w in width), "Negative widths not allowed in Extrapolation.pad(). Use math.pad() instead."
@@ -461,7 +459,6 @@ class _CopyExtrapolation(Extrapolation, ABC):
 
     def pad(self, value: Tensor, widths: dict, already_padded: Optional[dict] = None, **kwargs) -> Tensor:
         value = value._simplify()
-        from ._lin_trace import ShiftLinTracer
         if isinstance(value, Dense):
             if not self._is_dim_separable:
                 required_dims = value._shape.only(tuple(widths.keys()))
@@ -481,13 +478,10 @@ class _CopyExtrapolation(Extrapolation, ABC):
             inner_widths = {dim: w for dim, w in widths.items() if dim != value._stack_dim.name}
             tensors = [self.pad(t, inner_widths) for t in value.dimension(value._stack_dim.name)]
             return TensorStack(tensors, value._stack_dim)
-        elif isinstance(value, ShiftLinTracer):
-            return self._pad_linear_tracer(value, widths)
+        elif value._is_tracer:
+            return value._pad(self, widths, already_padded, **kwargs)
         else:
             raise NotImplementedError(f'{type(value)} not supported')
-
-    def _pad_linear_tracer(self, value, widths: dict):
-        raise NotImplementedError(self.__class__)
 
     def __eq__(self, other):
         return type(other) == type(self)
@@ -572,36 +566,6 @@ class _ZeroGradient(_CopyExtrapolation):
             edge = value[{dim: slice(1)}]
         return concat([edge] * width, value.shape[dim])
 
-    def _pad_linear_tracer(self, value: 'ShiftLinTracer', widths: dict) -> 'ShiftLinTracer':
-        """
-        *Warning*:
-        This implementation discards corners, i.e. values that lie outside the original tensor in more than one dimension.
-        These are typically sliced off in differential operators. Corners are instead assigned the value 0.
-        To take corners into account, call pad() for each axis individually. This is inefficient with ShiftLinTracer.
-
-        Args:
-          value: ShiftLinTracer:
-          widths: dict: 
-
-        Returns:
-
-        """
-        lower = {dim: -lo for dim, (lo, _) in widths.items()}
-        result = value.shift(lower, new_shape=after_pad(value.shape, widths), val_fun=lambda v: ZERO.pad(v, widths), bias_fun=lambda b: ZERO.pad(b, widths))  # inner values  ~half the computation time
-        for bound_dim, (bound_lo, bound_hi) in widths.items():
-            for i in range(bound_lo):  # i=0 means outer
-                # this sets corners to 0
-                lower = {dim: -i if dim == bound_dim else -lo for dim, (lo, _) in widths.items()}
-                mask = self._lower_mask(value.shape.only(tuple(lower)), widths, bound_dim, bound_lo, bound_hi, i)
-                boundary = value.shift(lower, new_shape=result.shape, val_fun=lambda v: self.pad(v, widths) * mask, bias_fun=lambda b: ZERO.pad(b, widths))
-                result += boundary
-            for i in range(bound_hi):
-                lower = {dim: i - lo - hi if dim == bound_dim else -lo for dim, (lo, hi) in widths.items()}
-                mask = self._upper_mask(value.shape.only(tuple(lower)), widths, bound_dim, bound_lo, bound_hi, i)
-                boundary = value.shift(lower, new_shape=result.shape, val_fun=lambda v: self.pad(v, widths) * mask, bias_fun=lambda b: ZERO.pad(b, widths))  # ~ half the computation time
-                result += boundary  # this does basically nothing if value is the identity
-        return result
-
     def _lower_mask(self, shape, widths, bound_dim, bound_lo, bound_hi, i):
         # key = (shape, tuple(widths.keys()), tuple(widths.values()), bound_dim, bound_lo, bound_hi, i)
         # if key in _BoundaryExtrapolation._CACHED_LOWER_MASKS:
@@ -674,14 +638,6 @@ class _PeriodicExtrapolation(_CopyExtrapolation):
         else:
             return value[{dim: slice(-width, None)}]
 
-    def _pad_linear_tracer(self, value: 'ShiftLinTracer', widths: dict) -> 'ShiftLinTracer':
-        value_sizes = [value.shape.get_size(n) for n in widths]
-        source_sizes = [value._source.shape.get_size(n) for n in widths]
-        if value_sizes != source_sizes:
-            raise NotImplementedError("Periodicity does not match input: %s but input has %s. This can happen when padding an already padded or sliced tensor." % (value.shape.only(tuple(widths)), value._source.shape.only(tuple(widths))))
-        lower = {dim: -lo for dim, (lo, _) in widths.items()}
-        return value.shift(lower, new_shape=after_pad(value.shape, widths), val_fun=lambda v: self.pad(v, widths), bias_fun=lambda b: ZERO.pad(b, widths))
-
     def shortest_distance(self, start: Tensor, end: Tensor, domain_size: Tensor):
         dx = end - start
         return (dx + domain_size / 2) % domain_size - domain_size / 2
@@ -713,36 +669,6 @@ class _SymmetricExtrapolation(_CopyExtrapolation):
         else:
             return value[{dim: slice(width-1, None, -1)}]
 
-    def _pad_linear_tracer(self, value: 'ShiftLinTracer', widths: dict) -> 'ShiftLinTracer':
-        """
-        *Warning*:
-        This implementation discards corners, i.e. values that lie outside the original tensor in more than one dimension.
-        These are typically sliced off in differential operators. Corners are instead assigned the value 0.
-        To take corners into account, call pad() for each axis individually. This is inefficient with ShiftLinTracer.
-
-        Args:
-          value: ShiftLinTracer:
-          widths: dict:
-
-        Returns:
-
-        """
-        lower = {dim: -lo for dim, (lo, _) in widths.items()}
-        result = value.shift(lower, new_shape=after_pad(value.shape, widths), val_fun=lambda v: ZERO.pad(v, widths), bias_fun=lambda b: ZERO.pad(b, widths))  # inner values  ~half the computation time
-        for bound_dim, (bound_lo, bound_hi) in widths.items():
-            for i in range(bound_lo):  # i=0 means outer
-                # this sets corners to 0
-                lower = {dim: bound_lo-1-2*i if dim == bound_dim else -lo for dim, (lo, _) in widths.items()}
-                mask = self._lower_mask(value.shape.only(result.dependent_dims), widths, bound_dim, bound_lo, bound_hi, i)
-                boundary = value.shift(lower, new_shape=result.shape, val_fun=lambda v: self.pad(v, widths) * mask, bias_fun=lambda b: ZERO.pad(b, widths))
-                result += boundary
-            for i in range(bound_hi):
-                lower = {dim: -(bound_hi-1-2*i) - bound_lo - bound_hi if dim == bound_dim else -lo for dim, (lo, hi) in widths.items()}
-                mask = self._upper_mask(value.shape.only(result.dependent_dims), widths, bound_dim, bound_lo, bound_hi, i)
-                boundary = value.shift(lower, new_shape=result.shape, val_fun=lambda v: self.pad(v, widths) * mask, bias_fun=lambda b: ZERO.pad(b, widths))  # ~ half the computation time
-                result += boundary  # this does basically nothing if value is the identity
-        return result
-
     def _lower_mask(self, shape, widths, bound_dim, bound_lo, bound_hi, i):
         mask = ZERO.pad(math.zeros(shape), {bound_dim: (bound_lo - i - 1, 0)})
         mask = ONE.pad(mask, {bound_dim: (1, 0)})
@@ -767,36 +693,6 @@ class _AntiSymmetricExtrapolation(_SymmetricExtrapolation):
 
     def pad_values(self, *args, **kwargs) -> Tensor:
         return -super().pad_values(*args, **kwargs)
-
-    def _pad_linear_tracer(self, value: 'ShiftLinTracer', widths: dict) -> 'ShiftLinTracer':
-        """
-        *Warning*:
-        This implementation discards corners, i.e. values that lie outside the original tensor in more than one dimension.
-        These are typically sliced off in differential operators. Corners are instead assigned the value 0.
-        To take corners into account, call pad() for each axis individually. This is inefficient with ShiftLinTracer.
-
-        Args:
-          value: ShiftLinTracer:
-          widths: dict:
-
-        Returns:
-
-        """
-        lower = {dim: -lo for dim, (lo, _) in widths.items()}
-        result = value.shift(lower, new_shape=after_pad(value.shape, widths), val_fun=lambda v: ZERO.pad(v, widths), bias_fun=lambda b: ZERO.pad(b, widths))  # inner values  ~half the computation time
-        for bound_dim, (bound_lo, bound_hi) in widths.items():
-            for i in range(bound_lo):  # i=0 means outer
-                # this sets corners to 0
-                lower = {dim: bound_lo-1-2*i if dim == bound_dim else -lo for dim, (lo, _) in widths.items()}
-                mask = self._lower_mask(value.shape.only(result.dependent_dims), widths, bound_dim, bound_lo, bound_hi, i)
-                boundary = value.shift(lower, new_shape=result.shape, val_fun=lambda v: self.pad(v, widths) * mask, bias_fun=lambda b: ZERO.pad(b, widths))
-                result -= boundary
-            for i in range(bound_hi):
-                lower = {dim: -(bound_hi-1-2*i) - bound_lo - bound_hi if dim == bound_dim else -lo for dim, (lo, hi) in widths.items()}
-                mask = self._upper_mask(value.shape.only(result.dependent_dims), widths, bound_dim, bound_lo, bound_hi, i)
-                boundary = value.shift(lower, new_shape=result.shape, val_fun=lambda v: self.pad(v, widths) * mask, bias_fun=lambda b: ZERO.pad(b, widths))  # ~ half the computation time
-                result -= boundary  # this does basically nothing if value is the identity
-        return result
 
     def sparse_pad_values(self, value: Tensor, connectivity: Tensor, dim: str, **kwargs) -> Tensor:
         raise NotImplementedError
@@ -825,36 +721,6 @@ class _ReflectExtrapolation(_CopyExtrapolation):
         coordinates = coordinates % (2 * shape - 2)
         return (shape - 1) - math.abs_((shape - 1) - coordinates)
 
-    def _pad_linear_tracer(self, value: 'ShiftLinTracer', widths: dict) -> 'ShiftLinTracer':
-        """
-        *Warning*:
-        This implementation discards corners, i.e. values that lie outside the original tensor in more than one dimension.
-        These are typically sliced off in differential operators. Corners are instead assigned the value 0.
-        To take corners into account, call pad() for each axis individually. This is inefficient with ShiftLinTracer.
-
-        Args:
-          value: ShiftLinTracer:
-          widths: dict:
-
-        Returns:
-
-        """
-        lower = {dim: -lo for dim, (lo, _) in widths.items()}
-        result = value.shift(lower, new_shape=after_pad(value.shape, widths), val_fun=lambda v: ZERO.pad(v, widths), bias_fun=lambda b: ZERO.pad(b, widths))  # inner values  ~half the computation time
-        for bound_dim, (bound_lo, bound_hi) in widths.items():
-            for i in range(bound_lo):  # i=0 means outer
-                # this sets corners to 0
-                lower = {dim: bound_lo-2*i if dim == bound_dim else -lo for dim, (lo, _) in widths.items()}
-                mask = self._lower_mask(value.shape.only(result.dependent_dims), widths, bound_dim, bound_lo, bound_hi, i)
-                boundary = value.shift(lower, new_shape=result.shape, val_fun=lambda v: self.pad(v, widths) * mask, bias_fun=lambda b: ZERO.pad(b, widths))
-                result += boundary
-            for i in range(bound_hi):
-                lower = {dim: -(bound_hi-2*i) - bound_lo - bound_hi if dim == bound_dim else -lo for dim, (lo, hi) in widths.items()}
-                mask = self._upper_mask(value.shape.only(result.dependent_dims), widths, bound_dim, bound_lo, bound_hi, i)
-                boundary = value.shift(lower, new_shape=result.shape, val_fun=lambda v: self.pad(v, widths) * mask, bias_fun=lambda b: ZERO.pad(b, widths))  # ~ half the computation time
-                result += boundary  # this does basically nothing if value is the identity
-        return result
-
     def _lower_mask(self, shape, widths, bound_dim, bound_lo, bound_hi, i):
         mask = ZERO.pad(math.zeros(shape), {bound_dim: (bound_lo - i - 1, 0)})
         mask = ONE.pad(mask, {bound_dim: (1, 0)})
@@ -879,36 +745,6 @@ class _AntiReflectExtrapolation(_ReflectExtrapolation):
 
     def pad_values(self, *args, **kwargs) -> Tensor:
         return -super().pad_values(*args, **kwargs)
-
-    def _pad_linear_tracer(self, value: 'ShiftLinTracer', widths: dict) -> 'ShiftLinTracer':
-        """
-        *Warning*:
-        This implementation discards corners, i.e. values that lie outside the original tensor in more than one dimension.
-        These are typically sliced off in differential operators. Corners are instead assigned the value 0.
-        To take corners into account, call pad() for each axis individually. This is inefficient with ShiftLinTracer.
-
-        Args:
-          value: ShiftLinTracer:
-          widths: dict:
-
-        Returns:
-
-        """
-        lower = {dim: -lo for dim, (lo, _) in widths.items()}
-        result = value.shift(lower, new_shape=after_pad(value.shape, widths), val_fun=lambda v: ZERO.pad(v, widths), bias_fun=lambda b: ZERO.pad(b, widths))  # inner values  ~half the computation time
-        for bound_dim, (bound_lo, bound_hi) in widths.items():
-            for i in range(bound_lo):  # i=0 means outer
-                # this sets corners to 0
-                lower = {dim: bound_lo-2*i if dim == bound_dim else -lo for dim, (lo, _) in widths.items()}
-                mask = self._lower_mask(value.shape.only(result.dependent_dims), widths, bound_dim, bound_lo, bound_hi, i)
-                boundary = value.shift(lower, new_shape=result.shape, val_fun=lambda v: self.pad(v, widths) * mask, bias_fun=lambda b: ZERO.pad(b, widths))
-                result -= boundary
-            for i in range(bound_hi):
-                lower = {dim: -(bound_hi-2*i) - bound_lo - bound_hi if dim == bound_dim else -lo for dim, (lo, hi) in widths.items()}
-                mask = self._upper_mask(value.shape.only(result.dependent_dims), widths, bound_dim, bound_lo, bound_hi, i)
-                boundary = value.shift(lower, new_shape=result.shape, val_fun=lambda v: self.pad(v, widths) * mask, bias_fun=lambda b: ZERO.pad(b, widths))  # ~ half the computation time
-                result -= boundary  # this does basically nothing if value is the identity
-        return result
 
     def sparse_pad_values(self, value: Tensor, connectivity: Tensor, dim: str, **kwargs) -> Tensor:
         raise NotImplementedError
@@ -1583,13 +1419,12 @@ class _ConditionalExtrapolation(Extrapolation):
         return math.where(mask, p_true, p_false)
 
     def pad(self, value: Tensor, widths: dict, already_padded: Optional[dict] = None, **kwargs) -> Tensor:
-        from ._lin_trace import ShiftLinTracer
-        if isinstance(value, ShiftLinTracer):
+        if value._is_tracer:
             mask = self.mask
             if already_padded:
                 mask = ZERO_GRADIENT.pad(mask, already_padded)
-            p_false = self.false_ext.pad(value, widths, **kwargs)
-            p_true = self.true_ext.pad(value, widths, **kwargs)
+            p_false = value._pad(self.false_ext, widths, already_padded, **kwargs)
+            p_true = value._pad(self.true_ext, widths, already_padded, **kwargs)
             return p_true * mask + p_false * (1 - mask)
         return Extrapolation.pad(self, value, widths, already_padded=already_padded, **kwargs)
 
