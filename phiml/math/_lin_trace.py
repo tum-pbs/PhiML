@@ -1,57 +1,154 @@
 import operator
 import warnings
 from collections import namedtuple
-from typing import Callable, Dict, Set, Tuple, Union, Optional, Sequence
+from dataclasses import dataclass
+from typing import Callable, Dict, Set, Tuple, Union, Optional, Sequence, List
 
-import numpy
-import numpy as np
-
-from ..backend import choose_backend, NUMPY, Backend
+from ..backend import NUMPY, Backend
 from ..backend import get_precision
 from ..backend._dtype import DType, combine_types
 from . import _ops as math
-from ._magic_ops import stack, expand, rename_dims, unpack_dim, value_attributes
+from ._magic_ops import stack, expand, rename_dims, unpack_dim, value_attributes, ccat, pack_dims, concat
 from ._ops import backend_for, concat_tensor, scatter
-from ._shape import Shape, merge_shapes, instance, batch, EMPTY_SHAPE, dual, channel, non_batch, non_channel, DEBUG_CHECKS, \
+from ._shape import Shape, merge_shapes, instance, EMPTY_SHAPE, dual, channel, non_batch, non_channel, DEBUG_CHECKS, \
     after_gather, concat_shapes_
 from ._sparse import SparseCoordinateTensor, is_sparse, sparse_dims, sparse_tensor, stored_indices, stored_values, add_sparse_batch_dim
-from ._tensors import Tensor, wrap, TensorStack, discard_constant_dims, variable_shape, Dense
+from ._tensors import Tensor, wrap, TensorStack, discard_constant_dims, variable_shape, Dense, BlockTensor, NO_OFFSET, IndexOffset, variable_dim_names
 from ._tree import disassemble_tree, assemble_tree
+from ._nd import vec
 
 TracerSource = namedtuple('TracerSource', ['shape', 'dtype', 'name', 'index'])
 
 
-class Shift:
-    def __init__(self, by_dim: Dict[str, int]):
-        self.by_dim = {dim: shift for dim, shift in by_dim.items() if shift != 0}
-        self._hash = hash(tuple(sorted(self.by_dim.items())))
+@dataclass(frozen=True, eq=False, unsafe_hash=False, repr=False)
+class MonomialLinTracer(Tensor):
+    """
+    Default linear tracer for basic operations like slicing, adding, scaling.
+    Each output value can depend on at most one input value whose index is stored explicitly.
+    When adding multiple monomial tracers, the result may be stored in a composite tensor, such as BlockTensor.
+    """
+    _source: TracerSource
+    _indices: Tensor
+    """ channel dim 'idx:c' contains only relevant source dims, other src dim dependence is constant. Shape compatible with self.shape. """
+    _fac: Tensor
+    """ multiplication factors: mul * src[indices]. Can have fewer dims than indices. Shape compatible with self.shape. """
+    _bias: Tensor
+    """ Shape equal to `self.shape`, dtype equal to `self.dtype`. Can contain additional expanded dims along which values (not dependencies) are constant """
+    _renamed: Dict[str, str]
+    """ Maps all existing dim names from self.shape to source names. Constant (expanded) dims not included. """
 
-    def __repr__(self):
-        if not self.by_dim:
-            return "self"
-        return ", ".join(f"{dim}{amount:+}" for dim, amount in self.by_dim.items())
+    @classmethod
+    def create_identity(cls, src: TracerSource):
+        indices = math.zeros(channel(idx=''))
+        bias = math.zeros(src.shape, dtype=src.dtype)
+        renamed = {d: d for d in src.shape.names}
+        return cls(src, indices, wrap(1), bias, renamed)
 
-    def __eq__(self, other):
-        return isinstance(other, Shift) and self.by_dim == other.by_dim
+    def _source_indices(self, included_dims: Shape, as_dual=False):
+        """
+        Args:
+            included_dims: Dim names in `self.shape` that should be part of the result's shape even if the dependency is constant along them.
+        """
+        extend = []  # index components to add because of included_dims
+        constant_dims = []
+        with NUMPY:
+            for dim in included_dims - self._indices.shape['idx'].labels[0]:
+                if dim in self.shape:
+                    src_name = self._renamed[dim.name]
+                    assert self._source.shape.get_size(src_name) == self._bias.shape.get_size(dim.name), f"Dim size has changed from {self._source.shape.get_size(src_name)} to {self._bias.shape.get_size(dim.name)} despite not being included in indices."
+                    extend.append(vec('idx', **{src_name: math.arange(self._bias.shape[dim.name])}))
+                else:
+                    constant_dims.append(dim)
+        as_primal = concat([self._indices, *extend], 'idx', expand_values=True)
+        as_primal = expand(as_primal, *constant_dims)
+        if as_dual:
+            dual_shape = as_primal.shape.with_dim_size('idx', ['~' + label if not label.startswith('~') else label for label in as_primal.shape['idx'].slice_names])
+            return as_primal._with_shape_replaced(dual_shape)
+        else:
+            return as_primal
 
-    def __hash__(self):
-        return self._hash
+    @property
+    def shape(self) -> Shape:
+        return self._bias.shape
 
-    def __getitem__(self, item):
-        if isinstance(item, Shape):
-            item = item.name
-        assert isinstance(item, str)
-        return self.by_dim.get(item, 0)
+    @property
+    def dtype(self) -> DType:
+        return self._bias.dtype
 
-    def __add__(self, other):
-        d1 = self.by_dim
-        d2 = other.by_dim if isinstance(other, Shift) else other
-        all_dims = set(d1.keys()).union(d2.keys())
-        result = {dim: d1.get(dim, 0) + d2.get(dim, 0) for dim in all_dims}
-        return Shift(result)
+    @property
+    def _is_tracer(self) -> bool:
+        return True
 
-    def __bool__(self):
-        return bool(self.by_dim)
+    @property
+    def _var_dims(self) -> Tuple[str, ...]:
+        return self._bias._var_dims
+
+    def native(self, order: Union[str, tuple, list, Shape] = None, force_expand=True):
+        raise NotImplementedError
+
+    def _with_shape_replaced(self, new_shape: Shape):
+        indices = self._indices._with_shape_replaced(self._indices.shape.replace(self.shape, new_shape))
+        fac = self._fac._with_shape_replaced(self._fac.shape.replace(self.shape, new_shape))
+        bias = self._bias._with_shape_replaced(new_shape)
+        renamed = {n: self._renamed[o] for n, o in zip(new_shape.names, self.shape.names) if o in self._renamed}
+        return MonomialLinTracer(self._source, indices, fac, bias, renamed)
+
+    def _getitem(self, selection: dict) -> 'Tensor':
+        indices = self._source_indices(selection)[selection]
+        fac = self._fac[selection]
+        bias = self._bias[selection]
+        renamed = {n: o for n, o in self._renamed.items() if n in bias.shape}
+        return MonomialLinTracer(self._source, indices, fac, bias, renamed)
+
+    def _op2(self, other, op: Callable, switch_args: bool) -> Tensor:
+        if is_sparse(other):
+            return NotImplemented
+        if isinstance(other, TensorStack):
+            return NotImplemented
+        if isinstance(other, SparseLinTracer):
+            return to_sparse_tracer(self, other)._op2(other, op, switch_args)
+        assert op in {operator.add, operator.sub, operator.mul, operator.truediv}, f"Unsupported operation encountered while tracing linear function: {op}"
+        zeros_for_missing_self = op != operator.add and not (op == operator.sub and switch_args)  # perform `operator` where `self == 0`
+        zeros_for_missing_other = op != operator.add and not (op == operator.sub and not switch_args)  # perform `operator` where `other == 0`
+        if isinstance(other, Tensor) and other._is_tracer:
+            assert op in {operator.add, operator.sub}, f"Non-linear tracer-tracer operation encountered while tracing linear function: {op}"
+            if op == operator.add:
+                return BlockTensor(self.shape & other.shape, [(self, NO_OFFSET), (other, NO_OFFSET)], operator.add)
+            else:  # sub
+                t1, t2 = (-self, other) if switch_args else (self, -other)
+                return BlockTensor(self.shape & other.shape, [(t1, NO_OFFSET), (t2, NO_OFFSET)], operator.add)
+            if not isinstance(other, MulSourceSlice):
+                raise NotImplementedError
+        else:
+            other = self._tensor(other)
+            bias = op(self._bias, other)
+            if op in {operator.mul, operator.truediv}:
+                fac = op(self._fac, other)
+                return MonomialLinTracer(self._source, self._indices, fac, bias, self._renamed)
+            elif op in {operator.add, operator.sub}:
+                return MonomialLinTracer(self._source, self._indices, self._fac, bias, self._renamed)
+            else:
+                raise ValueError(f"Unsupported operation encountered while tracing linear function: {op}")
+
+    def _op1(self, native_function, op_name: str) -> Tensor:
+        raise NotImplementedError
+
+    def __neg__(self):
+        return MonomialLinTracer(self._source, self._indices, -self._fac, -self._bias, self._renamed)
+
+    def __cast__(self, dtype: DType) -> 'Tensor':
+        if self.dtype == dtype:
+            return self
+        if self._source.dtype & dtype == self.dtype:  # cannot down-cast
+            warnings.warn(f"Cannot cast linear tracer of type {self.dtype} to {dtype} because its input has type {self._source.dtype}", RuntimeWarning)
+            return self
+        fac = math.cast(self._fac, dtype)
+        bias = math.cast(self._bias, dtype)
+        return MonomialLinTracer(self._source, self._indices, fac, bias, self._renamed)
+
+    def _natives(self) -> tuple:
+        """ This function should only be used to determine the compatible backends, this tensor should be regarded as not available. """
+        return self._fac._natives()
 
 
 class ShiftLinTracer(Tensor):
@@ -64,11 +161,7 @@ class ShiftLinTracer(Tensor):
 
     def __init__(self,
                  source: TracerSource,
-                 values_by_shift: Dict[Shift, Tensor],
-                 shape: Shape,
-                 bias: Tensor,
-                 renamed: Dict[str, str],
-                 nz_edge: Dict[Shift, bool]):
+                 shape: Shape):
         """
         Args:
             source: placeholder tensor
@@ -677,13 +770,33 @@ class LinearTraceInProgress(Exception):
         self.tracer = tracer
 
 
-def matrix_from_function(f: Callable,
-                         *args,
-                         auxiliary_args=None,
-                         auto_compress=False,
-                         sparsify_batch=None,
-                         separate_independent=False,  # not fully implemented, requires auto_compress=False
-                         _return_raw_output=False,
+def trace_linear(f: Callable, *args, auxiliary_args=None, **kwargs):
+    assert isinstance(auxiliary_args, str) or auxiliary_args is None, f"auxiliary_args must be a comma-separated str but got {auxiliary_args}"
+    from ._functional import function_parameters, f_name
+    f_params = function_parameters(f)
+    aux = set(s.strip() for s in auxiliary_args.split(',') if s.strip()) if isinstance(auxiliary_args, str) else f_params[1:]
+    all_args = {**kwargs, **{f_params[i]: v for i, v in enumerate(args)}}
+    aux_args = {k: v for k, v in all_args.items() if k in aux}
+    trace_args = {k: v for k, v in all_args.items() if k not in aux}
+    tree, tensors = disassemble_tree(trace_args, cache=False, attr_type=value_attributes)
+    assert len(tensors) == 1, f"Only one input tensor can be traced bot got {tensors}"
+    target_backend = backend_for(*tensors)
+    # --- Trace function ---
+    with NUMPY:
+        src = TracerSource(tensors[0].shape, tensors[0].dtype, tuple(trace_args.keys())[0], 0)
+        tracer = MonomialLinTracer.create_identity(src)
+        x_kwargs = assemble_tree(tree, [tracer] + tensors[1:], attr_type=value_attributes)
+        result = f(**x_kwargs, **aux_args)
+    out_tree, result_tensors = disassemble_tree(result, cache=False, attr_type=value_attributes)
+    assert len(result_tensors) == 1, f"Linear function output must be or contain a single Tensor but got {result}"
+    tracer = result_tensors[0]._simplify()
+    assert tracer._is_tracer, f"Tracing linear function '{f_name(f)}' failed. Make sure only linear operations are used. Output: {tracer.shape}"
+    return out_tree, tracer
+
+
+def matrix_from_function(f: Callable, *args, auxiliary_args=None,
+                         auto_compress=True,
+                         target_backend: Backend = None,
                          **kwargs) -> Tuple[Tensor, Tensor]:
     """
     Trace a linear function and construct a matrix.
@@ -705,120 +818,143 @@ def matrix_from_function(f: Callable,
             Input dimensions will be `dual` dimensions of the matrix while output dimensions will be regular.
         bias: Bias for affine functions or zero-vector if the function is purely linear.
     """
-    assert isinstance(auxiliary_args, str) or auxiliary_args is None, f"auxiliary_args must be a comma-separated str but got {auxiliary_args}"
-    from ._functional import function_parameters, f_name
-    f_params = function_parameters(f)
-    aux = set(s.strip() for s in auxiliary_args.split(',') if s.strip()) if isinstance(auxiliary_args, str) else f_params[1:]
-    all_args = {**kwargs, **{f_params[i]: v for i, v in enumerate(args)}}
-    aux_args = {k: v for k, v in all_args.items() if k in aux}
-    trace_args = {k: v for k, v in all_args.items() if k not in aux}
-    tree, tensors = disassemble_tree(trace_args, cache=False, attr_type=value_attributes)
-    assert len(tensors) == 1, f"Only one input tensor can be traced bot got {tensors}"
-    target_backend = backend_for(*tensors)
-    # --- Trace function ---
-    with NUMPY:
-        src = TracerSource(tensors[0].shape, tensors[0].dtype, tuple(trace_args.keys())[0], 0)
-        tracer = ShiftLinTracer(src, {Shift({}): math.ones()}, tensors[0].shape, bias=math.zeros(dtype=tensors[0].dtype), renamed={d: d for d in tensors[0].shape.names}, nz_edge={Shift({}): False})
-        x_kwargs = assemble_tree(tree, [tracer] + tensors[1:], attr_type=value_attributes)
-        result = f(**x_kwargs, **aux_args)
-    out_tree, result_tensors = disassemble_tree(result, cache=False, attr_type=value_attributes)
-    assert len(result_tensors) == 1, f"Linear function output must be or contain a single Tensor but got {result}"
-    # for t in result_tensors[1:]:
-    #     assert not t._is_tracer, f"Linear function must only return a single tracer at position 0 but got {result_tensors}"
-    tracer = result_tensors[0]._simplify()
-    assert tracer._is_tracer, f"Tracing linear function '{f_name(f)}' failed. Make sure only linear operations are used. Output: {tracer.shape}"
-    # --- Convert to COO ---
-    if sparsify_batch is None:
-        if auto_compress:
-            sparsify_batch = not target_backend.supports(Backend.csr_matrix_batched)
-        else:
-            sparsify_batch = not target_backend.supports(Backend.sparse_coo_tensor_batched)
+    _, tracer = trace_linear(f, *args, auxiliary_args=auxiliary_args, **kwargs)
+    coo, bias = tracer_to_coo(tracer)
+    target_backend = target_backend if target_backend is not None else coo.backend
+    matrix = to_format_for_mul(coo, target_backend, auto_compress)
+    return matrix, bias
+
     sparsify = tracer.shape if sparsify_batch else EMPTY_SHAPE
     if isinstance(tracer, SparseLinTracer):
         matrix, bias = tracer._get_matrix(sparsify), tracer._bias
-    elif isinstance(tracer, GatherLinTracer):
-        matrix, bias = to_sparse_tracer(tracer, None)._get_matrix(sparsify), tracer._bias
     else:
         matrix, bias = tracer_to_coo(tracer, sparsify, separate_independent)
+
+
+def to_format_for_mul(x: Tensor, target_backend: Backend, auto_compress=True) -> Tensor:
+    if not is_sparse(x):
+        return x
+    if auto_compress:
+        sparsify_batch = not target_backend.supports(Backend.csr_matrix_batched)
+    else:
+        sparsify_batch = not target_backend.supports(Backend.sparse_coo_tensor_batched)
     # --- Compress ---
-    if matrix.backend.name == 'torch' and matrix._values._native.requires_grad:
+    if x.backend.name == 'torch' and x._values._native.requires_grad:
         auto_compress = False  # PyTorch doesn't support gradient of bincount (used in compression)
-    if auto_compress and matrix.backend.supports(Backend.mul_csr_dense) and target_backend.supports(Backend.mul_csr_dense) and isinstance(matrix, SparseCoordinateTensor):
-        matrix = matrix.compress_rows()
+    if auto_compress and x.backend.supports(Backend.mul_csr_dense) and target_backend.supports(Backend.mul_csr_dense) and isinstance(x, SparseCoordinateTensor):
+        x = x.compress_rows()
     # elif backend.supports(Backend.mul_csc_dense):
     #     return matrix.compress_cols(), tracer._bias
-    return (matrix, bias, (out_tree, result_tensors)) if _return_raw_output else (matrix, bias)
+    return x
+
+
+def leaves_with_offsets(tracer_tree: Tensor, offset: IndexOffset) -> List[Tuple[Tensor, IndexOffset]]:
+    if isinstance(tracer_tree, BlockTensor):
+        result = []
+        for t, o in tracer_tree._blo:
+            result.extend(leaves_with_offsets(t, offset + o))
+        return result
+    elif isinstance(tracer_tree, TensorStack):
+        raise NotImplementedError
+    elif is_sparse(tracer_tree):
+        raise NotImplementedError
+    return [(tracer_tree, offset)]
+
+
+def lin_output_indices(x: Tensor,
+                       offset: IndexOffset,
+                       included_src_dims: Shape,
+                       included_out_dims: Shape) -> Optional[Tensor]:
+    """ Assembles an output index tensor for each tracer contained in `tracer_tree`.
+    If a single tracer is passed, the output indices simply fill the tracer's shape.
+    For composite tensors, takes the relative position into account.
+    Output only includes dims along which the dependency is not constant.
+
+    Args:
+        x: Input leaf tracer or constant tensor.
+        offset: Constant to add to output indices. Dims in `offset` but not in the tensor will be added using the offset value.
+
+    Returns:
+        dict: A mapping from tracer instances to corresponding output index tensor matching the tracer's shape.
+    """
+    single_layer_names = (offset.names & set(included_out_dims.names)) - set(x.shape.names)
+    thick_names = set(included_out_dims.names) - single_layer_names
+    if not single_layer_names and not thick_names:  # no non-diagonal dependencies
+        return None
+    with NUMPY:
+        indices = {}
+        for name in thick_names:
+            dim = x.shape[name] if name in x.shape else included_out_dims[name]
+            start = offset.by_dim.get(dim.name, 0)
+            indices[dim.name] = math.arange(dim, start, start + dim.size)
+        for extra in single_layer_names:
+            indices[extra] = wrap(offset[extra])
+        indices = stack(indices, 'idx:c', expand_values=True)
+    return indices
     
 
-def tracer_to_coo(tracer: Tensor, sparsify: Shape, separate_independent: bool):
-    if isinstance(tracer, TensorStack):  # This indicates separable solves
-        matrices, biases = zip(*[tracer_to_coo(t, sparsify-tracer._stack_dim, separate_independent) for t in tracer._tensors])
-        bias = stack(biases, tracer._stack_dim)
-        if not separate_independent:
-            indices = [math.concat_tensor([m._indices, expand(i, instance(m._indices), channel(sparse_idx=tracer._stack_dim.name))], 'sparse_idx') for i, m in enumerate(matrices)]
-            indices = math.concat_tensor(indices, 'entries')
-            values = math.concat_tensor([m._values for m in matrices], 'entries')
-            # matrix = stack(matrices, tracer._stack_dim)
-            dense_shape = matrices[0]._dense_shape + tracer._stack_dim
-            matrix = SparseCoordinateTensor(indices, values, dense_shape, can_contain_double_entries=False, indices_sorted=False, indices_constant=True)
+def tracer_to_coo(tracer_tree: Tensor) -> Tuple[Tensor, Tensor]:
+    tensors_and_offsets = leaves_with_offsets(tracer_tree, NO_OFFSET)
+    in_dims = merge_shapes(*[dependent_src_dims(t) for t, _ in tensors_and_offsets])
+    out_dims = merge_shapes(*[dependent_out_dims(t, in_dims) for t, _ in tensors_and_offsets])
+    offset_names = set.union(*[set(o.by_dim) for _, o in tensors_and_offsets])
+    out_dims &= tracer_tree.shape.only(list(offset_names))
+    output_indices = [lin_output_indices(x, o, in_dims, out_dims) for x, o in tensors_and_offsets]
+    dual_in = in_dims.as_dual()
+    assert dual_in.isdisjoint(out_dims), f"Conflict between input and output dim names. ~Input: {dual_in}, Output: {out_dims}"
+    if len(tensors_and_offsets) == 1 and not in_dims and not out_dims:  # just a scalar multiplication
+        tensor = tensors_and_offsets[0][0]
+        if tensor._is_tracer:
+            assert not tensor._fac.shape
+            return tensor._fac, tensor._bias
         else:
-            matrix = stack(matrices, tracer._stack_dim)
+            return wrap(1), tensor  # just a constant
+    if not out_dims:  # matrix is a row vector -> make it dense
+        matrix = math.zeros(in_dims)
+        bias = wrap(0)
+        for tensor, _ in tensors_and_offsets:
+            if tensor._is_tracer:
+                src_indices = tensor._source_indices([])
+                matrix = scatter(matrix, src_indices, tensor._fac, 'add', pref_index_dim='idx')
+                bias += tensor._bias  # only scalar bias
+            else:  # constant
+                bias += tensor
+        return rename_dims(matrix, in_dims, dual), bias
+    if not in_dims:  # matrix is a column vector -> make it dense
+        matrix = math.zeros(out_dims)
+        bias = expand(0, out_dims)
+        # ToDo bias should pick up non-tracer contributions
+        for (tensor, _), out_indices in zip(tensors_and_offsets, output_indices):
+            if tensor._is_tracer:
+                matrix = scatter(matrix, out_indices, tensor._fac, 'add', pref_index_dim='idx')
+                bias = scatter(bias, out_indices, tensor._bias, 'add', pref_index_dim='idx')
+            else:  # constant
+                bias = scatter(bias, out_indices, tensor, 'add', pref_index_dim='idx')
         return matrix, bias
-    elif not tracer._is_tracer:  # This part of the output is independent of the input
-        return expand(0, tracer.shape), tracer
-    assert isinstance(tracer, ShiftLinTracer), f"Tracing linear function returned an unsupported construct: {type(tracer)}"
-    pattern_dims = tracer._source.shape.only(pattern_dim_names(tracer))
-    assert batch(pattern_dims).is_empty, f"Batch dimensions may not be sliced in linear operations but got pattern for {batch(pattern_dims)}"
-    out_shape, src_shape, typed_src_shape, missing_dims, sliced_src_shape = matrix_dims_for_tracer(tracer, sparsify)
-    original_out_names = [tracer._out_name_to_original.get(d, d) for d in out_shape.names]
-    batch_val = merge_shapes(*tracer.val.values()).without(out_shape)
-    if non_batch(out_shape).is_empty:
-        assert len(tracer.val) == 1 and not non_batch(tracer.val[Shift({})])
-        return tracer.val[Shift({})], tracer._bias
-    out_indices = []
-    src_indices = []
-    values = []
-    for shift_, shift_val in tracer.val.items():
-        if shift_val.default_backend is NUMPY:  # sparsify stencil further
-            native_shift_values = shift_val.native([batch_val, *out_shape])
-            mask = np.sum(abs(native_shift_values), 0)  # only 0 where no batch entry has a non-zero value
-            out_idx = numpy.nonzero(mask)
-            src_idx = [(component + shift_[dim]) % typed_src_shape.get_size(dim) for component, dim in zip(out_idx, original_out_names)]
-            values.append(native_shift_values[(slice(None), *out_idx)])
-        else:  # add full stencil tensor
-            out_idx = np.unravel_index(np.arange(out_shape.volume), out_shape.sizes) if out_shape else 0
-            src_idx = [(component + shift_[dim]) % typed_src_shape.get_size(dim) for component, dim in zip(out_idx, original_out_names)]
-            values.append(shift_val.native([batch_val, out_shape]))
-        out_indices.append(out_idx)
-        src_idx_all = []
-        for dim in typed_src_shape:
-            if dim in missing_dims:
-                if not separate_independent:
-                    offset = shift_.get_size(dim, default=0)
-                    src_idx_all.append(np.zeros_like(src_idx[0]) + offset)
-            else:
-                out_dim = {v: k for k, v in tracer._renamed.items()}.get(dim.name, dim.name)
-                src_idx_all.append(src_idx[out_shape.index(out_dim)])
-        src_indices.append(src_idx_all)
-    indices_np = np.concatenate([np.concatenate(src_indices, axis=1), np.concatenate(out_indices, axis=1)]).T
-    indices = wrap(indices_np, instance('entries'), channel(sparse_idx=(sliced_src_shape if separate_independent else src_shape).names + out_shape.names))
-    backend = choose_backend(*values)
-    values = math.reshaped_tensor(backend.concat(values, axis=-1), [batch_val, instance('entries')], convert=False)
-    dense_shape = (sliced_src_shape if separate_independent else src_shape) & out_shape
-    max_rank = out_shape.volume - tracer.min_rank_deficiency()
-    matrix = SparseCoordinateTensor(indices, values, dense_shape, can_contain_double_entries=False, indices_sorted=False, indices_constant=True, m_rank=max_rank)
-    return matrix, tracer._bias
-
-
-def matrix_dims_for_tracer(tracer: Union[ShiftLinTracer, SparseLinTracer], sparsify: Shape):
-    renamed_src_names = [o for n, o in tracer._out_name_to_original.items() if n != o]
-    removed_dims = tracer._source.shape.without(tracer.shape).without(renamed_src_names)  # these were sliced off
-    ignored_dims = tracer._source.shape - dependent_out_dims(tracer, sparsify) - removed_dims - renamed_src_names  # these will be parallelized and not added to the matrix
-    out_shape = tracer.shape.without(ignored_dims)
-    typed_src_shape = tracer._source.shape.without(ignored_dims)
-    src_shape = typed_src_shape.as_dual()
-    sliced_src_shape = src_shape.without(removed_dims.as_dual())
-    return out_shape, src_shape, typed_src_shape, removed_dims, sliced_src_shape
+    else:  # full matrix -> build sparse coo
+        bias = expand(0, out_dims)
+        indices = []
+        values = []
+        for (tensor, _), out_indices in zip(tensors_and_offsets, output_indices):
+            if tensor._is_tracer:
+                src_indices: Tensor = tensor._source_indices(out_indices.shape - 'idx', as_dual=True)
+                if out_indices is None:
+                    all_indices = src_indices
+                else:
+                    all_indices = concat([src_indices, out_indices], 'idx')
+                entry_dims = all_indices.shape - 'idx'
+                entry_dim = instance(entries=entry_dims.volume)
+                entry_idx = pack_dims(all_indices, entry_dims, entry_dim) if entry_dims and entry_dims.only(all_indices.shape) else expand(all_indices, entry_dim)
+                entry_val = pack_dims(tensor._fac, entry_dims, entry_dim) if entry_dims and entry_dims.only(tensor._fac.shape) else expand(tensor._fac, entry_dim)
+                indices.append(entry_idx)
+                values.append(entry_val)
+                bias = scatter(bias, out_indices, tensor._bias, 'add', pref_index_dim='idx')
+            else:  # constant
+                bias = scatter(bias, out_indices, tensor, 'add', pref_index_dim='idx')
+        indices = concat_tensor(indices, 'entries')
+        values = concat_tensor(values, 'entries')
+        matrix = sparse_tensor(indices, values, dual_in & out_dims, can_contain_double_entries=True, indices_sorted=False, format='coo', indices_constant=True)
+        return matrix, bias
 
 
 def dependent_src_dims(tracer: Tensor) -> Shape:
@@ -830,23 +966,31 @@ def dependent_src_dims(tracer: Tensor) -> Shape:
     Bias dimensions do not require a batched matrix but are subtracted from the right-hand-side vector.
     They are not included unless also relevant to the matrix.
     """
-    if isinstance(tracer, ShiftLinTracer):
-        bias_dims = set(variable_shape(tracer._bias).names)
-        names = pattern_dim_names(tracer) | set(sum([t.shape.names for t in tracer.val.values()], ())) | bias_dims
-        result = tracer._source.shape.only(names)
-        assert len(result) == len(names)
-        return result
-    elif isinstance(tracer, GatherLinTracer):
-        dims = set()
-        if tracer._selection is not None:
-            dims.update(set(channel(tracer._selection).labels[0]))
-        dims.update(set([tracer._renamed.get(d, d) for d in tracer._diag.shape.names]))
-        return tracer._source.shape.only(dims)
+    if not tracer._is_tracer:
+        return EMPTY_SHAPE
+    if isinstance(tracer, MonomialLinTracer):
+        renamed = {src_name for name, src_name in tracer._renamed.items() if name != src_name}
+        dep_names = set(channel(tracer._indices).labels[0])
+        all_names = dep_names | renamed
+        return tracer._source.shape[list(all_names)]
+    # if isinstance(tracer, ShiftLinTracer):
+    #     bias_dims = set(variable_shape(tracer._bias).names)
+    #     names = pattern_dim_names(tracer) | set(sum([t.shape.names for t in tracer.val.values()], ())) | bias_dims
+    #     result = tracer._source.shape.only(names)
+    #     assert len(result) == len(names)
+    #     return result
+    # elif isinstance(tracer, GatherLinTracer):
+    #     dims = set()
+    #     if tracer._selection is not None:
+    #         dims.update(set(channel(tracer._selection).labels[0]))
+    #     dims.update(set([tracer._renamed.get(d, d) for d in tracer._diag.shape.names]))
+    #     return tracer._source.shape.only(dims)
     elif isinstance(tracer, SparseLinTracer):
         return tracer._source.shape.only(sparse_dims(tracer._matrix).names)
+    raise ValueError(tracer)
 
 
-def dependent_out_dims(tracer: Tensor, sparsify=None) -> Shape:
+def dependent_out_dims(tracer: Tensor, included_src_dims: Shape, sparsify=None) -> Shape:
     """
     Current dimensions relevant to the linear operation.
     This includes `pattern_dims` as well as dimensions along which only the values vary.
@@ -855,6 +999,10 @@ def dependent_out_dims(tracer: Tensor, sparsify=None) -> Shape:
     Bias dimensions do not require a batched matrix but are subtracted from the right-hand-side vector.
     They are not included unless also relevant to the matrix.
     """
+    if isinstance(tracer, MonomialLinTracer):
+        out_dims = set(variable_dim_names(tracer))
+        src_out = {name for name, src_name in tracer._renamed.items() if src_name in included_src_dims}
+        return tracer.shape.only(list(out_dims | src_out))
     if isinstance(tracer, ShiftLinTracer):
         bias_names = set(variable_shape(tracer._bias).names)
         pattern_names = pattern_dim_names(tracer)

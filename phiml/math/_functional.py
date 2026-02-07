@@ -15,7 +15,7 @@ from ._tensors import Tensor, disassemble_tensors, assemble_tensors, wrap, specs
 from ._tree import disassemble_tree, assemble_tree, variable_attributes, NATIVE_TENSOR, object_dims, slice_, find_differences
 from ._magic_ops import stack, rename_dims, all_attributes
 from ._sparse import SparseCoordinateTensor, is_sparse
-from ._lin_trace import ShiftLinTracer, matrix_from_function, LinearTraceInProgress
+from ._lin_trace import matrix_from_function, LinearTraceInProgress
 from .magic import PhiTreeNode, Shapable
 from ..backend import Backend
 from ..backend._backend import get_spatial_derivative_order, functional_derivative_evaluation, ML_LOGGER
