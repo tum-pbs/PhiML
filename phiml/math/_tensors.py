@@ -4,7 +4,7 @@ import warnings
 from contextlib import contextmanager
 from dataclasses import dataclass
 from numbers import Number
-from typing import Tuple, Callable, List
+from typing import Tuple, Callable, List, Dict
 from typing import Union, TypeVar, Sequence, Any, Generic
 
 import numpy
@@ -1462,6 +1462,97 @@ class TensorStack(Tensor):
 
     def _simplify(self):
         return self
+
+
+@dataclass(frozen=True)
+class IndexOffset:
+    by_dim: Dict[str, int]
+
+    def __repr__(self):
+        if not self.by_dim:
+            return "0"
+        return ", ".join(f"{dim}{amount:+}" for dim, amount in self.by_dim.items())
+
+    def __hash__(self):
+        return hash(tuple(sorted(self.by_dim.items())))
+
+    def __getitem__(self, item):
+        if isinstance(item, Shape):
+            item = item.name
+        assert isinstance(item, str)
+        return self.by_dim.get(item, 0)
+
+    def __add__(self, other):
+        d1 = self.by_dim
+        d2 = other.by_dim if isinstance(other, IndexOffset) else other
+        all_dims = set(d1.keys()).union(d2.keys())
+        result = {dim: d1.get(dim, 0) + d2.get(dim, 0) for dim in all_dims}
+        return IndexOffset(result)
+
+    def __bool__(self):
+        return bool(self.by_dim)
+
+    @property
+    def names(self):
+        return set(self.by_dim)
+
+
+NO_OFFSET = IndexOffset({})
+
+
+class BlockTensor(Tensor):
+
+    def __init__(self, shape: Shape, blocks_and_offsets: Sequence[Tuple[Tensor, IndexOffset]], overlap_op: Callable = None):
+        """
+        Args:
+            shape: Can contain more dims than blocks, along which the tensor is constant.
+            blocks_and_offsets:
+            overlap_op: If `None`, assumes there are no overlaps. This also determines the default value (0 for add, 1 for mul).
+        """
+        super().__init__()
+        if DEBUG_CHECKS:
+            assert overlap_op in {operator.add, operator.mul}, f""
+        self._shape = shape
+        self._blo = tuple(blocks_and_offsets)
+        self._overlap_op = overlap_op
+
+    @classmethod
+    def from_stack(cls, tensors: Sequence[Tensor], stack_dim: Shape) -> Tensor:
+        shape = shape_stack(stack_dim, *[t.shape for t in tensors])
+        offsets = [IndexOffset(idx) for idx in stack_dim.meshgrid()]
+        return BlockTensor(shape, list(zip(tensors, offsets)), overlap_op=None)
+
+    @property
+    def shape(self) -> Shape:
+        return self._shape
+
+    @property
+    def dtype(self) -> DType:
+        return combine_types(*[t.dtype for t, _ in self._blo])
+
+    @property
+    def _is_tracer(self) -> bool:
+        return any(t._is_tracer for t, _ in self._blo)
+
+    def native(self, order: Union[str, tuple, list, Shape] = None, force_expand=True):
+        raise NotImplementedError
+
+    def _natives(self) -> tuple:
+        return sum([t._natives() for t, _ in self._blo], ())
+
+    def _op2(self, other, op: Callable, switch_args: bool) -> Tensor:
+        other = self._tensor(other)
+        return BlockTensor(self._shape, self._blo + ((other, NO_OFFSET),))
+        raise NotImplementedError
+
+    def _op1(self, native_function, op_name: str) -> Tensor:
+        raise NotImplementedError
+
+    def __cast__(self, dtype: DType):
+        return BlockTensor(self._shape, [(t.__cast__(dtype), o) for t, o in self._blo], self._overlap_op)
+
+    def __neg__(self):
+        return BlockTensor(self._shape, [(-t, o) for t, o in self._blo], self._overlap_op)
 
 
 TRUE = Dense(True, (), EMPTY_SHAPE, NUMPY)

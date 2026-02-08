@@ -19,7 +19,7 @@ from .magic import PhiTreeNode
 from ._tensors import (Tensor, wrap, tensor, broadcastable_native_tensors, Dense, TensorStack,
                        custom_op2, compatible_tensor,
                        is_scalar, expand_tensor, TensorOrTree, variable_shape,
-                       reshaped_tensor, variable_dim_names, backend_for, preferred_backend_for)
+                       reshaped_tensor, variable_dim_names, backend_for, preferred_backend_for, BlockTensor)
 from ._tree import Layout, variable_attributes, disassemble_tree, assemble_tree, slice_, all_attributes, is_composite
 from ._magic_ops import expand, pack_dims, unpack_dim, cast, value_attributes, bool_to_int, tree_map, concat, stack, unstack, rename_dims, squeeze, ipack
 from ._sparse import (CompressedSparseMatrix, dense, SparseCoordinateTensor, get_format, to_format, stored_indices,
@@ -912,6 +912,7 @@ def stack_tensors(values: Union[tuple, list], dim: Shape):
     if non_stackable or any(is_sparse(v) for v in values):  # stackable sparse would have been handled by __stack__() before calling this function
         return TensorStack(values, dim)
     if any(v._is_tracer for v in values):
+        return BlockTensor.from_stack(values, dim)
         return TensorStack(values, dim)
     broadcast_shape = merge_shapes(*[v.shape for v in values], allow_varying_sizes=True)
     if not broadcast_shape.well_defined:

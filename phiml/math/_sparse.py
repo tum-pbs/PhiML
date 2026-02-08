@@ -12,7 +12,7 @@ from scipy.sparse.linalg import aslinearoperator
 
 from ._magic_ops import concat, pack_dims, expand, rename_dims, stack, unpack_dim, unstack
 from ._shape import Shape, non_batch, merge_shapes, instance, batch, non_instance, shape, channel, spatial, DimFilter, non_dual, EMPTY_SHAPE, dual, non_channel, DEBUG_CHECKS, primal, concat_shapes_, IncompatibleShapes
-from ._tensors import Tensor, TensorStack, Dense, wrap, reshaped_tensor, tensor, backend_for, custom_op2
+from ._tensors import Tensor, TensorStack, Dense, wrap, reshaped_tensor, tensor, backend_for, custom_op2, BlockTensor
 from ..backend import choose_backend, NUMPY, Backend, get_precision
 from ..backend._dtype import DType, INT64
 
@@ -1254,12 +1254,18 @@ def get_format(x: Tensor) -> str:
         if all(f == formats[0] for f in formats):
             return formats[0]
         return 'mixed'
+    elif isinstance(x, BlockTensor):
+        formats = [get_format(t) for t, _ in x._blo]
+        if all(f == formats[0] for f in formats):
+            return formats[0]
+        return 'mixed'
     elif isinstance(x, Tensor):
         return 'dense'
-    b = choose_backend(x)
-    if not b.is_sparse(x):
-        return 'dense'
-    return b.get_sparse_format(x)
+    else:  # assume native tensor
+        b = choose_backend(x)
+        if not b.is_sparse(x):
+            return 'dense'
+        return b.get_sparse_format(x)
 
 
 def is_sparse(x: Tensor):
