@@ -3165,7 +3165,8 @@ def scatter(base_grid: Union[Tensor, Shape],
             outside_handling: str = 'check',
             indices_gradient=False,
             default=None,
-            treat_as_batch=None):
+            treat_as_batch=None,
+            pref_index_dim='index'):
     """
     Scatters `values` into `base_grid` at `indices`.
     instance dimensions of `indices` and/or `values` are reduced during scattering.
@@ -3251,17 +3252,21 @@ def scatter(base_grid: Union[Tensor, Shape],
         else:
             raise NotImplementedError("scattering into non-continuous values not yet supported by dimension")
     grid_shape = base_grid if isinstance(base_grid, SHAPE_TYPES) else base_grid.shape
-    assert channel(indices).rank < 2
-    if channel(indices) and channel(indices).labels[0]:
-        indexed_dims = channel(indices).labels[0]
+    if channel(indices).rank > 1:
+        assert pref_index_dim in channel(indices)
+        index_dim = indices.shape[pref_index_dim]
+    else:
+        index_dim = channel(indices)
+    if index_dim and index_dim.labels[0]:
+        indexed_dims = index_dim.labels[0]
         assert indexed_dims in grid_shape, f"Scatter indices {indices.shape} point to missing dimensions in grid {grid_shape}"
         if indexed_dims != grid_shape.only(indexed_dims).names:
-            indices = indices[{channel: grid_shape.only(indexed_dims).names}]
+            indices = indices[{index_dim: grid_shape.only(indexed_dims).names}]
         indexed_dims = grid_shape.only(indexed_dims)
     else:
         indexed_dims = grid_shape.spatial or grid_shape.instance
-        assert channel(indices).rank == 1 or (grid_shape.spatial_rank + grid_shape.instance_rank == 1 and indices.shape.channel_rank == 0), f"indices must have a channel dimension listing the indexed dims {indexed_dims} but got {indices.shape}. You can create it via vec({', '.join([d+'=...' for d in indexed_dims.names])}) or channel(index='{','.join(indexed_dims.names)}'). If you have raveled indices, use unpack_dim(indices, channel, base_grid.shape['{','.join(indexed_dims.names)}'])."
-        assert channel(indices).volume == indexed_dims.rank
+        assert index_dim.rank == 1 or (grid_shape.spatial_rank + grid_shape.instance_rank == 1 and indices.shape.channel_rank == 0), f"indices must have a channel dimension listing the indexed dims {indexed_dims} but got {indices.shape}. You can create it via vec({', '.join([d+'=...' for d in indexed_dims.names])}) or channel(index='{','.join(indexed_dims.names)}'). If you have raveled indices, use unpack_dim(indices, channel, base_grid.shape['{','.join(indexed_dims.names)}'])."
+        assert index_dim.size == indexed_dims.rank
     values = wrap(values)
     batches = values.shape.non_channel.non_instance & indices.shape.non_channel.non_instance
     batches &= values.shape.only(treat_as_batch) & indices.shape.only(treat_as_batch)
@@ -3280,9 +3285,10 @@ def scatter(base_grid: Union[Tensor, Shape],
         else:
             assert mode == 'add'  # initialize with zeros
     # --- Handle outside indices ---
-    if not channel(indices):
-        indices = expand(indices, channel(_index=indexed_dims.name_list))
-    limit = wrap(indexed_dims, channel(indices)) - 1
+    if not index_dim:
+        index_dim = channel(_index=indexed_dims.name_list)
+        indices = expand(indices, index_dim)
+    limit = wrap(indexed_dims, index_dim) - 1
     if outside_handling == 'check':
         from ._functional import when_available
         def check(indices):
@@ -3292,7 +3298,7 @@ def scatter(base_grid: Union[Tensor, Shape],
         indices = clip(indices, 0, limit)
     elif outside_handling == 'discard':
         indices_linear = pack_dims(indices, instance, instance(_scatter_instance=1))
-        indices_inside = min_((round_(indices_linear) >= 0) & (round_(indices_linear) < wrap(indexed_dims, channel(indices_linear))), channel)
+        indices_inside = min_((round_(indices_linear) >= 0) & (round_(indices_linear) < wrap(indexed_dims, index_dim)), channel)
         indices_linear = boolean_mask(indices_linear, '_scatter_instance', indices_inside)
         if instance(values).rank > 0:
             values_linear = pack_dims(values, instance, instance(_scatter_instance=1))
@@ -3304,15 +3310,15 @@ def scatter(base_grid: Union[Tensor, Shape],
     broadcast = broadcast_dims(base_grid, indices, values)
     def scatter_forward(base_grid: Tensor, indices: Tensor, values: Tensor, indexed_dims=indexed_dims):
         indexed_dims = base_grid.shape[indexed_dims] - broadcast
-        batches = (values.shape.non_channel.non_instance & indices.shape.non_channel.non_instance & (indices.shape.instance.only(base_grid.shape.instance))) - indexed_dims
+        batches = (values.shape.non_instance & indices.shape.non_channel & (indices.shape.instance.only(base_grid.shape.instance))) - indexed_dims - index_dim
         batches &= values.shape.only(treat_as_batch) & indices.shape.only(treat_as_batch)
         batches -= broadcast
-        channels = (base_grid.shape - indexed_dims - batches - broadcast) & values.shape.channel
-        lists = (indices.shape.non_channel & values.shape.non_channel) - batches - broadcast - channels
+        channels = (base_grid.shape & values.shape.channel) - indexed_dims - batches - broadcast
+        lists = ((indices.shape - index_dim) & values.shape.non_channel) - batches - broadcast - channels
         if values._is_tracer:
             if indices._is_tracer or base_grid._is_tracer:
                 raise NotImplementedError("scattering linear tracer into linear tracer not supported")
-            if not channel(indices):
+            if not index_dim:
                 indices = expand(indices, channel(scatter_idx=indexed_dims))
             return values._scatter(base_grid, indices)
         indices = to_int32(round_(indices))
@@ -3320,7 +3326,7 @@ def scatter(base_grid: Union[Tensor, Shape],
         native_grid = base_grid._reshaped_native([batches, *indexed_dims, channels])
         if lists.undefined or lists.volume > 0:
             native_values = values._reshaped_native([batches, lists, channels])
-            native_indices = indices._reshaped_native([batches, lists, indices.shape.channel])
+            native_indices = indices._reshaped_native([batches, lists, index_dim])
             if mode != 'mean':
                 native_result = backend.scatter(native_grid, native_indices, native_values, mode=mode)
             else:  # mean
