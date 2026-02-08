@@ -188,6 +188,11 @@ class Tensor(Generic[T]):
         raise NotImplementedError(self.__class__)
 
     @property
+    def _var_dims(self) -> Tuple[str, ...]:
+        """Returns the names of all non-constant dims."""
+        return self.shape.names
+
+    @property
     def rank(self) -> int:
         """
         Number of explicit dimensions of this `Tensor`. Equal to `tensor.shape.rank`.
@@ -1090,6 +1095,10 @@ class Dense(Tensor):
         native = self._reshaped_native(groups)
         new_shape = packed_dim.with_sizes([dims.volume]) & (self.shape - dims)
         return Dense(native, names, new_shape, self.backend)
+
+    @property
+    def _var_dims(self) -> Tuple[str, ...]:
+        return self._names
 
     @property
     def collapsed_dims(self):
@@ -2591,11 +2600,11 @@ def is_numeric(x: Any) -> bool:
 
 
 def variable_shape(value):
-    return value._shape.only(value._names) if isinstance(value, Dense) else shape(value)
+    return value.shape.only(value._var_dims) if isinstance(value, Tensor) else shape(value)
 
 
 def variable_dim_names(value):
-    return value._names if isinstance(value, Dense) else shape(value).names
+    return value._var_dims if isinstance(value, Dense) else shape(value).names
 
 
 def may_vary_along(value: Tensor, dims: DimFilter):
