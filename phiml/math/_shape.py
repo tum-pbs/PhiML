@@ -355,31 +355,31 @@ class Shape(Protocol, metaclass=ShapeMeta):
         """
         ...
 
-    def as_channel(self):
+    def as_channel(self) -> 'Shape':
         """Returns a copy of this `Shape` with all dimensions of type *channel*."""
         ...
 
-    def as_batch(self):
+    def as_batch(self) -> 'Shape':
         """Returns a copy of this `Shape` with all dimensions of type *batch*."""
         ...
 
-    def as_spatial(self):
+    def as_spatial(self) -> 'Shape':
         """Returns a copy of this `Shape` with all dimensions of type *spatial*."""
         ...
 
-    def as_instance(self):
+    def as_instance(self) -> 'Shape':
         """Returns a copy of this `Shape` with all dimensions of type *instance*."""
         ...
 
-    def as_dual(self):
+    def as_dual(self) -> 'Shape':
         """Returns a copy of this `Shape` with all dimensions of type *dual*."""
         ...
 
-    def as_type(self, new_type: Callable):
+    def as_type(self, new_type: Callable) -> 'Shape':
         """Returns a copy of this `Shape` with all dimensions of the given type, either `batch`, `dual`, `spatial`, `instance`, or `channel` ."""
         ...
 
-    def transpose(self, dim_type: str):
+    def transpose(self, dim_type: str) -> 'Shape':
         ...
 
     @property
@@ -1607,8 +1607,9 @@ class PureShape:
         if len(dims) == len(new):
             dim_list = list(self.dims.values())
             for old, new_dim in zip(dims, new):
-                new_dim = self.dims[old]._replace(new_dim)
-                dim_list[self.index(old)] = new_dim
+                if old in self.dims:
+                    new_dim = self.dims[old]._replace(new_dim)
+                    dim_list[self.index(old)] = new_dim
         elif len(new) > 1 and len(dims) == 1:
             dim_list = list(self.dims.values())
             i = self.index(dims[0])
