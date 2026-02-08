@@ -709,6 +709,9 @@ class Tensor(Generic[T]):
         else:
             return wrap(False)
 
+    def __hash__(self):
+        return hash((self.shape, self.dtype))
+
     def __ne__(self, other) -> 'Tensor[bool]':
         if _EQUALITY_REDUCE[-1]['type'] == 'ref':
             return wrap(self is not other)
