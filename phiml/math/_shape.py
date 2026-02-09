@@ -2039,8 +2039,9 @@ class MixedShape:
         dim_list = list(self.dims.values())
         if len(dims) == len(new):
             for old, new_dim in zip(dims, new):
-                new_dim = self.dims[old]._replace(new_dim, keep_labels=False)
-                dim_list[self.index(old)] = new_dim
+                if old in self.dims:
+                    new_dim = self.dims[old]._replace(new_dim, keep_labels=False)
+                    dim_list[self.index(old)] = new_dim
         elif len(new) > 1 and len(dims) == 1:
             i = self.index(dims[0])
             dim_list[i:i+1] = new
