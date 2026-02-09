@@ -303,7 +303,6 @@ def concat(values: Sequence[PhiTreeNodeType], dim: Union[str, Shape], expand_val
     else:
         dim = auto(dim, channel).name
     # --- Filter 0-length values ---
-    shapes = [shape(v) for v in values]
     def is_non_zero(s: Shape):
         if dim not in s:
             return True
@@ -311,14 +310,8 @@ def concat(values: Sequence[PhiTreeNodeType], dim: Union[str, Shape], expand_val
         if isinstance(size, int):
             return size > 0
         return True
-    filtered_values = [v for v, s in zip(values, shapes) if is_non_zero(s)]
-    if not filtered_values:
-        return values[0]
-    values = filtered_values
-    if len(values) == 1:
-        return values[0]
-    shapes = [s for s in shapes if is_non_zero(s)]
     #  --- Add missing dimensions ---
+    shapes = [shape(v) for v in values]
     if expand_values:
         all_dims = merge_shapes(*shapes, allow_varying_sizes=True)
         all_dims = all_dims.with_dim_size(dim, 1, keep_labels=False)
@@ -330,6 +323,14 @@ def concat(values: Sequence[PhiTreeNodeType], dim: Union[str, Shape], expand_val
             assert set(non_batch(v).names) == set(non_batch(values[0]).names), f"Concatenated values must have the same non-batch dims but got {non_batch(values[0])} and {non_batch(v)}"
         all_batch_dims = merge_shapes(*[s.batch - dim for s in shapes])
         values = [expand(v, all_batch_dims) for v in values]
+    shapes = [shape(v) for v in values]
+    # --- Filter out 0-size tensors ---
+    filtered_values_and_shapes = [(v, s) for v, s in zip(values, shapes) if is_non_zero(s)]
+    if not filtered_values_and_shapes:
+        return values[0]
+    values, shapes = zip(*filtered_values_and_shapes)
+    if len(values) == 1:
+        return values[0]
     # --- First try __concat__ ---
     for v in values:
         if isinstance(v, Shapable):
