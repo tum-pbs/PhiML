@@ -3311,7 +3311,7 @@ def scatter(base_grid: Union[Tensor, Shape],
     broadcast = broadcast_dims(base_grid, indices, values)
     def scatter_forward(base_grid: Tensor, indices: Tensor, values: Tensor, indexed_dims=indexed_dims):
         indexed_dims = base_grid.shape[indexed_dims] - broadcast
-        batches = (values.shape.non_instance & indices.shape.non_channel & (indices.shape.instance.only(base_grid.shape.instance))) - indexed_dims - index_dim
+        batches = (values.shape.non_instance & indices.shape.non_instance.non_channel & (indices.shape.instance.only(base_grid.shape.instance))) - indexed_dims - index_dim
         batches &= values.shape.only(treat_as_batch) & indices.shape.only(treat_as_batch)
         batches -= broadcast
         channels = (base_grid.shape & values.shape.channel) - indexed_dims - batches - broadcast
