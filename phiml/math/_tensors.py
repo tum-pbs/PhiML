@@ -2694,11 +2694,17 @@ def is_numeric(x: Any) -> bool:
 
 
 def variable_shape(value):
-    return value.shape.only(value._var_dims) if isinstance(value, Tensor) else shape(value)
+    if isinstance(value, Tensor):
+        return value.shape.only(value._var_dims)
+    else:
+        from ._tree import tree_map, all_attributes
+        shapes = []
+        tree_map(lambda t: shapes.append(t.shape), value, attr_type=all_attributes)
+        return merge_shapes(*shapes)
 
 
 def variable_dim_names(value):
-    return value._var_dims if isinstance(value, Dense) else shape(value).names
+    return value._var_dims if isinstance(value, Tensor) else variable_shape(value).names
 
 
 def may_vary_along(value: Tensor, dims: DimFilter):
