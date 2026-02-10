@@ -182,6 +182,14 @@ class LinTracer(Tensor):
     def _spec_dict(self) -> dict:
         raise LinearTraceInProgress(self)
 
+    def _sum(self, dims: Shape):
+        new_dims = self._source.shape.only(dims) - self._indices.shape
+        indices = self._source_indices(included_src_dims=new_dims)
+        indices = pack_dims(indices, ['_deps', dims], '_deps:b')
+        fac = pack_dims(self._fac, ['_deps', dims], '_deps:b')
+        bias = math.sum_(self._bias, dims)
+        return LinTracer(self._source, indices, fac, bias)
+
     def _gather(self, indices: Tensor):
         """
         Args:

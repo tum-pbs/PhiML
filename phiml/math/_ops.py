@@ -1556,9 +1556,7 @@ def _sum(value: Tensor, dims: Shape) -> Tensor:
     elif isinstance(value, Tracer):
         return tracer_reduce(value, dims, 'sum', sum_)
     elif value._is_tracer:
-        if dims.volume == 1:
-            return value[{dims.name: 0}]
-        raise NotImplementedError
+        return value._sum(dims)
     else:
         raise ValueError(type(value))
 
