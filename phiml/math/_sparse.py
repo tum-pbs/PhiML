@@ -195,7 +195,7 @@ class SparseCoordinateTensor(Tensor):
         assert len(set(indices.sparse_idx.labels)) == indices.sparse_idx.size, f"Duplicate sparse dimensions in indices {indices} with index {indices.sparse_idx.labels}"
         assert indices.dtype.kind == int, f"indices must have dtype=int but got {indices.dtype}"
         assert instance(values) in instance(indices), f"All instance dimensions of values must exist in indices. values={values.shape}, indices={indices.shape}"
-        assert set(indices.shape.only(instance(values))) == set(instance(values)), f"indices and values must have equal number of elements but got {instance(indices)} indices and {instance(values)} values"
+        instance(indices) & instance(values)  # index/value shapes must broadcast
         if not instance(values) and (spatial(values) or dual(values)):
             warnings.warn(f"You are creating a sparse tensor with only constant values {values.shape}. To have values vary along indices, add the corresponding instance dimension.", RuntimeWarning, stacklevel=3)
         self._shape = merge_shapes(dense_shape, batch(indices), non_instance(values))
@@ -428,7 +428,8 @@ class SparseCoordinateTensor(Tensor):
         return self._with_values(self._values._op1(native_function, op_name))
 
     def _op2(self, other, op: Callable, switch_args: bool) -> 'Tensor':
-        other_shape = shape(other)
+        other = self._tensor(other)
+        other_shape = other.shape
         affects_only_values = self._dense_shape.isdisjoint(other_shape)
         if affects_only_values:
             return self._with_values(op(other, self._values) if switch_args else op(self._values, other))
@@ -455,7 +456,8 @@ class SparseCoordinateTensor(Tensor):
                     values = concat([-self_values, other_values] if switch_args else [self_values, -other_values], instance(self_values), expand_values=True)
                 return SparseCoordinateTensor(indices, values, self._dense_shape & other._dense_shape, can_contain_double_entries=True, indices_sorted=False, indices_constant=self._indices_constant)
         else:  # other is dense
-            if self._dense_shape in other.shape:  # all dims dense -> convert to dense
+            can_stay_sparse = op in {operator.mul, operator.truediv}
+            if self._dense_shape in other.shape and not can_stay_sparse:  # all dims dense -> convert to dense
                 return dense(self)._op2(other, op, switch_args)
             else:  # only some dims dense -> stay sparse
                 dense_dims = self._dense_shape.only(other.shape)
