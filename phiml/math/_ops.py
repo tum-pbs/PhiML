@@ -1682,6 +1682,8 @@ def _mean(value: Tensor, dims: Shape) -> Tensor:
         return tracer_reduce(value, dims, 'mean', mean)
     elif is_sparse(value):
         return sparse_mean(value, dims)
+    elif value._is_tracer:
+        return value._sum(dims) / dims.volume
     else:
         raise ValueError(type(value))
 
