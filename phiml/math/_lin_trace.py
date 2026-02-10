@@ -213,14 +213,21 @@ class LinTracer(Tensor):
     def __stack__(values: tuple, dim: Shape, **_kwargs) -> 'Tensor':
         if any(not isinstance(v, LinTracer) for v in values):
             return NotImplemented
-        return NotImplemented  # ToDo
+        if len(values) == 1:
+            return values[0].__expand__(dim)
+        src_dims = merge_shapes(*[dependent_src_dims(t) for t in values])
+        indices = [t._source_indices(included_src_dims=src_dims) for t in values if isinstance(t, LinTracer)]
+        indices = stack(indices, dim, expand_values=True)
+        fac = stack([t._fac for t in values], dim, expand_values=True)
+        bias = stack([t._bias for t in values], dim)
+        return LinTracer(values[0]._source, indices, fac, bias)
 
     def __expand__(self, dims: Shape, **kwargs) -> 'Tensor':
         return LinTracer(self._source, self._indices, self._fac, expand(self._bias, dims))
 
     def _pad(self, ext: Extrapolation, widths, already_padded, **kwargs):
         assert not already_padded
-        no_bias = ext - ext
+        no_bias = ext - ext  # ToDo for constant extrapolation, return a composite tensor, so we don't have to filter out zero-values later (which may be impossible when jit-compiling)
         indices = self._source_indices(included_src_dims=self._source.shape.only(tuple(widths)))
         indices = no_bias.pad(indices, widths)
         fac = no_bias.pad(expand(self._fac, self._source.shape.only(tuple(widths))), widths)
