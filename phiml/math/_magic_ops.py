@@ -177,7 +177,8 @@ def stack(values: Union[Sequence[PhiTreeNodeType], Dict[str, PhiTreeNodeType]], 
                         assert isinstance(result, SHAPE_TYPES) if isinstance(v, SHAPE_TYPES) else isinstance(result, Shapable), "__stack__ must return a Shapable object"
                     return result
         # --- Next: try stacking attributes for tree nodes ---
-        if any(dataclasses.is_dataclass(v) for v in values):
+        from ._tensors import Tensor
+        if any(dataclasses.is_dataclass(v) and not isinstance(v, Tensor) for v in values):
             from ..dataclasses._merge import dc_stack
             try:
                 return dc_stack(values, dim, expand_values=expand_values, simplify=simplify, layout_non_matching=layout_non_matching, **kwargs)
