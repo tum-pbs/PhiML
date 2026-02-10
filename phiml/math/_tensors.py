@@ -2494,7 +2494,7 @@ def format_full_sparse(value: Tensor, options: PrintOptions) -> str:
     down = non_batch(value) - right
     kind = value.dtype.kind
     if kind == int:
-        str_max = 2 + int(log10(value.max))
+        str_max = 3 + int(log10(value.max))
     elif kind == bool:
         str_max = 3 + int(log10(right.volume))
     else:
