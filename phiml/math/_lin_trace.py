@@ -239,16 +239,13 @@ class LinTracer(Tensor):
         full_size = sum([t_.shape.get_size(dim) for t_ in values])
         shape = merge_shapes([t.shape.with_dim_size(dim, full_size) for t in values])
         if any(not isinstance(t, LinTracer) for t in values):
-            raise NotImplementedError
-            return BlockTensor()
-            return TensorStack(values, shape[dim])
+            raise NotImplementedError  # BlockTensor
         # --- Concat only LinTracers ---
-        src_dims = merge_shapes(*[dependent_src_dims(t) for t in values])
+        src_dims = merge_shapes(*[dependent_src_dims(t) for t in values]).with_dim_size(dim, None) & shape[dim].with_dim_size(dim, None)
         indices = [t._source_indices(included_src_dims=src_dims) for t in values if isinstance(t, LinTracer)]
         indices = concat(indices, dim, expand_values=True)
-        fac = concat([t._fac for t in values], dim, expand_values=True)
+        fac = concat([expand(t._fac, t.shape[dim]) for t in values], dim, expand_values=True)
         bias = concat([t._bias for t in values], dim)
-        raise NotImplementedError
         return LinTracer(values[0]._source, indices, fac, bias)
 
     def min_rank_deficiency(self) -> Tensor:
