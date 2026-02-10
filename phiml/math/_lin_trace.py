@@ -46,27 +46,23 @@ class LinTracer(Tensor):
         bias = math.zeros(src.shape, dtype=src.dtype)
         return cls(src, indices, fac, bias)
 
-    def _source_indices(self, included_out_dims: Shape = EMPTY_SHAPE, included_src_dims: Shape = EMPTY_SHAPE, as_dual=False):
+    def _source_indices(self, included_src_dims: Shape, order: Tuple[str] = None, as_dual=False):
         """
         Args:
-            included_dims: Dim names in `self.shape` that should be part of the result's shape even if the dependency is constant along them.
+            included_src_dims: Dim names in `self._source.shape` that should be part of the result's shape even if the dependency is constant along them.
         """
+        if order is not None:
+            assert all([name in order for name in self._indices.shape['idx'].labels[0]]), f"All dependent dims ({self._indices.shape['idx'].labels[0]}) must be listed in included_src_dims but got {included_src_dims}"
         extend = []  # index components to add because of included_dims
         constant_dims = []
         with NUMPY:
             for dim in included_src_dims - self._var_src_names:  # dims that are not yet in self._indices, constant dependence (diagonal)
                 assert dim in self.shape, f"Cannot add source dim {dim} after it has been sliced off (not in self.shape)"
                 extend.append(vec('idx', **{dim.name: math.arange(self._bias.shape[dim.name])}))
-            for dim in included_out_dims:  # dims that are not yet in self._indices, constant dependence (diagonal)
-                raise NotImplementedError
-                if dim in self.shape:
-                    src_name = dim.name
-                    assert self._source.shape.get_size(src_name) == self._bias.shape.get_size(dim.name), f"Dim size has changed from {self._source.shape.get_size(src_name)} to {self._bias.shape.get_size(dim.name)} despite not being included in indices."
-                    extend.append(vec('idx', **{src_name: math.arange(self._bias.shape[dim.name])}))
-                else:
-                    constant_dims.append(dim)
         as_primal = concat([self._indices, *extend], 'idx', expand_values=True)
         as_primal = expand(as_primal, *constant_dims)
+        if order is not None and as_primal.shape['idx'].labels[0] != order:
+            as_primal = as_primal.idx[order]
         if as_dual:
             dual_shape = as_primal.shape.with_dim_size('idx', ['~' + label if not label.startswith('~') else label for label in as_primal.shape['idx'].slice_names])
             return as_primal._with_shape_replaced(dual_shape)
@@ -225,7 +221,7 @@ class LinTracer(Tensor):
         if len(values) == 1:
             return values[0].__expand__(dim)
         src_dims = merge_shapes(*[dependent_src_dims(t) for t in values])
-        indices = [t._source_indices(included_src_dims=src_dims) for t in values if isinstance(t, LinTracer)]
+        indices = [t._source_indices(included_src_dims=src_dims, order=src_dims.names) for t in values if isinstance(t, LinTracer)]
         indices = stack(indices, dim, expand_values=True)
         fac = stack([t._fac for t in values], dim, expand_values=True)
         bias = stack([t._bias for t in values], dim)
@@ -239,7 +235,7 @@ class LinTracer(Tensor):
         no_bias = ext - ext  # ToDo for constant extrapolation, return a composite tensor, so we don't have to filter out zero-values later (which may be impossible when jit-compiling)
         indices = self._source_indices(included_src_dims=self._source.shape.only(tuple(widths)))
         indices = no_bias.pad(indices, widths)
-        fac = no_bias.pad(expand(self._fac, self._source.shape.only(tuple(widths))), widths)
+        fac = no_bias.pad(expand(self._fac, self._source.shape.only(tuple(widths)) - self._fac.shape), widths)
         bias = ext.pad(self._bias, widths)
         return LinTracer(self._source, indices, fac, bias)
 
