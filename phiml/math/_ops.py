@@ -912,7 +912,11 @@ def stack_tensors(values: Union[tuple, list], dim: Shape):
     if non_stackable or any(is_sparse(v) for v in values):  # stackable sparse would have been handled by __stack__() before calling this function
         return TensorStack(values, dim)
     if any(v._is_tracer for v in values):
-        return BlockTensor.from_stack(values, dim)
+        if all(v._is_tracer for v in values):
+            result = values[0].__stack__(values, dim)
+            if result is not NotImplemented:
+                return result
+        # return BlockTensor.from_stack(values, dim)
         return TensorStack(values, dim)
     broadcast_shape = merge_shapes(*[v.shape for v in values], allow_varying_sizes=True)
     if not broadcast_shape.well_defined:
