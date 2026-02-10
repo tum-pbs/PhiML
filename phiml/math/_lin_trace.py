@@ -35,14 +35,14 @@ class LinTracer(Tensor):
         * batch dim `_deps': contributions from multiple input indices to be summed
     """
     _fac: Tensor
-    """ multiplication factors: sum(mul * src[indices], '_deps'). Can have fewer dims than indices. Shape compatible with self.shape. """
+    """ multiplication factors: sum(mul * src[indices], '_deps'). Can have fewer dims than indices. Shape compatible with self.shape. May contains _deps."""
     _bias: Tensor
     """ Shape equal to `self.shape`, dtype equal to `self.dtype`. Can contain additional expanded dims along which values (not dependencies) are constant """
 
     @classmethod
     def create_identity(cls, src: TracerSource):
         indices = math.zeros(batch(_deps=1), channel(idx=''))
-        fac = math.ones(batch(_deps=1))
+        fac = wrap(1)
         bias = math.zeros(src.shape, dtype=src.dtype)
         return cls(src, indices, fac, bias)
 
@@ -138,7 +138,8 @@ class LinTracer(Tensor):
                 idx1 = t1._source_indices(included_src_dims=src_dims)
                 idx2 = t2._source_indices(included_src_dims=src_dims)
                 indices = concat([idx1, idx2], '_deps', expand_values=True)
-                fac = concat([t1._fac, t2._fac], '_deps', expand_values=True)
+                fac1, fac2 = [t._fac if '_deps' in t._fac.shape else expand(t._fac, batch(_deps=1)) for t in (t1, t2)]
+                fac = concat([fac1, fac2], '_deps', expand_values=True)
                 bias = t1._bias + t2._bias
                 return LinTracer(self._source, indices, fac, bias)
             return BlockTensor(t1.shape & t2.shape, [(t1, NO_OFFSET), (t2, NO_OFFSET)], operator.add)
@@ -220,7 +221,7 @@ class LinTracer(Tensor):
     @staticmethod
     def __stack__(values: tuple, dim: Shape, **_kwargs) -> 'Tensor':
         if any(not isinstance(v, LinTracer) for v in values):
-            return NotImplemented
+            return TensorStack([wrap(v) for v in values], dim)
         if len(values) == 1:
             return values[0].__expand__(dim)
         src_dims = merge_shapes(*[dependent_src_dims(t) for t in values])
@@ -257,7 +258,7 @@ class LinTracer(Tensor):
         return LinTracer(values[0]._source, indices, fac, bias)
 
     def min_rank_deficiency(self) -> Tensor:
-        raise NotImplementedError
+        raise NotImplementedError  # ToDo
         trimming_dict = {}
         for dim in pattern_dim_names(self):
             shifts = [shift[dim] for shift in self.val]
@@ -374,7 +375,7 @@ def leaves_with_offsets(tracer_tree: Tensor, offset: IndexOffset) -> List[Tuple[
             result.extend(leaves_with_offsets(t, offset + {tracer_tree._stack_dim.name: i}))
         return result
     elif is_sparse(tracer_tree):
-        raise NotImplementedError
+        return [(tracer_tree, offset)]  # actual indices will be handled in lin_output_indices
     return [(tracer_tree, offset)]
 
 
@@ -396,11 +397,21 @@ def lin_output_indices(x: Tensor, offset: IndexOffset, included_out_dims: Shape)
     if not single_layer_names and not thick_names:  # no non-diagonal dependencies
         return None
     with NUMPY:
+        if is_sparse(x):
+            sp_dims = sparse_dims(x)
+            sp_indices = stored_indices(x)
+        else:
+            sp_dims = EMPTY_SHAPE
+            sp_indices = None
         indices = {}
         for name in thick_names:
             dim = x.shape[name] if name in x.shape else included_out_dims[name]
-            start = offset.by_dim.get(dim.name, 0)
-            indices[dim.name] = math.arange(dim, start, start + dim.size)
+            if name in sp_dims:
+                dim_indices = sp_indices[{channel: name}]
+                indices[name] = dim_indices
+            else:
+                start = offset.by_dim.get(dim.name, 0)
+                indices[name] = math.arange(dim, start, start + dim.size)
         for extra in single_layer_names:
             indices[extra] = wrap(offset[extra])
         indices = stack(indices, 'idx:c', expand_values=True)
@@ -452,8 +463,16 @@ def tracer_to_coo(tracer_tree: Tensor) -> Tuple[Tensor, Tensor]:
         values = []
         for (tensor, _), out_indices in zip(tensors_and_offsets, output_indices):
             if tensor._is_tracer:
-                src_indices: Tensor = tensor._source_indices(included_src_dims=in_dims, as_dual=True)
-                src_indices = expand(src_indices, out_dims.only(tensor.shape) - src_indices.shape)
+                if is_sparse(tensor):
+                    src_indices: Tensor = tensor._values._source_indices(included_src_dims=in_dims, as_dual=True)
+                    src_indices = expand(src_indices, out_dims.only(tensor.shape) - sparse_dims(tensor))
+                    fac = tensor._values._fac
+                    t_bias = tensor._values._bias
+                else:
+                    src_indices: Tensor = tensor._source_indices(included_src_dims=in_dims, as_dual=True)
+                    src_indices = expand(src_indices, out_dims.only(tensor.shape) - src_indices.shape)
+                    fac = tensor._fac
+                    t_bias = tensor._bias
                 if out_indices is None:
                     all_indices = src_indices
                 else:
@@ -461,10 +480,10 @@ def tracer_to_coo(tracer_tree: Tensor) -> Tuple[Tensor, Tensor]:
                 entry_dims = all_indices.shape - 'idx'
                 entry_dim = instance(entries=entry_dims.volume)
                 entry_idx = pack_dims(expand(all_indices, entry_dims), entry_dims, entry_dim)
-                entry_val = pack_dims(expand(tensor._fac, entry_dims), entry_dims, entry_dim)
+                entry_val = pack_dims(expand(fac, entry_dims), entry_dims, entry_dim)
                 indices.append(entry_idx)
                 values.append(entry_val)
-                bias = scatter(bias, out_indices, tensor._bias, 'add', pref_index_dim='idx')
+                bias = scatter(bias, out_indices, t_bias, 'add', pref_index_dim='idx')
             else:  # constant
                 bias = scatter(bias, out_indices, tensor, 'add', pref_index_dim='idx')
         indices = concat_tensor(indices, 'entries')
@@ -487,6 +506,9 @@ def dependent_src_dims(tracer: Tensor) -> Shape:
     if isinstance(tracer, LinTracer):
         dep_names = set(tracer._indices.shape['idx'].labels[0])
         return tracer._source.shape[list(dep_names)]
+    elif is_sparse(tracer):
+        values = tracer._values
+        return dependent_src_dims(values)
     raise ValueError(tracer)
 
 
@@ -499,8 +521,12 @@ def dependent_out_dims(tracer: Tensor, included_src_dims: Shape, sparsify=None) 
     Bias dimensions do not require a batched matrix but are subtracted from the right-hand-side vector.
     They are not included unless also relevant to the matrix.
     """
+    if not tracer._is_tracer:
+        return EMPTY_SHAPE
     if isinstance(tracer, LinTracer):
         out_dims = set(variable_dim_names(tracer))
         dims = tracer.shape.only(out_dims)
         return dims & (included_src_dims.only(tracer.shape) - dims)  # if size changed, prefer from tracer.shape
+    elif is_sparse(tracer):
+        return tracer.shape
     raise ValueError(tracer)
