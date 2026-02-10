@@ -936,8 +936,8 @@ def concat_tensor(values: Union[tuple, list], dim: str) -> Tensor:
     assert len(values) > 0, "concat() got empty sequence"
     assert isinstance(dim, str), f"dim must be a single-dimension Shape but got '{dim}' of type {type(dim)}"
     if any([v._is_tracer for v in values]):
-        from ._lin_trace import concat_tracers
-        return concat_tracers(values, dim)
+        tracer = [v for v in values if v._is_tracer][0]
+        return tracer.__concat__(values, dim)
 
     def inner_concat(*values):
         broadcast_shape: Shape = values[0].shape  # merge_shapes(*[t.shape.with_sizes([None] * t.shape.rank) for t in values])
