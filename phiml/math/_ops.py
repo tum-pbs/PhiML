@@ -923,7 +923,7 @@ def stack_tensors(values: Union[tuple, list], dim: Shape):
         return TensorStack(values, dim)
     # --- uniform stack ---
     dim = dim.with_size(len(values))
-    native_broadcast_shape = merge_shapes(*[variable_shape(v) for v in values])
+    native_broadcast_shape = merge_shapes(*[variable_shape(v) for v in values], allow_varying_labels=True)
     natives = [v._reshaped_native([*native_broadcast_shape]) for v in values]
     names = (native_broadcast_shape & dim).names
     b = choose_backend(*natives)
@@ -2908,10 +2908,13 @@ def convolve(value: Tensor,
     Args:
         value: `Tensor` whose shape includes all spatial dimensions of `kernel`.
         kernel: `Tensor` used as convolutional filter.
-        dims: Which dimensions to convolve over. Defaults to all spatial dims.
+        size: Either a `Shape` specifying the desired output resolution or one of the following predefined strings: `('valid', 'same', 'full')`.
+            `valid`: Only those values are returned where the full kernel can be applied on valid values without using the `extrapolation`.
+            `same` the output is the same size as the input.
+            `full`: the output contains all values of the convolution, including those where the kernel extends beyond the input.
         extrapolation: If `None`, convolve only where `kernel` fits into `value`, i.e. 'valid'. Otherwise, pads `value` with the specified extrapolation. The amount of padding depends on `full`.
+        dims: Which dimensions to convolve over. Defaults to all spatial dims.
         strides: Convolution strides for applying `kernel` to a subset of `value` only. This will result in a smaller output. The stride can be specified per dim, with missing dims defaulting to `1`.
-        full: If `True`, the output contains all values of the convolution, including those where the kernel extends beyond the input. If `False`, the output is the same size as the input.
         transpose: If `True`, the kernel is transposed before convolution, and strides are replaced by up-sampling.
 
     Returns:
@@ -2968,6 +2971,18 @@ def convolve(value: Tensor,
                     raise NotImplementedError
         value = pad(value, pad_widths, extrapolation)
         # value = pad(value, {dim: (kernel.shape.get_size(dim) // 2, (kernel.shape.get_size(dim) - 1) // 2) for dim in dims.names}, extrapolation)
+    if value._is_tracer:
+        if strides != 1 or transpose:
+            raise NotImplementedError
+        result = []
+        widths = {dim.name: s - value.shape.get_size(dim) + kernel.shape.get_size(dim) - 1 for dim, s in zip(dims, out_sizes)}
+        value = pad(value, {dim: (s//2, s//2 + (s%2)) for dim, s in widths.items()}, extrapolation)
+        for idx in dims.meshgrid():
+            kernel_i = kernel[idx]
+            value_i = value[{dim: slice(offset, s + offset) for (dim, offset), s in zip(idx.items(), out_sizes)}]
+            result.append(kernel_i * value_i)
+        result = stack(result, '_reduce:b')
+        return sum_(result, '_reduce')
     # --- Perform conv ---
     backend = backend_for(value, kernel)
     native_kernel = kernel.native((batch_dims if batch(kernel) else EMPTY_SHAPE, out_dims, dual(kernel), *dims))

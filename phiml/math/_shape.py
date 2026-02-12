@@ -2544,7 +2544,7 @@ DIM_FUNCTIONS = {BATCH_DIM: batch, SPATIAL_DIM: spatial, INSTANCE_DIM: instance,
 TYPE_BY_FUNCTION = {v: k for k, v in DIM_FUNCTIONS.items()}
 
 
-def merge_shapes(*objs: Union[Shape, Any], allow_varying_sizes=False) -> Shape:
+def merge_shapes(*objs: Union[Shape, Any], allow_varying_sizes=False, allow_varying_labels=True) -> Shape:
     """
     Combines `shapes` into a single `Shape`, grouping dimensions by type.
     If dimensions with equal names are present in multiple shapes, their types and sizes must match.
@@ -2572,18 +2572,18 @@ def merge_shapes(*objs: Union[Shape, Any], allow_varying_sizes=False) -> Shape:
     if is_pure:
         is_pure = len(set([s.dim_type for s in shapes])) == 1
     if is_pure:
-        return pure_merge(*shapes, allow_varying_sizes=allow_varying_sizes)
+        return pure_merge(*shapes, allow_varying_sizes=allow_varying_sizes, allow_varying_labels=allow_varying_labels)
     else:
-        b = pure_merge(*[s.batch for s in shapes], allow_varying_sizes=allow_varying_sizes)
-        d = pure_merge(*[s.dual for s in shapes], allow_varying_sizes=allow_varying_sizes)
-        i = pure_merge(*[s.instance for s in shapes], allow_varying_sizes=allow_varying_sizes)
-        s = pure_merge(*[s.spatial for s in shapes], allow_varying_sizes=allow_varying_sizes)
-        c = pure_merge(*[s.channel for s in shapes], allow_varying_sizes=allow_varying_sizes)
+        b = pure_merge(*[s.batch for s in shapes], allow_varying_sizes=allow_varying_sizes, allow_varying_labels=allow_varying_labels)
+        d = pure_merge(*[s.dual for s in shapes], allow_varying_sizes=allow_varying_sizes, allow_varying_labels=allow_varying_labels)
+        i = pure_merge(*[s.instance for s in shapes], allow_varying_sizes=allow_varying_sizes, allow_varying_labels=allow_varying_labels)
+        s = pure_merge(*[s.spatial for s in shapes], allow_varying_sizes=allow_varying_sizes, allow_varying_labels=allow_varying_labels)
+        c = pure_merge(*[s.channel for s in shapes], allow_varying_sizes=allow_varying_sizes, allow_varying_labels=allow_varying_labels)
         dims = {**b.dims, **d.dims, **i.dims, **s.dims, **c.dims}
         return MixedShape(b, d, i, s, c, dims) if dims else EMPTY_SHAPE
 
 
-def pure_merge(*shapes: Shape, allow_varying_sizes: bool) -> Shape:
+def pure_merge(*shapes: Shape, allow_varying_sizes: bool, allow_varying_labels=True) -> Shape:
     all_dims = []
     non_empty = []
     for s in shapes:
@@ -2616,10 +2616,10 @@ def pure_merge(*shapes: Shape, allow_varying_sizes: bool) -> Shape:
                 names2 = dim.slice_names
                 if names1 is not None and names2 is not None and len(names1) > 1:
                     if names1 != names2:
-                        if set(names1) == set(names2):
-                            raise IncompatibleShapes(
-                                f"Inconsistent component order on {dim.name}: '{','.join(names1)}' vs '{','.join(names2)}' in dimension '{dim.name}'. Failed to merge shapes {shapes}",
-                                *shapes)
+                        if allow_varying_labels:
+                            dims[dim.name] = Dim(dim.name, dim.size, dim.dim_type, None)
+                        elif set(names1) == set(names2):
+                            raise IncompatibleShapes(f"Inconsistent component order on {dim.name}: '{','.join(names1)}' vs '{','.join(names2)}' in dimension '{dim.name}'. Failed to merge shapes {shapes}", *shapes)
                         else:
                             raise IncompatibleShapes(f"Cannot merge shapes {shapes} because dimension '{dim.name}' exists with different labels.", *shapes)
                 elif names1 is None and names2 is not None:
