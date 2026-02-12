@@ -29,7 +29,7 @@ class LinTracer(Tensor):
     """
     _source: TracerSource
     _indices: Tensor
-    """ Shape compatible with self.shape.
+    """ Shape compatible with self.shape. Always includes all dims of `_fac`.
     Special dims:
         * channel dim 'idx': contains only relevant source dims, other src dim dependence is constant.
         * batch dim `_deps': contributions from multiple input indices to be summed
@@ -45,6 +45,10 @@ class LinTracer(Tensor):
         fac = wrap(1)
         bias = math.zeros(src.shape, dtype=src.dtype)
         return cls(src, indices, fac, bias)
+
+    def __post_init__(self):
+        self._fac.shape & self._indices.shape  # Shapes must be broadcastable
+        assert self._fac.shape in self._indices  # _indices must include all dims of _fac
 
     def _source_indices(self, included_src_dims: Shape, order: Tuple[str] = None, as_dual=False):
         """
@@ -144,7 +148,8 @@ class LinTracer(Tensor):
             bias = op(self._bias, other)
             if op in {operator.mul, operator.truediv}:
                 fac = op(self._fac, other)
-                return LinTracer(self._source, self._indices, fac, bias)
+                indices = expand(self._indices, other.shape)
+                return LinTracer(self._source, indices, fac, bias)
             elif op in {operator.add, operator.sub}:
                 return LinTracer(self._source, self._indices, self._fac, bias)
             else:
@@ -199,15 +204,11 @@ class LinTracer(Tensor):
         fac = self._fac[indices]
         return LinTracer(self._source, idx, fac, bias)
 
-    def _matmul(self, self_dims: Shape, matrix: Tensor, matrix_dims: Shape) -> Tensor:
-        shape = matrix.shape.without(matrix_dims) & self._shape.without(self_dims)
-        raise NotImplementedError
-        if self_dims not in self._diag.shape:  # self is constant along self_dims
-            matrix = math.sum_(matrix, matrix_dims)
-        diag = matrix * self._diag
-        diag = rename_dims(diag, matrix_dims, rename_dims(self_dims, [*self._renamed.keys()], [*self._renamed.values()]).as_dual())
-        renamed = {n: o for n, o in self._renamed.items() if n not in self_dims}
-        return GatherLinTracer(self._source, diag, self._bias, shape, self._selection, renamed)
+    def _dot(self, self_dims: Shape, matrix: Tensor, matrix_dims: Shape) -> Tensor:
+        t1 = rename_dims(self, self_dims, channel('_reduce'))
+        t2 = rename_dims(matrix, matrix_dims, channel('_reduce'))
+        mul = t1 * t2
+        return mul._sum('_reduce')
 
     def _scatter(self, base: Tensor, indices: Tensor) -> Tensor:
         # assume base is 0
@@ -276,7 +277,7 @@ class LinTracer(Tensor):
         return math.where(balanced_stencil, deficiency, 0)
 
     def __repr__(self):
-        return f"{self.__class__.__name__} {self._bias.shape}"
+        return f"{self._bias.shape} up to {self._indices.shape.get_size('_deps')} lin deps per entry"
 
 
 class LinearTraceInProgress(Exception):

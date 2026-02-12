@@ -2413,9 +2413,9 @@ def dot(x: Tensor,
             else:
                 return sparse_dot(x, x_dims, y, y_dims)
         if x._is_tracer:
-            return x._matmul(x_dims, y, y_dims)
+            return x._dot(x_dims, y, y_dims)
         if y._is_tracer:
-            return y._matmul(y_dims, x, x_dims)
+            return y._dot(y_dims, x, x_dims)
         x_native = x.native(x.shape)
         y_native = y.native(y.shape)
         backend = choose_backend(x_native, y_native)
