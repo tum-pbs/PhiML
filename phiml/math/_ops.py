@@ -3338,9 +3338,7 @@ def scatter(base_grid: Union[Tensor, Shape],
         if values._is_tracer:
             if indices._is_tracer or base_grid._is_tracer:
                 raise NotImplementedError("scattering linear tracer into linear tracer not supported")
-            if not index_dim:
-                indices = expand(indices, channel(scatter_idx=indexed_dims))
-            return values._scatter(base_grid, indices)
+            return values._scatter(base_grid, indices, mode, index_dim, indexed_dims, batches, channels, lists)
         indices = to_int32(round_(indices))
         backend = backend_for(indices, values, base_grid)
         native_grid = base_grid._reshaped_native([batches, *indexed_dims, channels])

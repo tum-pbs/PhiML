@@ -223,10 +223,24 @@ class LinTracer(Tensor):
         mul = t1 * t2
         return mul._sum('_reduce')
 
-    def _scatter(self, base: Tensor, indices: Tensor) -> Tensor:
-        # assume base is 0
-        values = self.__pack_dims__(non_batch(self), instance('entries'), None)
-        return sparse_tensor(indices, values, base.shape & batch(self))
+    def _scatter(self, base_grid: Tensor, indices: Tensor, mode: str, index_dim: Shape, indexed_dims: Shape, batches: Shape, channels: Shape, lists: Shape) -> Tensor:
+        if base_grid._is_tracer:
+            raise NotImplementedError
+        fraction = (self.shape - batches).volume / indexed_dims.volume
+        assert fraction <= 1
+        if mode == 'update' and fraction >= .5:  # max dependencies unchanged -> return dense LinTracer
+            lin_indices = expand(0, indexed_dims)
+            lin_indices = scatter(lin_indices, indices, self._indices)
+            fac = expand(0, indexed_dims)
+            fac = scatter(fac, indices, self._fac)
+            fac_nz = expand(False, indexed_dims)
+            fac_nz = scatter(fac_nz, indices, self._fac_nz)
+            bias = scatter(base_grid, indices, self._bias)
+            return LinTracer(self._source, lin_indices, fac, fac_nz, bias)
+        else:  # return sparse tensor with values=self
+            # assume base is 0
+            values = self.__pack_dims__(non_batch(self), instance('entries'), None)
+            return sparse_tensor(indices, values, base_grid.shape & batch(self))
 
     @staticmethod
     def __stack__(values: tuple, dim: Shape, **_kwargs) -> 'Tensor':
