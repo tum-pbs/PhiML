@@ -10,7 +10,7 @@ from ._nd import vec
 from ._ops import backend_for, concat_tensor, scatter
 from ._shape import Shape, merge_shapes, instance, EMPTY_SHAPE, dual, channel, non_batch, batch
 from ._sparse import SparseCoordinateTensor, is_sparse, sparse_dims, sparse_tensor, stored_indices
-from ._tensors import Tensor, wrap, TensorStack, BlockTensor, NO_OFFSET, IndexOffset, variable_dim_names
+from ._tensors import Tensor, wrap, TensorStack, BlockTensor, NO_OFFSET, IndexOffset, variable_dim_names, variable_shape
 from ._tree import disassemble_tree, assemble_tree
 from .extrapolation import Extrapolation, ConstantExtrapolation
 from ..backend import NUMPY, Backend
@@ -53,6 +53,8 @@ class LinTracer(Tensor):
         assert self._fac.shape in self._indices  # _indices must include all dims of _fac
         assert self._fac_nz.shape in self._fac.shape
         assert self._fac_nz.backend == NUMPY
+        if self._indices.shape - 'idx' - '_deps':
+            assert self._indices.shape['idx'].labels[0]
 
     def _source_indices(self, included_src_dims: Shape, order: Tuple[str] = None, as_dual=False):
         """
@@ -157,9 +159,10 @@ class LinTracer(Tensor):
             if op in {operator.mul, operator.truediv}:
                 fac = op(self._fac, other)
                 fac_nz = self._fac_nz
-                if op == operator.mul and other.is_available:
+                if op == operator.mul and other.available:
                     fac_nz = fac_nz & math.convert(other != 0, NUMPY)
-                indices = expand(self._indices, other.shape)
+                indices = self._source_indices(included_src_dims=self._source.shape.only(variable_shape(other)))
+                indices = expand(indices, fac.shape)
                 return LinTracer(self._source, indices, fac, fac_nz, bias)
             elif op in {operator.add, operator.sub}:
                 return LinTracer(self._source, self._indices, self._fac, self._fac_nz, bias)
@@ -264,7 +267,7 @@ class LinTracer(Tensor):
         no_bias = ext - ext  # ToDo for constant extrapolation, return a composite tensor, so we don't have to filter out zero-values later (which may be impossible when jit-compiling)
         indices = self._source_indices(included_src_dims=self._source.shape.only(tuple(widths)))
         indices = no_bias.pad(indices, widths)
-        fac = no_bias.pad(expand(self._fac, self._source.shape.only(tuple(widths)) - self._fac.shape), widths)
+        fac = no_bias.pad(expand(self._fac, self._indices.shape.only(tuple(widths)) - self._fac.shape), widths)
         nz_ext = not isinstance(ext, ConstantExtrapolation)
         fac_nz = math.pad(self._fac_nz, widths, nz_ext)
         bias = ext.pad(self._bias, widths)
@@ -489,7 +492,7 @@ def tracer_to_coo(tracer_tree: Tensor) -> Tuple[Tensor, Tensor]:
                 entry_dim = instance(entries=entry_dims.volume)
                 entry_idx = pack_dims(expand(all_indices, entry_dims), entry_dims, entry_dim)
                 entry_val = pack_dims(expand(fac, entry_dims), entry_dims, entry_dim)
-                if not math.all_(fac_nz):  # we know the location of some zeros in fac
+                if not fac_nz.all:  # we know the location of some zeros in fac
                     entry_mask = pack_dims(expand(fac_nz, entry_dims), entry_dims, entry_dim)
                     entry_idx = entry_idx[entry_mask]
                     entry_val = entry_val[entry_mask]
