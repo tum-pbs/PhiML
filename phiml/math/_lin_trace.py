@@ -2,21 +2,20 @@ import operator
 import warnings
 from collections import namedtuple
 from dataclasses import dataclass
-from typing import Callable, Dict, Set, Tuple, Union, Optional, Sequence, List
+from typing import Callable, Tuple, Union, Optional, List
 
+from . import _ops as math
+from ._magic_ops import stack, expand, rename_dims, value_attributes, pack_dims, concat
+from ._nd import vec
+from ._ops import backend_for, concat_tensor, scatter
+from ._shape import Shape, merge_shapes, instance, EMPTY_SHAPE, dual, channel, non_batch, batch
+from ._sparse import SparseCoordinateTensor, is_sparse, sparse_dims, sparse_tensor, stored_indices
+from ._tensors import Tensor, wrap, TensorStack, BlockTensor, NO_OFFSET, IndexOffset, variable_dim_names
+from ._tree import disassemble_tree, assemble_tree
+from .extrapolation import Extrapolation, ConstantExtrapolation
 from ..backend import NUMPY, Backend
 from ..backend import get_precision
-from ..backend._dtype import DType, combine_types
-from . import _ops as math
-from ._magic_ops import stack, expand, rename_dims, unpack_dim, value_attributes, ccat, pack_dims, concat
-from ._ops import backend_for, concat_tensor, scatter
-from ._shape import Shape, merge_shapes, instance, EMPTY_SHAPE, dual, channel, non_batch, non_channel, DEBUG_CHECKS, \
-    after_gather, concat_shapes_, batch
-from ._sparse import SparseCoordinateTensor, is_sparse, sparse_dims, sparse_tensor, stored_indices, stored_values, add_sparse_batch_dim
-from ._tensors import Tensor, wrap, TensorStack, discard_constant_dims, variable_shape, Dense, BlockTensor, NO_OFFSET, IndexOffset, variable_dim_names
-from ._tree import disassemble_tree, assemble_tree
-from ._nd import vec
-from .extrapolation import Extrapolation
+from ..backend._dtype import DType
 
 TracerSource = namedtuple('TracerSource', ['shape', 'dtype', 'name', 'index'])
 
@@ -36,6 +35,8 @@ class LinTracer(Tensor):
     """
     _fac: Tensor
     """ multiplication factors: sum(mul * src[indices], '_deps'). Can have fewer dims than indices. Shape compatible with self.shape. May contains _deps."""
+    _fac_nz: Tensor[bool]
+    """ NumPy-backed mask whose shape is fully contained in `_fac`. `False` values indicate where `_fac` is guaranteed to be zero. """
     _bias: Tensor
     """ Shape equal to `self.shape`, dtype equal to `self.dtype`. Can contain additional expanded dims along which values (not dependencies) are constant """
 
@@ -43,12 +44,15 @@ class LinTracer(Tensor):
     def create_identity(cls, src: TracerSource):
         indices = math.zeros(batch(_deps=1), channel(idx=''))
         fac = wrap(1)
+        fac_nz = wrap(True)
         bias = math.zeros(src.shape, dtype=src.dtype)
-        return cls(src, indices, fac, bias)
+        return cls(src, indices, fac, fac_nz, bias)
 
     def __post_init__(self):
-        self._fac.shape & self._indices.shape  # Shapes must be broadcastable
+        assert self._fac.shape & self._indices.shape  # Shapes must be broadcastable
         assert self._fac.shape in self._indices  # _indices must include all dims of _fac
+        assert self._fac_nz.shape in self._fac.shape
+        assert self._fac_nz.backend == NUMPY
 
     def _source_indices(self, included_src_dims: Shape, order: Tuple[str] = None, as_dual=False):
         """
@@ -106,15 +110,17 @@ class LinTracer(Tensor):
         indices = self._source_indices(included_src_dims=new_dims)  # make sure that changed dims are stored in indices
         indices = indices._with_shape_replaced(indices.shape.replace(self.shape, new_shape))
         fac = self._fac._with_shape_replaced(self._fac.shape.replace(self.shape, new_shape))
+        fac_nz = self._fac_nz._with_shape_replaced(self._fac_nz.shape.replace(self.shape, new_shape))
         bias = self._bias._with_shape_replaced(new_shape)
-        return LinTracer(self._source, indices, fac, bias)
+        return LinTracer(self._source, indices, fac, fac_nz, bias)
 
     def _getitem(self, selection: dict) -> 'Tensor':
         new_dims = self._source.shape.only(tuple(selection)) - self._indices.shape
         indices = self._source_indices(included_src_dims=new_dims)[selection]
         fac = self._fac[selection]
+        fac_nz = self._fac_nz[selection]
         bias = self._bias[selection]
-        return LinTracer(self._source, indices, fac, bias)
+        return LinTracer(self._source, indices, fac, fac_nz, bias)
 
     def _unstack(self, dimension: str):
         dim = self.shape[dimension]
@@ -140,18 +146,23 @@ class LinTracer(Tensor):
                 indices = concat([idx1, idx2], '_deps', expand_values=True)
                 fac1, fac2 = [t._fac if '_deps' in t._fac.shape else expand(t._fac, batch(_deps=1)) for t in (t1, t2)]
                 fac = concat([fac1, fac2], '_deps', expand_values=True)
+                fac_nz1, fac_nz2 = [t._fac_nz if '_deps' in t._fac_nz.shape else expand(t._fac_nz, batch(_deps=1)) for t in (t1, t2)]
+                fac_nz = concat([fac_nz1, fac_nz2], '_deps', expand_values=True)
                 bias = t1._bias + t2._bias
-                return LinTracer(self._source, indices, fac, bias)
+                return LinTracer(self._source, indices, fac, fac_nz, bias)
             return BlockTensor(t1.shape & t2.shape, [(t1, NO_OFFSET), (t2, NO_OFFSET)], operator.add)
         else:  # op with constant
             other = self._tensor(other)
             bias = op(self._bias, other)
             if op in {operator.mul, operator.truediv}:
                 fac = op(self._fac, other)
+                fac_nz = self._fac_nz
+                if op == operator.mul and other.is_available:
+                    fac_nz = fac_nz & math.convert(other != 0, NUMPY)
                 indices = expand(self._indices, other.shape)
-                return LinTracer(self._source, indices, fac, bias)
+                return LinTracer(self._source, indices, fac, fac_nz, bias)
             elif op in {operator.add, operator.sub}:
-                return LinTracer(self._source, self._indices, self._fac, bias)
+                return LinTracer(self._source, self._indices, self._fac, self._fac_nz, bias)
             else:
                 raise ValueError(f"Unsupported operation encountered while tracing linear function: {op}")
 
@@ -165,7 +176,7 @@ class LinTracer(Tensor):
             raise NotImplementedError('Only linear operations are supported')
 
     def __neg__(self):
-        return LinTracer(self._source, self._indices, -self._fac, -self._bias)
+        return LinTracer(self._source, self._indices, -self._fac, self._fac_nz, -self._bias)
 
     def __cast__(self, dtype: DType) -> 'Tensor':
         if self.dtype == dtype:
@@ -175,7 +186,7 @@ class LinTracer(Tensor):
             return self
         fac = math.cast(self._fac, dtype)
         bias = math.cast(self._bias, dtype)
-        return LinTracer(self._source, self._indices, fac, bias)
+        return LinTracer(self._source, self._indices, fac, self._fac_nz, bias)
 
     def _natives(self) -> tuple:
         """ This function should only be used to determine the compatible backends, this tensor should be regarded as not available. """
@@ -189,8 +200,9 @@ class LinTracer(Tensor):
         indices = self._source_indices(included_src_dims=new_dims)
         indices = pack_dims(indices, ['_deps', dims], '_deps:b')
         fac = pack_dims(self._fac, ['_deps', dims], '_deps:b')
+        fac_nz = pack_dims(self._fac_nz, ['_deps', dims], '_deps:b')
         bias = math.sum_(self._bias, dims)
-        return LinTracer(self._source, indices, fac, bias)
+        return LinTracer(self._source, indices, fac, fac_nz, bias)
 
     def _gather(self, indices: Tensor):
         """
@@ -202,7 +214,8 @@ class LinTracer(Tensor):
         new_dims = self._source.shape.only(dims) - self._indices.shape
         idx = self._source_indices(included_src_dims=new_dims)[indices]
         fac = self._fac[indices]
-        return LinTracer(self._source, idx, fac, bias)
+        fac_nz = self._fac_nz[indices]
+        return LinTracer(self._source, idx, fac, fac_nz, bias)
 
     def _dot(self, self_dims: Shape, matrix: Tensor, matrix_dims: Shape) -> Tensor:
         t1 = rename_dims(self, self_dims, channel('_reduce'))
@@ -225,11 +238,12 @@ class LinTracer(Tensor):
         indices = [t._source_indices(included_src_dims=src_dims, order=src_dims.names) for t in values if isinstance(t, LinTracer)]
         indices = stack(indices, dim, expand_values=True)
         fac = stack([t._fac for t in values], dim, expand_values=True)
+        fac_nz = stack([t._fac_nz for t in values], dim, expand_values=True)
         bias = stack([t._bias for t in values], dim)
-        return LinTracer(values[0]._source, indices, fac, bias)
+        return LinTracer(values[0]._source, indices, fac, fac_nz, bias)
 
     def __expand__(self, dims: Shape, **kwargs) -> 'Tensor':
-        return LinTracer(self._source, self._indices, self._fac, expand(self._bias, dims))
+        return LinTracer(self._source, self._indices, self._fac, self._fac_nz, expand(self._bias, dims))
 
     def _pad(self, ext: Extrapolation, widths, already_padded, **kwargs):
         assert not already_padded
@@ -237,8 +251,10 @@ class LinTracer(Tensor):
         indices = self._source_indices(included_src_dims=self._source.shape.only(tuple(widths)))
         indices = no_bias.pad(indices, widths)
         fac = no_bias.pad(expand(self._fac, self._source.shape.only(tuple(widths)) - self._fac.shape), widths)
+        nz_ext = not isinstance(ext, ConstantExtrapolation)
+        fac_nz = math.pad(self._fac_nz, widths, nz_ext)
         bias = ext.pad(self._bias, widths)
-        return LinTracer(self._source, indices, fac, bias)
+        return LinTracer(self._source, indices, fac, fac_nz, bias)
 
     @staticmethod
     def __concat__(values: tuple, dim: str, **kwargs) -> 'Tensor':
@@ -251,30 +267,9 @@ class LinTracer(Tensor):
         indices = [t._source_indices(included_src_dims=src_dims) for t in values if isinstance(t, LinTracer)]
         indices = concat(indices, dim, expand_values=True)
         fac = concat([expand(t._fac, t.shape[dim]) for t in values], dim, expand_values=True)
+        fac_nz = concat([expand(t._fac_nz, t.shape[dim]) for t in values], dim, expand_values=True)
         bias = concat([t._bias for t in values], dim)
-        return LinTracer(values[0]._source, indices, fac, bias)
-
-    def min_rank_deficiency(self) -> Tensor:
-        raise NotImplementedError  # ToDo
-        trimming_dict = {}
-        for dim in pattern_dim_names(self):
-            shifts = [shift[dim] for shift in self.val]
-            lo = -min(shifts)
-            hi = -max(shifts) or None
-            trimming_dict[dim] = slice(lo, hi)
-        trimmed_vals = [v[trimming_dict] for v in self.val.values()]
-        if all(v.available for v in trimmed_vals):
-            stencil_sum = sum(trimmed_vals)
-            stencil_abs = sum([abs(v) for v in trimmed_vals])
-            eps = {16: 1e-2, 32: 1e-5, 64: 1e-10}[get_precision()]
-            balanced_stencil = math.close(0, stencil_sum, rel_tolerance=0, abs_tolerance=eps * math.mean(stencil_abs), reduce=pattern_dim_names(self))
-        else:
-            balanced_stencil = True  # cannot be determined here because values can vary. Assume could be rank-deficient to print warning
-        deficiency = 0
-        for shift, nonzero in self._nz_edge.items():
-            if shift and nonzero:
-                deficiency += 1
-        return math.where(balanced_stencil, deficiency, 0)
+        return LinTracer(values[0]._source, indices, fac, fac_nz, bias)
 
     def __repr__(self):
         return f"{self._bias.shape} up to {self._indices.shape.get_size('_deps')} lin deps per entry"
@@ -464,11 +459,13 @@ def tracer_to_coo(tracer_tree: Tensor) -> Tuple[Tensor, Tensor]:
                     src_indices: Tensor = tensor._values._source_indices(included_src_dims=in_dims, as_dual=True)
                     src_indices = expand(src_indices, out_dims.only(tensor.shape) - sparse_dims(tensor))
                     fac = tensor._values._fac
+                    fac_nz = tensor._values._fac_nz
                     t_bias = tensor._values._bias
                 else:
                     src_indices: Tensor = tensor._source_indices(included_src_dims=in_dims, as_dual=True)
                     src_indices = expand(src_indices, out_dims.only(tensor.shape) - src_indices.shape)
                     fac = tensor._fac
+                    fac_nz = tensor._fac_nz
                     t_bias = tensor._bias
                 if out_indices is None:
                     all_indices = src_indices
@@ -478,6 +475,10 @@ def tracer_to_coo(tracer_tree: Tensor) -> Tuple[Tensor, Tensor]:
                 entry_dim = instance(entries=entry_dims.volume)
                 entry_idx = pack_dims(expand(all_indices, entry_dims), entry_dims, entry_dim)
                 entry_val = pack_dims(expand(fac, entry_dims), entry_dims, entry_dim)
+                if not math.all_(fac_nz):  # we know the location of some zeros in fac
+                    entry_mask = pack_dims(expand(fac_nz, entry_dims), entry_dims, entry_dim)
+                    entry_idx = entry_idx[entry_mask]
+                    entry_val = entry_val[entry_mask]
                 indices.append(entry_idx)
                 values.append(entry_val)
                 bias = scatter(bias, out_indices, t_bias, 'add', pref_index_dim='idx')
@@ -527,3 +528,25 @@ def dependent_out_dims(tracer: Tensor, included_src_dims: Shape, sparsify=None) 
     elif is_sparse(tracer):
         return tracer.shape
     raise ValueError(tracer)
+
+
+def min_rank_deficiency(tracer: LinTracer) -> Tensor:
+    trimming_dict = {}
+    for dim in pattern_dim_names(tracer):
+        shifts = [shift[dim] for shift in tracer.val]
+        lo = -min(shifts)
+        hi = -max(shifts) or None
+        trimming_dict[dim] = slice(lo, hi)
+    trimmed_vals = [v[trimming_dict] for v in tracer.val.values()]
+    if all(v.available for v in trimmed_vals):
+        stencil_sum = sum(trimmed_vals)
+        stencil_abs = sum([abs(v) for v in trimmed_vals])
+        eps = {16: 1e-2, 32: 1e-5, 64: 1e-10}[get_precision()]
+        balanced_stencil = math.close(0, stencil_sum, rel_tolerance=0, abs_tolerance=eps * math.mean(stencil_abs), reduce=pattern_dim_names(tracer))
+    else:
+        balanced_stencil = True  # cannot be determined here because values can vary. Assume could be rank-deficient to print warning
+    deficiency = 0
+    for shift, nonzero in tracer._nz_edge.items():
+        if shift and nonzero:
+            deficiency += 1
+    return math.where(balanced_stencil, deficiency, 0)
