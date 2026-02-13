@@ -655,7 +655,7 @@ class Shape(Protocol, metaclass=ShapeMeta):
         """
         ...
 
-    def with_dim_size(self, dim: Union[str, 'Shape'], size: Union[int, 'math.Tensor', str, tuple, list], keep_labels=True):
+    def with_dim_size(self, dim: Union[str, 'Shape'], size: Union[int, 'math.Tensor', str, tuple, list, None], keep_labels=True):
         """
         Returns a new `Shape` that has a different size for `dim`.
 
