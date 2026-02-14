@@ -380,7 +380,7 @@ class SparseCoordinateTensor(Tensor):
                 c_idx_packed = idx_packed[None, :, 0]
                 u_idx_packed = idx_packed[None, :, 1]
                 uncompressed_indices = bi.unravel_index(u_idx, c_dims.sizes + u_dims.sizes)
-                uncompressed_indices = wrap(uncompressed_indices, instance('sp_entries'), channel(self._indices))
+                uncompressed_indices = wrap(uncompressed_indices, instance('sp_entries'), channel(self._indices).with_size(c_dims.name_list + u_dims.name_list))
         # --- Use scipy.sparse.csr_matrix to reorder values ---
         c_idx_packed = choose_backend(c_idx_packed).numpy(c_idx_packed)
         u_idx_packed = choose_backend(u_idx_packed).numpy(u_idx_packed)
@@ -403,7 +403,7 @@ class SparseCoordinateTensor(Tensor):
         inst_dim_order = instance(self._indices)
         indices = pack_dims(self._indices, inst_dim_order, instance('sp_entries'))
         values = pack_dims(self._values, inst_dim_order, instance('sp_entries'))
-        idx_to_pack = indices.sparse_idx[dims.names]
+        idx_to_pack = indices.sparse_idx[dims.name_list]
         idx_packed = np.ravel_multi_index(idx_to_pack.native([channel, instance(idx_to_pack)]), dims.sizes)
         idx_packed = expand(reshaped_tensor(idx_packed, [instance('sp_entries')], convert=False), channel(sparse_idx=packed_dim.name))
         indices = concat([indices.sparse_idx[list(self._dense_shape.without(dims).names)], idx_packed], 'sparse_idx')
