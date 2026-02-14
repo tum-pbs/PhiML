@@ -41,7 +41,8 @@ class Tensor(Generic[T]):
     When backed by an editable native tensor, e.g. a `numpy.ndarray`, do not edit the underlying data structure.
     """
 
-    def __init__(self):
+    def __init__(self, properties: 'TensorProperties' = None):
+        self._prop = properties or EMPTY_TENSOR_PROPERTIES
         if DEBUG_CHECKS:
             self._init_stack = traceback.extract_stack()
 
@@ -942,6 +943,44 @@ class TensorDim(BoundDim):
     def prod(self):
         from ._ops import prod
         return prod(self.tensor, self.name)
+
+
+@dataclass(frozen=True)  # immutable to prevent tracers escaping
+class TensorProperties:
+    """ Tensor meta information. Since 1.16, Tensors can be flagged with known properties about them.
+    """
+    tracer: Tensor = None  # if the tensor was created by tracing a linear function. This can be used to compute matrix properties easier later
+    empty_rows: Tensor[int] = None
+    empty_cols: Tensor[int] = None
+    min_rank_deficiency: Tensor[int] = None  # equal to min nullity of matrix
+    is_nontrivially_rank_deficient: bool = None  # zero-rows excluded
+    # symmetries: Tuple[Tuple[Shape, Shape]]
+    # is_triangular: bool
+
+    def disassembled(self):
+        return self
+
+    def assembled(self):
+        return self
+
+    def getitem(self, selection: dict):
+        from phiml.math._tree import slice_
+        empty_rows = slice_(self.empty_rows, selection)
+        empty_cols = slice_(self.empty_cols, selection)
+        min_rank_deficiency = slice_(self.min_rank_deficiency, selection)
+        return TensorProperties(empty_rows=empty_rows, empty_cols=empty_cols, min_rank_deficiency=min_rank_deficiency)
+
+    @staticmethod
+    def stack(props: Sequence['TensorProperties'], dim: Shape):
+        from ._magic_ops import stack
+        empty_rows = stack([p.empty_rows for p in props], dim, simplify=True)
+        empty_cols = stack([p.empty_cols for p in props], dim, simplify=True)
+        min_rank_deficiency = stack([p.min_rank_deficiency for p in props], dim, simplify=True)
+        is_nontrivially_rank_deficient = stack([p.is_nontrivially_rank_deficient for p in props], dim, simplify=True)
+        return TensorProperties(empty_rows=empty_rows, empty_cols=empty_cols, min_rank_deficiency=min_rank_deficiency, is_nontrivially_rank_deficient=is_nontrivially_rank_deficient)
+
+
+EMPTY_TENSOR_PROPERTIES = TensorProperties()
 
 
 _EQUALITY_REDUCE = [{'type': 'elementwise'}]
