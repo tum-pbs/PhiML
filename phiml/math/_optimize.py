@@ -7,14 +7,15 @@ from typing import Callable, Generic, List, TypeVar, Any, Tuple, Union, Optional
 import numpy
 import numpy as np
 
+from ._matrix import min_rank_deficiency, guaranteed_empty_rows, guaranteed_empty_cols
 from ..backend import get_precision, NUMPY, Backend
 from ..backend._backend import SolveResult, ML_LOGGER, default_backend, convert, Preconditioner, choose_backend
 from ..backend._linalg import IncompleteLU, incomplete_lu_dense, incomplete_lu_coo, coarse_explicit_preconditioner_coo
-from ._shape import EMPTY_SHAPE, Shape, merge_shapes, batch, non_batch, shape, dual, channel, non_dual, instance, spatial, primal, non_instance
+from ._shape import EMPTY_SHAPE, Shape, merge_shapes, batch, non_batch, shape, dual, channel, non_dual, instance, spatial, primal, non_instance, isize
 from ._tensors import Tensor, wrap, Dense, reshaped_tensor, preferred_backend_for
 from ._tree import layout, disassemble_tree, assemble_tree, NATIVE_TENSOR, variable_attributes
 from ._magic_ops import stack, copy_with, rename_dims, unpack_dim, unstack, expand, value_attributes
-from ._sparse import native_matrix, SparseCoordinateTensor, CompressedSparseMatrix, stored_values, is_sparse, _stored_matrix_rank
+from ._sparse import native_matrix, SparseCoordinateTensor, CompressedSparseMatrix, stored_values, is_sparse
 from . import _ops as math, get_format
 from ._ops import backend_for, zeros_like, all_available, to_float
 from ._functional import custom_gradient, LinearFunction, f_name, _TRACING_JIT, map_
@@ -632,15 +633,16 @@ def solve_linear(f: Union[Callable[[X], Y], Tensor],
         else:
             matrix = f
             bias = 0
-        m_rank = _stored_matrix_rank(matrix)
         if solve.rank_deficiency is None:
-            if m_rank is not None:
-                estimated_deficiency = dual(matrix).volume - m_rank
-                if (estimated_deficiency > 0).any:
-                    warnings.warn("Possible rank deficiency detected. Matrix might be singular which can lead to convergence problems. Please specify using Solve(rank_deficiency=...).")
-                solve = copy_with(solve, rank_deficiency=0)
-            else:
-                solve = copy_with(solve, rank_deficiency=0)  # no info or user input, assume not rank-deficient
+            deficiency = min_rank_deficiency(matrix)  # None for unknown
+            if (deficiency > 0).any:
+                warnings.warn(f"Rank deficiency >= {deficiency} detected in linear solve. Matrix might be singular which can lead to convergence problems. Please specify using Solve(rank_deficiency=...).", RuntimeWarning, stacklevel=2)
+            solve = copy_with(solve, rank_deficiency=deficiency)
+        if solve.rank_deficiency:
+            empty_rows = guaranteed_empty_rows(matrix)
+            empty_cols = guaranteed_empty_cols(matrix)
+            if isize(empty_rows) == isize(empty_cols) and isize(empty_rows) > 0:  # We can eliminate some rank deficiency by reducing the matrix size
+                print()
         preconditioner = compute_preconditioner(solve.preconditioner, matrix, rank_deficiency=solve.rank_deficiency, target_backend=NUMPY if solve.method.startswith('scipy-') else backend, solver=solve.method) if solve.preconditioner is not None else None
 
         def _matrix_solve_forward(y, solve: Solve, matrix: Tensor, is_backprop=False):
