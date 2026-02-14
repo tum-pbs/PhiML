@@ -947,7 +947,7 @@ class Dim:
             return f"({base_name})"
         if self.slice_names:
             items_str = ",".join(self.slice_names)
-            size_str = items_str if len(items_str) <= 12 else f"{self.size}:{self.slice_names[0][:5]}..."
+            size_str = items_str if len(items_str) <= 12 else f"{self.size}:{self.slice_names[0][:5]}...{self.slice_names[-1][:5]}"
         else:
             size_str = self.size
         return f"({base_name}={size_str})"
