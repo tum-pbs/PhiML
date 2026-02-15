@@ -7,7 +7,7 @@ from typing import Callable, Generic, List, TypeVar, Any, Tuple, Union, Optional
 import numpy
 import numpy as np
 
-from ._matrix import min_rank_deficiency, guaranteed_empty_rows, guaranteed_empty_cols
+from ._matrix import min_rank_deficiency, guaranteed_empty_rows, guaranteed_empty_cols, drop_rows_and_cols_from_system
 from ..backend import get_precision, NUMPY, Backend
 from ..backend._backend import SolveResult, ML_LOGGER, default_backend, convert, Preconditioner, choose_backend
 from ..backend._linalg import IncompleteLU, incomplete_lu_dense, incomplete_lu_coo, coarse_explicit_preconditioner_coo
@@ -36,7 +36,7 @@ class Solve(Generic[X, Y]):
                  x0: Union[X, Any] = None,
                  max_iterations: Union[int, Tensor] = 1000,
                  suppress: Union[tuple, list] = (),
-                 preprocess_y: Callable = None,
+                 preprocess_y: Optional[Callable] = None,
                  preprocess_y_args: tuple = (),
                  preconditioner: Optional[str] = None,
                  rank_deficiency: int = None,
@@ -582,6 +582,7 @@ def solve_linear(f: Union[Callable[[X], Y], Tensor],
     # --- Get input and output tensors ---
     y_tree, y_tensors = disassemble_tree(y, cache=False, attr_type=value_attributes)
     x0_tree, x0_tensors = disassemble_tree(solve.x0, cache=False, attr_type=variable_attributes)
+    _, other_tensors = disassemble_tree(f_kwargs, cache=False, attr_type=variable_attributes)
     assert len(x0_tensors) == len(y_tensors) == 1, "Only single-tensor linear solves are currently supported"
     # --- If native tensors passed, return native tensor ---
     if isinstance(y_tree, str) and y_tree == NATIVE_TENSOR and isinstance(x0_tree, str) and x0_tree == NATIVE_TENSOR:
@@ -624,25 +625,32 @@ def solve_linear(f: Union[Callable[[X], Y], Tensor],
                 solution = solve_linear(f, y, solve, *f_args, grad_for_f=grad_for_f, f_kwargs=f_kwargs, **f_kwargs_)
                 return solution.native(','.join([f'batch{i}' for i in range(rank - 1)]) + ',vector')
     # --- PhiML Tensors ---
-    backend = backend_for(*y_tensors, *x0_tensors)
+    backend = backend_for(*y_tensors, *x0_tensors, *other_tensors)
     prefer_explicit = backend.supports(Backend.sparse_coo_tensor) or backend.supports(Backend.csr_matrix) or grad_for_f
     if isinstance(f, Tensor) or (isinstance(f, LinearFunction) and prefer_explicit):  # Matrix solve
+        expand_x = expand_y = None
         if isinstance(f, LinearFunction):
             x0 = math.convert(solve.x0, backend)
             matrix, bias = f.sparse_matrix_and_bias(x0, *f_args, **f_kwargs)
+            y_tensors = [y - bias for y in y_tensors]
         else:
             matrix = f
             bias = 0
         if solve.rank_deficiency is None:
             deficiency = min_rank_deficiency(matrix)  # None for unknown
-            if (deficiency > 0).any:
-                warnings.warn(f"Rank deficiency >= {deficiency} detected in linear solve. Matrix might be singular which can lead to convergence problems. Please specify using Solve(rank_deficiency=...).", RuntimeWarning, stacklevel=2)
             solve = copy_with(solve, rank_deficiency=deficiency)
-        if solve.rank_deficiency:
+        reduce_x = reduce_y = expand_x = expand_y = None
+        if (solve.rank_deficiency > 0).any:
             empty_rows = guaranteed_empty_rows(matrix)
             empty_cols = guaranteed_empty_cols(matrix)
             if isize(empty_rows) == isize(empty_cols) and isize(empty_rows) > 0:  # We can eliminate some rank deficiency by reducing the matrix size
-                print()
+                matrix, reduce_x, reduce_y, expand_x, expand_y = drop_rows_and_cols_from_system(matrix, x0_tensors[0].shape, empty_rows, empty_cols)
+                remaining_deficiency = solve.rank_deficiency - isize(empty_rows)
+                if (remaining_deficiency > 0).any:
+                    warnings.warn(f"Matrix is rank-deficient after removing {isize(empty_rows)} empty rows and columns: rank deficiency >= {remaining_deficiency} in linear solve. Matrix might be singular which can lead to convergence problems. Please specify using Solve(rank_deficiency=...).", RuntimeWarning, stacklevel=2)
+                solve = copy_with(solve, rank_deficiency=remaining_deficiency)
+            else:
+                warnings.warn(f"Rank deficiency >= {solve.rank_deficiency} detected in linear solve. Matrix might be singular which can lead to convergence problems. Please specify using Solve(rank_deficiency=...).", RuntimeWarning, stacklevel=2)
         preconditioner = compute_preconditioner(solve.preconditioner, matrix, rank_deficiency=solve.rank_deficiency, target_backend=NUMPY if solve.method.startswith('scipy-') else backend, solver=solve.method) if solve.preconditioner is not None else None
 
         def _matrix_solve_forward(y, solve: Solve, matrix: Tensor, is_backprop=False):
@@ -666,11 +674,15 @@ def solve_linear(f: Union[Callable[[X], Y], Tensor],
                 new_row = b.stack([j, i], -1)
                 idx = b.concat([idx, new_col, new_row], 0)
                 nat_matrix = b.sparse_coo_tensor(idx, data, (N+1, N+1))
-            result = _linear_solve_forward(y, solve, nat_matrix, pattern_dims_in, pattern_dims_out, preconditioner, backend, is_backprop)
+            rx, ry, ex, ey = reduce_x, reduce_y, expand_x, expand_y
+            if is_backprop:
+                rx, ry, ex, ey = reduce_y, reduce_x, expand_y, expand_x
+                # pattern_dims are already switched due to matrix transposition
+            result = _linear_solve_forward(y, solve, nat_matrix, pattern_dims_in, pattern_dims_out, preconditioner, backend, is_backprop, rx, ry, ex, ey)
             return result  # must return exactly `x` so gradient isn't computed w.r.t. other quantities
 
         _matrix_solve = attach_gradient_solve(_matrix_solve_forward, auxiliary_args=f'is_backprop,solve{",matrix" if matrix.backend == NUMPY else ""}', matrix_adjoint=grad_for_f)
-        return _matrix_solve(y - bias, solve, matrix)
+        return _matrix_solve(y_tensors[0], solve, matrix)
     else:  # Matrix-free solve
         from ._ops import cached
         f_args = cached(f_args)
@@ -711,20 +723,27 @@ def solve_linear(f: Union[Callable[[X], Y], Tensor],
         return _function_solve(y, solve, f_args, f_kwargs=f_kwargs)
 
 
-def _linear_solve_forward(y: Tensor,
+def _linear_solve_forward(y: Any,
                           solve: Solve,
                           native_lin_op: Union[Callable, Any],  # native function or native matrix
                           pattern_dims_in: Tuple[str, ...],
                           pattern_dims_out: Tuple[str, ...],
                           preconditioner: Optional[Callable],
                           backend: Backend,
-                          is_backprop: bool) -> Any:
+                          is_backprop: bool,
+                          reduce_x: Optional[Callable] = None,
+                          reduce_y: Optional[Callable] = None,
+                          expand_x: Optional[Callable] = None,
+                          expand_y: Optional[Callable] = None) -> Any:
     solve = solve.with_defaults('solve')
+    reduce_x, reduce_y, expand_x, expand_y = [f or (lambda x: x) for f in [reduce_x, reduce_y, expand_x, expand_y]]
     ML_LOGGER.debug(f"Performing linear solve {solve} with backend {backend}")
     if solve.preprocess_y is not None:
         y = solve.preprocess_y(y, *solve.preprocess_y_args)
-    y_nest, (y_tensor,) = disassemble_tree(y, cache=False, attr_type=value_attributes)
-    x0_nest, (x0_tensor,) = disassemble_tree(solve.x0, cache=False, attr_type=variable_attributes)
+    y_tree, (y_tensor,) = disassemble_tree(y, cache=False, attr_type=value_attributes)
+    x0_tree, (x0_tensor,) = disassemble_tree(solve.x0, cache=False, attr_type=variable_attributes)
+    x0_tensor = reduce_x(x0_tensor)
+    y_tensor = reduce_y(y_tensor)
     pattern_dims_in = x0_tensor.shape.only(pattern_dims_in, reorder=True)
     if pattern_dims_out not in y_tensor.shape:
         warnings.warn(f"right-hand-side has shape {y_tensor.shape} but output dimensions are {pattern_dims_out}. This may result in unexpected behavior", RuntimeWarning, stacklevel=3)
@@ -769,18 +788,18 @@ def _linear_solve_forward(y: Tensor,
     x = ret.x
     if solve.rank_deficiency:
         x = x[:, :-1]
-    x = assemble_tree(x0_nest, [reshaped_tensor(x, [*trj_dims, batch_dims, pattern_dims_in])], attr_type=variable_attributes)
-    final_x = x if not trj_dims else assemble_tree(x0_nest, [reshaped_tensor(ret.x[-1, ...], [batch_dims, pattern_dims_out])], attr_type=variable_attributes)
+    x = assemble_tree(x0_tree, [expand_x(reshaped_tensor(x, [*trj_dims, batch_dims, pattern_dims_in]))], attr_type=variable_attributes)
+    final_x = x if not trj_dims else assemble_tree(x0_tree, [expand_x(reshaped_tensor(ret.x[-1, ...], [batch_dims, pattern_dims_out]))], attr_type=variable_attributes)
     iterations = reshaped_tensor(ret.iterations, [*trj_dims, batch_dims])
     function_evaluations = reshaped_tensor(ret.function_evaluations, [*trj_dims, batch_dims])
     if ret.residual is not None:
         residual = ret.residual
         if solve.rank_deficiency:
             residual = residual[:, :-1]
-        residual = assemble_tree(y_nest, [reshaped_tensor(residual, [*trj_dims, batch_dims, pattern_dims_out])], attr_type=value_attributes)
+        residual = assemble_tree(y_tree, [expand_y(reshaped_tensor(residual, [*trj_dims, batch_dims, pattern_dims_out]))], attr_type=value_attributes)
     elif _SOLVE_TAPES:
         residual = backend.linear(native_lin_op, ret.x) - y_native
-        residual = assemble_tree(y_nest, [reshaped_tensor(residual, [*trj_dims, batch_dims, pattern_dims_out])], attr_type=value_attributes)
+        residual = assemble_tree(y_tree, [reshaped_tensor(residual, [*trj_dims, batch_dims, pattern_dims_out])], attr_type=value_attributes)
     else:
         residual = None
     msg = unpack_dim(layout(ret.message, batch('_all')), '_all', batch_dims)
@@ -793,6 +812,7 @@ def _linear_solve_forward(y: Tensor,
 
 def attach_gradient_solve(forward_solve: Callable, auxiliary_args: str, matrix_adjoint: bool):
     def implicit_gradient_solve(fwd_args: dict, x, dx):
+        # raise NotImplementedError
         solve = fwd_args['solve']
         matrix = (fwd_args['matrix'],) if 'matrix' in fwd_args else ()
         matrixT = (transpose_matrix(matrix[0], fwd_args['solve'].x0.shape, fwd_args['y'].shape),) if matrix else ()
