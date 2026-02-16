@@ -1226,7 +1226,7 @@ class PureShape:
     def __post_init__(self):
         if DEBUG_CHECKS:
             assert len(self.dims) != 1
-            assert self.dim_type in DIM_TYPES
+            assert self.dim_type in DIM_TYPES or (not self.dims and self.dim_type == EMPTY_SHAPE.dim_type)
             for n, dim in self.dims.items():
                 assert n == dim.name
                 assert dim.dim_type == self.dim_type
