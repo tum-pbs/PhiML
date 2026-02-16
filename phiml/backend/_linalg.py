@@ -352,7 +352,10 @@ def scipy_direct_linear_solve(b: Backend, lin, y, rtol, atol) -> SolveResult:
         xs.append(x)
         converged.append(residual_norm <= np.maximum(atol[batch], rtol[batch] * y_norm))
         residuals.append(residual)
-        messages.append(f"Direct solution does not satisfy tolerance: norm(residual)={residual_norm}")
+        if converged[-1]:
+            messages.append(f"norm(residual)={residual_norm}")
+        else:
+            messages.append(f"Direct solution does not satisfy tolerance: norm(residual)={residual_norm}")
     x = np.stack(xs)
     converged = np.stack(converged)
     residual = np.stack(residuals)
