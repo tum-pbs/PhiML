@@ -1430,7 +1430,7 @@ def nonzero(value: Union[Tensor, bool], list_dim: Union[Shape, str, int] = insta
             if preserve_names and list_dims.rank == 1 and list_dims.labels[0]:
                 names = [list_dims.labels[0][i] for i in indices[:, 0]]
                 new_list_dim = new_list_dim.with_size(names)
-            return reshaped_tensor(indices, [new_list_dim, index_dim.with_size(value.shape.name_list)])
+            return reshaped_tensor(indices, [new_list_dim, index_dim.with_size(value.shape.name_list)], convert=False)
     return broadcast_op(unbatched_nonzero, [value], iter_dims=broadcast.names)
 
 
@@ -3380,7 +3380,7 @@ def ravel_index(index: Tensor, resolution: Shape, dim=channel, mode='undefined')
         assert resolution.rank == index_dim.size
         sizes = resolution.sizes
     nat_result = index.backend.ravel_multi_index(nat_idx, sizes, mode)
-    return reshaped_tensor(nat_result, [index.shape - index_dim])
+    return reshaped_tensor(nat_result, [index.shape - index_dim], convert=False)
 
 
 def unravel_index(index: Tensor, resolution: Shape, index_dim=channel('index')):
