@@ -640,7 +640,7 @@ def solve_linear(f: Union[Callable[[X], Y], Tensor],
             deficiency = min_rank_deficiency(matrix)  # None for unknown
             solve = copy_with(solve, rank_deficiency=deficiency)
         reduce_x = reduce_y = expand_x = expand_y = None
-        if (solve.rank_deficiency > 0).any:
+        if (wrap(solve.rank_deficiency) > 0).any:
             empty_rows = guaranteed_empty_rows(matrix)
             empty_cols = guaranteed_empty_cols(matrix)
             if isize(empty_rows) == isize(empty_cols) and isize(empty_rows) > 0:  # We can eliminate some rank deficiency by reducing the matrix size
@@ -659,21 +659,25 @@ def solve_linear(f: Union[Callable[[X], Y], Tensor],
             b = backend_for(*y_tensors, matrix)
             nat_matrix = native_matrix(matrix, b)
             if solve.rank_deficiency:
-                N = dual(matrix).volume
-                if get_format(matrix) == 'csr':
-                    _, (data, idx, ptr) = b.disassemble(nat_matrix)
-                    idx = b.csr_to_coo(idx[None, :], ptr[None, :])[0, :]
-                elif get_format(matrix) == 'coo':
-                    _, (idx, data) = b.disassemble(nat_matrix)
+                if is_sparse(matrix):
+                    N = dual(matrix).volume
+                    if get_format(matrix) == 'csr':
+                        _, (data, idx, ptr) = b.disassemble(nat_matrix)
+                        idx = b.csr_to_coo(idx[None, :], ptr[None, :])[0, :]
+                    elif get_format(matrix) == 'coo':
+                        _, (idx, data) = b.disassemble(nat_matrix)
+                    else:
+                        raise NotImplementedError
+                    # --- Add a row and column of ones to the matrix to make the system non-singular ---
+                    data = b.pad(data, [(0, 2*N)], constant_values=1)
+                    i = b.range(N, dtype=b.dtype(idx))
+                    j = N + b.zeros((N,), dtype=b.dtype(idx))
+                    new_col = b.stack([i, j], -1)
+                    new_row = b.stack([j, i], -1)
+                    idx = b.concat([idx, new_col, new_row], 0)
+                    nat_matrix = b.sparse_coo_tensor(idx, data, (N+1, N+1))
                 else:
-                    raise NotImplementedError
-                data = b.pad(data, [(0, 2*N)], constant_values=1)
-                i = b.range(N, dtype=b.dtype(idx))
-                j = N + b.zeros((N,), dtype=b.dtype(idx))
-                new_col = b.stack([i, j], -1)
-                new_row = b.stack([j, i], -1)
-                idx = b.concat([idx, new_col, new_row], 0)
-                nat_matrix = b.sparse_coo_tensor(idx, data, (N+1, N+1))
+                    nat_matrix = b.pad(nat_matrix, [(0, 1), (0, 1)], constant_values=1)
             rx, ry, ex, ey = reduce_x, reduce_y, expand_x, expand_y
             if is_backprop:
                 rx, ry, ex, ey = reduce_y, reduce_x, expand_y, expand_x
@@ -752,7 +756,7 @@ def _linear_solve_forward(y: Any,
     x0_native = backend.as_tensor(x0_tensor.native([batch_dims, pattern_dims_in]))
     y_native = backend.as_tensor(y_tensor.native([batch_dims, y_tensor.shape.only(pattern_dims_out)]))
     if solve.rank_deficiency:
-        x0_native = backend.pad(x0_native, [(0, 0), (0, 1)], constant_values=0)  # add initial guess for Lagrange multiplier (lambda)
+        x0_native = backend.pad(x0_native, [(0, 0), (0, 1)])  # add initial guess for Lagrange multiplier (lambda)
         y_native = backend.pad(y_native, [(0, 0), (0, 1)])  # constrain sum of entries to zero
     rtol = backend.as_tensor(math.to_float(solve.rel_tol).native([batch_dims]))
     atol = backend.as_tensor(solve.abs_tol.native([batch_dims]))
