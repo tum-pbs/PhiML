@@ -3594,6 +3594,8 @@ def close(*tensors, rel_tolerance: Union[float, Tensor] = 1e-5, abs_tolerance: U
     if any([not tensors[0].shape.is_compatible(t.shape) for t in tensors[1:]]):
         return False
     c = True
+    abs_tolerance = stop_gradient(abs_tolerance) if isinstance(abs_tolerance, Tensor) else abs_tolerance
+    rel_tolerance = stop_gradient(rel_tolerance) if isinstance(rel_tolerance, Tensor) else rel_tolerance
     for other in tensors[1:]:
         c &= _close(tensors[0], other, rel_tolerance=rel_tolerance, abs_tolerance=abs_tolerance, equal_nan=equal_nan, reduce=reduce)
     return c
