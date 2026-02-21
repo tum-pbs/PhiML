@@ -226,7 +226,7 @@ class TestOptimize(TestCase):
         sol = math.solve_linear(A, b, math.Solve('scipy-CG', rel_tol=1e-5, x0=0 * b, preconditioner='ilu'))
         numpy.testing.assert_almost_equal([(1, -1), (.5, -.5), (-1/3, 1/3)], sol, decimal=4)
 
-    def test_matrix_gradient(self):
+    def test_matrix_gradient_csr(self):
         for backend in BACKENDS:
             if backend.supports(Backend.jacobian):
                 with backend:
@@ -248,7 +248,7 @@ class TestOptimize(TestCase):
                     print(f"Backprop: {grad:.5f}")
                     math.assert_close(fd_grad, grad, abs_tolerance=1e-3, msg=backend.name)
 
-    def test_matrix_gradient(self):
+    def test_matrix_gradient_dense(self):
         for backend in BACKENDS:
             if backend.supports(Backend.jacobian):
                 with backend:
