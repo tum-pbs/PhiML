@@ -535,7 +535,7 @@ def incomplete_lu_coo(indices, values, shape: Tuple[int, int], iterations: int, 
 
     Args:
         indices: Row & column indices of stored entries as `numpy.ndarray` of shape (batch_size, nnz, 2).
-        values: Backend-compatible values tensor of shape (batch_size, nnz, channels)
+        values: Backend-compatible values tensor of shape (batch_size, nnz, channels). Must not contain any entries exactly 0.
         shape: Dense shape of matrix
         iterations: Number of fixed-point iterations to perform.
         safe: Avoid NaN when the rank deficiency of `matrix` is 2 or higher.

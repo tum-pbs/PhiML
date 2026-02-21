@@ -900,6 +900,7 @@ def factor_ilu(matrix: Tensor, iterations: int, safe=False):
     Args:
         matrix: Dense or sparse matrix to factor.
             Currently, compressed sparse matrices are decompressed before running the ILU algorithm.
+            Sparse matrices must not store any zeros in their values explicitly. If in doubt, convert the matrix to `csr` or `csc` beforehand to eliminate zeros.
         iterations: (Optional) Number of fixed-point iterations to perform.
             If not given, will be automatically determined from matrix size and sparsity.
         safe: If `False` (default), only matrices with a rank deficiency of up to 1 can be factored as all values of L and U are uniquely determined.
