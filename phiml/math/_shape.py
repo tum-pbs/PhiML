@@ -2607,12 +2607,12 @@ def pure_merge(*shapes: Shape, allow_varying_sizes: bool, allow_varying_labels=F
         else:  # check size match
             prev_dim = dims[dim.name]
             sizes_match = _size_equal(dim.size, prev_dim.size)
-            if allow_varying_sizes:
-                if not sizes_match:
+            if not sizes_match:
+                if allow_varying_sizes:
                     dims[dim.name] = Dim(dim.name, None, dim.dim_type, None)
-            else:
-                if not sizes_match:
+                else:
                     raise IncompatibleShapes(f"Cannot merge shapes {shapes} because dimension '{dim.name}' exists with different sizes.", *shapes)
+            if not allow_varying_labels:
                 names1 = prev_dim.slice_names
                 names2 = dim.slice_names
                 if names1 is not None and names2 is not None and len(names1) > 1:
