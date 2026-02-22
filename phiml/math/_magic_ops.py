@@ -314,8 +314,9 @@ def concat(values: Sequence[PhiTreeNodeType], dim: Union[str, Shape], expand_val
     #  --- Add missing dimensions ---
     shapes = [shape(v) for v in values]
     if expand_values:
-        all_dims = merge_shapes(*shapes, allow_varying_sizes=True)
-        all_dims = all_dims.with_dim_size(dim, 1, keep_labels=False)
+        all_other_dims = merge_shapes(*[s - dim for s in shapes], allow_varying_sizes=True)
+        dim_candidate = merge_shapes(*[s.only(dim) for s in shapes], allow_varying_sizes=True, allow_varying_labels=True)
+        all_dims = all_other_dims + dim_candidate.with_dim_size(dim_candidate.name, 1, keep_labels=False)
         values = [expand(v, all_dims - s) for v, s in zip(values, shapes)]
     else:
         for v, s in zip(values, shapes):
