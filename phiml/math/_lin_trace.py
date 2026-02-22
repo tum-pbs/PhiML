@@ -8,7 +8,7 @@ from . import _ops as math
 from ._magic_ops import stack, expand, rename_dims, value_attributes, pack_dims, concat
 from ._nd import vec
 from ._ops import backend_for, concat_tensor, scatter
-from ._shape import Shape, merge_shapes, instance, EMPTY_SHAPE, dual, channel, non_batch, batch, shape, primal
+from ._shape import Shape, merge_shapes, instance, EMPTY_SHAPE, dual, channel, non_batch, batch, shape, primal, DEBUG_CHECKS
 from ._sparse import SparseCoordinateTensor, is_sparse, sparse_dims, sparse_tensor, stored_indices
 from ._tensors import Tensor, wrap, TensorStack, BlockTensor, NO_OFFSET, IndexOffset, variable_dim_names, variable_shape, TensorProperties
 from ._tree import disassemble_tree, assemble_tree
@@ -55,6 +55,12 @@ class LinTracer(Tensor):
         assert self._fac_nz.backend == NUMPY
         if self._indices.shape - 'idx' - '_deps':
             assert self._indices.shape['idx'].labels[0]
+        if DEBUG_CHECKS:
+            # check all indices within bounds
+            assert self._indices.min >= 0, f"Encountered negative index"
+            for comp in self._indices.shape.get_labels('idx'):
+                c_indices = self._indices.idx[comp]
+                assert c_indices.max < self._source.shape.get_size(comp), f"Invalid index encountered for component {comp}: {c_indices.max} but size is {self._source.shape.get_size(comp)}"
 
     def _source_indices(self, included_src_dims: Shape, order: Tuple[str] = None, as_dual=False):
         """
@@ -71,7 +77,7 @@ class LinTracer(Tensor):
                 extend.append(vec('idx', **{dim.name: math.arange(self._bias.shape[dim.name])}))
         as_primal = concat([self._indices, *extend], 'idx', expand_values=True)
         as_primal = expand(as_primal, *constant_dims)
-        if order is not None and as_primal.shape['idx'].labels[0] != order:
+        if order is not None and as_primal.shape.get_labels('idx') != order:
             as_primal = as_primal.idx[order]
         if as_dual:
             dual_shape = as_primal.shape.with_dim_size('idx', ['~' + label if not label.startswith('~') else label for label in as_primal.shape['idx'].slice_names])
@@ -143,8 +149,8 @@ class LinTracer(Tensor):
             # --- Add uniform tracers ---
             if isinstance(other, LinTracer):
                 src_dims = dependent_src_dims(t1) & dependent_src_dims(t2)
-                idx1 = t1._source_indices(included_src_dims=src_dims)
-                idx2 = t2._source_indices(included_src_dims=src_dims)
+                idx1 = t1._source_indices(included_src_dims=src_dims, order=src_dims.names)
+                idx2 = t2._source_indices(included_src_dims=src_dims, order=src_dims.names)
                 indices = concat([idx1, idx2], '_deps', expand_values=True)
                 fac1, fac2 = [t._fac if '_deps' in t._fac.shape else expand(t._fac, batch(_deps=1)) for t in (t1, t2)]
                 fac = concat([fac1, fac2], '_deps', expand_values=True)
@@ -477,13 +483,13 @@ def tracer_to_coo(tracer_tree: Tensor) -> Tuple[Tensor, Tensor]:
         for (tensor, _), out_indices in zip(tensors_and_offsets, output_indices):
             if tensor._is_tracer:
                 if is_sparse(tensor):
-                    src_indices: Tensor = tensor._values._source_indices(included_src_dims=in_dims, as_dual=True)
+                    src_indices: Tensor = tensor._values._source_indices(included_src_dims=in_dims, as_dual=True, order=out_indices.shape.get_labels('idx'))
                     src_indices = expand(src_indices, out_dims.only(tensor.shape) - sparse_dims(tensor))
                     fac = tensor._values._fac
                     fac_nz = is_fac_nonzero(tensor._values)
                     t_bias = tensor._values._bias
                 else:
-                    src_indices: Tensor = tensor._source_indices(included_src_dims=in_dims, as_dual=True)
+                    src_indices: Tensor = tensor._source_indices(included_src_dims=in_dims, as_dual=True, order=out_indices.shape.get_labels('idx'))
                     src_indices = expand(src_indices, out_dims.only(tensor.shape) - src_indices.shape)
                     fac = tensor._fac
                     fac_nz = is_fac_nonzero(tensor)
