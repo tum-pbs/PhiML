@@ -199,6 +199,8 @@ class Layout(Tensor):
         new_stack_dim = self._stack_dim.replace(dims, new_dims)
         from ._magic_ops import rename_dims
         def inner_replace(obj):
+            if not shape(obj):
+                return obj
             return rename_dims(obj, dims, new_dims, **kwargs)
         obj = self._recursive_op1(self._obj, self._stack_dim, inner_replace)
         return Layout(obj, new_stack_dim)
