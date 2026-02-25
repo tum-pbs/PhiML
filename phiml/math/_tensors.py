@@ -1467,7 +1467,7 @@ class TensorStack(Tensor):
             names, new_shape, (n1, n2) = broadcastable_native_tensors(self, other)  # ToDo we don't have to expand all
             if switch_args:
                 n1, n2 = n2, n1
-            native_function = get_operator(op, self.backend)
+            native_function = get_operator(op, backend_for(self, other))
             native_result = native_function(n1, n2)
             return Dense(native_result, names, new_shape, backend_for(self, other))
         elif isinstance(other, TensorStack) and other.requires_broadcast:
