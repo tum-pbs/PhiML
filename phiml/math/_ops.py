@@ -197,18 +197,18 @@ def native_call(f: Callable, *inputs: Tensor, channels_last=None, channel_dim='v
         `Tensor` with batch and spatial dimensions of `inputs`, unless overridden by `spatial_dim`,
         and single channel dimension `channel_dim`.
     """
+    try:
+        backend = choose_backend(f)
+    except NoBackendFound:
+        backend = preferred_backend_for(*inputs)
     if channels_last is None:
-        try:
-            backend = choose_backend(f)
-        except NoBackendFound:
-            backend = preferred_backend_for(*inputs)
         channels_last = backend.prefers_channels_last()
     b_dims = merge_shapes(*[i.shape.batch & i.shape.dual for i in inputs])
     s_dims = merge_shapes(*[i.shape.spatial for i in inputs])
     natives = []
     for i in inputs:
         groups = [b_dims, *i.shape.spatial.names, i.shape.channel] if channels_last else [b_dims, i.shape.channel, *i.shape.spatial.names]
-        natives.append(i.native(groups, force_expand=False))
+        natives.append(backend.as_tensor(i.native(groups, force_expand=False), True))
     output = f(*natives, **f_kwargs)
     if not channel_dim:
         channel_dim = EMPTY_SHAPE
