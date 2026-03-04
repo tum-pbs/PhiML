@@ -483,13 +483,13 @@ def tracer_to_coo(tracer_tree: Tensor) -> Tuple[Tensor, Tensor]:
         for (tensor, _), out_indices in zip(tensors_and_offsets, output_indices):
             if tensor._is_tracer:
                 if is_sparse(tensor):
-                    src_indices: Tensor = tensor._values._source_indices(included_src_dims=in_dims, as_dual=True, order=out_indices.shape.get_labels('idx'))
+                    src_indices: Tensor = tensor._values._source_indices(included_src_dims=in_dims, as_dual=True, order=in_dims.names)
                     src_indices = expand(src_indices, out_dims.only(tensor.shape) - sparse_dims(tensor))
                     fac = tensor._values._fac
                     fac_nz = is_fac_nonzero(tensor._values)
                     t_bias = tensor._values._bias
                 else:
-                    src_indices: Tensor = tensor._source_indices(included_src_dims=in_dims, as_dual=True, order=out_indices.shape.get_labels('idx'))
+                    src_indices: Tensor = tensor._source_indices(included_src_dims=in_dims, as_dual=True, order=in_dims.names)
                     src_indices = expand(src_indices, out_dims.only(tensor.shape) - src_indices.shape)
                     fac = tensor._fac
                     fac_nz = is_fac_nonzero(tensor)
