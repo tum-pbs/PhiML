@@ -918,7 +918,7 @@ def stack_tensors(values: Union[tuple, list], dim: Shape):
                 return result
         # return BlockTensor.from_stack(values, dim)
         return TensorStack(values, dim)
-    broadcast_shape = merge_shapes(*[v.shape for v in values], allow_varying_sizes=True)
+    broadcast_shape = merge_shapes(*[v.shape for v in values], allow_varying_sizes=True, allow_varying_labels=True)
     if not broadcast_shape.well_defined:
         return TensorStack(values, dim)
     # --- uniform stack ---
