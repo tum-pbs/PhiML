@@ -1034,7 +1034,7 @@ class Dim:
         if other is dual:
             return self & self.primal.as_dual()
         if isinstance(other, (Dim, PureShape)) and other.dim_type == self.dim_type:
-            return pure_merge(self, other, allow_varying_sizes=False)
+            return pure_merge(self, other, allow_varying_sizes=False, allow_varying_labels=False)
         elif isinstance(other, (Dim, PureShape)):
             if not other:
                 return self
@@ -1470,7 +1470,7 @@ class PureShape:
         if other is dual:
             return concat_shapes_(self, self.primal.as_dual())
         if isinstance(other, (Dim, PureShape)) and other.dim_type == self.dim_type:
-            return pure_merge(self, other, allow_varying_sizes=False)
+            return pure_merge(self, other, allow_varying_sizes=False, allow_varying_labels=False)
         elif isinstance(other, (Dim, PureShape)):
             if not self:
                 return other
@@ -1922,7 +1922,7 @@ class MixedShape:
             if not other:
                 return self
             group = getattr(self, other.dim_type)
-            merged = pure_merge(group, other, allow_varying_sizes=False)
+            merged = pure_merge(group, other, allow_varying_sizes=False, allow_varying_labels=False)
             dims = {**self.dims, **merged.dims}
             return replace(self, dims=dims, **{other.dim_type: merged})
         return merge_shapes(self, other)
@@ -2228,7 +2228,7 @@ def shape(obj, allow_unshaped=False) -> Shape:
         return merge_shapes(*obj.values(), allow_varying_sizes=True)
     if isinstance(obj, PhiTreeNode):
         from ._magic_ops import all_attributes
-        return merge_shapes(*[getattr(obj, a) for a in all_attributes(obj, assert_any=True)], allow_varying_sizes=True)
+        return merge_shapes(*[getattr(obj, a) for a in all_attributes(obj, assert_any=True)], allow_varying_sizes=True, allow_varying_labels=True)
     from ..backend import choose_backend, NoBackendFound
     try:
         backend = choose_backend(obj)
@@ -2570,6 +2570,7 @@ def merge_shapes(*objs: Union[Shape, Any], allow_varying_sizes=False, allow_vary
         return EMPTY_SHAPE
     shapes = [shape(obj) for obj in objs]
     is_pure = not any(isinstance(s, MixedShape) for s in shapes)
+    allow_varying_labels = True if allow_varying_sizes else allow_varying_labels
     if is_pure:
         is_pure = len(set([s.dim_type for s in shapes])) == 1
     if is_pure:
@@ -2584,7 +2585,7 @@ def merge_shapes(*objs: Union[Shape, Any], allow_varying_sizes=False, allow_vary
         return MixedShape(b, d, i, s, c, dims) if dims else EMPTY_SHAPE
 
 
-def pure_merge(*shapes: Shape, allow_varying_sizes: bool, allow_varying_labels=False) -> Shape:
+def pure_merge(*shapes: Shape, allow_varying_sizes: bool, allow_varying_labels: bool) -> Shape:
     all_dims = []
     non_empty = []
     for s in shapes:
@@ -2601,6 +2602,8 @@ def pure_merge(*shapes: Shape, allow_varying_sizes: bool, allow_varying_labels=F
     if len(non_empty) == 1:
         return non_empty[0]
     dims = {}
+    incompatible_sizes = set()  # set[names]
+    incompatible_labels = set()  # set[names]
     for dim in all_dims:
         if dim.name not in dims:
             dims[dim.name] = dim
@@ -2609,22 +2612,26 @@ def pure_merge(*shapes: Shape, allow_varying_sizes: bool, allow_varying_labels=F
             sizes_match = _size_equal(dim.size, prev_dim.size)
             if not sizes_match:
                 if allow_varying_sizes:
-                    dims[dim.name] = Dim(dim.name, None, dim.dim_type, None)
+                    incompatible_sizes.add(dim.name)
                 else:
                     raise IncompatibleShapes(f"Cannot merge shapes {shapes} because dimension '{dim.name}' exists with different sizes.", *shapes)
-            if not allow_varying_labels:
+            else:  # sizes match
                 names1 = prev_dim.slice_names
                 names2 = dim.slice_names
                 if names1 is not None and names2 is not None and len(names1) > 1:
                     if names1 != names2:
                         if allow_varying_labels:
-                            dims[dim.name] = Dim(dim.name, dim.size, dim.dim_type, None)
+                            incompatible_labels.add(dim.name)
                         elif set(names1) == set(names2):
                             raise IncompatibleShapes(f"Inconsistent component order on {dim.name}: '{','.join(names1)}' vs '{','.join(names2)}' in dimension '{dim.name}'. Failed to merge shapes {shapes}", *shapes)
                         else:
                             raise IncompatibleShapes(f"Cannot merge shapes {shapes} because dimension '{dim.name}' exists with different labels.", *shapes)
                 elif names1 is None and names2 is not None:
                     dims[dim.name] = dim  # override prev_dim with dim because it has labels
+    for name in incompatible_labels:
+        dims[name] = dims[name].with_size(dims[name].size, keep_labels=False)
+    for name in incompatible_sizes:
+        dims[name] = dims[name].without_sizes()
     return next(iter(dims.values())) if len(dims) == 1 else PureShape(all_dims[0].dim_type, dims)
 
 
