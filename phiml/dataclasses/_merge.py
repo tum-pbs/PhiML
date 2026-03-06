@@ -76,7 +76,7 @@ def dc_stack(objs: Sequence, dim: Shape, expand_values=False, simplify=False, la
                 if not configs_equal:
                     raise IncompatibleDataclassConfigs(f"Attribute '{f.name}' must match among all stacked objects")
 
-    result = replace(objs[0], **updates)
+    result = dataclasses.replace(objs[0], **updates)
     # --- stack cache ---
     c_names = set(k for k in objs[0].__dict__ if isinstance(getattr(type(objs[0]), k, None), cached_property))
     shared = c_names & set.intersection(*[set(obj.__dict__) for obj in objs])
