@@ -2782,6 +2782,8 @@ def serialize_spec(spec: dict):
             result[k] = type_names[v]
         elif isinstance(v, dict):
             result[k] = serialize_spec(v)
+        elif isinstance(v, Shape):
+            result[k] = v._to_dict(include_sizes=True)
         else:
             assert not isinstance(v, type)
             result[k] = v
@@ -2796,6 +2798,8 @@ def unserialize_spec(spec: dict):
     for k, v in spec.items():
         if k == 'type':
             result[k] = lookup[v]
+        elif k == 'shape' and isinstance(v, dict):
+            result[k] = Shape._from_dict(v)
         elif isinstance(v, dict):
             result[k] = unserialize_spec(v)
         else:
