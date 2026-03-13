@@ -294,8 +294,34 @@ class LinTracer(Tensor):
         bias = concat([t._bias for t in values], dim)
         return LinTracer(values[0]._source, indices, fac, fac_nz, bias)
 
+    def _simplify(self):
+        # --- Check if dim can be dropped because nothing is done to it at the end of the day ---
+        unnecessary = set()
+        for dim in self.shape:
+            if dim.name in self._var_src_names and dim not in self._fac.shape and dim.size == self._source.shape.get_size(dim):
+                indices = self._indices.idx[dim.name]
+                trivial = math.arange(dim)
+                if (indices == trivial).all:
+                    unnecessary.add(dim.name)
+        if not unnecessary:
+            return self
+        keep = [dim for dim in self._var_src_names if dim not in unnecessary]
+        indices = self._indices.idx[keep]
+        indices = indices[{u: 0 for u in unnecessary}]  # indices must be repeated along unnecessary dims
+        return LinTracer(self._source, indices, self._fac, self._fac_nz, self._bias)
+
     def __repr__(self):
         return f"{self._bias.shape} up to {self._indices.shape.get_size('_deps')} lin deps per entry"
+
+    def _debug_print_dependencies(self, idx=None):
+        if idx is None:
+            idx = next(iter(self.shape.meshgrid()))
+        print(f"Linear dependencies at {idx}:", end=" ")
+        indices = self._indices[idx]
+        fac = self._fac[idx]
+        for i in (indices.shape['_deps']).meshgrid():
+            print(f"{fac[i]} at {indices[i]}", end=", ")
+        print()
 
 
 class LinearTraceInProgress(Exception):
@@ -382,20 +408,23 @@ def to_format_for_mul(x: Tensor, target_backend: Backend, auto_compress=True) ->
     return x
 
 
-def leaves_with_offsets(tracer_tree: Tensor, offset: IndexOffset) -> List[Tuple[Tensor, IndexOffset]]:
+def leaves_with_offsets(tracer_tree: Tensor, offset: IndexOffset, simplify: bool) -> List[Tuple[Tensor, IndexOffset]]:
     if isinstance(tracer_tree, BlockTensor):
         result = []
         for t, o in tracer_tree._blo:
-            result.extend(leaves_with_offsets(t, offset + o))
+            result.extend(leaves_with_offsets(t, offset + o, simplify))
         return result
     elif isinstance(tracer_tree, TensorStack):
         result = []
         for i, t in enumerate(tracer_tree._tensors):
-            result.extend(leaves_with_offsets(t, offset + {tracer_tree._stack_dim.name: i}))
+            result.extend(leaves_with_offsets(t, offset + {tracer_tree._stack_dim.name: i}, simplify))
         return result
-    elif is_sparse(tracer_tree):
-        return [(tracer_tree, offset)]  # actual indices will be handled in lin_output_indices
-    return [(tracer_tree, offset)]
+    else:
+        if is_sparse(tracer_tree):
+            tracer_tree = tracer_tree._with_values(tracer_tree._values._simplify())
+            return [(tracer_tree, offset)]  # actual indices will be handled in lin_output_indices
+        tracer_tree = tracer_tree._simplify() if simplify else tracer_tree
+        return [(tracer_tree, offset)]
 
 
 def lin_output_indices(x: Tensor, offset: IndexOffset, included_out_dims: Shape) -> Optional[Tensor]:
@@ -438,7 +467,7 @@ def lin_output_indices(x: Tensor, offset: IndexOffset, included_out_dims: Shape)
     
 
 def tracer_to_coo(tracer_tree: Tensor) -> Tuple[Tensor, Tensor]:
-    tensors_and_offsets = leaves_with_offsets(tracer_tree, NO_OFFSET)
+    tensors_and_offsets = leaves_with_offsets(tracer_tree, NO_OFFSET, simplify=True)
     in_dims = merge_shapes(*[dependent_src_dims(t) for t, _ in tensors_and_offsets])
     out_dims = merge_shapes(*[dependent_out_dims(t, in_dims) for t, _ in tensors_and_offsets])
     offset_names = set.union(*[set(o.by_dim) for _, o in tensors_and_offsets])
