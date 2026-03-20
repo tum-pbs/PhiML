@@ -2849,6 +2849,13 @@ def safe_div(x: Union[Number, Tensor], y: Union[Number, Tensor]):
 
 def maximum(x: Union[Tensor, float], y: Union[Tensor, float], allow_none=False):
     """ Computes the element-wise maximum of `x` and `y`. """
+    if isinstance(x, Shape) or isinstance(y, Shape):
+        if isinstance(y, Shape) and not isinstance(x, Shape):
+            x, y = y, x
+        if isinstance(y, Number):
+            return x.with_sizes([max(s, y) for s in x.sizes])
+        elif isinstance(y, Tensor):
+            x = y._tensor(x)
     if not isinstance(x, Tensor) and not isinstance(y, Tensor):
         return choose_backend(x, y).maximum(x, y)
     if allow_none:
@@ -2865,6 +2872,13 @@ def maximum(x: Union[Tensor, float], y: Union[Tensor, float], allow_none=False):
 
 def minimum(x: Union[Tensor, float], y: Union[Tensor, float], allow_none=False):
     """ Computes the element-wise minimum of `x` and `y`. """
+    if isinstance(x, Shape) or isinstance(y, Shape):
+        if isinstance(y, Shape) and not isinstance(x, Shape):
+            x, y = y, x
+        if isinstance(y, Number):
+            return x.with_sizes([min(s, y) for s in x.sizes])
+        elif isinstance(y, Tensor):
+            x = y._tensor(x)
     if allow_none:
         if x is None:
             return y
