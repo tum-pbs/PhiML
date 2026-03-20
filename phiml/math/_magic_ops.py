@@ -150,9 +150,9 @@ def stack(values: Union[Sequence[PhiTreeNodeType], Dict[str, PhiTreeNodeType]], 
     if expand_values:
         all_dims = merge_shapes(*shapes, allow_varying_sizes=True)
         if isinstance(values, dict):
-            values = {k: expand(v, all_dims - s) for (k, v), s in zip(values.items(), shapes)}
+            values = {k: expand(v, all_dims.with_sizes(s)) for (k, v), s in zip(values.items(), shapes)}
         else:
-            values = [expand(v, all_dims - s) for v, s in zip(values, shapes)]
+            values = [expand(v, all_dims.with_sizes(s)) for v, s in zip(values, shapes)]
     else:
         all_batch_dims = merge_shapes(*[s.batch for s in shapes], allow_varying_sizes=True)
         if isinstance(values, dict):
