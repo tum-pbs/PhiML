@@ -119,6 +119,13 @@ class Layout(Tensor):
             return BROADCAST_FORMATTER.register_formatted(self, format_spec)
         return repr(self._obj)
 
+    def __deepcopy__(self, memodict: Dict):
+        result = self.__class__.__new__(self.__class__)
+        memodict[id(self)] = result  # Register early to handle circular refs
+        obj_copy = copy.deepcopy(self._obj, memodict)
+        result.__init__(obj_copy, self._stack_dim)
+        return result
+
     def _unstack(self, dimension: str):
         if dimension == self._stack_dim.names[0]:
             native = tuple(self._obj.values()) if isinstance(self._obj, dict) else self._obj

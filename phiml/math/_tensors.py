@@ -761,7 +761,7 @@ class Tensor(Generic[T]):
     def __copy__(self) -> 'Tensor[T]':
         return self._op1(lambda t: choose_backend(t).copy(t, only_mutable=True), 'copy')
 
-    def __deepcopy__(self, memodict={}) -> 'Tensor[T]':
+    def __deepcopy__(self, memodict: Dict) -> 'Tensor[T]':
         return self._op1(lambda t: choose_backend(t).copy(t, only_mutable=False), 'deepcopy')
 
     def __neg__(self) -> 'Tensor[T]':
