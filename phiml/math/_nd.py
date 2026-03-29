@@ -369,6 +369,9 @@ def shift(x: Tensor,
     dims = x.shape.only(dims, reorder=True).names
     if stack_dim is None:
         assert len(dims) == 1
+    elif stack_dim.labels[0]:
+        assert set(stack_dim.labels[0]) == set(dims), f"stack_dim labels {stack_dim.labels[0]} not compatible with shift dims {dims}."
+        dims = stack_dim.labels[0]
     x = wrap(x)
     pad_lower = max(0, -min(offsets))
     pad_upper = max(0, max(offsets))
@@ -661,6 +664,9 @@ def spatial_gradient(grid: Tensor,
         assert grid.shape.only(stack_dim).size == 1, f"spatial_gradient() cannot list components along {stack_dim.name} because that dimension already exists on grid {grid}"
         grid = grid[{stack_dim.name: 0}]
     dims = grid.shape.only(dims)
+    if stack_dim and stack_dim.labels[0]:
+        assert set(stack_dim.labels[0]) == set(dims.names), f"stack_dim labels {stack_dim.labels[0]} not compatible with gradient dims {dims.names}."
+        dims = grid.shape.only(stack_dim.labels[0], reorder=True)
     dx = wrap(dx)
     if 'vector' in dx.shape:
         dx = dx.vector[dims]
