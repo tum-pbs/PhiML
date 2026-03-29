@@ -686,7 +686,7 @@ def solve_linear(f: Union[Callable[[X], Y], Tensor],
             return result  # must return exactly `x` so gradient isn't computed w.r.t. other quantities
 
         _matrix_solve = attach_gradient_solve(_matrix_solve_forward, auxiliary_args=f'is_backprop,solve{",matrix" if matrix.backend == NUMPY else ""}', matrix_adjoint=grad_for_f)
-        return _matrix_solve(y_tensors[0], solve, matrix)
+        return _matrix_solve(assemble_tree(y_tree, y_tensors), solve, matrix)
     else:  # Matrix-free solve
         from ._ops import cached
         f_args = cached(f_args)
