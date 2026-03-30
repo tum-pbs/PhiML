@@ -257,6 +257,8 @@ class LinTracer(Tensor):
             return TensorStack([wrap(v) for v in values], dim)
         if len(values) == 1:
             return values[0].__expand__(dim)
+        if merge_shapes(*values, allow_varying_sizes=True).undefined:
+            return TensorStack(values, dim)
         src_dims = merge_shapes(*[dependent_src_dims(t) for t in values])
         indices = [t._source_indices(included_src_dims=src_dims, order=src_dims.names) for t in values if isinstance(t, LinTracer)]
         indices = stack(indices, dim, expand_values=True)
@@ -269,14 +271,13 @@ class LinTracer(Tensor):
         return LinTracer(self._source, self._indices, self._fac, self._fac_nz, expand(self._bias, dims))
 
     def _pad(self, ext: Extrapolation, widths, already_padded, **kwargs):
-        assert not already_padded
-        no_bias = ext - ext  # ToDo for constant extrapolation, return a composite tensor, so we don't have to filter out zero-values later (which may be impossible when jit-compiling)
+        no_bias: Extrapolation = ext - ext  # ToDo for constant extrapolation, return a composite tensor, so we don't have to filter out zero-values later (which may be impossible when jit-compiling)
         indices = self._source_indices(included_src_dims=self._source.shape.only(tuple(widths)))
-        indices = no_bias.pad(indices, widths)
-        fac = no_bias.pad(expand(self._fac, (self._indices.shape & (self._source.shape - self._indices.shape)).only(tuple(widths)) - self._fac.shape), widths)
+        indices = no_bias.pad(indices, widths, already_padded, **kwargs)
+        fac = no_bias.pad(expand(self._fac, (self._indices.shape & (self._source.shape - self._indices.shape)).only(tuple(widths)) - self._fac.shape), widths, already_padded, **kwargs)
         nz_ext = not isinstance(ext, ConstantExtrapolation)
-        fac_nz = math.pad(self._fac_nz, widths, nz_ext)
-        bias = ext.pad(self._bias, widths)
+        fac_nz = ConstantExtrapolation(nz_ext).pad(self._fac_nz, widths, already_padded, **kwargs)
+        bias = ext.pad(self._bias, widths, already_padded, **kwargs)
         return LinTracer(self._source, indices, fac, fac_nz, bias)
 
     @staticmethod
