@@ -1498,7 +1498,7 @@ class PureShape:
         if not self.dims or dims is None:
             return EMPTY_SHAPE
         if isinstance(dims, Dim):
-            return dims if dims.name in self.dims else EMPTY_SHAPE
+            return self.dims.get(dims.name, EMPTY_SHAPE)
         if callable(dims):
             return dims(self)
         if isinstance(dims, str):

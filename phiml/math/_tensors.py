@@ -1028,6 +1028,7 @@ class Dense(Tensor):
             assert isinstance(names, (tuple, list)), f"names must be a tuple or list[str] but got {type(names)}"
             assert all(isinstance(n, str) for n in names), f"names must be a tuple or list[str] but got {names}"
             assert isinstance(backend, Backend)
+            assert self._shape.well_defined, f"Undefined shape: {self._shape}"
             for dim in expanded_shape:
                 if dim.size is not None and isinstance(dim.size, Tensor):
                     assert dim.size.rank > 0
