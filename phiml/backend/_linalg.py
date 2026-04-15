@@ -324,6 +324,8 @@ def scipy_sparse_solve(b: Backend, method: Union[str, Callable], lin, y, x0, rto
     input_shapes = (x0.shape, x0.shape, x0.shape[:1], x0.shape[:1], x0.shape[:1], x0.shape[:1])
     if max_iter.shape[0] > 1:
         input_shapes = [(max_iter.shape[0],) + s for s in input_shapes]
+    y = b.cast(y, fp)
+    x0 = b.cast(x0, fp)
     x, residual, iterations, function_evaluations, converged, diverged = b.numpy_call(scipy_solve, input_shapes, (fp, fp, i, i, bo, bo), y, x0, rtol, atol, *lin_tensors, *pre_tensors)
     return SolveResult(method_name, x, residual, iterations, function_evaluations, converged, diverged, messages or [""] * batch_size)
 
