@@ -979,6 +979,9 @@ class TensorProperties:
         is_nontrivially_rank_deficient = stack([p.is_nontrivially_rank_deficient for p in props], dim, simplify=True)
         return TensorProperties(empty_rows=empty_rows, empty_cols=empty_cols, min_rank_deficiency=min_rank_deficiency, is_nontrivially_rank_deficient=is_nontrivially_rank_deficient)
 
+    def __eq__(self, other):
+        return True  # When comparing tensors, the properties need not be equal
+
 
 EMPTY_TENSOR_PROPERTIES = TensorProperties()
 
