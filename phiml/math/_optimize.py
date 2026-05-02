@@ -656,15 +656,16 @@ def solve_linear(f: Union[Callable[[X], Y], Tensor],
         def _matrix_solve_forward(y, solve: Solve, matrix: Tensor, is_backprop=False):
             pattern_dims_in = dual(matrix).as_channel().names
             pattern_dims_out = non_dual(matrix).names  # batch dims can be sparse or batched matrices
+            _, y_tensors = disassemble_tree(y, False, value_attributes)
             b = backend_for(*y_tensors, matrix)
             nat_matrix = native_matrix(matrix, b)
             if solve.rank_deficiency:
                 if is_sparse(matrix):
                     N = dual(matrix).volume
-                    if get_format(matrix) == 'csr':
+                    if b.get_sparse_format(nat_matrix) == 'csr':
                         _, (data, idx, ptr) = b.disassemble(nat_matrix)
                         idx = b.csr_to_coo(idx[None, :], ptr[None, :])[0, :]
-                    elif get_format(matrix) == 'coo':
+                    elif b.get_sparse_format(nat_matrix) == 'coo':
                         _, (idx, data) = b.disassemble(nat_matrix)
                     else:
                         raise NotImplementedError

@@ -1495,6 +1495,7 @@ class Backend:
         Returns:
             `SolveResult`
         """
+        assert callable(lin) or isinstance(lin, tuple) or self.is_tensor(lin, only_native=True)
         if method == 'auto':
             return self.conjugate_gradient_adaptive(lin, y, x0, rtol, atol, max_iter, pre, matrix_offset)
         elif method.startswith('scipy-'):
