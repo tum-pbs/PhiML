@@ -8,7 +8,7 @@ from . import _ops as math
 from ._magic_ops import stack, expand, rename_dims, value_attributes, pack_dims, concat
 from ._nd import vec
 from ._ops import backend_for, concat_tensor, scatter
-from ._shape import Shape, merge_shapes, instance, EMPTY_SHAPE, dual, channel, non_batch, batch, shape, primal, DEBUG_CHECKS
+from ._shape import Shape, merge_shapes, instance, EMPTY_SHAPE, dual, channel, batch, DEBUG_CHECKS, non_channel
 from ._sparse import SparseCoordinateTensor, is_sparse, sparse_dims, sparse_tensor, stored_indices
 from ._tensors import Tensor, wrap, TensorStack, BlockTensor, NO_OFFSET, IndexOffset, variable_dim_names, variable_shape, TensorProperties
 from ._tree import disassemble_tree, assemble_tree
@@ -42,7 +42,7 @@ class LinTracer(Tensor):
 
     @classmethod
     def create_identity(cls, src: TracerSource):
-        indices = math.zeros(batch(_deps=1), channel(idx=''))
+        indices = math.zeros(batch(_deps=1), channel(idx=''), dtype=int)
         fac = wrap(1)
         fac_nz = wrap(True)
         bias = math.zeros(src.shape, dtype=src.dtype)
@@ -53,8 +53,7 @@ class LinTracer(Tensor):
         assert self._fac.shape in self._indices  # _indices must include all dims of _fac
         assert self._fac_nz.shape in self._fac.shape
         assert self._fac_nz.backend == NUMPY
-        if self._indices.shape - 'idx' - '_deps':
-            assert self._indices.shape['idx'].labels[0]
+        assert self._indices.dtype.kind == int
         if DEBUG_CHECKS:
             # check all indices within bounds
             assert self._indices.min >= 0, f"Encountered negative index"
@@ -179,6 +178,8 @@ class LinTracer(Tensor):
         # __neg__ and __cast__ implemented below
         if native_function.__name__ == 'isfinite':
             return expand(math.is_finite(self._fac), self.shape)
+        elif op_name == 'neg':
+            return self.__neg__()
         elif op_name in {'cast', 'to_float', 'to_int32', 'to_int64', 'to_complex'}:
             raise AssertionError("cast called via _op1. Should be __cast__ instead")
         else:
@@ -235,9 +236,8 @@ class LinTracer(Tensor):
     def _scatter(self, base_grid: Tensor, indices: Tensor, mode: str, index_dim: Shape, indexed_dims: Shape, batches: Shape, channels: Shape, lists: Shape) -> Tensor:
         if base_grid._is_tracer:
             raise NotImplementedError
-        fraction = (self.shape - batches).volume / indexed_dims.volume
-        assert fraction <= 1
-        if mode == 'update' and fraction >= .5:  # max dependencies unchanged -> return dense LinTracer
+        # fraction = (self.shape - batches).volume / indexed_dims.volume
+        if mode == 'update':  # max dependencies unchanged -> return dense LinTracer
             lin_indices = expand(0, indexed_dims)
             lin_indices = scatter(lin_indices, indices, self._indices)
             fac = expand(0, indexed_dims)
@@ -248,8 +248,9 @@ class LinTracer(Tensor):
             return LinTracer(self._source, lin_indices, fac, fac_nz, bias)
         else:  # return sparse tensor with values=self
             # assume base is 0
-            values = self.__pack_dims__(non_batch(self), instance('entries'), None)
-            return sparse_tensor(indices, values, base_grid.shape & batch(self))
+            entries_dim = non_channel(indices)
+            values = self.__pack_dims__(self.shape.only(entries_dim), instance(indices), None)
+            return sparse_tensor(indices, values, (base_grid.shape & batch(self)) - (self.shape - entries_dim))
 
     @staticmethod
     def __stack__(values: tuple, dim: Shape, **_kwargs) -> 'Tensor':
@@ -269,6 +270,16 @@ class LinTracer(Tensor):
 
     def __expand__(self, dims: Shape, **kwargs) -> 'Tensor':
         return LinTracer(self._source, self._indices, self._fac, self._fac_nz, expand(self._bias, dims))
+
+    def __pack_dims__(self, dims: Shape, packed_dim: Shape, pos: Union[int, None], **kwargs) -> 'Tensor':
+        assert '_deps' not in dims
+        new_dims = self._source.shape.only(dims) - self._indices.shape
+        indices = self._source_indices(included_src_dims=new_dims)
+        indices = indices.__pack_dims__(dims, packed_dim, pos)
+        fac = expand(self._fac, dims).__pack_dims__(dims, packed_dim, pos)
+        fac_nz = expand(self._fac_nz, dims).__pack_dims__(dims, packed_dim, pos)
+        bias = self._bias.__pack_dims__(dims, packed_dim, pos)
+        return LinTracer(self._source, indices, fac, fac_nz, bias)
 
     def _pad(self, ext: Extrapolation, widths, already_padded, **kwargs):
         no_bias: Extrapolation = ext - ext  # ToDo for constant extrapolation, return a composite tensor, so we don't have to filter out zero-values later (which may be impossible when jit-compiling)
@@ -301,7 +312,7 @@ class LinTracer(Tensor):
                 fac_nz_list.append(expand(t._fac_nz, t.shape[dim]))
                 bias_list.append(t._bias)
             else:
-                indices_list.append(math.zeros(t.shape[dim]))
+                indices_list.append(math.zeros(t.shape[dim], dtype=int))
                 fac_list.append(math.zeros(t.shape[dim], dtype=(int, 16)))
                 fac_nz_list.append(math.zeros(t.shape[dim], dtype=(int, 16)))
                 bias_list.append(t)
@@ -523,7 +534,8 @@ def tracer_to_coo(tracer_tree: Tensor) -> Tuple[Tensor, Tensor]:
                 bias = scatter(bias, out_indices, tensor, 'add', pref_index_dim='idx', outside_handling='undefined')
         return matrix, bias
     else:  # full matrix -> build sparse coo
-        bias = expand(0, out_dims)
+        with NUMPY:
+            bias = math.zeros(out_dims, dtype=tracer_tree.dtype)
         indices = []
         values = []
         for (tensor, _), out_indices in zip(tensors_and_offsets, output_indices):
@@ -601,7 +613,7 @@ def dependent_out_dims(tracer: Tensor, included_src_dims: Shape, sparsify=None) 
         dims = tracer.shape.only(out_dims)
         return dims & (included_src_dims.only(tracer.shape) - dims)  # if size changed, prefer from tracer.shape
     elif is_sparse(tracer):
-        return tracer.shape
+        return sparse_dims(tracer) & dependent_src_dims(tracer._values).non_instance
     raise ValueError(tracer)
 
 

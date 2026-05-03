@@ -454,7 +454,7 @@ class SparseCoordinateTensor(Tensor):
                     values = concat([-self_values, other_values] if switch_args else [self_values, -other_values], instance(self_values), expand_values=True)
                 return SparseCoordinateTensor(indices, values, self._dense_shape & other._dense_shape, can_contain_double_entries=True, indices_sorted=False, indices_constant=self._indices_constant)
         else:  # other is dense
-            can_stay_sparse = op in {operator.mul, operator.truediv}
+            can_stay_sparse = op in {operator.mul, operator.truediv} or other._is_tracer
             if self._dense_shape in other.shape and not can_stay_sparse:  # all dims dense -> convert to dense
                 return dense(self)._op2(other, op, switch_args)
             else:  # only some dims dense -> stay sparse
