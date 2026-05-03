@@ -895,7 +895,7 @@ def cached(t: TensorOrTree) -> TensorOrTree:
     return assemble_tree(tree, tensors)
 
 
-def stack_tensors(values: Union[tuple, list], dim: Shape):
+def stack_tensors(values: Union[tuple, list], dim: Shape, allow_varying_labels=True):
     if len(values) == 1 and not dim:
         return values[0]
     values = [wrap(v) for v in values]
@@ -918,17 +918,17 @@ def stack_tensors(values: Union[tuple, list], dim: Shape):
                 return result
         # return BlockTensor.from_stack(values, dim)
         return TensorStack(values, dim)
-    broadcast_shape = merge_shapes(*[v.shape for v in values], allow_varying_sizes=True, allow_varying_labels=True)
+    broadcast_shape = merge_shapes(*[v.shape for v in values], allow_varying_sizes=True, allow_varying_labels=allow_varying_labels)
     if not broadcast_shape.well_defined:
         return TensorStack(values, dim)
     # --- uniform stack ---
     dim = dim.with_size(len(values))
-    native_broadcast_shape = merge_shapes(*[variable_shape(v) for v in values], allow_varying_labels=True)
+    native_broadcast_shape = merge_shapes(*[variable_shape(v) for v in values], allow_varying_labels=allow_varying_labels)
     natives = [v._reshaped_native([*native_broadcast_shape]) for v in values]
     names = (native_broadcast_shape & dim).names
     b = choose_backend(*natives)
     native_stacked = b.stack(natives, axis=names.index(dim.name))
-    expanded_shape = merge_shapes(dim, *[v.shape for v in values])  # put dim to its group
+    expanded_shape = merge_shapes(dim, *[v.shape for v in values], allow_varying_labels=allow_varying_labels)  # put dim to its group
     return Dense(native_stacked, names, expanded_shape, b)
 
 

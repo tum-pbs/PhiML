@@ -82,7 +82,7 @@ def _any_uniform_dim(dims: Shape):
     raise ValueError(f"Uniform dimension required but found only non-uniform dims {dims}")
 
 
-def stack(values: Union[Sequence[PhiTreeNodeType], Dict[str, PhiTreeNodeType]], dim: Union[Shape, str], expand_values=False, simplify=False, layout_non_matching=False, **kwargs) -> PhiTreeNodeType:
+def stack(values: Union[Sequence[PhiTreeNodeType], Dict[str, PhiTreeNodeType]], dim: Union[Shape, str], expand_values=False, simplify=False, layout_non_matching=False, allow_varying_labels=True, **kwargs) -> PhiTreeNodeType:
     """
     Stacks `values` along the new dimension `dim`.
     All values must have the same spatial, instance and channel dimensions. If the dimension sizes vary, the resulting tensor will be non-uniform.
@@ -171,7 +171,7 @@ def stack(values: Union[Sequence[PhiTreeNodeType], Dict[str, PhiTreeNodeType]], 
         # --- First try __stack__ ---
         for v in values:
             if hasattr(v, '__stack__'):
-                result = v.__stack__(values, dim, **kwargs)
+                result = v.__stack__(values, dim, allow_varying_labels=allow_varying_labels, **kwargs)
                 if result is not NotImplemented:
                     if DEBUG_CHECKS:
                         assert isinstance(result, SHAPE_TYPES) if isinstance(v, SHAPE_TYPES) else isinstance(result, Shapable), "__stack__ must return a Shapable object"

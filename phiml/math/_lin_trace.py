@@ -261,7 +261,7 @@ class LinTracer(Tensor):
             return TensorStack(values, dim)
         src_dims = merge_shapes(*[dependent_src_dims(t) for t in values])
         indices = [t._source_indices(included_src_dims=src_dims, order=src_dims.names) for t in values if isinstance(t, LinTracer)]
-        indices = stack(indices, dim, expand_values=True)
+        indices = stack(indices, dim, expand_values=True, **_kwargs)
         fac = stack([t._fac for t in values], dim, expand_values=True)
         fac_nz = stack([t._fac_nz for t in values], dim, expand_values=True)
         bias = stack([t._bias for t in values], dim)

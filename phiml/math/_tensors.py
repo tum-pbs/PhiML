@@ -512,7 +512,7 @@ class Tensor(Generic[T]):
             layout_ = [v for v in values if isinstance(v, Layout)][0]
             return layout_.__stack__(values, dim, **_kwargs)
         from ._ops import stack_tensors
-        return stack_tensors(values, dim)
+        return stack_tensors(values, dim, **_kwargs)
 
     def __expand__(self, dims: Shape, **kwargs) -> 'Tensor':
         return expand_tensor(self, dims)
@@ -971,12 +971,12 @@ class TensorProperties:
         return TensorProperties(empty_rows=empty_rows, empty_cols=empty_cols, min_rank_deficiency=min_rank_deficiency)
 
     @staticmethod
-    def stack(props: Sequence['TensorProperties'], dim: Shape):
+    def stack(props: Sequence['TensorProperties'], dim: Shape, **kwargs):
         from ._magic_ops import stack
         empty_rows = stack([p.empty_rows for p in props], dim, simplify=True)
         empty_cols = stack([p.empty_cols for p in props], dim, simplify=True)
         min_rank_deficiency = stack([p.min_rank_deficiency for p in props], dim, simplify=True)
-        is_nontrivially_rank_deficient = stack([p.is_nontrivially_rank_deficient for p in props], dim, simplify=True)
+        is_nontrivially_rank_deficient = stack([p.is_nontrivially_rank_deficient for p in props], dim, simplify=True, **kwargs)
         return TensorProperties(empty_rows=empty_rows, empty_cols=empty_cols, min_rank_deficiency=min_rank_deficiency, is_nontrivially_rank_deficient=is_nontrivially_rank_deficient)
 
     def __eq__(self, other):
