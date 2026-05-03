@@ -282,18 +282,34 @@ class LinTracer(Tensor):
 
     @staticmethod
     def __concat__(values: tuple, dim: str, **kwargs) -> 'Tensor':
+        any_tracer = next(iter([t for t in values if isinstance(t, LinTracer)]))
         full_size = sum([t_.shape.get_size(dim) for t_ in values])
-        shape = merge_shapes([t.shape.with_dim_size(dim, full_size) for t in values])
-        if any(not isinstance(t, LinTracer) for t in values):
-            raise NotImplementedError  # BlockTensor
-        # --- Concat only LinTracers ---
-        src_dims = merge_shapes(*[dependent_src_dims(t) for t in values]).with_dim_size(dim, None) & shape[dim].with_dim_size(dim, None)
-        indices = [t._source_indices(included_src_dims=src_dims) for t in values if isinstance(t, LinTracer)]
-        indices = concat(indices, dim, expand_values=True)
-        fac = concat([expand(t._fac, t.shape[dim]) for t in values], dim, expand_values=True)
-        fac_nz = concat([expand(t._fac_nz, t.shape[dim]) for t in values], dim, expand_values=True)
-        bias = concat([t._bias for t in values], dim)
-        return LinTracer(values[0]._source, indices, fac, fac_nz, bias)
+        max_dep_count = max([v._indices.shape.get_size('_deps') for v in values if isinstance(v, LinTracer)])
+        src_dims = merge_shapes(*[dependent_src_dims(t) for t in values])
+        if dim in src_dims:
+            src_dims = src_dims.with_dim_size(dim, None)
+        indices_list = []
+        fac_list = []
+        fac_nz_list = []
+        bias_list = []
+        for t in values:
+            if isinstance(t, LinTracer):
+                if t._indices.shape.get_size('_deps') < max_dep_count:
+                    raise NotImplementedError
+                indices_list.append(t._source_indices(included_src_dims=src_dims))
+                fac_list.append(expand(t._fac, t.shape[dim]))
+                fac_nz_list.append(expand(t._fac_nz, t.shape[dim]))
+                bias_list.append(t._bias)
+            else:
+                indices_list.append(math.zeros(t.shape[dim]))
+                fac_list.append(math.zeros(t.shape[dim], dtype=(int, 16)))
+                fac_nz_list.append(math.zeros(t.shape[dim], dtype=(int, 16)))
+                bias_list.append(t)
+        indices = concat(indices_list, dim, expand_values=True)
+        fac = concat(fac_list, dim, expand_values=True)
+        fac_nz = concat(fac_nz_list, dim, expand_values=True)
+        bias = concat(bias_list, dim)
+        return LinTracer(any_tracer._source, indices, fac, fac_nz, bias)
 
     def _simplify(self):
         # --- Check if dim can be dropped because nothing is done to it at the end of the day ---
