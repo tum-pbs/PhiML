@@ -2,6 +2,7 @@ import operator
 import warnings
 from collections import namedtuple
 from dataclasses import dataclass
+from functools import wraps
 from typing import Callable, Tuple, Union, Optional, List
 
 from . import _ops as math
@@ -14,10 +15,9 @@ from ._tensors import Tensor, wrap, TensorStack, BlockTensor, NO_OFFSET, IndexOf
 from ._tree import disassemble_tree, assemble_tree
 from .extrapolation import Extrapolation, ConstantExtrapolation
 from ..backend import NUMPY, Backend
-from ..backend import get_precision
 from ..backend._dtype import DType
 
-TracerSource = namedtuple('TracerSource', ['shape', 'dtype', 'name', 'index'])
+TracerSource = namedtuple('TracerSource', ['shape', 'dtype', 'name', 'index', 'example_value'])
 
 
 @dataclass(frozen=True, eq=False, unsafe_hash=False, repr=False)
@@ -341,10 +341,14 @@ class LinTracer(Tensor):
         return LinTracer(self._source, indices, self._fac, self._fac_nz, self._bias)
 
     def __repr__(self):
+        try:
+            example_value = self.example_value
+        except Exception as exc:
+            example_value = str(exc)
         if self._indices.shape.volume > 0:
-            return f"{self._bias.shape} up to {self._indices.shape.get_size('_deps')} lin deps per entry from {self._source.shape}"
+            return f"{self._bias.shape} up to {self._indices.shape.get_size('_deps')} lin deps per entry from {self._source.shape}. Example value: {example_value}"
         else:
-            return f"{self._bias.shape} lin identity from {self._source.shape}"
+            return f"{self._bias.shape} lin identity from {self._source.shape}. Example value: {example_value}"
 
     def _debug_print_dependencies(self, idx=None):
         if idx is None:
@@ -356,6 +360,98 @@ class LinTracer(Tensor):
             print(f"{fac[i]} at {indices[i]}", end=", ")
         print()
 
+    def _apply(self, source_value: Tensor):
+        if channel(self._indices).size == 0:  # nothing to gather
+            return self._source.example_value + self._bias
+        indices = self._source_indices(included_src_dims=self._source.shape)
+        return math.sum_(math.gather(source_value, indices, pref_index_dim='idx') * self._fac, '_deps') + self._bias
+
+    @property
+    def example_value(self):
+        return self._apply(self._source.example_value)
+
+
+@dataclass(frozen=True, eq=False, unsafe_hash=False, repr=False)
+class DebugLinTracer(LinTracer):
+    """LinTracer subclass that wraps all inherited methods so that any returned LinTracer is replaced by a DebugLinTracer with equal values."""
+
+    @staticmethod
+    def _debug_check(fun, example_fun, *args, **kwargs):
+        result = fun(*args, **kwargs)
+        if type(result) is not LinTracer:
+            return result
+        example_args = [a.example_value if isinstance(a, LinTracer) else a for a in args]
+        example_kwargs = {k: v.example_value if isinstance(v, LinTracer) else v for k, v in kwargs.items()}
+        example_result = example_fun(*example_args, **example_kwargs)
+        if not math.close(result.example_value, example_result, abs_tolerance=1e-5, rel_tolerance=1e-5, equal_nan=True):
+            warnings.warn(
+                f"Linear trace inconsistency detected in function '<tracer>.{fun.__name__}()'. Breakpoint triggered. Running function again for manual debugging.\nExample result: {example_result}\nTraced result: {result.example_value}")
+            breakpoint()
+            fun(*args, **kwargs)
+        return DebugLinTracer(result._source, result._indices, result._fac, result._fac_nz, result._bias)
+
+    def _with_shape_replaced(self, new_shape: Shape):
+        order = self.example_value.shape.indices(self.shape.names)
+        return self._debug_check(LinTracer._with_shape_replaced, lambda example, new_shape: example._with_shape_replaced(new_shape[order]), self, new_shape)
+
+    def _getitem(self, selection: dict) -> 'Tensor':
+        return self._debug_check(LinTracer._getitem, lambda example, selection: example._getitem(selection), self, selection=selection)
+
+    def _unstack(self, dimension: str):
+        return self._debug_check(LinTracer._unstack, lambda example, dim: example._unstack(dim), self, dimension=dimension)
+
+    def _op2(self, other, op: Callable, switch_args: bool) -> Tensor:
+        return self._debug_check(LinTracer._op2, lambda example, other, op, switch_args: example._op2(other, op, switch_args), self, other, op, switch_args=switch_args)
+
+    def _op1(self, native_function, op_name: str) -> Tensor:
+        return self._debug_check(LinTracer._op1, lambda example, native_function, op_name: example._op1(native_function, op_name), self, native_function, op_name=op_name)
+
+    def __neg__(self):
+        return self._debug_check(LinTracer.__neg__, lambda example: -example, self)
+
+    def __cast__(self, dtype: DType) -> 'Tensor':
+        return self._debug_check(LinTracer.__cast__, lambda example, dtype: math.cast(example, dtype), self, dtype=dtype)
+
+    def _sum(self, dims: Shape):
+        return self._debug_check(LinTracer._sum, lambda example, dims: math.sum_(example, dims), self, dims=dims)
+
+    def _gather(self, indices: Tensor):
+        return self._debug_check(LinTracer._gather, lambda example, indices: math.gather(example, indices), self, indices=indices)
+
+    def _dot(self, self_dims: Shape, matrix: Tensor, matrix_dims: Shape) -> Tensor:
+        return self._debug_check(LinTracer._dot, lambda example, self_dims, matrix, matrix_dims: example._dot(self_dims, matrix, matrix_dims), self, self_dims, matrix, matrix_dims=matrix_dims)
+
+    def _scatter(self, base_grid: Tensor, indices: Tensor, mode: str, index_dim: Shape, indexed_dims: Shape, batches: Shape, channels: Shape, lists: Shape) -> Tensor:
+        def example_scatter(example: Tensor, base_grid: Tensor, indices: Tensor, mode: str, *_args):
+            return math.scatter(base_grid, indices, example, mode)
+        return self._debug_check(LinTracer._scatter, example_scatter, self, base_grid, indices, mode, index_dim, indexed_dims, batches, channels, lists)
+
+    @staticmethod
+    def __stack__(values: tuple, dim: Shape, **_kwargs) -> 'Tensor':
+        def example_stack(values, dim, **kw):
+            example_values = tuple(v.example_value if isinstance(v, LinTracer) else v for v in values)
+            return stack(example_values, dim, **kw)
+        return DebugLinTracer._debug_check(LinTracer.__stack__, example_stack, values, dim, **_kwargs)
+
+    def __expand__(self, dims: Shape, **kwargs) -> 'Tensor':
+        return self._debug_check(LinTracer.__expand__, lambda example, dims, **kw: expand(example, dims, **kw), self, dims=dims, **kwargs)
+
+    def __pack_dims__(self, dims: Shape, packed_dim: Shape, pos: Union[int, None], **kwargs) -> 'Tensor':
+        return self._debug_check(LinTracer.__pack_dims__, lambda example, dims, packed_dim, pos, **kw: example.__pack_dims__(dims, packed_dim, pos, **kw), self, dims, packed_dim, pos=pos, **kwargs)
+
+    def _pad(self, ext: Extrapolation, widths, already_padded, **kwargs):
+        return self._debug_check(LinTracer._pad, lambda example, ext, widths, already_padded, **kw: ext.pad(example, widths, already_padded, **kw), self, ext, widths, already_padded=already_padded, **kwargs)
+
+    @staticmethod
+    def __concat__(values: tuple, dim: str, **kwargs) -> 'Tensor':
+        def example_concat(values, dim, **kw):
+            example_values = tuple(v.example_value if isinstance(v, LinTracer) else v for v in values)
+            return concat(example_values, dim, **kw)
+        return DebugLinTracer._debug_check(LinTracer.__concat__, example_concat, values, dim, **kwargs)
+
+    def _simplify(self):
+        return self._debug_check(LinTracer._simplify, lambda example: example, self)
+
 
 class LinearTraceInProgress(Exception):
 
@@ -363,7 +459,7 @@ class LinearTraceInProgress(Exception):
         self.tracer = tracer
 
 
-def trace_linear(f: Callable, *args, auxiliary_args=None, **kwargs):
+def trace_linear(f: Callable, *args, auxiliary_args=None, debug_checks=False, **kwargs):
     assert isinstance(auxiliary_args, str) or auxiliary_args is None, f"auxiliary_args must be a comma-separated str but got {auxiliary_args}"
     from ._functional import function_parameters, f_name
     f_params = function_parameters(f)
@@ -376,20 +472,23 @@ def trace_linear(f: Callable, *args, auxiliary_args=None, **kwargs):
     target_backend = backend_for(*tensors)
     # --- Trace function ---
     with NUMPY:
-        src = TracerSource(tensors[0].shape, tensors[0].dtype, tuple(trace_args.keys())[0], 0)
-        tracer = LinTracer.create_identity(src)
+        src = TracerSource(tensors[0].shape, tensors[0].dtype, tuple(trace_args.keys())[0], 0, tensors[0])
+        tracer = (DebugLinTracer if debug_checks else LinTracer).create_identity(src)
         x_kwargs = assemble_tree(tree, [tracer] + tensors[1:], attr_type=value_attributes)
         result = f(**x_kwargs, **aux_args)
     out_tree, result_tensors = disassemble_tree(result, cache=False, attr_type=value_attributes)
     assert len(result_tensors) == 1, f"Linear function output must be or contain a single Tensor but got {result}"
     tracer = result_tensors[0]._simplify()
     assert tracer._is_tracer, f"Tracing linear function '{f_name(f)}' failed. Make sure only linear operations are used. Output: {tracer.shape}"
+    if debug_checks:
+        assert isinstance(tracer, DebugLinTracer), f"Debug checks for linear trace failed. Function might still be correct."
     return out_tree, tracer
 
 
 def matrix_from_function(f: Callable, *args, auxiliary_args=None,
                          auto_compress=False,
                          target_backend: Backend = None,
+                         debug_checks=False,
                          **kwargs) -> Tuple[Tensor, Tensor]:
     """
     Trace a linear function and construct a matrix.
@@ -411,7 +510,7 @@ def matrix_from_function(f: Callable, *args, auxiliary_args=None,
             Input dimensions will be `dual` dimensions of the matrix while output dimensions will be regular.
         bias: Bias for affine functions or zero-vector if the function is purely linear.
     """
-    _, tracer = trace_linear(f, *args, auxiliary_args=auxiliary_args, **kwargs)
+    _, tracer = trace_linear(f, *args, auxiliary_args=auxiliary_args, debug_checks=debug_checks, **kwargs)
     return matrix_and_bias_from_tracer(tracer, auto_compress=auto_compress, target_backend=target_backend)
 
 
