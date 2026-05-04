@@ -3314,7 +3314,8 @@ def scatter(base_grid: Union[Tensor, Shape],
         with backend_for(indices, values):
             base_grid = zeros(base_grid & batches & values.shape.channel, dtype=values.dtype)
         if default is not None:
-            base_grid += default
+            if base_grid.dtype.kind != bool or default:
+                base_grid += default
         elif mode in ['update', 'mean']:
             base_grid += float('nan')
         elif mode == 'max':
@@ -4224,3 +4225,74 @@ def count_intersections(values: Tensor, arg_dims: DimFilter, list_dims: DimFilte
                 shared_counts[i, j] = shared_counts[j, i] = len(intersection)
         result.append(wrap(shared_counts, arg_dims & arg_dims.as_dual()))
     return stack(result, batch_dims)
+
+
+def bins(x: PhiTreeNode, indices: Tensor, dim: DimFilter, bins: Shape = instance('bins'), pad_value=0, bin_dim=channel('bin')) -> Tensor:
+    """
+    Group values by index, stacking values with equal index.
+    The resulting list of lists is padded to a uniform tensor using `pad_value`.
+
+    Args:
+        x: Data to bin, `Tensor` or tree of tensors.
+        indices: Indices associated with elements of data.
+        dim: Dimension(s) listing the indices/values to bin. Must be present on indices. If not present on `x`, returns x as is.
+        bins: Dimension(s) listing the output bins. If size is defined, result will have this number of bins, otherwise the highest index sets the size.
+        pad_value:
+        bin_dim: Dimension along which values with equal index are stacked. If size is defined, it must be equal to or larger than the maximum bin size.
+
+    Returns:
+        Tensor or tree of tensors, same as ´x`. For each data tensor, the result will be of shape `input_shape - dim + bins + bin_dim`.
+    """
+    dim = indices.shape.only(dim)
+    others = indices.shape - dim
+    # --- Determine #bins, bin_size ---
+    bi = indices.backend
+    nat_indices = indices._reshaped_native([others, dim])
+    if bins.undefined:
+        bins = bins.with_size(bi.max(nat_indices))  # size = n_bins
+    # unique, inv, counts = indices.backend.unique(indices, return_inverse=True, return_counts=True, axis=1)
+    if bin_dim.undefined:
+        counts = bi.vectorized_call(partial(bi.bincount, weights=None, bins=bins.size), nat_indices)
+        bin_dim = bin_dim.with_size(bi.max(counts))  # size = max_count
+    # --- Direct implementation for NumPy indices ---
+    if bi == NUMPY and nat_indices.shape[0] == 1:
+        nat_indices = nat_indices[0]
+        order = np.argsort(nat_indices, kind="stable")
+        idx_sorted = nat_indices[order]
+        # Find first occurrence of each index in the sorted array
+        first_occurrence = np.full(bins.size, -1, dtype=int)
+        change = np.r_[True, idx_sorted[1:] != idx_sorted[:-1]]
+        first_occurrence[idx_sorted[change]] = np.flatnonzero(change)
+        # Compute column indices: position within each group
+        col_idx = np.arange(len(nat_indices)) - first_occurrence[idx_sorted]
+        # Scatter for each tensor in x
+        def bin_tensor(x: Tensor):
+            if dim not in x:
+                return x
+            batch_dims = x.shape - dim
+            out_shape = bins & bin_dim & batch_dims
+            x_nat = x._reshaped_native([batch_dims, dim])
+            val_sorted = x.backend.batched_gather_1d(x_nat, order[None, :])
+            val_sorted = reshaped_tensor(val_sorted, [batch_dims, dim])
+            scatter_idx = np.stack([idx_sorted, col_idx], -1)
+            scatter_idx = reshaped_tensor(scatter_idx, [dim, channel(idx=bins.name_list + bin_dim.name_list)])
+            return scatter(out_shape, scatter_idx, val_sorted, 'update', default=pad_value)
+        return tree_map(bin_tensor, x, all_attributes)
+    raise NotImplementedError
+    # # Sort by indices so equal indices are contiguous
+    # order = bi.argsort(nat_indices, axis=1)
+    # idx_sorted = bi.batched_gather_1d(nat_indices, order)
+    # # Find first occurrence of each index in the sorted array
+    # first_occurrence = bi.zeros(bins.size, dtype=INT32) - 1
+    # change = bi.pad(idx_sorted[:, 1:] != idx_sorted[:, :-1], [(0, 0), (1, 0)], 'constant', True)
+    # for b in range(others.volume):
+    #     first_occurrence = bi.scatter(first_occurrence, idx_sorted[change], bi.nonzero(change), 'update')
+    # # Compute column indices: position within each group
+    # col_idx = np.arange(len(indices)) - first_occurrence[idx_sorted]
+    # # Allocate output (empty bins remain all zeros automatically)
+    # out = np.zeros((n_bins, max_count), dtype=values.dtype)
+    # # Scatter
+    # def bin_tensor(x: Tensor):
+    #     val_sorted = x[order]
+    #     out[idx_sorted, col_idx] = val_sorted
+    # return tree_map(bin_tensor, x)

@@ -53,6 +53,7 @@ class LinTracer(Tensor):
         assert self._fac.shape in self._indices  # _indices must include all dims of _fac
         assert self._fac_nz.shape in self._fac.shape
         assert self._fac_nz.backend == NUMPY
+        assert self._fac_nz.dtype.kind == bool
         assert self._indices.dtype.kind == int
         if DEBUG_CHECKS:
             # check all indices within bounds
@@ -234,23 +235,24 @@ class LinTracer(Tensor):
         return mul._sum('_reduce')
 
     def _scatter(self, base_grid: Tensor, indices: Tensor, mode: str, index_dim: Shape, indexed_dims: Shape, batches: Shape, channels: Shape, lists: Shape) -> Tensor:
+        # This function may be called by dense(SparseTensor) and must return a dense tensor
         if base_grid._is_tracer:
             raise NotImplementedError
-        # fraction = (self.shape - batches).volume / indexed_dims.volume
         if mode == 'update':  # max dependencies unchanged -> return dense LinTracer
-            lin_indices = expand(0, indexed_dims)
-            lin_indices = scatter(lin_indices, indices, self._indices)
-            fac = expand(0, indexed_dims)
-            fac = scatter(fac, indices, self._fac)
-            fac_nz = expand(False, indexed_dims)
-            fac_nz = scatter(fac_nz, indices, self._fac_nz)
+            lin_indices = scatter(expand(0, indexed_dims), indices, self._indices)
+            fac = scatter(expand(0, indexed_dims), indices, self._fac)
+            fac_nz = scatter(expand(False, indexed_dims), indices, self._fac_nz)
             bias = scatter(base_grid, indices, self._bias)
             return LinTracer(self._source, lin_indices, fac, fac_nz, bias)
-        else:  # return sparse tensor with values=self
-            # assume base is 0
-            entries_dim = non_channel(indices)
-            values = self.__pack_dims__(self.shape.only(entries_dim), instance(indices), None)
-            return sparse_tensor(indices, values, (base_grid.shape & batch(self)) - (self.shape - entries_dim))
+        elif mode == 'add':  # With duplicate indices, we can get more dependencies in the output
+            tr_indices, fac, fac_nz = math.bins((self._indices, self._fac, self._fac_nz), indices, instance, bins=base_grid.shape.only(channel(indices).labels[0]), bin_dim=batch('_dupli'))
+            tr_indices = pack_dims(tr_indices, '_dupli,_deps', '_deps:b')
+            fac = pack_dims(fac, '_dupli,_deps', '_deps:b')
+            fac_nz = pack_dims(fac_nz, '_dupli,_deps', '_deps:b')
+            bias = scatter(base_grid, indices, self._bias, mode=mode)
+            return LinTracer(self._source, tr_indices, fac, fac_nz, bias)
+        else:
+            raise NotImplementedError
 
     @staticmethod
     def __stack__(values: tuple, dim: Shape, **_kwargs) -> 'Tensor':
@@ -313,8 +315,8 @@ class LinTracer(Tensor):
                 bias_list.append(t._bias)
             else:
                 indices_list.append(math.zeros(t.shape[dim], dtype=int))
-                fac_list.append(math.zeros(t.shape[dim], dtype=(int, 16)))
-                fac_nz_list.append(math.zeros(t.shape[dim], dtype=(int, 16)))
+                fac_list.append(math.zeros(t.shape[dim], dtype=bool))
+                fac_nz_list.append(math.zeros(t.shape[dim], dtype=bool))
                 bias_list.append(t)
         indices = concat(indices_list, dim, expand_values=True)
         fac = concat(fac_list, dim, expand_values=True)
@@ -339,7 +341,10 @@ class LinTracer(Tensor):
         return LinTracer(self._source, indices, self._fac, self._fac_nz, self._bias)
 
     def __repr__(self):
-        return f"{self._bias.shape} up to {self._indices.shape.get_size('_deps')} lin deps per entry"
+        if self._indices.shape.volume > 0:
+            return f"{self._bias.shape} up to {self._indices.shape.get_size('_deps')} lin deps per entry from {self._source.shape}"
+        else:
+            return f"{self._bias.shape} lin identity from {self._source.shape}"
 
     def _debug_print_dependencies(self, idx=None):
         if idx is None:
