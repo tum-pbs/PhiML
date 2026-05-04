@@ -454,12 +454,14 @@ class SparseCoordinateTensor(Tensor):
                     values = concat([-self_values, other_values] if switch_args else [self_values, -other_values], instance(self_values), expand_values=True)
                 return SparseCoordinateTensor(indices, values, self._dense_shape & other._dense_shape, can_contain_double_entries=True, indices_sorted=False, indices_constant=self._indices_constant)
         else:  # other is dense
-            can_stay_sparse = op in {operator.mul, operator.truediv} or other._is_tracer
+            can_stay_sparse = op in {operator.mul, operator.truediv}
             if self._dense_shape in other.shape and not can_stay_sparse:  # all dims dense -> convert to dense
                 return dense(self)._op2(other, op, switch_args)
             else:  # only some dims dense -> stay sparse
                 dense_dims = self._dense_shape.only(other.shape)
                 assert instance(other).without(self._dense_shape).is_empty, f"Instance dims cannot be added to sparse tensors from sparse-dense operations but got {other.shape} for sparse tensor {self.shape}"
+                if not can_stay_sparse and self._can_contain_double_entries:
+                    raise AssertionError(f"Unsafe sparse operation '{op.__name__}'. Sparse COO matrix can contain duplicate entries which would result in adding dense values multiple times.")
                 other_values = other[self._indices.sparse_idx[dense_dims.name_list]]
                 values = custom_op2(self._values, other_values, op, switch_args)
                 return self._with_values(values)
