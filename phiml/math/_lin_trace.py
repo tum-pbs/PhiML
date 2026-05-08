@@ -106,6 +106,10 @@ class LinTracer(Tensor):
         return tuple(set(self._bias._var_dims) | (set(self._indices.shape.names) - {'idx', '_deps'}))
 
     @property
+    def _var_lin_dims(self):
+        return set(self._indices.shape.names) - {'idx', '_deps'}
+
+    @property
     def _var_src_names(self):
         return self._indices.shape['idx'].labels[0]
 
@@ -701,7 +705,7 @@ def dependent_src_dims(tracer: Tensor) -> Shape:
     raise ValueError(tracer)
 
 
-def dependent_out_dims(tracer: Tensor, included_src_dims: Shape, sparsify=None) -> Shape:
+def dependent_out_dims(tracer: Tensor, included_src_dims: Shape, sparsify=None, matrix_only=True) -> Shape:
     """
     Current dimensions relevant to the linear operation.
     This includes `pattern_dims` as well as dimensions along which only the values vary.
@@ -713,7 +717,7 @@ def dependent_out_dims(tracer: Tensor, included_src_dims: Shape, sparsify=None) 
     if not tracer._is_tracer:
         return EMPTY_SHAPE
     if isinstance(tracer, LinTracer):
-        out_dims = set(variable_dim_names(tracer))
+        out_dims = tracer._var_lin_dims if matrix_only else set(variable_dim_names(tracer))
         dims = tracer.shape.only(out_dims)
         return dims & (included_src_dims.only(tracer.shape) - dims)  # if size changed, prefer from tracer.shape
     elif is_sparse(tracer):
