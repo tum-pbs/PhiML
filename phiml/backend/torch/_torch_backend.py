@@ -57,6 +57,8 @@ class TorchBackend(Backend):
             return 'coo'
         elif x.is_sparse_csr:
             return 'csr'
+        elif x.layout == torch.sparse_csc:
+            return 'csc'
         return 'dense'
 
     def as_tensor(self, x, convert_external=True):

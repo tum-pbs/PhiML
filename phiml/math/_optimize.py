@@ -665,10 +665,14 @@ def solve_linear(f: Union[Callable[[X], Y], Tensor],
                     if b.get_sparse_format(nat_matrix) == 'csr':
                         _, (data, idx, ptr) = b.disassemble(nat_matrix)
                         idx = b.csr_to_coo(idx[None, :], ptr[None, :])[0, :]
+                    elif b.get_sparse_format(nat_matrix) == 'csc':
+                        _, (data, ptr, idx) = b.disassemble(nat_matrix)
+                        idx = b.csr_to_coo(idx[None, :], ptr[None, :])[0, :]
+                        idx = b.flip(idx, (-1,))
                     elif b.get_sparse_format(nat_matrix) == 'coo':
                         _, (idx, data) = b.disassemble(nat_matrix)
                     else:
-                        raise NotImplementedError
+                        raise NotImplementedError(b.get_sparse_format(nat_matrix))
                     # --- Add a row and column of ones to the matrix to make the system non-singular ---
                     data = b.pad(data, [(0, 2*N)], constant_values=1)
                     i = b.range(N, dtype=b.dtype(idx))
