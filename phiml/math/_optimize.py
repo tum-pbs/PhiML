@@ -755,7 +755,7 @@ def _linear_solve_forward(y: Any,
     pattern_dims_out = y_tensor.shape.only(pattern_dims_out, reorder=True)
     batch_dims = merge_shapes(y_tensor.shape.without(pattern_dims_out), x0_tensor.shape.without(pattern_dims_in))
     x0_native = backend.as_tensor(x0_tensor.native([batch_dims, pattern_dims_in]))
-    y_native = backend.as_tensor(y_tensor.native([batch_dims, y_tensor.shape.only(pattern_dims_out)]))
+    y_native = backend.as_tensor(y_tensor.native([batch_dims, pattern_dims_out]))
     if solve.rank_deficiency:
         x0_native = backend.pad(x0_native, [(0, 0), (0, 1)])  # add initial guess for Lagrange multiplier (lambda)
         y_native = backend.pad(y_native, [(0, 0), (0, 1)])  # constrain sum of entries to zero

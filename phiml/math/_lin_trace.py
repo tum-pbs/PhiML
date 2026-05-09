@@ -609,8 +609,6 @@ def tracer_to_coo(tracer_tree: Tensor) -> Tuple[Tensor, Tensor]:
     offset_names = set.union(*[set(o.by_dim) for _, o in tensors_and_offsets])
     out_dims &= tracer_tree.shape.only(list(offset_names))
     output_indices = [lin_output_indices(x, o, out_dims) for x, o in tensors_and_offsets]
-    dual_in = in_dims.as_dual()
-    assert dual_in.isdisjoint(out_dims), f"Conflict between input and output dim names. ~Input: {dual_in}, Output: {out_dims}"
     if len(tensors_and_offsets) == 1 and not in_dims and not out_dims:  # just a scalar multiplication
         tensor = tensors_and_offsets[0][0]
         if tensor._is_tracer:
@@ -644,6 +642,11 @@ def tracer_to_coo(tracer_tree: Tensor) -> Tuple[Tensor, Tensor]:
     else:  # full matrix -> build sparse coo
         with NUMPY:
             bias = math.zeros(out_dims, dtype=tracer_tree.dtype)
+        # --- Re-order in_dims to match out_dims if possible to preserve symmetric matrices (e.g. required for CG) ---
+        if set(out_dims.names) == set(in_dims.names):
+            in_dims = in_dims.only(out_dims.names, reorder=True)
+        dual_in = in_dims.as_dual()
+        assert dual_in.isdisjoint(out_dims), f"Conflict between input and output dim names. ~Input: {dual_in}, Output: {out_dims}"
         indices = []
         values = []
         for (tensor, _), out_indices in zip(tensors_and_offsets, output_indices):
@@ -697,7 +700,7 @@ def dependent_src_dims(tracer: Tensor) -> Shape:
     if not tracer._is_tracer:
         return EMPTY_SHAPE
     if isinstance(tracer, LinTracer):
-        dep_names = set(tracer._indices.shape['idx'].labels[0])
+        dep_names = tracer._indices.shape['idx'].labels[0]
         return tracer._source.shape[list(dep_names)]
     elif is_sparse(tracer):
         values = tracer._values
