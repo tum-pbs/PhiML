@@ -15228,16 +15228,6 @@ You can check the corresponding backend for a <code>Tensor</code> using <code>.d
 
 
 <div class="jp-OutputArea jp-Cell-outputArea">
-<div class="jp-OutputArea-child">
-    
-    <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
-
-
-<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="application/vnd.jupyter.stderr">
-<pre>No GPU/TPU found, falling back to CPU. (Set TF_CPP_MIN_LOG_LEVEL=0 and rerun for more info.)
-</pre>
-</div>
-</div>
 <div class="jp-OutputArea-child jp-OutputArea-executeResult">
     
     <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[3]:</div>
@@ -15472,8 +15462,9 @@ New tensors created inside the linear function will also default to NumPy, overr
 
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
 <pre>            Backend: numpy
-<span class="ansi-green-intense-fg">x=0</span>    <span class="ansi-blue-intense-fg"> 2.  0.  0. </span> along <span class="ansi-green-intense-fg">~x</span>
-<span class="ansi-green-intense-fg">x=1</span>    <span class="ansi-blue-intense-fg"> 0.  2.  0. </span> along <span class="ansi-green-intense-fg">~x</span>
+     0  1  2   <span class="ansi-green-intense-fg">(xˢ=2)</span>
+<span class="ansi-green-intense-fg">x=0</span>  <span class="ansi-blue-intense-fg">2        </span> along <span class="ansi-green-intense-fg">(~xᵈ=3)</span>
+<span class="ansi-green-intense-fg">x=1</span>  <span class="ansi-blue-intense-fg">   2     </span> along <span class="ansi-green-intense-fg">(~xᵈ=3)</span>
 </pre>
 </div>
 </div>
@@ -15485,8 +15476,8 @@ New tensors created inside the linear function will also default to NumPy, overr
 
 
 <div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre>&lt;2x3 sparse matrix of type &#39;&lt;class &#39;numpy.float32&#39;&gt;&#39;
-	with 2 stored elements in COOrdinate format&gt;</pre>
+<pre>&lt;COOrdinate sparse matrix of dtype &#39;int64&#39;
+	with 2 stored elements and shape (2, 3)&gt;</pre>
 </div>
 
 </div>
@@ -15542,8 +15533,9 @@ If the linear function depends on ML tensors, the matrix will be represented as 
 
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
 <pre>            Backend: jax
-<span class="ansi-green-intense-fg">x=0</span>    <span class="ansi-blue-intense-fg"> 2.  0.  0. </span> along <span class="ansi-green-intense-fg">~x</span>
-<span class="ansi-green-intense-fg">x=1</span>    <span class="ansi-blue-intense-fg"> 0.  2.  0. </span> along <span class="ansi-green-intense-fg">~x</span>
+     0  1  2   <span class="ansi-green-intense-fg">(xˢ=2)</span>
+<span class="ansi-green-intense-fg">x=0</span>  <span class="ansi-blue-intense-fg">2        </span> along <span class="ansi-green-intense-fg">(~xᵈ=3)</span>
+<span class="ansi-green-intense-fg">x=1</span>  <span class="ansi-blue-intense-fg">   2     </span> along <span class="ansi-green-intense-fg">(~xᵈ=3)</span>
 </pre>
 </div>
 </div>
@@ -15555,7 +15547,7 @@ If the linear function depends on ML tensors, the matrix will be represented as 
 
 
 <div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre>BCOO(float32[2, 3], nse=2)</pre>
+<pre>BCOO(int64[2, 3], nse=2)</pre>
 </div>
 
 </div>

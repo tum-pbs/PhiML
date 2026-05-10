@@ -3,19 +3,30 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1">
-<meta name="generator" content="pdoc3 0.11.0">
+<meta name="generator" content="pdoc3 0.11.6">
 <title>phiml.os API documentation</title>
 <meta name="description" content="Adding vectorization to `os` functions …">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/13.0.0/sanitize.min.css" integrity="sha512-y1dtMcuvtTMJc1yPgEqF0ZjQbhnc/bFhyvIyVNb9Zk5mIGtqVaAB1Ttl28su8AvFMOY0EwRbAe+HCLqj6W7/KA==" crossorigin>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/13.0.0/typography.min.css" integrity="sha512-Y1DYSb995BAfxobCkKepB1BqJJTPrOp3zPL74AWFugHHmmdcvO+C48WLrUOlhGMc0QG7AE3f7gmvvcrmX2fDoA==" crossorigin>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/default.min.css" crossorigin>
-<style>:root{--highlight-color:#fe9}.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:1.5em;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:2em 0 .50em 0}h3{font-size:1.4em;margin:1.6em 0 .7em 0}h4{margin:0;font-size:105%}h1:target,h2:target,h3:target,h4:target,h5:target,h6:target{background:var(--highlight-color);padding:.2em 0}a{color:#058;text-decoration:none;transition:color .2s ease-in-out}a:visited{color:#503}a:hover{color:#b62}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900;font-weight:bold}pre code{font-size:.8em;line-height:1.4em;padding:1em;display:block}code{background:#f3f3f3;font-family:"DejaVu Sans Mono",monospace;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}dt:target .name{background:var(--highlight-color)}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}td{padding:0 .5em}.admonition{padding:.1em 1em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style>:root{--highlight-color:#fe9}.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:1.5em;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:2em 0 .50em 0}h3{font-size:1.4em;margin:1.6em 0 .7em 0}h4{margin:0;font-size:105%}h1:target,h2:target,h3:target,h4:target,h5:target,h6:target{background:var(--highlight-color);padding:.2em 0}a{color:#058;text-decoration:none;transition:color .2s ease-in-out}a:visited{color:#503}a:hover{color:#b62}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900;font-weight:bold}pre code{font-size:.8em;line-height:1.4em;padding:1em;display:block}code{background:#f3f3f3;font-family:"DejaVu Sans Mono",monospace;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}dt:target .name{background:var(--highlight-color)}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source > summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible;min-width:max-content}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}td{padding:0 .5em}.admonition{padding:.1em 1em;margin:1em 0}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
 <style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul ul{padding-left:1em}.toc > ul > li{margin-top:.5em}}</style>
 <style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
 <script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js" integrity="sha512-D9gUyxqja7hBtkWpPWGt9wfbfaMGVt9gnyCvYa+jojwwPHLCzUm5i8rpk7vD7wNee9bA35eYIjobYPaQuKS1MQ==" crossorigin></script>
 <script>window.addEventListener('DOMContentLoaded', () => {
 hljs.configure({languages: ['bash', 'css', 'diff', 'graphql', 'ini', 'javascript', 'json', 'plaintext', 'python', 'python-repl', 'rust', 'shell', 'sql', 'typescript', 'xml', 'yaml']});
 hljs.highlightAll();
+/* Collapse source docstrings */
+setTimeout(() => {
+[...document.querySelectorAll('.hljs.language-python > .hljs-string')]
+.filter(el => el.innerHTML.length > 200 && ['"""', "'''"].includes(el.innerHTML.substring(0, 3)))
+.forEach(el => {
+let d = document.createElement('details');
+d.classList.add('hljs-string');
+d.innerHTML = '<summary>"""</summary>' + el.innerHTML.substring(3);
+el.replaceWith(d);
+});
+}, 100);
 })</script>
 </head>
 <body>
@@ -283,6 +294,24 @@ If the device is not a terminal, return None.</p></div>
 <dd>
 <div class="desc"><p>Duplicate file descriptor.</p></div>
 </dd>
+<dt id="phiml.os.eventfd"><code class="name flex">
+<span>def <span class="ident">eventfd</span></span>(<span>initval, flags=524288)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Creates and returns an event notification file descriptor.</p></div>
+</dd>
+<dt id="phiml.os.eventfd_read"><code class="name flex">
+<span>def <span class="ident">eventfd_read</span></span>(<span>fd)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Read eventfd value</p></div>
+</dd>
+<dt id="phiml.os.eventfd_write"><code class="name flex">
+<span>def <span class="ident">eventfd_write</span></span>(<span>fd, value)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Write eventfd value.</p></div>
+</dd>
 <dt id="phiml.os.execl"><code class="name flex">
 <span>def <span class="ident">execl</span></span>(<span>file, *args)</span>
 </code></dt>
@@ -386,7 +415,7 @@ Equivalent to os.chdir(fd).</p></div>
 <div class="desc"><p>Force write of fd to disk without forcing update of metadata.</p></div>
 </dd>
 <dt id="phiml.os.fdopen"><code class="name flex">
-<span>def <span class="ident">fdopen</span></span>(<span>fd, *args, **kwargs)</span>
+<span>def <span class="ident">fdopen</span></span>(<span>fd, mode='r', buffering=-1, encoding=None, *args, **kwargs)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -583,14 +612,14 @@ key, default and the result are bytes.</p></div>
 <div class="desc"><p>Return the current process's group id.</p></div>
 </dd>
 <dt id="phiml.os.getgrouplist"><code class="name flex">
-<span>def <span class="ident">getgrouplist</span></span>(<span>user, group)</span>
+<span>def <span class="ident">getgrouplist</span></span>(<span>user, group, /)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>getgrouplist(user, group) -&gt; list of groups to which a user belongs</p>
-<p>Returns a list of groups to which a user belongs.</p>
-<pre><code>user: username to lookup
-group: base group id of the user
-</code></pre></div>
+<div class="desc"><p>Returns a list of groups to which a user belongs.</p>
+<p>user
+username to lookup
+group
+base group id of the user</p></div>
 </dd>
 <dt id="phiml.os.getgroups"><code class="name flex">
 <span>def <span class="ident">getgroups</span></span>(<span>)</span>
@@ -686,10 +715,11 @@ link, getxattr will examine the symbolic link itself instead of the file
 the link points to.</p></div>
 </dd>
 <dt id="phiml.os.initgroups"><code class="name flex">
-<span>def <span class="ident">initgroups</span></span>(<span>username, gid)</span>
+<span>def <span class="ident">initgroups</span></span>(<span>username, gid, /)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Call the system initgroups() to initialize the group access list with all of
+<div class="desc"><p>Initialize the group access list.</p>
+<p>Call the system initgroups() to initialize the group access list with all of
 the groups of which the specified username is a member, plus the specified
 group id.</p></div>
 </dd>
@@ -738,9 +768,37 @@ If they are unavailable, using them will raise a
 NotImplementedError.</p></div>
 </dd>
 <dt id="phiml.os.listdir"><code class="name flex">
-<span>def <span class="ident">listdir</span></span>(<span>path: Union[str, phiml.math._tensors.Tensor], list_dim: phiml.math._shape.Shape = (filesᵇ=None), file_filter: Callable[[str, str], bool] = None, full_paths=False) ‑> phiml.math._tensors.Tensor</span>
+<span>def <span class="ident">listdir</span></span>(<span>path: str | phiml.math._tensors.Tensor,<br>list_dim: phiml.math._shape.Shape = (filesᵇ),<br>file_filter: Callable[[str, str], bool] = None,<br>full_paths=False) ‑> phiml.math._tensors.Tensor</span>
 </code></dt>
 <dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def listdir(path: Union[str, Tensor], list_dim: Shape = batch(&#39;files&#39;), file_filter: Callable[[str, str], bool] = None, full_paths=False) -&gt; Tensor:
+    &#34;&#34;&#34;
+    Returns a `Tensor` of all entries in the directory or directory batch given by `path`.
+
+    Args:
+        path: Single directory as `str` or multiple directories as string `Tensor`.
+        list_dim: Dim along which to list entries.
+        file_filter: (Optional) Function with signature `(directory: str, filename: str) -&gt; bool` used for filtering the files.
+        full_paths: Whether to return the full paths or just the file names.
+
+    Returns:
+        `Tensor` with all dims of `path` and `list_dim`. If directories contain different numbers of entries, the result `Tensor` will be non-uniform.
+    &#34;&#34;&#34;
+    if isinstance(path, Tensor):
+        assert path.shape.isdisjoint(list_dim), f&#34;list_dim {list_dim} is already contained in path {path.shape}.&#34;
+    def list_single(path: str):
+        files = impl.listdir(path)
+        if file_filter is not None:
+            files = filter(lambda f: file_filter(path, f), files)
+        if full_paths:
+            files = [impl.path.join(path, f) for f in files]
+        return layout(files, list_dim.with_size(files))
+    return map(list_single, path)</code></pre>
+</details>
 <div class="desc"><p>Returns a <code>Tensor</code> of all entries in the directory or directory batch given by <code><a title="phiml.os.path" href="path.html">phiml.os.path</a></code>.</p>
 <h2 id="args">Args</h2>
 <dl>
@@ -779,14 +837,31 @@ One of F_LOCK, F_TLOCK, F_ULOCK or F_TEST.
 length
 The number of bytes to lock, starting at the current position.</p></div>
 </dd>
+<dt id="phiml.os.login_tty"><code class="name flex">
+<span>def <span class="ident">login_tty</span></span>(<span>fd, /)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Prepare the tty of which fd is a file descriptor for a new login session.</p>
+<p>Make the calling process a session leader; make the tty the
+controlling tty, the stdin, the stdout, and the stderr of the
+calling process; close fd.</p></div>
+</dd>
 <dt id="phiml.os.lseek"><code class="name flex">
-<span>def <span class="ident">lseek</span></span>(<span>fd, position, how, /)</span>
+<span>def <span class="ident">lseek</span></span>(<span>fd, position, whence, /)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Set the position of a file descriptor.
 Return the new position.</p>
-<p>Return the new cursor position in number of bytes
-relative to the beginning of the file.</p></div>
+<p>fd
+An open file descriptor, as returned by os.open().
+position
+Position, interpreted relative to 'whence'.
+whence
+The relative position to seek from. Valid values are:
+- SEEK_SET: seek from the start of the file.
+- SEEK_CUR: seek from the current file position.
+- SEEK_END: seek from the end of the file.</p>
+<p>The return value is the number of bytes relative to the beginning of the file.</p></div>
 </dd>
 <dt id="phiml.os.lstat"><code class="name flex">
 <span>def <span class="ident">lstat</span></span>(<span>path, *, dir_fd=None)</span>
@@ -842,7 +917,8 @@ This is recursive.</p></div>
 and path should be relative; path will then be relative to that directory.
 dir_fd may not be implemented on your platform.
 If it is unavailable, using it will raise a NotImplementedError.</p>
-<p>The mode argument is ignored on Windows.</p></div>
+<p>The mode argument is ignored on Windows. Where it is used, the current umask
+value is first masked out.</p></div>
 </dd>
 <dt id="phiml.os.mkfifo"><code class="name flex">
 <span>def <span class="ident">mkfifo</span></span>(<span>path, mode=438, *, dir_fd=None)</span>
@@ -906,6 +982,14 @@ for both the master and slave ends.</p></div>
 <p>If there is no limit, return -1.
 On some platforms, path may also be specified as an open file descriptor.
 If this functionality is unavailable, using it raises an exception.</p></div>
+</dd>
+<dt id="phiml.os.pidfd_open"><code class="name flex">
+<span>def <span class="ident">pidfd_open</span></span>(<span>pid, flags=0)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Return a file descriptor referring to the process <em>pid</em>.</p>
+<p>The descriptor can be used to perform process management without races and
+signals.</p></div>
 </dd>
 <dt id="phiml.os.pipe"><code class="name flex">
 <span>def <span class="ident">pipe</span></span>(<span>)</span>
@@ -1063,6 +1147,7 @@ the total number of bytes written.</p>
 <ul>
 <li>RWF_DSYNC</li>
 <li>RWF_SYNC</li>
+<li>RWF_APPEND</li>
 </ul>
 <p>Using non-zero flags requires Linux 4.7 or newer.</p></div>
 </dd>
@@ -1235,7 +1320,7 @@ Return value is an instance of sched_param.</p></div>
 <span>def <span class="ident">sched_getscheduler</span></span>(<span>pid, /)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Get the scheduling policy for the process identifiedy by pid.</p>
+<div class="desc"><p>Get the scheduling policy for the process identified by pid.</p>
 <p>Passing 0 for pid returns the scheduling policy for the calling process.</p></div>
 </dd>
 <dt id="phiml.os.sched_rr_get_interval"><code class="name flex">
@@ -1275,13 +1360,10 @@ param is an instance of sched_param.</p></div>
 <div class="desc"><p>Voluntarily relinquish the CPU.</p></div>
 </dd>
 <dt id="phiml.os.sendfile"><code class="name flex">
-<span>def <span class="ident">sendfile</span></span>(<span>...)</span>
+<span>def <span class="ident">sendfile</span></span>(<span>out_fd, in_fd, offset, count)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>sendfile(out, in, offset, count) -&gt; byteswritten
-sendfile(out, in, offset, count[, headers][, trailers], flags=0)
--&gt; byteswritten
-Copy count bytes from file descriptor in to file descriptor out.</p></div>
+<div class="desc"><p>Copy count bytes from file descriptor in_fd to file descriptor out_fd.</p></div>
 </dd>
 <dt id="phiml.os.set_blocking"><code class="name flex">
 <span>def <span class="ident">set_blocking</span></span>(<span>fd, blocking, /)</span>
@@ -1471,6 +1553,27 @@ args in a subprocess with the supplied environment.
 If mode == P_NOWAIT return the pid of the process.
 If mode == P_WAIT return the process's exit code if it exits normally;
 otherwise return -SIG, where SIG is the signal that killed it.</p></div>
+</dd>
+<dt id="phiml.os.splice"><code class="name flex">
+<span>def <span class="ident">splice</span></span>(<span>src, dst, count, offset_src=None, offset_dst=None, flags=0)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Transfer count bytes from one pipe to a descriptor or vice versa.</p>
+<p>src
+Source file descriptor.
+dst
+Destination file descriptor.
+count
+Number of bytes to copy.
+offset_src
+Starting offset in src.
+offset_dst
+Starting offset in dst.
+flags
+Flags to modify the semantics of the call.</p>
+<p>If offset_src is None, then src is read from the current position;
+respectively for offset_dst. The offset associated to the file
+descriptor that refers to a pipe must be None.</p></div>
 </dd>
 <dt id="phiml.os.stat"><code class="name flex">
 <span>def <span class="ident">stat</span></span>(<span>path, *, dir_fd=None, follow_symlinks=True)</span>
@@ -1689,6 +1792,22 @@ no children in a waitable state.</p></div>
 (pid, status)</p>
 <p>The options argument is ignored on Windows.</p></div>
 </dd>
+<dt id="phiml.os.waitstatus_to_exitcode"><code class="name flex">
+<span>def <span class="ident">waitstatus_to_exitcode</span></span>(<span>status)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Convert a wait status to an exit code.</p>
+<p>On Unix:</p>
+<ul>
+<li>If WIFEXITED(status) is true, return WEXITSTATUS(status).</li>
+<li>If WIFSIGNALED(status) is true, return -WTERMSIG(status).</li>
+<li>Otherwise, raise a ValueError.</li>
+</ul>
+<p>On Windows, return status shifted right by 8 bits.</p>
+<p>On Unix, if the process is being traced or if waitpid() was called with
+WUNTRACED option, the caller must first check if WIFSTOPPED(status) is true.
+This function must not be called if WIFSTOPPED(status) is true.</p></div>
+</dd>
 <dt id="phiml.os.walk"><code class="name flex">
 <span>def <span class="ident">walk</span></span>(<span>top, topdown=True, onerror=None, followlinks=False)</span>
 </code></dt>
@@ -1700,7 +1819,8 @@ itself, but excluding '.' and '..'), yields a 3-tuple</p>
 </code></pre>
 <p>dirpath is a string, the path to the directory.
 dirnames is a list of
-the names of the subdirectories in dirpath (excluding '.' and '..').
+the names of the subdirectories in dirpath (including symlinks to directories,
+and excluding '.' and '..').
 filenames is a list of the names of the non-directory files in dirpath.
 Note that the names in the lists are just names, with no path components.
 To get a full path (which begins with top) to a file or directory in
@@ -1744,8 +1864,8 @@ either.</p>
 <p>import os
 from os.path import join, getsize
 for root, dirs, files in os.walk('python/Lib/email'):
-print(root, "consumes", end="")
-print(sum(getsize(join(root, name)) for name in files), end="")
+print(root, "consumes ")
+print(sum(getsize(join(root, name)) for name in files), end=" ")
 print("bytes in", len(files), "non-directory files")
 if 'CVS' in dirs:
 dirs.remove('CVS')
@@ -1853,10 +1973,9 @@ buffers must be a sequence of bytes-like objects.</p></div>
 <li>shutil.ExecError</li>
 <li>shutil.ReadError</li>
 <li>shutil.SpecialFileError</li>
-<li>signal.ItimerError</li>
+<li>signal.itimer_error</li>
 <li>socket.gaierror</li>
 <li>socket.herror</li>
-<li>socket.timeout</li>
 <li>ssl.SSLError</li>
 <li>urllib.error.URLError</li>
 </ul>
@@ -1886,10 +2005,10 @@ buffers must be a sequence of bytes-like objects.</p></div>
 </dd>
 <dt id="phiml.os.sched_param"><code class="flex name class">
 <span>class <span class="ident">sched_param</span></span>
-<span>(</span><span>iterable=(), /)</span>
+<span>(</span><span>sched_priority)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Current has only one field: sched_priority");</p>
+<div class="desc"><p>Currently has only one field: sched_priority</p>
 <p>sched_priority
 A scheduling parameter.</p></div>
 <h3>Ancestors</h3>
@@ -2336,6 +2455,9 @@ or via the attributes si_pid, si_uid, and so on.</p>
 <li><code><a title="phiml.os.device_encoding" href="#phiml.os.device_encoding">device_encoding</a></code></li>
 <li><code><a title="phiml.os.dup" href="#phiml.os.dup">dup</a></code></li>
 <li><code><a title="phiml.os.dup2" href="#phiml.os.dup2">dup2</a></code></li>
+<li><code><a title="phiml.os.eventfd" href="#phiml.os.eventfd">eventfd</a></code></li>
+<li><code><a title="phiml.os.eventfd_read" href="#phiml.os.eventfd_read">eventfd_read</a></code></li>
+<li><code><a title="phiml.os.eventfd_write" href="#phiml.os.eventfd_write">eventfd_write</a></code></li>
 <li><code><a title="phiml.os.execl" href="#phiml.os.execl">execl</a></code></li>
 <li><code><a title="phiml.os.execle" href="#phiml.os.execle">execle</a></code></li>
 <li><code><a title="phiml.os.execlp" href="#phiml.os.execlp">execlp</a></code></li>
@@ -2395,6 +2517,7 @@ or via the attributes si_pid, si_uid, and so on.</p>
 <li><code><a title="phiml.os.listdir" href="#phiml.os.listdir">listdir</a></code></li>
 <li><code><a title="phiml.os.listxattr" href="#phiml.os.listxattr">listxattr</a></code></li>
 <li><code><a title="phiml.os.lockf" href="#phiml.os.lockf">lockf</a></code></li>
+<li><code><a title="phiml.os.login_tty" href="#phiml.os.login_tty">login_tty</a></code></li>
 <li><code><a title="phiml.os.lseek" href="#phiml.os.lseek">lseek</a></code></li>
 <li><code><a title="phiml.os.lstat" href="#phiml.os.lstat">lstat</a></code></li>
 <li><code><a title="phiml.os.major" href="#phiml.os.major">major</a></code></li>
@@ -2409,6 +2532,7 @@ or via the attributes si_pid, si_uid, and so on.</p>
 <li><code><a title="phiml.os.open" href="#phiml.os.open">open</a></code></li>
 <li><code><a title="phiml.os.openpty" href="#phiml.os.openpty">openpty</a></code></li>
 <li><code><a title="phiml.os.pathconf" href="#phiml.os.pathconf">pathconf</a></code></li>
+<li><code><a title="phiml.os.pidfd_open" href="#phiml.os.pidfd_open">pidfd_open</a></code></li>
 <li><code><a title="phiml.os.pipe" href="#phiml.os.pipe">pipe</a></code></li>
 <li><code><a title="phiml.os.pipe2" href="#phiml.os.pipe2">pipe2</a></code></li>
 <li><code><a title="phiml.os.popen" href="#phiml.os.popen">popen</a></code></li>
@@ -2468,6 +2592,7 @@ or via the attributes si_pid, si_uid, and so on.</p>
 <li><code><a title="phiml.os.spawnve" href="#phiml.os.spawnve">spawnve</a></code></li>
 <li><code><a title="phiml.os.spawnvp" href="#phiml.os.spawnvp">spawnvp</a></code></li>
 <li><code><a title="phiml.os.spawnvpe" href="#phiml.os.spawnvpe">spawnvpe</a></code></li>
+<li><code><a title="phiml.os.splice" href="#phiml.os.splice">splice</a></code></li>
 <li><code><a title="phiml.os.stat" href="#phiml.os.stat">stat</a></code></li>
 <li><code><a title="phiml.os.statvfs" href="#phiml.os.statvfs">statvfs</a></code></li>
 <li><code><a title="phiml.os.strerror" href="#phiml.os.strerror">strerror</a></code></li>
@@ -2491,6 +2616,7 @@ or via the attributes si_pid, si_uid, and so on.</p>
 <li><code><a title="phiml.os.wait4" href="#phiml.os.wait4">wait4</a></code></li>
 <li><code><a title="phiml.os.waitid" href="#phiml.os.waitid">waitid</a></code></li>
 <li><code><a title="phiml.os.waitpid" href="#phiml.os.waitpid">waitpid</a></code></li>
+<li><code><a title="phiml.os.waitstatus_to_exitcode" href="#phiml.os.waitstatus_to_exitcode">waitstatus_to_exitcode</a></code></li>
 <li><code><a title="phiml.os.walk" href="#phiml.os.walk">walk</a></code></li>
 <li><code><a title="phiml.os.write" href="#phiml.os.write">write</a></code></li>
 <li><code><a title="phiml.os.writev" href="#phiml.os.writev">writev</a></code></li>
@@ -2627,7 +2753,7 @@ or via the attributes si_pid, si_uid, and so on.</p>
 </nav>
 </main>
 <footer id="footer">
-<p>Generated by <a href="https://pdoc3.github.io/pdoc" title="pdoc: Python API documentation generator"><cite>pdoc</cite> 0.11.0</a>.</p>
+<p>Generated by <a href="https://pdoc3.github.io/pdoc" title="pdoc: Python API documentation generator"><cite>pdoc</cite> 0.11.6</a>.</p>
 </footer>
 </body>
 </html>

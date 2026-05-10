@@ -15151,10 +15151,13 @@ To accommodate these requirements, Φ<sub>ML</sub> provides custom precision man
 
 
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="application/vnd.jupyter.stderr">
-<pre>2025-09-18 21:05:28.011588: I tensorflow/tsl/cuda/cudart_stub.cc:28] Could not find cuda drivers on your machine, GPU will not be used.
-2025-09-18 21:05:28.049650: I tensorflow/core/platform/cpu_feature_guard.cc:182] This TensorFlow binary is optimized to use available CPU instructions in performance-critical operations.
-To enable the following instructions: AVX2 FMA, in other operations, rebuild TensorFlow with the appropriate compiler flags.
-2025-09-18 21:05:28.838624: W tensorflow/compiler/tf2tensorrt/utils/py_utils.cc:38] TF-TRT Warning: Could not find TensorRT
+<pre>WARNING: All log messages before absl::InitializeLog() is called are written to STDERR
+I0000 00:00:1778411650.924979    2381 port.cc:153] oneDNN custom operations are on. You may see slightly different numerical results due to floating-point round-off errors from different computation orders. To turn them off, set the environment variable `TF_ENABLE_ONEDNN_OPTS=0`.
+I0000 00:00:1778411650.972821    2381 cpu_feature_guard.cc:227] This TensorFlow binary is optimized to use available CPU instructions in performance-critical operations.
+To enable the following instructions: AVX2 AVX512F AVX512_VNNI FMA, in other operations, rebuild TensorFlow with the appropriate compiler flags.
+WARNING: All log messages before absl::InitializeLog() is called are written to STDERR
+I0000 00:00:1778411652.656115    2381 port.cc:153] oneDNN custom operations are on. You may see slightly different numerical results due to floating-point round-off errors from different computation orders. To turn them off, set the environment variable `TF_ENABLE_ONEDNN_OPTS=0`.
+I0000 00:00:1778411652.656422    2381 cudart_stub.cc:31] Could not find cuda drivers on your machine, GPU will not be used.
 </pre>
 </div>
 </div>
@@ -15204,8 +15207,11 @@ Consider creating a float tensor from primitive floats. Can you guess what the d
     <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
 
 
-<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="application/vnd.jupyter.stderr">
-<pre>No GPU/TPU found, falling back to CPU. (Set TF_CPP_MIN_LOG_LEVEL=0 and rerun for more info.)
+<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
+<pre>NumPy: float64
+PyTorch: torch.float32
+TensorFlow: &lt;dtype: &#39;float32&#39;&gt;
+Jax: float32
 </pre>
 </div>
 </div>
@@ -15214,11 +15220,8 @@ Consider creating a float tensor from primitive floats. Can you guess what the d
     <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
 
 
-<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
-<pre>NumPy: float64
-PyTorch: torch.float32
-TensorFlow: &lt;dtype: &#39;float32&#39;&gt;
-Jax: float32
+<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="application/vnd.jupyter.stderr">
+<pre>E0000 00:00:1778411653.362013    2381 cuda_platform.cc:52] failed call to cuInit: INTERNAL: CUDA error: Failed call to cuInit: UNKNOWN ERROR (303)
 </pre>
 </div>
 </div>
@@ -15425,7 +15428,7 @@ However, unlike NumPy, PyTorch does not upgrade its <code>dtype</code> when addi
 
 
 <div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre>dtype(&#39;float64&#39;)</pre>
+<pre>dtype(&#39;float32&#39;)</pre>
 </div>
 
 </div>

@@ -1,0 +1,476 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1">
+<meta name="generator" content="pdoc3 0.11.6">
+<title>phiml.parallel API documentation</title>
+<meta name="description" content="This package contains utilities for running PhiML code in parallel.
+To use it, you need to declare the code to be parallelized as properties of a …">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/13.0.0/sanitize.min.css" integrity="sha512-y1dtMcuvtTMJc1yPgEqF0ZjQbhnc/bFhyvIyVNb9Zk5mIGtqVaAB1Ttl28su8AvFMOY0EwRbAe+HCLqj6W7/KA==" crossorigin>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/13.0.0/typography.min.css" integrity="sha512-Y1DYSb995BAfxobCkKepB1BqJJTPrOp3zPL74AWFugHHmmdcvO+C48WLrUOlhGMc0QG7AE3f7gmvvcrmX2fDoA==" crossorigin>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/default.min.css" crossorigin>
+<style>:root{--highlight-color:#fe9}.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:1.5em;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:2em 0 .50em 0}h3{font-size:1.4em;margin:1.6em 0 .7em 0}h4{margin:0;font-size:105%}h1:target,h2:target,h3:target,h4:target,h5:target,h6:target{background:var(--highlight-color);padding:.2em 0}a{color:#058;text-decoration:none;transition:color .2s ease-in-out}a:visited{color:#503}a:hover{color:#b62}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900;font-weight:bold}pre code{font-size:.8em;line-height:1.4em;padding:1em;display:block}code{background:#f3f3f3;font-family:"DejaVu Sans Mono",monospace;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}dt:target .name{background:var(--highlight-color)}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source > summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible;min-width:max-content}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}td{padding:0 .5em}.admonition{padding:.1em 1em;margin:1em 0}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul ul{padding-left:1em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js" integrity="sha512-D9gUyxqja7hBtkWpPWGt9wfbfaMGVt9gnyCvYa+jojwwPHLCzUm5i8rpk7vD7wNee9bA35eYIjobYPaQuKS1MQ==" crossorigin></script>
+<script>window.addEventListener('DOMContentLoaded', () => {
+hljs.configure({languages: ['bash', 'css', 'diff', 'graphql', 'ini', 'javascript', 'json', 'plaintext', 'python', 'python-repl', 'rust', 'shell', 'sql', 'typescript', 'xml', 'yaml']});
+hljs.highlightAll();
+/* Collapse source docstrings */
+setTimeout(() => {
+[...document.querySelectorAll('.hljs.language-python > .hljs-string')]
+.filter(el => el.innerHTML.length > 200 && ['"""', "'''"].includes(el.innerHTML.substring(0, 3)))
+.forEach(el => {
+let d = document.createElement('details');
+d.classList.add('hljs-string');
+d.innerHTML = '<summary>"""</summary>' + el.innerHTML.substring(3);
+el.replaceWith(d);
+});
+}, 100);
+})</script>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>phiml.parallel</code></h1>
+</header>
+<section id="section-intro">
+<p>This package contains utilities for running PhiML code in parallel.
+To use it, you need to declare the code to be parallelized as properties of a dataclass.
+A tutorial can be found <a href="https://tum-pbs.github.io/PhiML/Parallel_Compute.html">here</a>.
+The following is a simple example that runs a batch of FFTs in parallel:</p>
+<pre><code class="language-python-repl">&gt;&gt;&gt; from dataclasses import dataclass
+&gt;&gt;&gt; from functools import cached_property
+&gt;&gt;&gt; from phiml.math import Tensor, spatial, fft, batch
+&gt;&gt;&gt; from phiml.parallel import parallel_property, parallel_compute, INFER, MIXED
+&gt;&gt;&gt;
+&gt;&gt;&gt; @dataclass(frozen=True)
+&gt;&gt;&gt; class ParallelComputation:
+&gt;&gt;&gt;     data: Tensor
+&gt;&gt;&gt;
+&gt;&gt;&gt;     @parallel_property(requires=spatial, out=INFER, on_direct_eval='raise')
+&gt;&gt;&gt;     def result(self) -&gt; Tensor:
+&gt;&gt;&gt;         return fft(self.data)
+&gt;&gt;&gt;
+&gt;&gt;&gt; data = ...
+&gt;&gt;&gt; computation = ParallelComputation(data)
+&gt;&gt;&gt; parallel_compute(computation, [ParallelComputation.result], parallel_dims=batch, max_workers=4)
+&gt;&gt;&gt; computation.result
+</code></pre>
+<p>Properties declared as <code>@cached_property</code> behave as <code>@parallel_property(requires=INFER, out=INFER, on_direct_eval='host-compute')</code>.</p>
+<h2 id="computational-graph">Computational Graph</h2>
+<p>PhiML performs static code analysis (source code in 1.14, bytecode from 1.15 onwards) to determine dependencies between
+all properties declared as either <code>@parallel_property</code> or <code>@cached_property</code>.
+Static analysis traces into methods and properties defined in the same class, but does not trace functions outside.
+<strong>Do not pass a reference <code>self</code> to external calls</strong>, as this could lead to dependencies not being captured properly.</p>
+<p>The resulting computational graph is split into computation stages depending on the <code>requires</code> values of the involved properties.
+The <code>requires</code> property declares dims that must be present on the data in order to compute the result.
+Properties that have no required dims can be parallelized across all dims specified in <code><a title="phiml.parallel.parallel_compute" href="#phiml.parallel.parallel_compute">parallel_compute()</a></code>.
+Properties that cannot be parallelized at all (because all parallel dims are marked as <code>requires</code>) are computed on the host process.</p>
+<h2 id="infer-via-dynamic-traces">INFER via Dynamic Traces</h2>
+<p>When either <code>requires</code> or <code>out</code> is set as <code>INFER</code>, PhiML performs a dynamic trace to infer their values.
+These properties may only use PhiML functions and not all functions are supported as of yet.
+Use <code>phiml.set_loggin_level</code> to catch failed traces.</p>
+<h2 id="mixed-parallelization">MIXED Parallelization</h2>
+<p>For properties that only use supported PhiML calls, you can set <code>requires=MIXED</code>, which allows PhiML to split the computation of the proeprty into multiple stages.
+For example, the expression <code>math.sum(batched_data * 2, 'example,x,y')</code> would be split into three parts if <code>example</code> is parallelized over:</p>
+<ul>
+<li>Multiplication (parallel)</li>
+<li>Sum over <code>x,y</code> (parallel)</li>
+<li>Sum over <code>example</code> (on host)</li>
+</ul>
+<p>Data transfers between workers and host are performed as needed.</p>
+<p>Currently, tensor operators (<code>a+b</code>), simple one-tensor functions (<code>abs,exp,sin,round,is_nan,&hellip;</code>) and reduction functions (<code>sum,prod,max,finite_mean,&hellip;</code>) are supported.
+Do not enable <code>MIXED</code> on functions that use unsupported functions. While direct calls on tracers will fail, there can still be undesirable effects.</p>
+<h2 id="disk-caching">Disk Caching</h2>
+<p>By configuring <code><a title="phiml.parallel.parallel_compute" href="#phiml.parallel.parallel_compute">parallel_compute()</a></code>, you can have workers write results onto disk instead of serializing the full result in transfers.
+This should be used if system memory is limited or data needs to be passed between processes many times.
+See <a href="https://tum-pbs.github.io/PhiML/Cached_Parallel_Example.html">this example</a> for a demonstration.</p>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-functions">Functions</h2>
+<dl>
+<dt id="phiml.parallel.get_cache_files"><code class="name flex">
+<span>def <span class="ident">get_cache_files</span></span>(<span>obj) ‑> Set[str]</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def get_cache_files(obj) -&gt; Set[str]:
+    &#34;&#34;&#34;
+    Searches the data structure for all disk-cached tensors and returns all referenced files.
+
+    Args:
+        obj: `Tensor` or pytree or dataclass (`phiml.math.magic.PhiTreeNode`).
+
+    Returns:
+        Collection of file paths.
+    &#34;&#34;&#34;
+    result = set()
+    _recursive_add_cache_files(obj, result)
+    return result</code></pre>
+</details>
+<div class="desc"><p>Searches the data structure for all disk-cached tensors and returns all referenced files.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>obj</code></strong></dt>
+<dd><code>Tensor</code> or pytree or dataclass (<code><a title="phiml.math.magic.PhiTreeNode" href="../math/magic.html#phiml.math.magic.PhiTreeNode">PhiTreeNode</a></code>).</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<p>Collection of file paths.</p></div>
+</dd>
+<dt id="phiml.parallel.load_cache_as"><code class="name flex">
+<span>def <span class="ident">load_cache_as</span></span>(<span>host_backend: str | phiml.backend._backend.Backend,<br>worker_backend: str | phiml.backend._backend.Backend = None)</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@contextlib.contextmanager
+def load_cache_as(host_backend: Union[str, Backend], worker_backend: Union[str, Backend] = None):
+    &#34;&#34;&#34;
+    Context manager to temporarily set the backend for loading disk-cached tensors into memory.
+
+    Args:
+        host_backend: Backend name or instance to use in the current process.
+            This also applies to `parallel_compute()` stages that cannot be parallelized and thus run in the host process.
+        worker_backend: Backend name or instance to use in worker processes, see `parallel_compute()`. If `None`, the workers will use the same backend per tensor as the host.
+
+    Usage:
+
+        &gt;&gt;&gt; with load_cache_as(&#39;torch&#39;, worker_backend=&#39;numpy&#39;):
+    &#34;&#34;&#34;
+    _LOAD_AS.append(get_backend(host_backend))
+    if worker_backend is not None:
+        _WORKER_LOAD_AS.append(get_backend(worker_backend))
+    try:
+        yield
+    finally:
+        _LOAD_AS.pop()
+        if worker_backend is not None:
+            _WORKER_LOAD_AS.pop()</code></pre>
+</details>
+<div class="desc"><p>Context manager to temporarily set the backend for loading disk-cached tensors into memory.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>host_backend</code></strong></dt>
+<dd>Backend name or instance to use in the current process.
+This also applies to <code><a title="phiml.parallel.parallel_compute" href="#phiml.parallel.parallel_compute">parallel_compute()</a></code> stages that cannot be parallelized and thus run in the host process.</dd>
+<dt><strong><code>worker_backend</code></strong></dt>
+<dd>Backend name or instance to use in worker processes, see <code><a title="phiml.parallel.parallel_compute" href="#phiml.parallel.parallel_compute">parallel_compute()</a></code>. If <code>None</code>, the workers will use the same backend per tensor as the host.</dd>
+</dl>
+<h2 id="usage">Usage</h2>
+<pre><code class="language-python-repl">&gt;&gt;&gt; with load_cache_as('torch', worker_backend='numpy'):
+</code></pre></div>
+</dd>
+<dt id="phiml.parallel.on_load_into_memory"><code class="name flex">
+<span>def <span class="ident">on_load_into_memory</span></span>(<span>callback: Callable[[phiml.math._tensors.Tensor], None])</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def on_load_into_memory(callback: Callable[[Tensor], None]):
+    &#34;&#34;&#34;
+    Register a function to be called every time a cached tensor is loaded from disk into memory in this process.
+
+    Tensors are stored on disk to save memory, e.g. in `parallel_compute()` if a memory limit is specified.
+
+    When accessing the tensor values or using them in any computation, the values are temporarily loaded into memory and `callback` is called.
+
+    Args:
+        callback: Function `callback(Tensor)`.
+    &#34;&#34;&#34;
+    _ON_LOAD_FROM_DISK.append(callback)</code></pre>
+</details>
+<div class="desc"><p>Register a function to be called every time a cached tensor is loaded from disk into memory in this process.</p>
+<p>Tensors are stored on disk to save memory, e.g. in <code><a title="phiml.parallel.parallel_compute" href="#phiml.parallel.parallel_compute">parallel_compute()</a></code> if a memory limit is specified.</p>
+<p>When accessing the tensor values or using them in any computation, the values are temporarily loaded into memory and <code>callback</code> is called.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>callback</code></strong></dt>
+<dd>Function <code>callback(Tensor)</code>.</dd>
+</dl></div>
+</dd>
+<dt id="phiml.parallel.parallel_compute"><code class="name flex">
+<span>def <span class="ident">parallel_compute</span></span>(<span>instance,<br>properties: Sequence,<br>parallel_dims=&lt;function batch&gt;,<br>max_workers=4,<br>memory_limit: float | None = None,<br>cache_dir: str = None,<br>keep_intermediate=False)</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def parallel_compute(instance, properties: Sequence, parallel_dims=batch,
+                     max_workers=multiprocessing.cpu_count(), memory_limit: Optional[float] = None, cache_dir: str = None, keep_intermediate=False):
+    &#34;&#34;&#34;
+    Compute the values of properties decorated with `@cached_property` or `@parallel_property` of a dataclass instance in parallel.
+
+    **Multiple stages via `requires=...`**
+    If `@parallel_property` are computed whose `requires` overlaps with `parallel_dims`, a separate computation stage is set up to compute these properties with fewer parallel workers.
+    In the presence of different `requires`, the computation is split into different stages in accordance with the property dependency graph.
+    Properties that cannot be parallelized (because it requires all `parallel_dims`) are computed on the host process.
+
+    **Caching tensors to disk**
+    When `memory_limit` and `cache_dir` are set, the evaluation will try to adhere to the given memory limits by moving tensors out of memory onto disk.
+    This is only applied to the outputs of `@cached_property` and `@parallel_property` calls, not to intermediate values used in their computation.
+    The per-process memory limit is calculated per stage, dividing the total memory by the active worker count.
+    Cached tensors behave like regular tensors and are temporarily loaded back into memory when accessing their values or using them in a computation.
+    When parallelizing, the full result is assembled by stacking multiple disk-backed tensors from different files created by different processes.
+    These composite tensors will reference multiple binary files and can be pickled/unpickled safely without loading the data into memory.
+    This enables passing large data references to different processes or saving the structure to a file without the data content.
+
+    See Also:
+        `cached_property`, `parallel_property`, `get_cache_files()`, `on_load_into_memory()`.
+
+    Warnings:
+        `parallel_compute` breaks automatic differentiation.
+
+    Args:
+        instance: Dataclass instance for which to compute the values of `@cached_property` or `@parallel_property` fields.
+        properties: References to the unbound properties. These must be `cached_property` or `parallel_property`.
+        parallel_dims: Dimensions to parallelize over.
+        max_workers: Number of processes to spawn.
+        memory_limit: Limit to the total memory consumption from `Tensor` instances on property outputs.
+        cache_dir: Directory path to store cached tensors in if `memory_limit` is set.
+        keep_intermediate: Whether the outputs of cached properties required to compute `properties` but not contained in `properties` should be kept in memory.
+            If `False`, these values will not be cached on `instance` after this call.
+    &#34;&#34;&#34;
+    assert hasattr(instance, &#39;__dict__&#39;), f&#34;parallel_compute requires instance to have __dict__. Slots are not supported.&#34;
+    if memory_limit is not None:
+        assert cache_dir is not None, &#34;cache_dir must be specified if memory_limit is set&#34;
+    dims = shape(instance).only(parallel_dims)
+    # --- Build graph of relevant properties ---
+    cls = type(instance)
+    if is_class_from_notebook(cls):
+        class_example = (cls.__name__, class_to_string(cls))
+    else:
+        class_example = cls.__new__(cls)
+    nodes: Dict[str, PGraphNode] = {}
+    output_user = PGraphNode(&#39;&lt;output&gt;&#39;, EMPTY_SHAPE, parallel_dims, None, False, set(), None, False, [], 999999)
+    for p in properties:
+        recursive_add_node(instance, cls, property_name(p), p, dims, nodes).users.append(output_user)
+    # nodes = merge_duplicate_nodes(nodes.values())
+    for node in nodes.values():
+        if node.name in instance.__dict__:
+            node.done = True
+            node.dependencies = []
+    stages = build_stages(nodes)
+    ML_LOGGER.debug(f&#34;Assembled {len(stages)} stages containing {sum(len(ns) for ns in stages)} properties for parallel computation.&#34;)
+    # --- Execute stages ---
+    any_parallel = any(stage_nodes[0].distributed for stage_nodes in stages) and max_workers &gt; 0
+    max_workers = min(max_workers, max(stage_nodes[0].distributed.volume for stage_nodes in stages))
+    init_args = (_WORKER_LOAD_AS[-1].name if _WORKER_LOAD_AS else None,)
+    with ProcessPoolExecutor(initializer=init_worker, initargs=init_args, max_workers=max_workers) if any_parallel else nullcontext() as pool:
+        for stage_idx, stage_nodes in enumerate(stages):
+            parallel_dims = stage_nodes[0].distributed
+            if parallel_dims and any_parallel:
+                ML_LOGGER.debug(f&#34;Parallel | {parallel_dims} | {[n.name for n in stage_nodes]}&#34;)
+                property_names = [n.name for n in stage_nodes if n.is_used_later]
+                programs = {n.name: n.program for n in stage_nodes if n.program is not None}
+                required_caches = set.union(*[n.prior_dep_names for n in stage_nodes])
+                required_fields = set.union(*[n.field_dep_names for n in stage_nodes])
+                # --- Split data ---
+                instances = unstack(instance, parallel_dims)
+                n = len(instances)
+                caches = [unstack(instance.__dict__[c], parallel_dims, expand=True) for c in required_caches]
+                data = []
+                for i, inst_i in enumerate(instances):
+                    data_i = {}
+                    data_i.update(**{f_name: inst_i.__dict__[f_name] for f_name in required_fields})
+                    if caches:
+                        data_i.update(**{c: caches[j][i] for j, c in enumerate(required_caches)})
+                    data.append(data_i)
+                keep_intermediate or delete_intermediate_caches(instance, stages, stage_idx)
+                # --- Submit to pool ---
+                mem_per_item = memory_limit / min(max_workers, len(instances)) if memory_limit is not None else None
+                cache_dir is not None and os.makedirs(cache_dir, exist_ok=True)
+                cache_file_suggestions = [os.path.join(cache_dir, f&#34;s{stage_idx}_i{i}&#34;) for i in range(len(instances))] if cache_dir is not None else [None] * len(instances)
+                results = list(pool.map(_evaluate_properties, [class_example]*n, [property_names]*n, [programs]*n, data, [mem_per_item]*n, cache_file_suggestions))
+                for name, *outputs in zip(property_names, *results):
+                    output = stack(outputs, parallel_dims)
+                    instance.__dict__[name] = output
+            else:  # No parallelization in this stage
+                ML_LOGGER.debug(f&#34;Host | {[n.name for n in stage_nodes]}&#34;)
+                _EXECUTION_STATUS.append(&#39;host&#39;)
+                for n in stage_nodes:
+                    get_property_value(instance, n.name, n.program)
+                assert _EXECUTION_STATUS.pop() == &#39;host&#39;, &#34;Host execution status mismatch. (internal error)&#34;
+                keep_intermediate or delete_intermediate_caches(instance, stages, stage_idx)</code></pre>
+</details>
+<div class="desc"><p>Compute the values of properties decorated with <code>@cached_property</code> or <code>@parallel_property</code> of a dataclass instance in parallel.</p>
+<p><strong>Multiple stages via <code>requires=...</code></strong>
+If <code>@parallel_property</code> are computed whose <code>requires</code> overlaps with <code>parallel_dims</code>, a separate computation stage is set up to compute these properties with fewer parallel workers.
+In the presence of different <code>requires</code>, the computation is split into different stages in accordance with the property dependency graph.
+Properties that cannot be parallelized (because it requires all <code>parallel_dims</code>) are computed on the host process.</p>
+<p><strong>Caching tensors to disk</strong>
+When <code>memory_limit</code> and <code>cache_dir</code> are set, the evaluation will try to adhere to the given memory limits by moving tensors out of memory onto disk.
+This is only applied to the outputs of <code>@cached_property</code> and <code>@parallel_property</code> calls, not to intermediate values used in their computation.
+The per-process memory limit is calculated per stage, dividing the total memory by the active worker count.
+Cached tensors behave like regular tensors and are temporarily loaded back into memory when accessing their values or using them in a computation.
+When parallelizing, the full result is assembled by stacking multiple disk-backed tensors from different files created by different processes.
+These composite tensors will reference multiple binary files and can be pickled/unpickled safely without loading the data into memory.
+This enables passing large data references to different processes or saving the structure to a file without the data content.</p>
+<p>See Also:
+<code>cached_property</code>, <code><a title="phiml.parallel.parallel_property" href="#phiml.parallel.parallel_property">parallel_property()</a></code>, <code><a title="phiml.parallel.get_cache_files" href="#phiml.parallel.get_cache_files">get_cache_files()</a></code>, <code><a title="phiml.parallel.on_load_into_memory" href="#phiml.parallel.on_load_into_memory">on_load_into_memory()</a></code>.</p>
+<h2 id="warnings">Warnings</h2>
+<p><code><a title="phiml.parallel.parallel_compute" href="#phiml.parallel.parallel_compute">parallel_compute()</a></code> breaks automatic differentiation.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>instance</code></strong></dt>
+<dd>Dataclass instance for which to compute the values of <code>@cached_property</code> or <code>@parallel_property</code> fields.</dd>
+<dt><strong><code>properties</code></strong></dt>
+<dd>References to the unbound properties. These must be <code>cached_property</code> or <code><a title="phiml.parallel.parallel_property" href="#phiml.parallel.parallel_property">parallel_property()</a></code>.</dd>
+<dt><strong><code>parallel_dims</code></strong></dt>
+<dd>Dimensions to parallelize over.</dd>
+<dt><strong><code>max_workers</code></strong></dt>
+<dd>Number of processes to spawn.</dd>
+<dt><strong><code>memory_limit</code></strong></dt>
+<dd>Limit to the total memory consumption from <code>Tensor</code> instances on property outputs.</dd>
+<dt><strong><code>cache_dir</code></strong></dt>
+<dd>Directory path to store cached tensors in if <code>memory_limit</code> is set.</dd>
+<dt><strong><code>keep_intermediate</code></strong></dt>
+<dd>Whether the outputs of cached properties required to compute <code>properties</code> but not contained in <code>properties</code> should be kept in memory.
+If <code>False</code>, these values will not be cached on <code>instance</code> after this call.</dd>
+</dl></div>
+</dd>
+<dt id="phiml.parallel.parallel_property"><code class="name flex">
+<span>def <span class="ident">parallel_property</span></span>(<span>func: Callable = None,<br>/,<br>requires: str | Sequence | set | phiml.math._shape.Shape | Callable | object | None = None,<br>out: Any = &lt;object object&gt;,<br>persistent: bool = False,<br>on_direct_eval='raise')</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def parallel_property(func: Callable = None, /,
+                      requires: Union[DimFilter, object] = None,
+                      out: Any = INFER,
+                      persistent: bool = False,
+                      on_direct_eval=&#39;raise&#39;):
+    &#34;&#34;&#34;
+    Similar to `@cached_property` but with additional controls over parallelization.
+
+    See Also:
+        `parallel_compute()`.
+
+    Args:
+        func: Method to wrap.
+        requires: Dimensions which must be present within one process. These cannot be parallelized when computing this property.
+        out: Declare output shapes and dtypes in the same tree structure as the output of `func`.
+            Placeholders for `shape` and `dtype` can be created using `shape * dtype`.
+            `Shape` instances will be assumed to be of floating-point type.
+        persistent: If `True` the output of this property will be available after `parallel_compute` even if it was not specified as a property to be computed,
+            as long as its computation is necessary to compute any of the requested properties.
+        on_direct_eval: What to do when the property is accessed normally (outside `parallel_compute`) before it has been computed.
+            Option:
+
+            * `&#39;raise&#39;`: Raise an error.
+            * `&#39;host-compute&#39;`: Compute the property directly, without using multi-threading.
+    &#34;&#34;&#34;
+    assert on_direct_eval in {&#39;host-compute&#39;, &#39;raise&#39;}
+    if out is not INFER:
+        out = to_tracers(out)
+    if func is None:
+        return partial(parallel_property, requires=requires, out=out, persistent=persistent, on_direct_eval=on_direct_eval)
+    return ParallelProperty(func, requires, out, persistent, on_direct_eval)</code></pre>
+</details>
+<div class="desc"><p>Similar to <code>@cached_property</code> but with additional controls over parallelization.</p>
+<p>See Also:
+<code><a title="phiml.parallel.parallel_compute" href="#phiml.parallel.parallel_compute">parallel_compute()</a></code>.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>func</code></strong></dt>
+<dd>Method to wrap.</dd>
+<dt><strong><code>requires</code></strong></dt>
+<dd>Dimensions which must be present within one process. These cannot be parallelized when computing this property.</dd>
+<dt><strong><code>out</code></strong></dt>
+<dd>Declare output shapes and dtypes in the same tree structure as the output of <code>func</code>.
+Placeholders for <code>shape</code> and <code>dtype</code> can be created using <code>shape * dtype</code>.
+<code>Shape</code> instances will be assumed to be of floating-point type.</dd>
+<dt><strong><code>persistent</code></strong></dt>
+<dd>If <code>True</code> the output of this property will be available after <code><a title="phiml.parallel.parallel_compute" href="#phiml.parallel.parallel_compute">parallel_compute()</a></code> even if it was not specified as a property to be computed,
+as long as its computation is necessary to compute any of the requested properties.</dd>
+<dt><strong><code>on_direct_eval</code></strong></dt>
+<dd>
+<p>What to do when the property is accessed normally (outside <code><a title="phiml.parallel.parallel_compute" href="#phiml.parallel.parallel_compute">parallel_compute()</a></code>) before it has been computed.
+Option:</p>
+<ul>
+<li><code>'raise'</code>: Raise an error.</li>
+<li><code>'host-compute'</code>: Compute the property directly, without using multi-threading.</li>
+</ul>
+</dd>
+</dl></div>
+</dd>
+<dt id="phiml.parallel.set_cache_ttl"><code class="name flex">
+<span>def <span class="ident">set_cache_ttl</span></span>(<span>ttl_seconds: float | None)</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def set_cache_ttl(ttl_seconds: Optional[float]):
+    &#34;&#34;&#34;
+    Sets the time to live (TTL) for data loaded into memory for disk-backed tensors.
+    This function should be called before the tensor cache is used.
+
+    Args:
+        ttl_seconds: Time to live. If `None`, data will be unallocated immediately after use.
+    &#34;&#34;&#34;
+    _CACHE.ttl = ttl_seconds</code></pre>
+</details>
+<div class="desc"><p>Sets the time to live (TTL) for data loaded into memory for disk-backed tensors.
+This function should be called before the tensor cache is used.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>ttl_seconds</code></strong></dt>
+<dd>Time to live. If <code>None</code>, data will be unallocated immediately after use.</dd>
+</dl></div>
+</dd>
+</dl>
+</section>
+<section>
+</section>
+</article>
+<nav id="sidebar">
+<div class="toc">
+<ul>
+<li><a href="#computational-graph">Computational Graph</a></li>
+<li><a href="#infer-via-dynamic-traces">INFER via Dynamic Traces</a></li>
+<li><a href="#mixed-parallelization">MIXED Parallelization</a></li>
+<li><a href="#disk-caching">Disk Caching</a></li>
+</ul>
+</div>
+<ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="phiml" href="../index.html">phiml</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-functions">Functions</a></h3>
+<ul class="two-column">
+<li><code><a title="phiml.parallel.get_cache_files" href="#phiml.parallel.get_cache_files">get_cache_files</a></code></li>
+<li><code><a title="phiml.parallel.load_cache_as" href="#phiml.parallel.load_cache_as">load_cache_as</a></code></li>
+<li><code><a title="phiml.parallel.on_load_into_memory" href="#phiml.parallel.on_load_into_memory">on_load_into_memory</a></code></li>
+<li><code><a title="phiml.parallel.parallel_compute" href="#phiml.parallel.parallel_compute">parallel_compute</a></code></li>
+<li><code><a title="phiml.parallel.parallel_property" href="#phiml.parallel.parallel_property">parallel_property</a></code></li>
+<li><code><a title="phiml.parallel.set_cache_ttl" href="#phiml.parallel.set_cache_ttl">set_cache_ttl</a></code></li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc" title="pdoc: Python API documentation generator"><cite>pdoc</cite> 0.11.6</a>.</p>
+</footer>
+</body>
+</html>

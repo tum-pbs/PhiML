@@ -3,20 +3,31 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1">
-<meta name="generator" content="pdoc3 0.11.0">
+<meta name="generator" content="pdoc3 0.11.6">
 <title>phiml.nn API documentation</title>
 <meta name="description" content="Unified neural network library.
 Includes …">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/13.0.0/sanitize.min.css" integrity="sha512-y1dtMcuvtTMJc1yPgEqF0ZjQbhnc/bFhyvIyVNb9Zk5mIGtqVaAB1Ttl28su8AvFMOY0EwRbAe+HCLqj6W7/KA==" crossorigin>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/13.0.0/typography.min.css" integrity="sha512-Y1DYSb995BAfxobCkKepB1BqJJTPrOp3zPL74AWFugHHmmdcvO+C48WLrUOlhGMc0QG7AE3f7gmvvcrmX2fDoA==" crossorigin>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/default.min.css" crossorigin>
-<style>:root{--highlight-color:#fe9}.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:1.5em;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:2em 0 .50em 0}h3{font-size:1.4em;margin:1.6em 0 .7em 0}h4{margin:0;font-size:105%}h1:target,h2:target,h3:target,h4:target,h5:target,h6:target{background:var(--highlight-color);padding:.2em 0}a{color:#058;text-decoration:none;transition:color .2s ease-in-out}a:visited{color:#503}a:hover{color:#b62}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900;font-weight:bold}pre code{font-size:.8em;line-height:1.4em;padding:1em;display:block}code{background:#f3f3f3;font-family:"DejaVu Sans Mono",monospace;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}dt:target .name{background:var(--highlight-color)}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}td{padding:0 .5em}.admonition{padding:.1em 1em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style>:root{--highlight-color:#fe9}.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:1.5em;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:2em 0 .50em 0}h3{font-size:1.4em;margin:1.6em 0 .7em 0}h4{margin:0;font-size:105%}h1:target,h2:target,h3:target,h4:target,h5:target,h6:target{background:var(--highlight-color);padding:.2em 0}a{color:#058;text-decoration:none;transition:color .2s ease-in-out}a:visited{color:#503}a:hover{color:#b62}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900;font-weight:bold}pre code{font-size:.8em;line-height:1.4em;padding:1em;display:block}code{background:#f3f3f3;font-family:"DejaVu Sans Mono",monospace;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}dt:target .name{background:var(--highlight-color)}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source > summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible;min-width:max-content}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}td{padding:0 .5em}.admonition{padding:.1em 1em;margin:1em 0}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
 <style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul ul{padding-left:1em}.toc > ul > li{margin-top:.5em}}</style>
 <style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
 <script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js" integrity="sha512-D9gUyxqja7hBtkWpPWGt9wfbfaMGVt9gnyCvYa+jojwwPHLCzUm5i8rpk7vD7wNee9bA35eYIjobYPaQuKS1MQ==" crossorigin></script>
 <script>window.addEventListener('DOMContentLoaded', () => {
 hljs.configure({languages: ['bash', 'css', 'diff', 'graphql', 'ini', 'javascript', 'json', 'plaintext', 'python', 'python-repl', 'rust', 'shell', 'sql', 'typescript', 'xml', 'yaml']});
 hljs.highlightAll();
+/* Collapse source docstrings */
+setTimeout(() => {
+[...document.querySelectorAll('.hljs.language-python > .hljs-string')]
+.filter(el => el.innerHTML.length > 200 && ['"""', "'''"].includes(el.innerHTML.substring(0, 3)))
+.forEach(el => {
+let d = document.createElement('details');
+d.classList.add('hljs-string');
+d.innerHTML = '<summary>"""</summary>' + el.innerHTML.substring(3);
+el.replaceWith(d);
+});
+}, 100);
 })</script>
 </head>
 <body>
@@ -44,9 +55,20 @@ Includes</p>
 <h2 class="section-title" id="header-functions">Functions</h2>
 <dl>
 <dt id="phiml.nn.adagrad"><code class="name flex">
-<span>def <span class="ident">adagrad</span></span>(<span>net: ~Network, learning_rate: float = 0.001, lr_decay=0.0, weight_decay=0.0, initial_accumulator_value=0.0, eps=1e-10)</span>
+<span>def <span class="ident">adagrad</span></span>(<span>net: ~Network,<br>learning_rate: float = 0.001,<br>lr_decay=0.0,<br>weight_decay=0.0,<br>initial_accumulator_value=0.0,<br>eps=1e-10)</span>
 </code></dt>
 <dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def adagrad(net: Network, learning_rate: float = 1e-3, lr_decay=0., weight_decay=0., initial_accumulator_value=0., eps=1e-10):
+    &#34;&#34;&#34;
+    Creates an Adagrad optimizer for &#39;net&#39;, alias for [&#39;torch.optim.Adagrad&#39;](https://pytorch.org/docs/stable/generated/torch.optim.Adagrad.html)
+    Analogue functions exist for other learning frameworks.
+    &#34;&#34;&#34;
+    return _native_lib().adagrad(**locals())</code></pre>
+</details>
 <div class="desc"><p>Creates an Adagrad optimizer for 'net', alias for <a href="https://pytorch.org/docs/stable/generated/torch.optim.Adagrad.html">'torch.optim.Adagrad'</a>
 Analogue functions exist for other learning frameworks.</p></div>
 </dd>
@@ -54,19 +76,76 @@ Analogue functions exist for other learning frameworks.</p></div>
 <span>def <span class="ident">adam</span></span>(<span>net: ~Network, learning_rate: float = 0.001, betas=(0.9, 0.999), epsilon=1e-07)</span>
 </code></dt>
 <dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def adam(net: Network, learning_rate: float = 1e-3, betas=(0.9, 0.999), epsilon=1e-07):
+    &#34;&#34;&#34;
+    Creates an Adam optimizer for `net`, alias for [`torch.optim.Adam`](https://pytorch.org/docs/stable/generated/torch.optim.Adam.html).
+    Analogue functions exist for other learning frameworks.
+    &#34;&#34;&#34;
+    return _native_lib().adam(**locals())</code></pre>
+</details>
 <div class="desc"><p>Creates an Adam optimizer for <code>net</code>, alias for <a href="https://pytorch.org/docs/stable/generated/torch.optim.Adam.html"><code>torch.optim.Adam</code></a>.
 Analogue functions exist for other learning frameworks.</p></div>
 </dd>
 <dt id="phiml.nn.conv_classifier"><code class="name flex">
-<span>def <span class="ident">conv_classifier</span></span>(<span>in_features: int, in_spatial: Union[tuple, list], num_classes: int, blocks=(64, 128, 256, 256, 512, 512), block_sizes=(2, 2, 3, 3, 3), dense_layers=(4096, 4096, 100), batch_norm=True, activation='ReLU', softmax=True, periodic=False)</span>
+<span>def <span class="ident">conv_classifier</span></span>(<span>in_features: int,<br>in_spatial: tuple | list,<br>num_classes: int,<br>blocks=(64, 128, 256, 256, 512, 512),<br>block_sizes=(2, 2, 3, 3, 3),<br>dense_layers=(4096, 4096, 100),<br>batch_norm=True,<br>activation='ReLU',<br>softmax=True,<br>periodic=False)</span>
 </code></dt>
 <dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def conv_classifier(in_features: int,
+                    in_spatial: Union[tuple, list],
+                    num_classes: int,
+                    blocks=(64, 128, 256, 256, 512, 512),
+                    block_sizes=(2, 2, 3, 3, 3),
+                    dense_layers=(4096, 4096, 100),
+                    batch_norm=True,
+                    activation=&#39;ReLU&#39;,
+                    softmax=True,
+                    periodic=False):
+    &#34;&#34;&#34;
+    Based on VGG16.
+    &#34;&#34;&#34;
+    return _native_lib().conv_classifier(**locals())</code></pre>
+</details>
 <div class="desc"><p>Based on VGG16.</p></div>
 </dd>
 <dt id="phiml.nn.conv_net"><code class="name flex">
-<span>def <span class="ident">conv_net</span></span>(<span>in_channels: int, out_channels: int, layers: Sequence[int], batch_norm: bool = False, activation: Union[str, type] = 'ReLU', in_spatial: Union[int, tuple] = 2, periodic=False) ‑> ~Network</span>
+<span>def <span class="ident">conv_net</span></span>(<span>in_channels: int,<br>out_channels: int,<br>layers: Sequence[int],<br>batch_norm: bool = False,<br>activation: str | type = 'ReLU',<br>in_spatial: int | tuple = 2,<br>periodic=False) ‑> ~Network</span>
 </code></dt>
 <dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def conv_net(in_channels: int,
+             out_channels: int,
+             layers: Sequence[int],
+             batch_norm: bool = False,
+             activation: Union[str, type] = &#39;ReLU&#39;,
+             in_spatial: Union[int, tuple] = 2,
+             periodic=False) -&gt; Network:
+    &#34;&#34;&#34;
+    Built in Conv-Nets are also provided. Contrary to the classical convolutional neural networks, the feature map spatial size remains the same throughout the layers. Each layer of the network is essentially a convolutional block comprising of two conv layers. A filter size of 3 is used in the convolutional layers.
+
+    Args:
+        in_channels: input channels of the feature map, dtype: int
+        out_channels: output channels of the feature map, dtype: int
+        layers: list or tuple of output channels for each intermediate layer between the input and final output channels, dtype: list or tuple
+        activation: activation function used within the layers, dtype: string
+        batch_norm: use of batchnorm after each conv layer, dtype: bool
+        in_spatial: spatial dimensions of the input feature map, dtype: int
+
+    Returns:
+        Conv-net model as specified by input arguments
+    &#34;&#34;&#34;
+    return _native_lib().conv_net(**locals())</code></pre>
+</details>
 <div class="desc"><p>Built in Conv-Nets are also provided. Contrary to the classical convolutional neural networks, the feature map spatial size remains the same throughout the layers. Each layer of the network is essentially a convolutional block comprising of two conv layers. A filter size of 3 is used in the convolutional layers.</p>
 <h2 id="args">Args</h2>
 <dl>
@@ -90,6 +169,22 @@ Analogue functions exist for other learning frameworks.</p></div>
 <span>def <span class="ident">get_learning_rate</span></span>(<span>optimizer: ~Optimizer) ‑> float</span>
 </code></dt>
 <dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def get_learning_rate(optimizer: Optimizer) -&gt; float:
+    &#34;&#34;&#34;
+    Returns the global learning rate of the given optimizer.
+
+    Args:
+        optimizer (optim.Optimizer): The optimizer whose learning rate needs to be retrieved.
+
+    Returns:
+        float: The learning rate of the optimizer.
+    &#34;&#34;&#34;
+    return _native_lib().get_learning_rate(optimizer)</code></pre>
+</details>
 <div class="desc"><p>Returns the global learning rate of the given optimizer.</p>
 <h2 id="args">Args</h2>
 <dl>
@@ -106,6 +201,22 @@ Analogue functions exist for other learning frameworks.</p></div>
 <span>def <span class="ident">get_parameters</span></span>(<span>net: ~Network) ‑> Dict[str, phiml.math._tensors.Tensor]</span>
 </code></dt>
 <dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def get_parameters(net: Network) -&gt; Dict[str, Tensor]:
+    &#34;&#34;&#34;
+    Returns all parameters of a neural network.
+
+    Args:
+        net: Neural network.
+
+    Returns:
+        `dict` mapping parameter names to `phiml.math.Tensor`s.
+    &#34;&#34;&#34;
+    return _native_lib().get_parameters(net)</code></pre>
+</details>
 <div class="desc"><p>Returns all parameters of a neural network.</p>
 <h2 id="args">Args</h2>
 <dl>
@@ -116,9 +227,38 @@ Analogue functions exist for other learning frameworks.</p></div>
 <p><code>dict</code> mapping parameter names to <code><a title="phiml.math.Tensor" href="math/index.html#phiml.math.Tensor">Tensor</a></code>s.</p></div>
 </dd>
 <dt id="phiml.nn.invertible_net"><code class="name flex">
-<span>def <span class="ident">invertible_net</span></span>(<span>num_blocks: int = 3, construct_net: Union[str, Callable] = 'u_net', **construct_kwargs)</span>
+<span>def <span class="ident">invertible_net</span></span>(<span>num_blocks: int = 3,<br>construct_net: str | Callable = 'u_net',<br>**construct_kwargs)</span>
 </code></dt>
 <dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def invertible_net(num_blocks: int = 3,
+                   construct_net: Union[str, Callable] = &#39;u_net&#39;,
+                   **construct_kwargs):
+    &#34;&#34;&#34;
+    Invertible NNs are capable of inverting the output tensor back to the input tensor initially passed.
+    These networks have far-reaching applications in predicting input parameters of a problem given its observations.
+    Invertible nets are composed of multiple concatenated coupling blocks wherein each such block consists of arbitrary neural networks.
+
+    Currently, these arbitrary neural networks could be set to u_net(default), conv_net, res_net or mlp blocks with in_channels = out_channels.
+    The architecture used is popularized by [&#34;Real NVP&#34;](https://arxiv.org/abs/1605.08803).
+
+    Invertible nets are only implemented for PyTorch and TensorFlow.
+
+    Args:
+        num_blocks: number of coupling blocks inside the invertible net, dtype: int
+        construct_net: Function to construct one part of the neural network.
+            This network must have the same number of inputs and outputs.
+            Can be a `lambda` function or one of the following strings: `mlp, u_net, res_net, conv_net`
+        construct_kwargs: Keyword arguments passed to `construct_net`.
+
+    Returns:
+        Invertible neural network model
+    &#34;&#34;&#34;
+    return _native_lib().invertible_net(num_blocks, construct_net, **construct_kwargs)</code></pre>
+</details>
 <div class="desc"><p>Invertible NNs are capable of inverting the output tensor back to the input tensor initially passed.
 These networks have far-reaching applications in predicting input parameters of a problem given its observations.
 Invertible nets are composed of multiple concatenated coupling blocks wherein each such block consists of arbitrary neural networks.</p>
@@ -140,9 +280,26 @@ Can be a <code>lambda</code> function or one of the following strings: <code><a 
 <p>Invertible neural network model</p></div>
 </dd>
 <dt id="phiml.nn.load_state"><code class="name flex">
-<span>def <span class="ident">load_state</span></span>(<span>obj: Union[~Network, ~Optimizer], path: str)</span>
+<span>def <span class="ident">load_state</span></span>(<span>obj: ~Network | ~Optimizer, path: str)</span>
 </code></dt>
 <dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def load_state(obj: Union[Network, Optimizer], path: str):
+    &#34;&#34;&#34;
+    Read the state of a module or optimizer from a file.
+
+    See Also:
+        `save_state()`
+
+    Args:
+        obj: `torch.Network or torch.optim.Optimizer`
+        path: File path as `str`.
+    &#34;&#34;&#34;
+    return _native_lib().load_state(**locals())</code></pre>
+</details>
 <div class="desc"><p>Read the state of a module or optimizer from a file.</p>
 <p>See Also:
 <code><a title="phiml.nn.save_state" href="#phiml.nn.save_state">save_state()</a></code></p>
@@ -155,9 +312,34 @@ Can be a <code>lambda</code> function or one of the following strings: <code><a 
 </dl></div>
 </dd>
 <dt id="phiml.nn.mlp"><code class="name flex">
-<span>def <span class="ident">mlp</span></span>(<span>in_channels: int, out_channels: int, layers: Sequence[int], batch_norm=False, activation: Union[str, Callable] = 'ReLU', softmax=False) ‑> ~Network</span>
+<span>def <span class="ident">mlp</span></span>(<span>in_channels: int,<br>out_channels: int,<br>layers: Sequence[int],<br>batch_norm=False,<br>activation: str | Callable = 'ReLU',<br>softmax=False) ‑> ~Network</span>
 </code></dt>
 <dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def mlp(in_channels: int,
+              out_channels: int,
+              layers: Sequence[int],
+              batch_norm=False,
+              activation: Union[str, Callable] = &#39;ReLU&#39;,
+              softmax=False) -&gt; Network:
+    &#34;&#34;&#34;
+    Fully-connected neural networks are available in Φ-ML via mlp().
+
+    Args:
+        in_channels: size of input layer, int
+        out_channels = size of output layer, int
+        layers: tuple of linear layers between input and output neurons, list or tuple
+        activation: activation function used within the layers, string
+        batch_norm: use of batch norm after each linear layer, bool
+
+    Returns:
+        Dense net model as specified by input arguments
+    &#34;&#34;&#34;
+    return _native_lib().mlp(**locals())</code></pre>
+</details>
 <div class="desc"><p>Fully-connected neural networks are available in Φ-ML via mlp().</p>
 <h2 id="args">Args</h2>
 <dl>
@@ -178,6 +360,25 @@ Can be a <code>lambda</code> function or one of the following strings: <code><a 
 <span>def <span class="ident">parameter_count</span></span>(<span>net: ~Network) ‑> int</span>
 </code></dt>
 <dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def parameter_count(net: Network) -&gt; int:
+    &#34;&#34;&#34;
+    Counts the number of parameters in a model.
+
+    See Also:
+        `get_parameters()`.
+
+    Args:
+        net: PyTorch model
+
+    Returns:
+        Total parameter count as `int`.
+    &#34;&#34;&#34;
+    return sum([value.shape.volume for name, value in get_parameters(net).items()])</code></pre>
+</details>
 <div class="desc"><p>Counts the number of parameters in a model.</p>
 <p>See Also:
 <code><a title="phiml.nn.get_parameters" href="#phiml.nn.get_parameters">get_parameters()</a></code>.</p>
@@ -190,9 +391,38 @@ Can be a <code>lambda</code> function or one of the following strings: <code><a 
 <p>Total parameter count as <code>int</code>.</p></div>
 </dd>
 <dt id="phiml.nn.res_net"><code class="name flex">
-<span>def <span class="ident">res_net</span></span>(<span>in_channels: int, out_channels: int, layers: Sequence[int], batch_norm: bool = False, activation: Union[str, type] = 'ReLU', in_spatial: Union[int, tuple] = 2, periodic=False) ‑> ~Network</span>
+<span>def <span class="ident">res_net</span></span>(<span>in_channels: int,<br>out_channels: int,<br>layers: Sequence[int],<br>batch_norm: bool = False,<br>activation: str | type = 'ReLU',<br>in_spatial: int | tuple = 2,<br>periodic=False) ‑> ~Network</span>
 </code></dt>
 <dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def res_net(in_channels: int,
+            out_channels: int,
+            layers: Sequence[int],
+            batch_norm: bool = False,
+            activation: Union[str, type] = &#39;ReLU&#39;,
+            in_spatial: Union[int, tuple] = 2,
+            periodic=False) -&gt; Network:
+    &#34;&#34;&#34;
+    Similar to the conv-net, the feature map spatial size remains the same throughout the layers.
+    These networks use residual blocks composed of two conv layers with a skip connection added from the input to the output feature map.
+    A default filter size of 3 is used in the convolutional layers.
+
+    Args:
+        in_channels: input channels of the feature map, dtype: int
+        out_channels: output channels of the feature map, dtype: int
+        layers: list or tuple of output channels for each intermediate layer between the input and final output channels, dtype: list or tuple
+        activation: activation function used within the layers, dtype: string
+        batch_norm: use of batchnorm after each conv layer, dtype: bool
+        in_spatial: spatial dimensions of the input feature map, dtype: int
+
+    Returns:
+        Res-net model as specified by input arguments
+    &#34;&#34;&#34;
+    return _native_lib().res_net(**locals())</code></pre>
+</details>
 <div class="desc"><p>Similar to the conv-net, the feature map spatial size remains the same throughout the layers.
 These networks use residual blocks composed of two conv layers with a skip connection added from the input to the output feature map.
 A default filter size of 3 is used in the convolutional layers.</p>
@@ -215,16 +445,47 @@ A default filter size of 3 is used in the convolutional layers.</p>
 <p>Res-net model as specified by input arguments</p></div>
 </dd>
 <dt id="phiml.nn.rmsprop"><code class="name flex">
-<span>def <span class="ident">rmsprop</span></span>(<span>net: ~Network, learning_rate: float = 0.001, alpha=0.99, eps=1e-08, weight_decay=0.0, momentum=0.0, centered=False)</span>
+<span>def <span class="ident">rmsprop</span></span>(<span>net: ~Network,<br>learning_rate: float = 0.001,<br>alpha=0.99,<br>eps=1e-08,<br>weight_decay=0.0,<br>momentum=0.0,<br>centered=False)</span>
 </code></dt>
 <dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def rmsprop(net: Network, learning_rate: float = 1e-3, alpha=0.99, eps=1e-08, weight_decay=0., momentum=0., centered=False):
+    &#34;&#34;&#34;
+    Creates an RMSProp optimizer for &#39;net&#39;, alias for [&#39;torch.optim.RMSprop&#39;](https://pytorch.org/docs/stable/generated/torch.optim.RMSprop.html)
+    Analogue functions exist for other learning frameworks.
+    &#34;&#34;&#34;
+    return _native_lib().rmsprop(**locals())</code></pre>
+</details>
 <div class="desc"><p>Creates an RMSProp optimizer for 'net', alias for <a href="https://pytorch.org/docs/stable/generated/torch.optim.RMSprop.html">'torch.optim.RMSprop'</a>
 Analogue functions exist for other learning frameworks.</p></div>
 </dd>
 <dt id="phiml.nn.save_state"><code class="name flex">
-<span>def <span class="ident">save_state</span></span>(<span>obj: Union[~Network, ~Optimizer], path: str) ‑> str</span>
+<span>def <span class="ident">save_state</span></span>(<span>obj: ~Network | ~Optimizer, path: str) ‑> str</span>
 </code></dt>
 <dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def save_state(obj: Union[Network, Optimizer], path: str) -&gt; str:
+    &#34;&#34;&#34;
+    Write the state of a module or optimizer to a file.
+
+    See Also:
+        `load_state()`
+
+    Args:
+        obj: `torch.Network or torch.optim.Optimizer`
+        path: File path as `str`.
+
+    Returns:
+        Path to the saved file.
+    &#34;&#34;&#34;
+    return _native_lib().save_state(**locals())</code></pre>
+</details>
 <div class="desc"><p>Write the state of a module or optimizer to a file.</p>
 <p>See Also:
 <code><a title="phiml.nn.load_state" href="#phiml.nn.load_state">load_state()</a></code></p>
@@ -239,9 +500,23 @@ Analogue functions exist for other learning frameworks.</p></div>
 <p>Path to the saved file.</p></div>
 </dd>
 <dt id="phiml.nn.set_learning_rate"><code class="name flex">
-<span>def <span class="ident">set_learning_rate</span></span>(<span>optimizer: ~Optimizer, learning_rate: Union[float, phiml.math._tensors.Tensor])</span>
+<span>def <span class="ident">set_learning_rate</span></span>(<span>optimizer: ~Optimizer, learning_rate: float | phiml.math._tensors.Tensor)</span>
 </code></dt>
 <dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def set_learning_rate(optimizer: Optimizer, learning_rate: Union[float, Tensor]):
+    &#34;&#34;&#34;
+    Sets the global learning rate for the given optimizer.
+
+    Args:
+        optimizer (optim.Optimizer): The optimizer whose learning rate needs to be updated.
+        learning_rate (float): The new learning rate to set.
+    &#34;&#34;&#34;
+    _native_lib().set_learning_rate(optimizer, float(learning_rate))</code></pre>
+</details>
 <div class="desc"><p>Sets the global learning rate for the given optimizer.</p>
 <h2 id="args">Args</h2>
 <dl>
@@ -252,16 +527,136 @@ Analogue functions exist for other learning frameworks.</p></div>
 </dl></div>
 </dd>
 <dt id="phiml.nn.sgd"><code class="name flex">
-<span>def <span class="ident">sgd</span></span>(<span>net: ~Network, learning_rate: float = 0.001, momentum=0.0, dampening=0.0, weight_decay=0.0, nesterov=False)</span>
+<span>def <span class="ident">sgd</span></span>(<span>net: ~Network,<br>learning_rate: float = 0.001,<br>momentum=0.0,<br>dampening=0.0,<br>weight_decay=0.0,<br>nesterov=False)</span>
 </code></dt>
 <dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def sgd(net: Network, learning_rate: float = 1e-3, momentum=0., dampening=0., weight_decay=0., nesterov=False):
+    &#34;&#34;&#34;
+    Creates an SGD optimizer for &#39;net&#39;, alias for [&#39;torch.optim.SGD&#39;](https://pytorch.org/docs/stable/generated/torch.optim.SGD.html)
+    Analogue functions exist for other learning frameworks.
+    &#34;&#34;&#34;
+    return _native_lib().sgd(**locals())</code></pre>
+</details>
 <div class="desc"><p>Creates an SGD optimizer for 'net', alias for <a href="https://pytorch.org/docs/stable/generated/torch.optim.SGD.html">'torch.optim.SGD'</a>
 Analogue functions exist for other learning frameworks.</p></div>
 </dd>
 <dt id="phiml.nn.train"><code class="name flex">
-<span>def <span class="ident">train</span></span>(<span>name: Optional[str], model, optimizer, loss_fn: Callable, *files_or_data: Union[str, phiml.math._tensors.Tensor], max_epochs: int = None, max_iter: int = None, max_hours: float = None, stop_on_loss: float = None, batch_size: int = 1, file_shape: phiml.math._shape.Shape = (), dataset_dims: Union[str, Sequence[+T_co], set, phiml.math._shape.Shape, Callable, None] = &lt;function batch&gt;, device: phiml.backend._backend.ComputeDevice = None, drop_last=False, loss_kwargs=None, lr_schedule_iter=None, checkpoint_frequency=None, loader=&lt;function load&gt;, on_iter_end: Callable = None, on_epoch_end: Callable = None, measure_peak_memory: bool = True) ‑> <a title="phiml.nn.TrainingState" href="#phiml.nn.TrainingState">TrainingState</a></span>
+<span>def <span class="ident">train</span></span>(<span>name: str | None,<br>model,<br>optimizer,<br>loss_fn: Callable,<br>*files_or_data: str | phiml.math._tensors.Tensor,<br>max_epochs: int = None,<br>max_iter: int = None,<br>max_hours: float = None,<br>stop_on_loss: float = None,<br>batch_size: int = 1,<br>file_shape: phiml.math._shape.Shape = (),<br>dataset_dims: str | Sequence | set | phiml.math._shape.Shape | Callable | None = &lt;function batch&gt;,<br>device: phiml.backend._backend.ComputeDevice = None,<br>drop_last=False,<br>loss_kwargs=None,<br>lr_schedule_iter=None,<br>checkpoint_frequency=None,<br>loader=&lt;function load&gt;,<br>on_iter_end: Callable = None,<br>on_epoch_end: Callable = None,<br>measure_peak_memory: bool = True) ‑> <a title="phiml.nn.TrainingState" href="#phiml.nn.TrainingState">TrainingState</a></span>
 </code></dt>
 <dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def train(name: Optional[str], model, optimizer, loss_fn: Callable,
+          *files_or_data: Union[str, Tensor],
+          max_epochs: int = None, max_iter: int = None, max_hours: float = None, stop_on_loss: float = None,
+          batch_size: int = 1, file_shape: Shape = EMPTY_SHAPE, dataset_dims: DimFilter = batch, device: ComputeDevice = None, drop_last=False, loss_kwargs=None,
+          lr_schedule_iter=None, checkpoint_frequency=None, loader=math.load,
+          on_iter_end: Callable = None, on_epoch_end: Callable = None,
+          measure_peak_memory: bool = True) -&gt; TrainingState:
+    &#34;&#34;&#34;
+    Call `update_weights()` for each batch in a loop for each epoch.
+
+    Args:
+        name: Name of the model. This is used as a name to save the model and optimizer states.
+            If not specified, no model or optimizer states are saved.
+        model: PyTorch module or Keras model (TensorFlow).
+        optimizer: PyTorch or TensorFlow/Keras optimizer.
+        loss_fn: Loss function for training. This function should take the data as input, run the model and return the loss. It may return additional outputs, but the loss must be the first value.
+        *files_or_data: Training data or file names containing training data or a mixture of both. Files are loaded using `loader`.
+        max_epochs: Epoch limit.
+        max_iter: Iteration limit. The number of iterations depends on the batch size and the number of files.
+        max_hours: Training time limit in hours (`float`).
+        stop_on_loss: Stop training if the mean epoch loss falls below this value.
+        batch_size: Batch size for training. The batch size is limited by the number of data points in the dataset.
+        file_shape: Shape of data stored in each file.
+        dataset_dims: Which dims of the training data list training examples, as opposed to features of data points.
+        device: Device to use for training. If `None`, the default device is used.
+        drop_last: If `True`, drop the last batch if it is smaller than `batch_size`.
+        loss_kwargs: Keyword arguments passed to `loss_fn`.
+        lr_schedule_iter: Function `(i: int) -&gt; float` that returns the learning rate for iteration `i`. If `None`, the learning rate of the `optimizer` is used as is.
+        checkpoint_frequency: If not `None`, save the model and optimizer state every `checkpoint_frequency` epochs.
+        loader: Function `(file: str) -&gt; data: Tensor` to load data from files. Defaults to `phiml.math.load()`.
+        on_iter_end: Function `(i: int, max_iter: int, name: str, model, optimizer, learning_rate, loss, *additional_output) -&gt; None` called after each iteration. The function is called with the current iteration number `i` starting at 0, the maximum number of iterations `max_iter`, the name of the model `name`, the model `model`, the optimizer `optimizer`, the learning rate `learning_rate`, the loss value `loss` and any additional output from `loss_fn`.
+        on_epoch_end: Function `(epoch: int, max_epochs: int, name: str, model, optimizer, learning_rate, epoch_loss) -&gt; None` called after each epoch. The function is called with the current epoch number `epoch` starting at 0, the maximum number of epochs `max_epochs`, the name of the model `name`, the model `model`, the optimizer `optimizer`, the learning rate `learning_rate` and the average loss for the epoch `epoch_loss`.
+        measure_peak_memory: If `True`, measure the peak memory usage during training and store it in the returned `TrainingState`. This is only supported by some backends.
+
+    Returns:
+        `TrainingResult` containing the termination reason, last epoch and last iteration.
+    &#34;&#34;&#34;
+    files_or_data = [layout(fs) if isinstance(fs, str) else fs for fs in files_or_data]
+    data_shape = shape(files_or_data) &amp; file_shape
+    loss_kwargs = {} if loss_kwargs is None else loss_kwargs
+    device = device if device is not None else default_backend().get_default_device()
+    if measure_peak_memory:
+        default_backend().reset_peak_memory(device)
+    default_backend().set_default_device(&#39;CPU&#39;)
+    data = [convert(math.map(lambda f: loader(f), fs, map_name=&#34;Loading data&#34;)) if isinstance(fs, str) or (isinstance(fs, Tensor) and fs.dtype.kind == object) else fs for fs in files_or_data]
+    default_backend().set_default_device(device)
+    data_shape = shape(data)
+    dataset_dims = data_shape.only(dataset_dims)
+    batch_size = min(batch_size, dataset_dims.volume)
+    batch_count = dataset_dims.volume // batch_size if drop_last else (dataset_dims.volume + batch_size - 1) // batch_size
+    name and os.makedirs(name, exist_ok=True)
+    learning_rate = None if lr_schedule_iter is not None else get_learning_rate(optimizer)
+    if max_epochs is None and max_iter is not None:
+        max_epochs = int(np.ceil(max_iter / batch_count))
+    elif max_epochs is not None and max_iter is None:
+        max_iter = max_epochs * batch_count
+    termination_reason = None
+    niter = 0
+    epoch = 0
+    t0 = time.perf_counter()
+    for epoch in range(max_epochs) if max_epochs is not None else count():
+        default_backend().set_default_device(&#39;CPU&#39;)
+        indices = pack_dims(random_permutation(dataset_dims, dims=dataset_dims), non_channel, batch(&#39;dset_linear&#39;))
+        default_backend().set_default_device(device)
+        epoch_loss = 0
+        for i in range(batch_count):
+            if lr_schedule_iter is not None:
+                learning_rate = lr_schedule_iter(niter)
+                set_learning_rate(optimizer, learning_rate)
+            batch_idx = indices.dset_linear[i * batch_size:(i + 1) * batch_size]
+            data_batch = to_device(math.slice(data, batch_idx), device)
+            output = update_weights(model, optimizer, loss_fn, *data_batch, **loss_kwargs)
+            loss, *additional_output = output if isinstance(output, (tuple, list)) else (output,)
+            epoch_loss += math.sum(loss, &#39;dset_linear&#39;)
+            if on_iter_end is not None:
+                try:
+                    on_iter_end(TrainingState(name, model, optimizer, learning_rate, epoch, max_epochs, niter, max_iter, False, epoch_loss / ((i+1)*batch_count), loss, additional_output, batch_idx, None, None))
+                except StopTraining as stop:
+                    termination_reason = stop.reason
+                    break
+            niter += 1
+            if max_iter is not None and niter &gt;= max_iter:
+                termination_reason = &#39;max_iter&#39;
+                break
+            if max_hours is not None and time.perf_counter() - t0 &gt; max_hours * 3600:
+                termination_reason = &#39;max_hours&#39;
+                break
+        if termination_reason is not None:
+            break
+        if name and checkpoint_frequency is not None and (epoch + 1) % checkpoint_frequency == 0:
+            save_state(model, f&#34;{name}/model_{epoch + 1}&#34;)
+            save_state(optimizer, f&#34;{name}/optimizer_{epoch + 1}&#34;)
+        epoch_loss /= indices.dset_linear.size
+        if on_epoch_end is not None:
+            try:
+                on_epoch_end(TrainingState(name, model, optimizer, learning_rate, epoch, max_epochs, niter, max_iter, True, epoch_loss, None, None, indices, None, None))
+            except StopTraining as stop:
+                termination_reason = stop.reason
+                break
+        if stop_on_loss is not None and (epoch_loss.mean &lt; stop_on_loss):
+            termination_reason = &#39;stop_on_loss&#39;
+            break
+    peak_memory = default_backend().get_peak_memory(device) if measure_peak_memory else None
+    return TrainingState(name, model, optimizer, learning_rate, epoch, max_epochs, niter, max_iter, True, None, None, None, None, termination_reason, peak_memory)</code></pre>
+</details>
 <div class="desc"><p>Call <code><a title="phiml.nn.update_weights" href="#phiml.nn.update_weights">update_weights()</a></code> for each batch in a loop for each epoch.</p>
 <h2 id="args">Args</h2>
 <dl>
@@ -313,9 +708,44 @@ If not specified, no model or optimizer states are saved.</dd>
 <p><code>TrainingResult</code> containing the termination reason, last epoch and last iteration.</p></div>
 </dd>
 <dt id="phiml.nn.u_net"><code class="name flex">
-<span>def <span class="ident">u_net</span></span>(<span>in_channels: int, out_channels: int, levels: int = 4, filters: Union[int, Sequence[+T_co]] = 16, batch_norm: bool = True, activation: Union[str, type] = 'ReLU', in_spatial: Union[int, tuple] = 2, periodic=False, use_res_blocks: bool = False, down_kernel_size=3, up_kernel_size=3) ‑> ~Network</span>
+<span>def <span class="ident">u_net</span></span>(<span>in_channels: int,<br>out_channels: int,<br>levels: int = 4,<br>filters: int | Sequence = 16,<br>batch_norm: bool = True,<br>activation: str | type = 'ReLU',<br>in_spatial: int | tuple = 2,<br>periodic=False,<br>use_res_blocks: bool = False,<br>down_kernel_size=3,<br>up_kernel_size=3) ‑> ~Network</span>
 </code></dt>
 <dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def u_net(in_channels: int,
+          out_channels: int,
+          levels: int = 4,
+          filters: Union[int, Sequence] = 16,
+          batch_norm: bool = True,
+          activation: Union[str, type] = &#39;ReLU&#39;,
+          in_spatial: Union[tuple, int] = 2,
+          periodic=False,
+          use_res_blocks: bool = False,
+          down_kernel_size=3,
+          up_kernel_size=3) -&gt; Network:
+    &#34;&#34;&#34;
+    Built-in U-net architecture, classically popular for Semantic Segmentation in Computer Vision, composed of downsampling and upsampling layers.
+
+    Args:
+        in_channels: input channels of the feature map, dtype: int
+        out_channels: output channels of the feature map, dtype: int
+        levels: number of levels of down-sampling and upsampling, dtype: int
+        filters: filter sizes at each down/up sampling convolutional layer, if the input is integer all conv layers have the same filter size,
+        activation: activation function used within the layers, dtype: string
+        batch_norm: use of batchnorm after each conv layer, dtype: bool
+        in_spatial: spatial dimensions of the input feature map, dtype: int
+        use_res_blocks: use convolutional blocks with skip connections instead of regular convolutional blocks, dtype: bool
+        down_kernel_size: Kernel size for convolutions on the down-sampling (first half) side of the U-Net.
+        up_kernel_size: Kernel size for convolutions on the up-sampling (second half) of the U-Net.
+
+    Returns:
+        U-net model as specified by input arguments.
+    &#34;&#34;&#34;
+    return _native_lib().u_net(**locals())</code></pre>
+</details>
 <div class="desc"><p>Built-in U-net architecture, classically popular for Semantic Segmentation in Computer Vision, composed of downsampling and upsampling layers.</p>
 <h2 id="args">Args</h2>
 <dl>
@@ -344,9 +774,31 @@ If not specified, no model or optimizer states are saved.</dd>
 <p>U-net model as specified by input arguments.</p></div>
 </dd>
 <dt id="phiml.nn.update_weights"><code class="name flex">
-<span>def <span class="ident">update_weights</span></span>(<span>net: ~Network, optimizer: ~Optimizer, loss_function: Callable, *loss_args, **loss_kwargs)</span>
+<span>def <span class="ident">update_weights</span></span>(<span>net: ~Network,<br>optimizer: ~Optimizer,<br>loss_function: Callable,<br>*loss_args,<br>**loss_kwargs)</span>
 </code></dt>
 <dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def update_weights(net: Network, optimizer: Optimizer, loss_function: Callable, *loss_args, **loss_kwargs):
+    &#34;&#34;&#34;
+    Computes the gradients of `loss_function` w.r.t. the parameters of `net` and updates its weights using `optimizer`.
+
+    This is the PyTorch version. Analogue functions exist for other learning frameworks.
+
+    Args:
+        net: Learning model.
+        optimizer: Optimizer.
+        loss_function: Loss function, called as `loss_function(*loss_args, **loss_kwargs)`.
+        *loss_args: Arguments given to `loss_function`.
+        **loss_kwargs: Keyword arguments given to `loss_function`.
+
+    Returns:
+        Output of `loss_function`.
+    &#34;&#34;&#34;
+    return _native_lib().update_weights(net, optimizer, loss_function, *loss_args, **loss_kwargs)</code></pre>
+</details>
 <div class="desc"><p>Computes the gradients of <code>loss_function</code> w.r.t. the parameters of <code>net</code> and updates its weights using <code>optimizer</code>.</p>
 <p>This is the PyTorch version. Analogue functions exist for other learning frameworks.</p>
 <h2 id="args">Args</h2>
@@ -375,7 +827,6 @@ If not specified, no model or optimizer states are saved.</dd>
 <span>(</span><span>reason: str = 'stop')</span>
 </code></dt>
 <dd>
-<div class="desc"><p>This exception is raised by the <code>on_epoch_end</code> or <code>on_iter_end</code> callbacks to stop training.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -386,6 +837,7 @@ If not specified, no model or optimizer states are saved.</dd>
         super().__init__(reason)
         self.reason = reason</code></pre>
 </details>
+<div class="desc"><p>This exception is raised by the <code>on_epoch_end</code> or <code>on_iter_end</code> callbacks to stop training.</p></div>
 <h3>Ancestors</h3>
 <ul class="hlist">
 <li>builtins.Exception</li>
@@ -394,15 +846,15 @@ If not specified, no model or optimizer states are saved.</dd>
 </dd>
 <dt id="phiml.nn.TrainingState"><code class="flex name class">
 <span>class <span class="ident">TrainingState</span></span>
-<span>(</span><span>name: str, model: ~Network, optimizer: ~Optimizer, learning_rate: float, epoch: int, max_epochs: Optional[int], iter: int, max_iter: Optional[int], is_epoch_end: bool, epoch_loss: phiml.math._tensors.Tensor, batch_loss: Optional[phiml.math._tensors.Tensor], additional_batch_output: Optional[tuple], indices: phiml.math._tensors.Tensor, termination_reason: Optional[str], peak_memory: Optional[int])</span>
+<span>(</span><span>name: str,<br>model: ~Network,<br>optimizer: ~Optimizer,<br>learning_rate: float,<br>epoch: int,<br>max_epochs: int | None,<br>iter: int,<br>max_iter: int | None,<br>is_epoch_end: bool,<br>epoch_loss: phiml.math._tensors.Tensor,<br>batch_loss: phiml.math._tensors.Tensor | None,<br>additional_batch_output: tuple | None,<br>indices: phiml.math._tensors.Tensor,<br>termination_reason: str | None,<br>peak_memory: int | None)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>TrainingState(name: str, model: ~Network, optimizer: ~Optimizer, learning_rate: float, epoch: int, max_epochs: Union[int, NoneType], iter: int, max_iter: Union[int, NoneType], is_epoch_end: bool, epoch_loss: phiml.math._tensors.Tensor, batch_loss: Union[phiml.math._tensors.Tensor, NoneType], additional_batch_output: Union[tuple, NoneType], indices: phiml.math._tensors.Tensor, termination_reason: Union[str, NoneType], peak_memory: Union[int, NoneType])</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">class TrainingState:
+<pre><code class="python">@dataclass(frozen=True)
+class TrainingState:
     name: str
     model: Network
     optimizer: Optimizer
@@ -431,14 +883,27 @@ If not specified, no model or optimizer states are saved.</dd>
     def mean_loss(self) -&gt; float:
         return float(self.epoch_loss) if self.is_epoch_end else float(math.mean(self.batch_loss, &#39;dset_linear&#39;))</code></pre>
 </details>
-<h3>Class variables</h3>
+<div class="desc"><p>TrainingState(name: str, model: ~Network, optimizer: ~Optimizer, learning_rate: float, epoch: int, max_epochs: Optional[int], iter: int, max_iter: Optional[int], is_epoch_end: bool, epoch_loss: phiml.math._tensors.Tensor, batch_loss: Optional[phiml.math._tensors.Tensor], additional_batch_output: Optional[tuple], indices: phiml.math._tensors.Tensor, termination_reason: Optional[str], peak_memory: Optional[int])</p></div>
+<h3>Instance variables</h3>
 <dl>
-<dt id="phiml.nn.TrainingState.additional_batch_output"><code class="name">var <span class="ident">additional_batch_output</span> : Optional[tuple]</code></dt>
+<dt id="phiml.nn.TrainingState.additional_batch_output"><code class="name">var <span class="ident">additional_batch_output</span> : tuple | None</code></dt>
 <dd>
 <div class="desc"></div>
 </dd>
-<dt id="phiml.nn.TrainingState.batch_loss"><code class="name">var <span class="ident">batch_loss</span> : Optional[phiml.math._tensors.Tensor]</code></dt>
+<dt id="phiml.nn.TrainingState.batch_loss"><code class="name">var <span class="ident">batch_loss</span> : phiml.math._tensors.Tensor | None</code></dt>
 <dd>
+<div class="desc"></div>
+</dd>
+<dt id="phiml.nn.TrainingState.current"><code class="name">prop <span class="ident">current</span> : int</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def current(self) -&gt; int:
+    return self.epoch if self.is_epoch_end else self.iter</code></pre>
+</details>
 <div class="desc"></div>
 </dd>
 <dt id="phiml.nn.TrainingState.epoch"><code class="name">var <span class="ident">epoch</span> : int</code></dt>
@@ -465,12 +930,36 @@ If not specified, no model or optimizer states are saved.</dd>
 <dd>
 <div class="desc"></div>
 </dd>
-<dt id="phiml.nn.TrainingState.max_epochs"><code class="name">var <span class="ident">max_epochs</span> : Optional[int]</code></dt>
+<dt id="phiml.nn.TrainingState.max"><code class="name">prop <span class="ident">max</span> : int</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def max(self) -&gt; int:
+    return self.max_epochs if self.is_epoch_end else self.max_iter</code></pre>
+</details>
+<div class="desc"></div>
+</dd>
+<dt id="phiml.nn.TrainingState.max_epochs"><code class="name">var <span class="ident">max_epochs</span> : int | None</code></dt>
 <dd>
 <div class="desc"></div>
 </dd>
-<dt id="phiml.nn.TrainingState.max_iter"><code class="name">var <span class="ident">max_iter</span> : Optional[int]</code></dt>
+<dt id="phiml.nn.TrainingState.max_iter"><code class="name">var <span class="ident">max_iter</span> : int | None</code></dt>
 <dd>
+<div class="desc"></div>
+</dd>
+<dt id="phiml.nn.TrainingState.mean_loss"><code class="name">prop <span class="ident">mean_loss</span> : float</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def mean_loss(self) -&gt; float:
+    return float(self.epoch_loss) if self.is_epoch_end else float(math.mean(self.batch_loss, &#39;dset_linear&#39;))</code></pre>
+</details>
 <div class="desc"></div>
 </dd>
 <dt id="phiml.nn.TrainingState.model"><code class="name">var <span class="ident">model</span> : ~Network</code></dt>
@@ -485,52 +974,13 @@ If not specified, no model or optimizer states are saved.</dd>
 <dd>
 <div class="desc"></div>
 </dd>
-<dt id="phiml.nn.TrainingState.peak_memory"><code class="name">var <span class="ident">peak_memory</span> : Optional[int]</code></dt>
+<dt id="phiml.nn.TrainingState.peak_memory"><code class="name">var <span class="ident">peak_memory</span> : int | None</code></dt>
 <dd>
 <div class="desc"></div>
 </dd>
-<dt id="phiml.nn.TrainingState.termination_reason"><code class="name">var <span class="ident">termination_reason</span> : Optional[str]</code></dt>
+<dt id="phiml.nn.TrainingState.termination_reason"><code class="name">var <span class="ident">termination_reason</span> : str | None</code></dt>
 <dd>
 <div class="desc"></div>
-</dd>
-</dl>
-<h3>Instance variables</h3>
-<dl>
-<dt id="phiml.nn.TrainingState.current"><code class="name">prop <span class="ident">current</span> : int</code></dt>
-<dd>
-<div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">@property
-def current(self) -&gt; int:
-    return self.epoch if self.is_epoch_end else self.iter</code></pre>
-</details>
-</dd>
-<dt id="phiml.nn.TrainingState.max"><code class="name">prop <span class="ident">max</span> : int</code></dt>
-<dd>
-<div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">@property
-def max(self) -&gt; int:
-    return self.max_epochs if self.is_epoch_end else self.max_iter</code></pre>
-</details>
-</dd>
-<dt id="phiml.nn.TrainingState.mean_loss"><code class="name">prop <span class="ident">mean_loss</span> : float</code></dt>
-<dd>
-<div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">@property
-def mean_loss(self) -&gt; float:
-    return float(self.epoch_loss) if self.is_epoch_end else float(math.mean(self.batch_loss, &#39;dset_linear&#39;))</code></pre>
-</details>
 </dd>
 </dl>
 </dd>
@@ -603,7 +1053,7 @@ def mean_loss(self) -&gt; float:
 </nav>
 </main>
 <footer id="footer">
-<p>Generated by <a href="https://pdoc3.github.io/pdoc" title="pdoc: Python API documentation generator"><cite>pdoc</cite> 0.11.0</a>.</p>
+<p>Generated by <a href="https://pdoc3.github.io/pdoc" title="pdoc: Python API documentation generator"><cite>pdoc</cite> 0.11.6</a>.</p>
 </footer>
 </body>
 </html>

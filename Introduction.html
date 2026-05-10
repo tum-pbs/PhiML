@@ -15221,7 +15221,7 @@ See the <a href="https://tum-pbs.github.io/PhiML/Installation_Instructions.html"
 
 
 <div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre>0.841471</pre>
+<pre>np.float32(0.841471)</pre>
 </div>
 
 </div>
@@ -15253,16 +15253,6 @@ See the <a href="https://tum-pbs.github.io/PhiML/Installation_Instructions.html"
 
 
 <div class="jp-OutputArea jp-Cell-outputArea">
-<div class="jp-OutputArea-child">
-    
-    <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
-
-
-<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="application/vnd.jupyter.stderr">
-<pre>No GPU/TPU found, falling back to CPU. (Set TF_CPP_MIN_LOG_LEVEL=0 and rerun for more info.)
-</pre>
-</div>
-</div>
 <div class="jp-OutputArea-child jp-OutputArea-executeResult">
     
     <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[4]:</div>
@@ -15349,7 +15339,12 @@ See the <a href="https://tum-pbs.github.io/PhiML/Installation_Instructions.html"
 
 
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="application/vnd.jupyter.stderr">
-<pre>2025-09-18 21:06:25.942834: W tensorflow/compiler/tf2tensorrt/utils/py_utils.cc:38] TF-TRT Warning: Could not find TensorRT
+<pre>WARNING: All log messages before absl::InitializeLog() is called are written to STDERR
+I0000 00:00:1778411695.674725    2830 port.cc:153] oneDNN custom operations are on. You may see slightly different numerical results due to floating-point round-off errors from different computation orders. To turn them off, set the environment variable `TF_ENABLE_ONEDNN_OPTS=0`.
+WARNING: All log messages before absl::InitializeLog() is called are written to STDERR
+I0000 00:00:1778411697.092656    2830 port.cc:153] oneDNN custom operations are on. You may see slightly different numerical results due to floating-point round-off errors from different computation orders. To turn them off, set the environment variable `TF_ENABLE_ONEDNN_OPTS=0`.
+I0000 00:00:1778411697.092971    2830 cudart_stub.cc:31] Could not find cuda drivers on your machine, GPU will not be used.
+E0000 00:00:1778411697.512749    2830 cuda_platform.cc:52] failed call to cuInit: INTERNAL: CUDA error: Failed call to cuInit: UNKNOWN ERROR (303)
 </pre>
 </div>
 </div>
@@ -15705,7 +15700,7 @@ When creating a new tensor from scratch, we also need to specify the size along 
 
 
 <div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre><span class="ansi-blue-intense-fg">(0.072, 0.020, 0.077)</span>; <span class="ansi-blue-intense-fg">(0.879, 0.165, 0.102)</span> <span class="ansi-green-intense-fg">(dim1ᵇ=2, dim2ᶜ=3)</span></pre>
+<pre><span class="ansi-blue-intense-fg">(0.007, 0.021, 0.581)</span>; <span class="ansi-blue-intense-fg">(0.362, 0.223, 0.119)</span> <span class="ansi-green-intense-fg">(dim1ᵇ=2, dim2ᶜ=3)</span></pre>
 </div>
 
 </div>
@@ -15760,7 +15755,7 @@ For example, we can pass any number of batch and channel dimensions to an MLP.</
 
 
 <div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre><span class="ansi-green-intense-fg">(b1ᵇ=4, b2ᵇ=10, vectorᶜ=3)</span> <span class="ansi-blue-intense-fg">-1.04e-04 ± 3.0e-01</span> <span class="ansi-white-fg">(-1e+00...9e-01)</span></pre>
+<pre><span class="ansi-green-intense-fg">(b1ᵇ=4, b2ᵇ=10, vectorᶜ=3)</span> <span class="ansi-blue-intense-fg">0.241 ± 0.367</span> <span class="ansi-white-fg">(-8e-01...1e+00)</span></pre>
 </div>
 
 </div>
@@ -15815,7 +15810,7 @@ The native tensor that is passed to the network has shape (40, 6) as all batch d
 
 
 <div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre><span class="ansi-green-intense-fg">(b1ᵇ=4, b2ᵇ=10, xˢ=28, yˢ=28, vectorᶜ=3)</span> <span class="ansi-blue-intense-fg">-0.004 ± 0.322</span> <span class="ansi-white-fg">(-2e+00...2e+00)</span></pre>
+<pre><span class="ansi-green-intense-fg">(b1ᵇ=4, b2ᵇ=10, xˢ=28, yˢ=28, vectorᶜ=3)</span> <span class="ansi-blue-intense-fg">0.243 ± 0.354</span> <span class="ansi-white-fg">(-1e+00...2e+00)</span></pre>
 </div>
 
 </div>
@@ -15881,7 +15876,7 @@ Say we have a set of images:</p>
 
 
 <div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre><span class="ansi-green-intense-fg">(setᵇ=4, xˢ=28, yˢ=28, channelsᶜ=3)</span> <span class="ansi-blue-intense-fg">0.502 ± 0.288</span> <span class="ansi-white-fg">(1e-04...1e+00)</span></pre>
+<pre><span class="ansi-green-intense-fg">(setᵇ=4, xˢ=28, yˢ=28, channelsᶜ=3)</span> <span class="ansi-blue-intense-fg">0.498 ± 0.287</span> <span class="ansi-white-fg">(2e-04...1e+00)</span></pre>
 </div>
 
 </div>
@@ -15933,7 +15928,7 @@ Then to get just the red component of the last entry in the set, we can write</p
 
 
 <div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre><span class="ansi-green-intense-fg">(xˢ=28, yˢ=28)</span> <span class="ansi-blue-intense-fg">0.501 ± 0.291</span> <span class="ansi-white-fg">(2e-03...1e+00)</span></pre>
+<pre><span class="ansi-green-intense-fg">(xˢ=28, yˢ=28)</span> <span class="ansi-blue-intense-fg">0.492 ± 0.278</span> <span class="ansi-white-fg">(6e-03...1e+00)</span></pre>
 </div>
 
 </div>
@@ -15984,7 +15979,7 @@ Then to get just the red component of the last entry in the set, we can write</p
 
 
 <div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre><span class="ansi-green-intense-fg">(xˢ=28, yˢ=28)</span> <span class="ansi-blue-intense-fg">0.501 ± 0.291</span> <span class="ansi-white-fg">(2e-03...1e+00)</span></pre>
+<pre><span class="ansi-green-intense-fg">(xˢ=28, yˢ=28)</span> <span class="ansi-blue-intense-fg">0.492 ± 0.278</span> <span class="ansi-white-fg">(6e-03...1e+00)</span></pre>
 </div>
 
 </div>
@@ -16039,7 +16034,7 @@ In the above example, we might name the red, green and blue channels explicitly:
 
 
 <div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre><span class="ansi-green-intense-fg">(xˢ=28, yˢ=28)</span> <span class="ansi-blue-intense-fg">0.500 ± 0.276</span> <span class="ansi-white-fg">(2e-03...1e+00)</span></pre>
+<pre><span class="ansi-green-intense-fg">(xˢ=28, yˢ=28)</span> <span class="ansi-blue-intense-fg">0.505 ± 0.287</span> <span class="ansi-white-fg">(4e-04...1e+00)</span></pre>
 </div>
 
 </div>
@@ -16090,7 +16085,7 @@ In the above example, we might name the red, green and blue channels explicitly:
 
 
 <div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre><span class="ansi-green-intense-fg">(setᵇ=4, xˢ=2, yˢ=28, channelsᶜ=3:red...)</span> <span class="ansi-blue-intense-fg">0.509 ± 0.282</span> <span class="ansi-white-fg">(4e-03...1e+00)</span></pre>
+<pre><span class="ansi-green-intense-fg">(setᵇ=4, xˢ=2, yˢ=28, channelsᶜ=3:red...blue)</span> <span class="ansi-blue-intense-fg">0.502 ± 0.283</span> <span class="ansi-white-fg">(1e-03...1e+00)</span></pre>
 </div>
 
 </div>
@@ -16141,7 +16136,7 @@ In the above example, we might name the red, green and blue channels explicitly:
 
 
 <div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre><span class="ansi-green-intense-fg">(setᵇ=4, xˢ=28, yˢ=28, channelsᶜ=red,blue)</span> <span class="ansi-blue-intense-fg">0.503 ± 0.288</span> <span class="ansi-white-fg">(2e-04...1e+00)</span></pre>
+<pre><span class="ansi-green-intense-fg">(setᵇ=4, xˢ=28, yˢ=28, channelsᶜ=red,blue)</span> <span class="ansi-blue-intense-fg">0.499 ± 0.285</span> <span class="ansi-white-fg">(1e-04...1e+00)</span></pre>
 </div>
 
 </div>
@@ -16191,10 +16186,10 @@ In the above example, we might name the red, green and blue channels explicitly:
 
 
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
-<pre><span class="ansi-blue-intense-fg">0.5032149</span>
-<span class="ansi-blue-intense-fg">0.50452393</span>
-<span class="ansi-blue-intense-fg">0.4983345</span>
-<span class="ansi-blue-intense-fg">0.50876576</span>
+<pre><span class="ansi-blue-intense-fg">0.5049671</span>
+<span class="ansi-blue-intense-fg">0.488051</span>
+<span class="ansi-blue-intense-fg">0.49901423</span>
+<span class="ansi-blue-intense-fg">0.49644676</span>
 </pre>
 </div>
 </div>
@@ -16233,10 +16228,10 @@ In the above example, we might name the red, green and blue channels explicitly:
 
 
 <div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre>[<span class="ansi-green-intense-fg">(xˢ=28, yˢ=28, channelsᶜ=3:red...)</span> <span class="ansi-blue-intense-fg">0.503 ± 0.292</span> <span class="ansi-white-fg">(4e-04...1e+00)</span>,
- <span class="ansi-green-intense-fg">(xˢ=28, yˢ=28, channelsᶜ=3:red...)</span> <span class="ansi-blue-intense-fg">0.505 ± 0.287</span> <span class="ansi-white-fg">(6e-04...1e+00)</span>,
- <span class="ansi-green-intense-fg">(xˢ=28, yˢ=28, channelsᶜ=3:red...)</span> <span class="ansi-blue-intense-fg">0.498 ± 0.290</span> <span class="ansi-white-fg">(1e-04...1e+00)</span>,
- <span class="ansi-green-intense-fg">(xˢ=28, yˢ=28, channelsᶜ=3:red...)</span> <span class="ansi-blue-intense-fg">0.509 ± 0.284</span> <span class="ansi-white-fg">(2e-04...1e+00)</span>]</pre>
+<pre>[<span class="ansi-green-intense-fg">(xˢ=28, yˢ=28, channelsᶜ=3:red...blue)</span> <span class="ansi-blue-intense-fg">0.505 ± 0.285</span> <span class="ansi-white-fg">(2e-04...1e+00)</span>,
+ <span class="ansi-green-intense-fg">(xˢ=28, yˢ=28, channelsᶜ=3:red...blue)</span> <span class="ansi-blue-intense-fg">0.488 ± 0.288</span> <span class="ansi-white-fg">(1e-04...1e+00)</span>,
+ <span class="ansi-green-intense-fg">(xˢ=28, yˢ=28, channelsᶜ=3:red...blue)</span> <span class="ansi-blue-intense-fg">0.499 ± 0.283</span> <span class="ansi-white-fg">(1e-04...1e+00)</span>,
+ <span class="ansi-green-intense-fg">(xˢ=28, yˢ=28, channelsᶜ=3:red...blue)</span> <span class="ansi-blue-intense-fg">0.496 ± 0.289</span> <span class="ansi-white-fg">(1e-04...1e+00)</span>]</pre>
 </div>
 
 </div>
@@ -16287,10 +16282,10 @@ In the above example, we might name the red, green and blue channels explicitly:
 
 
 <div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre>{0: <span class="ansi-green-intense-fg">(xˢ=28, yˢ=28, channelsᶜ=3:red...)</span> <span class="ansi-blue-intense-fg">0.503 ± 0.292</span> <span class="ansi-white-fg">(4e-04...1e+00)</span>,
- 1: <span class="ansi-green-intense-fg">(xˢ=28, yˢ=28, channelsᶜ=3:red...)</span> <span class="ansi-blue-intense-fg">0.505 ± 0.287</span> <span class="ansi-white-fg">(6e-04...1e+00)</span>,
- 2: <span class="ansi-green-intense-fg">(xˢ=28, yˢ=28, channelsᶜ=3:red...)</span> <span class="ansi-blue-intense-fg">0.498 ± 0.290</span> <span class="ansi-white-fg">(1e-04...1e+00)</span>,
- 3: <span class="ansi-green-intense-fg">(xˢ=28, yˢ=28, channelsᶜ=3:red...)</span> <span class="ansi-blue-intense-fg">0.509 ± 0.284</span> <span class="ansi-white-fg">(2e-04...1e+00)</span>}</pre>
+<pre>{0: <span class="ansi-green-intense-fg">(xˢ=28, yˢ=28, channelsᶜ=3:red...blue)</span> <span class="ansi-blue-intense-fg">0.505 ± 0.285</span> <span class="ansi-white-fg">(2e-04...1e+00)</span>,
+ 1: <span class="ansi-green-intense-fg">(xˢ=28, yˢ=28, channelsᶜ=3:red...blue)</span> <span class="ansi-blue-intense-fg">0.488 ± 0.288</span> <span class="ansi-white-fg">(1e-04...1e+00)</span>,
+ 2: <span class="ansi-green-intense-fg">(xˢ=28, yˢ=28, channelsᶜ=3:red...blue)</span> <span class="ansi-blue-intense-fg">0.499 ± 0.283</span> <span class="ansi-white-fg">(1e-04...1e+00)</span>,
+ 3: <span class="ansi-green-intense-fg">(xˢ=28, yˢ=28, channelsᶜ=3:red...blue)</span> <span class="ansi-blue-intense-fg">0.496 ± 0.289</span> <span class="ansi-white-fg">(1e-04...1e+00)</span>}</pre>
 </div>
 
 </div>
@@ -16330,7 +16325,7 @@ In the above example, we might name the red, green and blue channels explicitly:
 
 
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
-<pre>Red: <span class="ansi-blue-intense-fg">(0.485, 0.500, 0.503, 0.500)</span> along <span class="ansi-green-intense-fg">setᵇ</span>, Green: <span class="ansi-blue-intense-fg">(0.500, 0.507, 0.503, 0.511)</span> along <span class="ansi-green-intense-fg">setᵇ</span>, Blue: <span class="ansi-blue-intense-fg">(0.525, 0.507, 0.489, 0.515)</span> along <span class="ansi-green-intense-fg">setᵇ</span>
+<pre>Red: <span class="ansi-blue-intense-fg">(0.505, 0.490, 0.508, 0.505)</span> along <span class="ansi-green-intense-fg">setᵇ</span>, Green: <span class="ansi-blue-intense-fg">(0.510, 0.488, 0.490, 0.485)</span> along <span class="ansi-green-intense-fg">setᵇ</span>, Blue: <span class="ansi-blue-intense-fg">(0.499, 0.486, 0.498, 0.499)</span> along <span class="ansi-green-intense-fg">setᵇ</span>
 </pre>
 </div>
 </div>

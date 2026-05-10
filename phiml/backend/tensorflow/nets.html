@@ -3,20 +3,31 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1">
-<meta name="generator" content="pdoc3 0.11.0">
+<meta name="generator" content="pdoc3 0.11.6">
 <title>phiml.backend.tensorflow.nets API documentation</title>
 <meta name="description" content="TensorFlow implementation of the unified machine learning API.
 Equivalent functions also exist for the other frameworks …">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/13.0.0/sanitize.min.css" integrity="sha512-y1dtMcuvtTMJc1yPgEqF0ZjQbhnc/bFhyvIyVNb9Zk5mIGtqVaAB1Ttl28su8AvFMOY0EwRbAe+HCLqj6W7/KA==" crossorigin>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/13.0.0/typography.min.css" integrity="sha512-Y1DYSb995BAfxobCkKepB1BqJJTPrOp3zPL74AWFugHHmmdcvO+C48WLrUOlhGMc0QG7AE3f7gmvvcrmX2fDoA==" crossorigin>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/default.min.css" crossorigin>
-<style>:root{--highlight-color:#fe9}.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:1.5em;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:2em 0 .50em 0}h3{font-size:1.4em;margin:1.6em 0 .7em 0}h4{margin:0;font-size:105%}h1:target,h2:target,h3:target,h4:target,h5:target,h6:target{background:var(--highlight-color);padding:.2em 0}a{color:#058;text-decoration:none;transition:color .2s ease-in-out}a:visited{color:#503}a:hover{color:#b62}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900;font-weight:bold}pre code{font-size:.8em;line-height:1.4em;padding:1em;display:block}code{background:#f3f3f3;font-family:"DejaVu Sans Mono",monospace;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}dt:target .name{background:var(--highlight-color)}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}td{padding:0 .5em}.admonition{padding:.1em 1em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style>:root{--highlight-color:#fe9}.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:1.5em;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:2em 0 .50em 0}h3{font-size:1.4em;margin:1.6em 0 .7em 0}h4{margin:0;font-size:105%}h1:target,h2:target,h3:target,h4:target,h5:target,h6:target{background:var(--highlight-color);padding:.2em 0}a{color:#058;text-decoration:none;transition:color .2s ease-in-out}a:visited{color:#503}a:hover{color:#b62}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900;font-weight:bold}pre code{font-size:.8em;line-height:1.4em;padding:1em;display:block}code{background:#f3f3f3;font-family:"DejaVu Sans Mono",monospace;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}dt:target .name{background:var(--highlight-color)}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source > summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible;min-width:max-content}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}td{padding:0 .5em}.admonition{padding:.1em 1em;margin:1em 0}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
 <style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul ul{padding-left:1em}.toc > ul > li{margin-top:.5em}}</style>
 <style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
 <script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js" integrity="sha512-D9gUyxqja7hBtkWpPWGt9wfbfaMGVt9gnyCvYa+jojwwPHLCzUm5i8rpk7vD7wNee9bA35eYIjobYPaQuKS1MQ==" crossorigin></script>
 <script>window.addEventListener('DOMContentLoaded', () => {
 hljs.configure({languages: ['bash', 'css', 'diff', 'graphql', 'ini', 'javascript', 'json', 'plaintext', 'python', 'python-repl', 'rust', 'shell', 'sql', 'typescript', 'xml', 'yaml']});
 hljs.highlightAll();
+/* Collapse source docstrings */
+setTimeout(() => {
+[...document.querySelectorAll('.hljs.language-python > .hljs-string')]
+.filter(el => el.innerHTML.length > 200 && ['"""', "'''"].includes(el.innerHTML.substring(0, 3)))
+.forEach(el => {
+let d = document.createElement('details');
+d.classList.add('hljs-string');
+d.innerHTML = '<summary>"""</summary>' + el.innerHTML.substring(3);
+el.replaceWith(d);
+});
+}, 100);
 })</script>
 </head>
 <body>
@@ -38,39 +49,142 @@ Equivalent functions also exist for the other frameworks.</p>
 <h2 class="section-title" id="header-functions">Functions</h2>
 <dl>
 <dt id="phiml.backend.tensorflow.nets.adagrad"><code class="name flex">
-<span>def <span class="ident">adagrad</span></span>(<span>net: keras.src.engine.training.Model, learning_rate: float = 0.001, lr_decay=0.0, weight_decay=0.0, initial_accumulator_value=0.0, eps=1e-10)</span>
+<span>def <span class="ident">adagrad</span></span>(<span>net: keras.src.models.model.Model,<br>learning_rate: float = 0.001,<br>lr_decay=0.0,<br>weight_decay=0.0,<br>initial_accumulator_value=0.0,<br>eps=1e-10)</span>
 </code></dt>
 <dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def adagrad(net: keras.Model, learning_rate: float = 1e-3, lr_decay=0., weight_decay=0., initial_accumulator_value=0., eps=1e-10):
+    assert lr_decay == 0
+    assert weight_decay == 0
+    return keras.optimizers.Adagrad(learning_rate, initial_accumulator_value, eps)</code></pre>
+</details>
 <div class="desc"></div>
 </dd>
 <dt id="phiml.backend.tensorflow.nets.adam"><code class="name flex">
-<span>def <span class="ident">adam</span></span>(<span>net: keras.src.engine.training.Model, learning_rate: float = 0.001, betas=(0.9, 0.999), epsilon=1e-07)</span>
+<span>def <span class="ident">adam</span></span>(<span>net: keras.src.models.model.Model,<br>learning_rate: float = 0.001,<br>betas=(0.9, 0.999),<br>epsilon=1e-07)</span>
 </code></dt>
 <dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def adam(net: keras.Model, learning_rate: float = 1e-3, betas=(0.9, 0.999), epsilon=1e-07):
+    return keras.optimizers.Adam(learning_rate, betas[0], betas[1], epsilon)</code></pre>
+</details>
 <div class="desc"></div>
 </dd>
 <dt id="phiml.backend.tensorflow.nets.conv_classifier"><code class="name flex">
-<span>def <span class="ident">conv_classifier</span></span>(<span>in_features: int, in_spatial: Union[tuple, list], num_classes: int, blocks=(64, 128, 256, 256, 512, 512), block_sizes=(2, 2, 3, 3, 3), dense_layers=(4096, 4096, 100), batch_norm=True, activation='ReLU', softmax=True, periodic=False)</span>
+<span>def <span class="ident">conv_classifier</span></span>(<span>in_features: int,<br>in_spatial: tuple | list,<br>num_classes: int,<br>blocks=(64, 128, 256, 256, 512, 512),<br>block_sizes=(2, 2, 3, 3, 3),<br>dense_layers=(4096, 4096, 100),<br>batch_norm=True,<br>activation='ReLU',<br>softmax=True,<br>periodic=False)</span>
 </code></dt>
 <dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def conv_classifier(in_features: int,
+                    in_spatial: Union[tuple, list],
+                    num_classes: int,
+                    blocks=(64, 128, 256, 256, 512, 512),
+                    block_sizes=(2, 2, 3, 3, 3),
+                    dense_layers=(4096, 4096, 100),
+                    batch_norm=True,
+                    activation=&#39;ReLU&#39;,
+                    softmax=True,
+                    periodic=False):
+    assert isinstance(in_spatial, (tuple, list))
+    activation = ACTIVATIONS[activation] if isinstance(activation, str) else activation
+    d = len(in_spatial)
+    x = inputs = keras.Input(shape=in_spatial + (in_features,))
+    for i, (next, block_size) in enumerate(zip(blocks, block_sizes)):
+        for j in range(block_size):
+            x = CONV[d](next, 3, padding=&#39;valid&#39;)(pad_periodic(x)) if periodic else CONV[d](next, 3, padding=&#39;same&#39;)(x)
+            if batch_norm:
+                x = kl.BatchNormalization()(x)
+            x = activation(x)
+        x = MAX_POOL[d](2)(x)
+    x = kl.Flatten()(x)
+    flat_size = int(np.prod(in_spatial) * blocks[-1] / (2**d) ** len(blocks))
+    x = mlp(flat_size, num_classes, dense_layers, batch_norm, activation, softmax)(x)
+    return keras.Model(inputs, x)</code></pre>
+</details>
 <div class="desc"></div>
 </dd>
 <dt id="phiml.backend.tensorflow.nets.conv_net"><code class="name flex">
-<span>def <span class="ident">conv_net</span></span>(<span>in_channels: int, out_channels: int, layers: Sequence[int], batch_norm: bool = False, activation: Union[str, Callable] = 'ReLU', periodic=False, in_spatial: Union[int, tuple] = 2) ‑> keras.src.engine.training.Model</span>
+<span>def <span class="ident">conv_net</span></span>(<span>in_channels: int,<br>out_channels: int,<br>layers: Sequence[int],<br>batch_norm: bool = False,<br>activation: str | Callable = 'ReLU',<br>periodic=False,<br>in_spatial: int | tuple = 2) ‑> keras.src.models.model.Model</span>
 </code></dt>
 <dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def conv_net(in_channels: int,
+             out_channels: int,
+             layers: Sequence[int],
+             batch_norm: bool = False,
+             activation: Union[str, Callable] = &#39;ReLU&#39;,
+             periodic=False,
+             in_spatial: Union[int, tuple] = 2) -&gt; keras.Model:
+    activation = ACTIVATIONS[activation] if isinstance(activation, str) else activation
+    if isinstance(in_spatial, int):
+        d = in_spatial
+        in_spatial = (None,) * d
+    else:
+        assert isinstance(in_spatial, tuple)
+        d = len(in_spatial)
+    x = inputs = keras.Input(shape=in_spatial + (in_channels,))
+    if len(layers) &lt; 1:
+        layers.append(out_channels)
+    for i in range(len(layers)):
+        x = CONV[d](layers[i], 3, padding=&#39;valid&#39;)(pad_periodic(x)) if periodic else CONV[d](layers[i], 3, padding=&#39;same&#39;)(x)
+        if batch_norm:
+            x = kl.BatchNormalization()(x)
+        x = activation(x)
+    x = CONV[d](out_channels, 1)(x)
+    return keras.Model(inputs, x)</code></pre>
+</details>
 <div class="desc"></div>
 </dd>
 <dt id="phiml.backend.tensorflow.nets.double_conv"><code class="name flex">
-<span>def <span class="ident">double_conv</span></span>(<span>x, d: int, out_channels: int, mid_channels: int, batch_norm: bool, activation: Callable, periodic: bool, kernel_size=3)</span>
+<span>def <span class="ident">double_conv</span></span>(<span>x,<br>d: int,<br>out_channels: int,<br>mid_channels: int,<br>batch_norm: bool,<br>activation: Callable,<br>periodic: bool,<br>kernel_size=3)</span>
 </code></dt>
 <dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def double_conv(x, d: int, out_channels: int, mid_channels: int, batch_norm: bool, activation: Callable, periodic: bool, kernel_size=3):
+    x = CONV[d](mid_channels, kernel_size, padding=&#39;valid&#39;)(pad_periodic(x)) if periodic else CONV[d](mid_channels, kernel_size, padding=&#39;same&#39;)(x)
+    if batch_norm:
+        x = kl.BatchNormalization()(x)
+    x = activation(x)
+    x = CONV[d](out_channels, kernel_size, padding=&#39;valid&#39;)(pad_periodic(x)) if periodic else CONV[d](out_channels, kernel_size, padding=&#39;same&#39;)(x)
+    if batch_norm:
+        x = kl.BatchNormalization()(x)
+    x = activation(x)
+    return x</code></pre>
+</details>
 <div class="desc"></div>
 </dd>
 <dt id="phiml.backend.tensorflow.nets.get_learning_rate"><code class="name flex">
 <span>def <span class="ident">get_learning_rate</span></span>(<span>optimizer: keras.src.optimizers.optimizer.Optimizer)</span>
 </code></dt>
 <dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def get_learning_rate(optimizer: keras.optimizers.Optimizer):
+    &#34;&#34;&#34;
+    Gets the global learning rate for the given optimizer.
+
+    Args:
+        optimizer (optim.Optimizer): The optimizer whose learning rate needs to be updated.
+    &#34;&#34;&#34;
+    return keras.backend.get_value(optimizer.lr)</code></pre>
+</details>
 <div class="desc"><p>Gets the global learning rate for the given optimizer.</p>
 <h2 id="args">Args</h2>
 <dl>
@@ -82,66 +196,310 @@ Equivalent functions also exist for the other frameworks.</p>
 <span>def <span class="ident">get_mask</span></span>(<span>inputs, reverse_mask, data_format='NHWC')</span>
 </code></dt>
 <dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def get_mask(inputs, reverse_mask, data_format=&#39;NHWC&#39;):
+    &#34;&#34;&#34; Compute mask for slicing input feature map for Invertible Nets &#34;&#34;&#34;
+    shape = inputs.shape
+    if len(shape) == 2:
+        N = shape[-1]
+        range_n = tf.range(0, N)
+        even_ind = range_n % 2
+        checker = tf.reshape(even_ind, (-1, N))
+    elif len(shape) == 4:
+        H = shape[2] if data_format == &#39;NCHW&#39; else shape[1]
+        W = shape[3] if data_format == &#39;NCHW&#39; else shape[2]
+        range_h = tf.range(0, H)
+        range_w = tf.range(0, W)
+        even_ind_h = tf.cast(range_h % 2, dtype=tf.bool)
+        even_ind_w = tf.cast(range_w % 2, dtype=tf.bool)
+        ind_h = tf.tile(tf.expand_dims(even_ind_h, -1), [1, W])
+        ind_w = tf.tile(tf.expand_dims(even_ind_w, 0), [H, 1])
+        # ind_h = even_ind_h.unsqueeze(-1).repeat(1, W)
+        # ind_w = even_ind_w.unsqueeze( 0).repeat(H, 1)
+        checker = tf.math.logical_xor(ind_h, ind_w)
+        reshape = [-1, 1, H, W] if data_format == &#39;NCHW&#39; else [-1, H, W, 1]
+        checker = tf.reshape(checker, reshape)
+        checker = tf.cast(checker, dtype=tf.float32)
+    else:
+        raise ValueError(&#39;Invalid tensor shape. Dimension of the tensor shape must be 2 (NxD) or 4 (NxCxHxW or NxHxWxC), got {}.&#39;.format(inputs.get_shape().as_list()))
+    if reverse_mask:
+        checker = 1 - checker
+    return checker</code></pre>
+</details>
 <div class="desc"><p>Compute mask for slicing input feature map for Invertible Nets</p></div>
 </dd>
 <dt id="phiml.backend.tensorflow.nets.get_parameters"><code class="name flex">
-<span>def <span class="ident">get_parameters</span></span>(<span>model: keras.src.engine.training.Model, wrap=True) ‑> dict</span>
+<span>def <span class="ident">get_parameters</span></span>(<span>model: keras.src.models.model.Model, wrap=True) ‑> dict</span>
 </code></dt>
 <dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def get_parameters(model: keras.Model, wrap=True) -&gt; dict:
+    result = {}
+    for var in model.trainable_weights:
+        if hasattr(var, &#39;path&#39;):
+            name: str = var.path.split(&#39;/&#39;)
+            layer = &#39;.&#39;.join(name[:-1]).replace(&#39;dense&#39;, &#39;linear&#39;).replace(&#39;_&#39;, &#39;&#39;)
+            try:
+                int(layer[-1:])
+            except ValueError:
+                layer += &#39;0&#39;
+            prop = name[-1].replace(&#39;kernel&#39;, &#39;weight&#39;)
+        else:
+            name: str = var.path if hasattr(var, &#39;path&#39;) else var.name  # path replaces name in tensorflow &gt;= 2.16
+            layer = name[:name.index(&#39;/&#39;)].replace(&#39;_&#39;, &#39;&#39;).replace(&#39;dense&#39;, &#39;linear&#39;)
+            try:
+                int(layer[-1:])
+            except ValueError:
+                layer += &#39;0&#39;
+            prop = name[name.index(&#39;/&#39;) + 1:].replace(&#39;kernel&#39;, &#39;weight&#39;)
+            if prop.endswith(&#39;:0&#39;):
+                prop = prop[:-2]
+        name = f&#34;{layer}.{prop}&#34;
+        var = var.numpy()
+        if not wrap:
+            result[name] = var
+        else:
+            if name.endswith(&#39;.weight&#39;):
+                if var.ndim == 2:
+                    uml_tensor = math.wrap(var, math.channel(&#39;input,output&#39;))
+                elif var.ndim == 3:
+                    uml_tensor = math.wrap(var, math.channel(&#39;x,input,output&#39;))
+                elif var.ndim == 4:
+                    uml_tensor = math.wrap(var, math.channel(&#39;x,y,input,output&#39;))
+                elif var.ndim == 5:
+                    uml_tensor = math.wrap(var, math.channel(&#39;x,y,z,input,output&#39;))
+            elif name.endswith(&#39;.bias&#39;):
+                uml_tensor = math.wrap(var, math.channel(&#39;output&#39;))
+            elif var.ndim == 1:
+                uml_tensor = math.wrap(var, math.channel(&#39;output&#39;))
+            else:
+                raise NotImplementedError(name, var)
+            result[name] = uml_tensor
+    return result</code></pre>
+</details>
 <div class="desc"></div>
 </dd>
 <dt id="phiml.backend.tensorflow.nets.invertible_net"><code class="name flex">
-<span>def <span class="ident">invertible_net</span></span>(<span>num_blocks: int, construct_net: Union[str, Callable], **construct_kwargs)</span>
+<span>def <span class="ident">invertible_net</span></span>(<span>num_blocks: int, construct_net: str | Callable, **construct_kwargs)</span>
 </code></dt>
 <dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def invertible_net(num_blocks: int,
+                   construct_net: Union[str, Callable],
+                   **construct_kwargs):  # mlp, u_net, res_net, conv_net
+    if construct_net == &#39;mlp&#39;:
+        construct_net = &#39;_inv_net_dense_resnet_block&#39;
+    if isinstance(construct_net, str):
+        construct_net = globals()[construct_net]
+    if &#39;in_channels&#39; in construct_kwargs and &#39;out_channels&#39; not in construct_kwargs:
+        construct_kwargs[&#39;out_channels&#39;] = construct_kwargs[&#39;in_channels&#39;]
+    return InvertibleNet(num_blocks, construct_net, construct_kwargs)</code></pre>
+</details>
 <div class="desc"></div>
 </dd>
 <dt id="phiml.backend.tensorflow.nets.load_state"><code class="name flex">
-<span>def <span class="ident">load_state</span></span>(<span>obj: Union[keras.src.engine.training.Model, keras.src.optimizers.optimizer.Optimizer], path: str)</span>
+<span>def <span class="ident">load_state</span></span>(<span>obj: keras.src.models.model.Model | keras.src.optimizers.optimizer.Optimizer,<br>path: str)</span>
 </code></dt>
 <dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def load_state(obj: Union[keras.models.Model, keras.optimizers.Optimizer], path: str):
+    if isinstance(obj, keras.models.Model):
+        if not path.endswith(&#39;.h5&#39;):
+            path += &#39;.h5&#39;
+        obj.load_weights(path)
+    elif isinstance(obj, keras.optimizers.Optimizer):
+        if not path.endswith(&#39;.pkl&#39;):
+            path += &#39;.pkl&#39;
+        with open(path, &#39;rb&#39;) as f:
+            weights = pickle.load(f)
+        obj.set_weights(weights)
+    else:
+        raise ValueError(&#34;obj must be a Keras model or optimizer&#34;)</code></pre>
+</details>
 <div class="desc"></div>
 </dd>
 <dt id="phiml.backend.tensorflow.nets.mlp"><code class="name flex">
-<span>def <span class="ident">mlp</span></span>(<span>in_channels: int, out_channels: int, layers: Sequence[int], batch_norm=False, activation='ReLU', softmax=False) ‑> keras.src.engine.training.Model</span>
+<span>def <span class="ident">mlp</span></span>(<span>in_channels: int,<br>out_channels: int,<br>layers: Sequence[int],<br>batch_norm=False,<br>activation='ReLU',<br>softmax=False) ‑> keras.src.models.model.Model</span>
 </code></dt>
 <dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def mlp(in_channels: int,
+              out_channels: int,
+              layers: Sequence[int],
+              batch_norm=False,
+              activation=&#39;ReLU&#39;,
+              softmax=False) -&gt; keras.Model:
+    activation = ACTIVATIONS[activation] if isinstance(activation, str) else activation
+    keras_layers = []
+    for neuron_count in layers:
+        keras_layers.append(kl.Dense(neuron_count, activation=activation))
+        if batch_norm:
+            keras_layers.append(kl.BatchNormalization())
+    return keras.models.Sequential([kl.InputLayer(input_shape=(in_channels,)),
+                                    *keras_layers,
+                                    kl.Dense(out_channels, activation=&#39;linear&#39;),
+                                    *([kl.Softmax()] if softmax else [])])</code></pre>
+</details>
 <div class="desc"></div>
 </dd>
 <dt id="phiml.backend.tensorflow.nets.pad_periodic"><code class="name flex">
-<span>def <span class="ident">pad_periodic</span></span>(<span>x: tensorflow.python.framework.ops.Tensor)</span>
+<span>def <span class="ident">pad_periodic</span></span>(<span>x: tensorflow.python.framework.tensor.Tensor)</span>
 </code></dt>
 <dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def pad_periodic(x: Tensor):
+    return PeriodicPad()(x)</code></pre>
+</details>
 <div class="desc"></div>
 </dd>
 <dt id="phiml.backend.tensorflow.nets.res_net"><code class="name flex">
-<span>def <span class="ident">res_net</span></span>(<span>in_channels: int, out_channels: int, layers: Sequence[int], batch_norm: bool = False, activation: Union[str, Callable] = 'ReLU', periodic=False, in_spatial: Union[int, tuple] = 2)</span>
+<span>def <span class="ident">res_net</span></span>(<span>in_channels: int,<br>out_channels: int,<br>layers: Sequence[int],<br>batch_norm: bool = False,<br>activation: str | Callable = 'ReLU',<br>periodic=False,<br>in_spatial: int | tuple = 2)</span>
 </code></dt>
 <dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def res_net(in_channels: int,
+            out_channels: int,
+            layers: Sequence[int],
+            batch_norm: bool = False,
+            activation: Union[str, Callable] = &#39;ReLU&#39;,
+            periodic=False,
+            in_spatial: Union[int, tuple] = 2):
+    activation = ACTIVATIONS[activation] if isinstance(activation, str) else activation
+    if isinstance(in_spatial, int):
+        d = in_spatial
+        in_spatial = (None,) * d
+    else:
+        assert isinstance(in_spatial, tuple)
+        d = len(in_spatial)
+    x = inputs = keras.Input(shape=in_spatial + (in_channels,))
+    if len(layers) &lt; 1:
+        layers.append(out_channels)
+    out = resnet_block(in_channels, layers[0], periodic, batch_norm, activation, d)(x)
+    for i in range(1, len(layers)):
+        out = resnet_block(layers[i - 1], layers[i], periodic, batch_norm, activation, d)(out)
+    out = CONV[d](out_channels, 1)(out)
+    return keras.Model(inputs, out)</code></pre>
+</details>
 <div class="desc"></div>
 </dd>
 <dt id="phiml.backend.tensorflow.nets.resnet_block"><code class="name flex">
-<span>def <span class="ident">resnet_block</span></span>(<span>in_channels: int, out_channels: int, periodic: bool, batch_norm: bool = False, activation: Union[str, Callable] = 'ReLU', in_spatial: Union[int, tuple] = 2, kernel_size=3)</span>
+<span>def <span class="ident">resnet_block</span></span>(<span>in_channels: int,<br>out_channels: int,<br>periodic: bool,<br>batch_norm: bool = False,<br>activation: str | Callable = 'ReLU',<br>in_spatial: int | tuple = 2,<br>kernel_size=3)</span>
 </code></dt>
 <dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def resnet_block(in_channels: int,
+                 out_channels: int,
+                 periodic: bool,
+                 batch_norm: bool = False,
+                 activation: Union[str, Callable] = &#39;ReLU&#39;,
+                 in_spatial: Union[int, tuple] = 2,
+                 kernel_size=3):
+    activation = ACTIVATIONS[activation] if isinstance(activation, str) else activation
+    if isinstance(in_spatial, int):
+        d = in_spatial
+    else:
+        assert isinstance(in_spatial, tuple)
+        d = len(in_spatial)
+    x = x_1 = inputs = keras.Input(shape=(None,) * d + (in_channels,))
+    x = CONV[d](out_channels, kernel_size, padding=&#39;valid&#39;)(pad_periodic(x)) if periodic else CONV[d](out_channels, kernel_size, padding=&#39;same&#39;)(x)
+    if batch_norm:
+        x = kl.BatchNormalization()(x)
+    x = activation(x)
+    x = CONV[d](out_channels, kernel_size, padding=&#39;valid&#39;)(pad_periodic(x)) if periodic else CONV[d](out_channels, kernel_size, padding=&#39;same&#39;)(x)
+    if batch_norm:
+        x = kl.BatchNormalization()(x)
+    x = activation(x)
+    if in_channels != out_channels:
+        x_1 = CONV[d](out_channels, 1)(x_1)
+        if batch_norm:
+            x_1 = kl.BatchNormalization()(x_1)
+    x = kl.Add()([x, x_1])
+    return keras.Model(inputs, x)</code></pre>
+</details>
 <div class="desc"></div>
 </dd>
 <dt id="phiml.backend.tensorflow.nets.rmsprop"><code class="name flex">
-<span>def <span class="ident">rmsprop</span></span>(<span>net: keras.src.engine.training.Model, learning_rate: float = 0.001, alpha=0.99, eps=1e-08, weight_decay=0.0, momentum=0.0, centered=False)</span>
+<span>def <span class="ident">rmsprop</span></span>(<span>net: keras.src.models.model.Model,<br>learning_rate: float = 0.001,<br>alpha=0.99,<br>eps=1e-08,<br>weight_decay=0.0,<br>momentum=0.0,<br>centered=False)</span>
 </code></dt>
 <dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def rmsprop(net: keras.Model, learning_rate: float = 1e-3, alpha=0.99, eps=1e-08, weight_decay=0., momentum=0., centered=False):
+    assert weight_decay == 0
+    return keras.optimizers.RMSprop(learning_rate, alpha, momentum, eps, centered)</code></pre>
+</details>
 <div class="desc"></div>
 </dd>
 <dt id="phiml.backend.tensorflow.nets.save_state"><code class="name flex">
-<span>def <span class="ident">save_state</span></span>(<span>obj: Union[keras.src.engine.training.Model, keras.src.optimizers.optimizer.Optimizer], path: str)</span>
+<span>def <span class="ident">save_state</span></span>(<span>obj: keras.src.models.model.Model | keras.src.optimizers.optimizer.Optimizer,<br>path: str)</span>
 </code></dt>
 <dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def save_state(obj: Union[keras.models.Model, keras.optimizers.Optimizer], path: str):
+    if isinstance(obj, keras.models.Model):
+        if not path.endswith(&#39;.h5&#39;):
+            path += &#39;.h5&#39;
+        obj.save_weights(path)
+        return path
+    elif isinstance(obj, keras.optimizers.Optimizer):
+        if not path.endswith(&#39;.pkl&#39;):
+            path += &#39;.pkl&#39;
+        weights = obj.get_weights()
+        with open(path, &#39;wb&#39;) as f:
+            pickle.dump(weights, f)
+        return path
+    else:
+        raise ValueError(&#34;obj must be a Keras model or optimizer&#34;)</code></pre>
+</details>
 <div class="desc"></div>
 </dd>
 <dt id="phiml.backend.tensorflow.nets.set_learning_rate"><code class="name flex">
 <span>def <span class="ident">set_learning_rate</span></span>(<span>optimizer: keras.src.optimizers.optimizer.Optimizer, learning_rate: float)</span>
 </code></dt>
 <dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def set_learning_rate(optimizer: keras.optimizers.Optimizer, learning_rate: float):
+    &#34;&#34;&#34;
+    Sets the global learning rate for the given optimizer.
+
+    Args:
+        optimizer (optim.Optimizer): The optimizer whose learning rate needs to be updated.
+        learning_rate (float): The new learning rate to set.
+    &#34;&#34;&#34;
+    keras.backend.set_value(optimizer.lr, learning_rate)</code></pre>
+</details>
 <div class="desc"><p>Sets the global learning rate for the given optimizer.</p>
 <h2 id="args">Args</h2>
 <dl>
@@ -152,21 +510,83 @@ Equivalent functions also exist for the other frameworks.</p>
 </dl></div>
 </dd>
 <dt id="phiml.backend.tensorflow.nets.sgd"><code class="name flex">
-<span>def <span class="ident">sgd</span></span>(<span>net: keras.src.engine.training.Model, learning_rate: float = 0.001, momentum=0.0, dampening=0.0, weight_decay=0.0, nesterov=False)</span>
+<span>def <span class="ident">sgd</span></span>(<span>net: keras.src.models.model.Model,<br>learning_rate: float = 0.001,<br>momentum=0.0,<br>dampening=0.0,<br>weight_decay=0.0,<br>nesterov=False)</span>
 </code></dt>
 <dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def sgd(net: keras.Model, learning_rate: float = 1e-3, momentum=0., dampening=0., weight_decay=0., nesterov=False):
+    assert dampening == 0
+    assert weight_decay == 0
+    return keras.optimizers.SGD(learning_rate, momentum, nesterov)</code></pre>
+</details>
 <div class="desc"></div>
 </dd>
 <dt id="phiml.backend.tensorflow.nets.u_net"><code class="name flex">
-<span>def <span class="ident">u_net</span></span>(<span>in_channels: int, out_channels: int, levels: int = 4, filters: Union[int, Sequence[+T_co]] = 16, batch_norm: bool = True, activation: Union[str, Callable] = 'ReLU', in_spatial: Union[int, tuple] = 2, periodic=False, use_res_blocks: bool = False, down_kernel_size=3, up_kernel_size=3) ‑> keras.src.engine.training.Model</span>
+<span>def <span class="ident">u_net</span></span>(<span>in_channels: int,<br>out_channels: int,<br>levels: int = 4,<br>filters: int | Sequence = 16,<br>batch_norm: bool = True,<br>activation: str | Callable = 'ReLU',<br>in_spatial: int | tuple = 2,<br>periodic=False,<br>use_res_blocks: bool = False,<br>down_kernel_size=3,<br>up_kernel_size=3) ‑> keras.src.models.model.Model</span>
 </code></dt>
 <dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def u_net(in_channels: int,
+          out_channels: int,
+          levels: int = 4,
+          filters: Union[int, Sequence] = 16,
+          batch_norm: bool = True,
+          activation: Union[str, Callable] = &#39;ReLU&#39;,
+          in_spatial: Union[tuple, int] = 2,
+          periodic=False,
+          use_res_blocks: bool = False,
+          down_kernel_size=3,
+          up_kernel_size=3) -&gt; keras.Model:
+    activation = ACTIVATIONS[activation] if isinstance(activation, str) else activation
+    if isinstance(in_spatial, int):
+        d = in_spatial
+        in_spatial = (None,) * d
+    else:
+        assert isinstance(in_spatial, tuple)
+        d = len(in_spatial)
+    if isinstance(filters, (tuple, list)):
+        assert len(filters) == levels, f&#34;List of filters has length {len(filters)} but u-net has {levels} levels.&#34;
+    else:
+        filters = (filters,) * levels
+    # --- Construct the U-Net ---
+    x = inputs = keras.Input(shape=in_spatial + (in_channels,))
+    x = resnet_block(x.shape[-1], filters[0], periodic, batch_norm, activation, d, down_kernel_size)(x) if use_res_blocks else double_conv(x, d, filters[0], filters[0], batch_norm, activation, periodic, down_kernel_size)
+    xs = [x]
+    for i in range(1, levels):
+        x = MAX_POOL[d](2, padding=&#34;same&#34;)(x)
+        x = resnet_block(x.shape[-1], filters[i], periodic, batch_norm, activation, d, down_kernel_size)(x) if use_res_blocks else double_conv(x, d, filters[i], filters[i], batch_norm, activation, periodic, down_kernel_size)
+        xs.insert(0, x)
+    for i in range(1, levels):
+        x = UPSAMPLE[d](2)(x)
+        x = kl.Concatenate()([x, xs[i]])
+        x = resnet_block(x.shape[-1], filters[i - 1], periodic, batch_norm, activation, d, up_kernel_size)(x) if use_res_blocks else double_conv(x, d, filters[i - 1], filters[i - 1], batch_norm, activation, periodic, up_kernel_size)
+    x = CONV[d](out_channels, 1)(x)
+    return keras.Model(inputs, x)</code></pre>
+</details>
 <div class="desc"></div>
 </dd>
 <dt id="phiml.backend.tensorflow.nets.update_weights"><code class="name flex">
-<span>def <span class="ident">update_weights</span></span>(<span>net: keras.src.engine.training.Model, optimizer: keras.src.optimizers.optimizer.Optimizer, loss_function: Callable, *loss_args, **loss_kwargs)</span>
+<span>def <span class="ident">update_weights</span></span>(<span>net: keras.src.models.model.Model,<br>optimizer: keras.src.optimizers.optimizer.Optimizer,<br>loss_function: Callable,<br>*loss_args,<br>**loss_kwargs)</span>
 </code></dt>
 <dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def update_weights(net: keras.Model, optimizer: keras.optimizers.Optimizer, loss_function: Callable, *loss_args, **loss_kwargs):
+    with tf.GradientTape() as tape:
+        output = loss_function(*loss_args, **loss_kwargs)
+        loss = output[0] if isinstance(output, tuple) else output
+        gradients = tape.gradient(loss.sum, net.trainable_variables)
+    optimizer.apply_gradients(zip(gradients, net.trainable_variables))
+    return output</code></pre>
+</details>
 <div class="desc"></div>
 </dd>
 </dl>
@@ -179,96 +599,6 @@ Equivalent functions also exist for the other frameworks.</p>
 <span>(</span><span>construct_net: Callable, construction_kwargs: dict, reverse_mask)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>A model grouping layers into an object with training/inference features.</p>
-<h2 id="args">Args</h2>
-<dl>
-<dt><strong><code>inputs</code></strong></dt>
-<dd>The input(s) of the model: a <code>keras.Input</code> object or a
-combination of <code>keras.Input</code> objects in a dict, list or tuple.</dd>
-<dt><strong><code>outputs</code></strong></dt>
-<dd>The output(s) of the model: a tensor that originated from
-<code>keras.Input</code> objects or a combination of such tensors in a dict,
-list or tuple. See Functional API example below.</dd>
-<dt><strong><code>name</code></strong></dt>
-<dd>String, the name of the model.</dd>
-</dl>
-<p>There are two ways to instantiate a <code>Model</code>:</p>
-<p>1 - With the "Functional API", where you start from <code>Input</code>,
-you chain layer calls to specify the model's forward pass,
-and finally you create your model from inputs and outputs:</p>
-<pre><code class="language-python">import tensorflow as tf
-
-inputs = tf.keras.Input(shape=(3,))
-x = tf.keras.layers.Dense(4, activation=tf.nn.relu)(inputs)
-outputs = tf.keras.layers.Dense(5, activation=tf.nn.softmax)(x)
-model = tf.keras.Model(inputs=inputs, outputs=outputs)
-</code></pre>
-<p>Note: Only dicts, lists, and tuples of input tensors are supported. Nested
-inputs are not supported (e.g. lists of list or dicts of dict).</p>
-<p>A new Functional API model can also be created by using the
-intermediate tensors. This enables you to quickly extract sub-components
-of the model.</p>
-<p>Example:</p>
-<pre><code class="language-python">inputs = keras.Input(shape=(None, None, 3))
-processed = keras.layers.RandomCrop(width=32, height=32)(inputs)
-conv = keras.layers.Conv2D(filters=2, kernel_size=3)(processed)
-pooling = keras.layers.GlobalAveragePooling2D()(conv)
-feature = keras.layers.Dense(10)(pooling)
-
-full_model = keras.Model(inputs, feature)
-backbone = keras.Model(processed, conv)
-activations = keras.Model(conv, feature)
-</code></pre>
-<p>Note that the <code>backbone</code> and <code>activations</code> models are not
-created with <code>keras.Input</code> objects, but with the tensors that are originated
-from <code>keras.Input</code> objects. Under the hood, the layers and weights will
-be shared across these models, so that user can train the <code>full_model</code>, and
-use <code>backbone</code> or <code>activations</code> to do feature extraction.
-The inputs and outputs of the model can be nested structures of tensors as
-well, and the created models are standard Functional API models that support
-all the existing APIs.</p>
-<p>2 - By subclassing the <code>Model</code> class: in that case, you should define your
-layers in <code>__init__()</code> and you should implement the model's forward pass
-in <code>call()</code>.</p>
-<pre><code class="language-python">import tensorflow as tf
-
-class MyModel(tf.keras.Model):
-
-  def __init__(self):
-    super().__init__()
-    self.dense1 = tf.keras.layers.Dense(4, activation=tf.nn.relu)
-    self.dense2 = tf.keras.layers.Dense(5, activation=tf.nn.softmax)
-
-  def call(self, inputs):
-    x = self.dense1(inputs)
-    return self.dense2(x)
-
-model = MyModel()
-</code></pre>
-<p>If you subclass <code>Model</code>, you can optionally have
-a <code>training</code> argument (boolean) in <code>call()</code>, which you can use to specify
-a different behavior in training and inference:</p>
-<pre><code class="language-python">import tensorflow as tf
-
-class MyModel(tf.keras.Model):
-
-  def __init__(self):
-    super().__init__()
-    self.dense1 = tf.keras.layers.Dense(4, activation=tf.nn.relu)
-    self.dense2 = tf.keras.layers.Dense(5, activation=tf.nn.softmax)
-    self.dropout = tf.keras.layers.Dropout(0.5)
-
-  def call(self, inputs, training=False):
-    x = self.dense1(inputs)
-    if training:
-      x = self.dropout(x, training=training)
-    return self.dense2(x)
-
-model = MyModel()
-</code></pre>
-<p>Once the model is created, you can config the model with losses and metrics
-with <code>model.compile()</code>, train the model with <code>model.fit()</code>, or use the model
-to do prediction with <code>model.predict()</code>.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -298,76 +628,16 @@ to do prediction with <code>model.predict()</code>.</p></div>
             v2 = (1 - mask) * (u2 * tf.math.exp(tf.tanh(self.s1(v1))) + self.t1(v1))
             return v1 + v2</code></pre>
 </details>
-<h3>Ancestors</h3>
-<ul class="hlist">
-<li>keras.src.engine.training.Model</li>
-<li>keras.src.engine.base_layer.Layer</li>
-<li>tensorflow.python.module.module.Module</li>
-<li>tensorflow.python.trackable.autotrackable.AutoTrackable</li>
-<li>tensorflow.python.trackable.base.Trackable</li>
-<li>keras.src.utils.version_utils.LayerVersionSelector</li>
-<li>keras.src.utils.version_utils.ModelVersionSelector</li>
-</ul>
-<h3>Methods</h3>
-<dl>
-<dt id="phiml.backend.tensorflow.nets.CouplingLayer.call"><code class="name flex">
-<span>def <span class="ident">call</span></span>(<span>self, x, invert=False)</span>
-</code></dt>
-<dd>
-<div class="desc"><p>Calls the model on new inputs and returns the outputs as tensors.</p>
-<p>In this case <code>call()</code> just reapplies
-all ops in the graph to the new inputs
-(e.g. build a new computational graph from the provided inputs).</p>
-<p>Note: This method should not be called directly. It is only meant to be
-overridden when subclassing <code>tf.keras.Model</code>.
-To call a model on an input, always use the <code>__call__()</code> method,
-i.e. <code>model(inputs)</code>, which relies on the underlying <code>call()</code> method.</p>
-<h2 id="args">Args</h2>
-<dl>
-<dt><strong><code>inputs</code></strong></dt>
-<dd>Input tensor, or dict/list/tuple of input tensors.</dd>
-<dt><strong><code>training</code></strong></dt>
-<dd>Boolean or boolean scalar tensor, indicating whether to
-run the <code>Network</code> in training mode or inference mode.</dd>
-<dt><strong><code>mask</code></strong></dt>
-<dd>A mask or list of masks. A mask can be either a boolean tensor
-or None (no mask). For more details, check the guide
-<a href="https://www.tensorflow.org/guide/keras/masking_and_padding">here</a>.</dd>
-</dl>
-<h2 id="returns">Returns</h2>
-<p>A tensor if there is a single output, or
-a list of tensors if there are more than one outputs.</p></div>
-</dd>
-</dl>
-</dd>
-<dt id="phiml.backend.tensorflow.nets.InvertibleNet"><code class="flex name class">
-<span>class <span class="ident">InvertibleNet</span></span>
-<span>(</span><span>num_blocks: int, construct_net, construction_kwargs: dict)</span>
-</code></dt>
-<dd>
 <div class="desc"><p>A model grouping layers into an object with training/inference features.</p>
-<h2 id="args">Args</h2>
-<dl>
-<dt><strong><code>inputs</code></strong></dt>
-<dd>The input(s) of the model: a <code>keras.Input</code> object or a
-combination of <code>keras.Input</code> objects in a dict, list or tuple.</dd>
-<dt><strong><code>outputs</code></strong></dt>
-<dd>The output(s) of the model: a tensor that originated from
-<code>keras.Input</code> objects or a combination of such tensors in a dict,
-list or tuple. See Functional API example below.</dd>
-<dt><strong><code>name</code></strong></dt>
-<dd>String, the name of the model.</dd>
-</dl>
-<p>There are two ways to instantiate a <code>Model</code>:</p>
-<p>1 - With the "Functional API", where you start from <code>Input</code>,
+<p>There are three ways to instantiate a <code>Model</code>:</p>
+<h2 id="with-the-functional-api">With the "Functional API"</h2>
+<p>You start from <code>Input</code>,
 you chain layer calls to specify the model's forward pass,
-and finally you create your model from inputs and outputs:</p>
-<pre><code class="language-python">import tensorflow as tf
-
-inputs = tf.keras.Input(shape=(3,))
-x = tf.keras.layers.Dense(4, activation=tf.nn.relu)(inputs)
-outputs = tf.keras.layers.Dense(5, activation=tf.nn.softmax)(x)
-model = tf.keras.Model(inputs=inputs, outputs=outputs)
+and finally, you create your model from inputs and outputs:</p>
+<pre><code class="language-python">inputs = keras.Input(shape=(37,))
+x = keras.layers.Dense(32, activation=&quot;relu&quot;)(inputs)
+outputs = keras.layers.Dense(5, activation=&quot;softmax&quot;)(x)
+model = keras.Model(inputs=inputs, outputs=outputs)
 </code></pre>
 <p>Note: Only dicts, lists, and tuples of input tensors are supported. Nested
 inputs are not supported (e.g. lists of list or dicts of dict).</p>
@@ -376,8 +646,8 @@ intermediate tensors. This enables you to quickly extract sub-components
 of the model.</p>
 <p>Example:</p>
 <pre><code class="language-python">inputs = keras.Input(shape=(None, None, 3))
-processed = keras.layers.RandomCrop(width=32, height=32)(inputs)
-conv = keras.layers.Conv2D(filters=2, kernel_size=3)(processed)
+processed = keras.layers.RandomCrop(width=128, height=128)(inputs)
+conv = keras.layers.Conv2D(filters=32, kernel_size=3)(processed)
 pooling = keras.layers.GlobalAveragePooling2D()(conv)
 feature = keras.layers.Dense(10)(pooling)
 
@@ -386,55 +656,104 @@ backbone = keras.Model(processed, conv)
 activations = keras.Model(conv, feature)
 </code></pre>
 <p>Note that the <code>backbone</code> and <code>activations</code> models are not
-created with <code>keras.Input</code> objects, but with the tensors that are originated
+created with <code>keras.Input</code> objects, but with the tensors that originate
 from <code>keras.Input</code> objects. Under the hood, the layers and weights will
 be shared across these models, so that user can train the <code>full_model</code>, and
 use <code>backbone</code> or <code>activations</code> to do feature extraction.
 The inputs and outputs of the model can be nested structures of tensors as
 well, and the created models are standard Functional API models that support
 all the existing APIs.</p>
-<p>2 - By subclassing the <code>Model</code> class: in that case, you should define your
+<h2 id="by-subclassing-the-model-class">By subclassing the <code>Model</code> class</h2>
+<p>In that case, you should define your
 layers in <code>__init__()</code> and you should implement the model's forward pass
 in <code>call()</code>.</p>
-<pre><code class="language-python">import tensorflow as tf
+<pre><code class="language-python">class MyModel(keras.Model):
+    def __init__(self):
+        super().__init__()
+        self.dense1 = keras.layers.Dense(32, activation=&quot;relu&quot;)
+        self.dense2 = keras.layers.Dense(5, activation=&quot;softmax&quot;)
 
-class MyModel(tf.keras.Model):
-
-  def __init__(self):
-    super().__init__()
-    self.dense1 = tf.keras.layers.Dense(4, activation=tf.nn.relu)
-    self.dense2 = tf.keras.layers.Dense(5, activation=tf.nn.softmax)
-
-  def call(self, inputs):
-    x = self.dense1(inputs)
-    return self.dense2(x)
+    def call(self, inputs):
+        x = self.dense1(inputs)
+        return self.dense2(x)
 
 model = MyModel()
 </code></pre>
 <p>If you subclass <code>Model</code>, you can optionally have
 a <code>training</code> argument (boolean) in <code>call()</code>, which you can use to specify
 a different behavior in training and inference:</p>
-<pre><code class="language-python">import tensorflow as tf
+<pre><code class="language-python">class MyModel(keras.Model):
+    def __init__(self):
+        super().__init__()
+        self.dense1 = keras.layers.Dense(32, activation=&quot;relu&quot;)
+        self.dense2 = keras.layers.Dense(5, activation=&quot;softmax&quot;)
+        self.dropout = keras.layers.Dropout(0.5)
 
-class MyModel(tf.keras.Model):
-
-  def __init__(self):
-    super().__init__()
-    self.dense1 = tf.keras.layers.Dense(4, activation=tf.nn.relu)
-    self.dense2 = tf.keras.layers.Dense(5, activation=tf.nn.softmax)
-    self.dropout = tf.keras.layers.Dropout(0.5)
-
-  def call(self, inputs, training=False):
-    x = self.dense1(inputs)
-    if training:
-      x = self.dropout(x, training=training)
-    return self.dense2(x)
+    def call(self, inputs, training=False):
+        x = self.dense1(inputs)
+        x = self.dropout(x, training=training)
+        return self.dense2(x)
 
 model = MyModel()
 </code></pre>
 <p>Once the model is created, you can config the model with losses and metrics
 with <code>model.compile()</code>, train the model with <code>model.fit()</code>, or use the model
-to do prediction with <code>model.predict()</code>.</p></div>
+to do prediction with <code>model.predict()</code>.</p>
+<h2 id="with-the-sequential-class">With the <code>Sequential</code> class</h2>
+<p>In addition, <code>keras.Sequential</code> is a special case of model where
+the model is purely a stack of single-input, single-output layers.</p>
+<pre><code class="language-python">model = keras.Sequential([
+    keras.Input(shape=(None, None, 3)),
+    keras.layers.Conv2D(filters=32, kernel_size=3),
+])
+</code></pre></div>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>keras.src.models.model.Model</li>
+<li>keras.src.backend.tensorflow.trainer.TensorFlowTrainer</li>
+<li>keras.src.trainers.trainer.Trainer</li>
+<li>keras.src.layers.layer.Layer</li>
+<li>keras.src.backend.tensorflow.layer.TFLayer</li>
+<li>keras.src.backend.tensorflow.trackable.KerasAutoTrackable</li>
+<li>tensorflow.python.trackable.autotrackable.AutoTrackable</li>
+<li>tensorflow.python.trackable.base.Trackable</li>
+<li>keras.src.ops.operation.Operation</li>
+<li>keras.src.saving.keras_saveable.KerasSaveable</li>
+</ul>
+<h3>Methods</h3>
+<dl>
+<dt id="phiml.backend.tensorflow.nets.CouplingLayer.call"><code class="name flex">
+<span>def <span class="ident">call</span></span>(<span>self, x, invert=False)</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def call(self, x, invert=False):
+    mask = tf.cast(get_mask(x, self.reverse_mask, &#39;NCHW&#39;), x.dtype)
+    if invert:
+        v1 = x * mask
+        v2 = x * (1 - mask)
+        u2 = (1 - mask) * (v2 - self.t1(v1)) * tf.math.exp(tf.tanh(-self.s1(v1)))
+        u1 = mask * (v1 - self.t2(u2)) * tf.math.exp(tf.tanh(-self.s2(u2)))
+        return u1 + u2
+    else:
+        u1 = x * mask
+        u2 = x * (1 - mask)
+        v1 = mask * (u1 * tf.math.exp(tf.tanh(self.s2(u2))) + self.t2(u2))
+        v2 = (1 - mask) * (u2 * tf.math.exp(tf.tanh(self.s1(v1))) + self.t1(v1))
+        return v1 + v2</code></pre>
+</details>
+<div class="desc"></div>
+</dd>
+</dl>
+</dd>
+<dt id="phiml.backend.tensorflow.nets.InvertibleNet"><code class="flex name class">
+<span>class <span class="ident">InvertibleNet</span></span>
+<span>(</span><span>num_blocks: int, construct_net, construction_kwargs: dict)</span>
+</code></dt>
+<dd>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -457,15 +776,97 @@ to do prediction with <code>model.predict()</code>.</p></div>
                 x = self.layer_dict[f&#39;coupling_block{i}&#39;](x)
         return x</code></pre>
 </details>
+<div class="desc"><p>A model grouping layers into an object with training/inference features.</p>
+<p>There are three ways to instantiate a <code>Model</code>:</p>
+<h2 id="with-the-functional-api">With the "Functional API"</h2>
+<p>You start from <code>Input</code>,
+you chain layer calls to specify the model's forward pass,
+and finally, you create your model from inputs and outputs:</p>
+<pre><code class="language-python">inputs = keras.Input(shape=(37,))
+x = keras.layers.Dense(32, activation=&quot;relu&quot;)(inputs)
+outputs = keras.layers.Dense(5, activation=&quot;softmax&quot;)(x)
+model = keras.Model(inputs=inputs, outputs=outputs)
+</code></pre>
+<p>Note: Only dicts, lists, and tuples of input tensors are supported. Nested
+inputs are not supported (e.g. lists of list or dicts of dict).</p>
+<p>A new Functional API model can also be created by using the
+intermediate tensors. This enables you to quickly extract sub-components
+of the model.</p>
+<p>Example:</p>
+<pre><code class="language-python">inputs = keras.Input(shape=(None, None, 3))
+processed = keras.layers.RandomCrop(width=128, height=128)(inputs)
+conv = keras.layers.Conv2D(filters=32, kernel_size=3)(processed)
+pooling = keras.layers.GlobalAveragePooling2D()(conv)
+feature = keras.layers.Dense(10)(pooling)
+
+full_model = keras.Model(inputs, feature)
+backbone = keras.Model(processed, conv)
+activations = keras.Model(conv, feature)
+</code></pre>
+<p>Note that the <code>backbone</code> and <code>activations</code> models are not
+created with <code>keras.Input</code> objects, but with the tensors that originate
+from <code>keras.Input</code> objects. Under the hood, the layers and weights will
+be shared across these models, so that user can train the <code>full_model</code>, and
+use <code>backbone</code> or <code>activations</code> to do feature extraction.
+The inputs and outputs of the model can be nested structures of tensors as
+well, and the created models are standard Functional API models that support
+all the existing APIs.</p>
+<h2 id="by-subclassing-the-model-class">By subclassing the <code>Model</code> class</h2>
+<p>In that case, you should define your
+layers in <code>__init__()</code> and you should implement the model's forward pass
+in <code>call()</code>.</p>
+<pre><code class="language-python">class MyModel(keras.Model):
+    def __init__(self):
+        super().__init__()
+        self.dense1 = keras.layers.Dense(32, activation=&quot;relu&quot;)
+        self.dense2 = keras.layers.Dense(5, activation=&quot;softmax&quot;)
+
+    def call(self, inputs):
+        x = self.dense1(inputs)
+        return self.dense2(x)
+
+model = MyModel()
+</code></pre>
+<p>If you subclass <code>Model</code>, you can optionally have
+a <code>training</code> argument (boolean) in <code>call()</code>, which you can use to specify
+a different behavior in training and inference:</p>
+<pre><code class="language-python">class MyModel(keras.Model):
+    def __init__(self):
+        super().__init__()
+        self.dense1 = keras.layers.Dense(32, activation=&quot;relu&quot;)
+        self.dense2 = keras.layers.Dense(5, activation=&quot;softmax&quot;)
+        self.dropout = keras.layers.Dropout(0.5)
+
+    def call(self, inputs, training=False):
+        x = self.dense1(inputs)
+        x = self.dropout(x, training=training)
+        return self.dense2(x)
+
+model = MyModel()
+</code></pre>
+<p>Once the model is created, you can config the model with losses and metrics
+with <code>model.compile()</code>, train the model with <code>model.fit()</code>, or use the model
+to do prediction with <code>model.predict()</code>.</p>
+<h2 id="with-the-sequential-class">With the <code>Sequential</code> class</h2>
+<p>In addition, <code>keras.Sequential</code> is a special case of model where
+the model is purely a stack of single-input, single-output layers.</p>
+<pre><code class="language-python">model = keras.Sequential([
+    keras.Input(shape=(None, None, 3)),
+    keras.layers.Conv2D(filters=32, kernel_size=3),
+])
+</code></pre></div>
 <h3>Ancestors</h3>
 <ul class="hlist">
-<li>keras.src.engine.training.Model</li>
-<li>keras.src.engine.base_layer.Layer</li>
-<li>tensorflow.python.module.module.Module</li>
+<li>keras.src.models.model.Model</li>
+<li>keras.src.backend.tensorflow.trainer.TensorFlowTrainer</li>
+<li>keras.src.trainers.trainer.Trainer</li>
+<li>keras.src.layers.layer.Layer</li>
+<li>keras.src.backend.tensorflow.layer.TFLayer</li>
+<li>keras.src.backend.tensorflow.trackable.KerasAutoTrackable</li>
 <li>tensorflow.python.trackable.autotrackable.AutoTrackable</li>
 <li>tensorflow.python.trackable.base.Trackable</li>
-<li>keras.src.utils.version_utils.LayerVersionSelector</li>
-<li>keras.src.utils.version_utils.ModelVersionSelector</li>
+<li>keras.src.ops.operation.Operation</li>
+<li>keras.src.saving.keras_saveable.KerasSaveable</li>
 </ul>
 <h3>Methods</h3>
 <dl>
@@ -473,224 +874,28 @@ to do prediction with <code>model.predict()</code>.</p></div>
 <span>def <span class="ident">call</span></span>(<span>self, x, backward=False)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Calls the model on new inputs and returns the outputs as tensors.</p>
-<p>In this case <code>call()</code> just reapplies
-all ops in the graph to the new inputs
-(e.g. build a new computational graph from the provided inputs).</p>
-<p>Note: This method should not be called directly. It is only meant to be
-overridden when subclassing <code>tf.keras.Model</code>.
-To call a model on an input, always use the <code>__call__()</code> method,
-i.e. <code>model(inputs)</code>, which relies on the underlying <code>call()</code> method.</p>
-<h2 id="args">Args</h2>
-<dl>
-<dt><strong><code>inputs</code></strong></dt>
-<dd>Input tensor, or dict/list/tuple of input tensors.</dd>
-<dt><strong><code>training</code></strong></dt>
-<dd>Boolean or boolean scalar tensor, indicating whether to
-run the <code>Network</code> in training mode or inference mode.</dd>
-<dt><strong><code>mask</code></strong></dt>
-<dd>A mask or list of masks. A mask can be either a boolean tensor
-or None (no mask). For more details, check the guide
-<a href="https://www.tensorflow.org/guide/keras/masking_and_padding">here</a>.</dd>
-</dl>
-<h2 id="returns">Returns</h2>
-<p>A tensor if there is a single output, or
-a list of tensors if there are more than one outputs.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def call(self, x, backward=False):
+    if backward:
+        for i in range(self.num_blocks, 0, -1):
+            x = self.layer_dict[f&#39;coupling_block{i}&#39;](x, backward)
+    else:
+        for i in range(1, self.num_blocks + 1):
+            x = self.layer_dict[f&#39;coupling_block{i}&#39;](x)
+    return x</code></pre>
+</details>
+<div class="desc"></div>
 </dd>
 </dl>
 </dd>
 <dt id="phiml.backend.tensorflow.nets.PeriodicPad"><code class="flex name class">
 <span>class <span class="ident">PeriodicPad</span></span>
-<span>(</span><span>trainable=True, name=None, dtype=None, dynamic=False, **kwargs)</span>
+<span>(</span><span>*,<br>activity_regularizer=None,<br>trainable=True,<br>dtype=None,<br>autocast=True,<br>name=None,<br>**kwargs)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>This is the class from which all layers inherit.</p>
-<p>A layer is a callable object that takes as input one or more tensors and
-that outputs one or more tensors. It involves <em>computation</em>, defined
-in the <code>call()</code> method, and a <em>state</em> (weight variables). State can be
-created in various places, at the convenience of the subclass implementer:</p>
-<ul>
-<li>in <code>__init__()</code>;</li>
-<li>in the optional <code>build()</code> method, which is invoked by the first
-<code>__call__()</code> to the layer, and supplies the shape(s) of the input(s),
-which may not have been known at initialization time;</li>
-<li>in the first invocation of <code>call()</code>, with some caveats discussed
-below.</li>
-</ul>
-<p>Layers are recursively composable: If you assign a Layer instance as an
-attribute of another Layer, the outer layer will start tracking the weights
-created by the inner layer. Nested layers should be instantiated in the
-<code>__init__()</code> method.</p>
-<p>Users will just instantiate a layer and then treat it as a callable.</p>
-<h2 id="args">Args</h2>
-<dl>
-<dt><strong><code>trainable</code></strong></dt>
-<dd>Boolean, whether the layer's variables should be trainable.</dd>
-<dt><strong><code>name</code></strong></dt>
-<dd>String name of the layer.</dd>
-<dt><strong><code>dtype</code></strong></dt>
-<dd>The dtype of the layer's computations and weights. Can also be a
-<code>tf.keras.mixed_precision.Policy</code>, which allows the computation and
-weight dtype to differ. Default of <code>None</code> means to use
-<code>tf.keras.mixed_precision.global_policy()</code>, which is a float32 policy
-unless set to different value.</dd>
-<dt><strong><code>dynamic</code></strong></dt>
-<dd>Set this to <code>True</code> if your layer should only be run eagerly, and
-should not be used to generate a static computation graph.
-This would be the case for a Tree-RNN or a recursive network,
-for example, or generally for any layer that manipulates tensors
-using Python control flow. If <code>False</code>, we assume that the layer can
-safely be used to generate a static computation graph.</dd>
-</dl>
-<h2 id="attributes">Attributes</h2>
-<dl>
-<dt><strong><code>name</code></strong></dt>
-<dd>The name of the layer (string).</dd>
-<dt><strong><code>dtype</code></strong></dt>
-<dd>The dtype of the layer's weights.</dd>
-<dt><strong><code>variable_dtype</code></strong></dt>
-<dd>Alias of <code>dtype</code>.</dd>
-<dt><strong><code>compute_dtype</code></strong></dt>
-<dd>The dtype of the layer's computations. Layers automatically
-cast inputs to this dtype which causes the computations and output to
-also be in this dtype. When mixed precision is used with a
-<code>tf.keras.mixed_precision.Policy</code>, this will be different than
-<code>variable_dtype</code>.</dd>
-<dt><strong><code>dtype_policy</code></strong></dt>
-<dd>The layer's dtype policy. See the
-<code>tf.keras.mixed_precision.Policy</code> documentation for details.</dd>
-<dt><strong><code>trainable_weights</code></strong></dt>
-<dd>List of variables to be included in backprop.</dd>
-<dt><strong><code>non_trainable_weights</code></strong></dt>
-<dd>List of variables that should not be
-included in backprop.</dd>
-<dt><strong><code>weights</code></strong></dt>
-<dd>The concatenation of the lists trainable_weights and
-non_trainable_weights (in this order).</dd>
-<dt><strong><code>trainable</code></strong></dt>
-<dd>Whether the layer should be trained (boolean), i.e. whether
-its potentially-trainable weights should be returned as part of
-<code>layer.trainable_weights</code>.</dd>
-<dt><strong><code>input_spec</code></strong></dt>
-<dd>Optional (list of) <code>InputSpec</code> object(s) specifying the
-constraints on inputs that can be accepted by the layer.</dd>
-</dl>
-<p>We recommend that descendants of <code>Layer</code> implement the following methods:</p>
-<ul>
-<li><code>__init__()</code>: Defines custom layer attributes, and creates layer weights
-that do not depend on input shapes, using <code>add_weight()</code>, or other state.</li>
-<li><code>build(self, input_shape)</code>: This method can be used to create weights that
-depend on the shape(s) of the input(s), using <code>add_weight()</code>, or other
-state. <code>__call__()</code> will automatically build the layer (if it has not been
-built yet) by calling <code>build()</code>.</li>
-<li><code>call(self, inputs, *args, **kwargs)</code>: Called in <code>__call__</code> after making
-sure <code>build()</code> has been called. <code>call()</code> performs the logic of applying
-the layer to the <code>inputs</code>. The first invocation may additionally create
-state that could not be conveniently created in <code>build()</code>; see its
-docstring for details.
-Two reserved keyword arguments you can optionally use in <code>call()</code> are:<ul>
-<li><code>training</code> (boolean, whether the call is in inference mode or training
-mode). See more details in <a href="https://www.tensorflow.org/guide/keras/custom_layers_and_models#privileged_training_argument_in_the_call_method">the layer/model subclassing guide</a></li>
-<li><code>mask</code> (boolean tensor encoding masked timesteps in the input, used
-in RNN layers). See more details in
-<a href="https://www.tensorflow.org/guide/keras/custom_layers_and_models#privileged_mask_argument_in_the_call_method">the layer/model subclassing guide</a>
-A typical signature for this method is <code>call(self, inputs)</code>, and user
-could optionally add <code>training</code> and <code>mask</code> if the layer need them. <code>*args</code>
-and <code>**kwargs</code> is only useful for future extension when more input
-parameters are planned to be added.</li>
-</ul>
-</li>
-<li><code>get_config(self)</code>: Returns a dictionary containing the configuration used
-to initialize this layer. If the keys differ from the arguments
-in <code>__init__</code>, then override <code>from_config(self)</code> as well.
-This method is used when saving
-the layer or a model that contains this layer.</li>
-</ul>
-<p>Examples:</p>
-<p>Here's a basic example: a layer with two variables, <code>w</code> and <code>b</code>,
-that returns <code>y = w . x + b</code>.
-It shows how to implement <code>build()</code> and <code>call()</code>.
-Variables set as attributes of a layer are tracked as weights
-of the layers (in <code>layer.weights</code>).</p>
-<pre><code class="language-python">class SimpleDense(Layer):
-
-  def __init__(self, units=32):
-      super(SimpleDense, self).__init__()
-      self.units = units
-
-  def build(self, input_shape):  # Create the state of the layer (weights)
-    w_init = tf.random_normal_initializer()
-    self.w = tf.Variable(
-        initial_value=w_init(shape=(input_shape[-1], self.units),
-                             dtype='float32'),
-        trainable=True)
-    b_init = tf.zeros_initializer()
-    self.b = tf.Variable(
-        initial_value=b_init(shape=(self.units,), dtype='float32'),
-        trainable=True)
-
-  def call(self, inputs):  # Defines the computation from inputs to outputs
-      return tf.matmul(inputs, self.w) + self.b
-
-# Instantiates the layer.
-linear_layer = SimpleDense(4)
-
-# This will also call `build(input_shape)` and create the weights.
-y = linear_layer(tf.ones((2, 2)))
-assert len(linear_layer.weights) == 2
-
-# These weights are trainable, so they're listed in `trainable_weights`:
-assert len(linear_layer.trainable_weights) == 2
-</code></pre>
-<p>Note that the method <code>add_weight()</code> offers a shortcut to create weights:</p>
-<pre><code class="language-python">class SimpleDense(Layer):
-
-  def __init__(self, units=32):
-      super(SimpleDense, self).__init__()
-      self.units = units
-
-  def build(self, input_shape):
-      self.w = self.add_weight(shape=(input_shape[-1], self.units),
-                               initializer='random_normal',
-                               trainable=True)
-      self.b = self.add_weight(shape=(self.units,),
-                               initializer='random_normal',
-                               trainable=True)
-
-  def call(self, inputs):
-      return tf.matmul(inputs, self.w) + self.b
-</code></pre>
-<p>Besides trainable weights, updated via backpropagation during training,
-layers can also have non-trainable weights. These weights are meant to
-be updated manually during <code>call()</code>. Here's a example layer that computes
-the running sum of its inputs:</p>
-<pre><code class="language-python">class ComputeSum(Layer):
-
-  def __init__(self, input_dim):
-      super(ComputeSum, self).__init__()
-      # Create a non-trainable weight.
-      self.total = tf.Variable(initial_value=tf.zeros((input_dim,)),
-                               trainable=False)
-
-  def call(self, inputs):
-      self.total.assign_add(tf.reduce_sum(inputs, axis=0))
-      return self.total
-
-my_sum = ComputeSum(2)
-x = tf.ones((2, 2))
-
-y = my_sum(x)
-print(y.numpy())  # [2. 2.]
-
-y = my_sum(x)
-print(y.numpy())  # [4. 4.]
-
-assert my_sum.weights == [my_sum.total]
-assert my_sum.non_trainable_weights == [my_sum.total]
-assert my_sum.trainable_weights == []
-</code></pre>
-<p>For more information about creating layers, see the guide
-<a href="https://www.tensorflow.org/guide/keras/custom_layers_and_models">Making new Layers and Models via subclassing</a></p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -706,13 +911,168 @@ assert my_sum.trainable_weights == []
             x = tf.concat([tf.expand_dims(x[:, :, :, -1, ...], axis=3), x, tf.expand_dims(x[:, :, :, 0, ...], axis=3)], axis=3)
         return x</code></pre>
 </details>
+<div class="desc"><p>This is the class from which all layers inherit.</p>
+<p>A layer is a callable object that takes as input one or more tensors and
+that outputs one or more tensors. It involves <em>computation</em>, defined
+in the <code>call()</code> method, and a <em>state</em> (weight variables). State can be
+created:</p>
+<ul>
+<li>in <code>__init__()</code>, for instance via <code>self.add_weight()</code>;</li>
+<li>in the optional <code>build()</code> method, which is invoked by the first
+<code>__call__()</code> to the layer, and supplies the shape(s) of the input(s),
+which may not have been known at initialization time.</li>
+</ul>
+<p>Layers are recursively composable: If you assign a Layer instance as an
+attribute of another Layer, the outer layer will start tracking the weights
+created by the inner layer. Nested layers should be instantiated in the
+<code>__init__()</code> method or <code>build()</code> method.</p>
+<p>Users will just instantiate a layer and then treat it as a callable.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>trainable</code></strong></dt>
+<dd>Boolean, whether the layer's variables should be trainable.</dd>
+<dt><strong><code>name</code></strong></dt>
+<dd>String name of the layer.</dd>
+<dt><strong><code>dtype</code></strong></dt>
+<dd>The dtype of the layer's computations and weights. Can also be a
+<code>keras.DTypePolicy</code>, which allows the computation and weight dtype
+to differ. Defaults to <code>None</code>. <code>None</code> means to use
+<code>keras.config.dtype_policy()</code>, which is a <code>float32</code> policy unless
+set to different value (via <code>keras.config.set_dtype_policy()</code>).</dd>
+</dl>
+<h2 id="attributes">Attributes</h2>
+<dl>
+<dt><strong><code>name</code></strong></dt>
+<dd>The name of the layer (string).</dd>
+<dt><strong><code>dtype</code></strong></dt>
+<dd>Dtype of the layer's weights. Alias of <code>layer.variable_dtype</code>.</dd>
+<dt><strong><code>variable_dtype</code></strong></dt>
+<dd>Dtype of the layer's weights.</dd>
+<dt><strong><code>compute_dtype</code></strong></dt>
+<dd>The dtype of the layer's computations.
+Layers automatically cast inputs to this dtype, which causes
+the computations and output to also be in this dtype.
+When mixed precision is used with a
+<code>keras.DTypePolicy</code>, this will be different
+than <code>variable_dtype</code>.</dd>
+<dt><strong><code>trainable_weights</code></strong></dt>
+<dd>List of variables to be included in backprop.</dd>
+<dt><strong><code>non_trainable_weights</code></strong></dt>
+<dd>List of variables that should not be
+included in backprop.</dd>
+<dt><strong><code>weights</code></strong></dt>
+<dd>The concatenation of the lists trainable_weights and
+non_trainable_weights (in this order).</dd>
+<dt><strong><code>trainable</code></strong></dt>
+<dd>Whether the layer should be trained (boolean), i.e.
+whether its potentially-trainable weights should be returned
+as part of <code>layer.trainable_weights</code>.</dd>
+<dt><strong><code>input_spec</code></strong></dt>
+<dd>Optional (list of) <code>InputSpec</code> object(s) specifying the
+constraints on inputs that can be accepted by the layer.</dd>
+</dl>
+<p>We recommend that descendants of <code>Layer</code> implement the following methods:</p>
+<ul>
+<li><code>__init__()</code>: Defines custom layer attributes, and creates layer weights
+that do not depend on input shapes, using <code>add_weight()</code>,
+or other state.</li>
+<li><code>build(self, input_shape)</code>: This method can be used to create weights that
+depend on the shape(s) of the input(s), using <code>add_weight()</code>, or other
+state. <code>__call__()</code> will automatically build the layer
+(if it has not been built yet) by calling <code>build()</code>.</li>
+<li><code>call(self, *args, **kwargs)</code>: Called in <code>__call__</code> after making
+sure <code>build()</code> has been called. <code>call()</code> performs the logic of applying
+the layer to the input arguments.
+Two reserved keyword arguments you can optionally use in <code>call()</code> are:
+1. <code>training</code> (boolean, whether the call is in inference mode or
+training mode).
+2. <code>mask</code> (boolean tensor encoding masked timesteps in the input,
+used e.g. in RNN layers).
+A typical signature for this method is <code>call(self, inputs)</code>, and user
+could optionally add <code>training</code> and <code>mask</code> if the layer need them.</li>
+<li><code>get_config(self)</code>: Returns a dictionary containing the configuration
+used to initialize this layer. If the keys differ from the arguments
+in <code>__init__()</code>, then override <code>from_config(self)</code> as well.
+This method is used when saving
+the layer or a model that contains this layer.</li>
+</ul>
+<p>Examples:</p>
+<p>Here's a basic example: a layer with two variables, <code>w</code> and <code>b</code>,
+that returns <code>y = w . x + b</code>.
+It shows how to implement <code>build()</code> and <code>call()</code>.
+Variables set as attributes of a layer are tracked as weights
+of the layers (in <code>layer.weights</code>).</p>
+<pre><code class="language-python">class SimpleDense(Layer):
+    def __init__(self, units=32):
+        super().__init__()
+        self.units = units
+
+    # Create the state of the layer (weights)
+    def build(self, input_shape):
+        self.kernel = self.add_weight(
+            shape=(input_shape[-1], self.units),
+            initializer=&quot;glorot_uniform&quot;,
+            trainable=True,
+            name=&quot;kernel&quot;,
+        )
+        self.bias = self.add_weight(
+            shape=(self.units,),
+            initializer=&quot;zeros&quot;,
+            trainable=True,
+            name=&quot;bias&quot;,
+        )
+
+    # Defines the computation
+    def call(self, inputs):
+        return ops.matmul(inputs, self.kernel) + self.bias
+
+# Instantiates the layer.
+linear_layer = SimpleDense(4)
+
+# This will also call `build(input_shape)` and create the weights.
+y = linear_layer(ops.ones((2, 2)))
+assert len(linear_layer.weights) == 2
+
+# These weights are trainable, so they're listed in `trainable_weights`:
+assert len(linear_layer.trainable_weights) == 2
+</code></pre>
+<p>Besides trainable weights, updated via backpropagation during training,
+layers can also have non-trainable weights. These weights are meant to
+be updated manually during <code>call()</code>. Here's a example layer that computes
+the running sum of its inputs:</p>
+<pre><code class="language-python">class ComputeSum(Layer):
+
+  def __init__(self, input_dim):
+      super(ComputeSum, self).__init__()
+      # Create a non-trainable weight.
+      self.total = self.add_weight(
+        shape=(),
+        initializer=&quot;zeros&quot;,
+        trainable=False,
+        name=&quot;total&quot;,
+      )
+
+  def call(self, inputs):
+      self.total.assign(self.total + ops.sum(inputs))
+      return self.total
+
+my_sum = ComputeSum(2)
+x = ops.ones((2, 2))
+y = my_sum(x)
+
+assert my_sum.weights == [my_sum.total]
+assert my_sum.non_trainable_weights == [my_sum.total]
+assert my_sum.trainable_weights == []
+</code></pre></div>
 <h3>Ancestors</h3>
 <ul class="hlist">
-<li>keras.src.engine.base_layer.Layer</li>
-<li>tensorflow.python.module.module.Module</li>
+<li>keras.src.layers.layer.Layer</li>
+<li>keras.src.backend.tensorflow.layer.TFLayer</li>
+<li>keras.src.backend.tensorflow.trackable.KerasAutoTrackable</li>
 <li>tensorflow.python.trackable.autotrackable.AutoTrackable</li>
 <li>tensorflow.python.trackable.base.Trackable</li>
-<li>keras.src.utils.version_utils.LayerVersionSelector</li>
+<li>keras.src.ops.operation.Operation</li>
+<li>keras.src.saving.keras_saveable.KerasSaveable</li>
 </ul>
 <h3>Methods</h3>
 <dl>
@@ -720,53 +1080,21 @@ assert my_sum.trainable_weights == []
 <span>def <span class="ident">call</span></span>(<span>self, x)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>This is where the layer's logic lives.</p>
-<p>The <code>call()</code> method may not create state (except in its first
-invocation, wrapping the creation of variables or other resources in
-<code>tf.init_scope()</code>).
-It is recommended to create state, including
-<code>tf.Variable</code> instances and nested <code>Layer</code> instances,
-in <code>__init__()</code>, or in the <code>build()</code> method that is
-called automatically before <code>call()</code> executes for the first time.</p>
-<h2 id="args">Args</h2>
-<dl>
-<dt><strong><code>inputs</code></strong></dt>
-<dd>Input tensor, or dict/list/tuple of input tensors.
-The first positional <code>inputs</code> argument is subject to special rules:
-- <code>inputs</code> must be explicitly passed. A layer cannot have zero
-arguments, and <code>inputs</code> cannot be provided via the default value
-of a keyword argument.
-- NumPy array or Python scalar values in <code>inputs</code> get cast as
-tensors.
-- Keras mask metadata is only collected from <code>inputs</code>.
-- Layers are built (<code>build(input_shape)</code> method)
-using shape info from <code>inputs</code> only.
-- <code>input_spec</code> compatibility is only checked against <code>inputs</code>.
-- Mixed precision input casting is only applied to <code>inputs</code>.
-If a layer has tensor arguments in <code>*args</code> or <code>**kwargs</code>, their
-casting behavior in mixed precision should be handled manually.
-- The SavedModel input specification is generated using <code>inputs</code>
-only.
-- Integration with various ecosystem packages like TFMOT, TFLite,
-TF.js, etc is only supported for <code>inputs</code> and not for tensors in
-positional and keyword arguments.</dd>
-<dt><strong><code>*args</code></strong></dt>
-<dd>Additional positional arguments. May contain tensors, although
-this is not recommended, for the reasons above.</dd>
-<dt><strong><code>**kwargs</code></strong></dt>
-<dd>Additional keyword arguments. May contain tensors, although
-this is not recommended, for the reasons above.
-The following optional keyword arguments are reserved:
-- <code>training</code>: Boolean scalar tensor of Python boolean indicating
-whether the <code>call</code> is meant for training or inference.
-- <code>mask</code>: Boolean input mask. If the layer's <code>call()</code> method takes a
-<code>mask</code> argument, its default value will be set to the mask
-generated for <code>inputs</code> by the previous layer (if <code>input</code> did come
-from a layer that generated a corresponding mask, i.e. if it came
-from a Keras layer with masking support).</dd>
-</dl>
-<h2 id="returns">Returns</h2>
-<p>A tensor or list/tuple of tensors.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def call(self, x):
+    d = len(x.shape) - 2
+    if d &gt;= 1:
+        x = tf.concat([tf.expand_dims(x[:, -1, ...], axis=1), x, tf.expand_dims(x[:, 0, ...], axis=1)], axis=1)
+    if d &gt;= 2:
+        x = tf.concat([tf.expand_dims(x[:, :, -1, ...], axis=2), x, tf.expand_dims(x[:, :, 0, ...], axis=2)], axis=2)
+    if d &gt;= 3:
+        x = tf.concat([tf.expand_dims(x[:, :, :, -1, ...], axis=3), x, tf.expand_dims(x[:, :, :, 0, ...], axis=3)], axis=3)
+    return x</code></pre>
+</details>
+<div class="desc"></div>
 </dd>
 </dl>
 </dd>
@@ -833,7 +1161,7 @@ from a Keras layer with masking support).</dd>
 </nav>
 </main>
 <footer id="footer">
-<p>Generated by <a href="https://pdoc3.github.io/pdoc" title="pdoc: Python API documentation generator"><cite>pdoc</cite> 0.11.0</a>.</p>
+<p>Generated by <a href="https://pdoc3.github.io/pdoc" title="pdoc: Python API documentation generator"><cite>pdoc</cite> 0.11.6</a>.</p>
 </footer>
 </body>
 </html>

@@ -15216,7 +15216,7 @@ body[data-format='mobile'] .jp-OutputArea-child .jp-OutputArea-output {
 
 
 <div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre><span class="ansi-blue-intense-fg">(2.000, 4.000, 6.000)</span> along <span class="ansi-green-intense-fg">dataᵇ</span> <span class="ansi-yellow-intense-fg">float64</span></pre>
+<pre><span class="ansi-blue-intense-fg">(2.000, 4.000, 6.000)</span> along <span class="ansi-green-intense-fg">dataᵇ</span></pre>
 </div>
 
 </div>
@@ -15278,7 +15278,7 @@ body[data-format='mobile'] .jp-OutputArea-child .jp-OutputArea-output {
 
 
 <div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre><span class="ansi-blue-intense-fg">(2.000, 4.000, 6.000)</span> along <span class="ansi-green-intense-fg">dataᵇ</span> <span class="ansi-yellow-intense-fg">float64</span></pre>
+<pre><span class="ansi-blue-intense-fg">(2.000, 4.000, 6.000)</span> along <span class="ansi-green-intense-fg">dataᵇ</span></pre>
 </div>
 
 </div>
@@ -15299,7 +15299,7 @@ body[data-format='mobile'] .jp-OutputArea-child .jp-OutputArea-output {
 </div>
 </div>
 </div>
-</div><div id="cell-id=457050c057d2006c" class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
+</div><div id="cell-id=457050c057d2006c" class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -15322,6 +15322,36 @@ body[data-format='mobile'] .jp-OutputArea-child .jp-OutputArea-output {
      </div>
 </div>
 </div>
+</div>
+
+<div class="jp-Cell-outputWrapper">
+<div class="jp-Collapser jp-OutputCollapser jp-Cell-outputCollapser">
+</div>
+
+
+<div class="jp-OutputArea jp-Cell-outputArea">
+<div class="jp-OutputArea-child">
+    
+    <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+
+
+<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="application/vnd.jupyter.stderr">
+<pre>
+<span class="ansi-red-fg">---------------------------------------------------------------------------</span>
+<span class="ansi-red-fg">ImportError</span>                               Traceback (most recent call last)
+<span class="ansi-cyan-fg">Cell</span><span class="ansi-cyan-fg"> </span><span class="ansi-green-fg">In[5]</span><span class="ansi-green-fg">, line 2</span>
+<span class="ansi-green-fg">      1</span> <span class="ansi-bold" style="color: rgb(0,135,0)">from</span> typing <span class="ansi-bold" style="color: rgb(0,135,0)">import</span> Union
+<span class="ansi-green-fg">----&gt; </span><span class="ansi-green-fg">2</span> <span class="ansi-bold" style="color: rgb(0,135,0)">from</span> phiml.dataclasses <span class="ansi-bold" style="color: rgb(0,135,0)">import</span> parallel_property, parallel_compute
+<span class="ansi-green-fg">      3</span> 
+<span class="ansi-green-fg">      4</span> @dataclass(frozen=<span class="ansi-bold" style="color: rgb(0,135,0)">True</span>)
+<span class="ansi-green-fg">      5</span> <span class="ansi-bold" style="color: rgb(0,135,0)">class</span> ParallelComputation:
+
+<span class="ansi-red-fg">ImportError</span>: cannot import name &#39;parallel_property&#39; from &#39;phiml.dataclasses&#39; (/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/phiml/dataclasses/__init__.py)</pre>
+</div>
+</div>
+
+</div>
+
 </div>
 
 </div>
@@ -15370,9 +15400,24 @@ We can trigger the parallel computation using the <code>parallel_compute</code> 
     <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
 
 
-<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
-<pre><span class="ansi-blue-intense-fg">(2.000, 4.000, 6.000)</span> along <span class="ansi-green-intense-fg">dataᵇ</span> <span class="ansi-yellow-intense-fg">float64</span>
-</pre>
+<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="application/vnd.jupyter.stderr">
+<pre>
+<span class="ansi-red-fg">---------------------------------------------------------------------------</span>
+<span class="ansi-red-fg">ImportError</span>                               Traceback (most recent call last)
+<span class="ansi-cyan-fg">Cell</span><span class="ansi-cyan-fg"> </span><span class="ansi-green-fg">In[6]</span><span class="ansi-green-fg">, line 1</span>
+<span class="ansi-green-fg">----&gt; </span><span class="ansi-green-fg">1</span> <span class="ansi-bold" style="color: rgb(0,135,0)">from</span> parallel_compute <span class="ansi-bold" style="color: rgb(0,135,0)">import</span> ParallelComputation  <span style="color: rgb(95,135,135)"># identical to above cell, but can be imported by workers</span>
+<span class="ansi-green-fg">      2</span> 
+<span class="ansi-green-fg">      3</span> <span class="ansi-bold" style="color: rgb(0,135,0)">if</span> __name__ == <span class="ansi-yellow-fg">&#34;__main__&#34;</span>:
+<span class="ansi-green-fg">      4</span>     computation = ParallelComputation(data)
+
+<span class="ansi-cyan-fg">File </span><span class="ansi-green-fg">~/work/PhiML/PhiML/docs/parallel_compute.py:7</span>
+<span class="ansi-green-fg">      4</span> <span class="ansi-bold" style="color: rgb(0,135,0)">from</span><span style="color: rgb(188,188,188)"> </span><span class="ansi-blue-intense-fg ansi-bold">typing</span><span style="color: rgb(188,188,188)"> </span><span class="ansi-bold" style="color: rgb(0,135,0)">import</span> Union
+<span class="ansi-green-fg">      6</span> <span class="ansi-bold" style="color: rgb(0,135,0)">from</span><span style="color: rgb(188,188,188)"> </span><span class="ansi-blue-intense-fg ansi-bold">phiml</span><span style="color: rgb(188,188,188)"> </span><span class="ansi-bold" style="color: rgb(0,135,0)">import</span> Tensor, tensor, mean, batch
+<span class="ansi-green-fg">----&gt; </span><span class="ansi-green-fg">7</span> <span class="ansi-bold" style="color: rgb(0,135,0)">from</span><span style="color: rgb(188,188,188)"> </span><span class="ansi-blue-intense-fg ansi-bold">phiml</span><span class="ansi-blue-intense-fg ansi-bold">.</span><span class="ansi-blue-intense-fg ansi-bold">dataclasses</span><span style="color: rgb(188,188,188)"> </span><span class="ansi-bold" style="color: rgb(0,135,0)">import</span> parallel_property
+<span class="ansi-green-fg">     10</span> <span class="ansi-bold" style="color: rgb(0,135,0)">def</span><span style="color: rgb(188,188,188)"> </span><span class="ansi-blue-fg">expensive_to_compute</span>(x: <span style="color: rgb(0,135,0)">float</span>) -&gt; <span style="color: rgb(0,135,0)">float</span>:
+<span class="ansi-green-fg">     11</span>     <span class="ansi-bold" style="color: rgb(0,135,0)">import</span><span style="color: rgb(188,188,188)"> </span><span class="ansi-blue-intense-fg ansi-bold">time</span>
+
+<span class="ansi-red-fg">ImportError</span>: cannot import name &#39;parallel_property&#39; from &#39;phiml.dataclasses&#39; (/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/phiml/dataclasses/__init__.py)</pre>
 </div>
 </div>
 
@@ -15473,9 +15518,24 @@ We can trigger the parallel computation using the <code>parallel_compute</code> 
     <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
 
 
-<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
-<pre><span class="ansi-blue-intense-fg">(3.000, 5.000, 7.000)</span> along <span class="ansi-green-intense-fg">dataᵇ</span> <span class="ansi-yellow-intense-fg">float64</span>
-</pre>
+<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="application/vnd.jupyter.stderr">
+<pre>
+<span class="ansi-red-fg">---------------------------------------------------------------------------</span>
+<span class="ansi-red-fg">ImportError</span>                               Traceback (most recent call last)
+<span class="ansi-cyan-fg">Cell</span><span class="ansi-cyan-fg"> </span><span class="ansi-green-fg">In[8]</span><span class="ansi-green-fg">, line 1</span>
+<span class="ansi-green-fg">----&gt; </span><span class="ansi-green-fg">1</span> <span class="ansi-bold" style="color: rgb(0,135,0)">from</span> parallel_compute <span class="ansi-bold" style="color: rgb(0,135,0)">import</span> ParallelDepComputation  <span style="color: rgb(95,135,135)"># identical to above cell, but can be imported by workers</span>
+<span class="ansi-green-fg">      2</span> <span class="ansi-bold" style="color: rgb(0,135,0)">if</span> __name__ == <span class="ansi-yellow-fg">&#34;__main__&#34;</span>:
+<span class="ansi-green-fg">      3</span>     computation = ParallelDepComputation(data)
+<span class="ansi-green-fg">      4</span>     parallel_compute(computation, [ParallelDepComputation.result], max_workers=<span class="ansi-green-fg">3</span>)
+
+<span class="ansi-cyan-fg">File </span><span class="ansi-green-fg">~/work/PhiML/PhiML/docs/parallel_compute.py:7</span>
+<span class="ansi-green-fg">      4</span> <span class="ansi-bold" style="color: rgb(0,135,0)">from</span><span style="color: rgb(188,188,188)"> </span><span class="ansi-blue-intense-fg ansi-bold">typing</span><span style="color: rgb(188,188,188)"> </span><span class="ansi-bold" style="color: rgb(0,135,0)">import</span> Union
+<span class="ansi-green-fg">      6</span> <span class="ansi-bold" style="color: rgb(0,135,0)">from</span><span style="color: rgb(188,188,188)"> </span><span class="ansi-blue-intense-fg ansi-bold">phiml</span><span style="color: rgb(188,188,188)"> </span><span class="ansi-bold" style="color: rgb(0,135,0)">import</span> Tensor, tensor, mean, batch
+<span class="ansi-green-fg">----&gt; </span><span class="ansi-green-fg">7</span> <span class="ansi-bold" style="color: rgb(0,135,0)">from</span><span style="color: rgb(188,188,188)"> </span><span class="ansi-blue-intense-fg ansi-bold">phiml</span><span class="ansi-blue-intense-fg ansi-bold">.</span><span class="ansi-blue-intense-fg ansi-bold">dataclasses</span><span style="color: rgb(188,188,188)"> </span><span class="ansi-bold" style="color: rgb(0,135,0)">import</span> parallel_property
+<span class="ansi-green-fg">     10</span> <span class="ansi-bold" style="color: rgb(0,135,0)">def</span><span style="color: rgb(188,188,188)"> </span><span class="ansi-blue-fg">expensive_to_compute</span>(x: <span style="color: rgb(0,135,0)">float</span>) -&gt; <span style="color: rgb(0,135,0)">float</span>:
+<span class="ansi-green-fg">     11</span>     <span class="ansi-bold" style="color: rgb(0,135,0)">import</span><span style="color: rgb(188,188,188)"> </span><span class="ansi-blue-intense-fg ansi-bold">time</span>
+
+<span class="ansi-red-fg">ImportError</span>: cannot import name &#39;parallel_property&#39; from &#39;phiml.dataclasses&#39; (/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/phiml/dataclasses/__init__.py)</pre>
 </div>
 </div>
 
@@ -15517,18 +15577,20 @@ We can trigger the parallel computation using the <code>parallel_compute</code> 
 
 
 <div class="jp-OutputArea jp-Cell-outputArea">
-<div class="jp-OutputArea-child jp-OutputArea-executeResult">
+<div class="jp-OutputArea-child">
     
-    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[9]:</div>
+    <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
 
 
+<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="application/vnd.jupyter.stderr">
+<pre>
+<span class="ansi-red-fg">---------------------------------------------------------------------------</span>
+<span class="ansi-red-fg">NameError</span>                                 Traceback (most recent call last)
+<span class="ansi-cyan-fg">Cell</span><span class="ansi-cyan-fg"> </span><span class="ansi-green-fg">In[9]</span><span class="ansi-green-fg">, line 1</span>
+<span class="ansi-green-fg">----&gt; </span><span class="ansi-green-fg">1</span> computation.__dict__
 
-
-<div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre>{&#39;data&#39;: <span class="ansi-blue-intense-fg">(1.000, 2.000, 3.000)</span> along <span class="ansi-green-intense-fg">dataᵇ</span>,
- &#39;result&#39;: <span class="ansi-blue-intense-fg">(3.000, 5.000, 7.000)</span> along <span class="ansi-green-intense-fg">dataᵇ</span> <span class="ansi-yellow-intense-fg">float64</span>}</pre>
+<span class="ansi-red-fg">NameError</span>: name &#39;computation&#39; is not defined</pre>
 </div>
-
 </div>
 
 </div>
@@ -15548,7 +15610,7 @@ We can trigger the parallel computation using the <code>parallel_compute</code> 
 </div>
 </div>
 </div>
-</div><div id="cell-id=48a942d9eaff3554" class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
+</div><div id="cell-id=48a942d9eaff3554" class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -15577,6 +15639,49 @@ We can trigger the parallel computation using the <code>parallel_compute</code> 
      </div>
 </div>
 </div>
+</div>
+
+<div class="jp-Cell-outputWrapper">
+<div class="jp-Collapser jp-OutputCollapser jp-Cell-outputCollapser">
+</div>
+
+
+<div class="jp-OutputArea jp-Cell-outputArea">
+<div class="jp-OutputArea-child">
+    
+    <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+
+
+<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="application/vnd.jupyter.stderr">
+<pre>
+<span class="ansi-red-fg">---------------------------------------------------------------------------</span>
+<span class="ansi-red-fg">NameError</span>                                 Traceback (most recent call last)
+<span class="ansi-cyan-fg">Cell</span><span class="ansi-cyan-fg"> </span><span class="ansi-green-fg">In[10]</span><span class="ansi-green-fg">, line 5</span>
+<span class="ansi-green-fg">      1</span> <span class="ansi-bold" style="color: rgb(0,135,0)">import</span> os
+<span class="ansi-green-fg">      2</span> <span class="ansi-bold" style="color: rgb(0,135,0)">from</span> phiml <span class="ansi-bold" style="color: rgb(0,135,0)">import</span> mean, batch
+<span class="ansi-green-fg">      3</span> 
+<span class="ansi-green-fg">      4</span> @dataclass(frozen=<span class="ansi-bold" style="color: rgb(0,135,0)">True</span>)
+<span class="ansi-green-fg">----&gt; </span><span class="ansi-green-fg">5</span> <span class="ansi-bold" style="color: rgb(0,135,0)">class</span> ParallelMeanComputation:
+<span class="ansi-green-fg">      6</span>     data: Tensor
+<span class="ansi-green-fg">      7</span> 
+<span class="ansi-green-fg">      8</span>     @parallel_property
+
+<span class="ansi-cyan-fg">Cell</span><span class="ansi-cyan-fg"> </span><span class="ansi-green-fg">In[10]</span><span class="ansi-green-fg">, line 8</span>, in <span class="ansi-cyan-fg">ParallelMeanComputation</span><span class="ansi-blue-fg">()</span>
+<span class="ansi-green-fg">      4</span> @dataclass(frozen=<span class="ansi-bold" style="color: rgb(0,135,0)">True</span>)
+<span class="ansi-green-fg">      5</span> <span class="ansi-bold" style="color: rgb(0,135,0)">class</span> ParallelMeanComputation:
+<span class="ansi-green-fg">      6</span>     data: Tensor
+<span class="ansi-green-fg">      7</span> 
+<span class="ansi-green-fg">----&gt; </span><span class="ansi-green-fg">8</span>     @parallel_property
+<span class="ansi-green-fg">      9</span>     <span class="ansi-bold" style="color: rgb(0,135,0)">def</span> individual_result(self) -&gt; Union[Tensor, float]:
+<span class="ansi-green-fg">     10</span>         print(<span class="ansi-yellow-fg">f&#34;Computing individual_result pid={os.getpid()}&#34;</span>)
+<span class="ansi-green-fg">     11</span>         <span class="ansi-bold" style="color: rgb(0,135,0)">return</span> expensive_to_compute(float(self.data))
+
+<span class="ansi-red-fg">NameError</span>: name &#39;parallel_property&#39; is not defined</pre>
+</div>
+</div>
+
+</div>
+
 </div>
 
 </div><div id="cell-id=a067281a06e2efe1" class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
@@ -15611,14 +15716,24 @@ We can trigger the parallel computation using the <code>parallel_compute</code> 
     <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
 
 
-<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
-<pre>Host pid=3383
-Computing individual_result pid=3444Computing individual_result pid=3446Computing individual_result pid=3445
+<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="application/vnd.jupyter.stderr">
+<pre>
+<span class="ansi-red-fg">---------------------------------------------------------------------------</span>
+<span class="ansi-red-fg">ImportError</span>                               Traceback (most recent call last)
+<span class="ansi-cyan-fg">Cell</span><span class="ansi-cyan-fg"> </span><span class="ansi-green-fg">In[11]</span><span class="ansi-green-fg">, line 1</span>
+<span class="ansi-green-fg">----&gt; </span><span class="ansi-green-fg">1</span> <span class="ansi-bold" style="color: rgb(0,135,0)">from</span> parallel_compute <span class="ansi-bold" style="color: rgb(0,135,0)">import</span> ParallelMeanComputation  <span style="color: rgb(95,135,135)"># identical to above cell, but can be imported by workers</span>
+<span class="ansi-green-fg">      2</span> <span class="ansi-bold" style="color: rgb(0,135,0)">if</span> __name__ == <span class="ansi-yellow-fg">&#34;__main__&#34;</span>:
+<span class="ansi-green-fg">      3</span>     print(<span class="ansi-yellow-fg">f&#34;Host pid={os.getpid()}&#34;</span>)
+<span class="ansi-green-fg">      4</span>     computation = ParallelMeanComputation(data)
 
+<span class="ansi-cyan-fg">File </span><span class="ansi-green-fg">~/work/PhiML/PhiML/docs/parallel_compute.py:7</span>
+<span class="ansi-green-fg">      4</span> <span class="ansi-bold" style="color: rgb(0,135,0)">from</span><span style="color: rgb(188,188,188)"> </span><span class="ansi-blue-intense-fg ansi-bold">typing</span><span style="color: rgb(188,188,188)"> </span><span class="ansi-bold" style="color: rgb(0,135,0)">import</span> Union
+<span class="ansi-green-fg">      6</span> <span class="ansi-bold" style="color: rgb(0,135,0)">from</span><span style="color: rgb(188,188,188)"> </span><span class="ansi-blue-intense-fg ansi-bold">phiml</span><span style="color: rgb(188,188,188)"> </span><span class="ansi-bold" style="color: rgb(0,135,0)">import</span> Tensor, tensor, mean, batch
+<span class="ansi-green-fg">----&gt; </span><span class="ansi-green-fg">7</span> <span class="ansi-bold" style="color: rgb(0,135,0)">from</span><span style="color: rgb(188,188,188)"> </span><span class="ansi-blue-intense-fg ansi-bold">phiml</span><span class="ansi-blue-intense-fg ansi-bold">.</span><span class="ansi-blue-intense-fg ansi-bold">dataclasses</span><span style="color: rgb(188,188,188)"> </span><span class="ansi-bold" style="color: rgb(0,135,0)">import</span> parallel_property
+<span class="ansi-green-fg">     10</span> <span class="ansi-bold" style="color: rgb(0,135,0)">def</span><span style="color: rgb(188,188,188)"> </span><span class="ansi-blue-fg">expensive_to_compute</span>(x: <span style="color: rgb(0,135,0)">float</span>) -&gt; <span style="color: rgb(0,135,0)">float</span>:
+<span class="ansi-green-fg">     11</span>     <span class="ansi-bold" style="color: rgb(0,135,0)">import</span><span style="color: rgb(188,188,188)"> </span><span class="ansi-blue-intense-fg ansi-bold">time</span>
 
-Computing mean, pid=3383
-<span class="ansi-yellow-intense-fg">float64</span> <span class="ansi-blue-intense-fg">4.0</span>
-</pre>
+<span class="ansi-red-fg">ImportError</span>: cannot import name &#39;parallel_property&#39; from &#39;phiml.dataclasses&#39; (/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/phiml/dataclasses/__init__.py)</pre>
 </div>
 </div>
 
@@ -15641,7 +15756,7 @@ This is achieved by building a dependency graph of all involved properties under
 </div>
 </div>
 </div>
-</div><div id="cell-id=790e9d48bced8d80" class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
+</div><div id="cell-id=790e9d48bced8d80" class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -15672,6 +15787,46 @@ This is achieved by building a dependency graph of all involved properties under
      </div>
 </div>
 </div>
+</div>
+
+<div class="jp-Cell-outputWrapper">
+<div class="jp-Collapser jp-OutputCollapser jp-Cell-outputCollapser">
+</div>
+
+
+<div class="jp-OutputArea jp-Cell-outputArea">
+<div class="jp-OutputArea-child">
+    
+    <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+
+
+<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="application/vnd.jupyter.stderr">
+<pre>
+<span class="ansi-red-fg">---------------------------------------------------------------------------</span>
+<span class="ansi-red-fg">NameError</span>                                 Traceback (most recent call last)
+<span class="ansi-cyan-fg">Cell</span><span class="ansi-cyan-fg"> </span><span class="ansi-green-fg">In[12]</span><span class="ansi-green-fg">, line 2</span>
+<span class="ansi-green-fg">      1</span> @dataclass(frozen=<span class="ansi-bold" style="color: rgb(0,135,0)">True</span>)
+<span class="ansi-green-fg">----&gt; </span><span class="ansi-green-fg">2</span> <span class="ansi-bold" style="color: rgb(0,135,0)">class</span> ParallelNormComputation:
+<span class="ansi-green-fg">      3</span>     data: Tensor
+<span class="ansi-green-fg">      4</span> 
+<span class="ansi-green-fg">      5</span>     @parallel_property
+
+<span class="ansi-cyan-fg">Cell</span><span class="ansi-cyan-fg"> </span><span class="ansi-green-fg">In[12]</span><span class="ansi-green-fg">, line 5</span>, in <span class="ansi-cyan-fg">ParallelNormComputation</span><span class="ansi-blue-fg">()</span>
+<span class="ansi-green-fg">      1</span> @dataclass(frozen=<span class="ansi-bold" style="color: rgb(0,135,0)">True</span>)
+<span class="ansi-green-fg">      2</span> <span class="ansi-bold" style="color: rgb(0,135,0)">class</span> ParallelNormComputation:
+<span class="ansi-green-fg">      3</span>     data: Tensor
+<span class="ansi-green-fg">      4</span> 
+<span class="ansi-green-fg">----&gt; </span><span class="ansi-green-fg">5</span>     @parallel_property
+<span class="ansi-green-fg">      6</span>     <span class="ansi-bold" style="color: rgb(0,135,0)">def</span> individual_result(self) -&gt; Union[Tensor, float]:
+<span class="ansi-green-fg">      7</span>         print(<span class="ansi-yellow-fg">f&#34;Computing individual_result pid={os.getpid()}&#34;</span>)
+<span class="ansi-green-fg">      8</span>         <span class="ansi-bold" style="color: rgb(0,135,0)">return</span> expensive_to_compute(float(self.data))
+
+<span class="ansi-red-fg">NameError</span>: name &#39;parallel_property&#39; is not defined</pre>
+</div>
+</div>
+
+</div>
+
 </div>
 
 </div><div id="cell-id=2dd0eba8e573010" class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
@@ -15706,17 +15861,24 @@ This is achieved by building a dependency graph of all involved properties under
     <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
 
 
-<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
-<pre>Host pid=3383
-Computing individual_result pid=3462Computing individual_result pid=3461Computing individual_result pid=3463
+<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="application/vnd.jupyter.stderr">
+<pre>
+<span class="ansi-red-fg">---------------------------------------------------------------------------</span>
+<span class="ansi-red-fg">ImportError</span>                               Traceback (most recent call last)
+<span class="ansi-cyan-fg">Cell</span><span class="ansi-cyan-fg"> </span><span class="ansi-green-fg">In[13]</span><span class="ansi-green-fg">, line 1</span>
+<span class="ansi-green-fg">----&gt; </span><span class="ansi-green-fg">1</span> <span class="ansi-bold" style="color: rgb(0,135,0)">from</span> parallel_compute <span class="ansi-bold" style="color: rgb(0,135,0)">import</span> ParallelNormComputation
+<span class="ansi-green-fg">      2</span> <span class="ansi-bold" style="color: rgb(0,135,0)">if</span> __name__ == <span class="ansi-yellow-fg">&#34;__main__&#34;</span>:
+<span class="ansi-green-fg">      3</span>     print(<span class="ansi-yellow-fg">f&#34;Host pid={os.getpid()}&#34;</span>)
+<span class="ansi-green-fg">      4</span>     computation = ParallelNormComputation(data)
 
+<span class="ansi-cyan-fg">File </span><span class="ansi-green-fg">~/work/PhiML/PhiML/docs/parallel_compute.py:7</span>
+<span class="ansi-green-fg">      4</span> <span class="ansi-bold" style="color: rgb(0,135,0)">from</span><span style="color: rgb(188,188,188)"> </span><span class="ansi-blue-intense-fg ansi-bold">typing</span><span style="color: rgb(188,188,188)"> </span><span class="ansi-bold" style="color: rgb(0,135,0)">import</span> Union
+<span class="ansi-green-fg">      6</span> <span class="ansi-bold" style="color: rgb(0,135,0)">from</span><span style="color: rgb(188,188,188)"> </span><span class="ansi-blue-intense-fg ansi-bold">phiml</span><span style="color: rgb(188,188,188)"> </span><span class="ansi-bold" style="color: rgb(0,135,0)">import</span> Tensor, tensor, mean, batch
+<span class="ansi-green-fg">----&gt; </span><span class="ansi-green-fg">7</span> <span class="ansi-bold" style="color: rgb(0,135,0)">from</span><span style="color: rgb(188,188,188)"> </span><span class="ansi-blue-intense-fg ansi-bold">phiml</span><span class="ansi-blue-intense-fg ansi-bold">.</span><span class="ansi-blue-intense-fg ansi-bold">dataclasses</span><span style="color: rgb(188,188,188)"> </span><span class="ansi-bold" style="color: rgb(0,135,0)">import</span> parallel_property
+<span class="ansi-green-fg">     10</span> <span class="ansi-bold" style="color: rgb(0,135,0)">def</span><span style="color: rgb(188,188,188)"> </span><span class="ansi-blue-fg">expensive_to_compute</span>(x: <span style="color: rgb(0,135,0)">float</span>) -&gt; <span style="color: rgb(0,135,0)">float</span>:
+<span class="ansi-green-fg">     11</span>     <span class="ansi-bold" style="color: rgb(0,135,0)">import</span><span style="color: rgb(188,188,188)"> </span><span class="ansi-blue-intense-fg ansi-bold">time</span>
 
-Computing normalized_result pid=3462Computing normalized_result pid=3461Computing normalized_result pid=3463
-
-
-Computing mean, pid=3383
-<span class="ansi-blue-intense-fg">(-2.000, 0.000, 2.000)</span> along <span class="ansi-green-intense-fg">dataᵇ</span>
-</pre>
+<span class="ansi-red-fg">ImportError</span>: cannot import name &#39;parallel_property&#39; from &#39;phiml.dataclasses&#39; (/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/phiml/dataclasses/__init__.py)</pre>
 </div>
 </div>
 

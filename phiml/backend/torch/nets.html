@@ -3,20 +3,31 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1">
-<meta name="generator" content="pdoc3 0.11.0">
+<meta name="generator" content="pdoc3 0.11.6">
 <title>phiml.backend.torch.nets API documentation</title>
 <meta name="description" content="PyTorch implementation of the unified machine learning API.
 Equivalent functions also exist for the other frameworks …">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/13.0.0/sanitize.min.css" integrity="sha512-y1dtMcuvtTMJc1yPgEqF0ZjQbhnc/bFhyvIyVNb9Zk5mIGtqVaAB1Ttl28su8AvFMOY0EwRbAe+HCLqj6W7/KA==" crossorigin>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/13.0.0/typography.min.css" integrity="sha512-Y1DYSb995BAfxobCkKepB1BqJJTPrOp3zPL74AWFugHHmmdcvO+C48WLrUOlhGMc0QG7AE3f7gmvvcrmX2fDoA==" crossorigin>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/default.min.css" crossorigin>
-<style>:root{--highlight-color:#fe9}.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:1.5em;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:2em 0 .50em 0}h3{font-size:1.4em;margin:1.6em 0 .7em 0}h4{margin:0;font-size:105%}h1:target,h2:target,h3:target,h4:target,h5:target,h6:target{background:var(--highlight-color);padding:.2em 0}a{color:#058;text-decoration:none;transition:color .2s ease-in-out}a:visited{color:#503}a:hover{color:#b62}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900;font-weight:bold}pre code{font-size:.8em;line-height:1.4em;padding:1em;display:block}code{background:#f3f3f3;font-family:"DejaVu Sans Mono",monospace;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}dt:target .name{background:var(--highlight-color)}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}td{padding:0 .5em}.admonition{padding:.1em 1em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style>:root{--highlight-color:#fe9}.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:1.5em;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:2em 0 .50em 0}h3{font-size:1.4em;margin:1.6em 0 .7em 0}h4{margin:0;font-size:105%}h1:target,h2:target,h3:target,h4:target,h5:target,h6:target{background:var(--highlight-color);padding:.2em 0}a{color:#058;text-decoration:none;transition:color .2s ease-in-out}a:visited{color:#503}a:hover{color:#b62}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900;font-weight:bold}pre code{font-size:.8em;line-height:1.4em;padding:1em;display:block}code{background:#f3f3f3;font-family:"DejaVu Sans Mono",monospace;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}dt:target .name{background:var(--highlight-color)}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source > summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible;min-width:max-content}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}td{padding:0 .5em}.admonition{padding:.1em 1em;margin:1em 0}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
 <style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul ul{padding-left:1em}.toc > ul > li{margin-top:.5em}}</style>
 <style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
 <script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js" integrity="sha512-D9gUyxqja7hBtkWpPWGt9wfbfaMGVt9gnyCvYa+jojwwPHLCzUm5i8rpk7vD7wNee9bA35eYIjobYPaQuKS1MQ==" crossorigin></script>
 <script>window.addEventListener('DOMContentLoaded', () => {
 hljs.configure({languages: ['bash', 'css', 'diff', 'graphql', 'ini', 'javascript', 'json', 'plaintext', 'python', 'python-repl', 'rust', 'shell', 'sql', 'typescript', 'xml', 'yaml']});
 hljs.highlightAll();
+/* Collapse source docstrings */
+setTimeout(() => {
+[...document.querySelectorAll('.hljs.language-python > .hljs-string')]
+.filter(el => el.innerHTML.length > 200 && ['"""', "'''"].includes(el.innerHTML.substring(0, 3)))
+.forEach(el => {
+let d = document.createElement('details');
+d.classList.add('hljs-string');
+d.innerHTML = '<summary>"""</summary>' + el.innerHTML.substring(3);
+el.replaceWith(d);
+});
+}, 100);
 })</script>
 </head>
 <body>
@@ -38,39 +49,124 @@ Equivalent functions also exist for the other frameworks.</p>
 <h2 class="section-title" id="header-functions">Functions</h2>
 <dl>
 <dt id="phiml.backend.torch.nets.adagrad"><code class="name flex">
-<span>def <span class="ident">adagrad</span></span>(<span>net: Union[torch.nn.modules.module.Module, Sequence[torch.nn.modules.module.Module]], learning_rate: float = 0.001, lr_decay=0.0, weight_decay=0.0, initial_accumulator_value=0.0, eps=1e-10)</span>
+<span>def <span class="ident">adagrad</span></span>(<span>net: torch.nn.modules.module.Module | Sequence[torch.nn.modules.module.Module],<br>learning_rate: float = 0.001,<br>lr_decay=0.0,<br>weight_decay=0.0,<br>initial_accumulator_value=0.0,<br>eps=1e-10)</span>
 </code></dt>
 <dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def adagrad(net: Union[nn.Module, Sequence[nn.Module]], learning_rate: float = 1e-3, lr_decay=0., weight_decay=0., initial_accumulator_value=0., eps=1e-10):
+    return optim.Adagrad(_as_module(net).parameters(), learning_rate, lr_decay, weight_decay, initial_accumulator_value, eps)</code></pre>
+</details>
 <div class="desc"></div>
 </dd>
 <dt id="phiml.backend.torch.nets.adam"><code class="name flex">
-<span>def <span class="ident">adam</span></span>(<span>net: Union[torch.nn.modules.module.Module, Sequence[torch.nn.modules.module.Module]], learning_rate: float = 0.001, betas=(0.9, 0.999), epsilon=1e-07)</span>
+<span>def <span class="ident">adam</span></span>(<span>net: torch.nn.modules.module.Module | Sequence[torch.nn.modules.module.Module],<br>learning_rate: float = 0.001,<br>betas=(0.9, 0.999),<br>epsilon=1e-07)</span>
 </code></dt>
 <dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def adam(net: Union[nn.Module, Sequence[nn.Module]], learning_rate: float = 1e-3, betas=(0.9, 0.999), epsilon=1e-07):
+    return optim.Adam(_as_module(net).parameters(), learning_rate, betas, epsilon)</code></pre>
+</details>
 <div class="desc"></div>
 </dd>
 <dt id="phiml.backend.torch.nets.conv_classifier"><code class="name flex">
-<span>def <span class="ident">conv_classifier</span></span>(<span>in_features: int, in_spatial: Union[tuple, list], num_classes: int, blocks=(64, 128, 256, 256, 512, 512), block_sizes=(2, 2, 3, 3, 3), dense_layers=(4096, 4096, 100), batch_norm=True, activation='ReLU', softmax=True, periodic=False)</span>
+<span>def <span class="ident">conv_classifier</span></span>(<span>in_features: int,<br>in_spatial: tuple | list,<br>num_classes: int,<br>blocks=(64, 128, 256, 256, 512, 512),<br>block_sizes=(2, 2, 3, 3, 3),<br>dense_layers=(4096, 4096, 100),<br>batch_norm=True,<br>activation='ReLU',<br>softmax=True,<br>periodic=False)</span>
 </code></dt>
 <dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def conv_classifier(in_features: int,
+                    in_spatial: Union[tuple, list],
+                    num_classes: int,
+                    blocks=(64, 128, 256, 256, 512, 512),
+                    block_sizes=(2, 2, 3, 3, 3),
+                    dense_layers=(4096, 4096, 100),
+                    batch_norm=True,
+                    activation=&#39;ReLU&#39;,
+                    softmax=True,
+                    periodic=False):
+    assert isinstance(in_spatial, (tuple, list))
+    activation = ACTIVATIONS[activation] if isinstance(activation, str) else activation
+    net = ConvClassifier(in_features, in_spatial, num_classes, batch_norm, softmax, blocks, block_sizes, dense_layers, periodic, activation)
+    return net.to(TORCH.get_default_device().ref)</code></pre>
+</details>
 <div class="desc"></div>
 </dd>
 <dt id="phiml.backend.torch.nets.conv_net"><code class="name flex">
-<span>def <span class="ident">conv_net</span></span>(<span>in_channels: int, out_channels: int, layers: Sequence[int], batch_norm: bool = False, activation: Union[str, type] = 'ReLU', in_spatial: Union[int, tuple] = 2, periodic=False) ‑> torch.nn.modules.module.Module</span>
+<span>def <span class="ident">conv_net</span></span>(<span>in_channels: int,<br>out_channels: int,<br>layers: Sequence[int],<br>batch_norm: bool = False,<br>activation: str | type = 'ReLU',<br>in_spatial: int | tuple = 2,<br>periodic=False) ‑> torch.nn.modules.module.Module</span>
 </code></dt>
 <dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def conv_net(in_channels: int,
+             out_channels: int,
+             layers: Sequence[int],
+             batch_norm: bool = False,
+             activation: Union[str, type] = &#39;ReLU&#39;,
+             in_spatial: Union[int, tuple] = 2,
+             periodic=False) -&gt; nn.Module:
+    if isinstance(in_spatial, int):
+        d = in_spatial
+    else:
+        assert isinstance(in_spatial, tuple)
+        d = len(in_spatial)
+    net = ConvNet(d, in_channels, out_channels, layers, batch_norm, activation, periodic)
+    net = net.to(TORCH.get_default_device().ref)
+    return net</code></pre>
+</details>
 <div class="desc"></div>
 </dd>
 <dt id="phiml.backend.torch.nets.coupling_layer"><code class="name flex">
-<span>def <span class="ident">coupling_layer</span></span>(<span>in_channels: int, activation: Union[str, type] = 'ReLU', batch_norm=False, reverse_mask=False, in_spatial: Union[int, tuple] = 2)</span>
+<span>def <span class="ident">coupling_layer</span></span>(<span>in_channels: int,<br>activation: str | type = 'ReLU',<br>batch_norm=False,<br>reverse_mask=False,<br>in_spatial: int | tuple = 2)</span>
 </code></dt>
 <dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def coupling_layer(in_channels: int,
+                   activation: Union[str, type] = &#39;ReLU&#39;,
+                   batch_norm=False,
+                   reverse_mask=False,
+                   in_spatial: Union[tuple, int] = 2):
+    if isinstance(in_spatial, tuple):
+        in_spatial = len(in_spatial)
+    activation = ACTIVATIONS[activation] if isinstance(activation, str) else activation
+    net = CouplingLayer(in_channels, activation, batch_norm, in_spatial, reverse_mask)
+    net = net.to(TORCH.get_default_device().ref)
+    return net</code></pre>
+</details>
 <div class="desc"></div>
 </dd>
 <dt id="phiml.backend.torch.nets.get_learning_rate"><code class="name flex">
 <span>def <span class="ident">get_learning_rate</span></span>(<span>optimizer: torch.optim.optimizer.Optimizer)</span>
 </code></dt>
 <dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def get_learning_rate(optimizer: optim.Optimizer):
+    &#34;&#34;&#34;
+    Returns the current learning rate of the optimizer.
+
+    Args:
+        optimizer (optim.Optimizer): The optimizer whose learning rate needs to be retrieved.
+
+    Returns:
+        float: The current learning rate of the optimizer.
+    &#34;&#34;&#34;
+    return optimizer.param_groups[0][&#39;lr&#39;]</code></pre>
+</details>
 <div class="desc"><p>Returns the current learning rate of the optimizer.</p>
 <h2 id="args">Args</h2>
 <dl>
@@ -87,54 +183,207 @@ Equivalent functions also exist for the other frameworks.</p>
 <span>def <span class="ident">get_mask</span></span>(<span>inputs, reverse_mask, data_format='NHWC')</span>
 </code></dt>
 <dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def get_mask(inputs, reverse_mask, data_format=&#39;NHWC&#39;):
+    &#34;&#34;&#34; Compute mask for slicing input feature map for Invertible Nets &#34;&#34;&#34;
+    shape = inputs.shape
+    if len(shape) == 2:
+        N = shape[-1]
+        range_n = torch.arange(0, N)
+        even_ind = range_n % 2
+        checker = torch.reshape(even_ind, (-1, N))
+    elif len(shape) == 4:
+        H = shape[2] if data_format == &#39;NCHW&#39; else shape[1]
+        W = shape[3] if data_format == &#39;NCHW&#39; else shape[2]
+        range_h = torch.arange(0, H)
+        range_w = torch.arange(0, W)
+        even_ind_h = range_h % 2
+        even_ind_w = range_w % 2
+        ind_h = even_ind_h.unsqueeze(-1).repeat(1, W)
+        ind_w = even_ind_w.unsqueeze(0).repeat(H, 1)
+        checker = torch.logical_xor(ind_h, ind_w)
+        checker = checker.reshape(1, 1, H, W) if data_format == &#39;NCHW&#39; else checker.reshape(1, H, W, 1)
+        checker = checker.long()
+    else:
+        raise ValueError(&#39;Invalid tensor shape. Dimension of the tensor shape must be 2 (NxD) or 4 (NxCxHxW or NxHxWxC), got {}.&#39;.format(inputs.get_shape().as_list()))
+    if reverse_mask:
+        checker = 1 - checker
+    return checker.to(TORCH.get_default_device().ref)</code></pre>
+</details>
 <div class="desc"><p>Compute mask for slicing input feature map for Invertible Nets</p></div>
 </dd>
 <dt id="phiml.backend.torch.nets.get_parameters"><code class="name flex">
 <span>def <span class="ident">get_parameters</span></span>(<span>net: torch.nn.modules.module.Module, wrap=True) ‑> dict</span>
 </code></dt>
 <dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def get_parameters(net: nn.Module, wrap=True) -&gt; dict:
+    if not wrap:
+        return {name: param for name, param in net.named_parameters()}
+    result = {}
+    for name, param in net.named_parameters():
+        if name.endswith(&#39;.weight&#39;):
+            order = [
+                None,
+                &#39;output&#39;,
+                &#39;input,output&#39;,
+                &#39;x,input,output&#39;,
+                &#39;x,y,input,output&#39;,
+                &#39;x,y,z,input,output&#39;
+            ][param.ndim]
+            uml_tensor = math.wrap(param, math.channel(order))
+        elif name.endswith(&#39;.bias&#39;):
+            uml_tensor = math.wrap(param, math.channel(&#39;output&#39;))
+        else:
+            uml_tensor = math.wrap(param, math.channel(&#34;,&#34;.join([f&#34;d{i}&#34; for i in range(param.ndim)])))
+        result[name] = uml_tensor
+    return result</code></pre>
+</details>
 <div class="desc"></div>
 </dd>
 <dt id="phiml.backend.torch.nets.invertible_net"><code class="name flex">
-<span>def <span class="ident">invertible_net</span></span>(<span>num_blocks: int, construct_net: Union[str, Callable], **construct_kwargs)</span>
+<span>def <span class="ident">invertible_net</span></span>(<span>num_blocks: int, construct_net: str | Callable, **construct_kwargs)</span>
 </code></dt>
 <dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def invertible_net(num_blocks: int,
+                   construct_net: Union[str, Callable],
+                   **construct_kwargs):  # mlp, u_net, res_net, conv_net
+    if construct_net == &#39;mlp&#39;:
+        def construct_net(in_channels: int, layers: Sequence[int], batch_norm=False, activation=&#39;ReLU&#39;, softmax=False, out_channels: int = None):
+            assert not softmax, &#34;Softmax not supported inside invertible net&#34;
+            assert out_channels is None or out_channels == in_channels, &#34;out_channels must match in_channels or be unspecified&#34;
+            activation = ACTIVATIONS[activation] if isinstance(activation, str) else activation
+            layers = [in_channels, *layers, in_channels]
+            return DenseResNetBlock(layers, batch_norm=batch_norm, activation=activation)
+    if isinstance(construct_net, str):
+        construct_net = globals()[construct_net]
+    if &#39;in_channels&#39; in construct_kwargs and &#39;out_channels&#39; not in construct_kwargs:
+        construct_kwargs[&#39;out_channels&#39;] = construct_kwargs[&#39;in_channels&#39;]
+    return InvertibleNet(num_blocks, construct_net, construct_kwargs).to(TORCH.get_default_device().ref)</code></pre>
+</details>
 <div class="desc"></div>
 </dd>
 <dt id="phiml.backend.torch.nets.load_state"><code class="name flex">
-<span>def <span class="ident">load_state</span></span>(<span>obj: Union[torch.nn.modules.module.Module, torch.optim.optimizer.Optimizer], path: str)</span>
+<span>def <span class="ident">load_state</span></span>(<span>obj: torch.nn.modules.module.Module | torch.optim.optimizer.Optimizer,<br>path: str)</span>
 </code></dt>
 <dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def load_state(obj: Union[nn.Module, optim.Optimizer], path: str):
+    if not path.endswith(&#39;.pth&#39;):
+        path += &#39;.pth&#39;
+    obj.load_state_dict(torch.load(path))</code></pre>
+</details>
 <div class="desc"></div>
 </dd>
 <dt id="phiml.backend.torch.nets.mlp"><code class="name flex">
-<span>def <span class="ident">mlp</span></span>(<span>in_channels: int, out_channels: int, layers: Sequence[int], batch_norm=False, activation: Union[str, Callable] = 'ReLU', softmax=False) ‑> torch.nn.modules.module.Module</span>
+<span>def <span class="ident">mlp</span></span>(<span>in_channels: int,<br>out_channels: int,<br>layers: Sequence[int],<br>batch_norm=False,<br>activation: str | Callable = 'ReLU',<br>softmax=False) ‑> torch.nn.modules.module.Module</span>
 </code></dt>
 <dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def mlp(in_channels: int,
+              out_channels: int,
+              layers: Sequence[int],
+              batch_norm=False,
+              activation: Union[str, Callable] = &#39;ReLU&#39;,
+              softmax=False) -&gt; nn.Module:
+    layers = [in_channels, *layers, out_channels]
+    activation = ACTIVATIONS[activation] if isinstance(activation, str) else activation
+    net = DenseNet(layers, activation, batch_norm, softmax)
+    return net.to(TORCH.get_default_device().ref)</code></pre>
+</details>
 <div class="desc"></div>
 </dd>
 <dt id="phiml.backend.torch.nets.res_net"><code class="name flex">
-<span>def <span class="ident">res_net</span></span>(<span>in_channels: int, out_channels: int, layers: Sequence[int], batch_norm: bool = False, activation: Union[str, type] = 'ReLU', in_spatial: Union[int, tuple] = 2, periodic=False) ‑> torch.nn.modules.module.Module</span>
+<span>def <span class="ident">res_net</span></span>(<span>in_channels: int,<br>out_channels: int,<br>layers: Sequence[int],<br>batch_norm: bool = False,<br>activation: str | type = 'ReLU',<br>in_spatial: int | tuple = 2,<br>periodic=False) ‑> torch.nn.modules.module.Module</span>
 </code></dt>
 <dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def res_net(in_channels: int,
+            out_channels: int,
+            layers: Sequence[int],
+            batch_norm: bool = False,
+            activation: Union[str, type] = &#39;ReLU&#39;,
+            in_spatial: Union[int, tuple] = 2,
+            periodic=False) -&gt; nn.Module:
+    if isinstance(in_spatial, int):
+        d = in_spatial
+    else:
+        assert isinstance(in_spatial, tuple)
+        d = len(in_spatial)
+    activation = ACTIVATIONS[activation] if isinstance(activation, str) else activation
+    net = ResNet(d, in_channels, out_channels, layers, batch_norm, activation, periodic)
+    net = net.to(TORCH.get_default_device().ref)
+    return net</code></pre>
+</details>
 <div class="desc"></div>
 </dd>
 <dt id="phiml.backend.torch.nets.rmsprop"><code class="name flex">
-<span>def <span class="ident">rmsprop</span></span>(<span>net: Union[torch.nn.modules.module.Module, Sequence[torch.nn.modules.module.Module]], learning_rate: float = 0.001, alpha=0.99, eps=1e-08, weight_decay=0.0, momentum=0.0, centered=False)</span>
+<span>def <span class="ident">rmsprop</span></span>(<span>net: torch.nn.modules.module.Module | Sequence[torch.nn.modules.module.Module],<br>learning_rate: float = 0.001,<br>alpha=0.99,<br>eps=1e-08,<br>weight_decay=0.0,<br>momentum=0.0,<br>centered=False)</span>
 </code></dt>
 <dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def rmsprop(net: Union[nn.Module, Sequence[nn.Module]], learning_rate: float = 1e-3, alpha=0.99, eps=1e-08, weight_decay=0., momentum=0., centered=False):
+    return optim.RMSprop(_as_module(net).parameters(), learning_rate, alpha, eps, weight_decay, momentum, centered)</code></pre>
+</details>
 <div class="desc"></div>
 </dd>
 <dt id="phiml.backend.torch.nets.save_state"><code class="name flex">
-<span>def <span class="ident">save_state</span></span>(<span>obj: Union[torch.nn.modules.module.Module, torch.optim.optimizer.Optimizer], path: str)</span>
+<span>def <span class="ident">save_state</span></span>(<span>obj: torch.nn.modules.module.Module | torch.optim.optimizer.Optimizer,<br>path: str)</span>
 </code></dt>
 <dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def save_state(obj: Union[nn.Module, optim.Optimizer], path: str):
+    if not path.endswith(&#39;.pth&#39;):
+        path += &#39;.pth&#39;
+    torch.save(obj.state_dict(), path)
+    return path</code></pre>
+</details>
 <div class="desc"></div>
 </dd>
 <dt id="phiml.backend.torch.nets.set_learning_rate"><code class="name flex">
 <span>def <span class="ident">set_learning_rate</span></span>(<span>optimizer: torch.optim.optimizer.Optimizer, learning_rate: float)</span>
 </code></dt>
 <dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def set_learning_rate(optimizer: optim.Optimizer, learning_rate: float):
+    &#34;&#34;&#34;
+    Sets the global learning rate for the given optimizer.
+
+    Args:
+        optimizer (optim.Optimizer): The optimizer whose learning rate needs to be updated.
+        learning_rate (float): The new learning rate to set.
+    &#34;&#34;&#34;
+    for param_group in optimizer.param_groups:
+        param_group[&#39;lr&#39;] = learning_rate</code></pre>
+</details>
 <div class="desc"><p>Sets the global learning rate for the given optimizer.</p>
 <h2 id="args">Args</h2>
 <dl>
@@ -145,21 +394,82 @@ Equivalent functions also exist for the other frameworks.</p>
 </dl></div>
 </dd>
 <dt id="phiml.backend.torch.nets.sgd"><code class="name flex">
-<span>def <span class="ident">sgd</span></span>(<span>net: Union[torch.nn.modules.module.Module, Sequence[torch.nn.modules.module.Module]], learning_rate: float = 0.001, momentum=0.0, dampening=0.0, weight_decay=0.0, nesterov=False)</span>
+<span>def <span class="ident">sgd</span></span>(<span>net: torch.nn.modules.module.Module | Sequence[torch.nn.modules.module.Module],<br>learning_rate: float = 0.001,<br>momentum=0.0,<br>dampening=0.0,<br>weight_decay=0.0,<br>nesterov=False)</span>
 </code></dt>
 <dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def sgd(net: Union[nn.Module, Sequence[nn.Module]], learning_rate: float = 1e-3, momentum=0., dampening=0., weight_decay=0., nesterov=False):
+    return optim.SGD(_as_module(net).parameters(), learning_rate, momentum, dampening, weight_decay, nesterov)</code></pre>
+</details>
 <div class="desc"></div>
 </dd>
 <dt id="phiml.backend.torch.nets.u_net"><code class="name flex">
-<span>def <span class="ident">u_net</span></span>(<span>in_channels: int, out_channels: int, levels: int = 4, filters: Union[int, Sequence[+T_co]] = 16, batch_norm: bool = True, activation: Union[str, type] = 'ReLU', in_spatial: Union[int, tuple] = 2, periodic=False, use_res_blocks: bool = False, down_kernel_size=3, up_kernel_size=3) ‑> torch.nn.modules.module.Module</span>
+<span>def <span class="ident">u_net</span></span>(<span>in_channels: int,<br>out_channels: int,<br>levels: int = 4,<br>filters: int | Sequence = 16,<br>batch_norm: bool = True,<br>activation: str | type = 'ReLU',<br>in_spatial: int | tuple = 2,<br>periodic=False,<br>use_res_blocks: bool = False,<br>down_kernel_size=3,<br>up_kernel_size=3) ‑> torch.nn.modules.module.Module</span>
 </code></dt>
 <dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def u_net(in_channels: int,
+          out_channels: int,
+          levels: int = 4,
+          filters: Union[int, Sequence] = 16,
+          batch_norm: bool = True,
+          activation: Union[str, type] = &#39;ReLU&#39;,
+          in_spatial: Union[tuple, int] = 2,
+          periodic=False,
+          use_res_blocks: bool = False,
+          down_kernel_size=3,
+          up_kernel_size=3) -&gt; nn.Module:
+    if isinstance(filters, (tuple, list)):
+        assert len(filters) == levels, f&#34;List of filters has length {len(filters)} but u-net has {levels} levels.&#34;
+    else:
+        filters = (filters,) * levels
+    activation = ACTIVATIONS[activation] if isinstance(activation, str) else activation
+    if isinstance(in_spatial, int):
+        d = in_spatial
+    else:
+        assert isinstance(in_spatial, tuple)
+        d = len(in_spatial)
+    net = UNet(d, in_channels, out_channels, filters, batch_norm, activation, periodic, use_res_blocks, down_kernel_size, up_kernel_size)
+    return net.to(TORCH.get_default_device().ref)</code></pre>
+</details>
 <div class="desc"></div>
 </dd>
 <dt id="phiml.backend.torch.nets.update_weights"><code class="name flex">
-<span>def <span class="ident">update_weights</span></span>(<span>net: Union[torch.nn.modules.module.Module, Sequence[torch.nn.modules.module.Module]], optimizer: torch.optim.optimizer.Optimizer, loss_function: Callable, *loss_args, check_nan=False, **loss_kwargs)</span>
+<span>def <span class="ident">update_weights</span></span>(<span>net: torch.nn.modules.module.Module | Sequence[torch.nn.modules.module.Module],<br>optimizer: torch.optim.optimizer.Optimizer,<br>loss_function: Callable,<br>*loss_args,<br>check_nan=False,<br>**loss_kwargs)</span>
 </code></dt>
 <dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def update_weights(net: Union[nn.Module, Sequence[nn.Module]], optimizer: optim.Optimizer, loss_function: Callable, *loss_args, check_nan=False, **loss_kwargs):
+    optimizer.zero_grad()
+    output = loss_function(*loss_args, **loss_kwargs)
+    loss = output[0] if isinstance(output, tuple) else output
+    loss = loss if isinstance(loss, torch.Tensor) else loss.sum
+    loss.backward()
+    if isinstance(optimizer, optim.LBFGS):
+        def closure():
+            result = loss_function(*loss_args, **loss_kwargs)
+            loss_val = result[0] if isinstance(result, tuple) else result
+            return loss_val.sum
+        optimizer.step(closure=closure)
+    else:
+        if check_nan:
+            nets = [net] if isinstance(net, nn.Module) else net
+            for subnet in nets:
+                for p in subnet.parameters():
+                    if not torch.all(torch.isfinite(p.grad)):
+                        raise RuntimeError(f&#34;NaN in network gradient detected. Parameter: {p}&#34;)
+        optimizer.step()
+    return output</code></pre>
+</details>
 <div class="desc"></div>
 </dd>
 </dl>
@@ -169,37 +479,9 @@ Equivalent functions also exist for the other frameworks.</p>
 <dl>
 <dt id="phiml.backend.torch.nets.ConvClassifier"><code class="flex name class">
 <span>class <span class="ident">ConvClassifier</span></span>
-<span>(</span><span>in_features, in_spatial: list, num_classes: int, batch_norm: bool, use_softmax: bool, blocks: tuple, block_sizes: tuple, dense_layers: tuple, periodic: bool, activation)</span>
+<span>(</span><span>in_features,<br>in_spatial: list,<br>num_classes: int,<br>batch_norm: bool,<br>use_softmax: bool,<br>blocks: tuple,<br>block_sizes: tuple,<br>dense_layers: tuple,<br>periodic: bool,<br>activation)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Base class for all neural network modules.</p>
-<p>Your models should also subclass this class.</p>
-<p>Modules can also contain other Modules, allowing to nest them in
-a tree structure. You can assign the submodules as regular attributes::</p>
-<pre><code>import torch.nn as nn
-import torch.nn.functional as F
-
-class Model(nn.Module):
-    def __init__(self):
-        super().__init__()
-        self.conv1 = nn.Conv2d(1, 20, 5)
-        self.conv2 = nn.Conv2d(20, 20, 5)
-
-    def forward(self, x):
-        x = F.relu(self.conv1(x))
-        return F.relu(self.conv2(x))
-</code></pre>
-<p>Submodules assigned in this way will be registered, and will have their
-parameters converted too when you call :meth:<code>to</code>, etc.</p>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>As per the example above, an <code>__init__()</code> call to the parent class
-must be made before assignment on the child.</p>
-</div>
-<p>:ivar training: Boolean represents whether this module is in training or
-evaluation mode.
-:vartype training: bool</p>
-<p>Initializes internal Module state, shared by both nn.Module and ScriptModule.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -232,32 +514,58 @@ evaluation mode.
         y = self.mlp(xf)
         return y</code></pre>
 </details>
+<div class="desc"><p>Base class for all neural network modules.</p>
+<p>Your models should also subclass this class.</p>
+<p>Modules can also contain other Modules, allowing them to be nested in
+a tree structure. You can assign the submodules as regular attributes::</p>
+<pre><code>import torch.nn as nn
+import torch.nn.functional as F
+
+
+class Model(nn.Module):
+    def __init__(self) -&gt; None:
+        super().__init__()
+        self.conv1 = nn.Conv2d(1, 20, 5)
+        self.conv2 = nn.Conv2d(20, 20, 5)
+
+    def forward(self, x):
+        x = F.relu(self.conv1(x))
+        return F.relu(self.conv2(x))
+</code></pre>
+<p>Submodules assigned in this way will be registered, and will also have their
+parameters converted when you call :meth:<code>to</code>, etc.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>As per the example above, an <code>__init__()</code> call to the parent class
+must be made before assignment on the child.</p>
+</div>
+<p>:ivar training: Boolean represents whether this module is in training or
+evaluation mode.
+:vartype training: bool</p>
+<p>Initialize internal Module state, shared by both nn.Module and ScriptModule.</p></div>
 <h3>Ancestors</h3>
 <ul class="hlist">
 <li>torch.nn.modules.module.Module</li>
 </ul>
-<h3>Class variables</h3>
-<dl>
-<dt id="phiml.backend.torch.nets.ConvClassifier.call_super_init"><code class="name">var <span class="ident">call_super_init</span> : bool</code></dt>
-<dd>
-<div class="desc"></div>
-</dd>
-<dt id="phiml.backend.torch.nets.ConvClassifier.dump_patches"><code class="name">var <span class="ident">dump_patches</span> : bool</code></dt>
-<dd>
-<div class="desc"></div>
-</dd>
-<dt id="phiml.backend.torch.nets.ConvClassifier.training"><code class="name">var <span class="ident">training</span> : bool</code></dt>
-<dd>
-<div class="desc"></div>
-</dd>
-</dl>
 <h3>Methods</h3>
 <dl>
 <dt id="phiml.backend.torch.nets.ConvClassifier.forward"><code class="name flex">
-<span>def <span class="ident">forward</span></span>(<span>self, x) ‑> Callable[..., Any]</span>
+<span>def <span class="ident">forward</span></span>(<span>self, x) ‑> Callable[..., typing.Any]</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Defines the computation performed at every call.</p>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def forward(self, x):
+    for i in range(len(self._blocks)):
+        x = getattr(self, f&#39;conv{i+1}&#39;)(x)
+        x = self.maxpool(x)
+    xf = self.flatten(x)
+    y = self.mlp(xf)
+    return y</code></pre>
+</details>
+<div class="desc"><p>Define the computation performed at every call.</p>
 <p>Should be overridden by all subclasses.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
@@ -274,34 +582,6 @@ registered hooks while the latter silently ignores them.</p>
 <span>(</span><span>in_spatial, in_channels, out_channels, layers, batch_norm, activation, periodic: bool)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Base class for all neural network modules.</p>
-<p>Your models should also subclass this class.</p>
-<p>Modules can also contain other Modules, allowing to nest them in
-a tree structure. You can assign the submodules as regular attributes::</p>
-<pre><code>import torch.nn as nn
-import torch.nn.functional as F
-
-class Model(nn.Module):
-    def __init__(self):
-        super().__init__()
-        self.conv1 = nn.Conv2d(1, 20, 5)
-        self.conv2 = nn.Conv2d(20, 20, 5)
-
-    def forward(self, x):
-        x = F.relu(self.conv1(x))
-        return F.relu(self.conv2(x))
-</code></pre>
-<p>Submodules assigned in this way will be registered, and will have their
-parameters converted too when you call :meth:<code>to</code>, etc.</p>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>As per the example above, an <code>__init__()</code> call to the parent class
-must be made before assignment on the child.</p>
-</div>
-<p>:ivar training: Boolean represents whether this module is in training or
-evaluation mode.
-:vartype training: bool</p>
-<p>Initializes internal Module state, shared by both nn.Module and ScriptModule.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -332,32 +612,57 @@ evaluation mode.
         x = getattr(self, f&#39;Conv_out&#39;)(x)
         return x</code></pre>
 </details>
+<div class="desc"><p>Base class for all neural network modules.</p>
+<p>Your models should also subclass this class.</p>
+<p>Modules can also contain other Modules, allowing them to be nested in
+a tree structure. You can assign the submodules as regular attributes::</p>
+<pre><code>import torch.nn as nn
+import torch.nn.functional as F
+
+
+class Model(nn.Module):
+    def __init__(self) -&gt; None:
+        super().__init__()
+        self.conv1 = nn.Conv2d(1, 20, 5)
+        self.conv2 = nn.Conv2d(20, 20, 5)
+
+    def forward(self, x):
+        x = F.relu(self.conv1(x))
+        return F.relu(self.conv2(x))
+</code></pre>
+<p>Submodules assigned in this way will be registered, and will also have their
+parameters converted when you call :meth:<code>to</code>, etc.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>As per the example above, an <code>__init__()</code> call to the parent class
+must be made before assignment on the child.</p>
+</div>
+<p>:ivar training: Boolean represents whether this module is in training or
+evaluation mode.
+:vartype training: bool</p>
+<p>Initialize internal Module state, shared by both nn.Module and ScriptModule.</p></div>
 <h3>Ancestors</h3>
 <ul class="hlist">
 <li>torch.nn.modules.module.Module</li>
 </ul>
-<h3>Class variables</h3>
-<dl>
-<dt id="phiml.backend.torch.nets.ConvNet.call_super_init"><code class="name">var <span class="ident">call_super_init</span> : bool</code></dt>
-<dd>
-<div class="desc"></div>
-</dd>
-<dt id="phiml.backend.torch.nets.ConvNet.dump_patches"><code class="name">var <span class="ident">dump_patches</span> : bool</code></dt>
-<dd>
-<div class="desc"></div>
-</dd>
-<dt id="phiml.backend.torch.nets.ConvNet.training"><code class="name">var <span class="ident">training</span> : bool</code></dt>
-<dd>
-<div class="desc"></div>
-</dd>
-</dl>
 <h3>Methods</h3>
 <dl>
 <dt id="phiml.backend.torch.nets.ConvNet.forward"><code class="name flex">
-<span>def <span class="ident">forward</span></span>(<span>self, x) ‑> Callable[..., Any]</span>
+<span>def <span class="ident">forward</span></span>(<span>self, x) ‑> Callable[..., typing.Any]</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Defines the computation performed at every call.</p>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def forward(self, x):
+    x = getattr(self, f&#39;Conv_in&#39;)(x)
+    for i in range(1, len(self.layers)):
+        x = getattr(self, f&#39;Conv{i}&#39;)(x)
+    x = getattr(self, f&#39;Conv_out&#39;)(x)
+    return x</code></pre>
+</details>
+<div class="desc"><p>Define the computation performed at every call.</p>
 <p>Should be overridden by all subclasses.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
@@ -374,34 +679,6 @@ registered hooks while the latter silently ignores them.</p>
 <span>(</span><span>construct_net: Callable, construction_kwargs: dict, reverse_mask)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Base class for all neural network modules.</p>
-<p>Your models should also subclass this class.</p>
-<p>Modules can also contain other Modules, allowing to nest them in
-a tree structure. You can assign the submodules as regular attributes::</p>
-<pre><code>import torch.nn as nn
-import torch.nn.functional as F
-
-class Model(nn.Module):
-    def __init__(self):
-        super().__init__()
-        self.conv1 = nn.Conv2d(1, 20, 5)
-        self.conv2 = nn.Conv2d(20, 20, 5)
-
-    def forward(self, x):
-        x = F.relu(self.conv1(x))
-        return F.relu(self.conv2(x))
-</code></pre>
-<p>Submodules assigned in this way will be registered, and will have their
-parameters converted too when you call :meth:<code>to</code>, etc.</p>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>As per the example above, an <code>__init__()</code> call to the parent class
-must be made before assignment on the child.</p>
-</div>
-<p>:ivar training: Boolean represents whether this module is in training or
-evaluation mode.
-:vartype training: bool</p>
-<p>Initializes internal Module state, shared by both nn.Module and ScriptModule.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -432,32 +709,66 @@ evaluation mode.
             v2 = (1 - mask) * (u2 * torch.exp(self.s1(v1)) + self.t1(v1))
             return v1 + v2</code></pre>
 </details>
+<div class="desc"><p>Base class for all neural network modules.</p>
+<p>Your models should also subclass this class.</p>
+<p>Modules can also contain other Modules, allowing them to be nested in
+a tree structure. You can assign the submodules as regular attributes::</p>
+<pre><code>import torch.nn as nn
+import torch.nn.functional as F
+
+
+class Model(nn.Module):
+    def __init__(self) -&gt; None:
+        super().__init__()
+        self.conv1 = nn.Conv2d(1, 20, 5)
+        self.conv2 = nn.Conv2d(20, 20, 5)
+
+    def forward(self, x):
+        x = F.relu(self.conv1(x))
+        return F.relu(self.conv2(x))
+</code></pre>
+<p>Submodules assigned in this way will be registered, and will also have their
+parameters converted when you call :meth:<code>to</code>, etc.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>As per the example above, an <code>__init__()</code> call to the parent class
+must be made before assignment on the child.</p>
+</div>
+<p>:ivar training: Boolean represents whether this module is in training or
+evaluation mode.
+:vartype training: bool</p>
+<p>Initialize internal Module state, shared by both nn.Module and ScriptModule.</p></div>
 <h3>Ancestors</h3>
 <ul class="hlist">
 <li>torch.nn.modules.module.Module</li>
 </ul>
-<h3>Class variables</h3>
-<dl>
-<dt id="phiml.backend.torch.nets.CouplingLayer.call_super_init"><code class="name">var <span class="ident">call_super_init</span> : bool</code></dt>
-<dd>
-<div class="desc"></div>
-</dd>
-<dt id="phiml.backend.torch.nets.CouplingLayer.dump_patches"><code class="name">var <span class="ident">dump_patches</span> : bool</code></dt>
-<dd>
-<div class="desc"></div>
-</dd>
-<dt id="phiml.backend.torch.nets.CouplingLayer.training"><code class="name">var <span class="ident">training</span> : bool</code></dt>
-<dd>
-<div class="desc"></div>
-</dd>
-</dl>
 <h3>Methods</h3>
 <dl>
 <dt id="phiml.backend.torch.nets.CouplingLayer.forward"><code class="name flex">
-<span>def <span class="ident">forward</span></span>(<span>self, x, invert=False) ‑> Callable[..., Any]</span>
+<span>def <span class="ident">forward</span></span>(<span>self, x, invert=False) ‑> Callable[..., typing.Any]</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Defines the computation performed at every call.</p>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def forward(self, x, invert=False):
+    x = TORCH.as_tensor(x)
+    mask = get_mask(x, self.reverse_mask, &#39;NCHW&#39;)
+    if invert:
+        v1 = x * mask
+        v2 = x * (1 - mask)
+        u2 = (1 - mask) * (v2 - self.t1(v1)) * torch.exp(-self.s1(v1))
+        u1 = mask * (v1 - self.t2(u2)) * torch.exp(-self.s2(u2))
+        return u1 + u2
+    else:
+        u1 = x * mask
+        u2 = x * (1 - mask)
+        v1 = mask * (u1 * torch.exp(self.s2(u2)) + self.t2(u2))
+        v2 = (1 - mask) * (u2 * torch.exp(self.s1(v1)) + self.t1(v1))
+        return v1 + v2</code></pre>
+</details>
+<div class="desc"><p>Define the computation performed at every call.</p>
 <p>Should be overridden by all subclasses.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
@@ -474,34 +785,6 @@ registered hooks while the latter silently ignores them.</p>
 <span>(</span><span>layers: list, activation: type, batch_norm: bool, use_softmax: bool)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Base class for all neural network modules.</p>
-<p>Your models should also subclass this class.</p>
-<p>Modules can also contain other Modules, allowing to nest them in
-a tree structure. You can assign the submodules as regular attributes::</p>
-<pre><code>import torch.nn as nn
-import torch.nn.functional as F
-
-class Model(nn.Module):
-    def __init__(self):
-        super().__init__()
-        self.conv1 = nn.Conv2d(1, 20, 5)
-        self.conv2 = nn.Conv2d(20, 20, 5)
-
-    def forward(self, x):
-        x = F.relu(self.conv1(x))
-        return F.relu(self.conv2(x))
-</code></pre>
-<p>Submodules assigned in this way will be registered, and will have their
-parameters converted too when you call :meth:<code>to</code>, etc.</p>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>As per the example above, an <code>__init__()</code> call to the parent class
-must be made before assignment on the child.</p>
-</div>
-<p>:ivar training: Boolean represents whether this module is in training or
-evaluation mode.
-:vartype training: bool</p>
-<p>Initializes internal Module state, shared by both nn.Module and ScriptModule.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -536,32 +819,62 @@ evaluation mode.
             x = self.softmax(x)
         return x</code></pre>
 </details>
+<div class="desc"><p>Base class for all neural network modules.</p>
+<p>Your models should also subclass this class.</p>
+<p>Modules can also contain other Modules, allowing them to be nested in
+a tree structure. You can assign the submodules as regular attributes::</p>
+<pre><code>import torch.nn as nn
+import torch.nn.functional as F
+
+
+class Model(nn.Module):
+    def __init__(self) -&gt; None:
+        super().__init__()
+        self.conv1 = nn.Conv2d(1, 20, 5)
+        self.conv2 = nn.Conv2d(20, 20, 5)
+
+    def forward(self, x):
+        x = F.relu(self.conv1(x))
+        return F.relu(self.conv2(x))
+</code></pre>
+<p>Submodules assigned in this way will be registered, and will also have their
+parameters converted when you call :meth:<code>to</code>, etc.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>As per the example above, an <code>__init__()</code> call to the parent class
+must be made before assignment on the child.</p>
+</div>
+<p>:ivar training: Boolean represents whether this module is in training or
+evaluation mode.
+:vartype training: bool</p>
+<p>Initialize internal Module state, shared by both nn.Module and ScriptModule.</p></div>
 <h3>Ancestors</h3>
 <ul class="hlist">
 <li>torch.nn.modules.module.Module</li>
 </ul>
-<h3>Class variables</h3>
-<dl>
-<dt id="phiml.backend.torch.nets.DenseNet.call_super_init"><code class="name">var <span class="ident">call_super_init</span> : bool</code></dt>
-<dd>
-<div class="desc"></div>
-</dd>
-<dt id="phiml.backend.torch.nets.DenseNet.dump_patches"><code class="name">var <span class="ident">dump_patches</span> : bool</code></dt>
-<dd>
-<div class="desc"></div>
-</dd>
-<dt id="phiml.backend.torch.nets.DenseNet.training"><code class="name">var <span class="ident">training</span> : bool</code></dt>
-<dd>
-<div class="desc"></div>
-</dd>
-</dl>
 <h3>Methods</h3>
 <dl>
 <dt id="phiml.backend.torch.nets.DenseNet.forward"><code class="name flex">
-<span>def <span class="ident">forward</span></span>(<span>self, x) ‑> Callable[..., Any]</span>
+<span>def <span class="ident">forward</span></span>(<span>self, x) ‑> Callable[..., typing.Any]</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Defines the computation performed at every call.</p>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def forward(self, x):
+    register_module_call(self)
+    x = TORCH.as_tensor(x)
+    for i in range(len(self._layers) - 2):
+        x = self._activation()(getattr(self, f&#39;linear{i}&#39;)(x))
+        if self._batch_norm:
+            x = getattr(self, f&#39;norm{i}&#39;)(x)
+    x = getattr(self, f&#39;linear_out&#39;)(x)
+    if self.softmax:
+        x = self.softmax(x)
+    return x</code></pre>
+</details>
+<div class="desc"><p>Define the computation performed at every call.</p>
 <p>Should be overridden by all subclasses.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
@@ -578,34 +891,6 @@ registered hooks while the latter silently ignores them.</p>
 <span>(</span><span>layers, batch_norm, activation)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Base class for all neural network modules.</p>
-<p>Your models should also subclass this class.</p>
-<p>Modules can also contain other Modules, allowing to nest them in
-a tree structure. You can assign the submodules as regular attributes::</p>
-<pre><code>import torch.nn as nn
-import torch.nn.functional as F
-
-class Model(nn.Module):
-    def __init__(self):
-        super().__init__()
-        self.conv1 = nn.Conv2d(1, 20, 5)
-        self.conv2 = nn.Conv2d(20, 20, 5)
-
-    def forward(self, x):
-        x = F.relu(self.conv1(x))
-        return F.relu(self.conv2(x))
-</code></pre>
-<p>Submodules assigned in this way will be registered, and will have their
-parameters converted too when you call :meth:<code>to</code>, etc.</p>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>As per the example above, an <code>__init__()</code> call to the parent class
-must be made before assignment on the child.</p>
-</div>
-<p>:ivar training: Boolean represents whether this module is in training or
-evaluation mode.
-:vartype training: bool</p>
-<p>Initializes internal Module state, shared by both nn.Module and ScriptModule.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -630,32 +915,58 @@ evaluation mode.
                 x = getattr(self, f&#39;norm{i}&#39;)(x)
         return x + x0</code></pre>
 </details>
+<div class="desc"><p>Base class for all neural network modules.</p>
+<p>Your models should also subclass this class.</p>
+<p>Modules can also contain other Modules, allowing them to be nested in
+a tree structure. You can assign the submodules as regular attributes::</p>
+<pre><code>import torch.nn as nn
+import torch.nn.functional as F
+
+
+class Model(nn.Module):
+    def __init__(self) -&gt; None:
+        super().__init__()
+        self.conv1 = nn.Conv2d(1, 20, 5)
+        self.conv2 = nn.Conv2d(20, 20, 5)
+
+    def forward(self, x):
+        x = F.relu(self.conv1(x))
+        return F.relu(self.conv2(x))
+</code></pre>
+<p>Submodules assigned in this way will be registered, and will also have their
+parameters converted when you call :meth:<code>to</code>, etc.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>As per the example above, an <code>__init__()</code> call to the parent class
+must be made before assignment on the child.</p>
+</div>
+<p>:ivar training: Boolean represents whether this module is in training or
+evaluation mode.
+:vartype training: bool</p>
+<p>Initialize internal Module state, shared by both nn.Module and ScriptModule.</p></div>
 <h3>Ancestors</h3>
 <ul class="hlist">
 <li>torch.nn.modules.module.Module</li>
 </ul>
-<h3>Class variables</h3>
-<dl>
-<dt id="phiml.backend.torch.nets.DenseResNetBlock.call_super_init"><code class="name">var <span class="ident">call_super_init</span> : bool</code></dt>
-<dd>
-<div class="desc"></div>
-</dd>
-<dt id="phiml.backend.torch.nets.DenseResNetBlock.dump_patches"><code class="name">var <span class="ident">dump_patches</span> : bool</code></dt>
-<dd>
-<div class="desc"></div>
-</dd>
-<dt id="phiml.backend.torch.nets.DenseResNetBlock.training"><code class="name">var <span class="ident">training</span> : bool</code></dt>
-<dd>
-<div class="desc"></div>
-</dd>
-</dl>
 <h3>Methods</h3>
 <dl>
 <dt id="phiml.backend.torch.nets.DenseResNetBlock.forward"><code class="name flex">
-<span>def <span class="ident">forward</span></span>(<span>self, x) ‑> Callable[..., Any]</span>
+<span>def <span class="ident">forward</span></span>(<span>self, x) ‑> Callable[..., typing.Any]</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Defines the computation performed at every call.</p>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def forward(self, x):
+    x0 = x
+    for i in range(len(self._layers) - 1):
+        x = self._activation()(getattr(self, f&#39;linear{i}&#39;)(x))
+        if self._batch_norm:
+            x = getattr(self, f&#39;norm{i}&#39;)(x)
+    return x + x0</code></pre>
+</details>
+<div class="desc"><p>Define the computation performed at every call.</p>
 <p>Should be overridden by all subclasses.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
@@ -669,11 +980,9 @@ registered hooks while the latter silently ignores them.</p>
 </dd>
 <dt id="phiml.backend.torch.nets.DoubleConv"><code class="flex name class">
 <span>class <span class="ident">DoubleConv</span></span>
-<span>(</span><span>d: int, in_channels: int, out_channels: int, mid_channels: int, batch_norm: bool, activation: type, periodic: bool, kernel_size=3)</span>
+<span>(</span><span>d: int,<br>in_channels: int,<br>out_channels: int,<br>mid_channels: int,<br>batch_norm: bool,<br>activation: type,<br>periodic: bool,<br>kernel_size=3)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>(convolution =&gt; [BN] =&gt; ReLU) * 2</p>
-<p>Initializes internal Module state, shared by both nn.Module and ScriptModule.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -695,32 +1004,26 @@ registered hooks while the latter silently ignores them.</p>
     def forward(self, x):
         return self.double_conv(x)</code></pre>
 </details>
+<div class="desc"><p>(convolution =&gt; [BN] =&gt; ReLU) * 2</p>
+<p>Initialize internal Module state, shared by both nn.Module and ScriptModule.</p></div>
 <h3>Ancestors</h3>
 <ul class="hlist">
 <li>torch.nn.modules.module.Module</li>
 </ul>
-<h3>Class variables</h3>
-<dl>
-<dt id="phiml.backend.torch.nets.DoubleConv.call_super_init"><code class="name">var <span class="ident">call_super_init</span> : bool</code></dt>
-<dd>
-<div class="desc"></div>
-</dd>
-<dt id="phiml.backend.torch.nets.DoubleConv.dump_patches"><code class="name">var <span class="ident">dump_patches</span> : bool</code></dt>
-<dd>
-<div class="desc"></div>
-</dd>
-<dt id="phiml.backend.torch.nets.DoubleConv.training"><code class="name">var <span class="ident">training</span> : bool</code></dt>
-<dd>
-<div class="desc"></div>
-</dd>
-</dl>
 <h3>Methods</h3>
 <dl>
 <dt id="phiml.backend.torch.nets.DoubleConv.forward"><code class="name flex">
-<span>def <span class="ident">forward</span></span>(<span>self, x) ‑> Callable[..., Any]</span>
+<span>def <span class="ident">forward</span></span>(<span>self, x) ‑> Callable[..., typing.Any]</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Defines the computation performed at every call.</p>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def forward(self, x):
+    return self.double_conv(x)</code></pre>
+</details>
+<div class="desc"><p>Define the computation performed at every call.</p>
 <p>Should be overridden by all subclasses.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
@@ -734,11 +1037,9 @@ registered hooks while the latter silently ignores them.</p>
 </dd>
 <dt id="phiml.backend.torch.nets.Down"><code class="flex name class">
 <span>class <span class="ident">Down</span></span>
-<span>(</span><span>d: int, in_channels: int, out_channels: int, batch_norm: bool, activation: Union[str, type], use_res_blocks: bool, periodic, kernel_size: int)</span>
+<span>(</span><span>d: int,<br>in_channels: int,<br>out_channels: int,<br>batch_norm: bool,<br>activation: str | type,<br>use_res_blocks: bool,<br>periodic,<br>kernel_size: int)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Downscaling with maxpool then double conv or resnet_block</p>
-<p>Initializes internal Module state, shared by both nn.Module and ScriptModule.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -758,32 +1059,27 @@ registered hooks while the latter silently ignores them.</p>
         x = self.maxpool(x)
         return self.conv(x)</code></pre>
 </details>
+<div class="desc"><p>Downscaling with maxpool then double conv or resnet_block</p>
+<p>Initialize internal Module state, shared by both nn.Module and ScriptModule.</p></div>
 <h3>Ancestors</h3>
 <ul class="hlist">
 <li>torch.nn.modules.module.Module</li>
 </ul>
-<h3>Class variables</h3>
-<dl>
-<dt id="phiml.backend.torch.nets.Down.call_super_init"><code class="name">var <span class="ident">call_super_init</span> : bool</code></dt>
-<dd>
-<div class="desc"></div>
-</dd>
-<dt id="phiml.backend.torch.nets.Down.dump_patches"><code class="name">var <span class="ident">dump_patches</span> : bool</code></dt>
-<dd>
-<div class="desc"></div>
-</dd>
-<dt id="phiml.backend.torch.nets.Down.training"><code class="name">var <span class="ident">training</span> : bool</code></dt>
-<dd>
-<div class="desc"></div>
-</dd>
-</dl>
 <h3>Methods</h3>
 <dl>
 <dt id="phiml.backend.torch.nets.Down.forward"><code class="name flex">
-<span>def <span class="ident">forward</span></span>(<span>self, x) ‑> Callable[..., Any]</span>
+<span>def <span class="ident">forward</span></span>(<span>self, x) ‑> Callable[..., typing.Any]</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Defines the computation performed at every call.</p>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def forward(self, x):
+    x = self.maxpool(x)
+    return self.conv(x)</code></pre>
+</details>
+<div class="desc"><p>Define the computation performed at every call.</p>
 <p>Should be overridden by all subclasses.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
@@ -800,34 +1096,6 @@ registered hooks while the latter silently ignores them.</p>
 <span>(</span><span>num_blocks: int, construct_net, construction_kwargs: dict)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Base class for all neural network modules.</p>
-<p>Your models should also subclass this class.</p>
-<p>Modules can also contain other Modules, allowing to nest them in
-a tree structure. You can assign the submodules as regular attributes::</p>
-<pre><code>import torch.nn as nn
-import torch.nn.functional as F
-
-class Model(nn.Module):
-    def __init__(self):
-        super().__init__()
-        self.conv1 = nn.Conv2d(1, 20, 5)
-        self.conv2 = nn.Conv2d(20, 20, 5)
-
-    def forward(self, x):
-        x = F.relu(self.conv1(x))
-        return F.relu(self.conv2(x))
-</code></pre>
-<p>Submodules assigned in this way will be registered, and will have their
-parameters converted too when you call :meth:<code>to</code>, etc.</p>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>As per the example above, an <code>__init__()</code> call to the parent class
-must be made before assignment on the child.</p>
-</div>
-<p>:ivar training: Boolean represents whether this module is in training or
-evaluation mode.
-:vartype training: bool</p>
-<p>Initializes internal Module state, shared by both nn.Module and ScriptModule.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -848,32 +1116,59 @@ evaluation mode.
                 x = getattr(self, f&#39;coupling_block{i}&#39;)(x, backward)
         return x</code></pre>
 </details>
+<div class="desc"><p>Base class for all neural network modules.</p>
+<p>Your models should also subclass this class.</p>
+<p>Modules can also contain other Modules, allowing them to be nested in
+a tree structure. You can assign the submodules as regular attributes::</p>
+<pre><code>import torch.nn as nn
+import torch.nn.functional as F
+
+
+class Model(nn.Module):
+    def __init__(self) -&gt; None:
+        super().__init__()
+        self.conv1 = nn.Conv2d(1, 20, 5)
+        self.conv2 = nn.Conv2d(20, 20, 5)
+
+    def forward(self, x):
+        x = F.relu(self.conv1(x))
+        return F.relu(self.conv2(x))
+</code></pre>
+<p>Submodules assigned in this way will be registered, and will also have their
+parameters converted when you call :meth:<code>to</code>, etc.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>As per the example above, an <code>__init__()</code> call to the parent class
+must be made before assignment on the child.</p>
+</div>
+<p>:ivar training: Boolean represents whether this module is in training or
+evaluation mode.
+:vartype training: bool</p>
+<p>Initialize internal Module state, shared by both nn.Module and ScriptModule.</p></div>
 <h3>Ancestors</h3>
 <ul class="hlist">
 <li>torch.nn.modules.module.Module</li>
 </ul>
-<h3>Class variables</h3>
-<dl>
-<dt id="phiml.backend.torch.nets.InvertibleNet.call_super_init"><code class="name">var <span class="ident">call_super_init</span> : bool</code></dt>
-<dd>
-<div class="desc"></div>
-</dd>
-<dt id="phiml.backend.torch.nets.InvertibleNet.dump_patches"><code class="name">var <span class="ident">dump_patches</span> : bool</code></dt>
-<dd>
-<div class="desc"></div>
-</dd>
-<dt id="phiml.backend.torch.nets.InvertibleNet.training"><code class="name">var <span class="ident">training</span> : bool</code></dt>
-<dd>
-<div class="desc"></div>
-</dd>
-</dl>
 <h3>Methods</h3>
 <dl>
 <dt id="phiml.backend.torch.nets.InvertibleNet.forward"><code class="name flex">
-<span>def <span class="ident">forward</span></span>(<span>self, x, backward=False) ‑> Callable[..., Any]</span>
+<span>def <span class="ident">forward</span></span>(<span>self, x, backward=False) ‑> Callable[..., typing.Any]</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Defines the computation performed at every call.</p>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def forward(self, x, backward=False):
+    if backward:
+        for i in range(self.num_blocks, 0, -1):
+            x = getattr(self, f&#39;coupling_block{i}&#39;)(x, backward)
+    else:
+        for i in range(1, self.num_blocks + 1):
+            x = getattr(self, f&#39;coupling_block{i}&#39;)(x, backward)
+    return x</code></pre>
+</details>
+<div class="desc"><p>Define the computation performed at every call.</p>
 <p>Should be overridden by all subclasses.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
@@ -890,34 +1185,6 @@ registered hooks while the latter silently ignores them.</p>
 <span>(</span><span>in_spatial, in_channels, out_channels, layers, batch_norm, activation, periodic: bool)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Base class for all neural network modules.</p>
-<p>Your models should also subclass this class.</p>
-<p>Modules can also contain other Modules, allowing to nest them in
-a tree structure. You can assign the submodules as regular attributes::</p>
-<pre><code>import torch.nn as nn
-import torch.nn.functional as F
-
-class Model(nn.Module):
-    def __init__(self):
-        super().__init__()
-        self.conv1 = nn.Conv2d(1, 20, 5)
-        self.conv2 = nn.Conv2d(20, 20, 5)
-
-    def forward(self, x):
-        x = F.relu(self.conv1(x))
-        return F.relu(self.conv2(x))
-</code></pre>
-<p>Submodules assigned in this way will be registered, and will have their
-parameters converted too when you call :meth:<code>to</code>, etc.</p>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>As per the example above, an <code>__init__()</code> call to the parent class
-must be made before assignment on the child.</p>
-</div>
-<p>:ivar training: Boolean represents whether this module is in training or
-evaluation mode.
-:vartype training: bool</p>
-<p>Initializes internal Module state, shared by both nn.Module and ScriptModule.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -942,32 +1209,58 @@ evaluation mode.
         x = getattr(self, &#39;Res_out&#39;)(x)
         return x</code></pre>
 </details>
+<div class="desc"><p>Base class for all neural network modules.</p>
+<p>Your models should also subclass this class.</p>
+<p>Modules can also contain other Modules, allowing them to be nested in
+a tree structure. You can assign the submodules as regular attributes::</p>
+<pre><code>import torch.nn as nn
+import torch.nn.functional as F
+
+
+class Model(nn.Module):
+    def __init__(self) -&gt; None:
+        super().__init__()
+        self.conv1 = nn.Conv2d(1, 20, 5)
+        self.conv2 = nn.Conv2d(20, 20, 5)
+
+    def forward(self, x):
+        x = F.relu(self.conv1(x))
+        return F.relu(self.conv2(x))
+</code></pre>
+<p>Submodules assigned in this way will be registered, and will also have their
+parameters converted when you call :meth:<code>to</code>, etc.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>As per the example above, an <code>__init__()</code> call to the parent class
+must be made before assignment on the child.</p>
+</div>
+<p>:ivar training: Boolean represents whether this module is in training or
+evaluation mode.
+:vartype training: bool</p>
+<p>Initialize internal Module state, shared by both nn.Module and ScriptModule.</p></div>
 <h3>Ancestors</h3>
 <ul class="hlist">
 <li>torch.nn.modules.module.Module</li>
 </ul>
-<h3>Class variables</h3>
-<dl>
-<dt id="phiml.backend.torch.nets.ResNet.call_super_init"><code class="name">var <span class="ident">call_super_init</span> : bool</code></dt>
-<dd>
-<div class="desc"></div>
-</dd>
-<dt id="phiml.backend.torch.nets.ResNet.dump_patches"><code class="name">var <span class="ident">dump_patches</span> : bool</code></dt>
-<dd>
-<div class="desc"></div>
-</dd>
-<dt id="phiml.backend.torch.nets.ResNet.training"><code class="name">var <span class="ident">training</span> : bool</code></dt>
-<dd>
-<div class="desc"></div>
-</dd>
-</dl>
 <h3>Methods</h3>
 <dl>
 <dt id="phiml.backend.torch.nets.ResNet.forward"><code class="name flex">
-<span>def <span class="ident">forward</span></span>(<span>self, x) ‑> Callable[..., Any]</span>
+<span>def <span class="ident">forward</span></span>(<span>self, x) ‑> Callable[..., typing.Any]</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Defines the computation performed at every call.</p>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def forward(self, x):
+    x = TORCH.as_tensor(x)
+    x = getattr(self, &#39;Res_in&#39;)(x)
+    for i in range(1, len(self.layers)):
+        x = getattr(self, f&#39;Res{i}&#39;)(x)
+    x = getattr(self, &#39;Res_out&#39;)(x)
+    return x</code></pre>
+</details>
+<div class="desc"><p>Define the computation performed at every call.</p>
 <p>Should be overridden by all subclasses.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
@@ -981,37 +1274,9 @@ registered hooks while the latter silently ignores them.</p>
 </dd>
 <dt id="phiml.backend.torch.nets.ResNetBlock"><code class="flex name class">
 <span>class <span class="ident">ResNetBlock</span></span>
-<span>(</span><span>in_spatial, in_channels, out_channels, batch_norm, activation, periodic: bool, kernel_size=3)</span>
+<span>(</span><span>in_spatial,<br>in_channels,<br>out_channels,<br>batch_norm,<br>activation,<br>periodic: bool,<br>kernel_size=3)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Base class for all neural network modules.</p>
-<p>Your models should also subclass this class.</p>
-<p>Modules can also contain other Modules, allowing to nest them in
-a tree structure. You can assign the submodules as regular attributes::</p>
-<pre><code>import torch.nn as nn
-import torch.nn.functional as F
-
-class Model(nn.Module):
-    def __init__(self):
-        super().__init__()
-        self.conv1 = nn.Conv2d(1, 20, 5)
-        self.conv2 = nn.Conv2d(20, 20, 5)
-
-    def forward(self, x):
-        x = F.relu(self.conv1(x))
-        return F.relu(self.conv2(x))
-</code></pre>
-<p>Submodules assigned in this way will be registered, and will have their
-parameters converted too when you call :meth:<code>to</code>, etc.</p>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>As per the example above, an <code>__init__()</code> call to the parent class
-must be made before assignment on the child.</p>
-</div>
-<p>:ivar training: Boolean represents whether this module is in training or
-evaluation mode.
-:vartype training: bool</p>
-<p>Initializes internal Module state, shared by both nn.Module and ScriptModule.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -1040,32 +1305,57 @@ evaluation mode.
         out = (out + self.bn_sample(self.sample_input(x)))
         return out</code></pre>
 </details>
+<div class="desc"><p>Base class for all neural network modules.</p>
+<p>Your models should also subclass this class.</p>
+<p>Modules can also contain other Modules, allowing them to be nested in
+a tree structure. You can assign the submodules as regular attributes::</p>
+<pre><code>import torch.nn as nn
+import torch.nn.functional as F
+
+
+class Model(nn.Module):
+    def __init__(self) -&gt; None:
+        super().__init__()
+        self.conv1 = nn.Conv2d(1, 20, 5)
+        self.conv2 = nn.Conv2d(20, 20, 5)
+
+    def forward(self, x):
+        x = F.relu(self.conv1(x))
+        return F.relu(self.conv2(x))
+</code></pre>
+<p>Submodules assigned in this way will be registered, and will also have their
+parameters converted when you call :meth:<code>to</code>, etc.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>As per the example above, an <code>__init__()</code> call to the parent class
+must be made before assignment on the child.</p>
+</div>
+<p>:ivar training: Boolean represents whether this module is in training or
+evaluation mode.
+:vartype training: bool</p>
+<p>Initialize internal Module state, shared by both nn.Module and ScriptModule.</p></div>
 <h3>Ancestors</h3>
 <ul class="hlist">
 <li>torch.nn.modules.module.Module</li>
 </ul>
-<h3>Class variables</h3>
-<dl>
-<dt id="phiml.backend.torch.nets.ResNetBlock.call_super_init"><code class="name">var <span class="ident">call_super_init</span> : bool</code></dt>
-<dd>
-<div class="desc"></div>
-</dd>
-<dt id="phiml.backend.torch.nets.ResNetBlock.dump_patches"><code class="name">var <span class="ident">dump_patches</span> : bool</code></dt>
-<dd>
-<div class="desc"></div>
-</dd>
-<dt id="phiml.backend.torch.nets.ResNetBlock.training"><code class="name">var <span class="ident">training</span> : bool</code></dt>
-<dd>
-<div class="desc"></div>
-</dd>
-</dl>
 <h3>Methods</h3>
 <dl>
 <dt id="phiml.backend.torch.nets.ResNetBlock.forward"><code class="name flex">
-<span>def <span class="ident">forward</span></span>(<span>self, x) ‑> Callable[..., Any]</span>
+<span>def <span class="ident">forward</span></span>(<span>self, x) ‑> Callable[..., typing.Any]</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Defines the computation performed at every call.</p>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def forward(self, x):
+    x = TORCH.as_tensor(x)
+    out = self.activation()(self.bn1(self.conv1(x)))
+    out = self.activation()(self.bn2(self.conv2(out)))
+    out = (out + self.bn_sample(self.sample_input(x)))
+    return out</code></pre>
+</details>
+<div class="desc"><p>Define the computation performed at every call.</p>
 <p>Should be overridden by all subclasses.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
@@ -1079,37 +1369,9 @@ registered hooks while the latter silently ignores them.</p>
 </dd>
 <dt id="phiml.backend.torch.nets.UNet"><code class="flex name class">
 <span>class <span class="ident">UNet</span></span>
-<span>(</span><span>d: int, in_channels: int, out_channels: int, filters: tuple, batch_norm: bool, activation: type, periodic: bool, use_res_blocks: bool, down_kernel_size: int, up_kernel_size: int)</span>
+<span>(</span><span>d: int,<br>in_channels: int,<br>out_channels: int,<br>filters: tuple,<br>batch_norm: bool,<br>activation: type,<br>periodic: bool,<br>use_res_blocks: bool,<br>down_kernel_size: int,<br>up_kernel_size: int)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Base class for all neural network modules.</p>
-<p>Your models should also subclass this class.</p>
-<p>Modules can also contain other Modules, allowing to nest them in
-a tree structure. You can assign the submodules as regular attributes::</p>
-<pre><code>import torch.nn as nn
-import torch.nn.functional as F
-
-class Model(nn.Module):
-    def __init__(self):
-        super().__init__()
-        self.conv1 = nn.Conv2d(1, 20, 5)
-        self.conv2 = nn.Conv2d(20, 20, 5)
-
-    def forward(self, x):
-        x = F.relu(self.conv1(x))
-        return F.relu(self.conv2(x))
-</code></pre>
-<p>Submodules assigned in this way will be registered, and will have their
-parameters converted too when you call :meth:<code>to</code>, etc.</p>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>As per the example above, an <code>__init__()</code> call to the parent class
-must be made before assignment on the child.</p>
-</div>
-<p>:ivar training: Boolean represents whether this module is in training or
-evaluation mode.
-:vartype training: bool</p>
-<p>Initializes internal Module state, shared by both nn.Module and ScriptModule.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -1142,32 +1404,63 @@ evaluation mode.
         x = self.outc(x)
         return x</code></pre>
 </details>
+<div class="desc"><p>Base class for all neural network modules.</p>
+<p>Your models should also subclass this class.</p>
+<p>Modules can also contain other Modules, allowing them to be nested in
+a tree structure. You can assign the submodules as regular attributes::</p>
+<pre><code>import torch.nn as nn
+import torch.nn.functional as F
+
+
+class Model(nn.Module):
+    def __init__(self) -&gt; None:
+        super().__init__()
+        self.conv1 = nn.Conv2d(1, 20, 5)
+        self.conv2 = nn.Conv2d(20, 20, 5)
+
+    def forward(self, x):
+        x = F.relu(self.conv1(x))
+        return F.relu(self.conv2(x))
+</code></pre>
+<p>Submodules assigned in this way will be registered, and will also have their
+parameters converted when you call :meth:<code>to</code>, etc.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>As per the example above, an <code>__init__()</code> call to the parent class
+must be made before assignment on the child.</p>
+</div>
+<p>:ivar training: Boolean represents whether this module is in training or
+evaluation mode.
+:vartype training: bool</p>
+<p>Initialize internal Module state, shared by both nn.Module and ScriptModule.</p></div>
 <h3>Ancestors</h3>
 <ul class="hlist">
 <li>torch.nn.modules.module.Module</li>
 </ul>
-<h3>Class variables</h3>
-<dl>
-<dt id="phiml.backend.torch.nets.UNet.call_super_init"><code class="name">var <span class="ident">call_super_init</span> : bool</code></dt>
-<dd>
-<div class="desc"></div>
-</dd>
-<dt id="phiml.backend.torch.nets.UNet.dump_patches"><code class="name">var <span class="ident">dump_patches</span> : bool</code></dt>
-<dd>
-<div class="desc"></div>
-</dd>
-<dt id="phiml.backend.torch.nets.UNet.training"><code class="name">var <span class="ident">training</span> : bool</code></dt>
-<dd>
-<div class="desc"></div>
-</dd>
-</dl>
 <h3>Methods</h3>
 <dl>
 <dt id="phiml.backend.torch.nets.UNet.forward"><code class="name flex">
-<span>def <span class="ident">forward</span></span>(<span>self, x) ‑> Callable[..., Any]</span>
+<span>def <span class="ident">forward</span></span>(<span>self, x) ‑> Callable[..., typing.Any]</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Defines the computation performed at every call.</p>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def forward(self, x):
+    register_module_call(self)
+    x = TORCH.as_tensor(x)
+    x = self.inc(x)
+    xs = [x]
+    for i in range(1, self._levels):
+        x = getattr(self, f&#39;down{i}&#39;)(x)
+        xs.insert(0, x)
+    for i in range(1, self._levels):
+        x = getattr(self, f&#39;up{i}&#39;)(x, xs[i])
+    x = self.outc(x)
+    return x</code></pre>
+</details>
+<div class="desc"><p>Define the computation performed at every call.</p>
 <p>Should be overridden by all subclasses.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
@@ -1181,11 +1474,9 @@ registered hooks while the latter silently ignores them.</p>
 </dd>
 <dt id="phiml.backend.torch.nets.Up"><code class="flex name class">
 <span>class <span class="ident">Up</span></span>
-<span>(</span><span>d: int, in_channels: int, out_channels: int, batch_norm: bool, activation: type, periodic: bool, use_res_blocks: bool, kernel_size: int)</span>
+<span>(</span><span>d: int,<br>in_channels: int,<br>out_channels: int,<br>batch_norm: bool,<br>activation: type,<br>periodic: bool,<br>use_res_blocks: bool,<br>kernel_size: int)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Upscaling then double conv</p>
-<p>Initializes internal Module state, shared by both nn.Module and ScriptModule.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -1215,32 +1506,35 @@ registered hooks while the latter silently ignores them.</p>
         x = torch.cat([x2, x1], dim=1)
         return self.conv(x)</code></pre>
 </details>
+<div class="desc"><p>Upscaling then double conv</p>
+<p>Initialize internal Module state, shared by both nn.Module and ScriptModule.</p></div>
 <h3>Ancestors</h3>
 <ul class="hlist">
 <li>torch.nn.modules.module.Module</li>
 </ul>
-<h3>Class variables</h3>
-<dl>
-<dt id="phiml.backend.torch.nets.Up.call_super_init"><code class="name">var <span class="ident">call_super_init</span> : bool</code></dt>
-<dd>
-<div class="desc"></div>
-</dd>
-<dt id="phiml.backend.torch.nets.Up.dump_patches"><code class="name">var <span class="ident">dump_patches</span> : bool</code></dt>
-<dd>
-<div class="desc"></div>
-</dd>
-<dt id="phiml.backend.torch.nets.Up.training"><code class="name">var <span class="ident">training</span> : bool</code></dt>
-<dd>
-<div class="desc"></div>
-</dd>
-</dl>
 <h3>Methods</h3>
 <dl>
 <dt id="phiml.backend.torch.nets.Up.forward"><code class="name flex">
-<span>def <span class="ident">forward</span></span>(<span>self, x1, x2) ‑> Callable[..., Any]</span>
+<span>def <span class="ident">forward</span></span>(<span>self, x1, x2) ‑> Callable[..., typing.Any]</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Defines the computation performed at every call.</p>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def forward(self, x1, x2):
+    x1 = self.up(x1)
+    # input is CHW
+    # diff = [x2.size()[i] - x1.size()[i] for i in range(2, len(x1.shape))]
+    # x1 = F.pad(x1, [diffX // 2, diffX - diffX // 2,
+    #                 diffY // 2, diffY - diffY // 2])
+    # if you have padding issues, see
+    # https://github.com/HaiyongJiang/U-Net-Pytorch-Unstructured-Buggy/commit/0e854509c2cea854e247a9c615f175f76fbb2e3a
+    # https://github.com/xiaopeng-liao/Pytorch-UNet/commit/8ebac70e633bac59fc22bb5195e513d5832fb3bd
+    x = torch.cat([x2, x1], dim=1)
+    return self.conv(x)</code></pre>
+</details>
+<div class="desc"><p>Define the computation performed at every call.</p>
 <p>Should be overridden by all subclasses.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
@@ -1292,109 +1586,73 @@ registered hooks while the latter silently ignores them.</p>
 <li>
 <h4><code><a title="phiml.backend.torch.nets.ConvClassifier" href="#phiml.backend.torch.nets.ConvClassifier">ConvClassifier</a></code></h4>
 <ul class="">
-<li><code><a title="phiml.backend.torch.nets.ConvClassifier.call_super_init" href="#phiml.backend.torch.nets.ConvClassifier.call_super_init">call_super_init</a></code></li>
-<li><code><a title="phiml.backend.torch.nets.ConvClassifier.dump_patches" href="#phiml.backend.torch.nets.ConvClassifier.dump_patches">dump_patches</a></code></li>
 <li><code><a title="phiml.backend.torch.nets.ConvClassifier.forward" href="#phiml.backend.torch.nets.ConvClassifier.forward">forward</a></code></li>
-<li><code><a title="phiml.backend.torch.nets.ConvClassifier.training" href="#phiml.backend.torch.nets.ConvClassifier.training">training</a></code></li>
 </ul>
 </li>
 <li>
 <h4><code><a title="phiml.backend.torch.nets.ConvNet" href="#phiml.backend.torch.nets.ConvNet">ConvNet</a></code></h4>
 <ul class="">
-<li><code><a title="phiml.backend.torch.nets.ConvNet.call_super_init" href="#phiml.backend.torch.nets.ConvNet.call_super_init">call_super_init</a></code></li>
-<li><code><a title="phiml.backend.torch.nets.ConvNet.dump_patches" href="#phiml.backend.torch.nets.ConvNet.dump_patches">dump_patches</a></code></li>
 <li><code><a title="phiml.backend.torch.nets.ConvNet.forward" href="#phiml.backend.torch.nets.ConvNet.forward">forward</a></code></li>
-<li><code><a title="phiml.backend.torch.nets.ConvNet.training" href="#phiml.backend.torch.nets.ConvNet.training">training</a></code></li>
 </ul>
 </li>
 <li>
 <h4><code><a title="phiml.backend.torch.nets.CouplingLayer" href="#phiml.backend.torch.nets.CouplingLayer">CouplingLayer</a></code></h4>
 <ul class="">
-<li><code><a title="phiml.backend.torch.nets.CouplingLayer.call_super_init" href="#phiml.backend.torch.nets.CouplingLayer.call_super_init">call_super_init</a></code></li>
-<li><code><a title="phiml.backend.torch.nets.CouplingLayer.dump_patches" href="#phiml.backend.torch.nets.CouplingLayer.dump_patches">dump_patches</a></code></li>
 <li><code><a title="phiml.backend.torch.nets.CouplingLayer.forward" href="#phiml.backend.torch.nets.CouplingLayer.forward">forward</a></code></li>
-<li><code><a title="phiml.backend.torch.nets.CouplingLayer.training" href="#phiml.backend.torch.nets.CouplingLayer.training">training</a></code></li>
 </ul>
 </li>
 <li>
 <h4><code><a title="phiml.backend.torch.nets.DenseNet" href="#phiml.backend.torch.nets.DenseNet">DenseNet</a></code></h4>
 <ul class="">
-<li><code><a title="phiml.backend.torch.nets.DenseNet.call_super_init" href="#phiml.backend.torch.nets.DenseNet.call_super_init">call_super_init</a></code></li>
-<li><code><a title="phiml.backend.torch.nets.DenseNet.dump_patches" href="#phiml.backend.torch.nets.DenseNet.dump_patches">dump_patches</a></code></li>
 <li><code><a title="phiml.backend.torch.nets.DenseNet.forward" href="#phiml.backend.torch.nets.DenseNet.forward">forward</a></code></li>
-<li><code><a title="phiml.backend.torch.nets.DenseNet.training" href="#phiml.backend.torch.nets.DenseNet.training">training</a></code></li>
 </ul>
 </li>
 <li>
 <h4><code><a title="phiml.backend.torch.nets.DenseResNetBlock" href="#phiml.backend.torch.nets.DenseResNetBlock">DenseResNetBlock</a></code></h4>
 <ul class="">
-<li><code><a title="phiml.backend.torch.nets.DenseResNetBlock.call_super_init" href="#phiml.backend.torch.nets.DenseResNetBlock.call_super_init">call_super_init</a></code></li>
-<li><code><a title="phiml.backend.torch.nets.DenseResNetBlock.dump_patches" href="#phiml.backend.torch.nets.DenseResNetBlock.dump_patches">dump_patches</a></code></li>
 <li><code><a title="phiml.backend.torch.nets.DenseResNetBlock.forward" href="#phiml.backend.torch.nets.DenseResNetBlock.forward">forward</a></code></li>
-<li><code><a title="phiml.backend.torch.nets.DenseResNetBlock.training" href="#phiml.backend.torch.nets.DenseResNetBlock.training">training</a></code></li>
 </ul>
 </li>
 <li>
 <h4><code><a title="phiml.backend.torch.nets.DoubleConv" href="#phiml.backend.torch.nets.DoubleConv">DoubleConv</a></code></h4>
 <ul class="">
-<li><code><a title="phiml.backend.torch.nets.DoubleConv.call_super_init" href="#phiml.backend.torch.nets.DoubleConv.call_super_init">call_super_init</a></code></li>
-<li><code><a title="phiml.backend.torch.nets.DoubleConv.dump_patches" href="#phiml.backend.torch.nets.DoubleConv.dump_patches">dump_patches</a></code></li>
 <li><code><a title="phiml.backend.torch.nets.DoubleConv.forward" href="#phiml.backend.torch.nets.DoubleConv.forward">forward</a></code></li>
-<li><code><a title="phiml.backend.torch.nets.DoubleConv.training" href="#phiml.backend.torch.nets.DoubleConv.training">training</a></code></li>
 </ul>
 </li>
 <li>
 <h4><code><a title="phiml.backend.torch.nets.Down" href="#phiml.backend.torch.nets.Down">Down</a></code></h4>
 <ul class="">
-<li><code><a title="phiml.backend.torch.nets.Down.call_super_init" href="#phiml.backend.torch.nets.Down.call_super_init">call_super_init</a></code></li>
-<li><code><a title="phiml.backend.torch.nets.Down.dump_patches" href="#phiml.backend.torch.nets.Down.dump_patches">dump_patches</a></code></li>
 <li><code><a title="phiml.backend.torch.nets.Down.forward" href="#phiml.backend.torch.nets.Down.forward">forward</a></code></li>
-<li><code><a title="phiml.backend.torch.nets.Down.training" href="#phiml.backend.torch.nets.Down.training">training</a></code></li>
 </ul>
 </li>
 <li>
 <h4><code><a title="phiml.backend.torch.nets.InvertibleNet" href="#phiml.backend.torch.nets.InvertibleNet">InvertibleNet</a></code></h4>
 <ul class="">
-<li><code><a title="phiml.backend.torch.nets.InvertibleNet.call_super_init" href="#phiml.backend.torch.nets.InvertibleNet.call_super_init">call_super_init</a></code></li>
-<li><code><a title="phiml.backend.torch.nets.InvertibleNet.dump_patches" href="#phiml.backend.torch.nets.InvertibleNet.dump_patches">dump_patches</a></code></li>
 <li><code><a title="phiml.backend.torch.nets.InvertibleNet.forward" href="#phiml.backend.torch.nets.InvertibleNet.forward">forward</a></code></li>
-<li><code><a title="phiml.backend.torch.nets.InvertibleNet.training" href="#phiml.backend.torch.nets.InvertibleNet.training">training</a></code></li>
 </ul>
 </li>
 <li>
 <h4><code><a title="phiml.backend.torch.nets.ResNet" href="#phiml.backend.torch.nets.ResNet">ResNet</a></code></h4>
 <ul class="">
-<li><code><a title="phiml.backend.torch.nets.ResNet.call_super_init" href="#phiml.backend.torch.nets.ResNet.call_super_init">call_super_init</a></code></li>
-<li><code><a title="phiml.backend.torch.nets.ResNet.dump_patches" href="#phiml.backend.torch.nets.ResNet.dump_patches">dump_patches</a></code></li>
 <li><code><a title="phiml.backend.torch.nets.ResNet.forward" href="#phiml.backend.torch.nets.ResNet.forward">forward</a></code></li>
-<li><code><a title="phiml.backend.torch.nets.ResNet.training" href="#phiml.backend.torch.nets.ResNet.training">training</a></code></li>
 </ul>
 </li>
 <li>
 <h4><code><a title="phiml.backend.torch.nets.ResNetBlock" href="#phiml.backend.torch.nets.ResNetBlock">ResNetBlock</a></code></h4>
 <ul class="">
-<li><code><a title="phiml.backend.torch.nets.ResNetBlock.call_super_init" href="#phiml.backend.torch.nets.ResNetBlock.call_super_init">call_super_init</a></code></li>
-<li><code><a title="phiml.backend.torch.nets.ResNetBlock.dump_patches" href="#phiml.backend.torch.nets.ResNetBlock.dump_patches">dump_patches</a></code></li>
 <li><code><a title="phiml.backend.torch.nets.ResNetBlock.forward" href="#phiml.backend.torch.nets.ResNetBlock.forward">forward</a></code></li>
-<li><code><a title="phiml.backend.torch.nets.ResNetBlock.training" href="#phiml.backend.torch.nets.ResNetBlock.training">training</a></code></li>
 </ul>
 </li>
 <li>
 <h4><code><a title="phiml.backend.torch.nets.UNet" href="#phiml.backend.torch.nets.UNet">UNet</a></code></h4>
 <ul class="">
-<li><code><a title="phiml.backend.torch.nets.UNet.call_super_init" href="#phiml.backend.torch.nets.UNet.call_super_init">call_super_init</a></code></li>
-<li><code><a title="phiml.backend.torch.nets.UNet.dump_patches" href="#phiml.backend.torch.nets.UNet.dump_patches">dump_patches</a></code></li>
 <li><code><a title="phiml.backend.torch.nets.UNet.forward" href="#phiml.backend.torch.nets.UNet.forward">forward</a></code></li>
-<li><code><a title="phiml.backend.torch.nets.UNet.training" href="#phiml.backend.torch.nets.UNet.training">training</a></code></li>
 </ul>
 </li>
 <li>
 <h4><code><a title="phiml.backend.torch.nets.Up" href="#phiml.backend.torch.nets.Up">Up</a></code></h4>
 <ul class="">
-<li><code><a title="phiml.backend.torch.nets.Up.call_super_init" href="#phiml.backend.torch.nets.Up.call_super_init">call_super_init</a></code></li>
-<li><code><a title="phiml.backend.torch.nets.Up.dump_patches" href="#phiml.backend.torch.nets.Up.dump_patches">dump_patches</a></code></li>
 <li><code><a title="phiml.backend.torch.nets.Up.forward" href="#phiml.backend.torch.nets.Up.forward">forward</a></code></li>
-<li><code><a title="phiml.backend.torch.nets.Up.training" href="#phiml.backend.torch.nets.Up.training">training</a></code></li>
 </ul>
 </li>
 </ul>
@@ -1403,7 +1661,7 @@ registered hooks while the latter silently ignores them.</p>
 </nav>
 </main>
 <footer id="footer">
-<p>Generated by <a href="https://pdoc3.github.io/pdoc" title="pdoc: Python API documentation generator"><cite>pdoc</cite> 0.11.0</a>.</p>
+<p>Generated by <a href="https://pdoc3.github.io/pdoc" title="pdoc: Python API documentation generator"><cite>pdoc</cite> 0.11.6</a>.</p>
 </footer>
 </body>
 </html>

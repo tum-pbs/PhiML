@@ -3,20 +3,31 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1">
-<meta name="generator" content="pdoc3 0.11.0">
+<meta name="generator" content="pdoc3 0.11.6">
 <title>phiml.dataclasses API documentation</title>
 <meta name="description" content="PhiML makes it easy to work with custom classes.
 Any class decorated with `@dataclass` can be used with `phiml.math` functions, such as `shape()`, …">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/13.0.0/sanitize.min.css" integrity="sha512-y1dtMcuvtTMJc1yPgEqF0ZjQbhnc/bFhyvIyVNb9Zk5mIGtqVaAB1Ttl28su8AvFMOY0EwRbAe+HCLqj6W7/KA==" crossorigin>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/13.0.0/typography.min.css" integrity="sha512-Y1DYSb995BAfxobCkKepB1BqJJTPrOp3zPL74AWFugHHmmdcvO+C48WLrUOlhGMc0QG7AE3f7gmvvcrmX2fDoA==" crossorigin>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/default.min.css" crossorigin>
-<style>:root{--highlight-color:#fe9}.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:1.5em;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:2em 0 .50em 0}h3{font-size:1.4em;margin:1.6em 0 .7em 0}h4{margin:0;font-size:105%}h1:target,h2:target,h3:target,h4:target,h5:target,h6:target{background:var(--highlight-color);padding:.2em 0}a{color:#058;text-decoration:none;transition:color .2s ease-in-out}a:visited{color:#503}a:hover{color:#b62}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900;font-weight:bold}pre code{font-size:.8em;line-height:1.4em;padding:1em;display:block}code{background:#f3f3f3;font-family:"DejaVu Sans Mono",monospace;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}dt:target .name{background:var(--highlight-color)}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}td{padding:0 .5em}.admonition{padding:.1em 1em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style>:root{--highlight-color:#fe9}.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:1.5em;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:2em 0 .50em 0}h3{font-size:1.4em;margin:1.6em 0 .7em 0}h4{margin:0;font-size:105%}h1:target,h2:target,h3:target,h4:target,h5:target,h6:target{background:var(--highlight-color);padding:.2em 0}a{color:#058;text-decoration:none;transition:color .2s ease-in-out}a:visited{color:#503}a:hover{color:#b62}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900;font-weight:bold}pre code{font-size:.8em;line-height:1.4em;padding:1em;display:block}code{background:#f3f3f3;font-family:"DejaVu Sans Mono",monospace;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}dt:target .name{background:var(--highlight-color)}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source > summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible;min-width:max-content}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}td{padding:0 .5em}.admonition{padding:.1em 1em;margin:1em 0}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
 <style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul ul{padding-left:1em}.toc > ul > li{margin-top:.5em}}</style>
 <style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
 <script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js" integrity="sha512-D9gUyxqja7hBtkWpPWGt9wfbfaMGVt9gnyCvYa+jojwwPHLCzUm5i8rpk7vD7wNee9bA35eYIjobYPaQuKS1MQ==" crossorigin></script>
 <script>window.addEventListener('DOMContentLoaded', () => {
 hljs.configure({languages: ['bash', 'css', 'diff', 'graphql', 'ini', 'javascript', 'json', 'plaintext', 'python', 'python-repl', 'rust', 'shell', 'sql', 'typescript', 'xml', 'yaml']});
 hljs.highlightAll();
+/* Collapse source docstrings */
+setTimeout(() => {
+[...document.querySelectorAll('.hljs.language-python > .hljs-string')]
+.filter(el => el.innerHTML.length > 200 && ['"""', "'''"].includes(el.innerHTML.substring(0, 3)))
+.forEach(el => {
+let d = document.createElement('details');
+d.classList.add('hljs-string');
+d.innerHTML = '<summary>"""</summary>' + el.innerHTML.substring(3);
+el.replaceWith(d);
+});
+}, 100);
 })</script>
 </head>
 <body>
@@ -76,6 +87,23 @@ This affects which data_fields are optimized / traced by functions like <code><a
 <span>def <span class="ident">config_fields</span></span>(<span>obj) ‑> Sequence[dataclasses.Field]</span>
 </code></dt>
 <dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def config_fields(obj) -&gt; Sequence[dataclasses.Field]:
+    &#34;&#34;&#34;
+    List all dataclass Fields of `obj` that are not considered data_fields or special.
+    These cannot hold any Tensors or shaped objects.
+
+    Args:
+        obj: Dataclass type or instance.
+
+    Returns:
+        Sequence of `dataclasses.Field`.
+    &#34;&#34;&#34;
+    return [f for f in dataclasses.fields(obj) if not is_data_field(f) and f.name not in (&#39;variable_attrs&#39;, &#39;value_attrs&#39;)]</code></pre>
+</details>
 <div class="desc"><p>List all dataclass Fields of <code>obj</code> that are not considered data_fields or special.
 These cannot hold any Tensors or shaped objects.</p>
 <h2 id="args">Args</h2>
@@ -90,6 +118,21 @@ These cannot hold any Tensors or shaped objects.</p>
 <span>def <span class="ident">copy</span></span>(<span>obj: ~PhiMLDataclass, /, call_metaclass=False) ‑> ~PhiMLDataclass</span>
 </code></dt>
 <dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def copy(obj: PhiMLDataclass, /, call_metaclass=False) -&gt; PhiMLDataclass:
+    &#34;&#34;&#34;
+    Create a copy of `obj`, including cached properties.
+
+    Args:
+        obj: Dataclass instance.
+        call_metaclass: Whether to copy `obj` by invoking `type(obj).__call__`.
+            If `obj` defines a metaclass, this will allow users to define custom constructors for dataclasses.
+    &#34;&#34;&#34;
+    return replace(obj, call_metaclass=call_metaclass)</code></pre>
+</details>
 <div class="desc"><p>Create a copy of <code>obj</code>, including cached properties.</p>
 <h2 id="args">Args</h2>
 <dl>
@@ -101,9 +144,42 @@ If <code>obj</code> defines a metaclass, this will allow users to define custom 
 </dl></div>
 </dd>
 <dt id="phiml.dataclasses.data_eq"><code class="name flex">
-<span>def <span class="ident">data_eq</span></span>(<span>cls=None, /, *, rel_tolerance=0.0, abs_tolerance=0.0, equal_nan=True, compare_tensors_by_ref=False)</span>
+<span>def <span class="ident">data_eq</span></span>(<span>cls=None,<br>/,<br>*,<br>rel_tolerance=0.0,<br>abs_tolerance=0.0,<br>equal_nan=True,<br>compare_tensors_by_ref=False)</span>
 </code></dt>
 <dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def data_eq(cls=None, /, *, rel_tolerance=0., abs_tolerance=0., equal_nan=True, compare_tensors_by_ref=False):
+    &#34;&#34;&#34;
+    Decorator for dataclasses that overrides the default `__eq__` method to compare data fields by shape and value instead of equality.
+    Non-data fields are compared by equality (`==`).
+
+    See Also:
+        `equal()`, `data_fields()`, `non_data_fields()`.
+
+    Args:
+        rel_tolerance: Relative tolerance for comparing floating point tensors.
+        abs_tolerance: Absolute tolerance for comparing floating point tensors.
+        equal_nan: Whether to consider NaN values as equal.
+        compare_tensors_by_ref: If True, compares all tensors by reference (location in memory) instead of value.
+            This avoids costly element-wise comparisons, but may count objects as unequal even if they hold the same data.
+    &#34;&#34;&#34;
+    def wrap(cls):
+        assert cls.__dataclass_params__.eq, f&#34;@data_eq can only be used with dataclasses with eq=True.&#34;
+        cls.__default_dataclass_eq__ = cls.__eq__
+        def __tensor_eq__(obj, other):
+            if compare_tensors_by_ref:
+                with equality_by_ref():
+                    return cls.__default_dataclass_eq__(obj, other)
+            with equality_by_shape_and_value(rel_tolerance, abs_tolerance, equal_nan):
+                return cls.__default_dataclass_eq__(obj, other)
+        cls.__eq__ = __tensor_eq__
+        # __ne__ calls `not __eq__()` by default
+        return cls
+    return wrap(cls) if cls is not None else wrap  # See if we&#39;re being called as @dataclass or @dataclass().</code></pre>
+</details>
 <div class="desc"><p>Decorator for dataclasses that overrides the default <code>__eq__</code> method to compare data fields by shape and value instead of equality.
 Non-data fields are compared by equality (<code>==</code>).</p>
 <p>See Also:
@@ -125,6 +201,23 @@ This avoids costly element-wise comparisons, but may count objects as unequal ev
 <span>def <span class="ident">data_fields</span></span>(<span>obj) ‑> Sequence[dataclasses.Field]</span>
 </code></dt>
 <dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def data_fields(obj) -&gt; Sequence[dataclasses.Field]:
+    &#34;&#34;&#34;
+    List all dataclass Fields of `obj` that are considered data, i.e. can hold (directly or indirectly) one or multiple `Tensor` instances.
+    This includes fields referencing other dataclasses.
+
+    Args:
+        obj: Dataclass type or instance.
+
+    Returns:
+        Sequence of `dataclasses.Field`.
+    &#34;&#34;&#34;
+    return [f for f in dataclasses.fields(obj) if is_data_field(f)]</code></pre>
+</details>
 <div class="desc"><p>List all dataclass Fields of <code>obj</code> that are considered data, i.e. can hold (directly or indirectly) one or multiple <code>Tensor</code> instances.
 This includes fields referencing other dataclasses.</p>
 <h2 id="args">Args</h2>
@@ -139,6 +232,30 @@ This includes fields referencing other dataclasses.</p>
 <span>def <span class="ident">equal</span></span>(<span>obj1, obj2, rel_tolerance=0.0, abs_tolerance=0.0, equal_nan=True)</span>
 </code></dt>
 <dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def equal(obj1, obj2, rel_tolerance=0., abs_tolerance=0., equal_nan=True):
+    &#34;&#34;&#34;
+    Checks if two dataclass instances are equal by comparing their data fields by value and shape.
+    Non-data fields are compared by equality (`==`).
+
+    Args:
+        obj1: First dataclass instance.
+        obj2: Second dataclass instance.
+        rel_tolerance: Relative tolerance for comparing floating point tensors.
+        abs_tolerance: Absolute tolerance for comparing floating point tensors.
+        equal_nan: Whether to consider NaN values as equal.
+
+    Returns:
+        `bool`
+    &#34;&#34;&#34;
+    cls = type(obj1)
+    eq_fn = cls.__default_dataclass_eq__ if hasattr(cls, &#39;__default_dataclass_eq__&#39;) else cls.__eq__
+    with equality_by_shape_and_value(rel_tolerance, abs_tolerance, equal_nan):
+        return eq_fn(obj1, obj2)</code></pre>
+</details>
 <div class="desc"><p>Checks if two dataclass instances are equal by comparing their data fields by value and shape.
 Non-data fields are compared by equality (<code>==</code>).</p>
 <h2 id="args">Args</h2>
@@ -157,23 +274,55 @@ Non-data fields are compared by equality (<code>==</code>).</p>
 <h2 id="returns">Returns</h2>
 <p><code>bool</code></p></div>
 </dd>
-<dt id="phiml.dataclasses.get_cache_files"><code class="name flex">
-<span>def <span class="ident">get_cache_files</span></span>(<span>obj) ‑> Set[str]</span>
-</code></dt>
-<dd>
-<div class="desc"><p>Searches the data structure for all disk-cached tensors and returns all referenced files.</p>
-<h2 id="args">Args</h2>
-<dl>
-<dt><strong><code>obj</code></strong></dt>
-<dd><code>Tensor</code> or pytree or dataclass (<code><a title="phiml.math.magic.PhiTreeNode" href="../math/magic.html#phiml.math.magic.PhiTreeNode">PhiTreeNode</a></code>).</dd>
-</dl>
-<h2 id="returns">Returns</h2>
-<p>Collection of file paths.</p></div>
-</dd>
 <dt id="phiml.dataclasses.getitem"><code class="name flex">
-<span>def <span class="ident">getitem</span></span>(<span>obj: ~PhiMLDataclass, item, keepdims: Union[str, Sequence[+T_co], set, phiml.math._shape.Shape, Callable, None] = None) ‑> ~PhiMLDataclass</span>
+<span>def <span class="ident">getitem</span></span>(<span>obj: ~PhiMLDataclass,<br>item,<br>keepdims: str | Sequence | set | phiml.math._shape.Shape | Callable | None = None) ‑> ~PhiMLDataclass</span>
 </code></dt>
 <dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def getitem(obj: PhiMLDataclass, item, keepdims: DimFilter = None) -&gt; PhiMLDataclass:
+    &#34;&#34;&#34;
+    Slice / gather a dataclass by broadcasting the operation to its data_fields.
+
+    You may call this from `__getitem__` to allow the syntax `my_class[component_str]`, `my_class[slicing_dict]`, `my_class[boolean_tensor]` and `my_class[index_tensor]`.
+
+    ```python
+    def __getitem__(self, item):
+        return getitem(self, item)
+    ```
+
+    Args:
+        obj: Dataclass instance to slice / gather.
+        item: One of the supported tensor slicing / gathering values.
+        keepdims: Dimensions that will not be removed during slicing.
+            When selecting a single slice, these dims will remain with size 1.
+
+    Returns:
+        Slice of `obj` of same type.
+    &#34;&#34;&#34;
+    assert dataclasses.is_dataclass(obj), f&#34;obj must be a dataclass but got {type(obj)}&#34;
+    item = slicing_dict(obj, item)
+    if keepdims:
+        keep = shape(obj).only(keepdims)
+        for dim, sel in item.items():
+            if dim in keep:
+                if isinstance(sel, int):
+                    item[dim] = slice(sel, sel+1)
+                elif isinstance(sel, str) and &#39;,&#39; not in sel:
+                    item[dim] = [sel]
+    if not item:
+        return obj
+    attrs = data_fields(obj)
+    kwargs = {f.name: slice_(getattr(obj, f.name), item) if f in attrs else getattr(obj, f.name) for f in dataclasses.fields(obj)}
+    cls = type(obj)
+    new_obj = cls.__new__(cls, **kwargs)
+    new_obj.__init__(**kwargs)
+    cache = {k: slice_(v, item) for k, v in obj.__dict__.items() if isinstance(getattr(type(obj), k, None), cached_property) and not isinstance(v, SHAPE_TYPES)}
+    new_obj.__dict__.update(cache)
+    return new_obj</code></pre>
+</details>
 <div class="desc"><p>Slice / gather a dataclass by broadcasting the operation to its data_fields.</p>
 <p>You may call this from <code>__getitem__</code> to allow the syntax <code>my_class[component_str]</code>, <code>my_class[slicing_dict]</code>, <code>my_class[boolean_tensor]</code> and <code>my_class[index_tensor]</code>.</p>
 <pre><code class="language-python">def __getitem__(self, item):
@@ -192,27 +341,26 @@ When selecting a single slice, these dims will remain with size 1.</dd>
 <h2 id="returns">Returns</h2>
 <p>Slice of <code>obj</code> of same type.</p></div>
 </dd>
-<dt id="phiml.dataclasses.load_cache_as"><code class="name flex">
-<span>def <span class="ident">load_cache_as</span></span>(<span>host_backend: Union[str, phiml.backend._backend.Backend], worker_backend: Union[str, phiml.backend._backend.Backend] = None)</span>
-</code></dt>
-<dd>
-<div class="desc"><p>Context manager to temporarily set the backend for loading disk-cached tensors into memory.</p>
-<h2 id="args">Args</h2>
-<dl>
-<dt><strong><code>host_backend</code></strong></dt>
-<dd>Backend name or instance to use in the current process.
-This also applies to <code><a title="phiml.dataclasses.parallel_compute" href="#phiml.dataclasses.parallel_compute">parallel_compute()</a></code> stages that cannot be parallelized and thus run in the host process.</dd>
-<dt><strong><code>worker_backend</code></strong></dt>
-<dd>Backend name or instance to use in worker processes, see <code><a title="phiml.dataclasses.parallel_compute" href="#phiml.dataclasses.parallel_compute">parallel_compute()</a></code>. If <code>None</code>, the workers will use the same backend per tensor as the host.</dd>
-</dl>
-<h2 id="usage">Usage</h2>
-<pre><code class="language-python-repl">&gt;&gt;&gt; with load_cache_as('torch', worker_backend='numpy'):
-</code></pre></div>
-</dd>
 <dt id="phiml.dataclasses.non_data_fields"><code class="name flex">
 <span>def <span class="ident">non_data_fields</span></span>(<span>obj) ‑> Sequence[dataclasses.Field]</span>
 </code></dt>
 <dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def non_data_fields(obj) -&gt; Sequence[dataclasses.Field]:
+    &#34;&#34;&#34;
+    List all dataclass Fields of `obj` that cannot hold tensors (directly or indirectly).
+
+    Args:
+        obj: Dataclass type or instance.
+
+    Returns:
+        Sequence of `dataclasses.Field`.
+    &#34;&#34;&#34;
+    return [f for f in dataclasses.fields(obj) if not is_data_field(f)]</code></pre>
+</details>
 <div class="desc"><p>List all dataclass Fields of <code>obj</code> that cannot hold tensors (directly or indirectly).</p>
 <h2 id="args">Args</h2>
 <dl>
@@ -222,87 +370,40 @@ This also applies to <code><a title="phiml.dataclasses.parallel_compute" href="#
 <h2 id="returns">Returns</h2>
 <p>Sequence of <code>dataclasses.Field</code>.</p></div>
 </dd>
-<dt id="phiml.dataclasses.on_load_into_memory"><code class="name flex">
-<span>def <span class="ident">on_load_into_memory</span></span>(<span>callback: Callable[[phiml.math._tensors.Tensor], None])</span>
-</code></dt>
-<dd>
-<div class="desc"><p>Register a function to be called every time a cached tensor is loaded from disk into memory in this process.</p>
-<p>Tensors are stored on disk to save memory, e.g. in <code><a title="phiml.dataclasses.parallel_compute" href="#phiml.dataclasses.parallel_compute">parallel_compute()</a></code> if a memory limit is specified.</p>
-<p>When accessing the tensor values or using them in any computation, the values are temporarily loaded into memory and <code>callback</code> is called.</p>
-<h2 id="args">Args</h2>
-<dl>
-<dt><strong><code>callback</code></strong></dt>
-<dd>Function <code>callback(Tensor)</code>.</dd>
-</dl></div>
-</dd>
-<dt id="phiml.dataclasses.parallel_compute"><code class="name flex">
-<span>def <span class="ident">parallel_compute</span></span>(<span>instance, properties: Sequence[+T_co], parallel_dims=&lt;function batch&gt;, max_workers=4, memory_limit: Optional[float] = None, cache_dir: str = None, keep_intermediate=False)</span>
-</code></dt>
-<dd>
-<div class="desc"><p>Compute the values of properties decorated with <code>@cached_property</code> or <code>@parallel_property</code> of a dataclass instance in parallel.</p>
-<p><strong>Multiple stages via <code>requires=...</code></strong>
-If <code>@parallel_property</code> are computed whose <code>requires</code> overlaps with <code>parallel_dims</code>, a separate computation stage is set up to compute these properties with fewer parallel workers.
-In the presence of different <code>requires</code>, the computation is split into different stages in accordance with the property dependency graph.
-Properties that cannot be parallelized (because it requires all <code>parallel_dims</code>) are computed on the host process.</p>
-<p><strong>Caching tensors to disk</strong>
-When <code>memory_limit</code> and <code>cache_dir</code> are set, the evaluation will try to adhere to the given memory limits by moving tensors out of memory onto disk.
-This is only applied to the outputs of <code>@cached_property</code> and <code>@parallel_property</code> calls, not to intermediate values used in their computation.
-The per-process memory limit is calculated per stage, dividing the total memory by the active worker count.
-Cached tensors behave like regular tensors and are temporarily loaded back into memory when accessing their values or using them in a computation.
-When parallelizing, the full result is assembled by stacking multiple disk-backed tensors from different files created by different processes.
-These composite tensors will reference multiple binary files and can be pickled/unpickled safely without loading the data into memory.
-This enables passing large data references to different processes or saving the structure to a file without the data content.</p>
-<p>See Also:
-<code><a title="phiml.dataclasses.cached_property" href="#phiml.dataclasses.cached_property">cached_property</a></code>, <code><a title="phiml.dataclasses.parallel_property" href="#phiml.dataclasses.parallel_property">parallel_property()</a></code>, <code><a title="phiml.dataclasses.get_cache_files" href="#phiml.dataclasses.get_cache_files">get_cache_files()</a></code>, <code><a title="phiml.dataclasses.on_load_into_memory" href="#phiml.dataclasses.on_load_into_memory">on_load_into_memory()</a></code>.</p>
-<h2 id="warnings">Warnings</h2>
-<p><code><a title="phiml.dataclasses.parallel_compute" href="#phiml.dataclasses.parallel_compute">parallel_compute()</a></code> breaks automatic differentiation.</p>
-<h2 id="args">Args</h2>
-<dl>
-<dt><strong><code>instance</code></strong></dt>
-<dd>Dataclass instance for which to compute the values of <code>@cached_property</code> or <code>@parallel_property</code> fields.</dd>
-<dt><strong><code>properties</code></strong></dt>
-<dd>References to the unbound properties. These must be <code><a title="phiml.dataclasses.cached_property" href="#phiml.dataclasses.cached_property">cached_property</a></code> or <code><a title="phiml.dataclasses.parallel_property" href="#phiml.dataclasses.parallel_property">parallel_property()</a></code>.</dd>
-<dt><strong><code>parallel_dims</code></strong></dt>
-<dd>Dimensions to parallelize over.</dd>
-<dt><strong><code>max_workers</code></strong></dt>
-<dd>Number of processes to spawn.</dd>
-<dt><strong><code>memory_limit</code></strong></dt>
-<dd>Limit to the total memory consumption from <code>Tensor</code> instances on property outputs.</dd>
-<dt><strong><code>cache_dir</code></strong></dt>
-<dd>Directory path to store cached tensors in if <code>memory_limit</code> is set.</dd>
-<dt><strong><code>keep_intermediate</code></strong></dt>
-<dd>Whether the outputs of cached properties required to compute <code>properties</code> but not contained in <code>properties</code> should be kept in memory.
-If <code>False</code>, these values will not be cached on <code>instance</code> after this call.</dd>
-</dl></div>
-</dd>
-<dt id="phiml.dataclasses.parallel_property"><code class="name flex">
-<span>def <span class="ident">parallel_property</span></span>(<span>func: Callable = None, /, requires: Union[str, Sequence[+T_co], set, phiml.math._shape.Shape, Callable, None] = None, on_direct_eval='raise')</span>
-</code></dt>
-<dd>
-<div class="desc"><p>Similar to <code>@cached_property</code> but with additional controls over parallelization.</p>
-<p>See Also:
-<code><a title="phiml.dataclasses.parallel_compute" href="#phiml.dataclasses.parallel_compute">parallel_compute()</a></code>.</p>
-<h2 id="args">Args</h2>
-<dl>
-<dt><strong><code>func</code></strong></dt>
-<dd>Method to wrap.</dd>
-<dt><strong><code>requires</code></strong></dt>
-<dd>Dimensions which must be present within one process. These cannot be parallelized when computing this property.</dd>
-<dt><strong><code>on_direct_eval</code></strong></dt>
-<dd>
-<p>What to do when the property is accessed normally (outside <code><a title="phiml.dataclasses.parallel_compute" href="#phiml.dataclasses.parallel_compute">parallel_compute()</a></code>) before it has been computed.
-Option:</p>
-<ul>
-<li><code>'raise'</code>: Raise an error.</li>
-<li><code>'host-compute'</code>: Compute the property directly, without using multi-threading.</li>
-</ul>
-</dd>
-</dl></div>
-</dd>
 <dt id="phiml.dataclasses.replace"><code class="name flex">
 <span>def <span class="ident">replace</span></span>(<span>obj: ~PhiMLDataclass, /, call_metaclass=False, **changes) ‑> ~PhiMLDataclass</span>
 </code></dt>
 <dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def replace(obj: PhiMLDataclass, /, call_metaclass=False, **changes) -&gt; PhiMLDataclass:
+    &#34;&#34;&#34;
+    Create a copy of `obj` with some fields replaced.
+    Unlike `dataclasses.replace()`, this function also transfers `@cached_property` members if their dependencies are not affected.
+
+    Args:
+        obj: Dataclass instance.
+        call_metaclass: Whether to copy `obj` by invoking `type(obj).__call__`.
+            If `obj` defines a metaclass, this will allow users to define custom constructors for dataclasses.
+        **changes: New field values to replace old ones.
+
+    Returns:
+        Copy of `obj` with replaced values.
+    &#34;&#34;&#34;
+    cls = obj.__class__
+    kwargs = {f.name: getattr(obj, f.name) for f in dataclasses.fields(obj)}
+    kwargs.update(**changes)
+    if call_metaclass:
+        new_obj = cls(**kwargs)
+    else:  # This allows us override the dataclass constructor with a metaclass for user convenience, but not call it internally.
+        new_obj = cls.__new__(cls)
+        new_obj.__init__(**kwargs)
+    cache = get_unchanged_cache(obj, set(changes.keys()))
+    new_obj.__dict__.update(cache)
+    return new_obj</code></pre>
+</details>
 <div class="desc"><p>Create a copy of <code>obj</code> with some fields replaced.
 Unlike <code>dataclasses.replace()</code>, this function also transfers <code>@cached_property</code> members if their dependencies are not affected.</p>
 <h2 id="args">Args</h2>
@@ -318,22 +419,76 @@ If <code>obj</code> defines a metaclass, this will allow users to define custom 
 <h2 id="returns">Returns</h2>
 <p>Copy of <code>obj</code> with replaced values.</p></div>
 </dd>
-<dt id="phiml.dataclasses.set_cache_ttl"><code class="name flex">
-<span>def <span class="ident">set_cache_ttl</span></span>(<span>ttl_seconds: Optional[float])</span>
-</code></dt>
-<dd>
-<div class="desc"><p>Sets the time to live (TTL) for data loaded into memory for disk-backed tensors.
-This function should be called before the tensor cache is used.</p>
-<h2 id="args">Args</h2>
-<dl>
-<dt><strong><code>ttl_seconds</code></strong></dt>
-<dd>Time to live. If <code>None</code>, data will be unallocated immediately after use.</dd>
-</dl></div>
-</dd>
 <dt id="phiml.dataclasses.sliceable"><code class="name flex">
-<span>def <span class="ident">sliceable</span></span>(<span>cls=None, /, *, dim_attrs=True, t_props=True, keepdims=None, dim_repr=True, lazy_dims=True)</span>
+<span>def <span class="ident">sliceable</span></span>(<span>cls=None,<br>/,<br>*,<br>dim_attrs=True,<br>t_props=True,<br>keepdims=None,<br>dim_repr=True,<br>lazy_dims=True)</span>
 </code></dt>
 <dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def sliceable(cls=None, /, *, dim_attrs=True, t_props=True, keepdims=None, dim_repr=True, lazy_dims=True):
+    &#34;&#34;&#34;
+    Decorator for frozen dataclasses, adding slicing functionality by defining `__getitem__` and enabling the `instance.dim` syntax.
+    This enables slicing similar to tensors, gathering and boolean masking.
+
+    Args:
+        dim_attrs: Whether to generate `__getattr__` that allows slicing via the syntax `instance.dim[...]` where `dim` is the name of any dim present on `instance`.
+        t_props: Whether to generate the properties `Tc`, `Ts` and `Ti` for transposing channel/spatial/instance dims.
+        keepdims: Which dimensions should be kept with size 1 taking a single slice along them. This will preserve labels.
+        dim_repr: Whether to replace the default `repr` of a dataclass by a simplified one based on the object&#39;s shape.
+        lazy_dims: If `False`, instantiates all dims of `shape(self)` as member variables during construction. Dataclass must have `slots=False`.
+            If `True`, implements `__getattr__` to instantiate accessed dims on demand. This will be skipped if a user-defined `__getattr__` is found.
+    &#34;&#34;&#34;
+    def wrap(cls):
+        assert dataclasses.is_dataclass(cls), f&#34;@sliceable must be used on a @dataclass, i.e. declared above it.&#34;
+        assert cls.__dataclass_params__.frozen, f&#34;@sliceable dataclasses must be frozen. Declare as @dataclass(frozen=True)&#34;
+        assert data_fields(cls), f&#34;PhiML dataclasses must have at least one field storing a Shaped object, such as a Tensor, tree of Tensors or compatible dataclass.&#34;
+        if not implements(cls, &#39;__getitem__&#39;, exclude_metaclass=True):
+            def __dataclass_getitem__(obj, item):
+                return getitem(obj, item, keepdims=keepdims)
+            cls.__getitem__ = __dataclass_getitem__
+        if t_props:
+            def transpose(obj, dim_type):
+                old_shape = shape(obj)
+                new_shape = old_shape.transpose(dim_type)
+                return rename_dims(obj, old_shape, new_shape)
+            cls.Tc = property(partial(transpose, dim_type=CHANNEL_DIM))
+            cls.Ts = property(partial(transpose, dim_type=SPATIAL_DIM))
+            cls.Ti = property(partial(transpose, dim_type=INSTANCE_DIM))
+        if not lazy_dims:  # instantiate BoundDims in constructor
+            assert not hasattr(cls, &#39;__slots__&#39;), f&#34;front-loading dims is not supported for dataclasses using slots.&#34;
+            dc_init = cls.__init__
+            def __dataclass_init__(self, *args, **kwargs):
+                dc_init(self, *args, **kwargs)
+                for dim in shape(self):
+                    object.__setattr__(self, dim.name, BoundDim(self, dim.name))  # object.__setattr__ also works for frozen dataclasses
+            cls.__init__ = __dataclass_init__
+        else:  # instantiate BoundDims lazily via __getattr__
+            if dim_attrs and not implements(cls, &#39;__getattr__&#39;):
+                def __dataclass_getattr__(obj, name: str):
+                    if name == &#39;shape&#39; or (name.startswith(&#39;__&#39;) and name.endswith(&#39;__&#39;)):  # __setstate__, __deepcopy__ can cause infinite recursion
+                        raise AttributeError(f&#34;&#39;{type(obj)}&#39; instance has no attribute &#39;{name}&#39;&#34;)
+                    if name in shape(obj):
+                        return BoundDim(obj, name)
+                    elif hasattr(type(obj), name):
+                        raise RuntimeError(f&#34;Evaluation of property &#39;{type(obj).__name__}.{name}&#39; failed.&#34;)
+                    else:
+                        raise AttributeError(f&#34;&#39;{type(obj)}&#39; instance has no attribute &#39;{name}&#39;&#34;)
+                cls.__getattr__ = __dataclass_getattr__
+        if dim_repr:
+            def __dataclass_repr__(obj):
+                try:
+                    content = shape(obj)
+                    if not content:
+                        content = f&#34;{&#39;, &#39;.join([f&#39;{f.name}={getattr(obj, f.name)}&#39; for f in dataclasses.fields(cls)])}&#34;
+                except BaseException as err:
+                    content = f&#34;Unknown shape: {type(err).__name__}&#34;
+                return f&#34;{type(obj).__name__}[{content}]&#34;
+            cls.__repr__ = __dataclass_repr__
+        return cls
+    return wrap(cls) if cls is not None else wrap  # See if we&#39;re being called as @dataclass or @dataclass().</code></pre>
+</details>
 <div class="desc"><p>Decorator for frozen dataclasses, adding slicing functionality by defining <code>__getitem__</code> and enabling the <code>instance.dim</code> syntax.
 This enables slicing similar to tensors, gathering and boolean masking.</p>
 <h2 id="args">Args</h2>
@@ -355,6 +510,24 @@ If <code>True</code>, implements <code>__getattr__</code> to instantiate accesse
 <span>def <span class="ident">special_fields</span></span>(<span>obj) ‑> Sequence[dataclasses.Field]</span>
 </code></dt>
 <dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def special_fields(obj) -&gt; Sequence[dataclasses.Field]:
+    &#34;&#34;&#34;
+    List all special dataclass Fields of `obj`, i.e. fields that don&#39;t store data related to the object but rather meta-information relevant to PhiML.
+
+    These include `variable_attrs` and `value_attrs`.
+
+    Args:
+        obj: Dataclass type or instance.
+
+    Returns:
+        Sequence of `dataclasses.Field`.
+    &#34;&#34;&#34;
+    return [f for f in dataclasses.fields(obj) if f.name in (&#39;variable_attrs&#39;, &#39;value_attrs&#39;)]</code></pre>
+</details>
 <div class="desc"><p>List all special dataclass Fields of <code>obj</code>, i.e. fields that don't store data related to the object but rather meta-information relevant to PhiML.</p>
 <p>These include <code>variable_attrs</code> and <code>value_attrs</code>.</p>
 <h2 id="args">Args</h2>
@@ -375,7 +548,6 @@ If <code>True</code>, implements <code>__getattr__</code> to instantiate accesse
 <span>(</span><span>func)</span>
 </code></dt>
 <dd>
-<div class="desc"></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -411,9 +583,10 @@ If <code>True</code>, implements <code>__getattr__</code> to instantiate accesse
                     raise TypeError(msg) from None
     return val</code></pre>
 </details>
+<div class="desc"></div>
 <h3>Subclasses</h3>
 <ul class="hlist">
-<li>phiml.dataclasses._parallel.ParallelProperty</li>
+<li>phiml.parallel._parallel.ParallelProperty</li>
 </ul>
 </dd>
 </dl>
@@ -436,15 +609,9 @@ If <code>True</code>, implements <code>__getattr__</code> to instantiate accesse
 <li><code><a title="phiml.dataclasses.data_eq" href="#phiml.dataclasses.data_eq">data_eq</a></code></li>
 <li><code><a title="phiml.dataclasses.data_fields" href="#phiml.dataclasses.data_fields">data_fields</a></code></li>
 <li><code><a title="phiml.dataclasses.equal" href="#phiml.dataclasses.equal">equal</a></code></li>
-<li><code><a title="phiml.dataclasses.get_cache_files" href="#phiml.dataclasses.get_cache_files">get_cache_files</a></code></li>
 <li><code><a title="phiml.dataclasses.getitem" href="#phiml.dataclasses.getitem">getitem</a></code></li>
-<li><code><a title="phiml.dataclasses.load_cache_as" href="#phiml.dataclasses.load_cache_as">load_cache_as</a></code></li>
 <li><code><a title="phiml.dataclasses.non_data_fields" href="#phiml.dataclasses.non_data_fields">non_data_fields</a></code></li>
-<li><code><a title="phiml.dataclasses.on_load_into_memory" href="#phiml.dataclasses.on_load_into_memory">on_load_into_memory</a></code></li>
-<li><code><a title="phiml.dataclasses.parallel_compute" href="#phiml.dataclasses.parallel_compute">parallel_compute</a></code></li>
-<li><code><a title="phiml.dataclasses.parallel_property" href="#phiml.dataclasses.parallel_property">parallel_property</a></code></li>
 <li><code><a title="phiml.dataclasses.replace" href="#phiml.dataclasses.replace">replace</a></code></li>
-<li><code><a title="phiml.dataclasses.set_cache_ttl" href="#phiml.dataclasses.set_cache_ttl">set_cache_ttl</a></code></li>
 <li><code><a title="phiml.dataclasses.sliceable" href="#phiml.dataclasses.sliceable">sliceable</a></code></li>
 <li><code><a title="phiml.dataclasses.special_fields" href="#phiml.dataclasses.special_fields">special_fields</a></code></li>
 </ul>
@@ -460,7 +627,7 @@ If <code>True</code>, implements <code>__getattr__</code> to instantiate accesse
 </nav>
 </main>
 <footer id="footer">
-<p>Generated by <a href="https://pdoc3.github.io/pdoc" title="pdoc: Python API documentation generator"><cite>pdoc</cite> 0.11.0</a>.</p>
+<p>Generated by <a href="https://pdoc3.github.io/pdoc" title="pdoc: Python API documentation generator"><cite>pdoc</cite> 0.11.6</a>.</p>
 </footer>
 </body>
 </html>
