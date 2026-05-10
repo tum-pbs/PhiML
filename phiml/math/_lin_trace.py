@@ -680,9 +680,9 @@ def tracer_to_coo(tracer_tree: Tensor) -> Tuple[Tensor, Tensor]:
                 bias = scatter(bias, out_indices, t_bias, 'add', pref_index_dim='idx', outside_handling='undefined')
             else:  # constant
                 bias = scatter(bias, out_indices, tensor, 'add', pref_index_dim='idx', outside_handling='undefined')
-        indices = concat_tensor(indices, 'entries')
-        values = concat_tensor(values, 'entries')
-        matrix = sparse_tensor(indices, values, dual_in & out_dims, can_contain_double_entries=True, indices_sorted=False, format='coo', indices_constant=True)
+        all_indices = concat_tensor(indices, 'entries')
+        all_values = concat_tensor(values, 'entries')
+        matrix = sparse_tensor(all_indices, all_values, dual_in & out_dims, can_contain_double_entries=True, indices_sorted=False, format='coo', indices_constant=True)
         if isinstance(tracer_tree, LinTracer):
             matrix._prop = TensorProperties(tracer=tracer_tree)
         return matrix, bias
@@ -731,7 +731,8 @@ def dependent_out_dims(tracer: Tensor, included_src_dims: Shape, sparsify=None, 
 def is_fac_nonzero(tracer: Tensor):
     if isinstance(tracer, LinTracer):
         if tracer._fac.available:
-            return tracer._fac != 0
+            result = tracer._fac != 0
+            return math.convert(result, NUMPY)
         else:
             return tracer._fac_nz
     raise ValueError(tracer)
