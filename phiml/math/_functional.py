@@ -12,7 +12,7 @@ import numpy as np
 from . import _ops as math, all_available, stop_gradient
 from ._shape import Shape, spatial, instance, batch, channel, merge_shapes, DimFilter, shape, dual
 from ._tensors import Tensor, disassemble_tensors, assemble_tensors, wrap, specs_equal, equality_by_shape_and_value, backend_for, Dense, TensorStack
-from ._tree import disassemble_tree, assemble_tree, variable_attributes, NATIVE_TENSOR, object_dims, slice_, find_differences
+from ._tree import disassemble_tree, assemble_tree, variable_attributes, NATIVE_TENSOR, object_dims, slice_, find_differences, value_attributes
 from ._magic_ops import stack, rename_dims, all_attributes
 from ._sparse import SparseCoordinateTensor, is_sparse
 from ._lin_trace import LinearTraceInProgress, trace_linear, matrix_and_bias_from_tracer, LinTracer
@@ -463,11 +463,9 @@ Multiple linear traces can be avoided by jit-compiling the code that calls the l
                 return self.f(*args, **kwargs)
             else:
                 return self.nl_jit(*args, **kwargs)
-        matrix, bias, (out_tree, out_tensors) = self._get_or_trace(key, args, aux_kwargs)
+        matrix, bias, (out_tree, out_tracer) = self._get_or_trace(key, args, aux_kwargs)
         result = matrix @ tensors[0] + bias
-        out_tensors = list(out_tensors)
-        out_tensors[0] = result
-        return assemble_tree(out_tree, out_tensors)
+        return assemble_tree(out_tree, [result], value_attributes)
 
     def sparse_matrix(self, *args, **kwargs):
         """
