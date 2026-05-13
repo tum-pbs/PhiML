@@ -426,7 +426,8 @@ def train(name: Optional[str], model, optimizer, loss_fn: Callable,
     if measure_peak_memory:
         default_backend().reset_peak_memory(device)
     default_backend().set_default_device('CPU')
-    data = [convert(math.map(lambda f: loader(f), fs, map_name="Loading data")) if isinstance(fs, str) or (isinstance(fs, Tensor) and fs.dtype.kind == object) else fs for fs in files_or_data]
+    data = [math.map(lambda f: loader(f), fs, map_name="Loading data") if isinstance(fs, str) or (isinstance(fs, Tensor) and fs.dtype.kind == object) else fs for fs in files_or_data]
+    data = [convert(d) for d in data]
     default_backend().set_default_device(device)
     data_shape = shape(data)
     dataset_dims = data_shape.only(dataset_dims)
@@ -444,7 +445,7 @@ def train(name: Optional[str], model, optimizer, loss_fn: Callable,
     t0 = time.perf_counter()
     for epoch in range(max_epochs) if max_epochs is not None else count():
         default_backend().set_default_device('CPU')
-        indices = pack_dims(random_permutation(dataset_dims, dims=dataset_dims), non_channel, batch('dset_linear'))
+        indices = convert(pack_dims(random_permutation(dataset_dims, dims=dataset_dims), non_channel, batch('dset_linear')))
         default_backend().set_default_device(device)
         epoch_loss = 0
         for i in range(batch_count):
@@ -452,7 +453,8 @@ def train(name: Optional[str], model, optimizer, loss_fn: Callable,
                 learning_rate = lr_schedule_iter(niter)
                 set_learning_rate(optimizer, learning_rate)
             batch_idx = indices.dset_linear[i * batch_size:(i + 1) * batch_size]
-            data_batch = to_device(math.slice(data, batch_idx), device)
+            data_batch = math.slice(data, batch_idx)
+            data_batch = to_device(data_batch, device)
             output = update_weights(model, optimizer, loss_fn, *data_batch, **loss_kwargs)
             loss, *additional_output = output if isinstance(output, (tuple, list)) else (output,)
             epoch_loss += math.sum(loss, 'dset_linear')
