@@ -394,10 +394,13 @@ class TorchBackend(Backend):
             return NotImplemented
         grid = channels_first(self.as_tensor(grid))
         coordinates = self.as_tensor(coordinates)
+        remove_coord_spatial = 0
         if coordinates.shape[0] != grid.shape[0]:  # repeating yields wrong result
             return NotImplemented
         if coordinates.ndim != grid.ndim or coordinates.ndim not in (4, 5):
-            return NotImplemented  # torchf.grid_sample cannot handle this case
+            while coordinates.ndim < grid.ndim:
+                coordinates = coordinates.unsqueeze(2)
+                remove_coord_spatial += 1
         if coordinates.dtype.is_floating_point and not grid.dtype.is_complex and not grid.dtype.is_floating_point:
             grid = self.to_float(grid)
         resolution = torch.tensor(self.staticshape(grid)[2:], dtype=coordinates.dtype, device=coordinates.device)
@@ -407,6 +410,8 @@ class TorchBackend(Backend):
         coordinates = coordinates.repeat(batch_size, *[1] * (len(coordinates.shape-1))) if coordinates.shape[0] < batch_size else coordinates
         grid = grid.repeat(batch_size, *[1] * (len(grid.shape)-1)) if grid.shape[0] < batch_size else grid
         result = torchf.grid_sample(grid, coordinates, mode='bilinear', padding_mode=extrapolation, align_corners=True)  # can cause segmentation violation if NaN or inf are present
+        for _ in range(remove_coord_spatial):
+            result = result.squeeze(-1)
         result = channels_last(result)
         return result
 
