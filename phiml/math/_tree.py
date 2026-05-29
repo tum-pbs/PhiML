@@ -82,6 +82,9 @@ class Layout(Tensor):
         native = self._obj
         return numpy.asarray(native) if to_numpy else native
 
+    def numpy(self, order: Union[str, tuple, list, Shape] = None, force_expand=True) -> np.ndarray:
+        return self.native(order, force_expand=force_expand, to_numpy=True)
+
     def _cached(self):
         from ._ops import cached
         return Layout(cached(self._obj), self._stack_dim)
