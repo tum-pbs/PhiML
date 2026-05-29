@@ -596,7 +596,8 @@ Analogue functions exist for other learning frameworks.</p></div>
     if measure_peak_memory:
         default_backend().reset_peak_memory(device)
     default_backend().set_default_device(&#39;CPU&#39;)
-    data = [convert(math.map(lambda f: loader(f), fs, map_name=&#34;Loading data&#34;)) if isinstance(fs, str) or (isinstance(fs, Tensor) and fs.dtype.kind == object) else fs for fs in files_or_data]
+    data = [math.map(lambda f: loader(f), fs, map_name=&#34;Loading data&#34;) if isinstance(fs, str) or (isinstance(fs, Tensor) and fs.dtype.kind == object) else fs for fs in files_or_data]
+    data = [convert(d) for d in data]
     default_backend().set_default_device(device)
     data_shape = shape(data)
     dataset_dims = data_shape.only(dataset_dims)
@@ -614,7 +615,7 @@ Analogue functions exist for other learning frameworks.</p></div>
     t0 = time.perf_counter()
     for epoch in range(max_epochs) if max_epochs is not None else count():
         default_backend().set_default_device(&#39;CPU&#39;)
-        indices = pack_dims(random_permutation(dataset_dims, dims=dataset_dims), non_channel, batch(&#39;dset_linear&#39;))
+        indices = convert(pack_dims(random_permutation(dataset_dims, dims=dataset_dims), non_channel, batch(&#39;dset_linear&#39;)))
         default_backend().set_default_device(device)
         epoch_loss = 0
         for i in range(batch_count):
@@ -622,7 +623,8 @@ Analogue functions exist for other learning frameworks.</p></div>
                 learning_rate = lr_schedule_iter(niter)
                 set_learning_rate(optimizer, learning_rate)
             batch_idx = indices.dset_linear[i * batch_size:(i + 1) * batch_size]
-            data_batch = to_device(math.slice(data, batch_idx), device)
+            data_batch = math.slice(data, batch_idx)
+            data_batch = to_device(data_batch, device)
             output = update_weights(model, optimizer, loss_fn, *data_batch, **loss_kwargs)
             loss, *additional_output = output if isinstance(output, (tuple, list)) else (output,)
             epoch_loss += math.sum(loss, &#39;dset_linear&#39;)
