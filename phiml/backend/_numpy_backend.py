@@ -362,7 +362,19 @@ class NumPyBackend(Backend):
     def ravel_multi_index(self, multi_index, shape, mode: Union[str, int] = 'undefined'):
         mode = mode if isinstance(mode, int) else {'undefined': 'raise', 'periodic': 'wrap', 'clamp': 'clip'}[mode]
         idx_first = np.transpose(multi_index, (-1,) + tuple(range(self.ndims(multi_index)-1)))
-        result = np.ravel_multi_index(idx_first, shape, mode='wrap' if isinstance(mode, int) else mode).astype(multi_index.dtype)
+        result = np.ravel_multi_index(idx_first, shape, mode='wrap' if isinstance(mode, int) else mode)
+        # Preserve the caller's integer dtype, but widen to int64 when the
+        # linear index space exceeds the dtype's range. Without this, an
+        # int32 multi_index combined with a shape whose product is > 2**31
+        # silently wraps to negative; downstream this surfaces as
+        # `ValueError: index <negative> is out of bounds for array with
+        # size <product>` from np.unravel_index.
+        target_dtype = multi_index.dtype
+        if np.issubdtype(target_dtype, np.integer):
+            max_idx = int(np.prod(shape)) - 1
+            if max_idx > np.iinfo(target_dtype).max:
+                target_dtype = np.int64
+        result = result.astype(target_dtype)
         if isinstance(mode, int):
             outside = self.any((multi_index < 0) | (multi_index >= shape), -1)
             result = self.where(outside, mode, result)

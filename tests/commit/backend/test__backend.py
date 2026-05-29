@@ -61,6 +61,25 @@ class TestBackends(TestCase):
             flat = b.ravel_multi_index(indices, (1, 2, 3), mode='clamp')
             numpy.testing.assert_equal([0, 0, 2, 3], b.numpy(flat), err_msg=b.name)
 
+    def test_ravel_multi_index_int32_overflow(self):
+        # Regression: int32 multi_index combined with a shape whose product
+        # exceeds 2**31 used to wrap silently and surface as
+        # `ValueError: index <negative> is out of bounds ...` from
+        # np.unravel_index downstream.
+        from phiml.backend._numpy_backend import NUMPY
+        indices = numpy.array([[40000, 40000]], dtype=numpy.int32)
+        shape = (200_000, 200_000)   # product = 4e10 > 2**31
+        flat = NUMPY.ravel_multi_index(indices, shape)
+        expected = 40000 * 200_000 + 40000
+        numpy.testing.assert_equal([expected], flat)
+        # Downstream unravel must round-trip cleanly.
+        numpy.testing.assert_equal([[40000, 40000]], NUMPY.unravel_index(flat, shape))
+        # Small-shape callers still get their input dtype back (no widening
+        # unless overflow would occur).
+        small = numpy.array([[1, 2, 3]], dtype=numpy.int32)
+        small_flat = NUMPY.ravel_multi_index(small, (10, 10, 10))
+        assert small_flat.dtype == numpy.int32, small_flat.dtype
+
     def test_gather(self):
         for b in BACKENDS:
             t = b.zeros((4, 3, 2))
