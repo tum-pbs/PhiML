@@ -438,8 +438,7 @@ class SparseCoordinateTensor(Tensor):
                 return self._with_values(op(other._values, self._values) if switch_args else op(self._values, other._values))
             else:
                 if op not in {operator.add, operator.sub}:
-                    same_sparsity_pattern(self, other)  # debug checkpoint
-                    raise AssertionError(f"Operation '{op}' requires sparse matrices with the same sparsity pattern.")
+                    return general_coo_op2(self, other, op) if not switch_args else general_coo_op2(other, self, op)
                 all_sparse_dims = sparse_dims(other) & sparse_dims(self)
                 self_indices = pack_dims(self._indices, instance, instance('sp_entries'))
                 other_indices = pack_dims(other._indices, instance, instance('sp_entries'))
@@ -809,7 +808,7 @@ class CompressedSparseMatrix(Tensor):
 
     def _op2(self, other, op: Callable, switch_args: bool) -> 'Tensor':
         other_shape = shape(other)
-        affects_only_values = self.sparse_dims.isdisjoint(other_shape) and non_instance(self._indices).isdisjoint(other_shape)
+        affects_only_values = self.sparse_dims.isdisjoint(other_shape) and non_instance(self._indices).isdisjoint(other_shape) and not is_sparse(other)
         if affects_only_values:
             return self._with_values(custom_op2(self._values, other, op, switch_args))
         elif isinstance(other, CompressedSparseMatrix):
@@ -823,7 +822,10 @@ class CompressedSparseMatrix(Tensor):
                 raise NotImplementedError("Compressed addition not yet implemented")
             else:
                 # convert to COO, then perform operation
-                raise NotImplementedError
+                self_coo = to_format(self, 'coo')
+                other_coo = to_format(other, 'coo')
+                result = self_coo._op2(other_coo, op, switch_args)
+                return to_format(result, get_format(self))
         elif self._uncompressed_dims in other_shape and self._compressed_dims.isdisjoint(other_shape):
             from ._ops import gather, boolean_mask, clip, where
             if self._uncompressed_offset is None:
@@ -1571,11 +1573,18 @@ def same_sparsity_pattern(t1: Tensor, t2: Tensor, allow_const=False):
         return True
     from ._ops import always_close
     if isinstance(t1, CompressedSparseMatrix):
-        return always_close(t1._indices, t2._indices) and always_close(t1._pointers, t2._pointers)
+        return get_format(t1) == get_format(t2) and always_close(t1._indices, t2._indices) and always_close(t1._pointers, t2._pointers)
     if isinstance(t1, SparseCoordinateTensor):
         return always_close(t1._indices, t2._indices, rel_tolerance=0)
     if isinstance(t1, CompactSparseTensor):
         return always_close(t1._indices, t2._indices, rel_tolerance=0)
+    raise NotImplementedError
+
+
+def is_transpose_sparsity(t1: Tensor, t2: Tensor):
+    from ._ops import always_close
+    if isinstance(t1, CompressedSparseMatrix):
+        return get_format(t1) != get_format(t2) and always_close(t1._indices, t2._indices) and always_close(t1._pointers, t2._pointers)
     raise NotImplementedError
 
 
@@ -1996,3 +2005,21 @@ def sparse_gather(matrix: Tensor, indices: Tensor, index_dim: Shape):
         gathered_values = matrix._values[lookup]
         return SparseCoordinateTensor(gathered_indices, gathered_values, dense_shape, can_contain_double_entries=False, indices_sorted=False, indices_constant=matrix._indices_constant)
     raise NotImplementedError(type(matrix))
+
+
+def general_coo_op2(m1: SparseCoordinateTensor, m2: SparseCoordinateTensor, op: Callable):
+    labels = m1._indices.shape.channel.labels[0]
+    dims = m1.shape[labels]
+    i1 = m1._indices.numpy([instance, channel])
+    i2 = m2._indices[labels].numpy([instance, channel])
+    keys1 = NUMPY.ravel_multi_index(i1, dims.sizes, 'undefined')
+    keys2 = NUMPY.ravel_multi_index(i2, dims.sizes, 'undefined')
+    if op == operator.mul:
+        assert not m1._can_contain_double_entries and not m2._can_contain_double_entries, f"Element-wise COO operations don't support duplicate entries"
+        common_keys, idx1, idx2 = np.intersect1d(keys1, keys2, assume_unique=False, return_indices=True)
+        idx1 = wrap(idx1, instance('sp_entries'))
+        idx2 = wrap(idx2, instance('sp_entries'))
+        values = m1._values[{instance: idx1}] * m2._values[{instance:idx2}]
+        indices = wrap(NUMPY.unravel_index(common_keys, dims.sizes), 'sp_entries:i', channel(sparse_idx=labels))
+        return sparse_tensor(indices, values, m1.sparse_dims, can_contain_double_entries=False)
+    raise AssertionError(f"Operation '{op}' requires sparse matrices with the same sparsity pattern.")
