@@ -73,7 +73,7 @@ def sparse_tensor(indices: Optional[Tensor],
     assert isinstance(indices_constant, bool)
     if indices is None:
         from ._ops import ones
-        indices = ones(instance(entries=0), channel(idx=dense_shape.name_list), dtype=int)
+        indices = ones(instance(sp_entries=0), channel(sparse_idx=dense_shape.name_list), dtype=int)
         can_contain_double_entries = False
         indices_constant = True
     # --- type of sparse tensor ---
@@ -82,6 +82,7 @@ def sparse_tensor(indices: Optional[Tensor],
         values = expand(1, non_batch(indices))
         sparse = CompactSparseTensor(indices, values, compressed, indices_constant)
     else:
+        indices = rename_dims(indices, instance, 'sp_entries')
         values = expand(values, instance(indices))
         sparse = SparseCoordinateTensor(indices, values, dense_shape, can_contain_double_entries, indices_sorted, indices_constant)
     return to_format(sparse, format) if format is not None else sparse
@@ -159,15 +160,15 @@ def from_sparse_native(native, dims: Shape, indices_constant: bool, convert: boo
             return SparseCoordinateTensor(indices, values, dims, True, False, indices_constant)
         def csr_matrix(self, column_indices: TensorOrArray, row_pointers: TensorOrArray, values: TensorOrArray, shape: Tuple[int, int]):
             assert dims.rank % 2 == 0
-            column_indices = tensor(column_indices, instance('entries'), convert=convert_idx)
+            column_indices = tensor(column_indices, instance('sp_entries'), convert=convert_idx)
             row_pointers = tensor(row_pointers, instance('pointers'), convert=convert_idx)
-            values = tensor(values, instance('entries'), convert=convert)
+            values = tensor(values, instance('sp_entries'), convert=convert)
             return CompressedSparseMatrix(column_indices, row_pointers, values, cols, rows, indices_constant)
         def csc_matrix(self, column_pointers, row_indices, values, shape: Tuple[int, int]):
             assert dims.rank % 2 == 0
-            row_indices = tensor(row_indices, instance('entries'), convert=convert_idx)
+            row_indices = tensor(row_indices, instance('sp_entries'), convert=convert_idx)
             column_pointers = tensor(column_pointers, instance('pointers'), convert=convert_idx)
-            values = tensor(values, instance('entries'), convert=convert)
+            values = tensor(values, instance('sp_entries'), convert=convert)
             return CompressedSparseMatrix(row_indices, column_pointers, values, rows, cols, indices_constant)
     return assemble(SparseTensorFactory('', [], None), *parts)
 
@@ -186,16 +187,18 @@ class SparseCoordinateTensor(Tensor):
         Construct a sparse tensor with any number of sparse, dense and batch dimensions.
         """
         super().__init__(properties)
-        assert isinstance(indices, Tensor), f"indices must be a Tensor but got {type(indices)}"
-        assert isinstance(values, Tensor), f"values must be a Tensor but got {type(values)}"
-        assert instance(indices), f"indices must have an instance dimension but got {indices.shape}"
-        assert channel(indices.shape).rank == 1, f"indices must have one channel dimension but got {indices.shape}"
-        indices = rename_dims(indices, channel, 'sparse_idx')
-        assert set(indices.sparse_idx.labels) == set(dense_shape.names), f"The 'sparse_idx' dimension of indices must list the dense dimensions {dense_shape} as labels but got {indices.sparse_idx.labels}"
-        assert len(set(indices.sparse_idx.labels)) == indices.sparse_idx.size, f"Duplicate sparse dimensions in indices {indices} with index {indices.sparse_idx.labels}"
-        assert indices.dtype.kind == int, f"indices must have dtype=int but got {indices.dtype}"
-        assert instance(values) in instance(indices), f"All instance dimensions of values must exist in indices. values={values.shape}, indices={indices.shape}"
-        instance(indices) & instance(values)  # index/value shapes must broadcast
+        if DEBUG_CHECKS:
+            assert isinstance(indices, Tensor), f"indices must be a Tensor but got {type(indices)}"
+            assert isinstance(values, Tensor), f"values must be a Tensor but got {type(values)}"
+            assert instance(indices), f"indices must have an instance dimension but got {indices.shape}"
+            assert channel(indices.shape).rank == 1, f"indices must have one channel dimension but got {indices.shape}"
+            indices = rename_dims(indices, channel, 'sparse_idx')
+            assert set(indices.sparse_idx.labels) == set(dense_shape.names), f"The 'sparse_idx' dimension of indices must list the dense dimensions {dense_shape} as labels but got {indices.sparse_idx.labels}"
+            assert len(set(indices.sparse_idx.labels)) == indices.sparse_idx.size, f"Duplicate sparse dimensions in indices {indices} with index {indices.sparse_idx.labels}"
+            assert indices.dtype.kind == int, f"indices must have dtype=int but got {indices.dtype}"
+            assert instance(values) in instance(indices), f"All instance dimensions of values must exist in indices. values={values.shape}, indices={indices.shape}"
+            instance(indices) & instance(values)  # index/value shapes must broadcast
+            assert 'sp_entries' in instance(indices)
         if not instance(values) and (spatial(values) or dual(values)):
             warnings.warn(f"You are creating a sparse tensor with only constant values {values.shape}. To have values vary along indices, add the corresponding instance dimension.", RuntimeWarning, stacklevel=3)
         self._shape = merge_shapes(dense_shape, batch(indices), non_instance(values))
@@ -589,6 +592,7 @@ class CompressedSparseMatrix(Tensor):
         self._uncompressed_indices = uncompressed_indices
         self._uncompressed_indices_perm = uncompressed_indices_perm
         if DEBUG_CHECKS:
+            assert 'sp_entries' in instance(indices)
             assert instance(indices), "indices must have an instance dimension"
             assert instance(pointers), "pointers must have an instance dimension"
             assert instance(values) == instance(indices), "Instance dimensions of values and indices must match exactly"
@@ -1067,17 +1071,17 @@ class CompactSparseTensor(Tensor):
         from ._ops import arange
         rows = arange(self._uncompressed_dims, backend=self.backend)
         rows = expand(rows, self._compact_dims)
-        rows = pack_dims(rows, [*self._uncompressed_dims.names, *self._compact_dims.names], instance('entries'))
-        cols = pack_dims(self._indices, [*self._uncompressed_dims.names, *self._compact_dims.names], instance('entries'))
+        rows = pack_dims(rows, [*self._uncompressed_dims.names, *self._compact_dims.names], instance('sp_entries'))
+        cols = pack_dims(self._indices, [*self._uncompressed_dims.names, *self._compact_dims.names], instance('sp_entries'))
         indices = stack([rows, cols], channel(sparse_idx=[*self._uncompressed_dims.names, *self._compressed_dims.names]))
-        values = pack_dims(self._values, [*self._uncompressed_dims.names, *self._compact_dims.names], instance('entries'))
+        values = pack_dims(self._values, [*self._uncompressed_dims.names, *self._compact_dims.names], instance('sp_entries'))
         return SparseCoordinateTensor(indices, values, self._compressed_dims & self._uncompressed_dims, False, True, self._indices_constant, self._prop)
 
     def to_cs(self):
         from ._ops import arange
         pointers = arange(instance(pointers=self._uncompressed_dims.volume + 1)) * self._indices.shape.only(self._compressed_dims).volume
-        indices = pack_dims(self._indices, self._uncompressed_dims + self._compressed_dims, instance('entries'))
-        values = pack_dims(self._values, self._uncompressed_dims + self._compressed_dims, instance('entries'))
+        indices = pack_dims(self._indices, self._uncompressed_dims + self._compressed_dims, instance('sp_entries'))
+        values = pack_dims(self._values, self._uncompressed_dims + self._compressed_dims, instance('sp_entries'))
         return CompressedSparseMatrix(indices, pointers, values, self._compressed_dims, self._uncompressed_dims, self._indices_constant, properties=self._prop)
 
     def __pack_dims__(self, dims: Shape, packed_dim: Shape, pos: Union[int, None], **kwargs) -> 'Tensor':
