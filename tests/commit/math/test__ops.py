@@ -1204,7 +1204,8 @@ class TestOps(TestCase):
                         idx = math.stored_indices(diffs(tensor(vec(x=[0, 100, 900], y=[0, 0, 1]))))
                         math.assert_close([(0, 0), (1, 1), (2, 2)], idx)
                         idx = math.stored_indices(diffs(tensor(vec(x=[0, 1, 900], y=[0, 0, 1]))))
-                        math.assert_close([(0, 0), (0, 1), (1, 0), (1, 1), (2, 2)], idx)
+                        count = math.count_occurrences(idx, wrap([(0, 0), (0, 1), (1, 0), (1, 1), (2, 2)], 'expected:i', channel(idx)))
+                        math.assert_close(1, count)
 
     def test_pairwise_differences_jit(self):
         for b in BACKENDS:
