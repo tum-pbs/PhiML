@@ -3958,15 +3958,15 @@ def pairwise_differences(positions: Tensor,
             from ..backend._partition import find_neighbors_sparse
             nat_rows, nat_cols, nat_deltas = find_neighbors_sparse(native_positions, native_max_dist, domain, periodic=periodic, default=default, index_dtype=index_dtype, avg_neighbors=avg_neighbors)
             nat_indices = backend.stack([nat_rows, nat_cols], -1)
-            indices = reshaped_tensor(nat_indices, [instance('pairs'), channel(vector=primal_dims.names + dual_dims.names)], convert=False)
-            deltas = reshaped_tensor(nat_deltas, [instance('pairs'), channel(positions)], convert=False)
+            indices = reshaped_tensor(nat_indices, [instance('sp_entries'), channel(sparse_idx=primal_dims.names + dual_dims.names)], convert=False)
+            deltas = reshaped_tensor(nat_deltas, [instance('sp_entries'), channel(positions)], convert=False)
             return SparseCoordinateTensor(indices, deltas, primal_dims & dual_dims, can_contain_double_entries=False, indices_sorted=True, indices_constant=False)
         elif method == 'scipy-kd':
             from ..backend._partition import find_neighbors_scipy_kd
             nat_idx, nat_ptr, nat_deltas = find_neighbors_scipy_kd(native_positions, native_max_dist, avg_neighbors, index_dtype)
-            indices = reshaped_tensor(nat_idx, [instance('pairs')], convert=False)
+            indices = reshaped_tensor(nat_idx, [instance('sp_entries')], convert=False)
             pointers = reshaped_tensor(nat_ptr, [instance('pointers')], convert=False)
-            deltas = reshaped_tensor(nat_deltas, [instance('pairs'), channel(positions)], convert=False)
+            deltas = reshaped_tensor(nat_deltas, [instance('sp_entries'), channel(positions)], convert=False)
             if format == 'csc':  # the matrix is symmetric, so we can transpose to match desired result
                 uncompressed, compressed = primal_dims, dual_dims
             else:

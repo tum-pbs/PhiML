@@ -583,7 +583,7 @@ def lin_output_indices(x: Tensor, offset: IndexOffset, included_out_dims: Shape)
     with NUMPY:
         if is_sparse(x):
             sp_dims = sparse_dims(x)
-            sp_indices = stored_indices(x)
+            sp_indices = stored_indices(x, instance('sp_entries'))
         else:
             sp_dims = EMPTY_SHAPE
             sp_indices = None
@@ -668,7 +668,7 @@ def tracer_to_coo(tracer_tree: Tensor) -> Tuple[Tensor, Tensor]:
                 else:
                     all_indices = concat([src_indices, out_indices], 'idx', expand_values=True)
                 entry_dims = all_indices.shape - 'idx'
-                entry_dim = instance(entries=entry_dims.volume)
+                entry_dim = instance(sp_entries=entry_dims.volume)
                 entry_idx = pack_dims(all_indices, entry_dims, entry_dim)
                 entry_val = pack_dims(expand(fac, entry_dims), entry_dims, entry_dim)
                 if not fac_nz.all:  # we know the location of some zeros in fac
@@ -680,8 +680,8 @@ def tracer_to_coo(tracer_tree: Tensor) -> Tuple[Tensor, Tensor]:
                 bias = scatter(bias, out_indices, t_bias, 'add', pref_index_dim='idx', outside_handling='undefined')
             else:  # constant
                 bias = scatter(bias, out_indices, tensor, 'add', pref_index_dim='idx', outside_handling='undefined')
-        all_indices = concat_tensor(indices, 'entries')
-        all_values = concat_tensor(values, 'entries')
+        all_indices = concat_tensor(indices, 'sp_entries')
+        all_values = concat_tensor(values, 'sp_entries')
         matrix = sparse_tensor(all_indices, all_values, dual_in & out_dims, can_contain_double_entries=True, indices_sorted=False, format='coo', indices_constant=True)
         if isinstance(tracer_tree, LinTracer):
             matrix._prop = TensorProperties(tracer=tracer_tree)
@@ -724,7 +724,7 @@ def dependent_out_dims(tracer: Tensor, included_src_dims: Shape, sparsify=None, 
         dims = tracer.shape.only(out_dims)
         return dims & (included_src_dims.only(tracer.shape) - dims)  # if size changed, prefer from tracer.shape
     elif is_sparse(tracer):
-        return sparse_dims(tracer) & dependent_src_dims(tracer._values).non_instance
+        return sparse_dims(tracer) & dependent_out_dims(tracer._values, included_src_dims).non_instance
     raise ValueError(tracer)
 
 

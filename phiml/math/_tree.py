@@ -653,7 +653,7 @@ def disassemble_tree(obj: PhiTreeNodeType, cache: bool, attr_type=variable_attri
                 return obj, []
             sizes = backend.staticshape(obj)
             dims = [Dim(f"dim{i}", s, CHANNEL_DIM, None) for i, s in enumerate(sizes)]
-            shape = PureShape(CHANNEL_DIM, {dim.name: dim for dim in dims})
+            shape = concat_shapes_(*dims)
             return NATIVE_TENSOR, [Dense(obj, shape.names, shape, backend)]
         except NoBackendFound:
             return obj, []
