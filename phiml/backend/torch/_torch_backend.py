@@ -394,6 +394,9 @@ class TorchBackend(Backend):
             return NotImplemented
         grid = channels_first(self.as_tensor(grid))
         coordinates = self.as_tensor(coordinates)
+        if self.ndims(grid) == 3:
+            grid = grid[:, :, None, :]
+            coordinates = torch.concat([torch.zeros_like(coordinates), coordinates], dim=-1)
         remove_coord_spatial = 0
         if coordinates.shape[0] != grid.shape[0]:  # repeating yields wrong result
             return NotImplemented
@@ -404,7 +407,7 @@ class TorchBackend(Backend):
         if coordinates.dtype.is_floating_point and not grid.dtype.is_complex and not grid.dtype.is_floating_point:
             grid = self.to_float(grid)
         resolution = torch.tensor(self.staticshape(grid)[2:], dtype=coordinates.dtype, device=coordinates.device)
-        coordinates = 2 * coordinates / (resolution - 1) - 1
+        coordinates = torch.where(resolution > 1, 2 * coordinates / (resolution - 1) - 1, 0)
         coordinates = torch.flip(coordinates, dims=[-1])
         batch_size = combined_dim(coordinates.shape[0], grid.shape[0])
         coordinates = coordinates.repeat(batch_size, *[1] * (len(coordinates.shape-1))) if coordinates.shape[0] < batch_size else coordinates
