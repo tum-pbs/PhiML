@@ -83,8 +83,9 @@ def sparse_tensor(indices: Optional[Tensor],
         values = expand(1, non_batch(indices))
         sparse = CompactSparseTensor(indices, values, compressed, indices_constant)
     else:
-        indices = rename_dims(indices, instance, 'sp_entries')
-        values = expand(values, instance(indices))
+        old_entries_dim = instance(indices)
+        indices = rename_dims(rename_dims(indices, old_entries_dim, 'sp_entries'), channel, 'sparse_idx')
+        values = expand(rename_dims(values, old_entries_dim, 'sp_entries'), instance(indices))
         sparse = SparseCoordinateTensor(indices, values, dense_shape, can_contain_double_entries, indices_sorted, indices_constant)
     return to_format(sparse, format) if format is not None else sparse
 
@@ -193,13 +194,13 @@ class SparseCoordinateTensor(Tensor):
             assert isinstance(values, Tensor), f"values must be a Tensor but got {type(values)}"
             assert instance(indices), f"indices must have an instance dimension but got {indices.shape}"
             assert channel(indices.shape).rank == 1, f"indices must have one channel dimension but got {indices.shape}"
-            indices = rename_dims(indices, channel, 'sparse_idx')
             assert set(indices.sparse_idx.labels) == set(dense_shape.names), f"The 'sparse_idx' dimension of indices must list the dense dimensions {dense_shape} as labels but got {indices.sparse_idx.labels}"
             assert len(set(indices.sparse_idx.labels)) == indices.sparse_idx.size, f"Duplicate sparse dimensions in indices {indices} with index {indices.sparse_idx.labels}"
             assert indices.dtype.kind == int, f"indices must have dtype=int but got {indices.dtype}"
             assert instance(values) in instance(indices), f"All instance dimensions of values must exist in indices. values={values.shape}, indices={indices.shape}"
             instance(indices) & instance(values)  # index/value shapes must broadcast
             assert 'sp_entries' in instance(indices)
+            assert 'sparse_idx' in channel(indices)
         if not instance(values) and (spatial(values) or dual(values)):
             warnings.warn(f"You are creating a sparse tensor with only constant values {values.shape}. To have values vary along indices, add the corresponding instance dimension.", RuntimeWarning, stacklevel=3)
         self._shape = merge_shapes(dense_shape, batch(indices), non_instance(values))
