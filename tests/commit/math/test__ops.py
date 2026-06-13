@@ -1258,8 +1258,22 @@ class TestOps(TestCase):
         self.assertIn('x', v.shape)
         self.assertIn('y', v.shape)
 
+    def test_eig_and_eigenvalues(self):
+        M = np.array([[2.0, 1.0], [1.0, 2.0]])
+        for backend in BACKENDS:
+            with backend:
+                a = math.tensor(M, '(x,y),~(x,y)')
+                Q_T, vals, Q = math.eig(a)
+                vals2 = math.eigenvalues(a)
+                self.assertEqual(vals.shape, vals2.shape)
+                math.assert_close(math.sort(vals), math.sort(vals2), rel_tolerance=1e-6, abs_tolerance=1e-6)
+                reconst = Q @ (vals * Q_T)
+                math.assert_close(reconst, M, rel_tolerance=1e-6, abs_tolerance=1e-6)
+
     def test_contains(self):
         a = wrap([(0, 0), (1, 1), (1, 2), (1, 2)], 'points:i,(x,y)')
         b = wrap([(1, 2), (1, 0)], 'query:s,(x,y)')
         math.assert_close([2, 0], math.count_occurrences(a, b))
         math.assert_close([True, False], math.contains(a, b))
+
+

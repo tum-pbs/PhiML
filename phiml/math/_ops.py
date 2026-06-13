@@ -4063,15 +4063,64 @@ def with_diagonal(matrix: Tensor, values: Union[float, Tensor], check_square=Tru
         raise NotImplementedError("with_diagonal currently only supports sparse matrices")
 
 
-def eigenvalues(matrix: Tensor, eigen_dim=channel('eigenvalues')):
+def eig(matrix: Tensor, eigen_dim=channel('eigenvalues'), dtype='real'):
+    """
+    Computes the eigenvalues and corresponding eigenvectors of a square matrix.
+
+    This function signature is made to match `svd`, returning a matrix `Qᵀ`, eigenvalues, and `Q`.
+    The original matrix can be reconstructed using one of these equations:
+
+    * `matrix == Q @ (eigenvalues * Qᵀ)`
+    * `matrix == (Q @ eigenvalues.T) @ Qᵀ`
+
+    See Also:
+        `eigenvalues`.
+
+    Args:
+        matrix: Square matrix. Must have at least one dual dim and corresponding non-dual dim.
+        eigen_dim: Dimension along which eigenvalues and eigenvectors should be listed.
+        dtype: Data type of eigenvalues result. One of `'real', 'complex', 'auto'`. If `auto`, resulting dtype depends on input matrix.
+
+    Returns:
+        eigenvectors Qᵀ: Transpose / inverse of eigenvector matrix Q. `Tensor` of shape (batch, eigen_dim, cols)
+        eigenvalues: `Tensor` of shape (batch, eigen_dim) with data type determined by `dtype`.
+        eigenvectors Q: `Tensor` of shape (batch, ~eigen_dim, rows)
+    """
+    assert dtype in {'real', 'complex', 'auto'}
+    assert not dual(eigen_dim), f"eigen_dim must be a primal or batch dim"
+    cols = dual(matrix)
+    assert cols, f"Matrix must have at least one dual dim listing the columns"
+    rows = matrix.shape.only(cols.as_batch().name_list)
+    if not rows:
+        rows = primal(matrix)
+    assert rows.volume == cols.volume, f"Matrix rows {rows} don't match cols {cols}"
+    batch_dims = matrix.shape.without(cols).without(rows)
+    b = matrix.backend
+    native_matrix = matrix._reshaped_native([*batch_dims, rows, cols])
+    nat_vals, nat_vecs = b.eig(native_matrix)
+    if dtype == 'real' and b.dtype(nat_vals).kind == complex:
+        nat_vals = b.cast(nat_vals, b.float_type)
+    elif dtype == 'complex' and b.dtype(nat_vals).kind != complex:
+        nat_vals = b.cast(nat_vals, b.complex_type)
+    vals = reshaped_tensor(nat_vals, [*batch_dims, eigen_dim], convert=False)
+    vecs_t = reshaped_tensor(nat_vecs, [*batch_dims, cols, eigen_dim], convert=False)
+    vecs = reshaped_tensor(nat_vecs, [*batch_dims, rows, eigen_dim.as_dual()], convert=False)
+    return vecs_t, vals, vecs
+
+
+def eigenvalues(matrix: Tensor, eigen_dim=channel('eigenvalues'), dtype='real'):
     """
     Computes the eigenvalues of a square matrix.
     The matrix columns are listed along dual dimensions and the rows are listed along the corresponding non-dual dimensions.
     Row dims are matched by name if possible, else all primal dims are used.
 
+    See Also:
+        `eig`.
+
     Args:
         matrix: Square matrix. Must have at least one dual dim and corresponding non-dual dim.
         eigen_dim: Dimension along which eigenvalues should be listed.
+        dtype: Data type of eigenvalues result. One of `'real', 'complex', 'auto'`. If `auto`, resulting dtype depends on input matrix.
 
     Returns:
         `Tensor` listing the eigenvalues along `eigen_dim`.
@@ -4084,15 +4133,23 @@ def eigenvalues(matrix: Tensor, eigen_dim=channel('eigenvalues')):
     assert rows.volume == cols.volume, f"Matrix rows {rows} don't match cols {cols}"
     batch_dims = matrix.shape.without(cols).without(rows)
     native_matrix = matrix._reshaped_native([*batch_dims, rows, cols])
-    native_result = matrix.backend.eigvals(native_matrix)
-    return reshaped_tensor(native_result, [*batch_dims, eigen_dim], convert=False)
+    b = matrix.backend
+    nat_vals = b.eigvals(native_matrix)
+    if dtype == 'real' and b.dtype(nat_vals).kind == complex:
+        nat_vals = b.cast(nat_vals, b.float_type)
+    elif dtype == 'complex' and b.dtype(nat_vals).kind != complex:
+        nat_vals = b.cast(nat_vals, b.complex_type)
+    return reshaped_tensor(nat_vals, [*batch_dims, eigen_dim], convert=False)
 
 
 def svd(x: Tensor, feature_dim: DimFilter = channel, list_dim: DimFilter = None, latent_dim=channel('singular'), full_matrices=False):
     """
     Singular value decomposition.
 
-    The original matrix is approximated by `(latent_to_value * singular.T) @ latents` or `latent_to_value @ (singular * latents)`.
+    The original matrix can be reconstructed using one of these equations:
+
+    * `x == (features * singular.T) @ latents`
+    * `x == features @ (singular * latents)`
 
     **Warning:** Even for well-defined SVDs, different backend use different sign conventions, causing results to differ.
 

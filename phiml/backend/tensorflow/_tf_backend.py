@@ -946,7 +946,7 @@ class TFBackend(Backend):
 
     def eigvals(self, matrix: TensorType) -> TensorType:
         with self._device_for(matrix):
-            return tf.linalg.eigval(matrix)
+            return tf.linalg.eigvals(matrix)
 
     def eig(self, matrix: TensorType) -> TensorType:
         with self._device_for(matrix):

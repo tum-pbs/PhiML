@@ -1611,7 +1611,7 @@ class Backend:
 
         Returns:
             eigenvalues: (batch..., n,)
-            eigenvectors: (batch..., n, n)
+            eigenvectors: (batch..., n, n). The vector `eigenvectors[:,i]` corresponds to the ith eigenvalue.
         """
         raise NotImplementedError(self)
 
