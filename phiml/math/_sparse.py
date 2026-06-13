@@ -11,8 +11,9 @@ from scipy.sparse import csr_matrix
 from scipy.sparse.linalg import aslinearoperator
 
 from ._magic_ops import concat, pack_dims, expand, rename_dims, stack, unpack_dim, unstack
-from ._shape import Shape, non_batch, merge_shapes, instance, batch, non_instance, shape, channel, spatial, DimFilter, non_dual, EMPTY_SHAPE, dual, non_channel, DEBUG_CHECKS, primal, concat_shapes_, IncompatibleShapes
-from ._tensors import Tensor, TensorStack, Dense, wrap, reshaped_tensor, tensor, backend_for, custom_op2, BlockTensor, TensorProperties, EMPTY_TENSOR_PROPERTIES
+from ._shape import Shape, non_batch, merge_shapes, instance, batch, non_instance, shape, channel, spatial, DimFilter, non_dual, EMPTY_SHAPE, dual, non_channel, DEBUG_CHECKS, \
+    primal, concat_shapes_, IncompatibleShapes, parse_dim_order
+from ._tensors import Tensor, TensorStack, Dense, wrap, reshaped_tensor, tensor, backend_for, custom_op2, BlockTensor, TensorProperties, EMPTY_TENSOR_PROPERTIES, process_groups_for
 from ..backend import choose_backend, NUMPY, Backend, get_precision
 from ..backend._dtype import DType, INT64
 
@@ -230,8 +231,10 @@ class SparseCoordinateTensor(Tensor):
         return batch(self._indices)
 
     def native(self, order: Union[str, tuple, list, Shape] = None, force_expand=True, to_numpy=False):
-        assert order is None, f"sparse matrices are always ordered (primal, dual). For custom ordering, use math.dense(tensor).native() instead."
-        return native_matrix(self, NUMPY if to_numpy else self.default_backend)
+        return native_matrix(self, NUMPY if to_numpy else self.default_backend, order)
+
+    def numpy(self, order: Union[str, tuple, list, Shape] = None, force_expand=True) -> np.ndarray:
+        return native_matrix(self, NUMPY, order)
 
     def _cached(self):
         return SparseCoordinateTensor(self._indices._cached(), self._values._cached(), self._dense_shape, self._can_contain_double_entries, self._indices_sorted, self._indices_constant, self._prop)
@@ -939,12 +942,10 @@ class CompressedSparseMatrix(Tensor):
         return SparseCoordinateTensor(self._uncompressed_indices, self._values, self._compressed_dims & self._uncompressed_dims, False, False, self._indices_constant, self._prop)
 
     def native(self, order: Union[str, tuple, list, Shape] = None, force_expand=True):
-        assert order is None, f"sparse matrices are always ordered (primal, dual). For custom ordering, use math.dense(tensor).native() instead."
-        return native_matrix(self, self.default_backend)
+        return native_matrix(self, self.default_backend, order)
 
     def numpy(self, order: Union[str, tuple, list, Shape] = None, force_expand=True) -> np.ndarray:
-        assert order is None, f"sparse matrices are always ordered (primal, dual). For custom ordering, use math.dense(tensor).native() instead."
-        return native_matrix(self, NUMPY)
+        return native_matrix(self, NUMPY, order)
 
     def __pack_dims__(self, dims: Shape, packed_dim: Shape, pos: Union[int, None], **kwargs) -> 'Tensor':
         assert all(d in self._shape for d in dims)
@@ -1007,8 +1008,10 @@ class CompactSparseTensor(Tensor):
         return self._indices.shape.only(self._compressed_dims)
 
     def native(self, order: Union[str, tuple, list, Shape] = None, force_expand=True, to_numpy=False):
-        assert order is None, f"sparse matrices are always ordered (primal, dual). For custom ordering, use math.dense(tensor).native() instead."
-        return native_matrix(self, NUMPY if to_numpy else self.default_backend)
+        return native_matrix(self, NUMPY if to_numpy else self.default_backend, order)
+
+    def numpy(self, order: Union[str, tuple, list, Shape] = None, force_expand=True):
+        return native_matrix(self, NUMPY, order)
 
     def _cached(self):
         return CompactSparseTensor(self._indices._cached(), self._values._cached(), self._compressed_dims, self._indices_constant, self._prop)
@@ -1350,7 +1353,7 @@ def to_format(x: Tensor, format: str):
         return TensorStack(converted, x._stack_dim)
     else:  # dense to sparse
         from ._ops import nonzero
-        indices = nonzero(rename_dims(x, channel, instance))
+        indices = nonzero(rename_dims(x, channel, instance), instance('sp_entries'), channel('sparse_idx'))
         values = x[indices]
         coo = SparseCoordinateTensor(indices, values, x.shape, can_contain_double_entries=False, indices_sorted=False, indices_constant=x.default_backend.name == 'numpy')
         return to_format(coo, format)
@@ -1687,7 +1690,19 @@ def dot_sparse_sparse(a: Tensor, a_dims: Shape, b: Tensor, b_dims: Shape):
     return SparseCoordinateTensor(indices, values, result_shape, can_contain_double_entries=True, indices_sorted=False, indices_constant=a._indices_constant)
 
 
-def native_matrix(value: Tensor, target_backend: Backend):
+def native_matrix(value: Tensor, target_backend: Backend, order=None):
+    if order is not None:
+        order = value.shape.only(order, reorder=True)
+        batches = value.shape - sparse_dims(value)
+        cols = dual(sparse_dims(value))
+        rows = non_dual(sparse_dims(value))
+        if order.names != (batches + rows + cols).names:
+            if order.names == (batches + cols + rows).names:  # transposed
+                value = pack_dims(value, cols, dual('_cols'))
+                value = pack_dims(value, rows, instance('_rows'))
+                transposed = rename_dims(value, '~_cols,_rows', instance('_tcols') + dual('_trows'))
+                return native_matrix(transposed, target_backend, order=None)
+            raise AssertionError(f"Native representations of sparse matrices must order dimensions as batch+cols+rows or batch+rows+cols but got order {order} for matrix with sparse shape {sparse_dims(value)}")
     from ..backend import convert
     target_backend = target_backend or value.default_backend
     cols = dual(value)

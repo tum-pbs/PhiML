@@ -3,7 +3,7 @@ from unittest import TestCase
 import numpy as np
 import scipy
 
-from phiml import math
+from phiml import math, arange, primal
 from phiml.backend._backend import init_installed_backends
 from phiml.math import batch, get_sparsity, expand, wrap, stack, zeros, channel, spatial, ones, instance, tensor, \
     pairwise_distances, dense, assert_close, non_dual, dual, concat
@@ -251,3 +251,10 @@ class TestSparse(TestCase):
             self.assertEqual(set(instance(rows=2) & dual(cols=3)), set(mat_dp.shape))
             mat_rc = wrap(npm, 'rows:i,cols:c')
             self.assertEqual(set(instance(rows=2) & channel(cols=3)), set(mat_rc.shape))
+
+    def test_reshaped_numpy(self):
+        a = arange(spatial(x=3))
+        csr = math.to_format(a == a.Ts, 'csr')
+        assert isinstance(csr.numpy([primal, dual]), csr_matrix)
+        assert isinstance(csr.numpy([dual, primal]), csc_matrix)
+
