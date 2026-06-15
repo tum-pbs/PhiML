@@ -1083,8 +1083,9 @@ class Dense(Tensor):
                 else:
                     slices.append(None)
                     needs_slice = True
-                    tile.append(dim.size)
-                    needs_tile = needs_tile or dim.size > 1
+                    size = (self._shape[dim.name] if dim.name in self._shape else dim).size
+                    tile.append(size)
+                    needs_tile = needs_tile or size > 1
         native = self._backend.transpose(native, perm)
         if needs_slice:
             native = native[tuple(slices)]
