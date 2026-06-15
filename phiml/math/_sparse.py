@@ -2043,3 +2043,20 @@ def general_coo_op2(m1: SparseCoordinateTensor, m2: SparseCoordinateTensor, op: 
         indices = wrap(NUMPY.unravel_index(common_keys, dims.sizes), 'sp_entries:i', channel(sparse_idx=labels))
         return sparse_tensor(indices, values, m1.sparse_dims, can_contain_double_entries=False)
     raise AssertionError(f"Operation '{op}' requires sparse matrices with the same sparsity pattern.")
+
+
+def sparse_scatter(x: Tensor, indices: Tensor, values: Tensor, mode: str, index_dim: Shape, list_dims: Shape):
+    if mode == 'update' and values.available and not values._var_dims and (values == 0).all:
+        return sparse_eliminate(x, indices, index_dim, list_dims)
+    raise NotImplementedError
+
+
+def sparse_eliminate(x: Tensor, indices: Tensor, index_dim: Shape, list_dims: Shape):
+    from ._ops import count_occurrences
+    original_format = get_format(x)
+    x = to_format(x, 'coo')
+    assert isinstance(x, SparseCoordinateTensor)
+    indices = rename_dims(indices, index_dim, 'sparse_idx')
+    keep = count_occurrences(indices, x._indices, 'sparse_idx') == 0
+    coo = x._with_data(x._indices[keep], x._values[keep])
+    return to_format(coo, original_format)

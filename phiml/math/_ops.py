@@ -24,7 +24,7 @@ from ._tree import Layout, variable_attributes, disassemble_tree, assemble_tree,
 from ._magic_ops import expand, pack_dims, unpack_dim, cast, value_attributes, bool_to_int, tree_map, concat, stack, unstack, rename_dims, squeeze, ipack
 from ._sparse import (CompressedSparseMatrix, dense, SparseCoordinateTensor, get_format, to_format, stored_indices,
                       tensor_like, sparse_dims, same_sparsity_pattern, is_sparse, sparse_dot, sparse_sum, sparse_gather, sparse_max,
-                      sparse_min, dense_dims, sparse_mean, stored_values, sparse_matrix_dims, CompactSparseTensor)
+                      sparse_min, dense_dims, sparse_mean, stored_values, sparse_matrix_dims, CompactSparseTensor, sparse_scatter)
 from . import extrapolation as e_
 from ._trace import Tracer, tracer_reduce, tracer_op1, TRACES
 
@@ -1332,7 +1332,7 @@ def where(condition: Union[Tensor, bool],
         if vt._is_tracer or vf._is_tracer or c._is_tracer:
             return c * vt + (1 - c) * vf  # ToDo this does not take NaN into account
         if is_sparse(c) or is_sparse(vt) or is_sparse(vf):
-            if not same_sparsity_pattern(vt, vf, allow_const=True) or not same_sparsity_pattern(c, vt, allow_const=True):
+            if not same_sparsity_pattern(vt, vf, allow_const=True) or not same_sparsity_pattern(c, vt, allow_const=True) or not same_sparsity_pattern(c, vf, allow_const=True):
                 raise NotImplementedError(f"When calling where() on sparse tensors, all arguments must have the same sparsity pattern or be dense")
             sp_dims = sparse_dims(c) & sparse_dims(vt) & sparse_dims(vf)
             d_dims = dense_dims(c) & dense_dims(vt) & dense_dims(vf)
@@ -3352,6 +3352,8 @@ def scatter(base_grid: Union[Tensor, Shape],
         batches -= broadcast
         channels = (base_grid.shape & values.shape.channel) - indexed_dims - batches - broadcast
         lists = ((indices.shape - index_dim) & values.shape.non_channel) - batches - broadcast - channels
+        if is_sparse(base_grid):
+            return sparse_scatter(base_grid, indices, values, mode, index_dim, lists)
         if values._is_tracer:
             if indices._is_tracer or base_grid._is_tracer:
                 raise NotImplementedError("scattering linear tracer into linear tracer not supported")
