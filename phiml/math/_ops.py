@@ -3048,9 +3048,9 @@ def boolean_mask(x, dim: DimFilter, mask: Tensor, preserve_names=False):
             return Layout(gathered, dim.with_size(size))
         raise NotImplementedError
     if is_sparse(x):
-        indices = nonzero(mask, list_dim=instance('_boolean_mask'))
+        indices = nonzero(mask, list_dim=instance('boolean_mask_'))
         result = x[indices]
-        return result.__replace_dims__(('_boolean_mask',), mask.shape.non_channel)
+        return result.__replace_dims__(('boolean_mask_',), mask.shape.non_channel.with_size(x.boolean_mask_.size))
     if not isinstance(x, Tensor) or is_sparse(x):
         keep_slices = nonzero_slices(mask)
         x_slices = [x[s] for s in keep_slices]
