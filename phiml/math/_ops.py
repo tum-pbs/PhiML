@@ -3392,6 +3392,37 @@ def scatter(base_grid: Union[Tensor, Shape],
     return result
 
 
+def index_mask(indices: Tensor, indexed: Union[Shape, Tensor], /, pref_index_dim='index'):
+    """
+    Returns a tensor with dims of `indexed` and non-index dims of `indices` that is `True` at `indices` and `False` everywhere else.
+
+    Args:
+        indices: `Tensor` with channel dim indexing into `indexed`.
+            Specifies the position in the corresponding row where the result will be `True`.
+            Pass negative indices to have a full row `False`.
+        indexed: `Shape` or `Tensor` specifying the indexed dims of `indices`.
+            If `indexed` is a sparse tensor, the result will have the same sparsity.
+        pref_index_dim:
+
+    Returns:
+        `Tensor´ containing non-channel dims of `indices` and indexed dims.
+    """
+    index_dim = channel(indices)
+    if index_dim.rank > 1:
+        index_dim = index_dim[pref_index_dim]
+    if isinstance(indexed, Tensor) and is_sparse(indexed):
+        mask = tensor_like(indexed, False)
+        m_idx = stored_indices(mask, instance('sp_entries'))
+        row_names = (indices.shape - index_dim).names
+        col_names = [n for n in m_idx.index.labels if n not in row_names]
+        m_row = m_idx.index[row_names]
+        m_col = m_idx.index[col_names]
+        mask_values = all_(indices[m_row] == m_col, channel)
+        return indexed._with_values(mask_values)
+    else:  # dense
+        return scatter((shape(indices) - index_dim) & shape(indexed), indices, True, outside_handling='discard', pref_index_dim=pref_index_dim)
+
+
 def ravel_index(index: Tensor, resolution: Shape, dim=channel, mode='undefined') -> Tensor:
     """
     Computes a scalar index from a vector index.
