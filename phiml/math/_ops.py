@@ -3285,6 +3285,8 @@ def scatter(base_grid: Union[Tensor, Shape],
             return concat(parts, dim)
         else:
             raise NotImplementedError("scattering into non-continuous values not yet supported by dimension")
+    elif isinstance(indices, (tuple, list)):
+        indices = stack(indices, instance('_sequence'))
     grid_shape = base_grid if isinstance(base_grid, SHAPE_TYPES) else base_grid.shape
     values = wrap(values)
     # --- Determine index_dim, indexed_dim ---
@@ -3317,7 +3319,8 @@ def scatter(base_grid: Union[Tensor, Shape],
             if base_grid.dtype.kind != bool or default:
                 base_grid += default
         elif mode in ['update', 'mean']:
-            base_grid += float('nan')
+            if base_grid.dtype.kind in (float, complex):
+                base_grid += float('nan')
         elif mode == 'max':
             base_grid -= float('inf')
         elif mode == 'min':
