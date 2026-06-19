@@ -1411,7 +1411,8 @@ class Backend:
         repeats = row_pointers[:, 1:] - row_pointers[:, :-1]
         row_count = self.shape(repeats)[-1]
         row_indices = [self.repeat(self.range(row_count, dtype=self.dtype(column_indices)), repeats[b], -1, new_length=index_count) for b in range(batch_size)]
-        return self.stack([self.stack(row_indices), column_indices], axis=-1)
+        row_indices = self.stack(row_indices) if len(row_indices) > 1 else row_indices[0][None, ...]
+        return self.stack([row_indices, column_indices], axis=-1)
 
     def csr_to_dense(self, column_indices, row_pointers, values, shape: Tuple[int, int], contains_duplicates=False):
         indices = self.csr_to_coo(column_indices, row_pointers)

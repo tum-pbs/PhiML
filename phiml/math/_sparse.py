@@ -443,6 +443,8 @@ class SparseCoordinateTensor(Tensor):
         if isinstance(other, SparseCoordinateTensor):
             if same_sparsity_pattern(self, other):
                 return self._with_values(op(other._values, self._values) if switch_args else op(self._values, other._values))
+            elif same_sparsity_pattern(self, other, allow_reorder=True):
+                return to_format(self, 'csr')._op2(to_format(other, 'csr'), op, switch_args)
             else:
                 if op not in {operator.add, operator.sub}:
                     return general_coo_op2(self, other, op) if not switch_args else general_coo_op2(other, self, op)
@@ -819,7 +821,9 @@ class CompressedSparseMatrix(Tensor):
         affects_only_values = self.sparse_dims.isdisjoint(other_shape) and non_instance(self._indices).isdisjoint(other_shape) and not is_sparse(other)
         if affects_only_values:
             return self._with_values(custom_op2(self._values, other, op, switch_args))
-        elif isinstance(other, CompressedSparseMatrix):
+        elif isinstance(other, SparseCoordinateTensor):
+            other = to_format(other, get_format(self))
+        if isinstance(other, CompressedSparseMatrix):
             if same_sparsity_pattern(self, other):
                 result = op(other._values, self._values) if switch_args else op(self._values, other._values)
                 if self._uncompressed_offset is not None:
@@ -1563,7 +1567,7 @@ def stored_indices(x: Tensor, list_dim=instance('entries'), index_dim=channel('i
     raise ValueError(x)
 
 
-def same_sparsity_pattern(t1: Tensor, t2: Tensor, allow_const=False):
+def same_sparsity_pattern(t1: Tensor, t2: Tensor, allow_const=False, allow_reorder=False):
     if allow_const:
         if is_sparse(t1) and not is_sparse(t2) and sparse_dims(t1) not in t2.shape:
             return True
@@ -1583,7 +1587,17 @@ def same_sparsity_pattern(t1: Tensor, t2: Tensor, allow_const=False):
     if isinstance(t1, CompressedSparseMatrix):
         return get_format(t1) == get_format(t2) and always_close(t1._indices, t2._indices) and always_close(t1._pointers, t2._pointers)
     if isinstance(t1, SparseCoordinateTensor):
-        return always_close(t1._indices, t2._indices, rel_tolerance=0)
+        if set(sparse_dims(t1)) != set(sparse_dims(t2)):
+            return False
+        if always_close(t1._indices, t2._indices[t1._indices.sparse_idx.labels], rel_tolerance=0):
+            return True
+        if not allow_reorder:
+            return False
+        labels = t1._indices.shape.channel.labels[0]
+        dims = t2.shape[labels]
+        keys1 = set(NUMPY.ravel_multi_index(t1._indices.numpy([instance, channel]), dims.sizes, 'undefined'))
+        keys2 = set(NUMPY.ravel_multi_index(t2._indices[labels].numpy([instance, channel]), dims.sizes, 'undefined'))
+        return keys1 == keys2
     if isinstance(t1, CompactSparseTensor):
         return always_close(t1._indices, t2._indices, rel_tolerance=0)
     raise NotImplementedError
@@ -2030,10 +2044,8 @@ def sparse_gather(matrix: Tensor, indices: Tensor, index_dim: Shape):
 def general_coo_op2(m1: SparseCoordinateTensor, m2: SparseCoordinateTensor, op: Callable):
     labels = m1._indices.shape.channel.labels[0]
     dims = m1.shape[labels]
-    i1 = m1._indices.numpy([instance, channel])
-    i2 = m2._indices[labels].numpy([instance, channel])
-    keys1 = NUMPY.ravel_multi_index(i1, dims.sizes, 'undefined')
-    keys2 = NUMPY.ravel_multi_index(i2, dims.sizes, 'undefined')
+    keys1 = NUMPY.ravel_multi_index(m1._indices.numpy([instance, channel]), dims.sizes, 'undefined')
+    keys2 = NUMPY.ravel_multi_index(m2._indices[labels].numpy([instance, channel]), dims.sizes, 'undefined')
     if op == operator.mul:
         assert not m1._can_contain_double_entries and not m2._can_contain_double_entries, f"Element-wise COO operations don't support duplicate entries"
         common_keys, idx1, idx2 = np.intersect1d(keys1, keys2, assume_unique=False, return_indices=True)
