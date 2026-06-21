@@ -2216,7 +2216,7 @@ def argmax(x: Tensor, dim: DimFilter, index_dim=channel('index')):
             result_shape = max_val.shape & channel(scatter_val)
             if remaining_dims:
                 scatter_idx = is_max_idx[remaining_dims.name_list]
-                result = scatter(result_shape, scatter_idx, scatter_val, mode='update', default=-1)
+                result = scatter(result_shape, scatter_idx, scatter_val, mode='update', default=-1, outside_handling='undefined')
             else:  # all sparse dims are reduced
                 result = scatter_val.true_values[0]
             return rename_dims(result, channel(scatter_val), index_dim.with_sizes(dims.name_list))
@@ -2262,7 +2262,7 @@ def argmin(x: Tensor, dim: DimFilter, index_dim=channel('index')):
             result_shape = min_val.shape & channel(scatter_val)
             if remaining_dims:
                 scatter_idx = is_min_idx[remaining_dims.name_list]
-                result = scatter(result_shape, scatter_idx, scatter_val, mode='update', default=-1)
+                result = scatter(result_shape, scatter_idx, scatter_val, mode='update', default=-1, outside_handling='undefined')
             else:  # all sparse dims are reduced
                 result = scatter_val.true_values[0]
             return rename_dims(result, channel(scatter_val), index_dim.with_sizes(dims.name_list))
@@ -4369,7 +4369,7 @@ def bins(x: PhiTreeNode, indices: Tensor, dim: DimFilter, bins: Shape = instance
             val_sorted = reshaped_tensor(val_sorted, [batch_dims, dim])
             scatter_idx = np.stack([idx_sorted, col_idx], -1)
             scatter_idx = reshaped_tensor(scatter_idx, [dim, channel(idx=bins.name_list + bin_dim.name_list)])
-            return scatter(out_shape, scatter_idx, val_sorted, 'update', default=pad_value)
+            return scatter(out_shape, scatter_idx, val_sorted, 'update', default=pad_value, outside_handling='undefined')
         return tree_map(bin_tensor, x, all_attributes)
     raise NotImplementedError
     # # Sort by indices so equal indices are contiguous

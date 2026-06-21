@@ -74,7 +74,7 @@ def guaranteed_empty_cols(matrix: Tensor) -> Tensor:
             flat_indices = pack_dims(indices, entry_dims, entry_dim)
             flat_nz = pack_dims(expand(tracer._fac_nz, entry_dims), entry_dims, entry_dim)
             nz_indices = flat_indices[flat_nz]
-            src_unused = math.scatter(expand(True, dependent_src_dims(tracer)), nz_indices, False)
+            src_unused = math.scatter(expand(True, dependent_src_dims(tracer)), nz_indices, False, outside_handling='undefined')
             return math.nonzero(src_unused, list_dim=instance('empties'), element_dims=None, list_dims=src_unused.shape)
     else:
         if matrix.available:
@@ -186,10 +186,10 @@ def drop_rows_and_cols_from_system(matrix: Tensor, primal_x_shape: Shape, empty_
         return math.gather(pack_dims(y, rows, channel('rows')), get_old_row, pref_index_dim='idx')
 
     def expand_x(x: Tensor):
-        return math.scatter(zeros_x, get_old_col_exp, x.cols.as_instance())
+        return math.scatter(zeros_x, get_old_col_exp, x.cols.as_instance(), outside_handling='undefined')
 
     def expand_y(y: Tensor):
-        return math.scatter(zeros_y, get_old_row_exp, y.rows.as_instance())
+        return math.scatter(zeros_y, get_old_row_exp, y.rows.as_instance(), outside_handling='undefined')
 
     return matrix, contract_x, contract_y, expand_x, expand_y
 

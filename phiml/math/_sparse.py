@@ -1397,9 +1397,9 @@ def compressed_to_compact(x: CompressedSparseMatrix, assume_const_entries: bool)
         mapped_idx = cast(arange(instance(x._indices)), x._indices.dtype) - x._pointers[ptr_idx]
         scatter_indices = stack({x._compressed_dims.name: ptr_idx, compact_dim.name: mapped_idx}, 'index:c')
         indices = zeros(x._compressed_dims & compact_dim, dtype=x._indices.dtype)
-        indices = scatter(indices, scatter_indices, x._indices)
+        indices = scatter(indices, scatter_indices, x._indices, outside_handling='undefined')
         values = zeros(x._compressed_dims & compact_dim & (x._values.shape - instance))
-        values = scatter(values, scatter_indices, x._values)
+        values = scatter(values, scatter_indices, x._values, outside_handling='undefined')
     else:
         indices = unpack_dim(x._indices, instance, x._compressed_dims, compact_dim)
         values = unpack_dim(x._values, instance, x._compressed_dims, compact_dim)
@@ -1903,7 +1903,7 @@ def sparse_reduce(value: Tensor, dims: Shape, mode: str):
             r_shape = value.shape.without(value._uncompressed_dims)
             indices = expand(rename_dims(value._indices, dual, instance), channel(idx=value._compressed_dims.name_list))
             values = rename_dims(value._values, dual, instance)
-            result = scatter(r_shape, indices, values, mode=mode)
+            result = scatter(r_shape, indices, values, mode=mode, outside_handling='undefined')
             value = result
         elif value._compact_dims in dims:
             value = reduce(value._values, dims)

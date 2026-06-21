@@ -243,17 +243,17 @@ class LinTracer(Tensor):
         if base_grid._is_tracer:
             raise NotImplementedError
         if mode == 'update':  # max dependencies unchanged -> return dense LinTracer
-            lin_indices = scatter(expand(0, indexed_dims), indices, self._indices)
-            fac = scatter(expand(0, indexed_dims), indices, self._fac)
-            fac_nz = scatter(expand(False, indexed_dims), indices, self._fac_nz)
-            bias = scatter(base_grid, indices, self._bias)
+            lin_indices = scatter(expand(0, indexed_dims), indices, self._indices, outside_handling='undefined')
+            fac = scatter(expand(0, indexed_dims), indices, self._fac, outside_handling='undefined')
+            fac_nz = scatter(expand(False, indexed_dims), indices, self._fac_nz, outside_handling='undefined')
+            bias = scatter(base_grid, indices, self._bias, outside_handling='undefined')
             return LinTracer(self._source, lin_indices, fac, fac_nz, bias)
         elif mode == 'add':  # With duplicate indices, we can get more dependencies in the output
             tr_indices, fac, fac_nz = math.bins((self._indices, self._fac, self._fac_nz), indices, instance, bins=base_grid.shape.only(channel(indices).labels[0]), bin_dim=batch('_dupli'))
             tr_indices = pack_dims(tr_indices, '_dupli,_deps', '_deps:b')
             fac = pack_dims(fac, '_dupli,_deps', '_deps:b')
             fac_nz = pack_dims(fac_nz, '_dupli,_deps', '_deps:b')
-            bias = scatter(base_grid, indices, self._bias, mode=mode)
+            bias = scatter(base_grid, indices, self._bias, mode=mode, outside_handling='undefined')
             return LinTracer(self._source, tr_indices, fac, fac_nz, bias)
         else:
             raise NotImplementedError
@@ -427,7 +427,7 @@ class DebugLinTracer(LinTracer):
 
     def _scatter(self, base_grid: Tensor, indices: Tensor, mode: str, index_dim: Shape, indexed_dims: Shape, batches: Shape, channels: Shape, lists: Shape) -> Tensor:
         def example_scatter(example: Tensor, base_grid: Tensor, indices: Tensor, mode: str, *_args):
-            return math.scatter(base_grid, indices, example, mode)
+            return math.scatter(base_grid, indices, example, mode, outside_handling='undefined')
         return self._debug_check(LinTracer._scatter, example_scatter, self, base_grid, indices, mode, index_dim, indexed_dims, batches, channels, lists)
 
     @staticmethod
