@@ -12,7 +12,7 @@ from scipy.sparse.linalg import aslinearoperator
 
 from ._magic_ops import concat, pack_dims, expand, rename_dims, stack, unpack_dim, unstack
 from ._shape import Shape, non_batch, merge_shapes, instance, batch, non_instance, shape, channel, spatial, DimFilter, non_dual, EMPTY_SHAPE, dual, non_channel, DEBUG_CHECKS, \
-    primal, concat_shapes_, IncompatibleShapes, parse_dim_order
+    primal, concat_shapes_, IncompatibleShapes, isize
 from ._tensors import Tensor, TensorStack, Dense, wrap, reshaped_tensor, tensor, backend_for, custom_op2, BlockTensor, TensorProperties, EMPTY_TENSOR_PROPERTIES, process_groups_for
 from ..backend import choose_backend, NUMPY, Backend, get_precision
 from ..backend._dtype import DType, INT64
@@ -609,6 +609,7 @@ class CompressedSparseMatrix(Tensor):
             if uncompressed_indices is not None:
                 assert instance(uncompressed_indices) == instance(indices), f"Number of uncompressed indices {instance(uncompressed_offset)} does not match compressed indices {instance(indices)}"
                 assert set(channel(uncompressed_indices).labels[0]) == set(sparse_dims(self).names)
+            assert self._pointers.max == isize(self._indices)
 
     @property
     def shape(self) -> Shape:
