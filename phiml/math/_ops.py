@@ -1354,7 +1354,7 @@ def where(condition: Union[Tensor, bool],
     return broadcast_op(inner_where, [condition, value_true, value_false])
 
 
-def nonzero(value: Union[Tensor, bool], list_dim: Union[Shape, str, int] = instance('nonzero'), index_dim: Shape = channel('vector'), element_dims: DimFilter = channel, list_dims: DimFilter = non_batch, preserve_names=False):
+def nonzero(value: Union[Tensor, bool], list_dim: Union[Shape, str, int] = instance('nonzero'), index_dim: Optional[Shape] = channel('vector'), element_dims: DimFilter = channel, list_dims: DimFilter = non_batch, preserve_names=False):
     """
     Get spatial indices of non-zero / True values.
 
@@ -1372,7 +1372,7 @@ def nonzero(value: Union[Tensor, bool], list_dim: Union[Shape, str, int] = insta
         value: spatial tensor to find non-zero / True values in.
         list_dim: Dimension listing non-zero values. If size specified, lists only the first `size` non-zero values.
             Special case: For retrieving only the first non-zero value, you may pass `1` instead of a `Shape` of size 1.
-        index_dim: Index dimension.
+        index_dim: Index dimension or `None` for scalar indices.
         element_dims: Dims listing components of one value. A value is only considered `zero` if all components are 0.
         list_dims: Dims in which non-zero elements are searched. These will be stored in the labels of `index_dim`.
 
@@ -1415,8 +1415,11 @@ def nonzero(value: Union[Tensor, bool], list_dim: Union[Shape, str, int] = insta
             assert cutoff is None, f"Cut-off Not implemented for sparse tensors"
             nonzero_values = nonzero(value._values)
             nonzero_indices = value._indices[nonzero_values]
-            index_dim_ = index_dim.with_size(channel(value._indices).labels[0])
-            return rename_dims(rename_dims(nonzero_indices, instance, list_dim), channel, index_dim_)
+            if index_dim is None:
+                return rename_dims(nonzero_indices, instance, list_dim)[{channel: 0}]
+            else:
+                index_dim_ = index_dim.with_size(channel(value._indices).labels[0])
+                return rename_dims(rename_dims(nonzero_indices, instance, list_dim), channel, index_dim_)
         elif isinstance(value, SparseCoordinateTensor):
             # value = value.compress(sparse_dims(value) - list_dims)
             raise NotImplementedError
@@ -1430,7 +1433,8 @@ def nonzero(value: Union[Tensor, bool], list_dim: Union[Shape, str, int] = insta
             if preserve_names and list_dims.rank == 1 and list_dims.labels[0]:
                 names = [list_dims.labels[0][i] for i in indices[:, 0]]
                 new_list_dim = new_list_dim.with_size(names)
-            return reshaped_tensor(indices, [new_list_dim, index_dim.with_size(value.shape.name_list)], convert=False)
+            index_dim_ = index_dim.with_size(value.shape.name_list) if index_dim is not None else ()
+            return reshaped_tensor(indices, [new_list_dim, index_dim_], convert=False)
     return broadcast_op(unbatched_nonzero, [value], iter_dims=broadcast.names)
 
 
