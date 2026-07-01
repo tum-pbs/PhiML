@@ -219,6 +219,8 @@ class TorchBackend(Backend):
     log_gamma = torch.lgamma
     gamma_inc_l = torch.special.gammainc
     gamma_inc_u = torch.special.gammaincc
+    argsort = torch.argsort
+    top_k = torch.topk
 
     def seed(self, seed: int):
         torch.manual_seed(seed)
@@ -474,9 +476,6 @@ class TorchBackend(Backend):
         quantiles = self.to_float(quantiles)
         result = torch.quantile(x, quantiles, dim=-1)
         return result
-    
-    def argsort(self, x, axis=-1):
-        return torch.argsort(x, axis)
 
     def sort(self, x, axis=-1):
         return torch.sort(x, axis)[0]

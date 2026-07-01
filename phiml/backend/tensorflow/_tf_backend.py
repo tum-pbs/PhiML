@@ -622,6 +622,11 @@ class TFBackend(Backend):
         with self.device_of(x):
             return tf.argsort(x, axis)
 
+    def top_k(self, x, k: int):
+        with self.device_of(x):
+            values, indices = tf.math.top_k(x, k)
+            return values, indices
+
     def sort(self, x, axis=-1):
         with self.device_of(x):
             return tf.sort(x, axis)

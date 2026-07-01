@@ -247,3 +247,17 @@ class TestBackends(TestCase):
         for b in BACKENDS:
             ints = b.zeros((2, 3), DType(int, 32))
             self.assertEqual(2*3*4, b.sizeof(ints))
+
+    def test_top_k(self):
+        for b in BACKENDS:
+            data = b.as_tensor([1, 0, -1, 2])
+            values, indices = b.top_k(data, 2)
+            self.assertEqual({1, 2}, set(b.numpy(values)), msg=b.name)
+            self.assertEqual({0, 3}, set(b.numpy(indices)), msg=b.name)
+            # --- batched ---
+            data = b.stack([data, -data], axis=0)
+            values, indices = b.top_k(data, 2)
+            self.assertEqual({1, 2}, set(b.numpy(values[0, :])), msg=b.name)
+            self.assertEqual({0, 3}, set(b.numpy(indices[0, :])), msg=b.name)
+            self.assertEqual({0, 1}, set(b.numpy(values[1, :])), msg=b.name)
+            self.assertEqual({1, 2}, set(b.numpy(indices[1, :])), msg=b.name)

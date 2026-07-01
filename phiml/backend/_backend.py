@@ -1123,6 +1123,10 @@ class Backend:
     def argsort(self, x, axis=-1):
         raise NotImplementedError(self)
 
+    def top_k(self, x, k: int):
+        """Returns the k indices corresponding to the smallest values in x along the last dimension in undefined order."""
+        raise NotImplementedError(self)
+
     def sort(self, x, axis=-1):
         raise NotImplementedError(self)
 

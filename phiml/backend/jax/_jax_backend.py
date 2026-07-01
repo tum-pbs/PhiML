@@ -219,6 +219,9 @@ class JaxBackend(Backend):
     conj = staticmethod(jnp.conjugate)
     einsum = staticmethod(jnp.einsum)
     cumsum = staticmethod(jnp.cumsum)
+    quantile = partial(staticmethod(jnp.quantile), axis=-1)
+    argsort = staticmethod(jnp.argsort)
+    sort = staticmethod(jnp.sort)
 
     def nonzero(self, values, length=None, fill_value=-1):
         result = jnp.nonzero(values, size=length, fill_value=fill_value)
@@ -597,20 +600,15 @@ class JaxBackend(Backend):
     def unique(self, x: TensorType, return_inverse: bool, return_counts: bool, axis: int) -> Tuple[TensorType, ...]:
         return jnp.unique(x, return_inverse=return_inverse, return_counts=return_counts, axis=axis)
 
-    def quantile(self, x, quantiles):
-        return jnp.quantile(x, quantiles, axis=-1)
-
-    def argsort(self, x, axis=-1):
-        return jnp.argsort(x, axis)
-
-    def sort(self, x, axis=-1):
-        return jnp.sort(x, axis)
-
     def searchsorted(self, sorted_sequence, search_values, side: str, dtype=INT32):
         if self.ndims(sorted_sequence) == 1:
             return jnp.searchsorted(sorted_sequence, search_values, side=side).astype(to_numpy_dtype(dtype))
         else:
             return jax.vmap(partial(self.searchsorted, side=side, dtype=dtype))(sorted_sequence, search_values)
+
+    def top_k(self, x, k: int):
+        values, indices = jax.lax.top_k(x, k)
+        return values, indices
 
     def fft(self, x, axes: Union[tuple, list]):
         x = self.to_complex(x)

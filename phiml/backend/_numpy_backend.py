@@ -1,6 +1,7 @@
 import numbers
 import os
 import sys
+from functools import partial
 from typing import Union, Optional, Tuple, Callable, Sequence
 
 import numpy as np
@@ -79,6 +80,9 @@ class NumPyBackend(Backend):
     conj = staticmethod(np.conjugate)
     einsum = staticmethod(np.einsum)
     cumsum = staticmethod(np.cumsum)
+    quantile = partial(staticmethod(np.quantile), axis=-1)
+    argsort = staticmethod(np.argsort)
+    sort = staticmethod(np.sort)
 
     def as_tensor(self, x, convert_external=True):
         if self.is_tensor(x, only_native=convert_external):
@@ -445,20 +449,16 @@ class NumPyBackend(Backend):
     def unique(self, x: TensorType, return_inverse: bool, return_counts: bool, axis: int) -> Tuple[TensorType, ...]:
         return np.unique(x, return_inverse=return_inverse, return_counts=return_counts, axis=axis)
 
-    def quantile(self, x, quantiles):
-        return np.quantile(x, quantiles, axis=-1)
-
-    def argsort(self, x, axis=-1):
-        return np.argsort(x, axis)
-
-    def sort(self, x, axis=-1):
-        return np.sort(x, axis)
-
     def searchsorted(self, sorted_sequence, search_values, side: str, dtype=INT32):
         if self.ndims(sorted_sequence) == 1:
             return np.searchsorted(sorted_sequence, search_values, side=side).astype(to_numpy_dtype(dtype))
         else:
             return np.stack([self.searchsorted(seq, val, side, dtype) for seq, val in zip(sorted_sequence, search_values)])
+
+    def top_k(self, x, k: int):
+        indices = np.argpartition(x, -k, axis=-1)[..., -k:]
+        values = np.take_along_axis(x, indices, axis=-1)
+        return values, indices
 
     def fft(self, x, axes: Union[tuple, list]):
         x = self.to_complex(x)
