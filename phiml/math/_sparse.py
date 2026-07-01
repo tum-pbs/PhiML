@@ -157,8 +157,8 @@ def from_sparse_native(native, dims: Shape, indices_constant: bool, convert: boo
     assemble, parts = b.disassemble(native)
     class SparseTensorFactory(Backend):  # creates sparse matrices from native tensors
         def sparse_coo_tensor(self, indices: TensorType, values: TensorType, shape: tuple):
-            indices = tensor(indices, instance('items'), channel(index=dims), convert=convert_idx)
-            values = tensor(values, instance('items'), convert=convert)
+            indices = tensor(indices, instance('sp_entries'), channel(sparse_idx=dims), convert=convert_idx)
+            values = tensor(values, instance('sp_entries'), convert=convert)
             return SparseCoordinateTensor(indices, values, dims, True, False, indices_constant)
         def csr_matrix(self, column_indices: TensorOrArray, row_pointers: TensorOrArray, values: TensorOrArray, shape: Tuple[int, int]):
             assert dims.rank % 2 == 0
