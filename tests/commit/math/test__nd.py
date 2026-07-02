@@ -406,3 +406,10 @@ class TestMathNDNumpy(TestCase):
         clipped = math.clip_length(vecs, 2, 3)
         math.assert_close(0, clipped['y,z'])
         math.assert_close([0, 2, 2, 3, 3, 3], clipped['x'])
+
+    def test_find_k_closest(self):
+        vectors = wrap([(0, 0), (1, 0), (2, 0), (0, 1), (1, 1), (2, 1)], 'points:i,(x,y)')
+        query = vec(x=[0], y=[.5])
+        for method in ['dense', 'kd']:
+            result = math.find_closest(vectors, query, list_dim=instance(neighbors=2), method=method)
+            self.assertEqual({0, 3}, set(result))
