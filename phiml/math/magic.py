@@ -640,37 +640,71 @@ class BoundDim:
         from ._magic_ops import rename_dims
         return rename_dims(self.obj, self.name, new_dim, **kwargs)
 
+    def with_labels(self, labels, **kwargs):
+        """
+        Returns a shallow copy of the `Tensor` where this dimension has the specified labels.
+
+        See Also:
+            `phiml.math.rename_dims()`
+
+        Args:
+            labels: Labels to use for this dimension. Can be a sequence of strings, a comma-separated string or `range` to label by index.
+        """
+        labels = self._eval_labels(labels)
+        new_dim = self.type(**{self.name: labels})
+        from ._magic_ops import rename_dims
+        return rename_dims(self.obj, self.name, new_dim, **kwargs)
+
+    def _eval_labels(self, labels):
+        if labels is range:
+            return [str(i) for i in range(self.size)]
+        if labels is None:
+            return self.size
+        else:
+            assert len(labels) == self.size, f"Number of labels is {len(labels)} but dimension '{self.name}' has length {self.size}"
+            return labels
+
     as_type = retype
 
-    def as_batch(self, name: str = None):
+    def as_batch(self, name: str = None, labels=...):
         """ Returns a shallow copy of the `Tensor` where the type of this dimension is *batch*. """
         if not self.exists:
             return self.obj
-        return self.retype(batch) if name is None else self.replace(batch(**{name: self.labels or self.size}))
+        name = self.name if name is None else name
+        labels = (self.labels or self.size) if labels is ... else self._eval_labels(labels)
+        return self.replace(batch(**{name: labels}))
 
-    def as_spatial(self, name: str = None):
+    def as_spatial(self, name: str = None, labels=...):
         """ Returns a shallow copy of the `Tensor` where the type of this dimension is *spatial*. """
         if not self.exists:
             return self.obj
-        return self.retype(spatial) if name is None else self.replace(spatial(**{name: self.labels or self.size}))
+        name = self.name if name is None else name
+        labels = (self.labels or self.size) if labels is ... else self._eval_labels(labels)
+        return self.replace(spatial(**{name: labels}))
 
-    def as_channel(self, name: str = None):
+    def as_channel(self, name: str = None, labels=...):
         """ Returns a shallow copy of the `Tensor` where the type of this dimension is *channel*. """
         if not self.exists:
             return self.obj
-        return self.retype(channel) if name is None else self.replace(channel(**{name: self.labels or self.size}))
+        name = self.name if name is None else name
+        labels = (self.labels or self.size) if labels is ... else self._eval_labels(labels)
+        return self.replace(channel(**{name: labels}))
 
-    def as_instance(self, name: str = None):
+    def as_instance(self, name: str = None, labels=...):
         """ Returns a shallow copy of the `Tensor` where the type of this dimension is *instance*. """
         if not self.exists:
             return self.obj
-        return self.retype(instance) if name is None else self.replace(instance(**{name: self.labels or self.size}))
+        name = self.name if name is None else name
+        labels = (self.labels or self.size) if labels is ... else self._eval_labels(labels)
+        return self.replace(instance(**{name: labels}))
 
-    def as_dual(self, name: str = None):
+    def as_dual(self, name: str = None, labels=...):
         """ Returns a shallow copy of the `Tensor` where the type of this dimension is *instance*. """
         if not self.exists:
             return self.obj
-        return self.retype(dual) if name is None else self.replace(dual(**{name: self.labels or self.size}))
+        name = self.name if name is None else name
+        labels = (self.labels or self.size) if labels is ... else self._eval_labels(labels)
+        return self.replace(dual(**{name: labels}))
 
     @property
     def T(self):
