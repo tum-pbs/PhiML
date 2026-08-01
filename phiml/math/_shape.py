@@ -3206,3 +3206,38 @@ for cls in [Dim, PureShape, MixedShape]:
     cls.mask = mask
     cls.__mul__ = create_tracer
     cls.__rmul__ = lambda dtype, shape: create_tracer(shape, dtype)
+
+
+# ---------------------------------------------------------------------------
+# Optional Cython acceleration  ──  transparent drop-in replacement
+# ---------------------------------------------------------------------------
+# If the Cython extension _shape_cy has been compiled (either via
+# `pip install` or `python setup.py build_ext --inplace`), replace the three
+# hot functions with their faster C-compiled equivalents.  The pure-Python
+# versions above remain available under their original names and are still
+# used internally by code that imports them directly from this module.
+# ---------------------------------------------------------------------------
+_merge_shapes_orig = merge_shapes
+_pure_merge_orig = pure_merge
+_shape_orig = shape
+try:
+    from ._shape_cy import cy_merge_shapes as _cy_merge, cy_pure_merge as _cy_pure, cy_shape as _cy_shape
+
+    def merge_shapes(*objs: Union[Shape, Any], allow_varying_sizes: bool = False, allow_varying_labels: bool = False) -> Shape:
+        return _cy_merge(objs, allow_varying_sizes, allow_varying_labels)
+
+    def pure_merge(*shapes: Shape, allow_varying_sizes: bool, allow_varying_labels: bool) -> Shape:
+        return _cy_pure(shapes, allow_varying_sizes, allow_varying_labels)
+
+    merge_shapes.__doc__ = _merge_shapes_orig.__doc__
+    pure_merge.__doc__ = _pure_merge_orig.__doc__
+
+    # Re-export through the module namespace so callers that do from phiml.math._shape import merge_shapes also get the fast version.
+    import phiml.math._shape as _self
+
+    _self.merge_shapes = merge_shapes
+    _self.pure_merge = pure_merge
+    _self.shape = _shape_orig
+
+except (ImportError, AttributeError):
+    pass  # Cython not available – keep pure-Python implementations

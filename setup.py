@@ -2,8 +2,77 @@ import distutils.cmd
 import distutils.log
 import subprocess
 import os
+import sys
+import warnings
 from os.path import join, isfile, abspath, isdir, dirname
 from setuptools import setup
+
+
+# ---------------------------------------------------------------------------
+# Optional Cython extension  –  phiml.math._shape_cy
+# ---------------------------------------------------------------------------
+# We try to build it when Cython is installed.  If anything goes wrong we
+# simply skip it and the package falls back to pure Python transparently.
+# ---------------------------------------------------------------------------
+
+def _build_cython_extensions():
+    """Return a list of Extension objects, or [] if Cython is unavailable."""
+    try:
+        from Cython.Build import cythonize
+        from setuptools import Extension
+    except ImportError:
+        warnings.warn(
+            "Cython not found – phiml.math._shape_cy will not be compiled. "
+            "Install Cython for a faster merge_shapes() implementation.",
+            RuntimeWarning,
+            stacklevel=2,
+        )
+        return []
+
+    # On Windows, add the conda-forge mingw bin dir to PATH so that setuptools
+    # can find gcc when MSVC is not available.
+    _mingw_bin = os.path.join(sys.prefix, "Library", "bin")
+    if os.path.isdir(_mingw_bin) and _mingw_bin not in os.environ.get("PATH", ""):
+        os.environ["PATH"] = _mingw_bin + os.pathsep + os.environ.get("PATH", "")
+
+    pyx_file = os.path.join(os.path.dirname(__file__), "phiml", "math", "_shape_cy.pyx")
+    if not os.path.isfile(pyx_file):
+        warnings.warn(
+            f"Cython source {pyx_file!r} not found – skipping _shape_cy build.",
+            RuntimeWarning,
+            stacklevel=2,
+        )
+        return []
+
+    ext = Extension(
+        name="phiml.math._shape_cy",
+        sources=["phiml/math/_shape_cy.pyx"],
+        extra_compile_args=["-O2"],
+    )
+    try:
+        return cythonize(
+            [ext],
+            compiler_directives={
+                "language_level": "3",
+                "boundscheck": False,
+                "wraparound": False,
+                "cdivision": True,
+                "infer_types": True,
+            },
+            annotate=False,
+            quiet=True,
+        )
+    except Exception as exc:
+        warnings.warn(
+            f"Cython compilation failed ({exc!r}) – falling back to pure Python. "
+            "Run 'python setup.py build_ext --inplace' manually to diagnose.",
+            RuntimeWarning,
+            stacklevel=2,
+        )
+        return []
+
+
+_cy_ext_modules = _build_cython_extensions()
 
 
 def check_tf_cuda_compatibility():
@@ -138,6 +207,7 @@ setup(
               'phiml.os',
               'phiml.parallel',
           ],
+    ext_modules=_cy_ext_modules,
     cmdclass={
         'tf_cuda': CudaCommand,
     },
