@@ -1,11 +1,13 @@
 import distutils.cmd
 import distutils.log
 import subprocess
+from importlib.util import find_spec
 import os
 import sys
 import warnings
 from os.path import join, isfile, abspath, isdir, dirname
-from setuptools import setup
+from setuptools import Distribution, setup
+from setuptools.command.build_ext import build_ext
 
 
 # ---------------------------------------------------------------------------
@@ -14,6 +16,14 @@ from setuptools import setup
 # We try to build it when Cython is installed.  If anything goes wrong we
 # simply skip it and the package falls back to pure Python transparently.
 # ---------------------------------------------------------------------------
+
+
+def _shape_cython_source_file():
+    return os.path.join(os.path.dirname(__file__), "phiml", "math", "_shape_cy.pyx")
+
+
+def _cython_is_available():
+    return find_spec("Cython.Build") is not None
 
 def _build_cython_extensions():
     """Return a list of Extension objects, or [] if Cython is unavailable."""
@@ -35,7 +45,7 @@ def _build_cython_extensions():
     if os.path.isdir(_mingw_bin) and _mingw_bin not in os.environ.get("PATH", ""):
         os.environ["PATH"] = _mingw_bin + os.pathsep + os.environ.get("PATH", "")
 
-    pyx_file = os.path.join(os.path.dirname(__file__), "phiml", "math", "_shape_cy.pyx")
+    pyx_file = _shape_cython_source_file()
     if not os.path.isfile(pyx_file):
         warnings.warn(
             f"Cython source {pyx_file!r} not found – skipping _shape_cy build.",
@@ -70,6 +80,20 @@ def _build_cython_extensions():
             stacklevel=2,
         )
         return []
+
+
+class OptionalBuildExt(build_ext):
+
+    def finalize_options(self):
+        if not self.distribution.ext_modules and _cython_is_available():
+            self.distribution.ext_modules = _build_cython_extensions()
+        super().finalize_options()
+
+
+class OptionalExtensionDistribution(Distribution):
+
+    def has_ext_modules(self):
+        return bool(self.ext_modules) or (_cython_is_available() and os.path.isfile(_shape_cython_source_file()))
 
 
 _cy_ext_modules = _build_cython_extensions()
@@ -208,7 +232,9 @@ setup(
               'phiml.parallel',
           ],
     ext_modules=_cy_ext_modules,
+    distclass=OptionalExtensionDistribution,
     cmdclass={
+        'build_ext': OptionalBuildExt,
         'tf_cuda': CudaCommand,
     },
     description='Unified API for machine learning',
