@@ -133,6 +133,7 @@ setup(
               'phiml.backend.torch',
               'phiml.backend.tensorflow',
               'phiml.dataclasses',
+              'phiml.graph',
               'phiml.math',
               'phiml.os',
               'phiml.parallel',
