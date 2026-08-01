@@ -94,7 +94,7 @@ from ._ops import (
     pairwise_differences, pairwise_differences as pairwise_distances, map_pairs,
     with_diagonal, index_mask,
     eig, eigenvalues, svd,
-    contains, count_occurrences, count_intersections,
+    contains, count_occurrences, count_intersections, create_map,
 )
 
 from ._nd import (

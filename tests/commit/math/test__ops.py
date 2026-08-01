@@ -1277,4 +1277,19 @@ class TestOps(TestCase):
         math.assert_close([2, 0], math.count_occurrences(a, b))
         math.assert_close([True, False], math.contains(a, b))
 
+    def test_create_map(self):
+        single_lookup = math.create_map(wrap([10, 20, 30], spatial('entry')), wrap([1, 2, 3], spatial('entry')))
+        math.assert_close(wrap([2, 3, 1], spatial('query')), single_lookup(wrap([20, 30, 10], spatial('query'))))
+
+        key = wrap([[10, 20, 30], [10, 20, 30]], batch('b'), spatial('entry'))
+        value = wrap([[1, 2, 3], [4, 5, 6]], batch('b'), spatial('entry'))
+        lookup = math.create_map(key, value)
+        query = wrap([[30, 10, 20], [20, 30, 10]], batch('b'), spatial('query'))
+        expected = wrap([[3, 1, 2], [5, 6, 4]], batch('b'), spatial('query'))
+        math.assert_close(expected, lookup(query))
+
+        empty_query = wrap(np.zeros((2, 0), dtype=np.int32), batch('b'), spatial('query'))
+        empty_result = lookup(empty_query)
+        self.assertEqual(batch(b=2) & spatial(query=0), empty_result.shape)
+        self.assertEqual(value.dtype, empty_result.dtype)
 

@@ -4393,3 +4393,38 @@ def bins(x: PhiTreeNode, indices: Tensor, dim: DimFilter, bins: Shape = instance
     #     val_sorted = x[order]
     #     out[idx_sorted, col_idx] = val_sorted
     # return tree_map(bin_tensor, x)
+
+
+def create_map(key: Tensor, value: Tensor):
+    """
+    Create a lookup table from `key` and `value` per batch entry.
+    Each value is treated as one entry.
+
+    Args:
+        key: Key tensor. Each individual value is treated as one key.
+        value: Value tensor, broadcastable to `key`.
+
+    Returns:
+        A function that takes a query tensor and returns the corresponding value tensor.
+    """
+    batches = batch(key) & batch(value)
+    lookups = []
+    value_dtypes = []
+    for bi in batches.meshgrid():
+        dims = key.shape.after_gather(bi) & value.shape.after_gather(bi)
+        key_np = key[bi].numpy([dims])
+        value_np = value[bi].numpy([dims])
+        lookups.append(np.vectorize({k: v for k, v in zip(key_np, value_np)}.get, otypes=[value_np.dtype]))
+        value_dtypes.append(value_np.dtype)
+    def lookup(query: Tensor):
+        results = []
+        for bi, lookup_fn, value_dtype in zip(batches.meshgrid(), lookups, value_dtypes):
+            query_slice = query[bi]
+            query_np = query_slice.numpy([...])
+            if query_slice.shape.volume > 0:
+                result_np = lookup_fn(query_np)
+            else:
+                result_np = np.zeros(query_np.shape, dtype=value_dtype)
+            results.append(wrap(result_np, query_slice.shape))
+        return stack(results, batches)
+    return lookup
