@@ -23,7 +23,10 @@ def _shape_cython_source_file():
 
 
 def _cython_is_available():
-    return find_spec("Cython.Build") is not None
+    try:
+        return find_spec("Cython.Build") is not None
+    except ModuleNotFoundError:
+        return False
 
 def _build_cython_extensions():
     """Return a list of Extension objects, or [] if Cython is unavailable."""
