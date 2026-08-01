@@ -904,7 +904,10 @@ def find_closest(vectors: Tensor, query: Tensor = None, /, list_dim: Shape | str
             def find_fun(query: Tensor):
                 dist = math.sum_((query - vectors) ** 2, channel)
                 idx = math.argmin(dist, row_dim)
-                return expand(rename_dims(idx, '_index', index_dim) if index_dim is not None else idx._index[0], list_dim)
+                result = rename_dims(idx, 'index', index_dim) if index_dim is not None else idx.index[0]
+                if list_dim is not None:
+                    result = expand(result, list_dim)
+                return result
         else:
             def find_fun(query: Tensor):
                 dist = math.sum_((query - vectors) ** 2, channel)
